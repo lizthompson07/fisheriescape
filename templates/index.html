@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gulf Region Pages{% endblock title %}
+
+{% block body_block %}
+
+{# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+<div class="jumbotron">
+  <h1>Welcome!</h1>
+</div>
+
+<div class="container">
+  <h2>Please select among the following items:</h2>
+  <table class="table table-hover">
+    <tbody>
+      <tr><td><a href="http://wlnbmon0350665b:8080">Data Inventory Tools</a></td></tr>
+      <tr><td><a href="http://wlnbmon0350665b:8080">Data Management Ticketing Tools</a></td></tr>
+      <tr><td><a href="grais\grais.html">grAIS: Gulf Region Aquatic Invasive Species Data Entry Tool</a> </li></td></tr>
+      <tr><td><a href="herring\herring.html#">HERMorrhage: The Herring Data Entry Tool</a> </li></td></tr>
+      <tr><td><a href="{% url 'oceanography' %}">Oceanography</a</td></tr>
+    </tbody>
+  </table>
+</div>
+
+{% endblock body_block %}
