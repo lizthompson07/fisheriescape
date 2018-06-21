@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Oceanography{% endblock title %}
+
+{% block body_block %}
+
+{% load static %}
+<div class="jumbotron">
+  <h1>Oceanography</h1>
+</div>
+
+<div class="container">
+  <h2>Please select from the following:</h2>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Item</th>
+        <th scope="col">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">1</th>
+        <td><a href="https://docs.google.com/document/d/15Lsse8bhgNubROLK6XfJkNwrsCpmXyKEMShaq7HQaEE/edit#heading=h.ehyqxybzih2a">Regional Guidelines</a></td>
+        <td>Gulf Region-specific guidelines for the collection of CTD and bottle data</td>
+      </tr>
+      <tr>
+        <th scope="row">2</th>
+        <td><a href="https://docs.google.com/spreadsheets/d/1A13ErvcZsfGoG2Y2yH7fkwxkRyYM-uApJwxQoQtTuUI/edit#gid=198158528">Field Sampling Sheet</a</td>
+          <td>Field sampling sheet for the collection of CTD and bottle data. Intended for manual (hand) data entry.</td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td><a href="{% static 'glf_data_management/img/oceanography_flowchart.svg' %}">Data Flow Chart (SVG file)</a> </li></td>
+          <td>Flow chart diagram detailing each step in the process of preparing for, collecting, analyzing and archiving CTD data. The file format is SVG and can be opened directly in the browser. Diagrams were developed using MS Vision</td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td><a href="https://drive.google.com/open?id=1REElhztq3gZldXr58ZLscRqK-bPcXFb9">Deployment protocol Sea-Bird CTD profiling (FRE)</a> </li></td>
+          <td>Deployment protocol Sea-Bird CTD profiling</td>
+        </tr>
+      </tbody>
+    </table>
+
+{% endblock body_block %}
