@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Docs{% endblock title %}
+
+{% block body_block %}
+
+{% load static %}
+<div class="jumbotron">
+  <h1>Oceanography Doc Library</h1>
+</div>
+
+<div class="container" align="center">
+  <figure>
+    <a href="{% static "docs/oceanography_flowchart.svg" %}"> <img src="{% static "docs/oceanography_flowchart.svg" %}" alt="My image" height=250px title="process flowchart" /></a>
+    <figcaption>Flow chart diagram detailing each step in the process of preparing for, collecting, analyzing and archiving CTD data. Diagram developed using MS Visio</figcaption>
+  </figure>
+</div>
+<br>
+
+<div class="container">
+
+  {# <h2>Please select from the following:</h2> #}
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Item</th>
+        <th scope="col">Description</th>
+        <th scope="col">Source</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for doc in object_list  %}
+        <tr>
+          <td scope="row">{{forloop.counter}}</th>
+          <td><a href="{{doc.url}}">{{doc.item_name}}</a></td>
+          <td>{{doc.description}}</td>
+          <td>{{doc.source}}</td>
+        </tr>
+      {% endfor %}
+
+
+      </tbody>
+    </table>
+
+
+{% endblock body_block %}
