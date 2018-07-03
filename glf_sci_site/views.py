@@ -5,6 +5,3 @@ class HomePage(TemplateView):
 
 class Contact(TemplateView):
     template_name='contact.html'
-
-class Oceanography(TemplateView):
-    template_name='oceanography.html'

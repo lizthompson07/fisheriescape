@@ -16,7 +16,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
 STATIC_DIR = os.path.join(BASE_DIR,'static')
-
+MY_CNF = os.path.join(BASE_DIR,'my.cnf')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'docs',
 ]
 
 MIDDLEWARE = [
@@ -77,8 +78,11 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS': {
+            'read_default_file':MY_CNF,
+            'init_command': 'SET default_storage_engine=INNODB',
+        },
     }
 }
 
