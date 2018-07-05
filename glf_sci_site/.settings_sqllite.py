@@ -78,11 +78,8 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file':MY_CNF,
-            'init_command': 'SET default_storage_engine=INNODB',
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
