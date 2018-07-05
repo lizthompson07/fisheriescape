@@ -76,16 +76,21 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': 'PTRAN',
+        'USER': 'glf_science',
+        'PASSWORD': 'Gulf4Ever#',
+        'HOST': '',
+        'PORT': '',
         'OPTIONS': {
-            'read_default_file':MY_CNF,
-            'init_command': 'SET default_storage_engine=INNODB',
-        },
+            'threaded': True,
+            'use_returning_into': False,
+            },
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
