@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Docs{% endblock title %}
+
+{% block body_block %}
+
+{# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+<div class="container">
+  <div class="jumbotron">
+    <h1>Gulf Region Science Apps</h1>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Please select among the following items:</h2>
+  <table class="table table-hover">
+    <tbody>
+      <tr><td><a href="http://glfscidm001:8080">GRais: Gulf Region Aquatic Invasive Species</a></td></tr>
+
+    </tbody>
+  </table>
+</div>
+
+{% endblock body_block %}
