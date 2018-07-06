@@ -27,7 +27,7 @@ SECRET_KEY = '***REMOVED***'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['wlnbmon0350665b','127.0.0.1']
+ALLOWED_HOSTS = ['glfscidm001','127.0.0.1']
 
 
 # Application definition
@@ -76,6 +76,7 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+# FOR MYSQL
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -85,6 +86,30 @@ DATABASES = {
         },
     }
 }
+
+# FOR SQLLITE
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+#
+# # FOR ORACLE 12
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.oracle',
+#         'NAME': 'PTRAN',
+#         'USER': 'glf_science',
+#         'PASSWORD': 'Gulf4Ever#',
+#         'HOST': '',
+#         'PORT': '',
+#         'OPTIONS': {
+#             'threaded': True,
+#             'use_returning_into': False,
+#             },
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
