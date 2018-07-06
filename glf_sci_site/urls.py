@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', site_views.HomePage.as_view(), name='home'),
     path('contact/', site_views.Contact.as_view(), name='contact'),
+    path('apps/', site_views.Apps.as_view(), name='apps'),
     path('docs/', include('docs.urls')),
 ]
