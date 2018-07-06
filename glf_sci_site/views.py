@@ -5,3 +5,6 @@ class HomePage(TemplateView):
 
 class Contact(TemplateView):
     template_name='contact.html'
+
+class Apps(TemplateView):
+    template_name='apps.html'
