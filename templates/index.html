@@ -1,30 +1,27 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Gulf Region Pages{% endblock title %}
+{% block title %}Gulf Region - Data Management{% endblock title %}
 
 {% block body_block %}
-
-{# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+<br><br><br>
 <div class="container">
   <div class="jumbotron">
-    <h1>Welcome!</h1><br>
-    <h3>Gulf Region Data Management Home Page</h3>
+    <div class="row">
+        <i class="material-icons md-48">dns</i>
+        <a  href="http://glfscidm001:8090">RDMTS: Gulf Region Data Management Ticketing System</a>
+    </div><br>
+    <div class="row">
+        <i class="material-icons md-48">dns</i>
+        <a href="http://glfscidm001:8080">grAIS: Gulf Region Aquatic Invasive Species</a>
+    </div><br>
+    <div class="row">
+        <i class="material-icons">library_books</i>
+        <a href="{% url 'docs:oceanography' %}">Oceanography Doc Library</a>
+    </div>
   </div>
 </div>
 
-<div class="container">
-  {# <h2>Please select among the following items:</h2> #}
-  <table class="table table-hover mytab">
-    <tbody>
-      {# <tr><td><a href="http://wlnbmon0350665b:8080">Data Inventory Tools</a></td></tr> #}
-      {# <tr><td><a href="http://wlnbmon0350665b:8080">Data Management Ticketing Tools</a></td></tr> #}
-      {# <tr><td><a href="grais\grais.html">grAIS: Gulf Region Aquatic Invasive Species Data Entry Tool</a> </li></td></tr> #}
-      {# <tr><td><a href="herring\herring.html#">HERMorrhage: The Herring Data Entry Tool</a> </li></td></tr> #}
-      <tr><td><a href="{% url 'docs:index' %}">Doc Library</a</td></tr>
-      <tr><td><a href="{% url 'apps' %}">Apps</a</td></tr>
-    </tbody>
-  </table>
-</div>
+
 
 {% endblock body_block %}
