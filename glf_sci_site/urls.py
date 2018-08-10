@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views as site_views
+from django.conf import settings
+from django.conf.urls.static import static
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', site_views.HomePage.as_view(), name='home'),
@@ -23,3 +27,8 @@ urlpatterns = [
     path('apps/', site_views.Apps.as_view(), name='apps'),
     path('docs/', include('docs.urls')),
 ]
+# 
+# # if in dev mode, you will have to map out the media file.
+# from . import media_conf
+# if media_conf.where_am_i() == "development":
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

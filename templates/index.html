@@ -1,27 +1,77 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Gulf Region - Data Management{% endblock title %}
+{% block title %}Data Management{% endblock title %}
 
 {% block body_block %}
 <br><br><br>
 <div class="container">
-  <div class="jumbotron">
-    <div class="row">
-        <i class="material-icons md-48">dns</i>
-        <a  href="http://glfscidm001:8090">RDMTS: Gulf Region Data Management Ticketing System</a>
-    </div><br>
-    <div class="row">
-        <i class="material-icons md-48">dns</i>
-        <a href="http://glfscidm001:8080">grAIS: Gulf Region Aquatic Invasive Species</a>
-    </div><br>
-    <div class="row">
-        <i class="material-icons">library_books</i>
-        <a href="{% url 'docs:oceanography' %}">Oceanography Doc Library</a>
+
+  <div class="row">
+    <div class="col-md-3 center">
+      <div class="thumbnail justify-content-center">
+        <a href="http://glfscidm001:8090">
+          <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
+          <div class="caption">
+            <p>RDMTS:<br>Ticketing App</p>
+          </div>
+        </a>
+      </div>
     </div>
+
+    <div class="col-md-3 center">
+      <div class="thumbnail justify-content-center">
+        <a href="http://glfscidm001:8080">
+          <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
+          <div class="caption">
+            <p>grAIS:<br>
+              Aquatic Invasive Species App</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="col-md-3 center">
+      <div class="thumbnail justify-content-center">
+        <a href="http://glfscidm001:8091">
+          <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
+          <div class="caption">
+            <p>Data Inventory App</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="col-md-3 center">
+      <div class="thumbnail justify-content-center">
+        <a href="{% url 'docs:oceanography' %}">
+          <img src="{% static "/img/documents-158461.svg" %}" style="width:50%">
+          <div class="caption">
+            <p>Oceanography Document Library</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
   </div>
-</div>
 
 
 
 {% endblock body_block %}
+
+
+
+
+  <div class="jumbotron">
+    <div class="row">
+        <i class="material-icons md-48">dns</i>
+    </div><br>
+    <div class="row">
+        <i class="material-icons md-48">dns</i>
+    </div><br>
+    <div class="row">
+        <i class="material-icons">library_books</i>
+
+    </div>
+  </div>
+</div>
