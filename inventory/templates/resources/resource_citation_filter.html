@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+{% if temp_msg %}
+  {% bootstrap_alert temp_msg alert_type='success' %}
+{% endif %}
+
+<div class="nav-map">
+<br>
+  <p>
+    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    Insert Citation
+  </p>
+
+</div>
+
+<div class="container">
+  <h1>Select a Citation to Insert:</h1><br>
+
+        <form action="." method="get">
+          <div class="row">
+
+          {% for field in filter.form  %}
+          <div class="col">
+            {% bootstrap_field field %}
+          </div>
+
+          {% endfor %}
+          <div class="col">
+            <br>  <p>
+              <input type="submit" value="Filter" class="btn btn-warning" />
+              <a class="btn btn-info" href=".">Clear</a>
+            </p>
+
+          </div>
+          </div>
+         </form>
+    {# </div> #}
+    {# <div class="col"> #}
+
+        <div class="scroll-lg">
+          {% for obj in object_list.all %}
+            <div class="row">
+              <div class="col-1">
+                <a class="btn btn-sm btn-dark indent" href="{% url "resources:resource_citation_add" resource.id obj.id %}"> <i class="material-icons">add</i></a>
+              </div>
+              <div class="col-11">
+                {{obj.citation_br|safe}}
+                (<a href="{% url 'resources:citation_detail' resource.id obj.id %}">view</a>)<hr>
+
+              </div>
+            </div>
+
+
+          {% endfor %}
+
+
+      </div>
+      <br>
+      <a class="btn btn-sm btn-success" href="{% url 'resources:citation_new' resource.id %}">Add New Keyword</a>
+
+
+    {# </div> #}
+
+
+  {# </div> #}
+
+
+
+
+
+       </div>
+
+
+{% endblock content %}

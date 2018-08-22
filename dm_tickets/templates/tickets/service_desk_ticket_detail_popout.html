@@ -1,0 +1,23 @@
+{% load bootstrap4 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{% block content %}
+
+<div class="container">
+  <h1>Service Desk Ticket: {{object.ref_number}}</h1><br>
+<fieldset disabled>
+  <form method="post" class="form">
+
+      {% bootstrap_form form %}
+
+
+
+  </form>
+</fieldset>
+<a class="btn btn-warning" href="{% url 'tickets:sd_edit' object.id %}">Edit</a>
+<a class="btn btn-secondary" onclick="window.close()">Close</a>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+{% if temp_msg %}
+  {% bootstrap_alert temp_msg alert_type='success' %}
+{% endif %}
+
+<div class="nav-map">
+<br>
+  <p>
+    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    Insert Person
+  </p>
+
+</div>
+
+<div class="container">
+  {# <h1>Select person to insert:</h1> #}
+<br>
+  <form action="." method="get">
+    <p>
+      <table>
+        <tr>
+          {% for field in filter.form  %}
+          <td>
+            <em>{{field.label}}:</em> &nbsp;{{field}}&nbsp;&nbsp;
+          </td>
+          {% endfor %}
+          <td>
+            <input type="submit" value="Filter" class="btn btn-warning" />
+            <a class="btn btn-info" href=".">Clear</a>
+          </td>
+        </tr>
+      </table>
+
+    </p>
+   </form>
+   <br>
+
+   <div class="container">
+
+         <h3>Select a person to insert:</h3>
+         <div class="scroll-med">
+           {% for person in object_list.all %}
+           <p class="indent">
+
+             <a class="btn btn-sm btn-dark" href="{% url 'resources:resource_person_add' resource.id person.user_id  %}"> <i class="material-icons">add</i></a> &nbsp;
+             {{person.full_name}}
+             (<a href="{% url 'resources:person_edit' resource.id person.user_id %}">edit</a>)
+           </p>
+           {% endfor %}
+
+         </div>
+         <br>
+           <a class="btn btn-sm btn-success" href="{% url 'resources:person_add' resource.id %}">Add New Person</a>
+
+     </div>
+
+
+
+       </div>
+
+
+{% endblock content %}

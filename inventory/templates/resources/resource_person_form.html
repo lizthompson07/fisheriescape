@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+
+{% block content %}
+{% if temp_msg %}
+  {% bootstrap_alert temp_msg alert_type='success' %}
+{% endif %}
+
+
+<div class="nav-map">
+<br>
+  {% if object.id %}
+  <p>
+    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+    <a href="{% url 'resources:resource_detail' object.resource.id %}">{{object.resource.truncated_title}}</a> >
+    Edit Resource Person
+  </p>
+  {% else %}
+  <p>
+    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    Insert {{person.full_name}}
+  </p>
+  {% endif %}
+</div>
+
+<div class="container">
+  {% if object.id %}
+  <h1>{{object.person.full_name}} the {{object.role}}</h1>
+  {% else %}
+  <h1>Assign a role to <em>{{person.full_name}}</em></h1>
+  {% endif %}
+
+
+    <form method="post" class="form" >
+        {% csrf_token %}
+
+          {% bootstrap_form form %}
+
+        {% buttons %}
+          {% if object.id %}
+            <button type="submit" class="btn btn-success" onclick="refreshParent()">Submit</button>
+            <a class="btn btn-secondary" href="{% url 'resources:resource_detail' object.resource.id %}">Back</a>
+          {% else %}
+            <button type="submit" class="btn btn-success" onclick="refreshParent()">Add</button>
+            <a class="btn btn-secondary" href="{% url 'resources:resource_person_filter' resource.id %}">Back</a>
+
+          {% endif %}
+
+
+        {% endbuttons %}
+    </form>
+{% if object.id %}
+<hr>
+<p>
+  <a href="{% url "resources:person_edit" object.resource.id object.person.user_id %}" class="btn btn-sm btn-warning">Edit User Details</a>
+</p>
+
+<p><b>
+  {%get_verbose_field_name object.person.user "email" %}:
+</b><br>
+{{object.person.user.email}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object.person "phone" %}:
+</b><br>
+{{object.person.phone}}
+</p>
+
+<p><b>
+  Title (English | French)
+</b><br>
+{{object.person.position_eng}} |   {{object.person.position_fre}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object.person "language" %}:
+</b><br>
+{{object.person.get_language_display}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object.person "organization" %}:
+</b><br>
+{{object.person.organization}}
+</p>
+
+{% endif %}
+</div>
+
+{% endblock content %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+
+<p class="nav-map">
+  <br>
+  <a href="{% url 'biofouling:sample_list' %}">All samples</a> >
+  <a href="{% url 'biofouling:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+  Probe measurement {{object.id}}
+</p>
+<br>
+<div class="container">
+  <a class="btn btn-warning" href="{% url 'biofouling:probe_measurement_edit' object.sample.id object.id %}" ">Edit</a>
+  <a class="btn btn-danger" href="{% url 'biofouling:probe_measurement_delete' object.sample.id object.id %}" ">Delete</a><br><br>
+
+  <fieldset disabled>
+    {% include "biofouling/_probe_measurement_form.html" %}
+  </fieldset>
+
+  <p>
+    <b>Last modified by:</b><br>
+    {% if object.last_modified_by %}
+    @{{object.last_modified_by}}
+    {% else %}
+    n/a
+    {% endif %}
+  </p>
+
+
+</div>
+
+{% endblock content %}

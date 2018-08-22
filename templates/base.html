@@ -1,29 +1,87 @@
+{% load static %}
+{% load bootstrap4 %}
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
 
-    {# block for title #}
-    <title>{% block title %}{% endblock title %}</title>
+    {#  DJANGO-BOOTSTRAP4 #}
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-    <link rel="stylesheet" href="file://DCNBMONNA01a/shared/Gulf-Region-Data-Management/static/css/master.css">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery='full' %}
+
+    <!-- custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/master.css' %}">
+
+    <!--  Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Roboto+Mono" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
-    {% load static %}
-    <link rel="stylesheet" href="{% static "css/master.css" %}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
-
-    {# block for any other header tags #}
-    {% block header_block %}{% endblock header_block %}
-
+    <title>{% block title %}{% endblock title %}</title>
+    {% block header %}{% endblock header %}
   </head>
-  <body>
 
-    {% block body_block %}{% endblock body_block %}
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark headerfont1">
+      <a class="navbar-brand bigbrand" href="{% url 'index' %}">Home</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav justify-content-left">
+          {# <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}"> Inventory </a></li> #}
+          {% block left_all %}{% endblock left_all %}
+
+          {% if user.is_authenticated %}
+          {% block left_auth %}{% endblock left_auth %}
+            {% if user.id == 50 %}
+            <li class="nav-item"><a class="nav-link" href="/admin"> Site Admin </a></li>
+            {% block left_admin %}{% endblock left_admin %}
+            {% endif %}
+          {% else %}
+          {% block left_unauth %}{% endblock left_unauth %}
+          {% endif %}
+        </ul>
+      </div>
+
+      {# Everything on the right hand side #}
+      <div class="collapse navbar-collapse justify-content-end headerfont2">
+        <ul class="navbar-nav justify-content-end">
+          {% block right_all %}{% endblock right_all %}
+
+          {%  if user.is_authenticated %}
+          {% block right_auth %}{% endblock right_auth %}
+
+            {# Bugs #}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Bugs
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="#" onclick="return popitup('{% url 'bugs:bug_create' %}','bugCreate')">New Report</a>
+                <a class="dropdown-item" href="{% url 'bugs:bug_list' %}">View List</a>
+              </div>
+            </li>
+
+            <li class="nav-item"><a class="nav-link" href="{% url 'accounts:account' user.id %}"> Account </a></li>
+            <li class="nav-item wide-left"><a class="btn btn-dark " href="{% url 'accounts:logout' %}"> Logout </a></li>
+
+          {% else %}
+            {% block right_unauth %}{% endblock right_unauth %}
+            <li class="nav-item"><a class="btn btn-dark" href=" {% url 'accounts:login' %} ">Sign In</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+
+    {% block body %}{% endblock body%}
+
+    <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/modal.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/modalTwo.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/insertNote.js" %}"></script>
 
   </body>
 </html>

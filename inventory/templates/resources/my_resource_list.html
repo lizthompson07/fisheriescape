@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+
+<div class="container">
+
+  <p>
+    <h1>My Data Resource Inventory </h1>
+    TOTAL: {{resource_count}}
+  </p>
+
+  <p>
+    <a href="{% url 'resources:resource_new' %}" class="btn btn btn-success float-right ">New Resource</a>
+  </p>
+
+  <h3>Custodian:</h3>
+  <table class="table table-hover">
+    <thead>
+        <th scope="col">Id</th>
+        <th scope="col" width="500px">Title</th>
+        <th scope="col">Status</th>
+        <th scope="col">Section</th>
+        <th scope="col">Role(s)</th>
+        <th scope="col">Previous time certified</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in custodian_list  %}
+        <tr>
+          <td><a href="{% url 'resources:resource_detail' obj.resource.id %}">{{obj.resource.id}}</a></td>
+          <td>{{obj.resource.title_eng}}</td>
+
+          {% if obj.resource.status.id == 3 %}
+          <td class="good">
+
+          {% elif obj.resource.status.id == 1 %}
+          <td class="bad">
+          {% else %}
+          <td>
+
+          {% endif %}
+            {{obj.resource.status}}
+          </td>
+
+          <td>{{obj.resource.section.section}}</td>
+
+          <td>
+            {% for person in obj.resource.resource_people.all %}
+                {% if person.person.user_id == user.id %}
+                  {% if person.role.id == 1 %}
+                  <b>{{person.role}}</b>;
+                  {% else %}
+                  {{person.role}};
+                  {% endif %}
+
+                {% endif %}
+            {% endfor %}
+
+          </td>
+
+          <td>
+            {% if obj.resource.certification_history.count > 0 %}
+            {{obj.resource.certification_history.last.certification_date|naturaltime}}
+            {% else %}
+            <span class="red-font"><b>Never</b></span>
+            {% endif %}
+
+          </td>
+
+        </tr>
+      {% endfor %}
+      <br>
+
+      </tbody>
+    </table>
+
+    <h3>Other Roles:</h3>
+    <table class="table table-hover">
+      <thead>
+          <th scope="col">Id</th>
+          <th scope="col" width="500px">Title</th>
+          <th scope="col">Status</th>
+          <th scope="col">Section</th>
+          <th scope="col">Role(s)</th>
+          <th scope="col">Previous time certified</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obj in non_custodian_list  %}
+          <tr>
+            <td><a href="{% url 'resources:resource_detail' obj.id %}">{{obj.id}}</a></td>
+            <td>{{obj.title_eng}}</td>
+
+            {% if obj.status.id == 3 %}
+            <td class="good">
+
+            {% elif obj.status.id == 1 %}
+            <td class="bad">
+            {% else %}
+            <td>
+
+            {% endif %}
+              {{obj.status}}
+            </td>
+
+            <td>{{obj.section.section}}</td>
+
+            <td>
+              {% for person in obj.resource_people.all %}
+                  {% if person.person.user_id == user.id %}
+                    {% if person.role.id == 1 %}
+                    <b>{{person.role}}</b>;
+                    {% else %}
+                    {{person.role}};
+                    {% endif %}
+
+                  {% endif %}
+              {% endfor %}
+
+            </td>
+
+            <td>
+              {% if obj.certification_history.count > 0 %}
+              {{obj.certification_history.last.certification_date|naturaltime}}
+              {% else %}
+              <span class="red-font"><b>Never</b></span>
+              {% endif %}
+
+            </td>
+
+          </tr>
+        {% endfor %}
+        <br>
+
+        </tbody>
+      </table>
+
+
+ {{id_list}}
+  </div>
+
+{% endblock content %}

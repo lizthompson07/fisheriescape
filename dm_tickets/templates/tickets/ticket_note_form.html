@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+
+{# Load js file to allow for popout window #}
+{% load static %}
+<script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+
+{% if object.id %}
+
+  <h1>{{object.title}}</h1>
+{% else %}
+  <h1>New Ticket</h1>
+{% endif %}
+{% bootstrap_form_errors form %}
+
+
+
+<form method="post" class="form">
+    {% csrf_token %}
+
+    {% bootstrap_form form %}
+
+
+    <p>
+      <a href="#" class="btn btn-sm btn-warning"  id="insertDate"> Insert Date</a>
+    </p>
+
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a class="btn btn-secondary" href="{% url 'tickets:detail' object.id %}">Back</a>
+    {% endbuttons %}
+</form>
+<script type="text/javascript">
+  var user_name = "{{ user }}";
+</script>
+<script type="text/javascript" src="{% static "js/insertNote.js" %}"></script>
+
+
+{% endblock content %}
