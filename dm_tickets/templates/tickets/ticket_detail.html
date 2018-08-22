@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+  <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+
+  {# If a new ticket was just added, there will be a message display upon returning to this page. The message will then be cleared #}
+  {% if temp_msg %}
+    {% bootstrap_alert temp_msg alert_type='success' %}
+  {% endif %}
+
+
+  <h1>{{object.title}}</h1>
+  <div class="btn-group">
+
+    <a href="{% url 'tickets:update' object.id %}" class="btn btn-warning">Edit</a>
+    <a href="{% url 'tickets:delete' object.id %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'tickets:new_note' object.id %}" class="btn btn-primary">Edit Notes</a>
+    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+    <a href="{% url 'tickets:list' %}" class="btn btn-secondary">Back to List</a>
+  </div>
+  <br><br>
+
+<div class="row">
+  <div class="col">
+        <p>
+          <b>Id:</b><br>
+          {{object.id}}
+        </p>
+        <p>
+          <b>Title:</b><br>
+          {{object.title}}
+        </p>
+        <p>
+          <b>Section:</b><br>
+          {{object.section}}
+        </p>
+        <p>
+          <b>Status:</b><br>
+          {{object.get_status_display}}
+
+          {% if object.resolved_email_date %}
+            (<em>email sent on {{object.resolved_email_date|date:"F d, Y"}}</em>)
+          {% else %}
+            {% if user.is_authenticated and object.status == "2" %}
+            <br>
+            <a href="#" id="myBtn2" class="btn btn-sm btn-outline-primary">Notify Client</a>
+            {% endif %}
+          {% endif %}
+
+
+          <!-- The Modal -->
+          <!-- Modal content -->
+          <div id="myModal2" class="modal">
+            <div class="modal-content">
+              <h1>Review Email:</h1>
+              <table class="table table-bordered">
+                <tr>
+                  <td><b>From</b></td>
+                  <td>{{email.from_email}}</td>
+                </tr>
+                <tr>
+                  <td><b>To</b></td>
+                  <td>{{email.to_list}}</td>
+                </tr>
+                <tr>
+                  <td><b>Subject</b></td>
+                  <td>{{email.subject}}</td>
+                </tr>
+                <tr>
+                  <td><b>Message</b></td>
+                    <td>{{email.message}}</td>
+                </tr>
+              </table>
+              <div class="container">
+                <a href="{% url 'tickets:send_resolved_email' object.id %}" class="btn btn-lg btn-warning">Send Away!</a>
+                <a href="#" class="btn btn-secondary closeBtn2">Back</a>
+
+              </div>
+            </div>
+          </div>
+
+
+
+
+        </p>
+        <p>
+          <b>Priority:</b><br>
+          {{object.get_priority_display}}
+        </p>
+        <p>
+          <b>Request type:</b><br>
+          {{object.request_type}}
+        </p>
+        <p>
+          <b>Description:</b><br>
+          {{object.description}}
+        </p>
+        <p>
+          <b>Primary contact:</b><br>
+          {{object.primary_contact}}
+        </p>
+        {% for key,value in mydict  %}
+          {{value}}
+        {% endfor %}
+
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+        {% include "tickets/_sd_detail.html" %}
+      </div>
+    </div>
+
+  </div>
+  <div class="col">
+    <p>
+      <b>Financial coding:</b><br>
+      {{object.financial_coding}}
+    </p>
+    <p>
+      <b>Service Desk Ticket:</b><br>
+      <!-- Trigger/Open The Modal -->
+      {% if object.service_desk_ticket.id  %}
+        <a id="myBtn" href="#">{{object.service_desk_ticket}}</a> (logged: {{object.service_desk_ticket.date_logged|naturaltime}})
+      {% else %}
+        {{object.service_desk_ticket}}
+      {% endif %}
+    </p>
+    <p>
+      <b>Notes:</b><br>
+      {{object.notes_html|safe}}
+    </p>
+    <p>
+      <b>Date created:</b><br>
+      {{object.date_opened|date:"F d Y"}} ({{object.date_opened|naturaltime}})
+    </p>
+    <p>
+      <b>Date closed:</b><br>
+      {{object.date_closed|date:"F d Y"}}
+    </p>
+    <p>
+      <b>Date last modified:</b><br>
+      {{object.date_modified|date:"F d Y"}} ({{object.date_modified|naturaltime}})
+    </p>
+  </div>
+  <div class="col">
+    <p>
+      <b>People:</b>
+      {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+      <a class="btn btn-sm btn-light" onclick="return popitup('{% url 'tickets:person_insert' ticket=object.id %}','Personinsert')"> <i class="material-icons">add</i></a>
+    </p>
+    <ul>
+      {% for person in object.people.all  %}
+        <li><a href="." onclick="return popitup('{% url 'tickets:person_detail' person.id %}','Detail',500,1000)">{{person.full_name}} </a></li>
+      {% empty %}
+        <span class="draw-attention"><em>There are no people attached to this ticket.</em></span>
+      {% endfor %}
+    </ul>
+
+    <p>
+      <b>Tags:</b>
+      {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+      <a class="btn btn-sm btn-light" onclick="return popitup('{% url 'tickets:tag_insert' ticket=object.id %}','TagInsert')"> <i class="material-icons">add</i></a>
+      <ul>
+        {% for tag in object.tags.all  %}
+          <li><a href="." onclick="return popitup('{% url 'tickets:tag_detail' tag.id %}','Detail',500,1000)">{{tag.tag}} </a></li>
+        {% empty %}
+          <span class="draw-attention"><em>There are no tags attached to this ticket.</em></span>
+        {% endfor %}
+      </ul>
+    </p>
+
+    <p>
+      <b>Files:</b>
+      {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+      <a class="btn btn-sm btn-light" onclick="return popitup('{% url 'tickets:file_create' ticket.id %}','FileCreate',500,1000)"> <i class="material-icons">add</i></a>
+
+      <ul>
+        {% for file in object.files.all  %}
+          <li>
+            <a href="." onclick="return popitup('{% url 'tickets:file_detail' ticket=object.id pk=file.id %}','FileDetail',500,1000)">{{file.caption}}</a> (uploaded on: {{file.date_created|date:"F d Y"}})
+          </li>
+        {% empty %}
+          <span class="draw-attention">  <em>There are no files attached to this ticket.</em></span>
+
+        {% endfor %}
+      </ul>
+    </p>
+  </div>
+
+</div>
+<script src="{% static "js/modal.js" %}"></script>
+<script src="{% static "js/modalTwo.js" %}"></script>
+
+{% endblock content %}

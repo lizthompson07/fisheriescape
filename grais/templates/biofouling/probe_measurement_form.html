@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+
+<div class="nav-map">
+  <br>
+  {% if object.id %}
+    <p>
+      <a href="{% url 'biofouling:sample_list' %}">All samples</a> >
+      <a href="{% url 'biofouling:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+      <a href="{% url 'biofouling:probe_measurement_detail' view.kwargs.sample object.id %}">Probe measurement {{object.id}}</a> >
+      Edit
+    </p>
+  {% else %}
+    <p>
+      <a href="{% url 'biofouling:sample_list' %}">All samples</a> >
+      <a href="{% url 'biofouling:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+      New probe measurement
+    </p>
+  {% endif %}<br>
+
+</div>
+<div class="container">
+
+
+    {% if object.id %}
+
+    {% else %}
+      <h1>NEW MEASUREMENT</h1>
+    {% endif %}
+
+
+  <form method="post" class="form">
+      {% csrf_token %}
+
+      {% include "biofouling/_probe_measurement_form.html" %}
+
+      {% buttons %}
+          <button type="submit" class="btn btn-success">Submit</button>
+          <a class="btn btn-secondary" href="{% url 'biofouling:sample_detail' view.kwargs.sample %}">Cancel</a>
+      {% endbuttons %}
+  </form>
+</div>
+
+
+
+{% endblock content %}

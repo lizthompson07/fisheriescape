@@ -1,0 +1,56 @@
+{% extends "accounts/accounts_base.html" %}
+{% load bootstrap4 %}
+
+{% block content %}
+  <div class="container">
+    <div class="jumbotron">
+      {% if message %}
+      <h3>{% bootstrap_alert message alert_type='warning' %}</h3>
+      {% endif %}
+
+      <h1 class="big-header">Sign In </h1>
+      <hr>
+
+
+    {% if user.is_authenticated %}
+
+    {% else %}
+    <h5>
+      If you do not have an account and would like one, you may request one by clicking <a href="{% url 'accounts:account_request' %}">HERE</a>.
+    </h5>
+    <br>
+    {% endif %}
+    <hr>
+
+    {% if user.is_authenticated %}
+    {# do not show the form #}
+    {% else %}
+    <form action="{% url 'accounts:login' %}" method="POST" class='form'>
+      {% csrf_token %}
+      {% bootstrap_form_errors form %}
+
+      {% for field in form  %}
+        {% if field.name == 'username' %}
+          <p>Username / Email address</p>
+          {% bootstrap_field field show_label=False%}
+        {% else %}
+          {% bootstrap_field field %}
+        {% endif %}
+
+      {% endfor %}
+      <br>
+      {% buttons %}
+      <button type="submit" class="btn btn-primary">
+        Sign In
+      </button>
+      {% endbuttons %}
+      {# <input type="submit" class="btn btn-primary" value="Login"> #}
+      <input type="hidden" name="next" value="{{next}}">
+    </form>
+
+    {% endif %}
+
+    </div>
+  </div>
+
+{% endblock %}

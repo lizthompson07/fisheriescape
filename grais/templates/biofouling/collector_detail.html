@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="nav-map">
+  <br>
+  <a href="{% url 'biofouling:collector_list' %}">All Collectors</a> >
+  Collector {{object}}
+</div>
+<div class="container">
+
+  <br>
+  <h1>DFO Tag #{{object}}</h1>
+  <p>
+    {# <a class="btn btn-secondary" href="{% url 'biofouling:sample_list' %}">Back to List</a> #}
+    <a class="btn btn-warning" href="{% url 'biofouling:collector_edit' object.id %}">Edit Tag Number</a>
+    {% if object.lines.count == 0 %}
+      <a class="btn btn-danger" href="{% url 'biofouling:collector_delete' object.id %}">Delete</a>
+    {% else %}
+      <a class="btn btn-danger disabled" href="{% url 'biofouling:collector_delete' object.id %}">Delete</a>
+
+    {% endif %}
+  </p>
+
+  <br><br>
+
+      <h4>
+        <b>Deployment History:</b>
+      </h4>
+      <table class="table table-bordered ">
+        <thead class="full-table">
+          <th>Sample No.</th>
+          <th>Line No.</th>
+        </thead>
+        <tbody>
+          {% for line in object.lines.all  %}
+            <tr>
+              <td><a href="{% url 'biofouling:sample_detail' line.sample.id %}">{{line.sample}}</a></td>
+              <td><a href="{% url 'biofouling:line_detail' line.sample.id line.id %}">{{line}}</a></td>
+            </tr>
+          {% empty %}
+            {# <td>n/a</td> #}
+            {# empty #}
+          {% endfor %}
+        </tbody>
+      </table>
+      <p>
+        <b>TOTAL: {{object.lines.count}}</b>
+      </p>
+  </div>
+</div>
+</div>
+
+{% endblock content %}

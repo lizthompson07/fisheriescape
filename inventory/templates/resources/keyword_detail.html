@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block content %}
+<div class="nav-map">
+  <br>
+  <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+  <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+  {{object.text_value_eng}}
+</div>
+<div class="container">
+
+  <br>
+  <h1>{{object.text_value_eng|title}}</h1>
+  <p>
+
+    <a class="btn btn-warning" href="{% url 'resources:keyword_edit' resource.id object.id %}">Edit</a>
+    {% if object.resources.count > 0 %}
+    <a class="btn btn-danger disabled" href="{% url 'resources:keyword_delete' resource.id object.id %}">Delete</a>
+    {% else %}
+    <a class="btn btn-danger" href="{% url 'resources:keyword_delete' resource.id  object.id %}">Delete</a>
+    {% endif %}
+  </p>
+
+
+  <p><b>
+    {%get_verbose_field_name object "text_value_eng"%}:
+  </b><br>
+  {{object.text_value_eng}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "text_value_fre"%}:
+  </b><br>
+  {{object.text_value_fre}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "keyword_domain"%}:
+  </b><br>
+  {% if object.keyword_domain.url %}
+  <a href="{{object.keyword_domain.url}}">
+    {{object.keyword_domain}}
+  </a>
+  {% else %}
+  {{object.keyword_domain}}
+  {% endif %}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "uid"%}:
+  </b><br>
+  {{object.uid}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "details"%}:
+  </b><br>
+  {{object.details}}
+  </p>
+
+
+
+
+  <br>
+</div>
+{% endblock content %}

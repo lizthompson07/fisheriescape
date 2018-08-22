@@ -11,12 +11,18 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from . import media_conf
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
 STATIC_DIR = os.path.join(BASE_DIR,'static')
+MEDIA_DIR = os.path.join(BASE_DIR,'media')
+
+# Custom variables
+MY_ENVR = media_conf.where_am_i()
 MY_CNF = os.path.join(BASE_DIR,'my.cnf')
+WEB_APP_NAME = "GulfScienceDataManagement"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -39,6 +45,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'bootstrap4',
+    'accounts',
+    'dm_tickets',
+    'inventory',
+    'bugs',
+    'grais',
     'docs',
 ]
 
@@ -76,10 +89,11 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-# FOR MYSQL
+#for mysql
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+        'TIME_ZONE':'America/Halifax',
         'OPTIONS': {
             'read_default_file':MY_CNF,
             'init_command': 'SET default_storage_engine=INNODB',
@@ -129,13 +143,24 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#Email settings
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+# EMAIL_PORT = 587
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
+
+LOGIN_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Halifax'
 
 USE_I18N = True
 
@@ -146,13 +171,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
+MEDIA_ROOT = MEDIA_DIR
+MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
 
-from . import media_conf
-if media_conf.where_am_i() == "development":
+if MY_ENVR == "dev":
     STATICFILES_DIRS = [
-        STATIC_DIR,
+    STATIC_DIR,
     ]
 else:
     STATIC_ROOT = STATIC_DIR

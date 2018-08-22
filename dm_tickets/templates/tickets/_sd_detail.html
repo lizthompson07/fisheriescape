@@ -1,0 +1,24 @@
+
+{% load static %}
+<script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+
+<h1>
+  {% if object.service_desk_ticket.ticket_url %}
+  <a href="{{object.service_desk_ticket.ticket_url}}">
+    {{object.service_desk_ticket.ref_number}}
+  </a>
+  {% else %}
+  {{object.service_desk_ticket.ref_number}}
+  {% endif %}
+</h1>
+
+<br><br>
+  <p><b>Date logged:</b><br> {{object.service_desk_ticket.date_logged|date:"F d Y"}}</p>
+  <p><b>Logged by:</b><br> {{object.service_desk_ticket.person}}</p>
+  <p><b>Description:</b><br> {{object.service_desk_ticket.description}}</p>
+  <div class="float-right">
+  {% if object.service_desk_ticket.id %}
+    <a class="btn btn-large btn-warning my-btn" onclick="return popitup('{% url 'tickets:sd_edit' object.service_desk_ticket.id %}','sdTicketUpdate',700,1000)">Edit</a>
+  {% endif %}
+  <a href="#" class="btn btn-secondary closeBtn">&times;</a>
+  </div>

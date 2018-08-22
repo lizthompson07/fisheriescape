@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+
+
+<div class="nav-map">
+<br>
+  {% if object.id %}
+  <p>
+    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'resources:keyword_detail' resource.id object.id %}">{{object.text_value_eng}}</a> >
+    Edit
+  </p>
+  {% else %}
+  <p>
+    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'resources:resource_keyword_filter' resource.id %}">{{object.text_value_eng}}</a> >
+    New
+  </p>
+  {% endif %}
+</div>
+<div class="container">
+
+{% load static %}
+{# Load js file to allow for popout window #}
+
+{% if person %}
+
+{% else %}
+  <h1>New Keyword</h1>
+{% endif %}
+
+<form method="post" class="form">
+    {% csrf_token %}
+
+    {% bootstrap_form form %}
+
+    <p>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      {% if object.id %}
+        <a class="btn btn-secondary" href="{% url 'resources:keyword_detail' resource.id object.id %}">Cancel</a>
+      {% else %}
+        <a class="btn btn-secondary" href="{% url 'resources:resource_keyword_filter' resource.id %}">Cancel</a>
+      {% endif %}
+    </p>
+</form>
+
+<script type="text/javascript">
+  // js script to add date to notes field
+  $("#insertDate").click(function() {
+
+    var today = new Date();
+    var strDate = today.toDateString()
+    var strInjection = ""
+
+    if ($("#id_notes").val()==="") {
+      strInjection = strDate + ": ";
+    }else {
+      strInjection =  "\n\n" + strDate + ": ";
+    }
+
+    $("#id_notes").val($("#id_notes").val() + strInjection)
+
+  })
+
+</script>
+</div>
+
+{% endblock content %}

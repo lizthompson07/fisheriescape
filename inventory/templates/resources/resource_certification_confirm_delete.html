@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="nav-map">
+<br>
+  <p>
+    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+    <a href="{% url 'resources:resource_detail' object.resource.id %}">{{object.resource.truncated_title}}</a> >
+    Delete Certification
+  </p>
+
+</div>
+<div class="container">
+
+{% load static %}
+{# Load js file to allow for popout window #}
+<h1>Are you sure you want to delete this certification event?</h1>
+  <p>(This action is permanent.)</p>
+  <br>
+    <p><b>
+      Resource Title:
+    </b><br>
+    {{object.resource.title_eng}}
+    </p>
+
+    <p><b>
+      Certification date:
+    </b><br>
+    {{object.certification_date}}
+    </p>
+
+    <p><b>
+      Certified by:
+    </b><br>
+    @{{object.certifying_user}}
+    </p>
+
+
+<form method="post" class="form">
+    {% csrf_token %}
+
+    <p>
+      <button type="submit" class="btn btn-lg btn-danger">Delete</button>
+      <a class="btn btn-lg btn-secondary" href="{% url 'resources:resource_detail' object.resource.id %}">Cancel</a>
+    </p>
+</form>
+</div>
+
+{% endblock content %}

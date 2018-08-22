@@ -1,0 +1,304 @@
+{% load verbose_names %}
+<a href="#full" class="btn btn-info" data-toggle="collapse">Expand</a>
+<div id="full" class="collapse">
+  <br>
+
+
+  <p><b>
+    Title:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.title_eng}}
+        </td>
+        <td>
+          {{object.title_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+
+  <p><b>
+    Purpose:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.purpose_eng}}
+        </td>
+        <td>
+          {{object.purpose_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+
+  <p><b>
+    Description:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.descr_eng}}
+        </td>
+        <td>
+          {{object.descr_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+
+  <p><b>
+    Description of physical samples:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.physical_sample_descr_eng}}
+        </td>
+        <td>
+          {{object.physical_sample_descr_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+  <p><b>
+    Sampling method:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.sampling_method_eng}}
+        </td>
+        <td>
+          {{object.sampling_method_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+  <p><b>
+    Resource constraint:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.resource_constraint_eng}}
+        </td>
+        <td>
+          {{object.resource_constraint_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+  <p><b>
+    QC process description:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.qc_process_descr_eng}}
+        </td>
+        <td>
+          {{object.qc_process_descr_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+  <p><b>
+    Parameters collected:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.parameters_collected_eng}}
+        </td>
+        <td>
+          {{object.parameters_collected_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+
+
+  <p><b>
+    {%get_verbose_field_name object "maintenance"%}:
+  </b>
+  {{object.maintenance}}
+  </p>
+
+
+    <p><b>
+      Security use limitation:
+    </b><br>
+    <table class="table table-bordered">
+      <thead>
+        <th>English</th>
+        <th>French</th>
+      </thead>
+        <tbody>
+          <td>
+            {{object.security_use_limitation_eng}}
+          </td>
+          <td>
+            {{object.security_use_limitation_fre}}
+          </td>
+        </tbody>
+    </table>
+    </p>
+
+
+
+  <p><b>
+    {%get_verbose_field_name object "security_classification"%}:
+  </b>
+  {{object.security_classification}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "storage_envr_notes"%}:
+  </b>
+  {{object.storage_envr_notes}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "distribution_format"%}:
+   </b>
+  {{object.distribution_format}}
+  </p>
+  <p><b>
+    {%get_verbose_field_name object "open_data_notes"%}:
+  </b>
+  {{object.open_data_notes}}
+  </p>
+  <p><b>
+    {%get_verbose_field_name object "public_url"%}:
+  </b>
+  {{object.public_url}}
+  </p>
+
+  <p><b>
+    Geographic Description:
+  </b><br>
+  <table class="table table-bordered">
+    <thead>
+      <th>English</th>
+      <th>French</th>
+    </thead>
+      <tbody>
+        <td>
+          {{object.geo_descr_eng}}
+        </td>
+        <td>
+          {{object.geo_descr_fre}}
+        </td>
+      </tbody>
+  </table>
+  </p>
+
+
+  <p><b>
+    {%get_verbose_field_name object "spat_ref_system"%}:
+  </b>
+  {{object.spat_ref_system}}
+  </p>
+  <p><b>
+    {%get_verbose_field_name object "spat_representation"%}:
+  </b>
+  {{object.spat_representation}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "data_char_set"%}:
+  </b>
+  {{object.data_char_set}}
+  </p>
+
+  <p><b>
+    Bounding coordinates:
+  </b>
+  {{object.west_bounding|floatformat:6}} (W),
+  {{object.south_bounding|floatformat:6}} (S),
+  {{object.east_bounding|floatformat:6}} (E),
+  {{object.north_bounding|floatformat:6}}(N)
+  </p>
+
+
+
+  <p><b>
+    {%get_verbose_field_name object "additional_credit"%}:
+  </b>
+  {{object.additional_credit}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "analytic_software"%}:
+  </b>
+  {{object.analytic_software}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "date_verified"%}:
+  </b>
+  {{object.date_verified}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "date_last_modified"%}:
+  </b>
+  {{object.date_last_modified}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "fgp_publication_date"%}:
+  </b>
+  {{object.fgp_publication_date}}
+  </p>
+
+  <p><b>
+    {%get_verbose_field_name object "last_modified_by"%}:
+  </b>
+  @{{object.last_modified_by}}
+  </p>
+
+</div>

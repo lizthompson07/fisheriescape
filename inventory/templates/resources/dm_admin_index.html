@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block content %}
+<div class="nav-map">
+  <br>
+  Data Management Home
+</div>
+
+<div class="container">
+  <br><br>
+  <h2>
+    <a href="{% url 'resources:dm_custodian_list' %}">List of custodians</a>
+  </h2>
+
+</div>
+
+{% endblock content %}
