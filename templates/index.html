@@ -1,25 +1,49 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Data Management{% endblock title %}
+{% block title %}Data Management Home{% endblock title %}
 
-{% block body_block %}
+{% block body %}
 <br><br><br>
 <div class="container">
 
+<div class="jumbotron">
+  <h1 class="big-header">DFO Science - Gulf Region Data Management </h1>
+  <hr>
+  <h3>
+  {% if user.is_authenticated %}
+    <br>
+    Welcome back, {{user.first_name}}!
+    {% else %}
+    Welcome! Please select an application below.
+  {% endif %}
+  </h3>
+  <br><br>
+
   <div class="row">
-    <div class="col-md-3 center">
+    <div class="col-md-4 center">
       <div class="thumbnail justify-content-center">
-        <a href="http://glfscidm001:8090">
+        <a href="http://glfscidm001:8091">
           <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
           <div class="caption">
-            <p>RDMTS:<br>Ticketing App</p>
+            <p>Regional Data Inventory</p>
           </div>
         </a>
       </div>
     </div>
 
-    <div class="col-md-3 center">
+    <div class="col-md-4 center">
+      <div class="thumbnail justify-content-center">
+        <a href="http://glfscidm001:8090">
+          <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
+          <div class="caption">
+            <p>RDMTS:<br>Ticketing System</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="col-md-4 center">
       <div class="thumbnail justify-content-center">
         <a href="http://glfscidm001:8080">
           <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
@@ -31,47 +55,21 @@
       </div>
     </div>
 
-    <div class="col-md-3 center">
-      <div class="thumbnail justify-content-center">
-        <a href="http://glfscidm001:8091">
-          <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
-          <div class="caption">
-            <p>Data Inventory App</p>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <div class="col-md-3 center">
-      <div class="thumbnail justify-content-center">
-        <a href="{% url 'docs:oceanography' %}">
-          <img src="{% static "/img/documents-158461.svg" %}" style="width:50%">
-          <div class="caption">
-            <p>Oceanography Document Library</p>
-          </div>
-        </a>
-      </div>
-    </div>
-
-  </div>
 
 
+     {# <div class="col-md-2 center"> #}
+      {# <div class="thumbnail justify-content-center"> #}
+        {# <a href="{% url 'docs:oceanography' %}"> #}
+          {# <img src="{% static "/img/documents-158461.svg" %}" style="width:50%"> #}
+          {# <div class="caption"> #}
+            {# <p>Oceanography Document Library</p> #}
+          {# </div> #}
+        {# </a> #}
+      {# </div> #}
+    {# </div>  #}
 
-{% endblock body_block %}
-
-
-
-
-  <div class="jumbotron">
-    <div class="row">
-        <i class="material-icons md-48">dns</i>
-    </div><br>
-    <div class="row">
-        <i class="material-icons md-48">dns</i>
-    </div><br>
-    <div class="row">
-        <i class="material-icons">library_books</i>
-
-    </div>
   </div>
 </div>
+
+
+{% endblock body %}

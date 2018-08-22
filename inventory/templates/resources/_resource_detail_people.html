@@ -1,0 +1,9 @@
+<ul>
+  {% for item in object.resource_people.all %}
+  <li><a href="{% url 'resources:resource_person_edit' item.id %}">{{item.person.user.first_name}} {{item.person.user.last_name}} - {{item.role}}</a>&nbsp;
+    <a href="{% url 'resources:resource_person_delete' item.id %}" class="red-font">&times;</a>
+  </li>
+  {% empty %}
+  <em>No people</em>
+  {% endfor %}
+</ul>

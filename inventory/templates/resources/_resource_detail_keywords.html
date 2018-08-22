@@ -1,0 +1,101 @@
+{% if object.keywords.count == 0 %}
+  <em>No keywords</em>
+
+{% else %}
+<a href="#keywords" class="btn btn-info" data-toggle="collapse">Expand</a>
+  <div id="keywords" class="collapse">
+    <br>
+
+    <p><b>
+      ISO Topic Categories:
+    </b><br>
+    <ul>
+      {% for item in object.keywords.all %}
+      {% if item.keyword_domain.id == 8  %}
+        <li>
+          <a href="{% url 'resources:keyword_detail' object.id item.id %}">
+            {{item}}
+          </a>
+          &nbsp;
+          <a href="{% url 'resources:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>
+        </li>
+
+      {% endif %}
+      {% endfor %}
+    </ul>
+
+    <p><b>
+      GC Core Subjects:
+    </b><br>
+    <ul>
+      {% for item in object.keywords.all %}
+      {% if item.keyword_domain.id == 6  %}
+        <li>
+          <a href="{% url 'resources:keyword_detail' object.id item.id %}">
+            {{item}}
+          </a>
+          &nbsp;
+          <a href="{% url 'resources:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>
+        </li>
+
+      {% endif %}
+      {% endfor %}
+    </ul>
+
+
+    <p><b>
+      Species:
+    </b><br>
+    <ul>
+      {% for item in object.keywords.all %}
+      {% if item.is_taxonomic  %}
+        <li>
+          <a href="{% url 'resources:keyword_detail' object.id item.id %}">
+            <em>{{item}} ({{item.keyword_domain.abbrev}})</em>
+          </a>
+          &nbsp;
+          <a href="{% url 'resources:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>
+        </li>
+
+      {% endif %}
+      {% endfor %}
+    </ul>
+
+    <p><b>
+      DFO Area:
+    </b><br>
+    <ul>
+      {% for item in object.keywords.all %}
+      {% if item.keyword_domain.id == 7 %}
+        <li>
+          <a href="{% url 'resources:keyword_detail' object.id item.id %}">
+            {{item}}
+          </a>
+          &nbsp;
+          <a href="{% url 'resources:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>
+        </li>
+      {% endif %}
+
+      {% endfor %}
+    </ul>
+
+    <p><b>
+      Other:
+    </b><br>
+    <ul>
+      {% for item in object.keywords.all %}
+      {% if item.is_taxonomic == False and item.keyword_domain.id != 6 and item.keyword_domain.id != 8 and item.keyword_domain.id != 7 %}
+        <li>
+          <a href="{% url 'resources:keyword_detail' object.id item.id %}">
+            {{item}} ({{item.keyword_domain.abbrev}})
+          </a>
+          &nbsp;
+          <a href="{% url 'resources:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>
+        </li>
+      {% endif %}
+
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% endif %}

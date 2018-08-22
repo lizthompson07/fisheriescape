@@ -1,0 +1,44 @@
+{% if object.children.count == 0 and object.parent == None  %}
+  <em>No related records</em>
+
+{% else %}
+<a href="#relations" class="btn btn-info" data-toggle="collapse">Expand</a>
+<div id="relations" class="collapse">
+
+  <br>
+  <p><b>
+    Parent
+  </b><br>
+  <ul>
+    {% if object.parent.id %}
+    <li>
+      <a href="{% url 'resources:resource_detail' object.parent.id %}">
+        {{object.parent}}
+      </a>&nbsp;
+        <a href="#" class="red-font">&times;</a>
+
+    </li>
+  {% else %}
+  <em>None</em>
+  {% endif %}
+  </ul>
+  </p>
+  <p><b>
+    Children:
+  </b><br>
+  <ul>
+    {% for item in object.children.all %}
+    <li>
+      <a href="{% url 'resources:resource_detail' item.id %}">
+        {{item}}
+      </a>&nbsp;
+        <a href="#" class="red-font">&times;</a>
+    </li>
+    {% empty %}
+    <em>None</em>
+    {% endfor %}
+  </ul>
+
+
+</div>
+{% endif %}

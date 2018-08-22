@@ -1,0 +1,8 @@
+{% load bootstrap4 %}
+<h1>Filter options <a href="#" class="btn btn-primary closeBtn my-btn float-right">&times;</a></h1>
+
+  <form action="." method="get">
+    {%bootstrap_form filter.form %}
+       {# {{ filter.form.as_p }} #}
+       <input type="submit" />
+   </form>

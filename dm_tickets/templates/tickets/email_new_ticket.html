@@ -1,0 +1,69 @@
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+<p>
+  A new ticket has been logged with the following details:
+</p>
+  <table>
+    <tr>
+      <td><b>Reference number:</b></td>
+      <td>{{object.id}}</td>
+    </tr>
+    <tr>
+      <td><b>Title:</b></td>
+      <td>{{object.title}}</td>
+    </tr>
+    <tr>
+      <td><b>Description:</b></td>
+      <td>{{object.description}}</td>
+    </tr>
+    <tr>
+      <td><b>Priority:</b></td>
+      <td>{{object.get_priority_display}}</td>
+    </tr>
+    <tr>
+      <td><b>Type:</b></td>
+      <td>{{object.request_type}}</td>
+    </tr>
+  </table>
+  <p>
+    The regional data manager will be in touch with you shortly. At any point, more information about this ticket can be viewed <a href="http://glfscidm001:8090{% url 'tickets:detail' object.id %}">HERE</a>.
+  </p>
+
+<hr>
+<br>
+<p>
+  Un nouveau billet a été enregistré avec les détails suivants:
+</p>
+  <table>
+    <tr>
+      <td><b>Numéro de réference:</b></td>
+      <td>{{object.id}}</td>
+    </tr>
+    <tr>
+      <td><b>Titre:</b></td>
+      <td>{{object.title}}</td>
+    </tr>
+    <tr>
+      <td><b>Description:</b></td>
+      <td>{{object.description}}</td>
+    </tr>
+    <tr>
+      <td><b>Priorité:</b></td>
+      <td>{{object.get_priority_display}}</td>
+    </tr>
+    <tr>
+      <td><b>Type:</b></td>
+      <td>{{object.request_type}}</td>
+    </tr>
+  </table>
+  <p>
+    Le gestionnaire de données régional vous contactera sous peu. A tout moment, plus d'informations sur ce billet peuvent être consultées <a href="http://glfscidm001:8090{% url 'tickets:detail' object.id %}">ICI</a>.
+  </p>
+
+<style media="screen">
+  table,td{
+    border: solid 1px black;
+  }
+</style>
