@@ -1,0 +1,281 @@
+{% extends "grais/grais_base.html" %}
+{% load static %}
+
+{% block header %}
+<style>
+       /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
+    </style>
+{% endblock header %}
+
+
+{% block content %}
+<div class="nav-map">
+  <br>
+  <a href="{% url 'grais:sample_list' %}">All samples</a> >
+  Sample {{object.id}}
+</div>
+<div class="container">
+
+  <br>
+  <h1>Sample {{object.id}} @ {{object.station}}</h1>
+  <p>
+    <div class="btn-group">
+      <a class="btn btn-warning" href="{% url 'grais:sample_edit' sample.id %}">Edit</a>
+      {% if object.lines.count > 0 %}
+      <a class="btn btn-danger disabled" href="{% url 'grais:sample_delete' sample.id %}">Delete</a>
+      {% else %}
+      <a class="btn btn-danger" href="{% url 'grais:sample_delete' sample.id %}">Delete</a>
+      {% endif %}
+    </div>
+    <div class="btn-group">
+
+      {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
+      <a class="btn btn-outline-primary" href="{% url 'grais:probe_measurement_new' object.id %}">Add Probe Measurement</a>
+      <a class="btn btn-outline-primary" href="{% url 'grais:line_new' object.id %}">Add Line</a>
+    </div>
+  </p>
+
+  <br><br>
+<div class="row">
+  <div class="col">
+    {# Detail about the sample #}
+      <p>
+        <b>Station</b><br>
+        <a href="#" id="myBtn">{{sample.station}} (#{{sample.station.id}})</a>
+      </p>
+
+      <p>
+        <b>Date of deployment</b><br>
+        {{sample.date_deployed}}
+      </p>
+      <p>
+        <b>Date of retrieval</b><br>
+        {% if sample.date_retrieved %}
+          {{sample.date_retrieved}}
+        {% else %}
+          n/a
+        {% endif %}
+      </p>
+      <p>
+        <b>Weeks deployed</b><br>
+        {% if sample.date_retrieved %}
+          {{sample.weeks_deployed}}
+        {% else %}
+          n/a
+        {% endif %}
+      </p>
+      <p>
+        <b>Primary sampler</b><br>
+        <a href="#" id="myBtn1">{{sample.sampler}}</a>
+      </p>
+      <p>
+        <b>Notes</b><br>
+        {{sample.notes}}
+      </p>
+      <p>
+        <b>Last modified by:</b><br>
+        {% if object.last_modified_by %}
+          @{{object.last_modified_by}}
+        {% else %}
+          n/a
+        {% endif %}
+      </p>
+
+      <!-- The Modal -->
+      <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+          {% include "grais/_station_detail.html" %}
+        </div>
+      </div>
+      <script src="{% static "js/modal.js" %}"></script>
+
+
+      <!-- The 2nd Modal -->
+      <div id="myModal1" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+          {% include "grais/_person_detail.html" %}
+        </div>
+      </div>
+
+      <script type="text/javascript">
+      // This is the same code as stored in modal.js only duplicated so that there can be a second modal window
+        var modal1 = document.getElementById('myModal1');
+        var btn1 = document.getElementById("myBtn1");
+        var span1 = document.getElementsByClassName("closeBtn1")[0];
+        btn1.onclick = function() {
+          modal1.style.display = "block";
+
+        }
+        span1.onclick = function() {
+          modal1.style.display = "none";
+        }
+        window.onclick = function(event) {
+          if (event.target == modal1) {
+              modal1.style.display = "none";
+          }
+        }
+      </script>
+      <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+  </div>
+
+  <div class="col">
+    <div id="map"></div>
+
+
+  </div>
+</div>
+<br><hr><br>
+<div class="row">
+<div class="col">
+  {#  PROBE DATA #}
+
+        <h4>
+          <b>Probe Measurements:</b>
+          <a class="btn btn-sm btn-outline-success"  href="{% url 'grais:probe_measurement_new' object.id %}"> <i class="material-icons">add</i></a>
+        </h4>
+        <table class="table table-bordered ">
+          <thead class="full-table">
+            <th>Id</th>
+            <th>Date collected</th>
+            <th>Probe type</th>
+          </thead>
+          <tbody>
+            {% for datum in object.probe_data.all  %}
+              <tr>
+                <td><a href="{% url 'grais:probe_measurement_detail' object.id datum.id %}">{{datum.id}}</a></td>
+                <td>{{datum.time_date}}</td>
+                <td>{{datum.probe}}</td>
+              </tr>
+            {% empty %}
+              {# <td>n/a</td> #}
+              {# empty #}
+            {% endfor %}
+          </tbody>
+        </table>
+        <p>
+          <b>TOTAL: {{object.probe_data.count}}</b>
+        </p>
+  <br>
+
+</div>
+
+<div class="col">
+  {#  COLLECTOR LINES #}
+        <h4>
+          <b>Lines Deployed:</b>
+          <a class="btn btn-sm btn-outline-success" href="{% url 'grais:line_new' object.id %}"> <i class="material-icons">add</i></a>
+        </h4>
+        <table class="table table-bordered">
+          <thead>
+            <th>Id</th>
+            <th>Tag</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>No. surfaces</th>
+          </thead>
+          <tbody>
+            {% for l in object.lines.all  %}
+              <tr>
+                <td><a href="{% url 'grais:line_detail' object.id l.id %}">{{l.id}}</a></td>
+                {% if l.collector %}
+                  <td>#{{l.collector}}</td>
+                {% else %}
+                  <td></td>
+                {% endif %}
+
+                {% if l.latitude_n %}
+                  <td>{{l.latitude_n|floatformat:6}}</td>
+                {% else %}
+                  <td>n/a</td>
+                {% endif %}
+                {% if l.longitude_w %}
+                  <td>{{l.longitude_w|floatformat:6}}</td>
+                {% else %}
+                  <td>n/a</td>
+                {% endif %}
+                <td>{{l.surfaces.count}}</td>
+
+              </tr>
+            {% empty %}
+              {# empty #}
+            {% endfor %}
+          </tbody>
+        </table>
+        <p>
+          <b>TOTAL: {{object.lines.count}}</b>
+        </p>
+
+</div>
+</div>
+</div>
+
+  <script>
+      function initialize() {
+        var locations = [
+          {% if object.station.latitude_n and object.station.longitude_w %}
+            ['<a href="{% url 'grais:station_detail' object.station.id %}">Station {{object.station.id}}</a>',{{object.station.latitude_n}}, {{object.station.longitude_w}},'{% static "/img/grais/blue_MarkerS.png" %}'],
+          {% endif %}
+
+          {% for line in object.lines.all %}
+            {% if line.latitude_n and line.longitude_w %}
+              ['<a href="{% url 'grais:line_detail' object.id line.id %}">Line {{line.id}}</a>',{{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+            {% endif %}
+          {% endfor %}
+        ];
+
+        window.map = new google.maps.Map(document.getElementById('map'), {
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+
+        var infowindow = new google.maps.InfoWindow();
+
+        var bounds = new google.maps.LatLngBounds();
+
+        for (i = 0; i < locations.length; i++) {
+            marker = new google.maps.Marker({
+                position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+                map: map,
+                icon: locations[i][3]
+            });
+
+            bounds.extend(marker.position);
+
+            google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                return function () {
+                    infowindow.setContent(locations[i][0]);
+                    infowindow.open(map, marker);
+                }
+            })(marker, i));
+        }
+
+        map.fitBounds(bounds);
+
+        // var listener = google.maps.event.addListener(map, "idle", function () {
+        //     map.setZoom(10);
+        //     google.maps.event.removeListener(listener);
+        // });
+      }
+
+      function loadScript() {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+        document.body.appendChild(script);
+      }
+
+      window.onload = loadScript;
+
+  </script>
+
+
+
+
+
+
+{% endblock content %}

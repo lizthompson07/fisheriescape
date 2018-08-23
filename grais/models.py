@@ -20,7 +20,7 @@ class Sampler(models.Model):
         return "{} {}".format(self.first_name,self.last_name)
 
     def get_absolute_url(self):
-        return reverse('biofouling:person_detail', kwargs={'pk':self.id})
+        return reverse('grais:person_detail', kwargs={'pk':self.id})
 
     class Meta:
         ordering = ['first_name','last_name']
@@ -36,6 +36,7 @@ class Province(models.Model):
     def __str__(self):
         return "{} ({})".format(self.province,self.abbrev)
 
+
 class Station(models.Model):
     station_name = models.CharField(max_length=255, blank=True, null=True)
     province = models.ForeignKey('Province', on_delete=models.DO_NOTHING, related_name='stations', blank=True, null=True)
@@ -49,7 +50,7 @@ class Station(models.Model):
         return "{} ({})".format(self.station_name,self.province.abbrev)
 
     def get_absolute_url(self):
-        return reverse('biofouling:station_detail', kwargs={'pk':self.id})
+        return reverse('grais:station_detail', kwargs={'pk':self.id})
 
     class Meta:
         ordering = ['province','station_name']
@@ -73,7 +74,7 @@ class Species(models.Model):
         ordering = ['common_name']
 
     def get_absolute_url(self):
-        return reverse('biofouling:species_detail', kwargs={'pk':self.id})
+        return reverse('grais:species_detail', kwargs={'pk':self.id})
 
 class Collector(models.Model):
     tag_number = models.CharField(max_length=55, unique=True)
@@ -82,7 +83,7 @@ class Collector(models.Model):
         return "{}".format(self.tag_number)
 
     def get_absolute_url(self):
-        return reverse('biofouling:collector_detail', kwargs={'pk':self.id})
+        return reverse('grais:collector_detail', kwargs={'pk':self.id})
 
 
 class Sample(models.Model):
@@ -108,7 +109,7 @@ class Sample(models.Model):
         super().save(*args,**kwargs)
 
     def get_absolute_url(self):
-        return reverse('biofouling:sample_detail', kwargs={'pk':self.id})
+        return reverse('grais:sample_detail', kwargs={'pk':self.id})
 
     def __str__(self):
         return "Sample number {} @ {}".format(self.id, self.station)
@@ -136,10 +137,10 @@ class Line(models.Model):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('biofouling:line_detail', kwargs={'sample':self.sample.id,'pk':self.id})
+        return reverse('grais:line_detail', kwargs={'sample':self.sample.id,'pk':self.id})
 
 def img_file_name(instance, filename):
-    img_name = 'sample_{}/{}'.format(instance.line.sample.id, filename)
+    img_name = 'grais/sample_{}/{}'.format(instance.line.sample.id, filename)
     return img_name
 
 class Surface(models.Model):
@@ -160,7 +161,7 @@ class Surface(models.Model):
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def get_absolute_url(self):
-        return reverse('biofouling:surface_detail', kwargs={
+        return reverse('grais:surface_detail', kwargs={
             'sample':self.line.sample.id,
             'line':self.line.id,
             'pk':self.id
@@ -183,7 +184,7 @@ class SurfaceSpecies(models.Model):
         unique_together = (('species', 'surface'),)
 
     def get_absolute_url(self):
-        return reverse('biofouling:surface_spp_detail_pop', kwargs={
+        return reverse('grais:surface_spp_detail_pop', kwargs={
             'sample':self.surface.line.sample.id,
             'line':self.surface.line.id,
             'surface':self.surface.id,
@@ -227,7 +228,7 @@ class ProbeMeasurement(models.Model):
         return self.time_date
 
     def get_absolute_url(self):
-        return reverse("biofouling:probe_measurement_detail", kwargs={'sample':self.sample.id,"pk":self.id})
+        return reverse("grais:probe_measurement_detail", kwargs={'sample':self.sample.id,"pk":self.id})
 
 
 # def img_file_name(instance, filename):

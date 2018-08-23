@@ -16,15 +16,24 @@ from . import forms
 from . import filters
 from . import emails
 
+class IndexView(TemplateView):
+    template_name = 'grais/index.html'
+
+
+class DataFlowTemplateView(TemplateView):
+    template_name = 'grais/dataflow.html'
+
+
+
 # SAMPLE #
 ##########
 class CloserTemplateView(TemplateView):
-    template_name = 'biofouling/close_me.html'
+    template_name = 'grais/close_me.html'
 
 
 class SampleListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.SampleFilter
-    template_name = "biofouling/sample_list.html"
+    template_name = "grais/sample_list.html"
     login_url = '/accounts/login_required/'
 
     def get_filterset_kwargs(self, filterset_class):
@@ -60,7 +69,7 @@ class SampleCreateView(LoginRequiredMixin, CreateView):
 
 class SampleDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Sample
-    success_url = reverse_lazy('biofouling:sample_list')
+    success_url = reverse_lazy('grais:sample_list')
     success_message = 'The sample was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -73,7 +82,7 @@ class SampleDeleteView(LoginRequiredMixin, DeleteView):
 
 class StationListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.StationFilter
-    template_name = "biofouling/station_list.html"
+    template_name = "grais/station_list.html"
     login_url = '/accounts/login_required/'
 
 class StationUpdateView(LoginRequiredMixin,  UpdateView):
@@ -98,7 +107,7 @@ class StationDetailView(LoginRequiredMixin, UpdateView):
     model = models.Station
     login_url = '/accounts/login_required/'
     fields =('__all__')
-    template_name = 'biofouling/station_detail.html'
+    template_name = 'grais/station_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -107,7 +116,7 @@ class StationDetailView(LoginRequiredMixin, UpdateView):
 
 class StationDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Station
-    success_url = reverse_lazy('biofouling:station_list')
+    success_url = reverse_lazy('grais:station_list')
     success_message = 'The station was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -122,18 +131,18 @@ class PersonUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Sampler
     login_url = '/accounts/login_required/'
     fields =('__all__')
-    template_name = 'biofouling/person_form_popout.html'
+    template_name = 'grais/person_form_popout.html'
 
 class PersonCreateView(LoginRequiredMixin, CreateView):
     model = models.Sampler
     login_url = '/accounts/login_required/'
     fields =('__all__')
-    template_name = 'biofouling/person_form_popout.html'
+    template_name = 'grais/person_form_popout.html'
 
 class PersonDetailView(LoginRequiredMixin, UpdateView):
     model = models.Sampler
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/person_detail_popout.html'
+    template_name = 'grais/person_detail_popout.html'
     fields =('__all__')
 
 
@@ -144,7 +153,7 @@ class ProbeMeasurementCreateView(LoginRequiredMixin, CreateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/probe_measurement_form.html'
+    template_name = 'grais/probe_measurement_form.html'
 
     def get_initial(self):
         sample = models.Sample.objects.get(pk=self.kwargs['sample'])
@@ -158,13 +167,13 @@ class ProbeMeasurementDetailView(LoginRequiredMixin, UpdateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/probe_measurement_detail.html'
+    template_name = 'grais/probe_measurement_detail.html'
 
 class ProbeMeasurementUpdateView(LoginRequiredMixin, UpdateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/probe_measurement_form.html'
+    template_name = 'grais/probe_measurement_form.html'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -173,7 +182,7 @@ class ProbeMeasurementUpdateView(LoginRequiredMixin, UpdateView):
 class ProbeMeasurementDeleteView(LoginRequiredMixin, DeleteView):
 
     model = models.ProbeMeasurement
-    template_name = "biofouling/probe_measurement_confirm_delete.html"
+    template_name = "grais/probe_measurement_confirm_delete.html"
     success_message = 'The probe measurement was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -181,7 +190,7 @@ class ProbeMeasurementDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('biofouling:sample_detail', kwargs={'pk':self.kwargs['sample']})
+        return reverse_lazy('grais:sample_detail', kwargs={'pk':self.kwargs['sample']})
 
 
 # LINES #
@@ -191,7 +200,7 @@ class LineCreateView(LoginRequiredMixin, CreateView):
     model = models.Line
     form_class = forms.LineCreateForm
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/line_form.html'
+    template_name = 'grais/line_form.html'
 
     def get_initial(self):
         sample = models.Sample.objects.get(pk=self.kwargs['sample'])
@@ -220,7 +229,7 @@ class LineCreateView(LoginRequiredMixin, CreateView):
 class LineDetailView(LoginRequiredMixin, DetailView):
     model = models.Line
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/line_detail.html'
+    template_name = 'grais/line_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -239,7 +248,7 @@ class LineUpdateView(LoginRequiredMixin, UpdateView):
 class LineDeleteView(LoginRequiredMixin, DeleteView):
 
     model = models.Line
-    template_name = "biofouling/line_confirm_delete.html"
+    template_name = "grais/line_confirm_delete.html"
     success_message = 'The line was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -247,7 +256,7 @@ class LineDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('biofouling:sample_detail', kwargs={'pk':self.kwargs['sample']})
+        return reverse_lazy('grais:sample_detail', kwargs={'pk':self.kwargs['sample']})
 
 
 # COLLECTORS #
@@ -261,28 +270,28 @@ class CollectorDetailView(LoginRequiredMixin, UpdateView):
     model = models.Collector
     fields = "__all__"
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/collector_detail.html'
+    template_name = 'grais/collector_detail.html'
 
 class CollectorUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Collector
     fields = "__all__"
     login_url = '/accounts/login_required/'
-    # template_name = 'biofouling/collector_form_popout.html'
+    # template_name = 'grais/collector_form_popout.html'
 
 class CollectorCreateView(LoginRequiredMixin, CreateView):
     model = models.Collector
     fields = "__all__"
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/collector_form_popout.html'
+    template_name = 'grais/collector_form_popout.html'
 
     def form_valid(self, form):
         self.object = form.save()
-        return HttpResponseRedirect(reverse('biofouling:close_me'))
+        return HttpResponseRedirect(reverse('grais:close_me'))
 
 class CollectorDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
     model = models.Collector
     permission_required = "__all__"
-    success_url = reverse_lazy('biofouling:collector_list')
+    success_url = reverse_lazy('grais:collector_list')
     success_message = 'The collector was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -293,7 +302,7 @@ class CollectorDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteVie
 ###########
 
 class SpeciesListView(LoginRequiredMixin, FilterView):
-    template_name = "biofouling/species_list.html"
+    template_name = "grais/species_list.html"
     filterset_class = filters.SpeciesFilterFull
     login_url = '/accounts/login_required/'
 
@@ -322,7 +331,7 @@ class SpeciesCreatePopoutView(LoginRequiredMixin, CreateView):
     model = models.Species
     login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
-    template_name = 'biofouling/species_form_popout.html'
+    template_name = 'grais/species_form_popout.html'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -331,12 +340,12 @@ class SpeciesCreatePopoutView(LoginRequiredMixin, CreateView):
         self.object = form.save()
         self.request.session['temp_msg'] = "The new species has been added to the list."
 
-        return HttpResponseRedirect(reverse('biofouling:close_me'))
+        return HttpResponseRedirect(reverse('grais:close_me'))
 
 class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
     model = models.Species
     permission_required = "__all__"
-    success_url = reverse_lazy('biofouling:species_list')
+    success_url = reverse_lazy('grais:species_list')
     success_message = 'The species was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -350,7 +359,7 @@ class SurfaceDetailView(LoginRequiredMixin, UpdateView):
     model = models.Surface
     form_class = forms.SurfaceImageForm
     login_url = '/accounts/login_required/'
-    template_name = 'biofouling/surface_detail.html'
+    template_name = 'grais/surface_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -386,7 +395,7 @@ class SurfaceCreateView(LoginRequiredMixin, CreateView):
 class SurfaceDeleteView(LoginRequiredMixin, DeleteView):
 
     model = models.Surface
-    template_name = "biofouling/surface_confirm_delete.html"
+    template_name = "grais/surface_confirm_delete.html"
     success_message = 'The surface was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -394,14 +403,14 @@ class SurfaceDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('biofouling:line_detail', kwargs={'sample':self.kwargs['sample'],'pk':self.kwargs['line']})
+        return reverse_lazy('grais:line_detail', kwargs={'sample':self.kwargs['sample'],'pk':self.kwargs['line']})
 
 
 
 # SURFACE SPECIES #
 class SurfaceSpeciesCreatePopoutView(LoginRequiredMixin,CreateView):
     model = models.SurfaceSpecies
-    template_name ='biofouling/surface_species_form_popout.html'
+    template_name ='grais/surface_species_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.SurfaceSpeciesForm
 
@@ -423,11 +432,11 @@ class SurfaceSpeciesCreatePopoutView(LoginRequiredMixin,CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        return HttpResponseRedirect(reverse('biofouling:close_me'))
+        return HttpResponseRedirect(reverse('grais:close_me'))
 
 class SurfaceSpeciesUpdatePopoutView(LoginRequiredMixin,UpdateView):
     model = models.SurfaceSpecies
-    template_name ='biofouling/surface_species_form_popout.html'
+    template_name ='grais/surface_species_form_popout.html'
     form_class = forms.SurfaceSpeciesForm
 
     def get_initial(self):
@@ -437,7 +446,7 @@ class SurfaceSpeciesUpdatePopoutView(LoginRequiredMixin,UpdateView):
 
 class SurfaceSpeciesDetailPopoutView(LoginRequiredMixin,UpdateView):
     model = models.SurfaceSpecies
-    template_name ='biofouling/surface_species_detail_popout.html'
+    template_name ='grais/surface_species_detail_popout.html'
     form_class = forms.SurfaceSpeciesForm
 
     def get_context_data(self, **kwargs):
@@ -455,7 +464,7 @@ class SurfaceSpeciesDetailPopoutView(LoginRequiredMixin,UpdateView):
 
 class SpeciesInsertListView(FilterView):
     filterset_class = filters.SpeciesFilter
-    template_name = "biofouling/surface_species_insert.html"
+    template_name = "grais/surface_species_insert.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -490,10 +499,10 @@ class SpeciesInsertListView(FilterView):
 
 class SurfaceSpeciesDeletePopoutView(LoginRequiredMixin,DeleteView):
     model = models.SurfaceSpecies
-    template_name ='biofouling/surface_species_confirm_delete.html'
+    template_name ='grais/surface_species_confirm_delete.html'
 
     def get_success_url(self):
-        return reverse_lazy('biofouling:close_me')
+        return reverse_lazy('grais:close_me')
 
 
 # CSVs #

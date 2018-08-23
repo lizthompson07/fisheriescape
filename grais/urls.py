@@ -6,6 +6,16 @@ app_name = 'grais'
 
 urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name ="close_me" ),
+    path('', views.IndexView.as_view(), name ="index" ),
+    path('dataflow/', views.DataFlowTemplateView.as_view(), name ="dataflow" ),
+
+    # SAMPLE #
+    ##########
+    path('sample/list', views.SampleListView.as_view(), name ="sample_list" ),
+    path('sample/new', views.SampleCreateView.as_view(), name ="sample_new" ),
+    path('sample/<int:pk>/view', views.SampleDetailView.as_view(), name ="sample_detail" ),
+    path('sample/<int:pk>/edit', views.SampleUpdateView.as_view(), name ="sample_edit" ),
+    path('sample/<int:pk>/delete', views.SampleDeleteView.as_view(), name ="sample_delete" ),
 
     # STATION #
     ###########
@@ -32,13 +42,6 @@ urlpatterns = [
     path('species/<int:pk>/edit', views.SpeciesUpdateView.as_view(), name ="species_edit" ),
     path('species/<int:pk>/delete', views.SpeciesDeleteView.as_view(), name ="species_delete" ),
 
-    # SAMPLE #
-    ##########
-    path('', views.SampleListView.as_view(), name ="sample_list" ),
-    path('sample/new', views.SampleCreateView.as_view(), name ="sample_new" ),
-    path('sample/<int:pk>/view', views.SampleDetailView.as_view(), name ="sample_detail" ),
-    path('sample/<int:pk>/edit', views.SampleUpdateView.as_view(), name ="sample_edit" ),
-    path('sample/<int:pk>/delete', views.SampleDeleteView.as_view(), name ="sample_delete" ),
 
     # PROBE MEASUREMENT #
     #####################

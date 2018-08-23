@@ -1,0 +1,127 @@
+{% extends "grais/grais_base.html" %}
+{% load static %}
+{% load custom_tags %}
+{% load bootstrap4 %}
+
+{% block content %}
+{% if temp_msg %}
+  {% bootstrap_alert temp_msg alert_type='success' %}
+{% endif %}
+
+<div class="nav-map">
+  <p><br>
+    <a href="{% url 'grais:sample_list' %}">All samples</a> >
+    <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+    <a href="{% url 'grais:line_detail' view.kwargs.sample view.kwargs.line %}">Line {{view.kwargs.line}}</a> >
+    <a href="{% url 'grais:surface_detail' view.kwargs.sample view.kwargs.line view.kwargs.surface %}">Surface {{view.kwargs.surface}}</a> >
+    Insert Species {{object.id}}
+  </p><br>
+</div>
+
+<div class="container">
+  <h1>Add Species to Surface {{surface.id}}</h1>
+
+  <form action="." method="get">
+    <div class="row">
+      <div class="col-8">
+        <table>
+          <tr>
+            {% for field in filter.form  %}
+            <td>
+              <em>{{field.label}}:</em> &nbsp;{{field}}&nbsp;&nbsp;
+            </td>
+            {% endfor %}
+            <td>
+              <div class="btn-group">
+                <input type="submit" value="Filter" class="btn btn-warning" />
+                <a class="btn btn-info" href=".">Clear</a>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+      </div>
+
+    </div>
+   </form>
+   <br>
+
+   <div class="container">
+     <div class="row">
+
+       <div class="col">
+
+
+         <h3>Species List:</h3>
+         <div class="scroll-med">
+           {% for sp in object_list.all %}
+           <p class="indent">
+             <a class="btn btn-sm btn-dark" href="#" onclick="return popitup('{% url 'grais:surface_spp_new_pop' view.kwargs.sample view.kwargs.line surface.id sp.id %}','surfaceSpeciesNew')"> <i class="material-icons">add</i></a>
+             {{sp.common_name}}
+           </p>
+           {% endfor %}
+
+         </div>
+         <br>
+           <a class="btn btn-sm btn-success" href="#" onclick="return popitup('{% url 'grais:species_add' surface.id %}','surfaceSpeciesNew')">Add New Species</a>
+
+       </div>
+
+       <div class="col">
+
+
+           {% if surface.image %}
+             <a href="{{surface.image.url}}">
+               <img src="{{surface.image.url}}" alt="problem locating surface image {{surface.image.url}}" class="img-thumbnail" width ="400 em">
+             </a>
+
+             {#  display the image #}
+           {% else %}
+             <em>
+               No image has been added.
+             </em>
+           {% endif %}<br><br>
+
+
+            <h3>Added:</h3>
+           <table class="table table-bordered ">
+             <thead class="full-table">
+               <th>Species name</th>
+               <th>Percent coverage (%)</th>
+             </thead>
+             <tbody>
+               {% for s in surface_spp  %}
+                 <tr>
+                   <td>{{s.species.common_name}}</td>
+                   <td>{{s.percent_coverage|percentage}}</td>
+                   <td><a href="#" onclick="return popitup('{% url 'grais:surface_spp_edit_pop' view.kwargs.sample view.kwargs.line surface.id s.id %}','surfaceSpeciesEdit')">edit</a></td>
+
+                 </tr>
+               {% empty %}
+                 {# empty #}
+               {% endfor %}
+               <tr>
+                 <td> <b>TOTAL:</b> </td>
+                 <td> <b>{{total_coverage|percentage}}</b></td>
+               </tr>
+             </tbody>
+           </table>
+
+
+
+         <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+
+
+       </div>
+
+
+   </div>
+
+
+
+
+   </div>
+
+</div>
+
+{% endblock content %}
