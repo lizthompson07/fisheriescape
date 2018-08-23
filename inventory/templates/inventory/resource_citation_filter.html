@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
@@ -10,8 +10,8 @@
 <div class="nav-map">
 <br>
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
     Insert Citation
   </p>
 
@@ -45,11 +45,11 @@
           {% for obj in object_list.all %}
             <div class="row">
               <div class="col-1">
-                <a class="btn btn-sm btn-dark indent" href="{% url "resources:resource_citation_add" resource.id obj.id %}"> <i class="material-icons">add</i></a>
+                <a class="btn btn-sm btn-dark indent" href="{% url "inventory:resource_citation_add" resource.id obj.id %}"> <i class="material-icons">add</i></a>
               </div>
               <div class="col-11">
                 {{obj.citation_br|safe}}
-                (<a href="{% url 'resources:citation_detail' resource.id obj.id %}">view</a>)<hr>
+                (<a href="{% url 'inventory:citation_detail' resource.id obj.id %}">view</a>)<hr>
 
               </div>
             </div>
@@ -60,7 +60,7 @@
 
       </div>
       <br>
-      <a class="btn btn-sm btn-success" href="{% url 'resources:citation_new' resource.id %}">Add New Keyword</a>
+      <a class="btn btn-sm btn-success" href="{% url 'inventory:citation_new' resource.id %}">Add New Keyword</a>
 
 
     {# </div> #}

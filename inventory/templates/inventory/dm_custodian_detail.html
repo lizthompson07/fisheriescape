@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% block content %}
 
 <div class="nav-map">
   <br>
-  <a href="{% url 'resources:dm_home' %}">Data Management Home</a> >
-  <a href="{% url 'resources:dm_custodian_list' %}">All Custodians</a> >
+  <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
+  <a href="{% url 'inventory:dm_custodian_list' %}">All Custodians</a> >
   Custodian Details
 </div>
 
@@ -18,7 +18,7 @@
 </p>
 <div class="row">
   <div class="col">
-    <h3>User Info</h3>
+    <h3>User Info:</h3>
     <p>
       <b>Username:</b><br>
       {{object.user}}
@@ -37,7 +37,7 @@
     </p>
   </div>
   <div class="col">
-    <h3>Correspondences</h3>
+    <h3>Correspondences:</h3>
     <ul>
       {% for obj in object.user.correspondences.all   %}
         <li>
@@ -53,7 +53,7 @@
 <div class="row">
   <div class="col">
 
-  <h3>Resources</h3>
+  <h3>Resources:</h3>
   <table class="table table-hover">
     <thead>
         <th scope="col">Id</th>
@@ -65,7 +65,7 @@
     <tbody>
       {% for obj in queryset  %}
         <tr>
-          <td><a href="{% url 'resources:resource_detail' obj.resource.id %}">{{obj.resource.id}}</a></td>
+          <td><a href="{% url 'inventory:resource_detail' obj.resource.id %}">{{obj.resource.id}}</a></td>
           <td>{{obj.resource.title_eng}}</td>
           {% if obj.resource.status.id == 3 %}
           <td class="good">
@@ -76,7 +76,14 @@
           {% endif %}
             {{obj.resource.status}}
           </td>
-          <td>{{obj.resource.certification_history.last.certification_date}} by @{{obj.resource.certification_history.last.certifying_user}}</td>
+
+          <td>
+            {% if obj.resource.certification_history.count == 0  %}
+              <span class="font-weight-bold red-font">Never</span>
+            {% else %}
+              {{obj.resource.certification_history.last.certification_date}} by @{{obj.resource.certification_history.last.certifying_user}}</td>
+            {% endif %}
+
         </tr>
       {% endfor %}
       <br>
@@ -115,7 +122,7 @@
     </table>
     <div class="container">
 
-      <a href="{% url 'resources:send_certification_email' object.user_id %}" class="btn btn-lg btn-warning float-center">Send Away!</a>
+      <a href="{% url 'inventory:send_certification_email' object.user_id %}" class="btn btn-lg btn-warning float-center">Send Away!</a>
     </div>
   </div>
 </div>

@@ -16,7 +16,7 @@
   <ul>
     {% for obj in queryset  %}
     <li>
-      <a href="http://glfscidm001:8091{% url 'resources:resource_detail' obj.resource.id %}">
+      <a href="http://glfscidm001:8091{% url 'inventory:resource_detail' obj.resource.id %}">
         {{obj.resource.title_eng}}
       </a>
     </li>

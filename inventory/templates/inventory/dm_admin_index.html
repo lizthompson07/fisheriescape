@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load verbose_names %}
 
@@ -11,7 +11,7 @@
 <div class="container">
   <br><br>
   <h2>
-    <a href="{% url 'resources:dm_custodian_list' %}">List of custodians</a>
+    <a href="{% url 'inventory:dm_custodian_list' %}">List of custodians</a>
   </h2>
 
 </div>

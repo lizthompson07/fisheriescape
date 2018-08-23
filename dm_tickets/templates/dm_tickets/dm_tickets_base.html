@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% block bug_create %}{% url 'bugs:bug_create' 5 %}{% endblock bug_create %}
+
+
+{% block title %}Tickets{% endblock title %}
+
+{% block body %}
+  {% block content %}{% endblock content %}
+{% endblock body %}
+
+{% block left_unauth %}
+{% endblock left_unauth %}
+
+{% block left_auth %}
+{% endblock left_auth %}
+{% block left_admin %}
+{% endblock left_admin %}

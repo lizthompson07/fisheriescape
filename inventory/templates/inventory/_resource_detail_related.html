@@ -12,7 +12,7 @@
   <ul>
     {% if object.parent.id %}
     <li>
-      <a href="{% url 'resources:resource_detail' object.parent.id %}">
+      <a href="{% url 'inventory:resource_detail' object.parent.id %}">
         {{object.parent}}
       </a>&nbsp;
         <a href="#" class="red-font">&times;</a>
@@ -29,7 +29,7 @@
   <ul>
     {% for item in object.children.all %}
     <li>
-      <a href="{% url 'resources:resource_detail' item.id %}">
+      <a href="{% url 'inventory:resource_detail' item.id %}">
         {{item}}
       </a>&nbsp;
         <a href="#" class="red-font">&times;</a>

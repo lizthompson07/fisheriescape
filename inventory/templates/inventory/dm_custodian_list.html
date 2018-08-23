@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% block content %}
 
 <div class="nav-map">
   <br>
-  <a href="{% url 'resources:dm_home' %}">Data Management Home</a> >
+  <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
   Custodian List
 </div>
 <div class="container">
@@ -23,7 +23,7 @@
     <tbody>
       {% for obj in custodian_list  %}
         <tr>
-          <td><a href="{% url 'resources:dm_custodian_detail' obj.person.user_id %}">{{obj.person}}</a></td>
+          <td><a href="{% url 'inventory:dm_custodian_detail' obj.person.user_id %}">{{obj.person}}</a></td>
         </tr>
       {% endfor %}
       <br>

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load humanize %}
 {% block content %}
@@ -7,18 +7,15 @@
 <div class="container">
 
   <p>
-    <h1>My Data Resource Inventory </h1>
-    TOTAL: {{resource_count}}
+    <h1>{{user.first_name}}'s Data Resource List:
+    </h1>
+    <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right ">New Resource</a>
   </p>
-
-  <p>
-    <a href="{% url 'resources:resource_new' %}" class="btn btn btn-success float-right ">New Resource</a>
-  </p>
-
-  <h3>Custodian:</h3>
+  <br><br>
+  <h3>Where you are custodian:</h3>
   <table class="table table-hover">
     <thead>
-        <th scope="col">Id</th>
+        <th scope="col">#</th>
         <th scope="col" width="500px">Title</th>
         <th scope="col">Status</th>
         <th scope="col">Section</th>
@@ -29,8 +26,8 @@
     <tbody>
       {% for obj in custodian_list  %}
         <tr>
-          <td><a href="{% url 'resources:resource_detail' obj.resource.id %}">{{obj.resource.id}}</a></td>
-          <td>{{obj.resource.title_eng}}</td>
+          <td>{{forloop.counter}}</td>
+          <td><a href="{% url 'inventory:resource_detail' obj.resource.id %}">{{obj.resource.title_eng}}</a></td>
 
           {% if obj.resource.status.id == 3 %}
           <td class="good">
@@ -75,11 +72,11 @@
 
       </tbody>
     </table>
-
-    <h3>Other Roles:</h3>
+<br>
+    <h3>Where you have other roles:</h3>
     <table class="table table-hover">
       <thead>
-          <th scope="col">Id</th>
+          <th scope="col">#</th>
           <th scope="col" width="500px">Title</th>
           <th scope="col">Status</th>
           <th scope="col">Section</th>
@@ -90,8 +87,8 @@
       <tbody>
         {% for obj in non_custodian_list  %}
           <tr>
-            <td><a href="{% url 'resources:resource_detail' obj.id %}">{{obj.id}}</a></td>
-            <td>{{obj.title_eng}}</td>
+            <td>{{forloop.counter}}</td>
+            <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.title_eng}}</a></td>
 
             {% if obj.status.id == 3 %}
             <td class="good">

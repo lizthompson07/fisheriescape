@@ -413,7 +413,7 @@ def construct(my_resource):
     })
 
     # uuid
-    charstring(root,'gmd:fileIdentifier',my_resource.uuid)
+    charstring(root,'gmd:fileIdentifier',str(my_resource.uuid))
 
     # language
     charstring(root,'gmd:language',"eng; CAN")
@@ -423,7 +423,7 @@ def construct(my_resource):
 
     # parentIdentifier
     if my_resource.parent != None:
-        charstring(root,'gmd:parentIdentifier',my_resource.parent.uuid)
+        charstring(root,'gmd:parentIdentifier',str(my_resource.parent.uuid))
 
     # ResourceType
     codelist(root, "gmd:hierarchyLevel", "gmd:MD_ScopeCode", "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_108",my_resource.resource_type.code, my_resource.resource_type.label)
@@ -781,7 +781,7 @@ def verify(resource):
     for keyword in resource.keywords.filter(~Q(keyword_domain_id=8)):
         if keyword.text_value_fre == None or keyword.text_value_fre == "":
             SubElement(checklist,'li').text ='French value for keyword is needed for <a href="{}">{}</a>'.format(
-                reverse('resources:keyword_detail', kwargs={'resource':resource.id,'pk':keyword.id,}),
+                reverse('inventory:keyword_detail', kwargs={'resource':resource.id,'pk':keyword.id,}),
                 keyword.text_value_eng
             )
         elif keyword.text_value_eng == None or keyword.text_value_eng == "":
