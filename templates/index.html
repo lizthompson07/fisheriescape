@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% block bug_create %}{% url 'bugs:bug_create' 1 %}{% endblock bug_create %}
 
 {% block title %}Data Management Home{% endblock title %}
 
@@ -8,23 +9,34 @@
 <div class="container">
 
 <div class="jumbotron">
-  <h1 class="big-header">DFO Science - Gulf Region Data Management </h1>
-  <hr>
-  <h3>
-  {% if user.is_authenticated %}
+  <h1 class="text-center">
+    <span class="big-header">
+      DFO Science
+    </span>
     <br>
-    Welcome back, {{user.first_name}}!
+    <span class="roboto">
+      Gulf Region Data Management </h1><br>
+    </span>
+  <hr><br>
+  <h3 class="text-center">
+  {% if user.is_authenticated %}
+    Welcome back, {{user.first_name}}! Please select an application below.
     {% else %}
     Welcome! Please select an application below.
   {% endif %}
   </h3>
   <br><br>
 
-  <div class="row">
-    <div class="col-md-4 center">
-      <div class="thumbnail justify-content-center">
-        <a href="http://glfscidm001:8091">
-          <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
+  <div class="row justify-content-center">
+    <div class="col-md-3">
+      <div class="thumbnail text-center">
+        {% if user.is_authenticated %}
+          <a href="{% url 'inventory:my_resource_list' %}">
+        {% else %}
+          <a href="{% url 'inventory:resource_list' %}">
+        {% endif %}
+
+          <img src="{% static "/img/database-152091.svg" %}" style="width:50%" class="align-self-center mr-3">
           <div class="caption">
             <p>Regional Data Inventory</p>
           </div>
@@ -32,9 +44,9 @@
       </div>
     </div>
 
-    <div class="col-md-4 center">
-      <div class="thumbnail justify-content-center">
-        <a href="http://glfscidm001:8090">
+    <div class="col-md-3 center">
+      <div class="thumbnail text-center">
+        <a href="{% url 'tickets:list' %}" class="text-center">
           <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
           <div class="caption">
             <p>RDMTS:<br>Ticketing System</p>
@@ -43,18 +55,27 @@
       </div>
     </div>
 
-    <div class="col-md-4 center">
-      <div class="thumbnail justify-content-center">
+    <div class="col-md-3 center">
+      <div class="thumbnail text-center">
         <a href="http://glfscidm001:8080">
           <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
           <div class="caption">
             <p>grAIS:<br>
-              Aquatic Invasive Species App</p>
+              Aquatic Invasive Species</p>
           </div>
         </a>
       </div>
     </div>
-
+    <div class="col-md-3 center">
+      <div class="thumbnail text-center">
+        <a href="http://glfscidm001:8080">
+          <img src="{% static "/img/database-152091.svg" %}" style="width:50%">
+          <div class="caption">
+            <p>HerMorrhage</p>
+          </div>
+        </a>
+      </div>
+    </div>
 
 
      {# <div class="col-md-2 center"> #}

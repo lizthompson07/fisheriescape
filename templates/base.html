@@ -16,20 +16,20 @@
     <link rel="stylesheet" href="{% static 'css/master.css' %}">
 
     <!--  Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Roboto+Mono" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat|Open+Sans|Roboto" rel="stylesheet">
+
+    <!--  Google icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
     <title>{% block title %}{% endblock title %}</title>
     {% block header %}{% endblock header %}
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark headerfont1">
-      <a class="navbar-brand bigbrand" href="{% url 'index' %}">Home</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand bigbrand" href="{% url 'index' %}"> DM Home </a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav justify-content-left">
-          {# <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}"> Inventory </a></li> #}
           {% block left_all %}{% endblock left_all %}
 
           {% if user.is_authenticated %}
@@ -58,7 +58,9 @@
                 Bugs
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#" onclick="return popitup('{% url 'bugs:bug_create' %}','bugCreate')">New Report</a>
+                <a class="dropdown-item" href="#" onclick="return popitup('{% block bug_create %}{% endblock bug_create %}','popWindow')">New Report</a>
+
+
                 <a class="dropdown-item" href="{% url 'bugs:bug_list' %}">View List</a>
               </div>
             </li>

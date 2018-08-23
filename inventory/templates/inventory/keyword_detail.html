@@ -1,12 +1,12 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load verbose_names %}
 
 {% block content %}
 <div class="nav-map">
   <br>
-  <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-  <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+  <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+  <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
   {{object.text_value_eng}}
 </div>
 <div class="container">
@@ -15,11 +15,11 @@
   <h1>{{object.text_value_eng|title}}</h1>
   <p>
 
-    <a class="btn btn-warning" href="{% url 'resources:keyword_edit' resource.id object.id %}">Edit</a>
+    <a class="btn btn-warning" href="{% url 'inventory:keyword_edit' resource.id object.id %}">Edit</a>
     {% if object.resources.count > 0 %}
-    <a class="btn btn-danger disabled" href="{% url 'resources:keyword_delete' resource.id object.id %}">Delete</a>
+    <a class="btn btn-danger disabled" href="{% url 'inventory:keyword_delete' resource.id object.id %}">Delete</a>
     {% else %}
-    <a class="btn btn-danger" href="{% url 'resources:keyword_delete' resource.id  object.id %}">Delete</a>
+    <a class="btn btn-danger" href="{% url 'inventory:keyword_delete' resource.id  object.id %}">Delete</a>
     {% endif %}
   </p>
 

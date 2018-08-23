@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
@@ -10,8 +10,8 @@
 <div class="nav-map">
 <br>
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
     Insert Person
   </p>
 
@@ -47,15 +47,15 @@
            {% for person in object_list.all %}
            <p class="indent">
 
-             <a class="btn btn-sm btn-dark" href="{% url 'resources:resource_person_add' resource.id person.user_id  %}"> <i class="material-icons">add</i></a> &nbsp;
+             <a class="btn btn-sm btn-dark" href="{% url 'inventory:resource_person_add' resource.id person.user_id  %}"> <i class="material-icons">add</i></a> &nbsp;
              {{person.full_name}}
-             (<a href="{% url 'resources:person_edit' resource.id person.user_id %}">edit</a>)
+             (<a href="{% url 'inventory:person_edit' resource.id person.user_id %}">edit</a>)
            </p>
            {% endfor %}
 
          </div>
          <br>
-           <a class="btn btn-sm btn-success" href="{% url 'resources:person_add' resource.id %}">Add New Person</a>
+           <a class="btn btn-sm btn-success" href="{% url 'inventory:person_add' resource.id %}">Add New Person</a>
 
      </div>
 

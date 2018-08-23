@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load humanize %}
 {% block content %}
@@ -23,7 +23,7 @@
     <p>
       <input type="submit" value="Filter" class="btn btn btn-warning">
       <a href="." class="btn btn btn-secondary">Clear</a>
-      <a href="{% url 'resources:resource_new' %}" class="btn btn btn-primary float-right">New Resource</a>
+      <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right">New Resource</a>
     </p>
   </form>
 
@@ -40,8 +40,8 @@
     <tbody>
       {% for obj in object_list  %}
         <tr>
-          {# <td><a href="{% url 'resources:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
-          <td><a href="{% url 'resources:resource_detail' obj.id %}">{{obj.title_eng}}</a></td>
+          {# <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
+          <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.title_eng}}</a></td>
 
           {% if obj.status.id == 3 %}
           <td class="good">

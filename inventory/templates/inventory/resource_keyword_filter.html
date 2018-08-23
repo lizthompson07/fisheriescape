@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
@@ -10,8 +10,8 @@
 <div class="nav-map">
 <br>
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
     Insert Keyword
   </p>
 
@@ -44,7 +44,7 @@
             {% for obj in object_list.all %}
               <tr>
                 <td class="indent">
-                  <a class="btn btn-sm btn-dark" href="{% url "resources:resource_keyword_add" resource.id obj.id keyword_type|slugify %}"> <i class="material-icons">add</i></a> &nbsp;
+                  <a class="btn btn-sm btn-dark" href="{% url "inventory:resource_keyword_add" resource.id obj.id keyword_type|slugify %}"> <i class="material-icons">add</i></a> &nbsp;
                 </td>
                 <td>
                   <em>{{obj.text_value_eng}}</em>
@@ -53,7 +53,7 @@
                   {{obj.details}}
                 </td>
                 <td>
-                  (<a href="{% url 'resources:keyword_detail' resource.id obj.id %}">view</a>)
+                  (<a href="{% url 'inventory:keyword_detail' resource.id obj.id %}">view</a>)
                 </td>
               </tr>
             {% endfor %}
@@ -66,17 +66,17 @@
         <div class="scroll-lg">
           {% for obj in object_list.all %}
             <p class="indent">
-              {# <a class="btn btn-sm btn-dark" href="{% url 'resources:resource_person_add' resource.id person.user_id  %}"> <i class="material-icons">add</i></a> &nbsp; #}
-              <a class="btn btn-sm btn-dark" href="{% url "resources:resource_keyword_add" resource.id obj.id keyword_type|slugify %}"> <i class="material-icons">add</i></a> &nbsp;
+              {# <a class="btn btn-sm btn-dark" href="{% url 'inventory:resource_person_add' resource.id person.user_id  %}"> <i class="material-icons">add</i></a> &nbsp; #}
+              <a class="btn btn-sm btn-dark" href="{% url "inventory:resource_keyword_add" resource.id obj.id keyword_type|slugify %}"> <i class="material-icons">add</i></a> &nbsp;
               {{obj.text_value_eng}}
-              (<a href="{% url 'resources:keyword_detail' resource.id obj.id %}">view</a>)
+              (<a href="{% url 'inventory:keyword_detail' resource.id obj.id %}">view</a>)
             </p>
           {% endfor %}
         {% endif %}
 
       </div>
       <br>
-      <a class="btn btn-sm btn-success" href="{% url 'resources:keyword_new' resource.id %}">Add New Keyword</a>
+      <a class="btn btn-sm btn-success" href="{% url 'inventory:keyword_new' resource.id %}">Add New Keyword</a>
 
 
     {# </div> #}
