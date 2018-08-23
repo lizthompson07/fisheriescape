@@ -1,0 +1,34 @@
+{% extends "grais/grais_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+  <h1 class="big-header">DFO Collectors </h1>
+  <p>TOTAL: {{object_list.count}}</p>
+  <p>
+  </p>
+
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Tag #</th>
+        <th scope="col">Times deployed</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in object_list  %}
+        <tr>
+          <td><a href="{% url 'grais:collector_detail' obj.id %}">{{obj.tag_number}}</a></td>
+          <td>{{obj.lines.count}}</td>
+        </tr>
+      {% endfor %}
+      <br>
+      </tbody>
+    </table>
+
+
+  </div>
+
+{% endblock content %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% block bug_create %}{% url 'bugs:bug_create' 2 %}{% endblock bug_create %}
+
+
+{% block title %}grAIS{% endblock title %}
+
+{% block body %}
+  {% block content %}{% endblock content %}
+{% endblock body %}
+
+{% block left_all %}
+  <li class="nav-item"><a class="nav-link" href="{% url 'grais:dataflow' %}">AIS Data Flow Chart</a></li>
+{% endblock left_all %}
+
+{% block left_unauth %}
+{% endblock left_unauth %}
+
+{% block left_auth %}
+  {# Biofouling Dropdown #}
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Biofouling
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+      <a class="dropdown-item" href="{% url "grais:sample_list" %}">Samples</a>
+      <a class="dropdown-item" href="{% url 'grais:station_list' %}">Station List</a>
+      <a class="dropdown-item" href="{% url 'grais:collector_list' %}">Collector List</a>
+      <a class="dropdown-item" href="{% url 'grais:species_list' %}">Species List</a>
+      <div class="dropdown-divider"></div>
+    </div>
+  </li>
+
+  {# Green Crab Dropdown #}
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Green Crab Monitoring
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="#">Samples (NOT DEVELOPED)</a>
+    </div>
+  </li>
+
+  {# Incidental Dropdown #}
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Incidental Reports
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="#">View Reports (NOT DEVELOPED)</a>
+      <a class="dropdown-item" href="#">New Report (NOT DEVELOPED)</a>
+    </div>
+  </li>
+
+{% endblock left_auth %}
+
+{% block left_admin %}{% endblock left_admin %}
