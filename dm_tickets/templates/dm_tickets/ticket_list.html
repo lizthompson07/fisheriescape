@@ -1,12 +1,14 @@
-{% extends "base.html" %}
+{% extends "dm_tickets/dm_tickets_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load humanize %}
 {% block content %}
-
-        <h1 class="big-header">Welcome to the RDMTS! </h1>
-        <h3>(Regional Data Management Ticketing System)</h3>
-        <p>TOTAL: {{object_list.count}}</p><br>
+  <br>
+        <h1 class="text-center font-weight-bold ">
+          Regional Data Management Ticketing System (RDMTS)
+        </h1>
+        <br><br>
+        {# <p>TOTAL: {{object_list.count}}</p><br> #}
 
         <form action="." method="get">
               {% for field in filter.form  %}
@@ -33,7 +35,7 @@
     <div id="myModal" class="modal">
       <!-- Modal content -->
       <div class="modal-content">
-        {% include "tickets/_filter_ticket.html" %}
+        {% include "dm_tickets/_filter_ticket.html" %}
       </div>
     </div>
 

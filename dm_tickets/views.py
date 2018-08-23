@@ -17,7 +17,7 @@ from . import emails
 
 # Create your views here.
 class CloserTemplateView(TemplateView):
-    template_name = 'tickets/close_me.html'
+    template_name = 'dm_tickets/close_me.html'
 
 
 # Ticket #
@@ -26,7 +26,7 @@ class CloserTemplateView(TemplateView):
 class TicketListView(FilterView):
     # model = models.Ticket
     filterset_class = filters.TicketFilter
-    template_name = "tickets/ticket_list.html"
+    template_name = "dm_tickets/ticket_list.html"
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -36,7 +36,7 @@ class TicketListView(FilterView):
 
 class TicketDetailView(DetailView):
     model = models.Ticket
-    template_name = "tickets/ticket_detail.html"
+    template_name = "dm_tickets/ticket_detail.html"
     # form_class = forms.TicketDetailForm
 
     def get_context_data(self, **kwargs):
@@ -72,8 +72,8 @@ def send_resolved_email(request, ticket):
 
 class TicketUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Ticket
-    template_name = "tickets/ticket_form.html"
-    login_url = '/login_required/'
+    template_name = "dm_tickets/ticket_form.html"
+    login_url = '/accounts/login_required/'
     form_class = forms.TicketForm
 
     def get_context_data(self, **kwargs):
@@ -97,11 +97,11 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
 class TicketDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Ticket
     success_url = reverse_lazy('tickets:list')
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
 class TicketCreateView(CreateView):
     model = models.Ticket
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     form_class = forms.TicketForm
 
     def get_context_data(self, **kwargs):
@@ -139,8 +139,8 @@ class TicketCreateView(CreateView):
 
 class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Ticket
-    template_name = "tickets/ticket_note_form.html"
-    login_url = '/login_required/'
+    template_name = "dm_tickets/ticket_note_form.html"
+    login_url = '/accounts/login_required/'
     form_class = forms.TicketNoteForm
 
 
@@ -150,19 +150,19 @@ class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
 class ServiceDeskDetailView(UpdateView):
     model = models.ServiceDeskTicket
     form_class = forms.ServiceDeskTicketForm
-    template_name ='tickets/service_desk_ticket_detail_popout.html'
+    template_name ='dm_tickets/service_desk_ticket_detail_popout.html'
 
 class ServiceDeskUpdateView(LoginRequiredMixin, UpdateView):
     model = models.ServiceDeskTicket
     form_class = forms.ServiceDeskTicketForm
-    template_name ='tickets/service_desk_ticket_form_popout.html'
-    login_url = '/login_required/'
+    template_name ='dm_tickets/service_desk_ticket_form_popout.html'
+    login_url = '/accounts/login_required/'
 
 class ServiceDeskCreateView(LoginRequiredMixin, CreateView):
     model = models.ServiceDeskTicket
     form_class = forms.ServiceDeskTicketForm
-    template_name ='tickets/service_desk_ticket_form_popout.html'
-    login_url = '/login_required/'
+    template_name ='dm_tickets/service_desk_ticket_form_popout.html'
+    login_url = '/accounts/login_required/'
 
     def get_success_url(self, **kwargs):
         return reverse('tickets:close_me')
@@ -173,18 +173,18 @@ class ServiceDeskCreateView(LoginRequiredMixin, CreateView):
 
 class TagDetailView(UpdateView):
     model = models.Tag
-    template_name ='tickets/tag_detail_popout.html'
+    template_name ='dm_tickets/tag_detail_popout.html'
     form_class = forms.TagForm
 
 class TagUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Tag
-    template_name ='tickets/tag_form_popout.html'
-    login_url = '/login_required/'
+    template_name ='dm_tickets/tag_form_popout.html'
+    login_url = '/accounts/login_required/'
     form_class = forms.TagForm
 
 class TagCreateView(CreateView):
     model = models.Tag
-    template_name ='tickets/tag_form_popout.html'
+    template_name ='dm_tickets/tag_form_popout.html'
     form_class = forms.TagForm
 
     def form_valid(self, form):
@@ -194,7 +194,7 @@ class TagCreateView(CreateView):
 
 class TagListView(FilterView):
     filterset_class = filters.TagFilter
-    template_name = "tickets/tag_insert_list.html"
+    template_name = "dm_tickets/tag_insert_list.html"
 
     def get_context_data(self, **kwargs):
         context = super(TagListView, self).get_context_data(**kwargs)
@@ -213,8 +213,8 @@ def add_tag_to_ticket(request, ticket, tag):
 class FileCreateView(CreateView):
     model = models.File
     fields = '__all__'
-    template_name ='tickets/file_form_popout.html'
-    login_url = '/login_required/'
+    template_name ='dm_tickets/file_form_popout.html'
+    login_url = '/accounts/login_required/'
     # form_class = forms.StudentCreateForm
 
     def get_initial(self):
@@ -240,13 +240,13 @@ class FileCreateView(CreateView):
 class FileUpdateView(UpdateView):
     model = models.File
     fields = '__all__'
-    template_name ='tickets/file_form_popout.html'
+    template_name ='dm_tickets/file_form_popout.html'
     # form_class = forms.StudentCreateForm
 
 class FileDetailView(UpdateView):
     model = models.File
     fields = '__all__'
-    template_name ='tickets/file_detail_popout.html'
+    template_name ='dm_tickets/file_detail_popout.html'
     # form_class = forms.TagForm
 
     def get_context_data(self, **kwargs):
@@ -267,18 +267,18 @@ class FileDetailView(UpdateView):
 
 class PersonDetailView(UpdateView):
     model = models.Person
-    template_name ='tickets/person_detail_popout.html'
+    template_name ='dm_tickets/person_detail_popout.html'
     fields = '__all__'
 
 class PersonUpdateView(UpdateView):
     model = models.Person
-    template_name ='tickets/person_form_popout.html'
-    login_url = '/login_required/'
+    template_name ='dm_tickets/person_form_popout.html'
+    login_url = '/accounts/login_required/'
     fields = '__all__'
 
 class PersonCreateView(CreateView):
     model = models.Person
-    template_name ='tickets/person_form_popout.html'
+    template_name ='dm_tickets/person_form_popout.html'
     fields = '__all__'
 
     def form_valid(self, form):
@@ -295,7 +295,7 @@ class PersonCreateView(CreateView):
 
 class PersonListView(FilterView):
     filterset_class = filters.PersonFilter
-    template_name = "tickets/person_insert_list.html"
+    template_name = "dm_tickets/person_insert_list.html"
 
     def get_context_data(self, **kwargs):
         context = super(PersonListView, self).get_context_data(**kwargs)
@@ -314,7 +314,7 @@ def add_person_to_ticket(request, ticket, person):
 
 class RequestTypeCreateView(CreateView):
     model = models.RequestType
-    template_name ='tickets/request_type_form_popout.html'
+    template_name ='dm_tickets/request_type_form_popout.html'
     fields = '__all__'
 
     def get_success_url(self, **kwargs):

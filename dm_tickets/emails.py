@@ -11,7 +11,7 @@ class NewTicketEmail:
         self.to_list = [admin_email,object.primary_contact.email,]
 
     def load_html_template(self,object):
-        t = loader.get_template('tickets/email_new_ticket.html')
+        t = loader.get_template('dm_tickets/email_new_ticket.html')
         context ={ 'object': object }
         rendered = t.render(context)
         return rendered
@@ -24,7 +24,7 @@ class NewFileAddedEmail:
         self.to_list = [admin_email,]
 
     def load_html_template(self,object):
-        t = loader.get_template('tickets/email_new_file.html')
+        t = loader.get_template('dm_tickets/email_new_file.html')
         context ={ 'object': object }
         rendered = t.render(context)
         return rendered
@@ -40,7 +40,7 @@ class TicketResolvedEmail:
         self.to_list = [ticket_object.primary_contact.email,]
 
     def load_html_template(self):
-        t = loader.get_template('tickets/email_ticket_resolved.html')
+        t = loader.get_template('dm_tickets/email_ticket_resolved.html')
         context ={
             'object': self.ticket_object,
         }

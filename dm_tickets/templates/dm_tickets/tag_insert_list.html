@@ -1,5 +1,9 @@
-{% include "_base_head.html" %}
-{% block content %}
+{# Load the tag library #}
+{% load bootstrap4 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
 
 {# A script to refresh the parent window; to be called in when the buttons are pushed #}
 <script>
@@ -38,5 +42,3 @@
    </div>
 
 </div>
-
-{% endblock content %}
