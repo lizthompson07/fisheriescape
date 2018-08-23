@@ -25,7 +25,7 @@ class CloserTemplateView(TemplateView):
 class SampleListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.SampleFilter
     template_name = "biofouling/sample_list.html"
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
@@ -35,7 +35,7 @@ class SampleListView(LoginRequiredMixin, FilterView):
 
 class SampleDetailView(LoginRequiredMixin, DetailView):
     model = models.Sample
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -45,7 +45,7 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
 class SampleUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Sample
     form_class = forms.SampleForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -53,7 +53,7 @@ class SampleUpdateView(LoginRequiredMixin, UpdateView):
 class SampleCreateView(LoginRequiredMixin, CreateView):
     model = models.Sample
     form_class = forms.SampleForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -74,12 +74,12 @@ class SampleDeleteView(LoginRequiredMixin, DeleteView):
 class StationListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.StationFilter
     template_name = "biofouling/station_list.html"
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
 class StationUpdateView(LoginRequiredMixin,  UpdateView):
     # permission_required = "__all__"
     raise_exception = True
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     model = models.Station
     form_class = forms.StationForm
 
@@ -88,7 +88,7 @@ class StationUpdateView(LoginRequiredMixin,  UpdateView):
 
 class StationCreateView(LoginRequiredMixin, CreateView):
     model = models.Station
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     form_class = forms.StationForm
 
     def get_initial(self):
@@ -96,7 +96,7 @@ class StationCreateView(LoginRequiredMixin, CreateView):
 
 class StationDetailView(LoginRequiredMixin, UpdateView):
     model = models.Station
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     fields =('__all__')
     template_name = 'biofouling/station_detail.html'
 
@@ -120,19 +120,19 @@ class StationDeleteView(LoginRequiredMixin, DeleteView):
 
 class PersonUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Sampler
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     fields =('__all__')
     template_name = 'biofouling/person_form_popout.html'
 
 class PersonCreateView(LoginRequiredMixin, CreateView):
     model = models.Sampler
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     fields =('__all__')
     template_name = 'biofouling/person_form_popout.html'
 
 class PersonDetailView(LoginRequiredMixin, UpdateView):
     model = models.Sampler
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/person_detail_popout.html'
     fields =('__all__')
 
@@ -143,7 +143,7 @@ class PersonDetailView(LoginRequiredMixin, UpdateView):
 class ProbeMeasurementCreateView(LoginRequiredMixin, CreateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/probe_measurement_form.html'
 
     def get_initial(self):
@@ -157,13 +157,13 @@ class ProbeMeasurementCreateView(LoginRequiredMixin, CreateView):
 class ProbeMeasurementDetailView(LoginRequiredMixin, UpdateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/probe_measurement_detail.html'
 
 class ProbeMeasurementUpdateView(LoginRequiredMixin, UpdateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/probe_measurement_form.html'
 
     def get_initial(self):
@@ -190,7 +190,7 @@ class ProbeMeasurementDeleteView(LoginRequiredMixin, DeleteView):
 class LineCreateView(LoginRequiredMixin, CreateView):
     model = models.Line
     form_class = forms.LineCreateForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/line_form.html'
 
     def get_initial(self):
@@ -219,7 +219,7 @@ class LineCreateView(LoginRequiredMixin, CreateView):
 
 class LineDetailView(LoginRequiredMixin, DetailView):
     model = models.Line
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/line_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -230,7 +230,7 @@ class LineDetailView(LoginRequiredMixin, DetailView):
 class LineUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Line
     form_class = forms.LineForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -255,24 +255,24 @@ class LineDeleteView(LoginRequiredMixin, DeleteView):
 
 class CollectorListView(LoginRequiredMixin, ListView):
     model = models.Collector
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
 class CollectorDetailView(LoginRequiredMixin, UpdateView):
     model = models.Collector
     fields = "__all__"
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/collector_detail.html'
 
 class CollectorUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Collector
     fields = "__all__"
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     # template_name = 'biofouling/collector_form_popout.html'
 
 class CollectorCreateView(LoginRequiredMixin, CreateView):
     model = models.Collector
     fields = "__all__"
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/collector_form_popout.html'
 
     def form_valid(self, form):
@@ -295,16 +295,16 @@ class CollectorDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteVie
 class SpeciesListView(LoginRequiredMixin, FilterView):
     template_name = "biofouling/species_list.html"
     filterset_class = filters.SpeciesFilterFull
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
 class SpeciesDetailView(LoginRequiredMixin, DetailView):
     model = models.Species
     fields = "__all__"
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
 class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Species
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
 
     def get_initial(self):
@@ -312,7 +312,7 @@ class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
 
 class SpeciesCreateView(LoginRequiredMixin, CreateView):
     model = models.Species
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
 
     def get_initial(self):
@@ -320,7 +320,7 @@ class SpeciesCreateView(LoginRequiredMixin, CreateView):
 
 class SpeciesCreatePopoutView(LoginRequiredMixin, CreateView):
     model = models.Species
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
     template_name = 'biofouling/species_form_popout.html'
 
@@ -349,7 +349,7 @@ class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView)
 class SurfaceDetailView(LoginRequiredMixin, UpdateView):
     model = models.Surface
     form_class = forms.SurfaceImageForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'biofouling/surface_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -366,7 +366,7 @@ class SurfaceDetailView(LoginRequiredMixin, UpdateView):
 class SurfaceUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Surface
     form_class = forms.SurfaceForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -374,7 +374,7 @@ class SurfaceUpdateView(LoginRequiredMixin, UpdateView):
 class SurfaceCreateView(LoginRequiredMixin, CreateView):
     model = models.Surface
     form_class = forms.SurfaceForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         line = models.Line.objects.get(pk=self.kwargs['line'])
@@ -402,7 +402,7 @@ class SurfaceDeleteView(LoginRequiredMixin, DeleteView):
 class SurfaceSpeciesCreatePopoutView(LoginRequiredMixin,CreateView):
     model = models.SurfaceSpecies
     template_name ='biofouling/surface_species_form_popout.html'
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     form_class = forms.SurfaceSpeciesForm
 
     def get_initial(self):

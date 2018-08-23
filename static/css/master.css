@@ -22,8 +22,12 @@
   font-family: 'Open Sans', sans-serif;
 }
 
-.big-header{
+.two-em{
   font-size: 2em;
+}
+
+.three-em{
+  font-size: 3em;
 }
 
 .med-header{
@@ -127,4 +131,21 @@
 
 .red-font{
   color: red;
+}
+
+
+.resolved{
+  background-color: mediumpurple;
+}
+
+.active{
+  background-color: lightgreen;
+}
+
+.idle{
+  background-color: khaki;
+}
+
+.unresolved{
+  background-color: pink;
 }
