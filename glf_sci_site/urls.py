@@ -22,12 +22,13 @@ from . import views as views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
     path('', views.IndexView.as_view(), name="index"),
+    path('accounts/', include('accounts.urls')),
+    path('inventory/', include('inventory.urls')),
+    path('dm-tickets/', include('dm_tickets.urls')),
     path('docs/', include('docs.urls')),
 
     path('grais/', include('grais.urls')),
-    path('inventory/', include('inventory.urls')),
     path('bugs/', include('bugs.urls')),
 ]
 

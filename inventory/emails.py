@@ -14,7 +14,7 @@ class CertificationRequestEmail:
         self.to_list = [person_object.user.email,]
 
     def load_html_template(self):
-        t = loader.get_template('resources/email_certification_request.html')
+        t = loader.get_template('inventory/email_certification_request.html')
         context ={
             'object': self.person_object,
             'queryset':  self.person_object.resource_people.filter(role=1)

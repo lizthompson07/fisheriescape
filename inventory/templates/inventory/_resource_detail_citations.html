@@ -10,8 +10,8 @@
 
       <li>
         {{item.short_citation_html|safe}}
-        (<a href="{% url 'resources:citation_detail' object.id item.id %}">details</a>)&nbsp;
-        <a href="{% url 'resources:resource_citation_delete' object.id item.id %}" class="red-font">&times;</a>
+        (<a href="{% url 'inventory:citation_detail' object.id item.id %}">details</a>)&nbsp;
+        <a href="{% url 'inventory:resource_citation_delete' object.id item.id %}" class="red-font">&times;</a>
       </li>
     {% endfor %}
   </ul>

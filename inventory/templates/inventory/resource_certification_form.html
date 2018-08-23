@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load bootstrap4 %}
 {% block content %}
 {% load verbose_names %}
@@ -6,8 +6,8 @@
 <div class="nav-map">
 <br>
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
     Certify
   </p>
 </div>
@@ -66,7 +66,7 @@
   {% endfor %}
 
   <input class="btn btn-lg btn-primary" type="submit" value="Yes!">
-  <a href="{% url 'resources:resource_detail' resource.id %}" class="btn btn-lg btn-secondary">No, Forget It</a>
+  <a href="{% url 'inventory:resource_detail' resource.id %}" class="btn btn-lg btn-secondary">No, Forget It</a>
 </form>
 
 

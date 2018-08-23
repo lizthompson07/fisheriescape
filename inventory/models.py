@@ -138,6 +138,10 @@ class ResourceType(models.Model):
     def __str__(self):
         return self.label
 
+    class Meta:
+        db_table = 'inventory_resource_type'
+
+
 class Maintenance(models.Model):
     frequency = models.CharField(max_length=25)
     code = models.CharField(max_length=25, blank=True, null=True)
@@ -380,7 +384,7 @@ class ResourcePerson(models.Model):
 
     class Meta:
         unique_together = (('resource', 'person', 'role'),)
-        db_table = 'resources_resource_people'
+        db_table = 'inventory_resource_people'
         ordering = ['role']
 
     def get_absolute_url(self):
@@ -405,7 +409,7 @@ class ResourceCertification(models.Model):
 
     class Meta:
         ordering = ['-certification_date']
-        db_table = 'resources_resource_certification'
+        db_table = 'inventory_resource_certification'
 
 
 class Correspondence(models.Model):

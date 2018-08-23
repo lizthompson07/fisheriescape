@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load verbose_names %}
 
 {% block content %}
 <div class="nav-map">
   <br>
-  <a href="{% url 'resources:resource_list' %}">All Resources</a> >
+  <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
   {{object.truncated_title}}
 </div>
 <div class="container">
@@ -14,30 +14,30 @@
   <h1>{{object.title_eng}}</h1>
   <p>
     <div class="btn-group">
-      <a class="btn btn-outline-primary" href="{% url 'resources:resource_person_filter' object.id %}">Add Person</a>
+      <a class="btn btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a>
       <div class="dropdown">
         <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Add Keyword
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="{% url 'resources:resource_topic_category_filter' object.id %}">Topic Category ({{kcount_tc}})</a>
-          <a class="dropdown-item" href="{% url 'resources:resource_core_subject_filter' object.id %}">Core Subject ({{kcount_cst}})</a>
-          <a class="dropdown-item" href="{% url 'resources:resource_species_filter' object.id %}">Taxonomic Keyword ({{kcount_tax}})</a>
-          <a class="dropdown-item" href="{% url 'resources:resource_location_filter' object.id %}">DFO Area ({{kcount_loc}})</a>
-          <a class="dropdown-item" href="{% url 'resources:resource_keyword_filter' object.id %}">Other Keyword ({{kcount_other}})</a>
+          <a class="dropdown-item" href="{% url 'inventory:resource_topic_category_filter' object.id %}">Topic Category ({{kcount_tc}})</a>
+          <a class="dropdown-item" href="{% url 'inventory:resource_core_subject_filter' object.id %}">Core Subject ({{kcount_cst}})</a>
+          <a class="dropdown-item" href="{% url 'inventory:resource_species_filter' object.id %}">Taxonomic Keyword ({{kcount_tax}})</a>
+          <a class="dropdown-item" href="{% url 'inventory:resource_location_filter' object.id %}">DFO Area ({{kcount_loc}})</a>
+          <a class="dropdown-item" href="{% url 'inventory:resource_keyword_filter' object.id %}">Other Keyword ({{kcount_other}})</a>
         </div>
       </div>
-      <a class="btn btn-outline-primary" href="{% url 'resources:resource_citation_filter' object.id %}">Add Citation</a>
+      <a class="btn btn-outline-primary" href="{% url 'inventory:resource_citation_filter' object.id %}">Add Citation</a>
     </div>
 
     <div class="btn-group">
-      <a class="btn btn-warning" href="{% url 'resources:resource_edit' object.id %}">Edit</a>
-      <a class="btn btn-primary" href="{% url 'resources:resource_certify' object.id %}">Certify</a>
-      <a class="btn btn-success"onclick="return popitup('{% url 'resources:verify_readiness' object.id %}','popItOut')" href="#" >Verify</a>
+      <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
+      <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify</a>
+      <a class="btn btn-success"onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')" href="#" >Verify</a>
       {% if user.id == 50 %}
-      <a class="btn btn-danger" href="{% url 'resources:resource_delete' object.id %}">Delete</a>
+      <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
       {% else %}
-      <a class="btn btn-danger disabled" href="{% url 'resources:resource_delete' object.id %}">Delete</a>
+      <a class="btn btn-danger disabled" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
       {% endif %}
       <div class="dropdown">
         <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -63,8 +63,8 @@
             <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3><br><br>
           </p>
           <div class="container">
-            <a class="btn btn-lg btn-warning closeBtn" href="{% url 'resources:export_xml' object.id 'yes' %}">Yes</a>
-            <a class="btn btn-lg btn-primary closeBtn" href="{% url 'resources:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
+            <a class="btn btn-lg btn-warning closeBtn" href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
+            <a class="btn btn-lg btn-primary closeBtn" href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
             <a href="#" class="btn btn-lg btn-secondary closeBtn">Forget the Whole Thing</a>
           </div>
         {% else %}
@@ -72,10 +72,10 @@
             <h1>Just a heads up: this record did not pass the verification test</h1>
           </p>
           <p>
-            <h3>Click <a onclick="return popitup('{% url 'resources:verify_readiness' object.id %}','popItOut')" href="#">HERE</a> to see what still needs to be addressed.</h3><br><br>
+            <h3>Click <a onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')" href="#">HERE</a> to see what still needs to be addressed.</h3><br><br>
           </p>
           <div class="container">
-            <a class="btn btn-lg btn-warning closeBtn" href="{% url 'resources:export_xml' object.id 'no' %}">Export Anyways!</a>
+            <a class="btn btn-lg btn-warning closeBtn" href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
             <a href="#" class="btn btn-lg btn-secondary closeBtn my-btn">Nevermind</a>
           </div>
         {% endif %}
@@ -93,30 +93,30 @@
     <div class="col">
       {# Basic details #}
       <h2>Basic Details</h2>
-      {% include "resources/_resource_detail_basic.html" %}
+      {% include "inventory/_resource_detail_basic.html" %}
     </div>
     <div class="col">
       <div class="container">
         <h2>People</h2>
-        {% include "resources/_resource_detail_people.html" %}
+        {% include "inventory/_resource_detail_people.html" %}
 
         <h2>Keywords etc.</h2>
-        {% include "resources/_resource_detail_keywords.html" %}
+        {% include "inventory/_resource_detail_keywords.html" %}
 
         <br><br>
         <h2>Citations</h2>
-        {% include "resources/_resource_detail_citations.html" %}
+        {% include "inventory/_resource_detail_citations.html" %}
 
         <br><br>
         <h2>Related Records</h2>
-        {% include "resources/_resource_detail_related.html" %}
+        {% include "inventory/_resource_detail_related.html" %}
       </div>
     </div>
   </div>
   <div class="row">
     <div class="container">
       <h2>Full Details</h2>
-      {% include "resources/_resource_detail_full.html" %}
+      {% include "inventory/_resource_detail_full.html" %}
 
     </div>
   </div>
@@ -132,8 +132,8 @@
           {% for item in object.certification_history.all %}
             <li>
               {{item.certification_date|date:"F d, Y"}} by @{{item.certifying_user}}
-              {# (<a href="{% url 'resources:citation_detail' object.id item.id %}">details</a>)&nbsp; #}
-              (<a href="{% url 'resources:resource_certification_delete' item.id %}" class="red-font">remove</a>)
+              {# (<a href="{% url 'inventory:citation_detail' object.id item.id %}">details</a>)&nbsp; #}
+              (<a href="{% url 'inventory:resource_certification_delete' item.id %}" class="red-font">remove</a>)
             </li>
           {% endfor %}
         </ul>

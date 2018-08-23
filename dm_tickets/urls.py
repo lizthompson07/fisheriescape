@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-app_name = 'dm_tickets'
+app_name = 'tickets'
 
 urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name ="close_me" ),

@@ -23,6 +23,7 @@ MEDIA_DIR = os.path.join(BASE_DIR,'media')
 MY_ENVR = media_conf.where_am_i()
 MY_CNF = os.path.join(BASE_DIR,'my.cnf')
 WEB_APP_NAME = "GulfScienceDataManagement"
+GOOGLE_API_KEY = "AIzaSyCKvWIIf4b_WweJCJISd02BAUbYfja-LPQ"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -34,6 +35,11 @@ SECRET_KEY = 'dekdlvbhtlbo_wg_x32ovt9umh3ysbfa$+f@h7i8oe-45$c)pl'
 DEBUG = True
 
 ALLOWED_HOSTS = ['glfscidm001','127.0.0.1']
+
+
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
 
 
 # Application definition
@@ -153,7 +159,6 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 
-LOGIN_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/

@@ -59,7 +59,7 @@ def send_resolved_email(request, ticket):
     # create a new email object
     email = emails.TicketResolvedEmail(my_ticket)
     # send the email object
-    if settings.MY_ENVR != 'development':
+    if settings.MY_ENVR != 'dev':
         send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
     else:
         print('not sending email since in dev mode')
@@ -129,7 +129,7 @@ class TicketCreateView(CreateView):
         # create a new email object
         email = emails.NewTicketEmail(self.object)
         # send the email object
-        if settings.MY_ENVR != 'development':
+        if settings.MY_ENVR != 'dev':
             send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
         else:
             print('not sending email since in dev mode')
@@ -227,7 +227,7 @@ class FileCreateView(CreateView):
         # create a new email object
         email = emails.NewFileAddedEmail(self.object)
         # send the email object
-        if settings.MY_ENVR != 'development':
+        if settings.MY_ENVR != 'dev':
             send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
         else:
             print('not sending email since in dev mode')

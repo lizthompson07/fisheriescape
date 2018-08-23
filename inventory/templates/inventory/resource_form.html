@@ -1,22 +1,19 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 
 {% load bootstrap4 %}
 
 {% block content %}
 <div class="nav-map">
 <br>
-  {% if person %}
+  {% if object.id %}
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    Edit {{person.full_name}} details
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' object.id %}">{{object.truncated_title}}</a> >
+    Edit
   </p>
   {% else %}
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    <a href="{% url 'resources:resource_person_filter' resource.id %}">Insert Person</a> >
-    Add New Person to Database
+    <a href="{% url 'inventory:resource_list' %}">All resources</a> >
     New
   </p>
   {% endif %}
@@ -25,10 +22,10 @@
 
 {% load static %}
 {# Load js file to allow for popout window #}
-{% if person %}
-
+{% if object.id %}
+  <h1>{{object}}</h1><br>
 {% else %}
-  <h1>New Person</h1>
+  <h1>New Resource</h1>
 {% endif %}
 
 <form method="post" class="form">
@@ -51,9 +48,9 @@
     <p>
       <button type="submit" class="btn btn-primary">Submit</button>
       {% if object.id %}
-        <a class="btn btn-secondary" href="{% url 'resources:resource_detail' object.id %}">Cancel</a>
+        <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' object.id %}">Cancel</a>
       {% else %}
-        <a class="btn btn-secondary" href="{% url 'resources:resource_list' %}">Cancel</a>
+        <a class="btn btn-secondary" href="{% url 'inventory:resource_list' %}">Cancel</a>
       {% endif %}
     </p>
 </form>

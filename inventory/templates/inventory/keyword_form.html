@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 
 {% load bootstrap4 %}
 
@@ -9,16 +9,16 @@
 <br>
   {% if object.id %}
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    <a href="{% url 'resources:keyword_detail' resource.id object.id %}">{{object.text_value_eng}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:keyword_detail' resource.id object.id %}">{{object.text_value_eng}}</a> >
     Edit
   </p>
   {% else %}
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    <a href="{% url 'resources:resource_keyword_filter' resource.id %}">{{object.text_value_eng}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:resource_keyword_filter' resource.id %}">{{object.text_value_eng}}</a> >
     New
   </p>
   {% endif %}
@@ -42,9 +42,9 @@
     <p>
       <button type="submit" class="btn btn-primary">Submit</button>
       {% if object.id %}
-        <a class="btn btn-secondary" href="{% url 'resources:keyword_detail' resource.id object.id %}">Cancel</a>
+        <a class="btn btn-secondary" href="{% url 'inventory:keyword_detail' resource.id object.id %}">Cancel</a>
       {% else %}
-        <a class="btn btn-secondary" href="{% url 'resources:resource_keyword_filter' resource.id %}">Cancel</a>
+        <a class="btn btn-secondary" href="{% url 'inventory:resource_keyword_filter' resource.id %}">Cancel</a>
       {% endif %}
     </p>
 </form>

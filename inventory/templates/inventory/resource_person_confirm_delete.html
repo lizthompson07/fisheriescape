@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
@@ -10,8 +10,8 @@
 <div class="nav-map">
 <br>
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' object.resource.id %}">{{object.resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' object.resource.id %}">{{object.resource.truncated_title}}</a> >
     Remove {{object.person.full_name}} as {{object.role}}
   </p>
 
@@ -37,7 +37,7 @@
 
     <p>
       <button type="submit" class="btn btn-lg btn-danger">Yes, I am sure</button>
-      <a class="btn btn-lg btn-secondary" href="{% url 'resources:resource_detail' object.resource.id %}">Cancel</a>
+      <a class="btn btn-lg btn-secondary" href="{% url 'inventory:resource_detail' object.resource.id %}">Cancel</a>
     </p>
 </form>
 </div>

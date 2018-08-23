@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
@@ -13,14 +13,14 @@
 <br>
   {% if object.id %}
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' object.resource.id %}">{{object.resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' object.resource.id %}">{{object.resource.truncated_title}}</a> >
     Edit Resource Person
   </p>
   {% else %}
   <p>
-    <a href="{% url 'resources:resource_list' %}">All Resources</a> >
-    <a href="{% url 'resources:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
     Insert {{person.full_name}}
   </p>
   {% endif %}
@@ -42,10 +42,10 @@
         {% buttons %}
           {% if object.id %}
             <button type="submit" class="btn btn-success" onclick="refreshParent()">Submit</button>
-            <a class="btn btn-secondary" href="{% url 'resources:resource_detail' object.resource.id %}">Back</a>
+            <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' object.resource.id %}">Back</a>
           {% else %}
             <button type="submit" class="btn btn-success" onclick="refreshParent()">Add</button>
-            <a class="btn btn-secondary" href="{% url 'resources:resource_person_filter' resource.id %}">Back</a>
+            <a class="btn btn-secondary" href="{% url 'inventory:resource_person_filter' resource.id %}">Back</a>
 
           {% endif %}
 
@@ -55,7 +55,7 @@
 {% if object.id %}
 <hr>
 <p>
-  <a href="{% url "resources:person_edit" object.resource.id object.person.user_id %}" class="btn btn-sm btn-warning">Edit User Details</a>
+  <a href="{% url "inventory:person_edit" object.resource.id object.person.user_id %}" class="btn btn-sm btn-warning">Edit User Details</a>
 </p>
 
 <p><b>
