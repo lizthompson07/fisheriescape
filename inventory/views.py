@@ -31,14 +31,14 @@ class CloserTemplateView(TemplateView):
 
 class ResourceListView(FilterView):
     filterset_class = filters.ResourceFilter
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'inventory/resource_list.html'
     queryset = models.Resource.objects.all().order_by("-status","title_eng")
 
 
 
 class MyResourceListView(LoginRequiredMixin, TemplateView):
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'inventory/my_resource_list.html'
 
     def get_context_data(self, **kwargs):
@@ -89,7 +89,7 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
 
 class ResourceDetailView(DetailView):
     model = models.Resource
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -118,7 +118,7 @@ class ResourceUpdateView(LoginRequiredMixin, UpdateView):
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = models.Resource
     form_class = forms.ResourceCreateForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {
@@ -141,7 +141,7 @@ class ResourceDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Resource
     success_url = reverse_lazy('inventory:resource_list')
     success_message = 'The data resource was successfully deleted!'
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -166,7 +166,7 @@ class ResourcePersonFilterView(FilterView):
 class ResourcePersonCreateView(LoginRequiredMixin, CreateView):
     model = models.ResourcePerson
     template_name ='inventory/resource_person_form.html'
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     form_class = forms.ResourcePersonForm
 
     def get_initial(self):
@@ -189,7 +189,7 @@ class ResourcePersonCreateView(LoginRequiredMixin, CreateView):
 class ResourcePersonUpdateView(LoginRequiredMixin, UpdateView):
     model = models.ResourcePerson
     template_name ='inventory/resource_person_form.html'
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     form_class = forms.ResourcePersonForm
 
 
@@ -199,7 +199,7 @@ class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
     template_name ='inventory/resource_person_confirm_delete.html'
     success_url = reverse_lazy('inventory:resource_person')
     success_message = 'The person has been removed from the data resource!'
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -581,7 +581,7 @@ def citation_delete(request, resource, citation):
 class PublicationCreateView(LoginRequiredMixin, CreateView):
     model = models.Publication
     fields = "__all__"
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'inventory/publication_form_popout.html'
 
     def form_valid(self, form):
@@ -635,7 +635,7 @@ class DataManagementHomeTemplateView(TemplateView):
         return context
 
 class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'inventory/dm_custodian_list.html'
 
     def get_context_data(self, **kwargs):
@@ -657,7 +657,7 @@ class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
         return context
 
 class DataManagementCustodianDetailView(LoginRequiredMixin, DetailView):
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     template_name = 'inventory/dm_custodian_detail.html'
     model = models.Person
 
@@ -695,7 +695,7 @@ class ResourceCertificationCreateView(LoginRequiredMixin, CreateView):
     model = models.ResourceCertification
     template_name = 'inventory/resource_certification_form.html'
     form_class = forms.ResourceCertificationForm
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     success_message = "Certification successful!"
 
 
@@ -728,7 +728,7 @@ class ResourceCertificationCreateView(LoginRequiredMixin, CreateView):
 class ResourceCertificationDeleteView(LoginRequiredMixin, DeleteView):
     model = models.ResourceCertification
     template_name = 'inventory/resource_certification_confirm_delete.html'
-    login_url = '/login_required/'
+    login_url = '/accounts/login_required/'
     success_message = "The certification event has been removed."
 
     def get_success_url(self):

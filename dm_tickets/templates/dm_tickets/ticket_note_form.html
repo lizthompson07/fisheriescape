@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "dm_tickets/dm_tickets_base.html" %}
 
 {% load bootstrap4 %}
 
@@ -34,9 +34,9 @@
     {% endbuttons %}
 </form>
 <script type="text/javascript">
-  var user_name = "{{ user }}";
+  var user_name = "{{ user.last_name|lower }}";
 </script>
-<script type="text/javascript" src="{% static "js/insertNote.js" %}"></script>
+
 
 
 {% endblock content %}
