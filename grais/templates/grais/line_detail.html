@@ -1,0 +1,196 @@
+{% extends "grais/grais_base.html" %}
+{% load static %}
+
+{% block header %}
+<style>
+       /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
+    </style>
+{% endblock header %}
+
+
+{% block content %}
+
+<div class="nav-map">
+  <p><br>
+    <a href="{% url 'grais:sample_list' %}">All samples</a> >
+    <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+    Line {{object}}
+  </p><br>
+</div>
+
+<div class="container">
+  <h1>Line {{object}} deployed @ {{object.sample.station}}</h1>
+  <div class="btn-group">
+    <a class="btn btn-warning" href="{% url 'grais:line_edit' object.sample.id object.id %}">Edit</a>
+    {% if object.surfaces.count > 0 %}
+      <a class="btn btn-danger disabled" href="{% url 'grais:line_edit' object.sample.id object.id %}">Delete</a>
+    {% else %}
+      <a class="btn btn-danger" href="{% url 'grais:line_delete' object.sample.id object.id %}">Delete</a>
+    {% endif %}
+  </div>
+  <div class="btn-group">
+    <a class="btn btn-outline-primary" href="{% url 'grais:surface_new' object.sample.id object.id %}">Add Surface</a>
+  </div>
+
+<div class="row">
+<div class="col">
+  <br><br>
+    {# Detail about the line #}
+    <p>
+      <b>DFO collector tag #:</b><br>
+        #{{object.collector.tag_number}}
+    </p>
+    <p>
+      <b>Latitude / longitude:</b><br>
+        {% if object.latitude_n and object.longitude_w %}
+          {{object.latitude_n|floatformat:6}} / {{object.longitude_w|floatformat:6}}
+        {% else %}
+          <em>not specified</em>
+        {% endif %}
+    </p>
+    <p>
+      <b>Notes:</b><br>
+      {{object.notes}}
+    </p>
+    <p>
+      <b>Last modified by:</b><br>
+      {% if object.last_modified_by %}
+        @{{object.last_modified_by}}
+      {% else %}
+        n/a
+      {% endif %}
+    </p>
+
+  </div>
+  <div class="col">
+    {% if object.latitude_n and object.longitude_w %}
+      <div id="map"></div>
+    {% else %}
+      <p><em>This line has no coordinates to display</em> </p>
+    {% endif %}
+
+  </div>
+</div>
+{#  Surfaces #}
+<br><br>
+
+      <h4>
+        <b>Surfaces:</b>
+        <a class="btn btn-sm btn-light" href="{% url 'grais:surface_new' object.sample.id object.id %}"> <i class="material-icons">add</i></a>
+      </h4>
+
+      <table class="table table-bordered">
+        <thead>
+          <th>Id</th>
+          <th>Surface</th>
+          <th>Invasive spp.</th>
+          <th>Total spp.</th>
+          <th>Thumbnail</th>
+        </thead>
+        <tbody>
+          {% for s in object.surfaces.all  %}
+            <tr>
+
+              <td><b>
+                <a href="{% url 'grais:surface_detail' object.sample.id object.id s.id %}">{{s.id}}</a> </td>
+              </b>
+
+              {% if s.surface_type == 'pe' %}
+                <td class="petri">
+              {% else %}
+                <td class="plate">
+              {% endif %}
+                    {{s.get_surface_type_display}} {{s.label}}
+              </td>
+
+              <td>{{s.species.count}}</td>
+              <td>{{s.species.count}}</td>
+
+              {% if s.image %}
+                <td>
+                  <a href="{{s.image.url}}">
+                    <img src="{{s.image.url}}" alt="cannot find {{s.image.url}}"  width="75 em">
+                  </a>
+                </td>
+              {% else %}
+              <td>n/a</td>
+              {% endif %}
+
+            </tr>
+          {% empty %}
+            {# empty #}
+          {% endfor %}
+        </tbody>
+      </table>
+      <p>
+        <b>TOTAL: {{object.surfaces.count}}</b>
+      </p>
+</div>
+
+
+<script>
+    function initialize() {
+      var locations = [
+        {% if object.latitude_n and object.longitude_w %}
+          ['<a href="{% url 'grais:line_detail' object.id line.id %}">Line {{line.id}}</a>',{{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/yellow_MarkerL.png" %}'],
+          {% for line in object.sample.lines.all %}
+            {% if line.id != object.id %}
+              ['<a href="{% url 'grais:line_detail' object.id line.id %}">Line {{line.id}}</a>',{{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          ['<a href="{% url 'grais:station_detail' object.sample.station.id %}">Station {{object.sample.station.id}}</a>',{{object.station.latitude_n}}, {{object.station.longitude_w}},'{% static "/img/grais/blue_MarkerS.png" %}'],
+        {% endif %}
+
+      ];
+      console.log(locations);
+      window.map = new google.maps.Map(document.getElementById('map'), {
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+      });
+
+      var infowindow = new google.maps.InfoWindow();
+
+      var bounds = new google.maps.LatLngBounds();
+
+      for (i = 0; i < locations.length; i++) {
+          marker = new google.maps.Marker({
+              position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+              map: map,
+              icon: locations[i][3]
+          });
+
+          bounds.extend(marker.position);
+
+          google.maps.event.addListener(marker, 'click', (function (marker, i) {
+              return function () {
+                  infowindow.setContent(locations[i][0]);
+                  infowindow.open(map, marker);
+              }
+          })(marker, i));
+      }
+
+      map.fitBounds(bounds);
+
+      // var listener = google.maps.event.addListener(map, "idle", function () {
+      //     map.setZoom(10);
+      //     google.maps.event.removeListener(listener);
+      // });
+    }
+
+    function loadScript() {
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+      document.body.appendChild(script);
+    }
+
+    window.onload = loadScript;
+
+</script>
+
+
+{% endblock content %}

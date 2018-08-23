@@ -40,6 +40,7 @@ class Location(models.Model):
     def __str__(self):
         return "{} {}".format(location_eng)
 
+
 class Organization(models.Model):
     name_eng = models.CharField(max_length=1000, blank=True, null=True)
     name_fre = models.CharField(max_length=1000, blank=True, null=True)
@@ -99,6 +100,7 @@ class Section(models.Model):
 
     class Meta:
         ordering = ['section']
+        
 
 class Status(models.Model):
     label = models.CharField(max_length=25)
