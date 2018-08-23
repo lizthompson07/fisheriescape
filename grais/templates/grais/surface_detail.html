@@ -24,7 +24,6 @@
       {% else %}
       <a class="btn btn-danger" href="{% url 'grais:surface_delete' view.kwargs.sample view.kwargs.line object.id %}">Delete</a>
       {% endif %}
-      
     </div>
     <div class="btn-group">
       <a class="btn btn-outline-primary" href="{% url "grais:surface_spp_insert" object.line.sample.id object.line.id object.id %}"> Add Species</a>
