@@ -1,6 +1,6 @@
-{# {% autoescape off %} #}
+{% autoescape off %}
 Hi {{ user.first_name }},
-Please click on
-<a href="http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}">THIS</a>
- link to confirm your registration with the DFO Science Gulf Region Data Management website.
-{# {% endautoescape %} #}
+Please click on the following link to confirm your registration with the DFO Science Gulf Region Data Management website:
+http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
+
+{% endautoescape %}
