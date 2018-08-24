@@ -2,6 +2,11 @@
 {% block bug_create %}{% url 'bugs:bug_create' 6 %}{% endblock bug_create %}
 
 {% block title %}DM-Accounts{% endblock title %}
+{% block right_auth %}
+  <li class="nav-item"><a class="nav-link" href="{% url 'accounts:account' user.id %}"> Account </a></li>
+{% endblock right_auth %}
+
+
 {% block body %}
   {% block content %}{% endblock content %}
 {% endblock body %}
