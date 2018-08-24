@@ -76,7 +76,7 @@ def signup(request):
             user.is_active = False
             user.save()
             current_site = get_current_site(request)
-            mail_subject = 'Activate your blog account.'
+            mail_subject = 'Activate your Gulf Region Data Management account.'
             message = render_to_string('registration/acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
@@ -95,9 +95,13 @@ def signup(request):
 
 
 def activate(request, uidb64, token):
+    print(type(bytes(uidb64)))
+    # print(urlsafe_base64_decode(uidb64))
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))
+        print(uid)
         user = User.objects.get(pk=uid)
+        print(user)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
