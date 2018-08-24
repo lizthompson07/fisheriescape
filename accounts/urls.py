@@ -23,8 +23,9 @@ urlpatterns = [
             'message': "You must be logged in to access this page",
             }
         }),
-    # path('password-reset/', views.UserPassWordResetView.as_view(), name='password_reset'),
+    path('password-reset/', views.UserPassWordResetView.as_view(), name='password_reset'),
+    # path('password-reset/', auth_views.PasswordResetView.as_view(template_name="registration/passwords_reset_form.html"), name='password_reset'),
 
-
+# PasswordResetView
 
 ]
