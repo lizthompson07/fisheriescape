@@ -33,8 +33,8 @@ class SignupForm(UserCreationForm):
     def clean_email(self):
         new_email = self.cleaned_data['email']
         if User.objects.filter(email__iexact=new_email).count() > 0:
-            url_redirect = reverse("accounts:resend_verification_email", kwargs={"email":new_email})
-            raise forms.ValidationError(mark_safe("This email address in already in our database. To have your password resent to your email click <a href='{}'>HERE</a>".format(url_redirect)))
+            url_redirect = reverse("password_reset")
+            raise forms.ValidationError(mark_safe("This email address in already in our database. To reset your login credentials click <a href='{}'>HERE</a>".format(url_redirect)))
             # raise forms.ValidationError(_(mark_safe('An account already exists for this email address. <a href="#" class="email_error">Log in instead?</a>')))
 
         if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
