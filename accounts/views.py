@@ -189,6 +189,7 @@ def activate(request, uidb64, token):
 
 class UserPassWordResetView(PasswordResetView):
     template_name = "registration/user_password_reset_form.html"
+    success_url = reverse("accounts:password_reset_done")
 
 class UserPasswordChangeDoneView(PasswordChangeDoneView):
     template_name = "registration/login.html"
