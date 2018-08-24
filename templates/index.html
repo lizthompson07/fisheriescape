@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "accounts/accounts_base.html" %}
 {% load static %}
 {% block bug_create %}{% url 'bugs:bug_create' 1 %}{% endblock bug_create %}
 
@@ -40,7 +40,7 @@
 
           <img src="{% static "/img/database-152091.svg" %}" style="width:50%" class="align-self-center mr-3">
           <div class="caption">
-            <p>Regional Data Inventory</p>
+            <p>Data Inventory</p>
           </div>
         </a>
       </div>
