@@ -653,27 +653,27 @@ def verify(resource):
     if resource.resource_people.filter(role_id=1) == 0:
         SubElement(checklist,"li").text = "At least one custodian is needed"
 
-    # do all contacts have org name in eng and fre?
     for person in resource.people.all():
-        if person.organization.name_eng == None or person.organization.name_eng == "":
-            SubElement(checklist,'li').text = "An English organization name is needed for {}".format(person)
-        if person.organization.name_fre == None or person.organization.name_fre == "":
-            SubElement(checklist,'li').text = "A French organization name is needed for {}".format(person)
 
-        # do all contacts have location in eng and fre?
         # first check if there is an org present
         if person.organization == None:
             SubElement(checklist,'li').text = "An organization is needed for {}".format(person)
         else:
+            # do all contacts have org name in eng and fre?
+            if person.organization.name_eng == None or person.organization.name_eng == "":
+                SubElement(checklist,'li').text = "An English organization name is needed for {}".format(person)
+            if person.organization.name_fre == None or person.organization.name_fre == "":
+                SubElement(checklist,'li').text = "A French organization name is needed for {}".format(person)
+
             # check if there is an organization has a location
             if person.organization.location == None:
                 SubElement(checklist,'li').text = "A location is needed for '{}' which is the organization belonging to {}".format(person.organization, person)
             else:
-                for person in resource.people.all():
-                    if person.organization.location.location_eng == None:
-                        SubElement(checklist,'li').text ="An English organization location is needed for {}".format(person)
-                    if person.organization.location.location_fre == None:
-                        SubElement(checklist,'li').text ="A French organization location is needed for {}".format(person)
+                # do all contacts have location in eng and fre?
+                if person.organization.location.location_eng == None:
+                    SubElement(checklist,'li').text ="An English organization location is needed for {}".format(person)
+                if person.organization.location.location_fre == None:
+                    SubElement(checklist,'li').text ="A French organization location is needed for {}".format(person)
 
         # do all contacts have position name in eng and fre?
         if person.position_eng == None or person.position_eng == "":

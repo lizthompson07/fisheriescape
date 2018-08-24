@@ -39,7 +39,7 @@ ALLOWED_HOSTS = ['glfscidm001','127.0.0.1']
 
 
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
+LOGIN_URL = 'accounts/login/'
 
 
 # Application definition

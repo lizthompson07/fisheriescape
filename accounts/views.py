@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model, update_session_auth_hash, login,
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordResetView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
 from django.http import HttpResponseRedirect, HttpResponse
@@ -18,14 +18,16 @@ from django.views.generic import TemplateView, UpdateView, CreateView #,ListView
 from .tokens import account_activation_token
 from . import forms
 from . import emails
+from inventory import models as inventory_models
+
 
 # Create your views here.
 
 class IndexView(TemplateView):
     template_name = 'accounts/index.html'
 
-class DataFlowTemplateView(TemplateView):
-    template_name = 'landing/dataflow.html'
+# class DataFlowTemplateView(TemplateView):
+#     template_name = 'landing/dataflow.html'
 
 class UserLoginView(LoginView):
     template_name = "registration/login.html"
@@ -34,7 +36,7 @@ class UserUpdateView(UpdateView):
     model = get_user_model()
     form_class = forms.UserAccountForm
     template_name = 'registration/user_form.html'
-    success_url = reverse_lazy('landing:home')
+    success_url = reverse_lazy('index')
 
     def form_valid(self, form):
         self.object.username = self.object.email
@@ -66,8 +68,17 @@ def account_verified(request):
             form = SetPasswordForm(request.user, request.POST)
             if form.is_valid():
                 user = form.save()
-                user.groups.add(group)
                 update_session_auth_hash(request, user)  # Important!
+
+                # the user should be added to the People object of data inventory
+                # user_instance = User.objects.get(pk=user.id) #for some reason, the create() method does not want to accept the user instance
+                # new_person = inventory_models.Person.objects.create(
+                #     user=user_instance,
+                #     full_name="{}, {}".format(user.last_name, user.first_name),
+                #     organization_id=6
+                # )
+                user.groups.add(group)
+
                 messages.success(request, 'Your password was successfully updated!')
                 return redirect('index' )
         else:
@@ -78,7 +89,12 @@ def account_verified(request):
 
 
 def resend_verification_email(request, email):
+    group = Group.objects.get(name='verified')
     user = User.objects.get(email__iexact=email)
+    try:
+        user.groups.remove(group)
+    except:
+        pass
     current_site = get_current_site(request)
     mail_subject = 'Activate your Gulf Region Data Management account.'
     message = render_to_string('registration/acc_active_email.html', {
@@ -109,7 +125,7 @@ def account_request(request):
             # send the email object
             send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
             messages.success(request, 'An email with your request has been send to the application administrator')
-            return HttpResponseRedirect(reverse('landing:home' ))
+            return HttpResponseRedirect(reverse('index' ))
     else:
         form = forms.AccountRequestForm()
     return render(request, 'registration/account_request_form.html', {
@@ -120,6 +136,7 @@ def signup(request):
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         if form.is_valid():
+            print(123)
             user = form.save(commit=False)
             user.username = user.email
             user.is_active = False
@@ -148,24 +165,29 @@ def signup(request):
     return render(request, 'registration/signup.html', {'form': form})
 
 def activate(request, uidb64, token):
-    print(uidb64)
-    # print(urlsafe_base64_decode(uidb64))
-    print(force_bytes(uidb64))
     try:
         uid = force_text(urlsafe_base64_decode(force_bytes(uidb64)))
-        print(uid)
         user = User.objects.get(pk=uid)
-        print(user)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
-    print(token)
-    print(user is not None)
-    print(account_activation_token.check_token(user, token))
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
         login(request, user)
         # return redirect('home')
-        return HttpResponseRedirect(reverse('accounts:verified'))
+        messages.success(request, 'Congrats! Your account has been successfully verified')
+        return HttpResponseRedirect(reverse('index'))
     else:
         return HttpResponse('Activation link is invalid!')
+
+# def UserResetPassword(request):
+#     form = UserForgotPasswordForm(None, request.POST)
+#     if request.method == 'POST':
+#         if form.is_valid():
+#             form.save(from_email='blah@blah.com', email_template_name='path/to/your/email_template.html')
+
+
+# class UserPassWordResetView(PasswordResetView):
+#     template_name = "registration/password_reset_form.html"
+#     from_email = "test@test.com"
+#     success_url = "/accounts/login/"

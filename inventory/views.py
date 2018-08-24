@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model, models as auth_models
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
@@ -65,7 +65,6 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
         for item in resource_dict:
             non_custodian_list.append(resource_dict[item])
         context['non_custodian_list'] = non_custodian_list
-
 
         return context
 
@@ -239,9 +238,9 @@ class PersonCreateView(LoginRequiredMixin, FormView):
         language = form.cleaned_data['language']
         organization = form.cleaned_data['organization']
 
-        # # step 1: create a landing user
-        new_landing_user = accounts_models.User.objects.create(
-            username="{}.{}".format(first_name.lower(),last_name.lower()),
+        # # step 1: create a new user - since we added the receiver decorator to models.py, we do not have to create a person. It will be handled automatically.
+        user = User.objects.create(
+            username=email,
             first_name=first_name,
             last_name=last_name,
             password="Welcome1",
@@ -249,8 +248,8 @@ class PersonCreateView(LoginRequiredMixin, FormView):
             email=email,
         )
 
-        # step 2: create a Person
-        new_person = models.Person.objects.create(user_id=new_landing_user.id)
+        # step 2: fetch the Person
+        new_person = models.Person.objects.get(user_id=user.id)
         new_person.position_eng = position_eng
         new_person.position_fre = position_fre
         new_person.phone = phone

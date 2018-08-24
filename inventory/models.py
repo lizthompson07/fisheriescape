@@ -1,15 +1,18 @@
-from django.db import models
-from django.urls import reverse, reverse_lazy
-from django.utils import timezone
+
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 import misaka
 import os
 import uuid
-from accounts import models as accounts_models
-from django.contrib.auth import models as auth_models
+
 
 
 # Choices for language
@@ -68,7 +71,7 @@ class PersonRole(models.Model):
         ordering = ['id']
 
 class Person(models.Model):
-    user = models.OneToOneField(accounts_models.User, on_delete=models.CASCADE, primary_key=True, related_name="person")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="person")
     full_name = models.CharField(max_length=255, blank=True, null=True)
     position_eng = models.CharField(max_length=255, blank=True, null=True)
     position_fre = models.CharField(max_length=255, blank=True, null=True)
@@ -100,7 +103,7 @@ class Section(models.Model):
 
     class Meta:
         ordering = ['section']
-        
+
 
 class Status(models.Model):
     label = models.CharField(max_length=25)
@@ -347,11 +350,11 @@ class Resource(models.Model):
     people = models.ManyToManyField(Person, through='ResourcePerson')
     parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children', verbose_name="Parent resource")
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified_by = models.ForeignKey(auth_models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
 
     def get_absolute_url(self):
-        return reverse('resources:resource_detail', kwargs={'pk':self.pk})
+        return reverse('inventory:resource_detail', kwargs={'pk':self.pk})
 
     class Meta:
         ordering = ['id',]
@@ -390,7 +393,7 @@ class ResourcePerson(models.Model):
         ordering = ['role']
 
     def get_absolute_url(self):
-        return reverse('resources:resource_detail', kwargs={'pk':self.resource.id})
+        return reverse('inventory:resource_detail', kwargs={'pk':self.resource.id})
 
 
 class BoundingBox(models.Model):
@@ -405,7 +408,7 @@ class BoundingBox(models.Model):
 
 class ResourceCertification(models.Model):
     resource = models.ForeignKey(Resource, on_delete=models.DO_NOTHING, related_name="certification_history")
-    certifying_user = models.ForeignKey(auth_models.User, on_delete=models.DO_NOTHING)
+    certifying_user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     certification_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     notes = models.TextField(blank=True, null = True)
 
@@ -415,9 +418,19 @@ class ResourceCertification(models.Model):
 
 
 class Correspondence(models.Model):
-    custodian = models.ForeignKey(auth_models.User, on_delete=models.DO_NOTHING, related_name="correspondences")
+    custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="correspondences")
     subject = models.CharField(max_length=255)
     date = models.DateTimeField(blank=True, null=True, default=timezone.now)
 
     class Meta:
         ordering = ['-date']
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Person.objects.create(user=instance)
+
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     Person.profile.save()

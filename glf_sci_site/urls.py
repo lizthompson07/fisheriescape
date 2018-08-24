@@ -19,6 +19,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from . import views as views
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,6 +32,10 @@ urlpatterns = [
 
     path('grais/', include('grais.urls')),
     path('bugs/', include('bugs.urls')),
+    path('password-reset/', auth_views.password_reset, name='password_reset'),
+    path('password-reset-done/', auth_views.password_reset_done, name='password_reset_done'),
+    path('reset/<str:uidb64>/<str:token>/', auth_views.password_reset_confirm, name='password_reset_confirm'),
+    path('reset/done/', auth_views.password_reset_complete, name='password_reset_complete'),
 ]
 
 if settings.MY_ENVR == "dev":

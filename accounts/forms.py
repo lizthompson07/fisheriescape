@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, SetPasswordForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, SetPasswordForm, AuthenticationForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.urls import reverse
@@ -34,7 +34,7 @@ class SignupForm(UserCreationForm):
         new_email = self.cleaned_data['email']
         if User.objects.filter(email__iexact=new_email).count() > 0:
             url_redirect = reverse("accounts:resend_verification_email", kwargs={"email":new_email})
-            raise forms.ValidationError(mark_safe("Oh, oh. It seems we already have this email in our database! To have your password resent to your email click <a href='{}'>HERE</a>".format(url_redirect)))
+            raise forms.ValidationError(mark_safe("This email address in already in our database. To have your password resent to your email click <a href='{}'>HERE</a>".format(url_redirect)))
             # raise forms.ValidationError(_(mark_safe('An account already exists for this email address. <a href="#" class="email_error">Log in instead?</a>')))
 
         if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
@@ -42,9 +42,14 @@ class SignupForm(UserCreationForm):
 
         # Always return a value to use as the new cleaned data, even if
         # this method didn't change it.
-        return new_email.endswith
+        return new_email
 
 
+class UserForgotPasswordForm(PasswordResetForm):
+    email = forms.EmailField(required=True)
+    class Meta:
+        model = User
+        fields = ("email")
 
 
 
