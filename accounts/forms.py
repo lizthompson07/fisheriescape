@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, SetPasswordForm, AuthenticationForm
 from django.contrib.auth.models import User
-
+from django.utils.safestring import mark_safe
+from django.urls import reverse
 
 # from django.contrib.auth.forms import UserCreationForm
 
@@ -23,12 +24,30 @@ class AccountRequestForm(forms.Form):
 
 
 class SignupForm(UserCreationForm):
-    email = forms.EmailField(max_length=200, help_text='Required')
+    email = forms.EmailField(max_length=200, help_text='Required - a verification email will be sent to you once this form is submitted')
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ( 'first_name', 'last_name','email', 'password1', 'password2')
+
+    def clean_email(self):
+        new_email = self.cleaned_data['email']
+        if User.objects.filter(email__iexact=new_email).count() > 0:
+            url_redirect = reverse("accounts:resend_verification_email", kwargs={"email":new_email})
+            raise forms.ValidationError(mark_safe("Oh, oh. It seems we already have this email in our database! To have your password resent to your email click <a href='{}'>HERE</a>".format(url_redirect)))
+            # raise forms.ValidationError(_(mark_safe('An account already exists for this email address. <a href="#" class="email_error">Log in instead?</a>')))
+
+        if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
+            raise forms.ValidationError("Only DFO employees can register for an account. Please enter an email ending with '@DFO-MPO.GC.CA'")
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return new_email.endswith
 
 
 
+
+
+# class SetUserPasswordForm(SetPasswordForm):
 
     # label='Reason for request'

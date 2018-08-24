@@ -7,11 +7,12 @@
       {% if message %}
       <h3>{% bootstrap_alert message alert_type='warning' %}</h3>
       {% endif %}
-
-      <h2>Reset Password</h2>
+      <h1>Congrats!</h1>
+      <h2>Your account has been successfully verified.</h2>
       <hr>
-      <br><br>
-
+      <br>
+      <h3>Please set a password:</h3>
+      <br>
       <form  method="POST" class='form'>
         {% csrf_token %}
         {% bootstrap_form form %}
