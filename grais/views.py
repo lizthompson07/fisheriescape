@@ -5,7 +5,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, AccessMixin
+from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -16,8 +17,12 @@ from . import forms
 from . import filters
 from . import emails
 
-class IndexView(TemplateView):
+class IndexView(GroupRequiredMixin,TemplateView):
     template_name = 'grais/index.html'
+    group_required = [u"grais_access",]
+    login_url = '/accounts/login_required/'
+    
+
 
 
 class DataFlowTemplateView(TemplateView):
