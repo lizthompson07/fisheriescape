@@ -1,6 +1,8 @@
 from django.template import loader
+from django.conf import settings
 
-from_email='DoNotReply@RDMTS.com'
+app_name = settings.WEB_APP_NAME # should be a single word with one space
+from_email='DoNotReply@{}.com'.format(app_name)
 admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
 class AccountRequestEmail:

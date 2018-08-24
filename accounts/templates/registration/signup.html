@@ -1,19 +1,32 @@
+{% extends "accounts/accounts_base.html" %}
+{% load bootstrap4 %}
+
+
 {% block content %}
+<div class="container">
+  <br>
   <h2>Sign up</h2>
-  <form method="post">
+
+  <form method="POST" class='form'>
     {% csrf_token %}
-      {% for field in form %}
-      <p>
-        {{ field.label_tag }}<br>
-        {{ field }}
-        {% if field.help_text %}
-          <small style="display: none">{{ field.help_text }}</small>
-        {% endif %}
-        {% for error in field.errors %}
-          <p style="color: red">{{ error }}</p>
-        {% endfor %}
-      </p>
-      {% endfor %}
-    <button type="submit">Sign up</button>
+    {# {% bootstrap_form_errors form %} #}
+
+    {% for field in form  %}
+      {% if field.name == 'email' %}
+        <p>Email address / Username</p>
+        {% bootstrap_field field show_label=False%}
+      {% else %}
+        {% bootstrap_field field %}
+      {% endif %}
+
+    {% endfor %}
+    <br>
+    {% buttons %}
+      <input type="submit" class="btn btn-primary" value="Sign Up">
+    {% endbuttons %}
+    {# <input type="hidden" name="next" value="{{next}}"> #}
   </form>
+
+
+</div>
 {% endblock %}

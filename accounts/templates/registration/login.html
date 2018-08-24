@@ -16,7 +16,9 @@
 
     {% else %}
     <h5>
-      If you do not have an account and would like one, you may request one by clicking <a href="{% url 'accounts:account_request' %}">HERE</a>.
+      {# If you do not have an account and would like one, you may request one by clicking <a href="{% url 'accounts:account_request' %}">HERE</a>. #}
+      If you do not have an account you can register for one <a href="{% url 'accounts:signup' %}">HERE</a>.
+
     </h5>
     <br>
     {% endif %}
