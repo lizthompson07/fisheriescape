@@ -9,8 +9,8 @@ urlpatterns = [
 
     path('login/', auth_views.login, name='login'),
     path('signup/', views.signup, name='signup'),
-    # path('activate/<bytes:uidb64>/<str:token>', views.activate, name='activate'),
-    re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', views.activate, name='activate'),
+    path('activate/<bytestring:uidb64>/<str:token>', views.activate, name='activate'),
+    # re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', views.activate, name='activate'),
     path('logout/', auth_views.logout, name='logout', kwargs={
         'next_page':'/',
         }),
