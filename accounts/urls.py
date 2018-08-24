@@ -8,6 +8,8 @@ urlpatterns = [
 
 
     path('login/', auth_views.login, name='login'),
+    path('signup/', views.signup, name='signup'),
+    path('activate/<str:uidb64>/<str:token>', views.activate, name='activate'),
     path('logout/', auth_views.logout, name='logout', kwargs={
         'next_page':'/',
         }),
