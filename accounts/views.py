@@ -195,5 +195,6 @@ class UserPasswordResetDoneView(PasswordResetDoneView):
     template_name = "registration/login.html"
     success_message = "An email has been sent!"
 
-    def dispatch(self, request, *args, **kwargs):
-        messages.success(request, self.success_message)
+    def dispatch(self, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().dispatch(*args, **kwargs)
