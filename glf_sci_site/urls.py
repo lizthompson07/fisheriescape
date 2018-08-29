@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import path, include
 from . import views as views
 from django.contrib.auth import views as auth_views
+from accounts import views as acc_views
 
 
 urlpatterns = [
@@ -32,10 +33,18 @@ urlpatterns = [
 
     path('grais/', include('grais.urls')),
     path('bugs/', include('bugs.urls')),
-    path('password-reset/', auth_views.password_reset, name='password_reset'),
-    path('password-reset-done/', auth_views.password_reset_done, name='password_reset_done'),
+
+    # Password reset views. Views are part of accounts app #
+    ########################################################
+
+    path('password-reset/', acc_views.UserPassWordResetView.as_view(), name='password_reset'),
+    path('password-reset-done/', acc_views.UserPasswordResetDoneView.as_view(), name='password_reset_done'),
+
+
+    # path('password-reset/', auth_views.password_reset, name='password_reset'),
+    # path('password-reset-done/', auth_views.password_reset_done, name='password_reset_done'),
     path('reset/<str:uidb64>/<str:token>/', auth_views.password_reset_confirm, name='password_reset_confirm'),
-    path('reset/done/', views.IndexView.as_view(), name='password_reset_complete'),
+    path('reset/done/', acc_views.IndexView.as_view(), name='password_reset_complete'),
 ]
 
 if settings.MY_ENVR == "dev":
