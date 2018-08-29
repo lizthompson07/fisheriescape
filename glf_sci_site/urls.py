@@ -38,7 +38,7 @@ urlpatterns = [
     ########################################################
 
     path('password-reset/', acc_views.UserPassWordResetView.as_view(), name='password_reset'),
-    path('password-reset-done/', acc_views.UserPasswordResetDoneView.as_view(), name='password_reset_done'),
+    # path('password-reset-done/', acc_views.UserPasswordResetDoneView.as_view(), name='password_reset_done'),
 
 
     # path('password-reset/', auth_views.password_reset, name='password_reset'),
