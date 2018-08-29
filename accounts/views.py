@@ -189,12 +189,14 @@ def activate(request, uidb64, token):
 #
 class UserPassWordResetView(PasswordResetView):
     template_name = "registration/user_password_reset_form.html"
-    # success_url = "/accounts/password-reset-done/"
-#
-class UserPasswordResetDoneView(PasswordResetDoneView):
-    template_name = "registration/login.html"
-    success_message = "An email has been sent!"
 
-    def dispatch(self, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().dispatch(*args, **kwargs)
+    def get_success_url(self, **kwargs):
+        messages.success(self.request, "An email has been sent!")
+        return reverse('index')
+#
+# class UserPasswordResetDoneView(PasswordResetDoneView):
+#     template_name = "registration/login.html"
+#     success_message = "An email has been sent!"
+#
+#     def dispatch(self, *args, **kwargs):
+#         return super().dispatch(*args, **kwargs)
