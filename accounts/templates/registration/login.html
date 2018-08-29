@@ -33,7 +33,9 @@
 
       {% for field in form  %}
         {% if field.name == 'username' %}
-          <p>Username / Email address</p>
+          <p>Username / Email address
+            (<a href="{% url 'password_reset' %}">forgot password?</a>)
+          </p>
           {% bootstrap_field field show_label=False%}
         {% else %}
           {% bootstrap_field field %}
