@@ -31,6 +31,7 @@ class TicketForm(forms.ModelForm):
         'primary_contact_email',
         'section',
         'request_type',
+        'status',
         'priority',
         'description',
         'service_desk_ticket',
@@ -40,7 +41,7 @@ class TicketForm(forms.ModelForm):
 
     class Meta:
         model = models.Ticket
-        exclude = ['notes_html','people','tags', "resolved_email_date", "status", 'notes',"date_opened","date_modified"]
+        exclude = ['notes_html','people','tags', "resolved_email_date", 'notes',"date_opened","date_modified"]
         widgets = {
             'date_closed':forms.DateInput(attrs={'type': 'date'}),
             'description':forms.Textarea(attrs={'rows': '5'}),
