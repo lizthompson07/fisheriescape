@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'bugs',
     'grais',
     'docs',
+    'herring',
 ]
 
 MIDDLEWARE = [
