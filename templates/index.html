@@ -80,18 +80,23 @@
     </div>
 
 
-     {# <div class="col-md-2 center"> #}
-      {# <div class="thumbnail justify-content-center"> #}
-        {# <a href="{% url 'docs:oceanography' %}"> #}
-          {# <img src="{% static "/img/documents-158461.svg" %}" style="width:50%"> #}
-          {# <div class="caption"> #}
-            {# <p>Oceanography Document Library</p> #}
-          {# </div> #}
-        {# </a> #}
-      {# </div> #}
-    {# </div>  #}
+
 
   </div>
+  <div class="row">
+    <div class="col-md-3">
+     <div class="thumbnail text-center">
+       <a href="{% url 'docs:oceanography' %}">
+         <img src="{% static "/img/documents-158461.svg" %}" style="width:50%">
+         <div class="caption">
+           <p>Oceanography Document Library</p>
+         </div>
+       </a>
+     </div>
+   </div>
+  </div>
+
+
 </div>
 
 
