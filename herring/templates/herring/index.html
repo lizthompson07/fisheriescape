@@ -1,0 +1,39 @@
+{% extends "herring/herring_base.html" %}
+{% load bootstrap4 %}
+{% block content %}
+
+<div class="container">
+<br>
+  <div class="container">
+    <div class="jumbotron">
+      <h1 class="three-em">HERmorrhage</h1>
+      <hr>
+      <h3>Gulf Region's Herring Sampling Application</h3>
+      {% if user.is_authenticated %}
+        <br>
+        <p>Welcome back, {{user.first_name}}!</p>
+      {% else %}
+      <br>
+        <p>You must be
+          <a href="{% url 'accounts:login' %}?next={% url 'grais:index' %}">signed in</a>
+          to use this application.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+{% load static %}
+<div align="center">
+  <table cellpadding="15px">
+    <tr >
+      <td><img src="{% static "/img/herring/herring.jpg" %}" class="rounded" width="1000px" alt="..."></td>
+    </tr>
+
+  </table>
+
+</div>
+
+
+</div>
+
+{% endblock content %}

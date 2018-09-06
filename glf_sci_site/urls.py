@@ -31,7 +31,7 @@ urlpatterns = [
     path('dm-tickets/', include('dm_tickets.urls')),
     path('docs/', include('docs.urls')),
     path('grais/', include('grais.urls')),
-    path('herrmorrhage/', include('herring.urls')),
+    path('hermorrhage/', include('herring.urls')),
     path('bugs/', include('bugs.urls')),
 
     # Password reset views. Views are part of accounts app #
