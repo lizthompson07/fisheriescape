@@ -1,0 +1,92 @@
+{% extends "herring/herring_base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="nav-map">
+<br>
+  {% if object.id %}
+  <p>
+    <a href="#">All samples</a> >
+    <a href="{% url 'herring:port_sample_detail' object.id %}">Sample {{object.id}}</a> >
+    Edit
+  </p>
+  {% else %}
+  <p>
+    <a href="{% url 'herring:index' %}">Home</a> >
+    New Port Sample
+  </p>
+  {% endif %}
+</div>
+<div class="container">
+
+  {% load static %}
+  {# Load js file to allow for popout window #}
+  {% if object.id %}
+    <h1>Port Sample {{object.id}}</h1><br>
+  {% else %}
+    <h1>New Port Sample</h1>
+  {% endif %}
+
+  <form method="post" class="form">
+      {% csrf_token %}
+      <br>
+      <div class="row">
+        <div class="col-8">
+          <table>
+            {% for field in form  %}
+            <tr>
+
+
+              {% if field.name == 'district' %}
+              <td width='80%'>
+
+                {% bootstrap_field field size='small' layout='horizontal' %}
+              </td>
+              {% else %}
+              <td width='80%'>
+                {% bootstrap_field field size='small' layout='horizontal' %}
+              </td>
+              {% endif %}
+
+            </tr>
+
+            {% endfor %}
+          </table>
+
+        </div>
+      </div>
+
+      <p>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        {% if object.id %}
+          <a class="btn btn-secondary" href="#">Cancel</a>
+        {% else %}
+          <a class="btn btn-secondary" href="{% url 'herring:index' %}">Cancel</a>
+        {% endif %}
+      </p>
+  </form>
+</div>
+<script type="text/javascript">
+
+  console.log(speechSynthesis.getVoices());
+  $(document).ready(function() {
+    var msg = new SpeechSynthesisUtterance();
+    var voices = window.speechSynthesis.getVoices();
+    console.log(voices);
+    msg.voice = voices[2]; // Note: some voices don't support altering params
+    msg.voiceURI = 'native';
+    msg.volume = 1; // 0 to 1
+    msg.rate = 1; // 0.1 to 10
+    msg.pitch = 1; //0 to 2
+    msg.text = 'Test Hello world';
+    msg.lang = 'en-US';
+    msg.onend = function(e) {
+      console.log('Finished in ' + event.elapsedTime + ' seconds.');
+    };
+
+    speechSynthesis.speak(msg);
+  })
+
+</script>
+{% endblock content %}
