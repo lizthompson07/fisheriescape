@@ -33,7 +33,7 @@
       <a class="btn btn-outline-primary" href="#" onclick="return popitup('{% url 'herring:lf_wizard_setup' object.id %}','popoutWindow0')">Enter Length Frequencies</a>
     {% endif %}
 
-    <a class="btn btn-outline-primary" href="#">Enter Lab Detail</a>
+    <a class="btn btn-outline-primary" href="{% url 'herring:lab_form' object.id %}">Enter Lab Detail</a>
   </div>
 
   <br><br>

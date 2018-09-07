@@ -8,7 +8,7 @@ class PortSampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         fields = "__all__"
-        exclude = ['old_id', 'season', "tests", "length_frequencies"]
+        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete"]
         labels={
             'district':mark_safe("District (<a href='#' >search</a>)"),
             'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
@@ -46,3 +46,17 @@ class LengthFrquencyWizardSetupForm(forms.Form):
 
 class LengthFrquencyWizardForm(forms.Form):
     count = forms.IntegerField(required=True, min_value=0, max_value=1000, widget=forms.NumberInput(attrs={'placeholder': 'Number of fish observed'}))
+
+class FishForm(forms.ModelForm):
+    class Meta:
+        model = models.FishDetail
+        exclude = ["lab_processed_date", "otolith_processed_date"]
+
+        widgets = {
+            'sample':forms.HiddenInput(),
+            'remarks':forms.Textarea(attrs={'rows': '5'}),
+            'creation_date':forms.HiddenInput(),
+            'created_by':forms.HiddenInput(),
+            'last_modified_date':forms.HiddenInput(),
+            'last_modified_by':forms.HiddenInput(),
+        }

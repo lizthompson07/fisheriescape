@@ -230,3 +230,45 @@ class FishDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+class FishCreateView(LoginRequiredMixin,CreateView):
+    template_name = 'herring/fish_form.html'
+    form_class = forms.FishForm
+    model = models.FishDetail
+
+    def get_initial(self):
+        return {
+            'sample': self.kwargs['sample'],
+            'created_by': self.request.user,
+            'last_modified_by': self.request.user,
+        }
+
+    # def form_valid(self, form):
+    #     object = form.save()
+    #     port_sample_tests(object)
+    #     return super().form_valid(form)
+
+
+class FishUpdateView(LoginRequiredMixin,UpdateView):
+    template_name = 'herring/fish_form.html'
+    form_class = forms.FishForm
+    model = models.FishDetail
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+class LabFormView(LoginRequiredMixin,FormView):
+    template_name = 'herring/lab_form.html'
+    # form_class = forms.FishForm
+    # model = models.FishDetail
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object = models.Sample.objects.get(pk=self.kwargs['sample'])
+        print(object)
+        context['object'] = object
+        return context
+
+# this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
