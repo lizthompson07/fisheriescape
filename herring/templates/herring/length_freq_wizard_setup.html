@@ -1,0 +1,31 @@
+{% load bootstrap4 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+<script>
+  window.resizeTo(width=600, height=500);
+
+  window.onunload = refreshParent;
+  function refreshParent() {
+    window.opener.location.reload();
+  }
+</script>
+
+<div class="container">
+  <br>
+  <h1>Please define the range of your sample:</h1>
+  <form  method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      {%bootstrap_field field layout='horizontal' size='small' %}
+
+    {% endfor %}
+    <input type="submit" class="btn btn-primary" value="Next">
+
+  </form>
+</div>
+
+<script type="text/javascript">
+  $("#id_minimum_length").focus()
+</script>
