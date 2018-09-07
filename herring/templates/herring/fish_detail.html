@@ -1,0 +1,37 @@
+{% extends "herring/herring_base.html" %}
+
+{% load bootstrap4 %}
+{% load verbose_names %}
+
+{% block content %}
+<div class="nav-map">
+<br>
+  <p>
+    <a href="{% url 'herring:sample_list' %}">All Samples</a> >
+    <a href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
+    Fish {{object.id}}
+  </p>
+</div>
+
+<div class="container">
+
+  <h1>Fish Detail {{object.id}}</h1>
+  <br>
+  <div class="btn-group">
+    <a class="btn btn-warning" href="#">Edit</a>
+    <a class="btn btn-danger" href="#">Delete</a>
+  </div>
+
+  <div class='btn-group'>
+    {# {% if object.length_frequencies.count > 0 %} #}
+    <a class="btn btn-outline-primary" href="#">Enter Lab Detail</a>
+  </div>
+
+  <br><br>
+  {% include "herring/_fish_detail.html" %}
+
+
+<script type="text/javascript">
+  window.name = "fishDetail"
+</script>
+{% endblock content %}

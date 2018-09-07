@@ -1,0 +1,154 @@
+{% load static %}
+{% load verbose_names %}
+<div >
+  <h4>Sample Details:</h4>
+  <br>
+</div>
+<div class="row">
+  {# FIRST COLUMN #}
+
+  <div class="col">
+    <p><b>
+      {%get_verbose_field_name object "id"%}:
+      </b><br>
+      {{object.id}}
+    </p>
+
+    <p><b>
+      {%get_verbose_field_name object "sample_date"%}:
+    </b><br>
+    {{object.sample_date|date:"F d, Y"}}
+    </p>
+
+    <p><b>
+      {%get_verbose_field_name object "sampler_ref_number"%}:
+    </b><br>
+    {{object.sampler_ref_number}}
+    </p>
+
+    <p><b>
+      {%get_verbose_field_name object "sampler"%}:
+    </b><br>
+    {{object.sampler}}
+    </p>
+
+    <p><b>
+      District code:
+    </b><br>
+    {{object.district.district_code}}
+    </p>
+  </div>
+
+{# SECOND COLUMN #}
+  <div class="col">
+    <p>
+      <b>
+        Lat. / Long. (decimal degree)
+      </b><br>
+      {{object.latitude_n}} / {{object.longitude_w}}
+    </p>
+    <p>
+      <b>
+        {%get_verbose_field_name object "fishing_area"%}:
+      </b><br>
+      {{object.fishing_area}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "gear"%}:
+      </b><br>
+      {{object.gear}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "experimental_net_used"%}:
+      </b><br>
+      {{object.experimental_net_used|yesno:"yes,no,not-specified"}}
+    </p>
+  </div>
+
+  {# THIRD COLUMN #}
+  <div class="col">
+    <p>
+      <b>
+        {%get_verbose_field_name object "vessel"%}:
+      </b><br>
+      {{object.vessel}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "mesh_size"%}:
+      </b><br>
+      {{object.mesh_size}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "catch_weight_lbs"%}:
+      </b><br>
+      {{object.catch_weight_lbs}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "sample_weight_lbs"%}:
+      </b><br>
+      {{object.sample_weight_lbs}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "total_fish_measured"%}:
+      </b><br>
+      {{object.total_fish_measured}}
+    </p>
+  </div>
+
+  {# FORTH COLUMN #}
+  <div class="col">
+    <p>
+      <b>
+        {%get_verbose_field_name object "total_fish_preserved"%}:
+      </b><br>
+      {{object.total_fish_preserved}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "remarks"%}:
+      </b><br>
+      {{object.remarks}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "creation_date"%}:
+      </b><br>
+      {{object.creation_date}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "last_modified_date"%}:
+      </b><br>
+      {{object.last_modified_date}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "created_by"%}:
+      </b><br>
+      {{object.created_by}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "last_modified_by"%}:
+      </b><br>
+      {{object.last_modified_by}}
+    </p>
+  </div>
+</div>

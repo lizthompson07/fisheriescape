@@ -166,6 +166,8 @@ class Sample(models.Model):
     season =  models.IntegerField(null=True, blank=True)
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
     tests = models.ManyToManyField(to=Test, through='SampleTest')
+    lab_processing_complete = models.BooleanField(default=False)
+    otolith_processing_complete = models.BooleanField(default=False)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_samples")
     last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
@@ -179,8 +181,26 @@ class Sample(models.Model):
 
     def save(self,*args,**kwargs):
         self.season = self.sample_date.year
-        last_modified = timezone.now()
-        super().save(*args,**kwargs)
+        self.last_modified_date = timezone.now()
+
+        # set lab_processing_complete
+        count = 0
+        for fish in self.fish_details.all():
+            if fish.lab_processed_date:
+                count = count + 1
+        if count == self.total_fish_preserved:
+            self.lab_processing_complete = True
+
+        # set otolith_processing_complete
+        count = 0
+        for fish in self.fish_details.all():
+            if fish.otolith_processed_date:
+                count = count + 1
+        if count == self.total_fish_preserved:
+            self.otolith_processing_complete = True
+
+        return super().save(*args,**kwargs)
+
 
 
 class Maturity(models.Model):
@@ -231,44 +251,20 @@ class FishDetail(models.Model):
     created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_details")
     last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_details")
-    # qctest_21_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_fish_length_details")
-    # qctest_22_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_fish_length_details")
-    # qctest_23_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_fish_length_details")
-    # qctest_21_fish_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_fish_wt_details")
-    # qctest_22_fish_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_fish_wt_details")
-    # qctest_23_fish_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_fish_wt_details")
-    # qctest_21_gonad_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_gonad_wt_details")
-    # qctest_22_gonad_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_gonad_wt_details")
-    # qctest_23_gonad_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_gonad_wt_details")
-    # qctest_21_annulus_count = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_annulus_details")
-    # qctest_22_annulus_count = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_annulus_details")
-    # qctest_23_annulus_count = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_annulus_details")
-    # qctest_201 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_201_details")
-    # qctest_202 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_202_details")
-    # qctest_203 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_203_details")
-    # qctest_204 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_204_details")
-    # qctest_206 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_206_details")
-    # qctest_207 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_207_details")
-    # qctest_208 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_208_details")
-    # qcvalid_test_23_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
-    # qcvalid_test_23_fish_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
-    # qcvalid_test_23_gonad_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
-    # qcvalid_test_23_annulus_count = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
-    # qcvalid_test_204 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
-    # qcvalid_test_207 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
-    # qcvalid_test_208 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
-    # qcflag_fish_length = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
-    # qcflag_fish_weight = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
-    # qcflag_gonad_weight = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
-    # qcflag_annulus_count = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
-    # qcflag_global_lab = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
-    # qcflag_global_otolith = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
-
-# maybe instead of these tests, we should take a link table approach for tests, flags... etc. Can it work?
 
     class Meta:
         unique_together = (('sample', 'fish_number'),)
         ordering = ('sample', 'fish_number')
+
+    def save(self,*args,**kwargs):
+        self.last_modified_date = timezone.now()
+        if self.fish_length and self.fish_weight and self.sex and self.maturity and self.gonad_weight:
+            if self.lab_processed_date == None:
+                self.lab_processed_date = timezone.now()
+        if self.ager and self.annulus_count and self.otolith_season:
+            if self.otolith_processed_date == None:
+                self.otolith_processed_date = timezone.now()
+        super().save(*args,**kwargs)
 
 # class QualityFlag(models.Model):
 #     pass
@@ -278,7 +274,7 @@ class FishDetail(models.Model):
 
 
 class LengthFrequency(models.Model):
-    sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name='length_frequency_objects')
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='length_frequency_objects')
     length_bin = models.ForeignKey(LengthBin, on_delete=models.DO_NOTHING)
     count = models.IntegerField()
 
@@ -287,10 +283,42 @@ class LengthFrequency(models.Model):
         ordering = ('sample', 'length_bin')
 
 class SampleTest(models.Model):
-    sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name='sample_tests')
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='sample_tests')
     test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
     test_passed = models.BooleanField(default = False)
 
     class Meta:
         unique_together = (('sample', 'test'),)
         ordering = ('sample', 'test')
+# qctest_21_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_fish_length_details")
+# qctest_22_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_fish_length_details")
+# qctest_23_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_fish_length_details")
+# qctest_21_fish_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_fish_wt_details")
+# qctest_22_fish_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_fish_wt_details")
+# qctest_23_fish_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_fish_wt_details")
+# qctest_21_gonad_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_gonad_wt_details")
+# qctest_22_gonad_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_gonad_wt_details")
+# qctest_23_gonad_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_gonad_wt_details")
+# qctest_21_annulus_count = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_annulus_details")
+# qctest_22_annulus_count = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_annulus_details")
+# qctest_23_annulus_count = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_annulus_details")
+# qctest_201 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_201_details")
+# qctest_202 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_202_details")
+# qctest_203 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_203_details")
+# qctest_204 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_204_details")
+# qctest_206 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_206_details")
+# qctest_207 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_207_details")
+# qctest_208 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_208_details")
+# qcvalid_test_23_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
+# qcvalid_test_23_fish_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
+# qcvalid_test_23_gonad_weight = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
+# qcvalid_test_23_annulus_count = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
+# qcvalid_test_204 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
+# qcvalid_test_207 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
+# qcvalid_test_208 = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING)
+# qcflag_fish_length = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
+# qcflag_fish_weight = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
+# qcflag_gonad_weight = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
+# qcflag_annulus_count = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
+# qcflag_global_lab = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
+# qcflag_global_otolith = models.ForeignKey(QualityFlag, on_delete=models.DO_NOTHING)
