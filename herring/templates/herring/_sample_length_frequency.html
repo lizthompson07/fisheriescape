@@ -21,7 +21,7 @@
   {% for freq in object.length_frequency_objects.all  %}
   <tr>
     <td>{{freq.length_bin}}&nbsp;</td>
-    <td width = "70%">
+    <td width = "75%">
       <div class="progress">
         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="{{freq.count}}" aria-valuemin="0" aria-valuemax="{{max_count}}" style="width: {{ freq.count|divide:max_count|percentage}}">
           {{freq.count}}

@@ -16,149 +16,36 @@
 
   <h1>Port Sample {{object.id}}</h1>
   <br>
+  <div class="btn-group">
+    <a class="btn btn-warning" href="{% url 'herring:port_sample_edit' object.id %}">Edit</a>
+    {% if object.length_frequencies.count > 0  %}
+    <a class="btn btn-danger disabled" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
+    {% else %}
+    <a class="btn btn-danger" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
+    {% endif %}
+  </div>
+
+
   <div class='btn-group'>
     {% if object.length_frequencies.count > 0 %}
-      <a class="btn btn-primary" href="#" onclick="return popitup('{% url 'herring:lf_wizard_confirmation' object.id %}','popoutWindow0')">Overwrite Length Frequencies</a>
+      <a class="btn btn-outline-primary" href="#" onclick="return popitup('{% url 'herring:lf_wizard_confirmation' object.id %}','popoutWindow0')">Re-enter Length Frequencies</a>
     {% else %}
-      <a class="btn btn-primary" href="#" onclick="return popitup('{% url 'herring:lf_wizard_setup' object.id %}','popoutWindow0')">Enter Length Frequencies</a>
+      <a class="btn btn-outline-primary" href="#" onclick="return popitup('{% url 'herring:lf_wizard_setup' object.id %}','popoutWindow0')">Enter Length Frequencies</a>
     {% endif %}
-    <a class="btn btn-warning" href="{% url 'herring:port_sample_edit' object.id %}">Edit</a>
-    <a class="btn btn-danger" href="#">Delete</a>
+
+    <a class="btn btn-outline-primary" href="#">Enter Lab Detail</a>
   </div>
+
   <br><br>
+  {% include "herring/_sample_detail.html" %}
+<hr>
+<br>
   <div class="row">
     <div class="col">
-      <h4>Sample Details:</h4>
-
-      <p><b>
-        {%get_verbose_field_name object "id"%}:
-        </b><br>
-        {{object.id}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "sample_date"%}:
-      </b><br>
-      {{object.sample_date|date:"F d, Y"}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "sampler_ref_number"%}:
-      </b><br>
-      {{object.sampler_ref_number}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "sampler"%}:
-      </b><br>
-      {{object.sampler}}
-      </p>
-
-      <p><b>
-        District code:
-      </b><br>
-      {{object.district.district_code}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "latitude_n"%}:
-      </b><br>
-      {{object.latitude_n}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "longitude_w"%}:
-      </b><br>
-      {{object.longitude_w}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "fishing_area"%}:
-      </b><br>
-      {{object.fishing_area}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "gear"%}:
-      </b><br>
-      {{object.gear}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "experimental_net_used"%}:
-      </b><br>
-      {{object.experimental_net_used|yesno}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "vessel"%}:
-      </b><br>
-      {{object.vessel}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "mesh_size"%}:
-      </b><br>
-      {{object.mesh_size}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "catch_weight_lbs"%}:
-      </b><br>
-      {{object.catch_weight_lbs}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "sample_weight_lbs"%}:
-      </b><br>
-      {{object.sample_weight_lbs}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "total_fish_measured"%}:
-      </b><br>
-      {{object.total_fish_measured}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "total_fish_preserved"%}:
-      </b><br>
-      {{object.total_fish_preserved}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "remarks"%}:
-      </b><br>
-      {{object.remarks}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "creation_date"%}:
-      </b><br>
-      {{object.creation_date}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "last_modified_date"%}:
-      </b><br>
-      {{object.last_modified_date}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "created_by"%}:
-      </b><br>
-      {{object.created_by}}
-      </p>
-
-      <p><b>
-        {%get_verbose_field_name object "last_modified_by"%}:
-      </b><br>
-      {{object.last_modified_by}}
-      </p>
-
+      {% include "herring/_sample_length_frequency.html" %}
     </div>
     <div class="col">
-      {% include "herring/_length_frequency.html" %}
+      {% include "herring/_sample_fish_detail.html" %}
     </div>
     <div class="col">
       {% include "herring/_sample_qc.html" %}

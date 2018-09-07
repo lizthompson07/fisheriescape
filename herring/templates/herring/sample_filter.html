@@ -31,6 +31,11 @@
         <th scope="col">Sample Date</th>
         <th scope="col">Sampler's Reference No.</th>
         <th scope="col">Sampler Name</th>
+        <th scope="col">Lab Processing Complete</th>
+        <th scope="col">Otolith Processing Complete</th>
+        <th scope="col">QC Issues</th>
+
+
       </tr>
     </thead>
     <tbody>
@@ -41,6 +46,21 @@
           <td>{{sample.sample_date|date:'F d, Y'}}</td>
           <td>{{sample.sampler_ref_number}}</td>
           <td>{{sample.sampler}}</td>
+          <td align='center'>
+            {% if sample.lab_processing_complete %}
+            <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+            {% else %}
+            <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+            {% endif %}
+          </td>
+          <td align='center'>
+            {% if sample.otolith_processing_complete %}
+            <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+            {% else %}
+            <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+            {% endif %}
+          </td>
+
         </tr>
       {% endfor %}
     </tbody>
