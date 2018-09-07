@@ -24,7 +24,10 @@ urlpatterns = [
 
     # Fish Detail #
     ##############
-    path('fish-detail/<int:pk>/view/', views.FishDetailView.as_view(), name ="fish_detail"),
+    path('samples/<int:sample>/fish/<int:pk>/view/', views.FishDetailView.as_view(), name ="fish_detail"),
+    path('samples/<int:sample>/fish/new/', views.FishCreateView.as_view(), name ="fish_create"),
+    path('samples/<int:sample>/fish/<int:pk>/edit/', views.FishUpdateView.as_view(), name ="fish_update"),
+    path('samples/<int:sample>/fish/new-lab-sample/', views.LabFormView.as_view(), name ="lab_form"),
 
 
 ]
