@@ -1,4 +1,4 @@
-{% extends "grais/grais_base.html" %}
+{% extends "herring/herring_base.html" %}
 {% load static %}
 {% block content %}
 
@@ -10,17 +10,18 @@
   </p>
 
   <form class="form" action="." method="get">
-
     {% for field in filter.form %}
     {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp;
     {% endfor %}
-      <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
   </form>
+
   <br>
   <div class="btn-group">
-    <a href="{% url 'herring:port_sample_new' %}" class="btn btn-sm btn-outline-primary ">New Port Sample</a>
-    <a href="#" class="btn btn-sm btn-outline-primary ">New Sea Sample</a>
+    <a href="{% url 'herring:port_sample_new' %}" class="btn btn-sm btn-outline-success ">New Port Sample</a>
+    <a href="#" class="btn btn-sm btn-outline-success ">New Sea Sample</a>
   </div>
+  <br>
   <br>
   <table class="table table-hover">
     <thead>
@@ -37,7 +38,7 @@
         <tr>
           <td><a href="{% url 'herring:port_sample_detail' sample.id %}">{{sample.id}}</a></td>
           <td>{{sample.sampling_protocol}}</td>
-          <td>{{sample.sample_date|date:'F d Y'}}</td>
+          <td>{{sample.sample_date|date:'F d, Y'}}</td>
           <td>{{sample.sampler_ref_number}}</td>
           <td>{{sample.sampler}}</td>
         </tr>

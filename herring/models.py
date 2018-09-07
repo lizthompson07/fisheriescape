@@ -120,6 +120,30 @@ class MeshSize(models.Model):
     class Meta:
         ordering = ['size_mm']
 
+class LengthBin(models.Model):
+    bin_length_cm = models.FloatField(primary_key=True)
+
+    def __str__(self):
+        return "{} cm".format(self.bin_length_cm)
+
+class Test(models.Model):
+    # Choices for sampling_type
+    POINT = 1
+    GLOBAL = 2
+
+    SCOPE_CHOICES = (
+        (POINT,'Data Point'),
+        (GLOBAL,'Global'),
+    )
+    scope = models.IntegerField(choices=SCOPE_CHOICES)
+    description = models.CharField(max_length=255)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        ordering = ['scope', 'id']
+
 class Sample(models.Model):
     sampling_protocol = models.ForeignKey(SamplingProtocol, related_name="samples", on_delete=models.DO_NOTHING, default=1)
     sample_date = models.DateTimeField()
@@ -139,11 +163,16 @@ class Sample(models.Model):
     total_fish_preserved = models.IntegerField(null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
     old_id = models.IntegerField(null=True, blank=True)
+    season =  models.IntegerField(null=True, blank=True)
+    length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
+    tests = models.ManyToManyField(to=Test, through='SampleTest')
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_samples")
-    season =  models.IntegerField(null=True, blank=True)
     last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_samples")
+
+    class Meta:
+        ordering = ['-sample_date']
 
     def get_absolute_url(self):
         return reverse('herring:port_sample_detail', kwargs={'pk':self.id})
@@ -245,18 +274,23 @@ class FishDetail(models.Model):
 #     pass
 #
 #
-# class QualityTest(models.Model):
-#     pass
 
 
-class LengthBin(models.Model):
-    bin_length_cm = models.FloatField(primary_key=True)
 
 class LengthFrequency(models.Model):
-    sample = models.ForeignKey(Sample, related_name="frequencies", on_delete=models.DO_NOTHING)
-    length_bin = models.ForeignKey(LengthBin, related_name="frequencies", on_delete=models.DO_NOTHING)
+    sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name='length_frequency_objects')
+    length_bin = models.ForeignKey(LengthBin, on_delete=models.DO_NOTHING)
     count = models.IntegerField()
 
     class Meta:
         unique_together = (('sample', 'length_bin'),)
         ordering = ('sample', 'length_bin')
+
+class SampleTest(models.Model):
+    sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name='sample_tests')
+    test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
+    test_passed = models.BooleanField(default = False)
+
+    class Meta:
+        unique_together = (('sample', 'test'),)
+        ordering = ('sample', 'test')

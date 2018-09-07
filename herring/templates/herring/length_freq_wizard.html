@@ -1,0 +1,46 @@
+{% load bootstrap4 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+<script>
+  window.resizeTo(width=400, height=500);
+
+  window.onunload = refreshParent;
+  function refreshParent() {
+    var w = window.open("", "portSampleDetail");
+    w.location.reload()
+  }
+</script>
+
+<div class="container">
+  <br>
+  <div align='center'>
+    <h2>Number of fish observed at:</h2><br>
+    <h1>{{view.kwargs.current_length}} cm</h1>
+
+  </div>
+  <br><br>
+  <form  method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      {%bootstrap_field field layout='horizontal' size='small' show_label=False %}
+
+    {% endfor %}
+    <br>
+    <div align="center">
+      {% if view.kwargs.current_length == view.kwargs.to_length %}
+      <input type="submit" class="btn btn-lg btn-success" value="All done!">
+      {% else %}
+      <input type="submit" class="btn btn-lg btn-primary" value="Next">
+      {% endif %}
+      <p>(Enter)</p>
+
+    </div>
+
+  </form>
+</div>
+
+<script type="text/javascript">
+  $("#id_count").focus()
+</script>
