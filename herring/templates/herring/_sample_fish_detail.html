@@ -23,7 +23,7 @@
       {% for d in object.fish_details.all  %}
         <tr class='clickable-row' data-href='#'>
             <td>
-              <a href="{% url 'herring:fish_detail' d.id %}">
+              <a href="{% url 'herring:fish_detail' object.id d.id %}">
                 Fish {{d.fish_number}}
               </a>
             </td>

@@ -256,8 +256,12 @@ class FishDetail(models.Model):
         unique_together = (('sample', 'fish_number'),)
         ordering = ('sample', 'fish_number')
 
+    def get_absolute_url(self):
+        return reverse('herring:fish_detail', kwargs={'sample':self.sample.id,'pk':self.id})
+
     def save(self,*args,**kwargs):
         self.last_modified_date = timezone.now()
+        print("{}{}{}{}{}".format(self.fish_length,  self.fish_weight , self.sex , self.maturity , self.gonad_weight))
         if self.fish_length and self.fish_weight and self.sex and self.maturity and self.gonad_weight:
             if self.lab_processed_date == None:
                 self.lab_processed_date = timezone.now()
