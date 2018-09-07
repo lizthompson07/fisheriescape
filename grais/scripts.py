@@ -1,8 +1,7 @@
 from .import models
 
-def resave_all(samples = models.Sample.objects.all()):
+def resave_all(details = models.FishDetail.objects.all()):
 
-    for s in samples:
-        if s.date_deployed != None:
-            my_sample = models.Sample.objects.get(id=s.id)
-            my_sample.save()
+    for d in details:
+        detail = models.FishDetail.objects.get(pk = d.id)
+        detail.save()

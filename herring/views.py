@@ -43,6 +43,8 @@ def port_sample_tests(sample):
     # CREATE BLANK TESTS IN SAMPLETEST
     sample_test_202 = models.SampleTest.objects.create(sample_id=sample.id,test_id=202,test_passed=False)
     sample_test_205 = models.SampleTest.objects.create(sample_id=sample.id,test_id=205,test_passed=False)
+    sample_test_231 = models.SampleTest.objects.create(sample_id=sample.id,test_id=231,test_passed=False)
+    sample_test_232 = models.SampleTest.objects.create(sample_id=sample.id,test_id=232,test_passed=False)
 
     # RUN TEST 202 FOR PORT SAMPLE
     if sample.sampling_protocol and sample.sample_date and sample.sampler and sample.sampler_ref_number and sample.total_fish_preserved and sample.total_fish_measured:
@@ -61,10 +63,25 @@ def port_sample_tests(sample):
         sample_test_205.test_passed = True
         sample_test_205.save()
 
+    # RUN TEST 231 FOR PORT SAMPLE
+    # resave each fish detail record to run through fishdetail save method
+    for fishy in sample.fish_details.all():
+        fishy.save()
+    # resave the sample instance to run thought sample save method
+    sample.save()
+    # now conduct the test
+    if sample.lab_processing_complete == True:
+        sample_test_231.test_passed = True
+        sample_test_231.save()
+
+    # RUN TEST 232 FOR PORT SAMPLE
+    if sample.otolith_processing_complete == True:
+        sample_test_232.test_passed = True
+        sample_test_232.save()
 
 
-# SAMPLE #
-##########
+# PORT SAMPLE #
+###############
 class SampleFilterView(LoginRequiredMixin, FilterView):
     filterset_class = filters.SampleFilter
     template_name = "herring/sample_filter.html"
@@ -92,6 +109,12 @@ class PortSampleCreateView(LoginRequiredMixin,CreateView):
         port_sample_tests(object)
         return super().form_valid(form)
 
+class PortSampleDeleteView(LoginRequiredMixin,DeleteView):
+    template_name = 'herring/sample_confirm_delete.html'
+    model = models.Sample
+    success_url = reverse_lazy("herring:sample_list")
+
+
 class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/port_sample_form.html'
     form_class = forms.PortSampleForm
@@ -117,7 +140,7 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        port_sample_tests(self.object)
+        # port_sample_tests(self.object)
 
         # create a list of length freq counts
         if self.object.length_frequency_objects.count()>0:
@@ -137,7 +160,6 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
             context['playback_string'] = playback_string
 
         return context
-
 
 # Length Frequeny wizard #
 ##########################
@@ -197,3 +219,14 @@ class LengthFrquencyUpdateView(UpdateView):
         object = form.save()
         port_sample_tests(object.sample)
         return HttpResponseRedirect(reverse('herring:close_me'))
+
+# LAB SAMPLE #
+##############
+
+class FishDetailView(DetailView):
+    template_name = 'herring/fish_detail.html'
+    model = models.FishDetail
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

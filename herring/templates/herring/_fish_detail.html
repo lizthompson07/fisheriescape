@@ -1,0 +1,154 @@
+{% load static %}
+{% load verbose_names %}
+<div >
+  <h4>Sample Details:</h4>
+  <br>
+</div>
+<div class="row">
+
+  {# FIRST COLUMN #}
+  <div class="col">
+    <p><b>
+      {%get_verbose_field_name object "id"%}:
+      </b><br>
+      {{object.id}}
+    </p>
+
+    <p><b>
+      {%get_verbose_field_name object "fish_number"%}:
+    </b><br>
+    {{object.fish_number}}
+    </p>
+
+    <p><b>
+      {%get_verbose_field_name object "fish_length"%}:
+    </b><br>
+    {{object.fish_length}}
+    </p>
+
+    <p><b>
+      {%get_verbose_field_name object "fish_weight"%}:
+    </b><br>
+    {{object.fish_weight}}
+    </p>
+
+    <p><b>
+      {%get_verbose_field_name object "sex"%}:
+    </b><br>
+    {{object.sex}}
+    </p>
+
+  </div>
+
+{# SECOND COLUMN #}
+  <div class="col">
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "maturity"%}:
+      </b><br>
+      {{object.maturity}}
+    </p>
+    <p>
+      <b>
+        {%get_verbose_field_name object "gonad_weight"%}:
+      </b><br>
+      {{object.gonad_weight}}
+    </p>
+    <p>
+      <b>
+        {%get_verbose_field_name object "parasite"%}:
+      </b><br>
+      {{object.parasite|yesno:"yes,no,not-specified"}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "detail_sampler"%}:
+      </b><br>
+      {{object.detail_sampler}}
+    </p>
+  </div>
+
+  {# THIRD COLUMN #}
+  <div class="col">
+    <p>
+      <b>
+        {%get_verbose_field_name object "ager"%}:
+      </b><br>
+      {{object.ager}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "lab_processed_date"%}:
+      </b><br>
+      {{object.lab_processed_date|date:"F d, Y"}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "annulus_count"%}:
+      </b><br>
+      {{object.annulus_count}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "otolith_season"%}:
+      </b><br>
+      {{object.otolith_season}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "otolith_image"%}:
+      </b><br>
+      {{object.otolith_image}}
+    </p>
+  </div>
+
+  {# FORTH COLUMN #}
+  <div class="col">
+    <p>
+      <b>
+        {%get_verbose_field_name object "otolith_processed_date"%}:
+      </b><br>
+      {{object.otolith_processed_date|date:"F d, Y"}}
+    </p>
+    <p>
+      <b>
+        {%get_verbose_field_name object "remarks"%}:
+      </b><br>
+      {{object.remarks}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "creation_date"%}:
+      </b><br>
+      {{object.creation_date|date:"F d, Y"}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "last_modified_date"%}:
+      </b><br>
+      {{object.last_modified_date|date:"F d, Y"}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "created_by"%}:
+      </b><br>
+      {{object.created_by}}
+    </p>
+
+    <p>
+      <b>
+        {%get_verbose_field_name object "last_modified_by"%}:
+      </b><br>
+      {{object.last_modified_by}}
+    </p>
+  </div>
+</div>
