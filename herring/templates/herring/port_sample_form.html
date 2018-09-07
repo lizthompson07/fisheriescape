@@ -7,7 +7,7 @@
 <br>
   {% if object.id %}
   <p>
-    <a href="#">All samples</a> >
+    <a href="{% url 'herring:sample_list' %}">All samples</a> >
     <a href="{% url 'herring:port_sample_detail' object.id %}">Sample {{object.id}}</a> >
     Edit
   </p>
@@ -67,26 +67,5 @@
       </p>
   </form>
 </div>
-<script type="text/javascript">
 
-  console.log(speechSynthesis.getVoices());
-  $(document).ready(function() {
-    var msg = new SpeechSynthesisUtterance();
-    var voices = window.speechSynthesis.getVoices();
-    console.log(voices);
-    msg.voice = voices[2]; // Note: some voices don't support altering params
-    msg.voiceURI = 'native';
-    msg.volume = 1; // 0 to 1
-    msg.rate = 1; // 0.1 to 10
-    msg.pitch = 1; //0 to 2
-    msg.text = 'Test Hello world';
-    msg.lang = 'en-US';
-    msg.onend = function(e) {
-      console.log('Finished in ' + event.elapsedTime + ' seconds.');
-    };
-
-    speechSynthesis.speak(msg);
-  })
-
-</script>
 {% endblock content %}
