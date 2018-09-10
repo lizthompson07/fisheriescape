@@ -50,13 +50,48 @@ class LengthFrquencyWizardForm(forms.Form):
 class FishForm(forms.ModelForm):
     class Meta:
         model = models.FishDetail
-        exclude = ["lab_processed_date", "otolith_processed_date"]
+        exclude = ["lab_processed_date", "otolith_processed_date", "creation_date", "last_modified_date"]
 
         widgets = {
             'sample':forms.HiddenInput(),
             'remarks':forms.Textarea(attrs={'rows': '5'}),
-            'creation_date':forms.HiddenInput(),
             'created_by':forms.HiddenInput(),
-            'last_modified_date':forms.HiddenInput(),
             'last_modified_by':forms.HiddenInput(),
         }
+
+class LabSampleForm(forms.ModelForm):
+    # prompt = forms.CharField(widget=forms.TextInput(attrs={"placeholder":"Input Here!"}))
+    class Meta:
+        model = models.FishDetail
+        # exclude = ["lab_processed_date", "otolith_processed_date"]
+        fields = [
+          "fish_length",
+          "fish_weight",
+          "sex",
+          "maturity",
+          "gonad_weight",
+          "parasite",
+          "remarks",
+          "lab_sampler",
+          "last_modified_by",
+        ]
+
+        widgets = {
+            "fish_length":forms.HiddenInput(),
+            "fish_weight":forms.HiddenInput(),
+            "sex":forms.HiddenInput(),
+            "maturity":forms.HiddenInput(),
+            "gonad_weight":forms.HiddenInput(),
+            "parasite":forms.HiddenInput(),
+            "remarks":forms.HiddenInput(),
+            "lab_sampler":forms.HiddenInput(),
+            "last_modified_by":forms.HiddenInput(),
+
+        }
+    # def clean_fish_length(self):
+    #     value = self.cleaned_data['fish_length']
+    #     print(str(value) + " is the value")
+    #     if value == 1:
+    #         print("hera!")
+    #         raise forms.ValidationError("bullshit!!")
+    #     return value

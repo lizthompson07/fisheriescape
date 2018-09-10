@@ -33,11 +33,22 @@
       <a class="btn btn-outline-primary" href="#" onclick="return popitup('{% url 'herring:lf_wizard_setup' object.id %}','popoutWindow0')">Enter Length Frequencies</a>
     {% endif %}
 
-    <a class="btn btn-outline-primary" href="{% url 'herring:lab_form' object.id %}">Enter Lab Detail</a>
+    {% if sample.lab_processing_complete %}
+    <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_confirmation' object.id %}">Enter Lab Measurements</a>
+    {% else %}
+    <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_setup' object.id %}">Enter Lab Measurements</a>
+    {% endif %}
   </div>
 
   <br><br>
-  {% include "herring/_sample_detail.html" %}
+  <div class="row">
+    <div class="col">
+      {% include "herring/_sample_detail.html" %}
+    </div>
+    <div class="col">
+      {% include "herring/_sample_qc.html" %}
+    </div>
+  </div>
 <hr>
 <br>
   <div class="row">
@@ -47,9 +58,7 @@
     <div class="col">
       {% include "herring/_sample_fish_detail.html" %}
     </div>
-    <div class="col">
-      {% include "herring/_sample_qc.html" %}
-    </div>
+
 
   </div>
 
