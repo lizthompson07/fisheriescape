@@ -31,10 +31,10 @@ class CloserTemplateView(TemplateView):
 # QUALITY CONTROL #
 ###################
 
-def retest_sample(request, sample):
-    s = models.Sample.objects.get(pk=sample)
-    port_sample_tests(s)
-    return HttpResponseRedirect(reverse('herring:port_sample_detail', kwargs={"pk":sample}))
+# def retest_sample(request, sample):
+#     s = models.Sample.objects.get(pk=sample)
+#     port_sample_tests(s)
+#     return HttpResponseRedirect(reverse('herring:port_sample_detail', kwargs={"pk":sample}))
 
 def port_sample_tests(sample):
     # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
@@ -220,7 +220,7 @@ class LengthFrquencyUpdateView(UpdateView):
         port_sample_tests(object.sample)
         return HttpResponseRedirect(reverse('herring:close_me'))
 
-# LAB SAMPLE #
+# FISH DETAIL #
 ##############
 
 class FishDetailView(DetailView):
@@ -260,15 +260,64 @@ class FishUpdateView(LoginRequiredMixin,UpdateView):
             'last_modified_by': self.request.user,
         }
 
-class LabFormView(LoginRequiredMixin,FormView):
-    template_name = 'herring/lab_form.html'
-    # form_class = forms.FishForm
-    # model = models.FishDetail
+# lab samples
+
+class LabSampleConfirmation(TemplateView):
+    template_name = 'herring/lab_sample_confirmation.html'
+
+
+def lab_sample_primer(request, sample):
+    # figure out what the fish number is
+    my_sample = models.Sample.objects.get(pk=sample)
+    if my_sample.fish_details.count() == 0 :
+        fish_number = 1
+    else:
+        fish_number = my_sample.fish_details.order_by("fish_number").last().fish_number + 1
+
+    # create new instance of FishDetail with appropriate primed detail
+    my_fishy = models.FishDetail.objects.create(created_by=request.user, sample_id =sample, fish_number=fish_number)
+    return HttpResponseRedirect(reverse('herring:lab_sample_form', kwargs={
+        "sample":sample,
+        "pk":my_fishy.id,
+    }))
+
+
+class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
+    template_name = 'herring/lab_sample_form.html'
+    model = models.FishDetail
+    form_class = forms.LabSampleForm
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        object = models.Sample.objects.get(pk=self.kwargs['sample'])
-        print(object)
-        context['object'] = object
+        # determine the progress of data entry
+        ## there are 6 fields: len, wt, g_wt, sex, mat, parasite
+        progress = 0
+        if self.object.fish_length:
+            progress = progress + 1
+        if self.object.fish_weight:
+            progress = progress + 1
+        if self.object.sex:
+            progress = progress + 1
+        if self.object.maturity:
+            progress = progress + 1
+        if self.object.gonad_weight:
+            progress = progress + 1
+        if self.object.parasite:
+            progress = progress + 1
+        context['progress'] = progress
         return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+            'lab_sampler': self.request.user,
+            }
+
+    def form_valid(self, form):
+        # port_sample_tests(self.object)
+        object = form.save()
+
+
+        return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
