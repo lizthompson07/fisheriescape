@@ -22,12 +22,15 @@ urlpatterns = [
     path('samples/<int:sample>/from/<str:from_length>cm/to/<str:to_length>cm/on/<str:current_length>/', views.LengthFrquencyWizardFormView.as_view(), name ="lf_wizard"),
     path('samples/<int:sample>/length-frequency-correction-at-<str:current_length>cm/<int:pk>/', views.LengthFrquencyUpdateView.as_view(), name ="lf_wizard_correction"),
 
-    # Fish Detail #
+    # FISH DETAIL #
     ##############
     path('samples/<int:sample>/fish/<int:pk>/view/', views.FishDetailView.as_view(), name ="fish_detail"),
     path('samples/<int:sample>/fish/new/', views.FishCreateView.as_view(), name ="fish_create"),
     path('samples/<int:sample>/fish/<int:pk>/edit/', views.FishUpdateView.as_view(), name ="fish_update"),
-    path('samples/<int:sample>/fish/new-lab-sample/', views.LabFormView.as_view(), name ="lab_form"),
+    # Lab samples
+    path('samples/<int:sample>/lab-sample-confirmation', views.LabSampleConfirmation.as_view(), name ="lab_sample_confirmation"),
+    path('samples/<int:sample>/new-lab-sample', views.lab_sample_primer, name ="lab_sample_setup"),
+    path('samples/<int:sample>/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name ="lab_sample_form"),
 
 
 ]
