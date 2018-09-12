@@ -29,6 +29,7 @@
   {% endif %}
 
   <form method="post" class="form">
+    {%bootstrap_form_errors form%}
       {% csrf_token %}
       <br>
       <div class="row">
