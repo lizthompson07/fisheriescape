@@ -46,7 +46,7 @@ def port_sample_tests(sample):
     sample_test_231 = models.SampleTest.objects.create(sample_id=sample.id,test_id=231,test_passed=False)
     sample_test_232 = models.SampleTest.objects.create(sample_id=sample.id,test_id=232,test_passed=False)
 
-    # RUN TEST 202 FOR PORT SAMPLE
+    # RUN TEST 202 FOR PORT SAMPLE - all field completed
     if sample.sampling_protocol and sample.sample_date and sample.sampler and sample.sampler_ref_number and sample.total_fish_preserved and sample.total_fish_measured:
         sample_test_202.test_passed = True
         sample_test_202.save()
@@ -78,6 +78,14 @@ def port_sample_tests(sample):
     if sample.otolith_processing_complete == True:
         sample_test_232.test_passed = True
         sample_test_232.save()
+
+def lab_sample_tests(fish_detail):
+    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+    models.FishDetailTest.objects.filter(fish_detail_id=fish_detail.id).delete()
+
+    # CREATE BLANK TESTS IN SAMPLETEST
+    fish_test_21_VARIABLE_NAME = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=21,test_passed=False)
+
 
 
 # PORT SAMPLE #
@@ -302,7 +310,7 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
             progress = progress + 1
         if self.object.gonad_weight:
             progress = progress + 1
-        if self.object.parasite:
+        if self.object.parasite != None:
             progress = progress + 1
         context['progress'] = progress
         return context
@@ -316,8 +324,6 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         # port_sample_tests(self.object)
         object = form.save()
-
-
         return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.

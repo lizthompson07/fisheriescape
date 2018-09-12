@@ -28,11 +28,13 @@
               </a>
             </td>
           <td align="center">
-            {% if d.lab_processed_date%}
-            <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
-            {% else %}
-            <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
-            {% endif %}
+            <a href="{% url 'herring:lab_sample_form' object.id d.id %}">
+              {% if d.lab_processed_date%}
+              <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+              {% else %}
+              <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+              {% endif %}
+            </a>
           </td>
           <td align="center">
             {% if d.otolith_processed_date%}
@@ -48,7 +50,7 @@
   </table>
   <br>
   <p>
-    <b>TOTAL FISH: {{object.fish_details.count}}</b>
+    <b>TOTAL: {{object.fish_details.count}}</b>
   </p>
 
 {%endif%}
