@@ -24,40 +24,168 @@
   <h1>
     Fish #{{object.fish_number}}
     <div class="float-right btn-group">
-      {# <button type="button" class="btn btn-lg btn-info">View Commands</button> #}
+      {% if progress == 6 %}
+        <button type="button" class="btn btn-lg btn-primary">Next</button>
+      {% endif %}
       {# <button type="button" id="startDataCapture" class="btn btn-lg btn-success">Click to Start Data Capture!</button> #}
-
     </div>
   </h1>
   <hr>
-  <input type="text" placeholder="Input here!" id="prompt" class="form-control"><br>
+  <input type="text" placeholder="Input here!" id="prompt" class="form-control">
   <form method="post">
     {% csrf_token %}
-    <input type="submit" value="submit" class="btn btn-sm btn-primary"><br><br>
+    <input type="submit" value="submit" class="hidden">
     <span class="red-font">{{form}}</span>
   </form>
 
-  <p>
-    <h4>Metadata:</h4>
-    <b>Sample ID:</b> {{object.sample.id}} <br>
-    <b>Fish ID:</b> {{object.id}} <br>
-    <b>Sample Collection date:</b> {{object.sample.sample_date|date:"F m, Y"}} <br>
-    <b>Sample Collected by:</b> {{object.sample.sampler}} <br>
-    <b>Sampler's reference no.:</b> {{object.sample.sampler_ref_number}} <br>
-    <b>Last modified:</b> {{object.last_modified_date|date:"F m, Y"}} <br>
-    <b>Last modified by:</b> {{object.last_modified_by}} <br>
-  </p>
-  <p>
-    <h4>Measurement Data:</h4>
-    <b>Fish number:</b> {{object.fish_number}} <br>
-    <b>Fish length (mm):</b> {{object.fish_length|nz:""}} <br>
-    <b>Fish weight (g):</b> {{object.fish_weight|nz:""}} <br>
-    <b>Sex:</b> {{object.sex|nz:""}} <br>
-    <b>Maturity:</b> {{object.maturity|nz:""}} <br>
-    <b>Gonad weight:</b> {{object.gonad_weight|nz:""}} <br>
-    <b>Parasite present:</b> {{object.parasite|yesno:"yes,no,not-specified"}} <br>
-    <b>Remarks:</b> {{object.remarks|nz:""}} <br>
-  </p>
+  <div class="row">
+    <div class="col">
+      <p>
+        <h4>Metadata:</h4>
+        <div class="row">
+          <div class="col">
+            <table class="table table-sm table-bordered">
+              <tr>
+                <td>
+                  <b>Fish ID:</b>
+                </td>
+                <td>
+                  {{object.id}}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <b>Fish number:</b>
+                </td>
+                <td>
+                  {{object.fish_number}}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <b>Sample:</b>
+                </td>
+                <td>
+                  {{object.sample.id}} collected by [{{object.sample.sampler}}] on {{object.last_modified_date|date:"F m, Y"}}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <b>Sampler's reference no.:</b>
+                </td>
+                <td>
+                  {{object.sample.sampler_ref_number}}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </p>
+      <p>
+        <h4>Measurement Data:</h4>
+        <table class="table table-sm table-bordered">
+
+
+          <tr>
+            <td>
+              Fish length (mm)
+            </td>
+            {% if object.fish_length %}
+            <td class="good">
+              {% else %}
+              <td class="bad">
+                {% endif %}
+                {{object.fish_length|nz:""}}
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                Fish weight (g)
+              </td>
+              {% if object.fish_weight %}
+              <td class="good">
+                {% else %}
+                <td class="bad">
+                  {% endif %}
+                  {{object.fish_weight|nz:""}}
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  Sex
+                </td>
+                {% if object.sex %}
+                <td class="good">
+                  {% else %}
+                  <td class="bad">
+                    {% endif %}
+                    {{object.sex|nz:""}}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    Maturity
+                  </td>
+                  {% if object.maturity %}
+                  <td class="good">
+                    {% else %}
+                    <td class="bad">
+                      {% endif %}
+                      {{object.maturity|nz:""}}
+                    </td>
+                  </tr>
+
+
+                  <tr>
+                    <td>
+                      Gonad weight
+                    </td>
+                    {% if object.gonad_weight %}
+                    <td class="good">
+                      {% else %}
+                      <td class="bad">
+                        {% endif %}
+                        {{object.gonad_weight|nz:""}}
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        Parasite present
+                      </td>
+                      {% if object.parasite == None %}
+                      <td class="bad">
+                      {% else %}
+                      <td class="good">
+                      {% endif %}
+                          {{object.parasite|yesno:"yes,no,not-specified"}}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>
+                          Remarks
+                        </td>
+                        <td>
+                          {{object.remarks|nz:"none"}}
+                        </td>
+                      </tr>
+
+                    </table>
+
+
+                  </p>
+
+    </div>
+    <div class="col">
+      {% include "herring/_lab_sample_qc.html" %}
+
+    </div>
+  </div>
+
 
 
 
@@ -71,64 +199,145 @@
     </em>
   </p>
 
-
+  (<em>Last modified on  {{object.last_modified_date|date:"F m, Y"}} by {{object.last_modified_by}}</em>)
 <script type="text/javascript">
-  var keepPrompting = true;
-  var clickSubmit = true;
+  // var keepPrompting = true;
+  var clickSubmit = false;
   var audio = new Audio("{% static "/sounds/success2.wav" %}");
+  var progress = {{progress}}
+  var newRecordURL = "{% url 'herring:lab_sample_setup' object.sample.id %}"
   audio.onended = function () {
     $("input").click();
   }
   $(document).ready(function () {
-    $("#prompt").focus()
+    if (progress == 6) {
+      speak("this sample is complete.")
+    }
+    $("#prompt").focus();
   })
 
+
+  function overwrite(control) {
+    var msg = "Do you want to overwrite the existing data in this field? Press 'y' for YES or 'n' for NO."
+    var msgLite = "do you want to overwrite?"
+    var assess = true
+    var userInput
+
+    // first determine whether an assessment is necessary
+    if (control.val() != "") {
+      assess=true;
+    } else {
+      assess=false;
+    }
+
+
+    if (assess  == true) {
+      speak(msgLite);
+      while (userInput != "y" && userInput != "n") {
+        userInput = prompt(msg)
+      }
+      if (userInput == 'n') {
+        return false
+      } else {
+        return true
+      }
+    } else {
+      return true
+    }
+  }
+
+// for when the enter button is pressed on the prompt control
   $("#prompt").keypress(function(e) {
     if(e.which == 13) {
-      clickSubmit = true;
       userResponse = $("#prompt").val();
       userResponse = userResponse.trim()
 
       if (userResponse == 'h') {
         // open help modal
       } else if (userResponse.match(/comment/gi)) {
-        $("#id_remarks").val(userResponse.toLowerCase().replace("comment","").trim());
+        if (overwrite($("#id_remarks"))) {
+          $("#id_remarks").val(userResponse.toLowerCase().replace("comment","").trim());
+          clickSubmit = true;
+        }
       } else if (userResponse.match(/ruler1/gi)) {
         // EXAMPLE:  Ruler1 279.2123
-        $("#id_fish_length").val(userResponse.toLowerCase().replace("ruler1","").trim());
+        if (overwrite($("#id_fish_length"))) {
+          $("#id_fish_length").val(userResponse.toLowerCase().replace("ruler1","").trim());
+          clickSubmit = true;
+        }
       } else if (userResponse.match(/sex/gi)) {
         // 'EXAMPLE:  Sex male
-        strSex = userResponse.toLowerCase().replace("sex","").trim()
-        if (strSex=='male') {
-          $("#id_sex").val(1);
-        } else if (strSex=='female') {
-          $("#id_sex").val(2);
-        } else if (strSex=='h') {
-          $("#id_sex").val(3);
-        } else if (strSex=='u') {
-          $("#id_sex").val(9);
+        if (overwrite($("#id_sex"))) {
+          strSex = userResponse.toLowerCase().replace("sex","").trim()
+          if (strSex=='male') {
+            $("#id_sex").val(1);
+            clickSubmit = true;
+          } else if (strSex=='female') {
+            $("#id_sex").val(2);
+            clickSubmit = true;
+          } else if (strSex=='h') {
+            $("#id_sex").val(3);
+            clickSubmit = true;
+          } else if (strSex=='u') {
+            $("#id_sex").val(9);
+            clickSubmit = true;
+          } else {
+            clickSubmit = false
+          }
         }
       } else if (userResponse.match(/parasites/gi)) {
         // 'EXAMPLE:  Parasites Y
-        strParasite = userResponse.toLowerCase().replace("parasites","").trim()
-        if (strParasite=='y') {
-          $("#id_parasite").val(1);
-        } else if (strParasite=='n') {
-          $("#id_parasite").val(0);
+        if (overwrite($("#id_parasite"))) {
+          strParasite = userResponse.toLowerCase().replace("parasites","").trim()
+          if (strParasite=='y') {
+            $("#id_parasite").val(1);
+            clickSubmit = true;
+          } else if (strParasite=='n') {
+            $("#id_parasite").val(0);
+            clickSubmit = true;
+          } else {
+            clickSubmit = false
+          }
+
         }
 
       } else if (userResponse.match(/Gonad/gi) || userResponse.match(/scale_2/gi)) {
         // 'EXAMPLE:  Enter Gonad wt 50.1 __OR__ Scale_2 50.0001 g
-        if (userResponse.match(/Gonad/gi)) {
-          $("#id_gonad_weight").val(userResponse.toLowerCase().replace("enter Gonad wt","").trim());
-        } else {
-          $("#id_gonad_weight").val(userResponse.toLowerCase().replace("scale_2","").trim());
+        if (overwrite($("#id_gonad_weight"))) {
+          if (userResponse.match(/Gonad/gi)) {
+            $("#id_gonad_weight").val(userResponse.toLowerCase().replace("enter Gonad wt","").trim());
+          } else {
+            $("#id_gonad_weight").val(userResponse.toLowerCase().replace("scale_2","").trim());
+          }
+          clickSubmit = true;
         }
-        console.log($("#id_gonad_weight").val());
-
-      } else {
-        clickSubmit = false
+      } else if (userResponse.match(/fish wt/gi) || userResponse.match(/scale_1/gi)) {
+        // 'EXAMPLE:  Scale_1 1000.000 g __OR__ Enter Fish wt 1000
+        if (overwrite($("#id_fish_weight"))) {
+          if (userResponse.match(/fish wt/gi)) {
+            $("#id_fish_weight").val(userResponse.toLowerCase().replace("fish wt","").trim());
+          } else {
+            $("#id_fish_weight").val(userResponse.toLowerCase().replace("scale_1","").trim());
+          }
+          clickSubmit = true;
+        }
+      } else if (userResponse.match(/Enter Maturity/gi)) {
+        // 'EXAMPLE:  Enter Maturity 1
+        if (overwrite($("#id_maturity"))) {
+          $("#id_maturity").val(userResponse.toLowerCase().replace("enter maturity","").trim());
+          clickSubmit = true;
+        }
+      } else if (userResponse.match(/new/gi) || userResponse == 'n') {
+        if (progress == 6) {
+          // redirect to new record
+          window.location.href=newRecordURL;
+        } else {
+          alert("cannot go to new record until sample is complete.");
+        }
       }
+
+
+      ////////////////////////
 
       if (clickSubmit == true) {
         audio.play();

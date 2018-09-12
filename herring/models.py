@@ -216,7 +216,7 @@ class Maturity(models.Model):
 
 class Sex(models.Model):
     sex = models.CharField(max_length=255)
-    oracle_code = models.CharField(max_length=1)
+    oracle_code = models.CharField(max_length=1, null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -302,6 +302,15 @@ class SampleTest(models.Model):
     class Meta:
         unique_together = (('sample', 'test'),)
         ordering = ('sample', 'test')
+
+class FishDetailTest(models.Model):
+    fish_detail = models.ForeignKey(FishDetail, on_delete=models.CASCADE, related_name='sample_tests')
+    test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
+    test_passed = models.BooleanField(default = False)
+
+    class Meta:
+        unique_together = (('fish_detail', 'test'),)
+        ordering = ('fish_detail', 'test')
 # qctest_21_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_21_fish_length_details")
 # qctest_22_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_22_fish_length_details")
 # qctest_23_fish_length = models.ForeignKey(QualityTest, on_delete=models.DO_NOTHING, related_name="qctest_23_fish_length_details")
