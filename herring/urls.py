@@ -27,6 +27,7 @@ urlpatterns = [
     path('samples/<int:sample>/fish/<int:pk>/view/', views.FishDetailView.as_view(), name ="fish_detail"),
     path('samples/<int:sample>/fish/new/', views.FishCreateView.as_view(), name ="fish_create"),
     path('samples/<int:sample>/fish/<int:pk>/edit/', views.FishUpdateView.as_view(), name ="fish_update"),
+    path('samples/<int:sample>/fish/<int:pk>/delete/', views.FishDeleteView.as_view(), name ="fish_delete"),
     # Lab samples
     path('samples/<int:sample>/lab-sample-confirmation', views.LabSampleConfirmation.as_view(), name ="lab_sample_confirmation"),
     path('samples/<int:sample>/new-lab-sample', views.lab_sample_primer, name ="lab_sample_setup"),

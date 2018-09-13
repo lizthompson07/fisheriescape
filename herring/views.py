@@ -17,6 +17,7 @@ from . import models
 from . import forms
 from . import filters
 from . import emails
+from . import quality_control
 # Create your views here.
 
 class IndexView(GroupRequiredMixin,TemplateView):
@@ -37,56 +38,21 @@ class CloserTemplateView(TemplateView):
 #     return HttpResponseRedirect(reverse('herring:port_sample_detail', kwargs={"pk":sample}))
 
 def port_sample_tests(sample):
-    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-    models.SampleTest.objects.filter(sample_id=sample.id).delete()
+    quality_control.run_test_202(sample,"port_sample")
+    quality_control.run_test_205(sample,"port_sample")
+    quality_control.run_test_231(sample,"port_sample")
+    quality_control.run_test_232(sample,"port_sample")
 
-    # CREATE BLANK TESTS IN SAMPLETEST
-    sample_test_202 = models.SampleTest.objects.create(sample_id=sample.id,test_id=202,test_passed=False)
-    sample_test_205 = models.SampleTest.objects.create(sample_id=sample.id,test_id=205,test_passed=False)
-    sample_test_231 = models.SampleTest.objects.create(sample_id=sample.id,test_id=231,test_passed=False)
-    sample_test_232 = models.SampleTest.objects.create(sample_id=sample.id,test_id=232,test_passed=False)
-
-    # RUN TEST 202 FOR PORT SAMPLE - all field completed
-    if sample.sampling_protocol and sample.sample_date and sample.sampler and sample.sampler_ref_number and sample.total_fish_preserved and sample.total_fish_measured:
-        sample_test_202.test_passed = True
-        sample_test_202.save()
-
-    # RUN TEST 205 FOR PORT SAMPLE
-    # get list of counts
-    count_list = []
-    for obj in sample.length_frequency_objects.all():
-        count_list.append(obj.count)
-    # add the sum as context
-    count_sum = sum(count_list)
-
-    if count_sum == sample.total_fish_measured:
-        sample_test_205.test_passed = True
-        sample_test_205.save()
-
-    # RUN TEST 231 FOR PORT SAMPLE
-    # resave each fish detail record to run through fishdetail save method
-    for fishy in sample.fish_details.all():
-        fishy.save()
-    # resave the sample instance to run thought sample save method
-    sample.save()
-    # now conduct the test
-    if sample.lab_processing_complete == True:
-        sample_test_231.test_passed = True
-        sample_test_231.save()
-
-    # RUN TEST 232 FOR PORT SAMPLE
-    if sample.otolith_processing_complete == True:
-        sample_test_232.test_passed = True
-        sample_test_232.save()
 
 def lab_sample_tests(fish_detail):
-    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-    models.FishDetailTest.objects.filter(fish_detail_id=fish_detail.id).delete()
-
-    # CREATE BLANK TESTS IN SAMPLETEST
-    fish_test_21_VARIABLE_NAME = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=21,test_passed=False)
-
-
+    quality_control.run_data_point_tests(fish_detail, field_name="fish_length")
+    quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
+    quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
+    quality_control.run_test_202(fish_detail,"lab_sample")
+    quality_control.run_test_203(fish_detail,"lab_sample")
+    quality_control.run_test_204(fish_detail,"lab_sample")
+    quality_control.run_test_207(fish_detail,"lab_sample")
+    quality_control.run_test_208(fish_detail,"lab_sample")
 
 # PORT SAMPLE #
 ###############
@@ -148,7 +114,7 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # port_sample_tests(self.object)
+        port_sample_tests(self.object)
 
         # create a list of length freq counts
         if self.object.length_frequency_objects.count()>0:
@@ -252,11 +218,6 @@ class FishCreateView(LoginRequiredMixin,CreateView):
             'last_modified_by': self.request.user,
         }
 
-    # def form_valid(self, form):
-    #     object = form.save()
-    #     port_sample_tests(object)
-    #     return super().form_valid(form)
-
 
 class FishUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/fish_form.html'
@@ -267,6 +228,15 @@ class FishUpdateView(LoginRequiredMixin,UpdateView):
         return {
             'last_modified_by': self.request.user,
         }
+
+class FishDeleteView(LoginRequiredMixin,DeleteView):
+    template_name = 'herring/fish_confirm_delete.html'
+    model = models.FishDetail
+
+    def get_success_url(self):
+        return reverse_lazy('herring:port_sample_detail', kwargs={'pk':self.kwargs['sample']})
+
+
 
 # lab samples
 
@@ -297,8 +267,10 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # run the quality test on loading the data
+        lab_sample_tests(self.object)
         # determine the progress of data entry
-        ## there are 6 fields: len, wt, g_wt, sex, mat, parasite
+        ## there are 6 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
         progress = 0
         if self.object.fish_length:
             progress = progress + 1
@@ -310,9 +282,15 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
             progress = progress + 1
         if self.object.gonad_weight:
             progress = progress + 1
-        if self.object.parasite != None:
-            progress = progress + 1
+        if self.object.sample.sampling_protocol.sampling_type == 2:
+            if self.object.parasite != None:
+                progress = progress + 1
+            total_tests = 6
+        else:
+            total_tests = 5
+
         context['progress'] = progress
+        context['total_tests'] = total_tests
         return context
 
     def get_initial(self):

@@ -1,0 +1,101 @@
+{% load nz %}
+<h4>Measurement Data:</h4>
+<table class="table table-sm table-bordered">
+
+
+  <tr>
+    <td>
+      Fish length (mm)
+    </td>
+    {% if object.fish_length %}
+    <td class="good">
+      {% else %}
+      <td class="bad">
+        {% endif %}
+        {{object.fish_length|nz:""}}
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Fish weight (g)
+      </td>
+      {% if object.fish_weight %}
+      <td class="good">
+        {% else %}
+        <td class="bad">
+          {% endif %}
+          {{object.fish_weight|nz:""}}
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          Sex
+        </td>
+        {% if object.sex %}
+        <td class="good">
+          {% else %}
+          <td class="bad">
+            {% endif %}
+            {{object.sex|nz:""}}
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            Maturity
+          </td>
+          {% if object.maturity %}
+          <td class="good">
+            {% else %}
+            <td class="bad">
+              {% endif %}
+              {{object.maturity|nz:""}}
+            </td>
+          </tr>
+
+
+          <tr>
+            <td>
+              Gonad weight
+            </td>
+            {% if object.gonad_weight >= 0 %}
+            <td class="good">
+              {% else %}
+              <td class="bad">
+                {% endif %}
+                {{object.gonad_weight|nz:""}}
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                Parasite present
+              </td>
+              {% if object.sample.sampling_protocol.sampling_type == 2 %}
+                {% if object.parasite == None %}
+                <td class="bad">
+                {% else %}
+                <td class="good">
+                {% endif %}
+              {% else %}
+                <td>
+              {% endif %}
+                  {{object.parasite|yesno:"yes,no,not-specified"}}
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  Remarks
+                </td>
+                <td>
+                  {{object.remarks|nz:"none"}}
+                </td>
+              </tr>
+
+            </table>
+
+
+          </p>

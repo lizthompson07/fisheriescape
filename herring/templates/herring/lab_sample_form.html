@@ -2,7 +2,6 @@
 
 {% load bootstrap4 %}
 {% load verbose_names %}
-{% load nz %}
 {% load percentage %}
 {% load divide %}
 {% load static %}
@@ -24,7 +23,7 @@
   <h1>
     Fish #{{object.fish_number}}
     <div class="float-right btn-group">
-      {% if progress == 6 %}
+      {% if progress == total_tests %}
         <button type="button" class="btn btn-lg btn-primary">Next</button>
       {% endif %}
       {# <button type="button" id="startDataCapture" class="btn btn-lg btn-success">Click to Start Data Capture!</button> #}
@@ -39,148 +38,12 @@
   </form>
 
   <div class="row">
-    <div class="col">
-      <p>
-        <h4>Metadata:</h4>
-        <div class="row">
-          <div class="col">
-            <table class="table table-sm table-bordered">
-              <tr>
-                <td>
-                  <b>Fish ID:</b>
-                </td>
-                <td>
-                  {{object.id}}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <b>Fish number:</b>
-                </td>
-                <td>
-                  {{object.fish_number}}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <b>Sample:</b>
-                </td>
-                <td>
-                  {{object.sample.id}} collected by [{{object.sample.sampler}}] on {{object.last_modified_date|date:"F m, Y"}}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <b>Sampler's reference no.:</b>
-                </td>
-                <td>
-                  {{object.sample.sampler_ref_number}}
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </p>
-      <p>
-        <h4>Measurement Data:</h4>
-        <table class="table table-sm table-bordered">
-
-
-          <tr>
-            <td>
-              Fish length (mm)
-            </td>
-            {% if object.fish_length %}
-            <td class="good">
-              {% else %}
-              <td class="bad">
-                {% endif %}
-                {{object.fish_length|nz:""}}
-              </td>
-            </tr>
-
-            <tr>
-              <td>
-                Fish weight (g)
-              </td>
-              {% if object.fish_weight %}
-              <td class="good">
-                {% else %}
-                <td class="bad">
-                  {% endif %}
-                  {{object.fish_weight|nz:""}}
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  Sex
-                </td>
-                {% if object.sex %}
-                <td class="good">
-                  {% else %}
-                  <td class="bad">
-                    {% endif %}
-                    {{object.sex|nz:""}}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    Maturity
-                  </td>
-                  {% if object.maturity %}
-                  <td class="good">
-                    {% else %}
-                    <td class="bad">
-                      {% endif %}
-                      {{object.maturity|nz:""}}
-                    </td>
-                  </tr>
-
-
-                  <tr>
-                    <td>
-                      Gonad weight
-                    </td>
-                    {% if object.gonad_weight %}
-                    <td class="good">
-                      {% else %}
-                      <td class="bad">
-                        {% endif %}
-                        {{object.gonad_weight|nz:""}}
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        Parasite present
-                      </td>
-                      {% if object.parasite == None %}
-                      <td class="bad">
-                      {% else %}
-                      <td class="good">
-                      {% endif %}
-                          {{object.parasite|yesno:"yes,no,not-specified"}}
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td>
-                          Remarks
-                        </td>
-                        <td>
-                          {{object.remarks|nz:"none"}}
-                        </td>
-                      </tr>
-
-                    </table>
-
-
-                  </p>
+    <div class="col-4">
+      {% include "herring/_lab_sample_metadata.html" %}
+      {% include "herring/_lab_sample_measurements.html" %}
 
     </div>
-    <div class="col">
+    <div class="col-8">
       {% include "herring/_lab_sample_qc.html" %}
 
     </div>
@@ -192,10 +55,10 @@
   <p>
     <h4>Progress Complete:</h4>
     <div class="progress" style="height: 60px;">
-      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{progress|divide:6|percentage}};" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="6"></div>
+      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{progress|divide:total_tests|percentage}};" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="{{total_tests}}"></div>
     </div>
     <em>
-      {{progress}} of 6 meaurements complete
+      {{progress}} of {{total_tests}} meaurements complete
     </em>
   </p>
 
@@ -205,12 +68,13 @@
   var clickSubmit = false;
   var audio = new Audio("{% static "/sounds/success2.wav" %}");
   var progress = {{progress}}
+  var totalTests = {{total_tests}}
   var newRecordURL = "{% url 'herring:lab_sample_setup' object.sample.id %}"
   audio.onended = function () {
     $("input").click();
   }
   $(document).ready(function () {
-    if (progress == 6) {
+    if (progress == totalTests) {
       speak("this sample is complete.")
     }
     $("#prompt").focus();
@@ -328,7 +192,7 @@
           clickSubmit = true;
         }
       } else if (userResponse.match(/new/gi) || userResponse == 'n') {
-        if (progress == 6) {
+        if (progress == totalTests) {
           // redirect to new record
           window.location.href=newRecordURL;
         } else {
