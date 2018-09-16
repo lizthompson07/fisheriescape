@@ -155,10 +155,11 @@ def run_test_203(object, object_type): # All data points are within their possib
 
         # grab all test 22s related to sample
         test22s = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=22)
-        for test in test22s:
-            if not test.test_passed:
-                test.test_passed = False
-                test.save()
+        for t in test22s:
+            print(t)
+            if not t.test_passed:
+                t.test_passed = False
+                t.save()
                 break
 
 def run_test_204(object, object_type): # fish length to weight

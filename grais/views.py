@@ -21,7 +21,7 @@ class IndexView(GroupRequiredMixin,TemplateView):
     template_name = 'grais/index.html'
     group_required = [u"grais_access",]
     login_url = '/accounts/login_required/'
-    
+
 
 
 
