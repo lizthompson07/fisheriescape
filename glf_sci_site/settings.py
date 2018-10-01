@@ -97,24 +97,24 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 #for mysql
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'TIME_ZONE':'America/Halifax',
-#         'OPTIONS': {
-#             'read_default_file':MY_CNF,
-#             'init_command': 'SET default_storage_engine=INNODB',
-#         },
-#     }
-# }
-
-# FOR SQLLITE
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'TIME_ZONE':'America/Halifax',
+        'OPTIONS': {
+            'read_default_file':MY_CNF,
+            'init_command': 'SET default_storage_engine=INNODB',
+        },
     }
 }
+
+# FOR SQLLITE
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 # # FOR ORACLE 12
 # DATABASES = {
