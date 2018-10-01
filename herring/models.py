@@ -327,5 +327,5 @@ class FishDetailTest(models.Model):
     accepted = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
 
     class Meta:
-        unique_together = (('fish_detail', 'test','field_name'),)
-        ordering = ('fish_detail', 'test')
+        unique_together = (('fish_detail','field_name','test'),)
+        ordering = ('fish_detail', 'field_name')
