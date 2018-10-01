@@ -7,6 +7,9 @@ from . import views
 app_name = 'docs'
 
 urlpatterns = [
-    path('', views.IndexView.as_view(), name='index'),
-    path('oceanography/', views.OceanographyListView.as_view(), name='oceanography'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('', views.DocListView.as_view(), name='doc_list'),
+    path('new/', views.DocCreateView.as_view(), name='doc_create'),
+    path('edit/<int:pk>', views.DocUpdateView.as_view(), name='doc_edit'),
+]
+
+ # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
