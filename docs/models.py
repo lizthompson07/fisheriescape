@@ -11,7 +11,7 @@ class Doc(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     source = models.TextField(null=True, blank=True)
-    url = models.TextField(null=True, blank=True)
+    # url = models.TextField(null=True, blank=True)
     file = models.FileField(null=True, blank=True, upload_to=img_file_name)
     date_modified = models.DateTimeField(default = timezone.now )
 
