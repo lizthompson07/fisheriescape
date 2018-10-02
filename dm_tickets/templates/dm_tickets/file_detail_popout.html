@@ -40,7 +40,7 @@ function refreshParent() {
 
       <a class="btn btn-warning" href="{% url 'tickets:file_update' ticket=object.ticket.id pk=object.id %}" onclick="refreshParent();">Edit</a>
       <a class="btn btn-success" href="{% url 'tickets:file_create' ticket=object.ticket.id %}">Add Another File</a>
-      <a class="btn btn-secondary" onclick="refreshParent(); window.close()">Close</a>
+      <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">Close</a>
 </div>
 
 {% endblock content %}
