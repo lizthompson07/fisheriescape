@@ -168,7 +168,7 @@ class Ticket(models.Model):
 
 def ticket_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'ticket_{0}/{1}'.format(instance.ticket.id, filename)
+    return '/dm_tickets/ticket_{0}/{1}'.format(instance.ticket.id, filename)
 
 class File(models.Model):
     caption = models.CharField(max_length=255)
