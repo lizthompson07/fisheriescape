@@ -48,14 +48,14 @@ class MissionYearListView(TemplateView):
 
 
 class MissionListView(ListView):
-    template_name = "oceanography\mission_list.html"
+    template_name = "oceanography/mission_list.html"
 
     def get_queryset(self):
         return models.Mission.objects.filter(season = self.kwargs["year"])
 
 
 class MissionDetailView(UpdateView):
-    template_name = "oceanography\mission_form.html"
+    template_name = "oceanography/mission_form.html"
     model = models.Mission
     form_class = forms.MissionForm
 
@@ -64,4 +64,61 @@ class MissionDetailView(UpdateView):
         context = super().get_context_data(**kwargs)
 
         context["editable"] = False
+        return context
+
+
+class MissionUpdateView(UpdateView):
+    template_name = "oceanography/mission_form.html"
+    model = models.Mission
+    form_class = forms.MissionForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("oceanography:mission_detail", kwargs={"pk":self.object.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+
+        context["editable"] = True
+        return context
+
+
+class BottleListView(ListView):
+    template_name = "oceanography/bottle_list.html"
+
+    def get_queryset(self):
+        return models.Bottle.objects.filter(mission = self.kwargs["mission"])
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+
+        context["mission"] = models.Mission.objects.get(id = self.kwargs["mission"])
+        context["bottle"] = models.Bottle.objects.first()
+        return context
+
+class BottleDetailView(UpdateView):
+    template_name = "oceanography/bottle_form.html"
+    model = models.Bottle
+    form_class = forms.BottleForm
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = False
+        return context
+
+
+class BottleUpdateView(UpdateView):
+    template_name = "oceanography/bottle_form.html"
+    model = models.Bottle
+    form_class = forms.BottleForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("oceanography:bottle_detail", kwargs={"pk":self.object.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
         return context
