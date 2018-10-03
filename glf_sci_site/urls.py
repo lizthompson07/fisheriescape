@@ -29,7 +29,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('inventory/', include('inventory.urls')),
     path('dm-tickets/', include('dm_tickets.urls')),
-    path('oceanography/', include('docs.urls')),
+    path('oceanography/', include('oceanography.urls')),
     path('grais/', include('grais.urls')),
     path('hermorrhage/', include('herring.urls')),
     path('bugs/', include('bugs.urls')),
