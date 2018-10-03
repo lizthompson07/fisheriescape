@@ -1,6 +1,9 @@
+import csv
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 from django.utils import timezone
+from django.utils.text import slugify
 from django.urls import reverse_lazy
 from . import models
 from . import forms
@@ -122,3 +125,70 @@ class BottleUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context["editable"] = True
         return context
+
+
+# CSVs #
+########
+def export_mission_csv(request, pk):
+    # create instance of mission:
+    m = models.Mission.objects.get(pk=pk)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(slugify(m.mission_number))
+
+    writer = csv.writer(response)
+
+
+    # write the header information
+    writer.writerow(['mission_name', m.mission_name])
+    writer.writerow(['mission_number', m.mission_number])
+    writer.writerow(['vessel_name', m.vessel_name])
+    writer.writerow(['chief_scientist', m.chief_scientist])
+    writer.writerow(['samplers', m.samplers])
+    writer.writerow(['start_date (yyyy-mm-dd)', m.start_date.strftime('%Y-%m-%d')])
+    writer.writerow(['end_date (yyyy-mm-dd)', m.end_date.strftime('%Y-%m-%d')])
+    writer.writerow(['probe', m.probe])
+    writer.writerow(['area_of_operation', m.area_of_operation])
+    writer.writerow(['notes', m.notes])
+    writer.writerow(['timezone', "UTC"])
+
+    # write the header for the bottle table
+    writer.writerow(["",])
+    writer.writerow([
+    "bottle_uid",
+    "station",
+    "set",
+    "event",
+    "date_yyyy_mm_dd",
+    "time_hh_mm",
+    "sounding_m",
+    "bottle_depth_m",
+    "temp_c",
+    "sal_ppt",
+    "ph",
+    "lat_DDdd",
+    "long_DDdd",
+    "ctd_filename",
+    "remarks",])
+
+    for b in m.bottles.all():
+        writer.writerow(
+        [
+        b.bottle_uid,
+        b.station,
+        b.set,
+        b.event,
+        b.date_time_UTC.strftime('%Y-%m-%d'),
+        b.date_time_UTC.strftime('%H:%M'),
+        b.sounding_m,
+        b.bottle_depth_m,
+        b.temp_c,
+        b.sal_ppt,
+        b.ph,
+        b.lat_DDdd,
+        b.long_DDdd,
+        b.ctd_filename,
+        b.remarks,])
+
+    return response

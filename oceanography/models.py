@@ -26,6 +26,9 @@ class Doc(models.Model):
 class Probe(models.Model):
     probe_name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.probe_name
+
 class Mission(models.Model):
     mission_name = models.CharField(max_length=255)
     mission_number = models.CharField(max_length=255)
