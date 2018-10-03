@@ -1,0 +1,43 @@
+{% extends "oceanography/oceanography_base.html" %}
+
+
+
+{% block content %}
+
+{% load static %}
+<div class="jumbotron">
+  <h1>Oceanography Doc Library</h1>
+</div>
+
+<div class="container">
+<p>
+  <a href="{% url 'oceanography:index'  %}" class="btn btn-secondary">Back</a>
+</p>
+
+  {# <h2>Please select from the following:</h2> #}
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Mission name</th>
+        <th scope="col">Mission number</th>
+        <th scope="col">Chief scientist</th>
+        <th scope="col">Number of bottles</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for m in object_list  %}
+        <tr>
+          <td><a href="{% url "oceanography:mission_detail" m.id %}">{{m.mission_name}}</a></td>
+          <td>{{m.mission_number}}</td>
+          <td>{{m.chief_scientist}}</td>
+          <td>{{m.bottles.count}}</td>
+        </tr>
+      {% endfor %}
+
+
+      </tbody>
+    </table>
+
+
+{% endblock content %}
