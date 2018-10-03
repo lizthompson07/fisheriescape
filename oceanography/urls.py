@@ -20,6 +20,14 @@ urlpatterns = [
     path('missions/', views.MissionYearListView.as_view(), name='mission_year_list'),
     path('missions/<int:year>/list/', views.MissionListView.as_view(), name='mission_list'),
     path('missions/<int:pk>/view/', views.MissionDetailView.as_view(), name='mission_detail'),
+    path('missions/<int:pk>/edit/', views.MissionUpdateView.as_view(), name='mission_edit'),
+
+    # BOTTLES #
+    ###########
+    path('missions/<int:mission>/bottles/', views.BottleListView.as_view(), name='bottle_list'),
+    path('bottles/<int:pk>/view/', views.BottleDetailView.as_view(), name='bottle_detail'),
+    path('bottles/<int:pk>/edit/', views.BottleUpdateView.as_view(), name='bottle_edit'),
+
 
 
 ]

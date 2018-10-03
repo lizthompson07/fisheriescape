@@ -6,26 +6,28 @@
 
   <div class="container">
     {% if object.id %}
-    <h1>{{object.mission_name}}</h1>
+    <h1>Bottle Number {{object.bottle_uid}}</h1>
     {% else %}
     <h1>New Document</h1>
     {% endif %}
 
-      <form  method="post" enctype="multipart/form-data">
+      <form  method="post">
         {% csrf_token %}
         <div class="btn-group">
           {% if editable %}
           <input type="submit" class="btn btn-primary" value="Submit">
           {% else %}
-          <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
+          <a href="{% url "oceanography:bottle_edit" object.id %}" class="btn btn-warning">Edit</a>
           {% endif %}
-          <a href="{% url "oceanography:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
-          <a href="{% url "oceanography:mission_list" object.season %}" class="btn btn-secondary">Back</a>
+          <a href="{% url "oceanography:bottle_list" object.mission.id %}" class="btn btn-secondary">Back</a>
         </div>
         <br><br>
 
         <fieldset {% if not editable %}disabled   {% endif %}>
-        {%bootstrap_form form%}
+          {% for field in form  %}
+            {%bootstrap_field field placeholder=""%}
+
+          {% endfor %}
         </fieldset>
 
       </form>
