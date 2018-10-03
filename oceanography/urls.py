@@ -21,6 +21,7 @@ urlpatterns = [
     path('missions/<int:year>/list/', views.MissionListView.as_view(), name='mission_list'),
     path('missions/<int:pk>/view/', views.MissionDetailView.as_view(), name='mission_detail'),
     path('missions/<int:pk>/edit/', views.MissionUpdateView.as_view(), name='mission_edit'),
+    path('missions/<int:pk>/export-csv/', views.export_mission_csv, name='mission_export_csv'),
 
     # BOTTLES #
     ###########
