@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'inventory',
     'bugs',
     'grais',
-    'docs',
+    'oceanography',
     'herring',
 ]
 

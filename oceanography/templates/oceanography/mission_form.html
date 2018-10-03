@@ -1,4 +1,4 @@
-{% extends "docs/docs_base.html" %}
+{% extends "oceanography/oceanography_base.html" %}
 {% load bootstrap4 %}
 
 
@@ -6,16 +6,20 @@
 
   <div class="container">
     {% if object.id %}
-    <h1>{{object.title}}</h1>
+    <h1>{{object.mission_name}}</h1>
     {% else %}
     <h1>New Document</h1>
     {% endif %}
+    <fieldset {% if not editable %}disabled   {% endif %}>
       <form  method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {%bootstrap_form form%}
         <input type="submit" class="btn btn-primary" value="Submit">
-
       </form>
+    </fieldset>
+      <a href="#" class="btn btn-primary">Back</a>
+
+
   </div>
 
 {% endblock content %}

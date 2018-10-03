@@ -17,3 +17,17 @@ class DocForm(forms.ModelForm):
             'source':forms.Textarea(attrs={'rows': '5'}),
 
         }
+
+class MissionForm(forms.ModelForm):
+    class Meta:
+        model = models.Mission
+        fields = "__all__"
+        # labels={
+        #     'district':mark_safe("District (<a href='#' >search</a>)"),
+        #     'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
+        # }
+        # widgets = {
+        #     'description':forms.Textarea(attrs={'rows': '5'}),
+        #     'source':forms.Textarea(attrs={'rows': '5'}),
+        #
+        # }
