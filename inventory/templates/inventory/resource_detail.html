@@ -33,7 +33,7 @@
     <div class="btn-group">
       <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
       <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify</a>
-      <a class="btn btn-success"onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')" href="#" >Verify</a>
+      <a class="btn btn-success"onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')" href="#" >Verify Completedness</a>
       {% if user.id == 50 %}
       <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
       {% else %}
