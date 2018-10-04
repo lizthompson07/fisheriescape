@@ -15,14 +15,19 @@
     <div class="row">
 
     {% for field in filter.form %}
-      <div class="col">
+      <div class="col-2">
         {{field.label}}: <br>{{field}}
       </div>
     {% endfor %}
+    <div class="col-2">
+      <div class="btn-group">
+        <input type="submit" value="Filter" class="btn btn btn-warning">
+        <a href="." class="btn btn btn-secondary">Clear</a>
+      </div>
+
+    </div>
   </div>
     <p>
-      <input type="submit" value="Filter" class="btn btn btn-warning">
-      <a href="." class="btn btn btn-secondary">Clear</a>
       <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right">New Resource</a>
     </p>
   </form>
