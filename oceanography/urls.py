@@ -29,6 +29,11 @@ urlpatterns = [
     path('bottles/<int:pk>/view/', views.BottleDetailView.as_view(), name='bottle_detail'),
     path('bottles/<int:pk>/edit/', views.BottleUpdateView.as_view(), name='bottle_edit'),
 
+    # FILES #
+    #########
+    path('mission/<int:mission>/file/new/', views.FileCreateView.as_view(), name='file_create'),
+    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
 
 
 ]
