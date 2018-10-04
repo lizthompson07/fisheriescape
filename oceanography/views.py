@@ -1,7 +1,7 @@
 import csv
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView
 from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse_lazy
@@ -57,10 +57,9 @@ class MissionListView(ListView):
         return models.Mission.objects.filter(season = self.kwargs["year"])
 
 
-class MissionDetailView(UpdateView):
-    template_name = "oceanography/mission_form.html"
+class MissionDetailView(DetailView):
+    template_name = "oceanography/mission_detail.html"
     model = models.Mission
-    form_class = forms.MissionForm
 
     def get_context_data(self, **kwargs):
         # get context
@@ -192,3 +191,53 @@ def export_mission_csv(request, pk):
         b.remarks,])
 
     return response
+
+
+# FILES #
+#########
+
+class FileCreateView(CreateView):
+    template_name = "oceanography/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy("oceanography:mission_detail", kwargs={"pk":object.mission.id}))
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        return context
+
+    def get_initial(self):
+        mission = models.Mission.objects.get(pk=self.kwargs['mission'])
+        return {'mission': mission}
+
+
+class FileDetailView(UpdateView):
+    template_name = "oceanography/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = False
+        return context
+
+
+class FileUpdateView(UpdateView):
+    template_name = "oceanography/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("oceanography:mission_detail", kwargs={"pk":self.object.mission.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        return context

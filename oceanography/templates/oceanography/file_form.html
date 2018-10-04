@@ -1,0 +1,41 @@
+{% extends "oceanography/oceanography_base.html" %}
+{% load bootstrap4 %}
+
+
+{% block content %}
+
+  <div class="container">
+    {% if object.id %}
+    <h1>{{object.caption}}</h1>
+    {% else %}
+    <h1>New File</h1>
+    {% endif %}
+
+      <form  method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="btn-group">
+
+          {% if editable %}
+          <input type="submit" class="btn btn-primary" value="Submit">
+          {% else %}
+          <a href="{% url "oceanography:file_edit" object.id %}" class="btn btn-warning">Edit</a>
+
+          {% endif %}
+          {% if object.id %}
+          <a href="{% url "oceanography:mission_detail" object.mission.id %}" class="btn btn-secondary">Back</a>
+          {% else %}
+          <a href="{% url "oceanography:mission_detail" view.kwargs.mission %}" class="btn btn-secondary">Back</a>
+          {% endif %}
+        </div>
+        <br><br>
+
+        <fieldset {% if not editable %}disabled   {% endif %}>
+        {%bootstrap_form form%}
+        </fieldset>
+
+      </form>
+    <br>
+
+  </div>
+
+{% endblock content %}
