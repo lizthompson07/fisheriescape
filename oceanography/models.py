@@ -83,3 +83,21 @@ class Bottle(models.Model):
             elif self.timezone == "ADT":
                 self.date_time_UTC  = self.date_time.replace(hour=self.date_time.hour+3)
         return super().save(*args,**kwargs)
+
+def file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'oceanography/{0}/{1}'.format(instance.mission.mission_number, filename)
+
+class File(models.Model):
+    caption = models.CharField(max_length=255)
+    mission = models.ForeignKey(Mission, related_name="files", on_delete=models.CASCADE)
+    file = models.FileField(upload_to=file_directory_path)
+    date_created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return self.caption
+
+    
