@@ -58,6 +58,16 @@ class TicketNoteForm(forms.ModelForm):
             'date_modified':forms.HiddenInput(),
         }
 
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        fields = "__all__"
+        widgets = {
+            'ticket':forms.HiddenInput(),
+        }
+
+
 class FilterForm(forms.Form):
     SECTION_CHOICES=[]
 

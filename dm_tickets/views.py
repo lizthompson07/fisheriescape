@@ -212,10 +212,10 @@ def add_tag_to_ticket(request, ticket, tag):
 
 class FileCreateView(CreateView):
     model = models.File
-    fields = '__all__'
+    # fields = '__all__'
     template_name ='dm_tickets/file_form_popout.html'
     login_url = '/accounts/login_required/'
-    # form_class = forms.StudentCreateForm
+    form_class = forms.FileForm
 
     def get_initial(self):
         ticket = models.Ticket.objects.get(pk=self.kwargs['ticket'])
@@ -235,7 +235,7 @@ class FileCreateView(CreateView):
         #store a temporary message is the sessions middleware
         self.request.session['temp_msg'] = "The new file has been added and a notification email has been sent to the site administrator."
 
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(reverse('tickets:close_me'))
 
 class FileUpdateView(UpdateView):
     model = models.File
@@ -243,7 +243,7 @@ class FileUpdateView(UpdateView):
     template_name ='dm_tickets/file_form_popout.html'
     # form_class = forms.StudentCreateForm
 
-class FileDetailView(UpdateView):
+class FileDetailView(LoginRequiredMixin,UpdateView):
     model = models.File
     fields = '__all__'
     template_name ='dm_tickets/file_detail_popout.html'
@@ -261,6 +261,16 @@ class FileDetailView(UpdateView):
             # pass
 
         return context
+
+class FileDeleteView(LoginRequiredMixin,DeleteView):
+    model = models.File
+    template_name ='dm_tickets/file_confirm_delete_popout.html'
+    # form_class = forms.StudentCreateForm
+
+    def get_success_url(self):
+        return reverse_lazy('tickets:close_me')
+
+
 
 # People #
 ##########

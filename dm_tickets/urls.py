@@ -38,6 +38,7 @@ urlpatterns = [
     path('<int:ticket>/file/new/', views.FileCreateView.as_view() , name="file_create"),
     path('<int:ticket>/file/<int:pk>/view', views.FileDetailView.as_view() , name="file_detail"),
     path('<int:ticket>/file/<int:pk>/edit', views.FileUpdateView.as_view() , name="file_update"),
+    path('<int:ticket>/file/<int:pk>/delete', views.FileDeleteView.as_view() , name="file_delete"),
 
     # People #
     ##########
