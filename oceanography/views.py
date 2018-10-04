@@ -1,7 +1,7 @@
 import csv
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse_lazy
@@ -241,3 +241,10 @@ class FileUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context["editable"] = True
         return context
+
+class FileDeleteView(DeleteView):
+    template_name = "oceanography/file_confirm_delete.html"
+    model = models.File
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("oceanography:mission_detail", kwargs={"pk":self.object.mission.id})

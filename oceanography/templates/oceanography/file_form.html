@@ -19,6 +19,7 @@
           <input type="submit" class="btn btn-primary" value="Submit">
           {% else %}
           <a href="{% url "oceanography:file_edit" object.id %}" class="btn btn-warning">Edit</a>
+          <a href="{% url "oceanography:file_delete" object.id %}" class="btn btn-danger">Delete</a>
 
           {% endif %}
           {% if object.id %}
