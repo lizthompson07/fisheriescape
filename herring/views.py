@@ -22,7 +22,7 @@ from . import quality_control
 
 class IndexView(GroupRequiredMixin,TemplateView):
     template_name = 'herring/index.html'
-    group_required = [u"grais_access",]
+    group_required = [u"herrin_access",]
     login_url = '/accounts/login_required/'
 
 class CloserTemplateView(TemplateView):
