@@ -16,7 +16,7 @@
   <ul>
     {% for obj in queryset  %}
     <li>
-      <a href="http://glfscidm001:8091{% url 'inventory:resource_detail' obj.resource.id %}">
+      <a href="http://glfscidm001{% url 'inventory:resource_detail' obj.resource.id %}">
         {{obj.resource.title_eng}}
       </a>
     </li>
@@ -25,9 +25,9 @@
 </p>
 
 <p>
-  I am excited to announce that each of these records can be viewed, edited and certified through our new <a href="http://glfscidm001:8091">regional data inventory app</a>.
+  I am excited to announce that each of these records can be viewed, edited and certified through our new <a href="http://glfscidm001/inventory/">regional data inventory app</a>.
   To certify or re-certify an item, simply click on the "Certify" button within each record detail page.
-  If you have never logged on before, your default username is <u>{{object.user.username}}</u> and your temporary password is <u>Welcome1</u>.
+  <b>If you have never logged on before</b>, your default username is <u>{{object.user.username}}</u> and your temporary password is <u>Welcome1</u>.
   In order to make any changes to a record, you will need to be signed in.
 </p>
 <p>

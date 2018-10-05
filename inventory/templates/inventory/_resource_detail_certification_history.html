@@ -1,0 +1,17 @@
+{# <a href="#history" class="btn btn-sm btn-info collapse-btn" data-toggle="collapse">Expand</a> #}
+{# <div id="history" class="collapse"> #}
+  <ul>
+    {% for item in object.certification_history.all %}
+      <li>
+        {{item.certification_date|date:"F d, Y"}} by @{{item.certifying_user}}
+        {# (<a href="{% url 'inventory:citation_detail' object.id item.id %}">details</a>)&nbsp; #}
+        (<a href="{% url 'inventory:resource_certification_delete' item.id %}" class="red-font">remove</a>)
+      </li>
+    {% empty %}
+      <em>
+        This record has never been certified.
+      </em>
+    {% endfor %}
+  </ul>
+
+{# </div> #}

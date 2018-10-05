@@ -8,9 +8,9 @@
   <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
   {{object.truncated_title}}
 </div>
-<div class="container">
+<div class="indent-med">
 
-  <br>
+<div class="text-center"">
   <h1>{{object.title_eng}}</h1>
   <p>
     <div class="btn-group">
@@ -32,8 +32,7 @@
 
     <div class="btn-group">
       <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
-      <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify</a>
-      <a class="btn btn-success"onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')" href="#" >Verify Completedness</a>
+      <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify Record</a>
       {% if user.id == 50 %}
       <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
       {% else %}
@@ -44,11 +43,12 @@
           Export XML
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#" onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')">Verify Completedness</a>
           <a class="dropdown-item" href="#" id="myBtn">HNAP</a>
         </div>
       </div>
     </div>
-
+  </div>
 
 
     <!-- The Modal -->
@@ -86,20 +86,30 @@
 </p>
 
 <script src="{% static "js/modal.js" %}"></script>
+<br>
 
-  <br>
-
-  <div class="row">
-    <div class="col">
+  <div class="row ">
+    <div class="col-4">
       {# Basic details #}
       <h2>Basic Details</h2>
       {% include "inventory/_resource_detail_basic.html" %}
     </div>
-    <div class="col">
-      <div class="container">
+
+    <div class="col-4">
         <h2>People</h2>
         {% include "inventory/_resource_detail_people.html" %}
+        <br>
+        <h2>Certification History</h2>
+        {% include "inventory/_resource_detail_certification_history.html" %}
+        <br>
+        <a href="{% url 'inventory:resource_full_detail' object.id %}">
+          <h2>Review Full Record</h2>
+        </a>
+        {# <a href="#full" class="btn btn-sm btn-info collapse-btn" data-toggle="collapse">Expand</a> #}
 
+    </div>
+
+    <div class="col-4">
         <h2>Keywords etc.</h2>
         {% include "inventory/_resource_detail_keywords.html" %}
 
@@ -113,46 +123,20 @@
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="container">
-      <h2>Full Details</h2>
-      {% include "inventory/_resource_detail_full.html" %}
-
-    </div>
-  </div>
-  <div class="row">
-    <div class="container">
-      <br>
-      <h2>Certification History</h2>
-
-      <a href="#history" class="btn btn-info" data-toggle="collapse">Expand</a>
-      <div id="history" class="collapse">
-        <br>
-        <ul>
-          {% for item in object.certification_history.all %}
-            <li>
-              {{item.certification_date|date:"F d, Y"}} by @{{item.certifying_user}}
-              {# (<a href="{% url 'inventory:citation_detail' object.id item.id %}">details</a>)&nbsp; #}
-              (<a href="{% url 'inventory:resource_certification_delete' item.id %}" class="red-font">remove</a>)
-            </li>
-          {% endfor %}
-        </ul>
-
-      </div>
 
 
 
-    </div>
-  </div>
-</div>
+<script type="text/javascript">
+  $(".collapse-btn").click(function () {
+    if ($(this).text() == "Expand") {
+      $(this).text("Collapse")
+    }
+    else {
+      $(this).text("Expand")
+    }
+  })
+</script>
 
 
-<style media="screen">
-  th{
-    font-style: italic;
-    color: grey;
-  }
-
-</style>
 
 {% endblock content %}
