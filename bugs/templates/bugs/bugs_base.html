@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block bug_create %}{% url 'bugs:bug_create' 1 %}{% endblock bug_create %}
+{% block bug_list_4_app %}
+  <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 1 %}">"Bugs" Bugs</a>
+{% endblock bug_list_4_app %}
+{% block title %}Bugs{% endblock title %}
+
+{% block body %}
+  {% block content %}{% endblock content %}
+{% endblock body %}

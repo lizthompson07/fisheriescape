@@ -1,0 +1,63 @@
+{% extends "bugs/bugs_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+<div class="nav-map">
+  <br>
+  <a href="{% url 'bugs:bug_list' %}">All bugs</a> >
+  <a href="{% url 'bugs:bug_detail'  object.id %}">Bug {{object.id}}</a> >
+  Delete
+</div>
+
+<div class="container">
+  <h1>Are you sure you want to delete this record?</h1>
+
+<br>
+<p><b>
+  Username:
+</b><br>
+  {{object.user}}
+</p>
+
+<p><b>
+  Date created:
+</b><br>
+{{object.date_created|date:"F d Y"}}
+</p>
+
+<p><b>
+  Importance:
+</b><br>
+{{object.get_importance_display}}
+</p>
+
+<p><b>
+  Subject:
+</b><br>
+{{object.subject}}
+</p>
+
+<p><b>
+  Detail:
+</b><br>
+{{object.detail}}
+</p>
+
+<p><b>
+  Date resolved:
+</b><br>
+{{object.date_resolved|date:"F d Y"}}
+</p>
+
+
+<form class="form" method="post">
+  {% csrf_token %}
+  <input type="submit" name="" value="Delete" class="btn btn-lg btn-danger">
+</form>
+
+</div>
+
+
+{%endblock%}
