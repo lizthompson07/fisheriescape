@@ -1,0 +1,71 @@
+{% extends "bugs/bugs_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+
+
+{% block content %}
+
+  <div class="container">
+
+    <h1 class="big-header">Bug List </h1>
+    <p>TOTAL: {{object_list.count}}</p>
+
+    <form class="form" action="." method="get">
+      <div class="row">
+
+      {% for field in filter.form %}
+      <div class="col">
+        {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+        {% bootstrap_field field %}
+
+      </div>
+      {% endfor %}
+      <div class="col">
+        <br>
+        <input type="submit" value="Filter" class="btn btn btn-warning">
+
+      </div>
+    </div>
+    </form>
+
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Application</th>
+        <th scope="col">Subject</th>
+        <th scope="col">Username</th>
+        <th scope="col">Date created</th>
+        <th scope="col">Importance</th>
+        {# <th scope="col">Detail</th> #}
+        <th scope="col">Resolved</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bug in object_list  %}
+        <tr>
+          <td>{{bug.get_application_display}}</td>
+          <td><a href="{% url 'bugs:bug_detail' bug.id %}">{{bug.subject}}</a></td>
+          <td>{{bug.user}}</td>
+          <td>{{bug.date_created|date:"F d Y"}}</td>
+          <td>{{bug.get_importance_display}}</td>
+          {# <td>{{bug.detail}}</td> #}
+          {% if bug.resolved == False %}
+          <td class="bad">
+          {% else %}
+          <td class="good">
+          {% endif %}
+            {{bug.resolved|yesno}}
+          </td>
+        </tr>
+      {% endfor %}
+      <br>
+
+      </tbody>
+    </table>
+  </div>
+
+    <script type="text/javascript" src="{% static "js/listCondFormating.js" %}"></script>
+
+
+{% endblock content %}
