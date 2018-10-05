@@ -59,9 +59,9 @@
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="#" onclick="return popitup('{% block bug_create %}{% endblock bug_create %}','popWindow')">New Report</a>
+                {% block bug_list_4_app %}{% endblock bug_list_4_app %}
 
-
-                <a class="dropdown-item" href="{% url 'bugs:bug_list' %}">View List</a>
+                <a class="dropdown-item" href="{% url 'bugs:bug_list' %}">All Bugs</a>
               </div>
             </li>
 

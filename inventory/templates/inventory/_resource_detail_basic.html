@@ -31,10 +31,10 @@
 </p>
 
 <p><b>
-  Time period (dd/mm/yy):
+  Time period (yyyy-mm-dd):
 </b><br>
-From: {{object.time_start_day|default_if_none:"--"}}/{{object.time_start_month|default_if_none:"--"}}/{{object.time_start_year|default_if_none:"--"}}  &nbsp;&nbsp; To:
-{{object.time_end_day|default_if_none:"--"}}/{{object.time_end_month|default_if_none:"--"}}/{{object.time_end_year|default_if_none:"--"}}
+From: {{object.time_start_year|default_if_none:"--"}}-{{object.time_start_month|default_if_none:"--"}}-{{object.time_start_day|default_if_none:"--"}}  &nbsp;&nbsp;
+To: {{object.time_end_year|default_if_none:"--"}}-{{object.time_end_month|default_if_none:"--"}}-{{object.time_end_day|default_if_none:"--"}}
 </p>
 
 <p><b>

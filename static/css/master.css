@@ -92,6 +92,10 @@
   margin: .75em;
 }
 
+.indent-med{
+  margin: 2em;
+}
+
 .scroll-med{
   height: 30em;
   width: 30em;

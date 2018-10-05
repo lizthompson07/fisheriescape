@@ -20,6 +20,26 @@ class ResourceCreateForm(forms.ModelForm):
         ]
         widgets = {
             'last_modified_by':forms.HiddenInput(),
+            'title_eng':forms.Textarea(attrs={"rows":5}),
+            'title_fre':forms.Textarea(attrs={"rows":5}),
+            "purpose_eng":forms.Textarea(attrs={"rows":5}),
+            "purpose_fre":forms.Textarea(attrs={"rows":5}),
+            "descr_eng":forms.Textarea(attrs={"rows":8}),
+            "descr_fre":forms.Textarea(attrs={"rows":8}),
+            "physical_sample_descr_eng":forms.Textarea(attrs={"rows":5}),
+            "physical_sample_descr_fre":forms.Textarea(attrs={"rows":5}),
+            "sampling_method_eng":forms.Textarea(attrs={"rows":5}),
+            "sampling_method_fre":forms.Textarea(attrs={"rows":5}),
+            "resource_constraint_eng":forms.Textarea(attrs={"rows":5}),
+            "resource_constraint_fre":forms.Textarea(attrs={"rows":5}),
+            "qc_process_descr_eng":forms.Textarea(attrs={"rows":5}),
+            "qc_process_descr_fre":forms.Textarea(attrs={"rows":5}),
+            "storage_envr_notes":forms.Textarea(attrs={"rows":5}),
+            "parameters_collected_eng":forms.Textarea(attrs={"rows":5}),
+            "parameters_collected_fre":forms.Textarea(attrs={"rows":5}),
+            "additional_credit":forms.Textarea(attrs={"rows":5}),
+            "analytic_software":forms.Textarea(attrs={"rows":5}),
+            "notes":forms.Textarea(attrs={"rows":5}),
         }
 
 
@@ -38,6 +58,27 @@ class ResourceForm(forms.ModelForm):
         ]
         widgets = {
             'last_modified_by':forms.HiddenInput(),
+            'title_eng':forms.Textarea(attrs={"rows":5}),
+            'title_fre':forms.Textarea(attrs={"rows":5}),
+            "purpose_eng":forms.Textarea(attrs={"rows":5}),
+            "purpose_fre":forms.Textarea(attrs={"rows":5}),
+            "descr_eng":forms.Textarea(attrs={"rows":8}),
+            "descr_fre":forms.Textarea(attrs={"rows":8}),
+            "physical_sample_descr_eng":forms.Textarea(attrs={"rows":5}),
+            "physical_sample_descr_fre":forms.Textarea(attrs={"rows":5}),
+            "sampling_method_eng":forms.Textarea(attrs={"rows":5}),
+            "sampling_method_fre":forms.Textarea(attrs={"rows":5}),
+            "resource_constraint_eng":forms.Textarea(attrs={"rows":5}),
+            "resource_constraint_fre":forms.Textarea(attrs={"rows":5}),
+            "qc_process_descr_eng":forms.Textarea(attrs={"rows":5}),
+            "qc_process_descr_fre":forms.Textarea(attrs={"rows":5}),
+            "storage_envr_notes":forms.Textarea(attrs={"rows":5}),
+            "parameters_collected_eng":forms.Textarea(attrs={"rows":5}),
+            "parameters_collected_fre":forms.Textarea(attrs={"rows":5}),
+            "additional_credit":forms.Textarea(attrs={"rows":5}),
+            "analytic_software":forms.Textarea(attrs={"rows":5}),
+            "notes":forms.Textarea(attrs={"rows":5}),
+
         }
 
 class ResourcePersonForm(forms.ModelForm):
