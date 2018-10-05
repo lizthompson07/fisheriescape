@@ -14,5 +14,5 @@ urlpatterns = [
     # path('<int:application>/<int:pk>/popup-view/', views.BugDetailView.as_view(), name ="bug_detail_popup" ),
     path('<int:pk>/edit/', views.BugUpdateView.as_view(), name ="bug_edit" ),
     path('<int:pk>/delete/', views.BugDeleteView.as_view(), name ="bug_delete" ),
-
+    ##
 ]
