@@ -88,7 +88,6 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
 
 class ResourceDetailView(DetailView):
     model = models.Resource
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -106,6 +105,15 @@ class ResourceDetailView(DetailView):
         # context['google_api_key'] = settings.GOOGLE_API_KEY
         return context
 
+class ResourceFullDetailView(UpdateView):
+    model = models.Resource
+    form_class = forms.ResourceForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['readonly'] = True
+        return context
+
 class ResourceUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
@@ -113,6 +121,7 @@ class ResourceUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = models.Resource

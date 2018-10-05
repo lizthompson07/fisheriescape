@@ -1,6 +1,7 @@
 {% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load humanize %}
+{% load bootstrap4 %}
 {% block content %}
 
 
@@ -15,21 +16,25 @@
     <div class="row">
 
     {% for field in filter.form %}
-      <div class="col-2">
-        {{field.label}}: <br>{{field}}
+      <div class="col">
+        {%bootstrap_field field%}
       </div>
     {% endfor %}
-    <div class="col-2">
+    <div class="col" style="vertical-align: bottom;">
+      <br>
       <div class="btn-group">
         <input type="submit" value="Filter" class="btn btn btn-warning">
         <a href="." class="btn btn btn-secondary">Clear</a>
       </div>
 
     </div>
-  </div>
+  </div >
+  <div>
     <p>
-      <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right">New Resource</a>
+      <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary">New Resource</a>
     </p>
+  </div>
+
   </form>
 
   <table class="table table-hover">
