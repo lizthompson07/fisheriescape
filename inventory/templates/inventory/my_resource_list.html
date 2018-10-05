@@ -7,13 +7,13 @@
 <div class="container">
 
   <p>
+    <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right ">New Resource</a>
     <h1>{{user.first_name}}'s Data Resource List:
     </h1>
-    <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right ">New Resource</a>
   </p>
   <br><br>
   <h3>Custodian:</h3>
-  <table class="table table-hover">
+  <table class="table table-hover table-sm">
     <thead>
         <th scope="col">#</th>
         <th scope="col" width="500px">Title</th>
@@ -74,14 +74,14 @@
     </table>
 <br>
     <h3>Other roles:</h3>
-    <table class="table table-hover">
+    <table class="table table-hover table-sm">
       <thead>
           <th scope="col">#</th>
           <th scope="col" width="500px">Title</th>
           <th scope="col">Status</th>
-          <th scope="col">Section</th>
+          {# <th scope="col">Section</th> #}
           <th scope="col">Role(s)</th>
-          <th scope="col">Previous time certified</th>
+          {# <th scope="col">Previous time certified</th> #}
         </tr>
       </thead>
       <tbody>
@@ -102,7 +102,7 @@
               {{obj.status}}
             </td>
 
-            <td>{{obj.section.section}}</td>
+            {# <td>{{obj.section.section}}</td> #}
 
             <td>
               {% for person in obj.resource_people.all %}
@@ -118,14 +118,14 @@
 
             </td>
 
-            <td>
-              {% if obj.certification_history.count > 0 %}
-              {{obj.certification_history.last.certification_date|naturaltime}}
-              {% else %}
-              <span class="red-font"><b>Never</b></span>
-              {% endif %}
+            {# <td> #}
+              {# {% if obj.certification_history.count > 0 %} #}
+              {# {{obj.certification_history.last.certification_date|naturaltime}} #}
+              {# {% else %} #}
+              {# <span class="red-font"><b>Never</b></span> #}
+              {# {% endif %} #}
 
-            </td>
+            {# </td> #}
 
           </tr>
         {% endfor %}
