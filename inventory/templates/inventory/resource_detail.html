@@ -10,25 +10,9 @@
 </div>
 <div class="indent-med">
 
-<div class="text-center"">
+<div class="text-center">
   <h1>{{object.title_eng}}</h1>
   <p>
-    <div class="btn-group">
-      <a class="btn btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a>
-      <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Add Keyword
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="{% url 'inventory:resource_topic_category_filter' object.id %}">Topic Category ({{kcount_tc}})</a>
-          <a class="dropdown-item" href="{% url 'inventory:resource_core_subject_filter' object.id %}">Core Subject ({{kcount_cst}})</a>
-          <a class="dropdown-item" href="{% url 'inventory:resource_species_filter' object.id %}">Taxonomic Keyword ({{kcount_tax}})</a>
-          <a class="dropdown-item" href="{% url 'inventory:resource_location_filter' object.id %}">DFO Area ({{kcount_loc}})</a>
-          <a class="dropdown-item" href="{% url 'inventory:resource_keyword_filter' object.id %}">Other Keyword ({{kcount_other}})</a>
-        </div>
-      </div>
-      <a class="btn btn-outline-primary" href="{% url 'inventory:resource_citation_filter' object.id %}">Add Citation</a>
-    </div>
 
     <div class="btn-group">
       <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
@@ -36,7 +20,7 @@
       {% if user.id == 50 %}
       <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
       {% else %}
-      <a class="btn btn-danger disabled" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
+      <a class="btn btn-danger disabled" href="{% url 'inventory:resource_delete' object.id %}">Flag for Deletion</a>
       {% endif %}
       <div class="dropdown">
         <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -96,25 +80,43 @@
     </div>
 
     <div class="col-4">
-        <h2>People</h2>
+        <a href="{% url 'inventory:resource_full_detail' object.id %}">
+          <h2>Review Full Record</h2>
+        </a>
+        <br>
+
+        <h2>People <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a> </h2>
         {% include "inventory/_resource_detail_people.html" %}
         <br>
         <h2>Certification History</h2>
         {% include "inventory/_resource_detail_certification_history.html" %}
         <br>
-        <a href="{% url 'inventory:resource_full_detail' object.id %}">
-          <h2>Review Full Record</h2>
-        </a>
-        {# <a href="#full" class="btn btn-sm btn-info collapse-btn" data-toggle="collapse">Expand</a> #}
 
     </div>
 
     <div class="col-4">
-        <h2>Keywords etc.</h2>
+          <h2>Keywords etc.</h2>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Add Keyword
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="{% url 'inventory:resource_topic_category_filter' object.id %}">Topic Category ({{kcount_tc}})</a>
+              <a class="dropdown-item" href="{% url 'inventory:resource_core_subject_filter' object.id %}">Core Subject ({{kcount_cst}})</a>
+              <a class="dropdown-item" href="{% url 'inventory:resource_species_filter' object.id %}">Taxonomic Keyword ({{kcount_tax}})</a>
+              <a class="dropdown-item" href="{% url 'inventory:resource_location_filter' object.id %}">DFO Area ({{kcount_loc}})</a>
+              <a class="dropdown-item" href="{% url 'inventory:resource_keyword_filter' object.id %}">Other Keyword ({{kcount_other}})</a>
+            </div>
+          </div>
+
+
         {% include "inventory/_resource_detail_keywords.html" %}
 
         <br><br>
-        <h2>Citations</h2>
+        <h2>Citations
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_citation_filter' object.id %}">Add Citation</a>
+
+        </h2>
         {% include "inventory/_resource_detail_citations.html" %}
 
         <br><br>

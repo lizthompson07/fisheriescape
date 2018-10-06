@@ -1,7 +1,9 @@
 <ul>
   {% for item in object.resource_people.all %}
   <li><a href="{% url 'inventory:resource_person_edit' item.id %}">{{item.person.user.first_name}} {{item.person.user.last_name}} - {{item.role}}</a>&nbsp;
-    <a href="{% url 'inventory:resource_person_delete' item.id %}" class="red-font">&times;</a>
+    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="remove person from record">
+      <a href="{% url 'inventory:resource_person_delete' item.id %}" class="red-font">&times;</a>
+    </span>
   </li>
   {% empty %}
   <em>No people</em>

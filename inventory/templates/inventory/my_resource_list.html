@@ -2,16 +2,17 @@
 {% load static %}
 {% load humanize %}
 {% block content %}
+{% load timedelta %}
 
-
-<div class="container">
+<div class="container text-center">
 
   <p>
-    <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right ">New Resource</a>
-    <h1>{{user.first_name}}'s Data Resource List:
-    </h1>
+    <h1>{{user.first_name}}'s Data Resource List:</h1>
   </p>
-  <br><br>
+</div>
+<div class="indent-med">
+
+  <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right">New Resource</a>
   <h3>Custodian:</h3>
   <table class="table table-hover table-sm">
     <thead>
@@ -57,9 +58,13 @@
 
           </td>
 
-          <td>
             {% if obj.resource.certification_history.count > 0 %}
-            {{obj.resource.certification_history.last.certification_date|naturaltime}}
+            {% if now|timedelta:obj.certification_history.last.certification_date > 90 %}
+            <td class="concern">
+              {% else %}
+              <td>
+            {% endif %}
+            {{obj.resource.certification_history.first.certification_date|naturaltime}}
             {% else %}
             <span class="red-font"><b>Never</b></span>
             {% endif %}
@@ -72,16 +77,23 @@
 
       </tbody>
     </table>
+
 <br>
     <h3>Other roles:</h3>
+    {% if non_custodian_list %}
+    {{non_custodian_list}}
+    <em>There are no data resources with you listed in other roles</em>
+
+    {% endif %}
+
     <table class="table table-hover table-sm">
       <thead>
           <th scope="col">#</th>
           <th scope="col" width="500px">Title</th>
           <th scope="col">Status</th>
-          {# <th scope="col">Section</th> #}
+          <th scope="col">Section</th>
           <th scope="col">Role(s)</th>
-          {# <th scope="col">Previous time certified</th> #}
+          <th scope="col">Previous time certified</th>
         </tr>
       </thead>
       <tbody>
@@ -102,7 +114,7 @@
               {{obj.status}}
             </td>
 
-            {# <td>{{obj.section.section}}</td> #}
+            <td>{{obj.section.section}}</td>
 
             <td>
               {% for person in obj.resource_people.all %}
@@ -118,14 +130,22 @@
 
             </td>
 
-            {# <td> #}
-              {# {% if obj.certification_history.count > 0 %} #}
-              {# {{obj.certification_history.last.certification_date|naturaltime}} #}
-              {# {% else %} #}
-              {# <span class="red-font"><b>Never</b></span> #}
-              {# {% endif %} #}
 
-            {# </td> #}
+              {% if obj.certification_history.count > 0 %}
+                {% if now|timedelta:obj.certification_history.last.certification_date > 90 %}
+                <td class="concern">
+                  {% else %}
+                  <td>
+                {% endif %}
+
+              {{obj.certification_history.last.certification_date|naturaltime}}
+
+
+              {% else %}
+              <span class="red-font"><b>Never</b></span>
+              {% endif %}
+
+            </td>
 
           </tr>
         {% endfor %}

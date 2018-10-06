@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'grais',
     'oceanography',
     'herring',
+    'lib',
 ]
 
 MIDDLEWARE = [
