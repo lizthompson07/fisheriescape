@@ -47,7 +47,7 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
         context['custodian_list'] = custodian_queryset
 
         non_custodian_queryset= []
-        for resource in models.Resource.objects.filter(people=50):
+        for resource in models.Resource.objects.filter(people=self.request.user.id):
             add=True
             for resource_person in resource.resource_people.all():
                 if resource_person.role.id == 1 and resource_person.person.user_id == self.request.user.id:
@@ -65,6 +65,8 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
         for item in resource_dict:
             non_custodian_list.append(resource_dict[item])
         context['non_custodian_list'] = non_custodian_list
+
+        context['now'] = timezone.now()
 
         return context
 
