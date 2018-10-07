@@ -17,11 +17,16 @@
     <div class="btn-group">
       <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
       <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify Record</a>
-      {% if user.id == 50 %}
+
+
+
+
+      {% if user.is_superuser %}
       <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
       {% else %}
       <a class="btn btn-danger disabled" href="{% url 'inventory:resource_delete' object.id %}">Flag for Deletion</a>
       {% endif %}
+
       <div class="dropdown">
         <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Export XML
@@ -85,9 +90,17 @@
         </a>
         <br>
 
-        <h2>People <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a> </h2>
+        <h2 class="neighbours">People</h2>
+          <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a>
+
         {% include "inventory/_resource_detail_people.html" %}
         <br>
+
+        <h2 class="neighbours">Attached Files</h2>
+        <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:file_create' object.id %}">Add File</a>
+        {% include "inventory/_resource_detail_files.html" %}
+        <br>
+
         <h2>Certification History</h2>
         {% include "inventory/_resource_detail_certification_history.html" %}
         <br>
@@ -95,8 +108,8 @@
     </div>
 
     <div class="col-4">
-          <h2>Keywords etc.</h2>
-          <div class="dropdown">
+          <h2 class="neighbours">Keywords etc.</h2>
+          <div class="dropdown neighbours">
             <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Add Keyword
             </button>
@@ -108,23 +121,27 @@
               <a class="dropdown-item" href="{% url 'inventory:resource_keyword_filter' object.id %}">Other Keyword ({{kcount_other}})</a>
             </div>
           </div>
-
+          <br>
 
         {% include "inventory/_resource_detail_keywords.html" %}
 
         <br><br>
-        <h2>Citations
-          <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_citation_filter' object.id %}">Add Citation</a>
+        <h2 class="neighbours">Citations</h2>
+        <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:resource_citation_filter' object.id %}">Add Citation</a>
+        <br>
 
-        </h2>
         {% include "inventory/_resource_detail_citations.html" %}
 
         <br><br>
         <h2>Related Records</h2>
         {% include "inventory/_resource_detail_related.html" %}
+
+
       </div>
     </div>
   </div>
+
+
 
 
 

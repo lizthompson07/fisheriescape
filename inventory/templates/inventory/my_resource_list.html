@@ -17,7 +17,7 @@
   <table class="table table-hover table-sm">
     <thead>
         <th scope="col">#</th>
-        <th scope="col" width="500px">Title</th>
+        <th scope="col" >Title</th>
         <th scope="col">Status</th>
         <th scope="col">Section</th>
         <th scope="col">Role(s)</th>
@@ -31,10 +31,10 @@
           <td><a href="{% url 'inventory:resource_detail' obj.resource.id %}">{{obj.resource.title_eng}}</a></td>
 
           {% if obj.resource.status.id == 3 %}
-          <td class="good">
+          <td class="green-font">
 
           {% elif obj.resource.status.id == 1 %}
-          <td class="bad">
+          <td class="red-font">
           {% else %}
           <td>
 
@@ -59,14 +59,20 @@
           </td>
 
             {% if obj.resource.certification_history.count > 0 %}
-            {% if now|timedelta:obj.certification_history.last.certification_date > 90 %}
+
+            {% if now|timedelta:obj.resource.certification_history.first.certification_date < 90 %}
+            <td class="good">
+            {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 180 %}
+            <td class="mild-concern">
+
+            {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 270 %}
             <td class="concern">
-              {% else %}
-              <td>
+            {% else %}
+            <td class="bad">
             {% endif %}
             {{obj.resource.certification_history.first.certification_date|naturaltime}}
             {% else %}
-            <span class="red-font"><b>Never</b></span>
+            <td><span class="red-font"><b>Never</b></span>
             {% endif %}
 
           </td>
@@ -80,37 +86,35 @@
 
 <br>
     <h3>Other roles:</h3>
-    {% if non_custodian_list %}
-    {{non_custodian_list}}
+    {% if not non_custodian_list %}
     <em>There are no data resources with you listed in other roles</em>
-
-    {% endif %}
+    {% else %}
 
     <table class="table table-hover table-sm">
       <thead>
-          <th scope="col">#</th>
-          <th scope="col" width="500px">Title</th>
-          <th scope="col">Status</th>
-          <th scope="col">Section</th>
-          <th scope="col">Role(s)</th>
-          <th scope="col">Previous time certified</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for obj in non_custodian_list  %}
-          <tr>
-            <td>{{forloop.counter}}</td>
-            <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.title_eng}}</a></td>
+        <th scope="col">#</th>
+        <th scope="col">Title</th>
+        <th scope="col">Status</th>
+        <th scope="col">Section</th>
+        <th scope="col">Role(s)</th>
+        <th scope="col">Previous time certified</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in non_custodian_list  %}
+      <tr>
+        <td>{{forloop.counter}}</td>
+        <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.title_eng}}</a></td>
 
-            {% if obj.status.id == 3 %}
-            <td class="good">
+        {% if obj.status.id == 3 %}
+        <td class="green-font">
 
-            {% elif obj.status.id == 1 %}
-            <td class="bad">
+          {% elif obj.status.id == 1 %}
+          <td class="red-font">
             {% else %}
             <td>
 
-            {% endif %}
+              {% endif %}
               {{obj.status}}
             </td>
 
@@ -118,41 +122,49 @@
 
             <td>
               {% for person in obj.resource_people.all %}
-                  {% if person.person.user_id == user.id %}
-                    {% if person.role.id == 1 %}
-                    <b>{{person.role}}</b>;
-                    {% else %}
-                    {{person.role}};
-                    {% endif %}
+              {% if person.person.user_id == user.id %}
+              {% if person.role.id == 1 %}
+              <b>{{person.role}}</b>;
+              {% else %}
+              {{person.role}};
+              {% endif %}
 
-                  {% endif %}
+              {% endif %}
               {% endfor %}
 
             </td>
 
 
+
+
               {% if obj.certification_history.count > 0 %}
-                {% if now|timedelta:obj.certification_history.last.certification_date > 90 %}
-                <td class="concern">
-                  {% else %}
-                  <td>
-                {% endif %}
 
-              {{obj.certification_history.last.certification_date|naturaltime}}
+              {% if now|timedelta:obj.certification_history.first.certification_date < 90 %}
+              <td class="good">
+              {% elif now|timedelta:obj.certification_history.first.certification_date < 180 %}
+              <td class="mild-concern">
 
-
+              {% elif now|timedelta:obj.certification_history.first.certification_date < 270 %}
+              <td class="concern">
+              {% else %}
+              <td class="bad">
+              {% endif %}
+              {{obj.certification_history.first.certification_date|naturaltime}}
               {% else %}
               <span class="red-font"><b>Never</b></span>
               {% endif %}
 
             </td>
 
-          </tr>
-        {% endfor %}
-        <br>
+            </tr>
+            {% endfor %}
+            <br>
 
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+
+
+    {% endif %}
 
 
  {{id_list}}

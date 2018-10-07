@@ -749,3 +749,62 @@ class ResourceCertificationDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+# FILES #
+#########
+
+class FileCreateView(CreateView):
+    template_name = "inventory/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk":object.resource.id}))
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
+        context["resource"] = resource
+        return context
+
+    def get_initial(self):
+        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
+        return {'resource': resource}
+
+
+class FileDetailView(UpdateView):
+    template_name = "inventory/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = False
+        return context
+
+
+class FileUpdateView(UpdateView):
+    template_name = "inventory/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("inventory:resource_detail", kwargs={"pk":self.object.resource.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        return context
+
+class FileDeleteView(DeleteView):
+    template_name = "inventory/file_confirm_delete.html"
+    model = models.File
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("inventory:resource_detail", kwargs={"pk":self.object.resource.id})

@@ -86,4 +86,12 @@ urlpatterns = [
     ##########################
     path('<int:resource>/certify/', views.ResourceCertificationCreateView.as_view(), name ="resource_certify" ),
     path('remove-certification/<int:pk>/', views.ResourceCertificationDeleteView.as_view(), name ="resource_certification_delete" ),
+
+    # FILES #
+    #########
+    path('resource/<int:resource>/file/new/', views.FileCreateView.as_view(), name='file_create'),
+    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
+    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
+
 ]
