@@ -677,6 +677,7 @@ class DataManagementCustodianDetailView(LoginRequiredMixin, DetailView):
         email = emails.CertificationRequestEmail(self.object)
         context['queryset'] = queryset
         context['email'] = email
+        context['now'] = timezone.now()
         # context['custodian_count'] = len(custodian_list)
         return context
 
