@@ -1,5 +1,7 @@
 {% extends "inventory/inventory_base.html" %}
 {% load static %}
+{% load timedelta %}
+{% load humanize %}
 {% block content %}
 
 <div class="nav-map">
@@ -50,14 +52,16 @@
   </div>
 
 </div>
+</div>
+<div class="indent-med">
 <div class="row">
   <div class="col">
 
   <h3>Resources:</h3>
-  <table class="table table-hover">
+  <table class="table table-hover table-sm">
     <thead>
         <th scope="col">Id</th>
-        <th scope="col" width="500px">Title</th>
+        <th scope="col">Title</th>
         <th scope="col">Status</th>
         <th scope="col">Last certified</th>
       </tr>
@@ -68,20 +72,37 @@
           <td><a href="{% url 'inventory:resource_detail' obj.resource.id %}">{{obj.resource.id}}</a></td>
           <td>{{obj.resource.title_eng}}</td>
           {% if obj.resource.status.id == 3 %}
-          <td class="good">
+          <td class="green-font">
           {% elif obj.resource.status.id == 1 %}
-          <td class="bad">
+          <td class="red-font">
           {% else %}
           <td>
           {% endif %}
             {{obj.resource.status}}
           </td>
 
-          <td>
-            {% if obj.resource.certification_history.count == 0  %}
-              <span class="font-weight-bold red-font">Never</span>
+          {# <td> #}
+            {# {% if obj.resource.certification_history.count == 0  %} #}
+              {# <span class="font-weight-bold red-font">Never</span> #}
+            {# {% else %} #}
+              {# {{obj.resource.certification_history.first.certification_date}} by @{{obj.resource.certification_history.first.certifying_user}}</td> #}
+            {# {% endif %} #}
+
+            {% if obj.resource.certification_history.count > 0 %}
+
+            {% if now|timedelta:obj.resource.certification_history.first.certification_date < 90 %}
+            <td class="good">
+            {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 180 %}
+            <td class="mild-concern">
+
+            {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 270 %}
+            <td class="concern">
             {% else %}
-              {{obj.resource.certification_history.last.certification_date}} by @{{obj.resource.certification_history.last.certifying_user}}</td>
+            <td class="bad">
+            {% endif %}
+            {{obj.resource.certification_history.first.certification_date|naturaltime}}
+            {% else %}
+            <td><span class="red-font"><b>Never</b></span>
             {% endif %}
 
         </tr>
