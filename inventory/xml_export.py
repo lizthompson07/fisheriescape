@@ -456,8 +456,14 @@ def construct(my_resource):
     MD_ReferenceSystem = SubElement(referenceSystemInfo, 'gmd:MD_ReferenceSystem')
     referenceSystemIdentifier = SubElement(MD_ReferenceSystem, 'gmd:referenceSystemIdentifier')
     RS_Identifier = SubElement(referenceSystemIdentifier, 'gmd:RS_Identifier')
-    charstring(RS_Identifier,'gmd:code',my_resource.spat_ref_system.code)
-    charstring(RS_Identifier,'gmd:codeSpace',my_resource.spat_ref_system.codespace)
+
+    try:
+        charstring(RS_Identifier,'gmd:code',my_resource.spat_ref_system.code)
+        charstring(RS_Identifier,'gmd:codeSpace',my_resource.spat_ref_system.codespace)
+    except Exception as e:
+        print("no spat_ref_system")
+
+
 
     # Data identification Info #
     ############################
@@ -565,7 +571,10 @@ def construct(my_resource):
     codelist(MD_SecurityConstraints, "gmd:classification", "gmd:MD_ClassificationCode", "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_96","RI_484", "Unclassified; non-classifié")
 
     # spatialRepresentationType
-    codelist(MD_DataIdentification, "gmd:spatialRepresentationType", "gmd:MD_SpatialRepresentationTypeCode", "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_109",my_resource.spat_representation.code, my_resource.spat_representation.label)
+    try:
+        codelist(MD_DataIdentification, "gmd:spatialRepresentationType", "gmd:MD_SpatialRepresentationTypeCode", "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_109",my_resource.spat_representation.code, my_resource.spat_representation.label)
+    except Exception as e:
+        print("No 'spat_representation'") 
 
     # language
     charstring(MD_DataIdentification,'gmd:language', 'eng; CAN')
