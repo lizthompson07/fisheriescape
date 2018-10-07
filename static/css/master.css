@@ -133,6 +133,10 @@
   background-color: darkorange;
 }
 
+.mild-concern{
+  background-color: khaki;
+}
+
 .wide-left{
   margin-left: 1em;
 }
@@ -141,6 +145,9 @@
   color: red;
 }
 
+.green-font{
+  color: green;
+}
 
 .resolved{
   background-color: mediumpurple;
@@ -160,4 +167,10 @@
 
 .hidden {
     visibility: hidden;
+}
+
+.neighbours {
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 5px;
 }
