@@ -76,15 +76,15 @@
             {% endif %}
 
           </td>
-
         </tr>
       {% endfor %}
-      <br>
-
       </tbody>
     </table>
+    <b>
+      TOTAL: {{custodian_list.count}}
+    </b>
 
-<br>
+<br><br><br>
     <h3>Other roles:</h3>
     {% if not non_custodian_list %}
     <em>There are no data resources with you listed in other roles</em>
@@ -134,35 +134,32 @@
 
             </td>
 
-
-
-
-              {% if obj.certification_history.count > 0 %}
+            {% if obj.certification_history.count > 0 %}
 
               {% if now|timedelta:obj.certification_history.first.certification_date < 90 %}
-              <td class="good">
+                <td class="good">
               {% elif now|timedelta:obj.certification_history.first.certification_date < 180 %}
-              <td class="mild-concern">
-
+                <td class="mild-concern">
               {% elif now|timedelta:obj.certification_history.first.certification_date < 270 %}
-              <td class="concern">
+                <td class="concern">
               {% else %}
-              <td class="bad">
+                <td class="bad">
               {% endif %}
               {{obj.certification_history.first.certification_date|naturaltime}}
-              {% else %}
-              <span class="red-font"><b>Never</b></span>
-              {% endif %}
+            {% else %}
+              <td><span class="red-font"><b>Never</b></span>
+            {% endif %}
 
             </td>
 
             </tr>
             {% endfor %}
-            <br>
 
           </tbody>
         </table>
-
+        <b>
+          TOTAL: {{non_custodian_list.count}}
+        </b>
 
     {% endif %}
 
