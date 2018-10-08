@@ -1,0 +1,70 @@
+{% if object.person.language == 2 %}
+{# PartI = "Bonjour " & Me.FirstName & ",<br><br>Vous trouverez ci-joint " & IIf(Me.CountOfMetadataID > 1, "les " & Me.CountOfMetadataID & " enregistrements de métadonnées dans l'inventaire régional qui sont sous votre responsabilité", "le seul enregistrement de métadonnée dans l'inventaire régional qui est sous votre responsabilité") & ". Voici la liste des titres: <ul><li>" & ConcatRelated("titleid", "qryLnkDatasetCustodian", "contactID = " & Me.ID, "titleID", "</li><li>") & "</li></ul>" #}
+{# PartII = "Veuillez prendre cette opportunité pour examiner les documents ci-joints, en vous assurant à ce que tout l’information soie pertinente et à jour.<br><br>Toutes les modifications que vous souhaitez effectuer peuvent être enregistrées directement dans le fichier Word, puis ensuite retournées à moi. S'il existe de nouveaux enregistrements de métadonnées que vous souhaitez ajouter à l'inventaire, le modèle de document ci-joint peut être utilisé pour ce faire. Si aucun changement n'est requis, veuillez m'envoyer une réponse nulle pour confirmer.<br><br>N'hésitez pas à me contacter si vous avez des questions,<br><br>" #}
+{# FrenchMessage = PartI & PartII #}
+
+{% else %}
+
+<p>
+  Hello {{object.user.first_name}},
+</p>
+<p>
+  Below is a list of the datasets / data resources over which you currently have custodianship. Please have a look at each item and confirm for the information is accurate and up-to-date.
+</p>
+<p>
+  Here is the list:
+  <ul>
+    {% for obj in queryset  %}
+    <li>
+      <a href="http://glfscidm001{% url 'inventory:resource_detail' obj.resource.id %}">
+        {{obj.resource.title_eng}}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</p>
+
+<p>
+  I am excited to announce that each of these records can be viewed, edited and certified through our new <a href="http://glfscidm001/inventory/">regional data inventory app</a>.
+  To certify or re-certify an item, simply click on the "Certify" button within each record detail page.
+  <b>If you have never logged on before</b>, your default username is <u>{{object.user.username}}</u> and your temporary password is <u>Welcome1</u>.
+  In order to make any changes to a record, you will need to be signed in.
+</p>
+<p>
+  If you would like to set up a meeting to discuss any of the above, please let me know! Also, your feedback about the inventory app would be most welcomed and appreciated.
+</p>
+
+Best,
+
+
+
+Hello { X },
+According to the regional data inventory, you currently have custodianship over [ X ] data resources. I am excited to announce that each of these records can now be viewed, edited and certified through our new Regional Data Inventory app.
+In order for our regional inventory to remain relevant, it is important that the records inside are properly maintained.  I plan to check in with you once a year to confirm that the information in each of your records is still accurate and up-to-date.
+Here are the simply step-by-step instructions to do this through our regional app:
+1)	Log into the Data Management website. If you have never logged on before, your default username is [ ] and your temporary password is <em>Welcome1</em>. Once logged in, you can change your password in the account settings.
+2)	From the Data Management website homepage, click on the Regional Data Inventory App. If you successfully logged in, this should take you to “My List”, a personalized data inventory list.
+3)	Click on a title to enter that record
+4)	Review all of the information and ensure the content is accurate and up-to-date. You can make changes to the record by click on the yellow “edit” button at the top of the page.
+5)	When you are satisfied with the record, click on the blue “certify record” button at the top of the page.
+6)	Confirm the certification by clicking yes.
+To add a new resources to the inventory, just click on the “new resource” button from your “my items” page.
+If you would like to set up a meeting to discuss any of the above, please let me know! Also, your feedback about the inventory app would be most welcomed and appreciated.
+Best,
+FGP?!
+
+
+
+
+<br><br>
+David Fishman<br><br>
+Data Manager, Science Branch, Gulf Region <br>
+Fisheries and Oceans Canada / Government of Canada <br>
+david.fishman@dfo-mpo.gc.ca / Tel: 506-851-6150 <br>
+<br>
+Gestionnaire de données, Direction des Sciences, Région du Golfe <br>
+Peches et Océans Canada, Gouvernement du Canada <br>
+david.fishman@dfo-mpo.gc.ca / Tél: 506-851-6150 <br>
+
+
+{% endif %}

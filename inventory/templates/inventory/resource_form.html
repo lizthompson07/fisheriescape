@@ -9,7 +9,8 @@
   <p>
     <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
     <a href="{% url 'inventory:resource_detail' object.id %}">{{object.truncated_title}}</a> >
-    Edit
+    {% if readonly %}Review{% else %}Edit{% endif %}
+
   </p>
   {% else %}
   <p>

@@ -16,8 +16,8 @@
 
     <div class="btn-group">
       <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
+      <a class="btn btn-success" href="{% url 'inventory:resource_full_detail' object.id %}">Review Full Record</a>
       <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify Record</a>
-
 
 
 
@@ -85,10 +85,10 @@
     </div>
 
     <div class="col-4">
-        <a href="{% url 'inventory:resource_full_detail' object.id %}">
-          <h2>Review Full Record</h2>
-        </a>
-        <br>
+        {# <a href="{% url 'inventory:resource_full_detail' object.id %}"> #}
+          {# <h2>Review Full Record</h2> #}
+        {# </a> #}
+        {# <br> #}
 
         <h2 class="neighbours">People</h2>
           <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a>
