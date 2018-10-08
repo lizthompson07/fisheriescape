@@ -80,14 +80,6 @@
           {% endif %}
             {{obj.resource.status}}
           </td>
-
-          {# <td> #}
-            {# {% if obj.resource.certification_history.count == 0  %} #}
-              {# <span class="font-weight-bold red-font">Never</span> #}
-            {# {% else %} #}
-              {# {{obj.resource.certification_history.first.certification_date}} by @{{obj.resource.certification_history.first.certifying_user}}</td> #}
-            {# {% endif %} #}
-
             {% if obj.resource.certification_history.count > 0 %}
 
             {% if now|timedelta:obj.resource.certification_history.first.certification_date < 90 %}
@@ -104,13 +96,15 @@
             {% else %}
             <td><span class="red-font"><b>Never</b></span>
             {% endif %}
-
         </tr>
       {% endfor %}
-      <br>
+
 
       </tbody>
     </table>
+        <b>
+          TOTAL: {{queryset.count}}
+        </b>
   </div>
 </div>
 
