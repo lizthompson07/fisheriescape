@@ -1,5 +1,6 @@
 {% extends "herring/herring_base.html" %}
 {% load static %}
+{% load bootstrap4 %}
 {% block content %}
 
 <div class="container">
@@ -10,10 +11,20 @@
   </p>
 
   <form class="form" action="." method="get">
+    <div class="row">
+
     {% for field in filter.form %}
-    {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp;
+    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+    <div class="col">
+      {%bootstrap_field field placeholder=""%}
+    </div>
+
     {% endfor %}
-    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+  <div class="col">
+    <br>
+    <input type="submit" value="Filter" class="btn btn btn-warning">
+  </div>
+  </div>
   </form>
 
   <br>
