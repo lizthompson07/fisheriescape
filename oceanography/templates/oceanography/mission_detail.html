@@ -1,10 +1,16 @@
 {% extends "oceanography/oceanography_base.html" %}
 {% load bootstrap4 %}
 {% load verbose_names %}
-
+{% load static %}
 
 {% block content %}
-
+<style>
+       /* Set the size of the div element that contains the map */
+      #map,#lineMap {
+        height: 500px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
+    </style>
   <div class="container">
     <h1>{{object.mission_name}}</h1>
     <div class="btn-group">
@@ -12,7 +18,7 @@
       <a href="{% url "oceanography:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
       <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-success">Export CSV</a>
       <a href="{% url "oceanography:file_create" object.id %}" class="btn btn-info">Add a File</a>
-      <a href="{% url "oceanography:mission_list" object.season %}" class="btn btn-secondary">Back</a>
+      <a href="{% url "oceanography:mission_list" object.season %}" class="btn btn-dark">Back</a>
     </div>
     <br><br>
 
@@ -77,9 +83,80 @@
         {% endfor %}
       </ul>
     </p>
-  </div>
+    <br>
+    <b>Map:</b>
 
+    <div id="map"></div>
+    <div id="lineMap"></div>
+  </div>
   </div>
 </div>
+
+<script>
+    function initialize() {
+      var locations = [
+
+        {% for bottle in object.bottles.all %}
+          {% if bottle.lat_DDdd and bottle.long_DDdd %}
+            ['<a href="{% url 'oceanography:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>',{{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+          {% endif %}
+        {% endfor %}
+      ];
+      window.map = new google.maps.Map(document.getElementById('map'), {
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+      });
+
+      var infowindow = new google.maps.InfoWindow();
+
+      var bounds = new google.maps.LatLngBounds();
+
+      for (i = 0; i < locations.length; i++) {
+          marker = new google.maps.Marker({
+              position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+              map: map,
+              // icon: locations[i][3]
+          });
+
+          bounds.extend(marker.position);
+
+          google.maps.event.addListener(marker, 'click', (function (marker, i) {
+              return function () {
+                  infowindow.setContent(locations[i][0]);
+                  infowindow.open(map, marker);
+              }
+          })(marker, i));
+      }
+
+      map.fitBounds(bounds);
+
+      var flightPlanCoordinates = [
+        {% for bottle in object.bottles.all %}
+          {% if bottle.lat_DDdd and bottle.long_DDdd %}
+            {lat: {{bottle.lat_DDdd}}, lng: {{bottle.long_DDdd}}},
+          {% endif %}
+        {% endfor %}
+      ];
+
+      var flightPath = new google.maps.Polyline({
+        path: flightPlanCoordinates,
+        geodesic: true,
+        strokeColor: '#0133FE',
+        strokeOpacity: 1.0,
+        strokeWeight: 2
+      });
+
+      flightPath.setMap(map);
+    }
+
+    function loadScript() {
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+      document.body.appendChild(script);
+    }
+
+    window.onload = loadScript;
+
+</script>
 
 {% endblock content %}
