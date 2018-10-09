@@ -1,4 +1,5 @@
 import csv
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
@@ -66,6 +67,9 @@ class MissionDetailView(DetailView):
         context = super().get_context_data(**kwargs)
 
         context["editable"] = False
+
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
         return context
 
 
