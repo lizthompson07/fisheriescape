@@ -60,8 +60,9 @@ class Bottle(models.Model):
     mission = models.ForeignKey(Mission, related_name="bottles", on_delete=models.CASCADE)
     bottle_uid = models.CharField(max_length=10)
     station = models.IntegerField(null=True, blank=True, verbose_name="Station #")
+    stratum = models.IntegerField(null=True, blank=True, verbose_name="Stratum")
     set = models.IntegerField(null=True, blank=True, verbose_name="Set #")
-    event = models.IntegerField(null=True, blank=True, verbose_name="Event #")
+    event = models.CharField(max_length=510, null=True, blank=True)
     date_time = models.DateTimeField(null=True, blank=True)
     timezone = models.CharField(max_length=3, choices=TIMEZONE_CHOICES)
     date_time_UTC = models.DateTimeField(null=True, blank=True, verbose_name="Date / time (UTC)")
@@ -74,6 +75,7 @@ class Bottle(models.Model):
     long_DDdd = models.FloatField(null=True, blank=True, verbose_name="Longitude")
     ctd_filename = models.CharField(max_length=255, null=True, blank=True)
     remarks = models.CharField(max_length=510, null=True, blank=True)
+    samples_collected = models.CharField(max_length=510, null=True, blank=True)
 
     def save(self,*args,**kwargs):
         if self.date_time and self.timezone:

@@ -88,11 +88,13 @@ class Ticket(models.Model):
     ACTIVE = '5'
     IDLE = '6'
     UNRESOLVED = '7'
+    WISHLIST = '8'
     STATUS_CHOICES = (
         (ACTIVE,'Active'),
         (RESOLVED,'Resolved'),
         (IDLE,'Idle'),
         (UNRESOLVED,'Unresolved'),
+        (WISHLIST,'Wishlist'),
     )
 
     # Choices for priority
