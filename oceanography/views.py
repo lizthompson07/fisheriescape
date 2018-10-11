@@ -173,17 +173,28 @@ def export_mission_csv(request, pk):
     "lat_DDdd",
     "long_DDdd",
     "ctd_filename",
+    "samples_collected",
     "remarks",])
 
+    my_date = ""
+    my_time = ""
     for b in m.bottles.all():
+        try:
+            my_date = b.date_time_UTC.strftime('%Y-%m-%d')
+            my_time = b.date_time_UTC.strftime('%H:%M')
+        except Exception as e:
+            print(e)
+            my_date = None
+            my_time = None
+
         writer.writerow(
         [
         b.bottle_uid,
         b.station,
         b.set,
         b.event,
-        b.date_time_UTC.strftime('%Y-%m-%d'),
-        b.date_time_UTC.strftime('%H:%M'),
+        my_date,
+        my_time,
         b.sounding_m,
         b.bottle_depth_m,
         b.temp_c,
@@ -192,6 +203,7 @@ def export_mission_csv(request, pk):
         b.lat_DDdd,
         b.long_DDdd,
         b.ctd_filename,
+        b.samples_collected,
         b.remarks,])
 
     return response
