@@ -69,6 +69,7 @@ class BugUpdateView(LoginRequiredMixin,UpdateView):
     form_class = forms.BugUpdateForm
     template_name = "bugs/bug_form.html"
     model = models.Bug
+    success_url = reverse_lazy('bugs:bug_list')
 
 class BugDeleteView(LoginRequiredMixin,DeleteView):
     model = models.Bug
