@@ -351,7 +351,8 @@ class Resource(models.Model):
     parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children', verbose_name="Parent resource")
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
-
+    flagged_4_deletion = models.BooleanField(default=False)
+    flagged_4_publication = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk':self.pk})
