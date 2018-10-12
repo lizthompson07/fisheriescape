@@ -181,6 +181,7 @@ class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
         if object.flagged_4_deletion:
 
             email = emails.FlagForDeletionEmail(self.object)
+            
             # send the email object
             if settings.MY_ENVR != 'dev':
                 send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)

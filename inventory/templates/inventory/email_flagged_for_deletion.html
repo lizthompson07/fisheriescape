@@ -1,18 +1,22 @@
 <h1>A data resource has been flagged for deletion</h1>
-
-<br>
   <p><b>
     Regional ID:
   </b><br>
   {{object.id}}
 </p>
 
-<br>
-  <p><b>
-    Title:
-  </b><br>
-  {{object.title_eng}}
+<p><b>
+  Title:
+</b><br>
+{{object.title_eng}}
 </p>
+
+<p><b>
+  Flagged by:
+</b><br>
+{{user.first_name}} {{user.last_name}} ({{user.username}})
+</p>
+
 
 <p>
   Click <a href="http://glfscidm001{% url "inventory:resource_detail" object.id %}"> HERE </a> to view the record.
