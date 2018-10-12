@@ -3,6 +3,15 @@
 {% load verbose_names %}
 
 {% block content %}
+{% if object.flagged_4_deletion %}
+  <style media="screen">
+    body{
+      background-color: pink;
+    }
+  </style>
+
+{% endif %}
+
 <div class="nav-map">
   <br>
   <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
@@ -21,10 +30,11 @@
 
 
 
-      {% if user.is_superuser %}
-      <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
+
+      {% if object.flagged_4_deletion %}
+      <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Unflag for Deletion</a>
       {% else %}
-      <a class="btn btn-danger disabled" href="{% url 'inventory:resource_delete' object.id %}">Flag for Deletion</a>
+      <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Flag for Deletion</a>
       {% endif %}
 
       <div class="dropdown">
@@ -37,6 +47,10 @@
         </div>
       </div>
     </div>
+
+    {% if user.is_superuser %}
+    <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
+    {% endif %}
   </div>
 
 

@@ -17,6 +17,8 @@ class ResourceCreateForm(forms.ModelForm):
             'citations',
             'keywords',
             'people',
+            'flagged_4_publication',
+            'flagged_4_deletion',
         ]
         widgets = {
             'last_modified_by':forms.HiddenInput(),
@@ -55,6 +57,8 @@ class ResourceForm(forms.ModelForm):
             'citations',
             'keywords',
             'people',
+            'flagged_4_publication',
+            'flagged_4_deletion',
         ]
         widgets = {
             'last_modified_by':forms.HiddenInput(),
@@ -163,4 +167,14 @@ class FileForm(forms.ModelForm):
         widgets = {
             'resource':forms.HiddenInput(),
             # 'end_date':forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class ResourceFlagging(forms.ModelForm):
+    class Meta:
+        model = models.Resource
+        fields = ["flagged_4_deletion","flagged_4_publication"]
+
+        widgets = {
+            'flagged_4_deletion':forms.HiddenInput(),
+            'flagged_4_publication':forms.HiddenInput(),
         }
