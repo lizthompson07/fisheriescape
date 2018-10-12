@@ -27,16 +27,17 @@ class CertificationRequestEmail:
 
 class FlagForDeletionEmail:
 
-    def __init__(self, object):
+    def __init__(self, object, user):
         self.subject = 'A data resource has been flagged for deletion'
-        self.message = self.load_html_template(object)
+        self.message = self.load_html_template(object,user)
         self.from_email = from_email
         self.to_list = [admin_email,]
 
-    def load_html_template(self, object):
+    def load_html_template(self, object,user):
         t = loader.get_template('inventory/email_flagged_for_deletion.html')
         context ={
             'object': object,
+            'user': user,
         }
         rendered = t.render(context)
         return rendered

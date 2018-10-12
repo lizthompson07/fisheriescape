@@ -70,23 +70,6 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
 
         return context
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #
-    #     # retain only the unique items, and keep them in order according to keys (cannot use a set for this reason)
-    #     resource_dict = OrderedDict()
-    #     for item in queryset:
-    #         resource_dict[item.id] = item
-    #
-    #     #convert the dict back into a list
-    #     resource_list = []
-    #     for item in resource_dict:
-    #         resource_list.append(resource_dict[item])
-    #
-    #     context['resource_list'] = resource_list
-    #     context['resource_count'] = len(resource_list)
-    #     return context
-
 
 class ResourceDetailView(DetailView):
     model = models.Resource
@@ -177,11 +160,10 @@ class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         object = form.save()
-
         if object.flagged_4_deletion:
 
-            email = emails.FlagForDeletionEmail(self.object)
-            
+            email = emails.FlagForDeletionEmail(self.object, self.request.user)
+
             # send the email object
             if settings.MY_ENVR != 'dev':
                 send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
