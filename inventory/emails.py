@@ -27,7 +27,7 @@ class CertificationRequestEmail:
 
 class FlagForDeletionEmail:
 
-    def __init__(self, person_object):
+    def __init__(self, object):
         self.subject = 'A data resource has been flagged for deletion'
         self.message = self.load_html_template()
         self.from_email = from_email
