@@ -34,7 +34,7 @@ class FlagForDeletionEmail:
         self.to_list = [admin_email,]
 
     def load_html_template(self):
-        t = loader.get_template('inventory/email_certification_request.html')
+        t = loader.get_template('inventory/email_flaged_for_deletion.html')
         context ={
             'object': object,
         }
