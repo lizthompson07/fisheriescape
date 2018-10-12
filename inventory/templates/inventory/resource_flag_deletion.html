@@ -1,0 +1,57 @@
+{% extends "inventory/inventory_base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="nav-map">
+<br>
+  <p>
+    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
+    <a href="{% url 'inventory:resource_detail' object.id %}">{{object.truncated_title}}</a> >
+    {% if object.flagged_4_deletion %}Flag for Deletion    {% else %}Unflag for Deletion   {% endif %}
+  </p>
+
+</div>
+<div class="container">
+
+{% load static %}
+
+{% if object.flagged_4_deletion %}
+<h1>Are you sure you want to unflag this data resource?</h1>
+{% else %}
+<h1>Are you sure you want to flag this data resource for deletion?</h1>
+<br>
+<h3>By clicking yes below you will notify the regional data manager that this record should be deleted from the regional inventory.</h3>
+
+{% endif %}
+
+  <br>
+    <p><b>
+      Title:
+    </b><br>
+    {{object.title_eng}}
+  </p>
+    <p><b>
+      Status:
+    </b><br>
+    {{object.status}}
+    </p>
+
+<form method="post" class="form">
+    {% csrf_token %}
+    {{form}}
+    <p>
+      {% if object.flagged_4_deletion %}
+      <button type="submit" class="btn btn-lg btn-danger">Yes, Unflag It!</button>
+      {% else %}
+      <button type="submit" class="btn btn-lg btn-danger">Yes, Flag It!</button>
+      {% endif %}
+
+      <a class="btn btn-lg btn-secondary" href="{% url 'inventory:resource_detail' object.id %}">No, Forget it.</a>
+    </p>
+</form>
+</div>
+
+
+
+{% endblock content %}

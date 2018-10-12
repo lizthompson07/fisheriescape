@@ -1,7 +1,10 @@
+from django.conf import settings
 from django.template import loader
 from . import models
 
-from_email='DoNotReply@RDMTS.com'
+
+app_name = settings.WEB_APP_NAME # should be a single word with one space
+from_email='DoNotReply@{}.com'.format(app_name)
 admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
 class CertificationRequestEmail:
@@ -18,6 +21,22 @@ class CertificationRequestEmail:
         context ={
             'object': self.person_object,
             'queryset':  self.person_object.resource_people.filter(role=1)
+        }
+        rendered = t.render(context)
+        return rendered
+
+class FlagForDeletionEmail:
+
+    def __init__(self, person_object):
+        self.subject = 'A data resource has been flagged for deletion'
+        self.message = self.load_html_template()
+        self.from_email = from_email
+        self.to_list = [admin_email,]
+
+    def load_html_template(self):
+        t = loader.get_template('inventory/email_certification_request.html')
+        context ={
+            'object': object,
         }
         rendered = t.render(context)
         return rendered
