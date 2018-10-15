@@ -26,35 +26,56 @@
     <a class="btn btn-danger" href="{% url "inventory:dm_section_delete" object.id %}" id="myBtn">Delete</a>
   </div>
 <br><br>
-  <p><b>
-    {%get_verbose_field_name object "section"%}:
-  </b><br>
-  {{object.section}}
+
+<div class="row">
+  <div class="col">
+    <h3>Section Info:</h3>
+    <p><b>
+      {%get_verbose_field_name object "section"%}:
+    </b><br>
+    {{object.section}}
   </p>
 
   <p><b>
     {%get_verbose_field_name object "division"%}:
   </b><br>
   {{object.division}}
-  </p>
+</p>
 
-  <p><b>
-    {%get_verbose_field_name object "branch"%}:
-  </b><br>
-  {{object.branch}}
-  </p>
+<p><b>
+  {%get_verbose_field_name object "branch"%}:
+</b><br>
+{{object.branch}}
+</p>
 
-  <p><b>
-    {%get_verbose_field_name object "unit_head"%}:
-  </b><br>
-  {{object.unit_head}}
-  </p>
+<p><b>
+  {%get_verbose_field_name object "unit_head"%}:
+</b><br>
+{{object.unit_head}}
+</p>
 
-  <p><b>
-    {%get_verbose_field_name object "manager"%}:
-  </b><br>
-  {{object.manager}}
-  </p>
+<p><b>
+  {%get_verbose_field_name object "manager"%}:
+</b><br>
+{{object.manager}}
+</p>
+
+  </div>
+  <div class="col">
+    <h3>Correspondences:</h3>
+    <ul>
+      {% for obj in object.unit_head.user.correspondences.all   %}
+        <li>
+          {{obj.date}} UTC- {{obj.subject}}
+        </li>
+        {% empty %}
+        None
+      {% endfor %}
+    </ul>
+
+  </div>
+
+</div>
 
   {% if object.resources.count > 0  %}
   <br>
