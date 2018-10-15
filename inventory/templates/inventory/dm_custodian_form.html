@@ -1,0 +1,38 @@
+{% extends "inventory/inventory_base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="nav-map">
+<br>
+  <p>
+    <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
+    <a href="{% url 'inventory:dm_custodian_list' %}">All Custodians</a> >
+    <a href="{% url 'inventory:dm_custodian_detail' person.user.id %}">{{person.full_name}}</a> >
+    Edit details
+  </p>
+</div>
+<div class="container">
+
+{% load static %}
+{# Load js file to allow for popout window #}
+
+
+<form method="post" class="form">
+    {% csrf_token %}
+
+    {# {% bootstrap_form form %} #}
+    {% for field in form  %}
+        {% bootstrap_field field%}
+    {% endfor %}
+
+    <p>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <a class="btn btn-secondary" href="{% url 'inventory:dm_custodian_detail' person.user.id %}">Cancel</a>
+
+    </p>
+</form>
+
+</div>
+
+{% endblock content %}
