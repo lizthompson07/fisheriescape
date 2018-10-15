@@ -3,14 +3,19 @@
 {% load verbose_names %}
 
 {% block content %}
-{% if object.flagged_4_deletion %}
   <style media="screen">
     body{
+      {% if object.flagged_4_deletion %}
       background-color: pink;
+      {%elif object.fgp_publication_date %}
+      background-color: lightgreen;
+      {%elif object.flagged_4_publication %}
+      background-color: wheat;
+      {% endif %}
     }
   </style>
 
-{% endif %}
+
 
 <div class="nav-map">
   <br>
@@ -36,6 +41,13 @@
       {% else %}
       <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Flag for Deletion</a>
       {% endif %}
+
+      {% if object.flagged_4_publication %}
+      <a class="btn btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Unflag for Publication</a>
+      {% else %}
+      <a class="btn btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Flag for Publication</a>
+      {% endif %}
+
 
       <div class="dropdown">
         <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -41,3 +41,21 @@ class FlagForDeletionEmail:
         }
         rendered = t.render(context)
         return rendered
+
+
+class FlagForPublicationEmail:
+
+    def __init__(self, object, user):
+        self.subject = 'A data resource has been flagged for publication'
+        self.message = self.load_html_template(object,user)
+        self.from_email = from_email
+        self.to_list = [admin_email,]
+
+    def load_html_template(self, object,user):
+        t = loader.get_template('inventory/email_flagged_for_publication.html')
+        context ={
+            'object': object,
+            'user': user,
+        }
+        rendered = t.render(context)
+        return rendered

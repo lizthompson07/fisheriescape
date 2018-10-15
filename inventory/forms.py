@@ -53,7 +53,7 @@ class ResourceForm(forms.ModelForm):
             'uuid',
             'date_verified',
             'date_last_modified',
-            'fgp_publication_date',
+            # 'fgp_publication_date',
             'citations',
             'keywords',
             'people',
