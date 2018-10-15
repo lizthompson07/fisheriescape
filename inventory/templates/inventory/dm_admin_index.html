@@ -11,7 +11,19 @@
 <div class="container">
   <br><br>
   <h2>
-    <a href="{% url 'inventory:dm_custodian_list' %}">List of custodians</a>
+    <a href="{% url 'inventory:dm_section_list' %}">Section list</a>
+  </h2>
+  <h2>
+    <a href="{% url 'inventory:dm_custodian_list' %}">Custodian list</a>
+  </h2>
+  <h2>
+    <a href="{% url 'inventory:dm_published_list' %}">Published resources ({{published_records}})</a>
+  </h2>
+  <h2>
+    <a href="{% url 'inventory:dm_flagged_list' "publication" %}">Flagged for publication ({{flagged_4_publication}})</a>
+  </h2>
+  <h2>
+    <a href="{% url 'inventory:dm_flagged_list' "deletion" %}">Flagged for deletion ({{flagged_4_deletion}})</a>
   </h2>
 
 </div>

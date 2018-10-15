@@ -104,6 +104,8 @@ class Section(models.Model):
     class Meta:
         ordering = ['section']
 
+    def get_absolute_url(self):
+        return reverse('inventory:dm_section_detail', kwargs={'pk':self.pk})
 
 class Status(models.Model):
     label = models.CharField(max_length=25)
@@ -299,7 +301,7 @@ class Citation(models.Model):
 class Resource(models.Model):
     uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
     resource_type = models.ForeignKey(ResourceType, on_delete=models.DO_NOTHING, blank=True, null = True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null = True)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null = True, related_name="resources")
     title_eng = models.TextField(verbose_name="Title (English)")
     title_fre = models.TextField(blank=True, null = True, verbose_name="Title (French)")
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null = True)
@@ -419,7 +421,7 @@ class ResourceCertification(models.Model):
 
 
 class Correspondence(models.Model):
-    custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="correspondences")
+    custodian = models.ForeignKey(User, on_delete=models.CASCADE, related_name="correspondences")
     subject = models.CharField(max_length=255)
     date = models.DateTimeField(blank=True, null=True, default=timezone.now)
 

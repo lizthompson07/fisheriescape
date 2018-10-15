@@ -2,11 +2,11 @@
 {% load bootstrap4 %}
 
 {% block content %}
+{% if message %}
+<h3>{% bootstrap_alert message alert_type='danger' %}</h3>
+{% endif %}
   <div class="container">
     <div class="jumbotron">
-      {% if message %}
-      <h3>{% bootstrap_alert message alert_type='warning' %}</h3>
-      {% endif %}
 
       <h1 class="big-header">Sign In </h1>
       <hr>
