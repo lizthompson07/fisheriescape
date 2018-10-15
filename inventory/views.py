@@ -252,8 +252,6 @@ class ResourcePersonCreateView(LoginRequiredMixin, CreateView):
 
         #if the person is being added as a custodian
         if object.role.id == 1:
-            print("123")
-
             email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
             if settings.MY_ENVR != 'dev':
@@ -274,7 +272,6 @@ class ResourcePersonUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.ResourcePersonForm
 
 
-
 class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
     model = models.ResourcePerson
     template_name ='inventory/resource_person_confirm_delete.html'
@@ -283,11 +280,47 @@ class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
     login_url = '/accounts/login_required/'
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
+        object = models.ResourcePerson.objects.get(pk=self.kwargs["pk"])
+
+        #if the person is being added as a custodian
+        if object.role.id == 1:
+
+            email = emails.RemovedAsCustodianEmail(object.resource, object.person.user)
+            # send the email object
+            if settings.MY_ENVR != 'dev':
+                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+            else:
+                print('not sending email since in dev mode')
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+            messages.success(self.request, '{} has been removed as {} and a notification email has been sent to them!'.format(object.person.full_name, object.role))
+        else:
+            messages.success(self.request, '{} has been removed as {}!'.format(object.person.full_name, object.role))
+
+
+        # messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse_lazy('inventory:resource_detail', kwargs={'pk':self.object.resource.id})
+
+    # def delete(self):
+    #     object = form.save()
+    #
+    #     #if the person is being added as a custodian
+    #     if object.role.id == 1:
+    #
+    #         email = emails.RemovedAsCustodianEmail(object.resource, object.person.user)
+    #         # send the email object
+    #         if settings.MY_ENVR != 'dev':
+    #             send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+    #         else:
+    #             print('not sending email since in dev mode')
+    #             print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+    #         messages.success(self.request, '{} has been removed as {} and a notification email has been sent to them!'.format(object.person.full_name, object.role))
+    #     else:
+    #         messages.success(self.request, '{} has been removed as {}!'.format(object.person.full_name, object.role))
+    #
+    #     return super().form_valid(form)
 
 # PERSON #
 ##########
