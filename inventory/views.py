@@ -150,32 +150,60 @@ class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
         if self.object.flagged_4_deletion:
             return {
                 'flagged_4_deletion': False,
-                'flagged_4_publication': False,
             }
         else:
             return {
                 'flagged_4_deletion': True,
-                'flagged_4_publication': False,
             }
 
     def form_valid(self, form):
         object = form.save()
         if object.flagged_4_deletion:
-
             email = emails.FlagForDeletionEmail(self.object, self.request.user)
-
             # send the email object
             if settings.MY_ENVR != 'dev':
                 send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
             else:
                 print('not sending email since in dev mode')
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
 
             messages.success(self.request, 'The data resource has been flagged for deletion and the regional data manager has been notified!')
         else:
             messages.success(self.request, 'The data resource has been unflagged!')
-
         return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk":self.kwargs["pk"]}))
 
+
+
+class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Resource
+    login_url = '/accounts/login_required/'
+    template_name = "inventory/resource_flag_publication.html"
+    form_class = forms.ResourceFlagging
+
+    def get_initial(self):
+        if self.object.flagged_4_publication:
+            return {
+                'flagged_4_publication': False,
+            }
+        else:
+            return {
+                'flagged_4_publication': True,
+            }
+
+    def form_valid(self, form):
+        object = form.save()
+        if object.flagged_4_publication:
+            email = emails.FlagForPublicationEmail(self.object, self.request.user)
+            # send the email object
+            if settings.MY_ENVR != 'dev':
+                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+            else:
+                print('not sending email since in dev mode')
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+            messages.success(self.request, 'The data resource has been flagged for publication and the regional data manager has been notified!')
+        else:
+            messages.success(self.request, 'The data resource has been unflagged!')
+        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk":self.kwargs["pk"]}))
 
 
 

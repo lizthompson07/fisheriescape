@@ -17,6 +17,7 @@ urlpatterns = [
     path('<int:pk>/delete/', views.ResourceDeleteView.as_view(), name ="resource_delete" ),
     path('new/', views.ResourceCreateView.as_view(), name ="resource_new" ),
     path('<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name ="resource_flag_delete" ),
+    path('<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name ="resource_flag_publication" ),
 
 
     # RESOURCE PERSON #
