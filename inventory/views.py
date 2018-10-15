@@ -836,6 +836,68 @@ class FlaggedListView(LoginRequiredMixin, ListView):
         return queryset
 
 
+class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
+    template_name = 'inventory/dm_custodian_form.html'
+    form_class = forms.PersonCreateForm
+
+    def get_success_url(self):
+        return reverse_lazy('inventory:dm_custodian_detail', kwargs={
+            'pk':self.kwargs['person'],
+        })
+
+    def get_initial(self):
+        person = models.Person.objects.get(pk=self.kwargs['person'])
+        return {
+            'first_name': person.user.first_name,
+            'last_name':  person.user.last_name,
+            'email':  person.user.email,
+            'position_eng':  person.position_eng,
+            'position_fre':  person.position_fre,
+            'phone':  person.phone,
+            'language': person.language,
+            'organization': person.organization.id,
+        }
+
+    def form_valid(self, form):
+        old_person = models.Person.objects.get(pk=self.kwargs['person'])
+
+        #step 0: retreive data from form
+        first_name = form.cleaned_data['first_name']
+        last_name = form.cleaned_data['last_name']
+        email = form.cleaned_data['email']
+        position_eng = form.cleaned_data['position_eng']
+        position_fre = form.cleaned_data['position_fre']
+        phone = form.cleaned_data['phone']
+        language = form.cleaned_data['language']
+        organization = form.cleaned_data['organization']
+
+        # step 2: Retrieve the Person model
+        old_person.user.first_name = first_name
+        old_person.user.last_name = last_name
+        old_person.user.email = email
+
+        old_person.position_eng = position_eng
+        old_person.position_fre = position_fre
+        old_person.phone = phone
+
+        if language != "":
+            old_person.language = int(language)
+
+        if organization != "":
+            old_person.organization_id = int(organization)
+
+        old_person.user.save()
+        old_person.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        person = models.Person.objects.get(user_id=self.kwargs['person'])
+        context['person']= person
+        return context
+
+
+
 ## SECTIONS
 
 class SectionListView(LoginRequiredMixin, ListView):
