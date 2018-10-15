@@ -910,8 +910,9 @@ class SectionDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        email = emails.SectionReportEmail(self.object.unit_head,  self.object)
-        context['email'] = email
+        if self.object.unit_head:
+            email = emails.SectionReportEmail(self.object.unit_head,  self.object)
+            context['email'] = email
         context['now'] = timezone.now()
         return context
 
