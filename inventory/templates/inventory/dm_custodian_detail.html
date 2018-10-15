@@ -8,13 +8,13 @@
   <br>
   <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
   <a href="{% url 'inventory:dm_custodian_list' %}">All Custodians</a> >
-  Custodian Details
+  {{object.full_name}}
 </div>
 
 <div class="container">
 <p>
   <div class="btn-group">
-    <a class="btn btn-warning" href="#">Edit User Details</a>
+    <a class="btn btn-warning" href="{% url "inventory:dm_person_edit" object.user_id %}">Edit User Details</a>
     <a class="btn btn-primary" href="#" id="myBtn">Send Certification Request Email</a>
   </div>
 </p>

@@ -84,6 +84,7 @@ urlpatterns = [
     path('dm-admin/custodian-list/', views.DataManagementCustodianListView.as_view(), name ="dm_custodian_list" ),
     path('dm-admin/custodian/<int:pk>/detail/', views.DataManagementCustodianDetailView.as_view(), name ="dm_custodian_detail" ),
     path('dm-admin/custodian/<int:person>/send-request-for-certification/', views.send_certification_request, name ="send_certification_email" ),
+    path('dm-admin/custodian/<int:person>/', views.CustodianPersonUpdateView.as_view(), name ="dm_person_edit" ),
     path('dm-admin/published-resource-list/', views.PublishedResourcesListView.as_view(), name ="dm_published_list" ),
     path('dm-admin/flagged/<str:flag_type>/', views.FlaggedListView.as_view(), name ="dm_flagged_list" ),
 

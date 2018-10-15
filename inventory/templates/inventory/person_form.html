@@ -9,7 +9,7 @@
   <p>
     <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
     <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    Edit {{person.full_name}} details
+    Edit {{person.full_name}}
   </p>
   {% else %}
   <p>
@@ -36,47 +36,19 @@
 
     {# {% bootstrap_form form %} #}
     {% for field in form  %}
-
-      {% if field.name == 'notes' %}
-        {% bootstrap_label field.label %}
-        {% bootstrap_field field show_label=False %}
-        <a href="#" class="btn btn-sm btn-warning"  id="insertDate"> Insert Date</a>
-        <br><br>
-
-      {% else %}
         {% bootstrap_field field%}
-      {% endif %}
     {% endfor %}
 
     <p>
       <button type="submit" class="btn btn-primary">Submit</button>
-      {% if object.id %}
-        <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' object.id %}">Cancel</a>
+      {% if person %}
+        <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' resource.id %}">Cancel</a>
       {% else %}
         <a class="btn btn-secondary" href="{% url 'inventory:resource_list' %}">Cancel</a>
       {% endif %}
     </p>
 </form>
 
-<script type="text/javascript">
-  // js script to add date to notes field
-  $("#insertDate").click(function() {
-
-    var today = new Date();
-    var strDate = today.toDateString()
-    var strInjection = ""
-
-    if ($("#id_notes").val()==="") {
-      strInjection = strDate + ": ";
-    }else {
-      strInjection =  "\n\n" + strDate + ": ";
-    }
-
-    $("#id_notes").val($("#id_notes").val() + strInjection)
-
-  })
-
-</script>
 </div>
 
 {% endblock content %}
