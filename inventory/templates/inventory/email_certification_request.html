@@ -1,9 +1,67 @@
-{% if object.person.language == 2 %}
-{# PartI = "Bonjour " & Me.FirstName & ",<br><br>Vous trouverez ci-joint " & IIf(Me.CountOfMetadataID > 1, "les " & Me.CountOfMetadataID & " enregistrements de métadonnées dans l'inventaire régional qui sont sous votre responsabilité", "le seul enregistrement de métadonnée dans l'inventaire régional qui est sous votre responsabilité") & ". Voici la liste des titres: <ul><li>" & ConcatRelated("titleid", "qryLnkDatasetCustodian", "contactID = " & Me.ID, "titleID", "</li><li>") & "</li></ul>" #}
-{# PartII = "Veuillez prendre cette opportunité pour examiner les documents ci-joints, en vous assurant à ce que tout l’information soie pertinente et à jour.<br><br>Toutes les modifications que vous souhaitez effectuer peuvent être enregistrées directement dans le fichier Word, puis ensuite retournées à moi. S'il existe de nouveaux enregistrements de métadonnées que vous souhaitez ajouter à l'inventaire, le modèle de document ci-joint peut être utilisé pour ce faire. Si aucun changement n'est requis, veuillez m'envoyer une réponse nulle pour confirmer.<br><br>N'hésitez pas à me contacter si vous avez des questions,<br><br>" #}
-{# FrenchMessage = PartI & PartII #}
+{% if object.language == 2 %}
+
+{# FRENCH VERSION #}
+
+<p>
+  Bonjour {{object.user.first_name}},
+</p>
+<p>
+  Selon l'inventaire régional des données, vous êtes actuellement responsable de {{queryset.count}} ressource{{queryset.count|pluralize}} de donnée{{queryset.count|pluralize}}.
+  {{queryset.count|pluralize:"Cette,Ces"}} ressource{{queryset.count|pluralize}} {{queryset.count|pluralize:"peut,peuvent"}} désormais être gérée{{queryset.count|pluralize}} directement
+  via notre nouvelle application Web.
+  Chaque année, je vérifierai avec vous et vous demanderai de confirmer / mettre à jour le statut et l'exactitude de chaque enregistrement de votre inventaire personnel.
+
+</p>
+<p>
+  Le statut d'un enregistrement peut être confirmé en ligne. Voici les instructions pour le faire via l'application Web régionale:
+  The status of a record can be confirmed online. Here are the step-by-step instructions to do this through the regional app:
+  <ul>
+
+    <li>
+      Connectez-vous au <a href="http://glfscidm001">site Web de gestion des données</a>.
+      {% if  object.user.password == "pbkdf2_sha256$100000$aDyHhz2nhW58$yZBIrsyRWd8S+ILHmG8pEvSzkO+SwIkNbvME0VS2OdA=" %}
+        Si vous ne vous êtes jamais connecté auparavant, votre nom d'utilisateur par défaut est <b><u>{{object.user.username}}</u></b> et votre mot de passe temporaire est <b><u>Welcome1</u></b>.
+          Une fois connecté, vous pouvez changer votre mot de passe dans les paramètres du compte.
+      {% endif %}
+    </li>
+
+    <li>
+      Sur la page d'accueil du site, cliquez sur l'application « Regional Data Inventory ».
+      Cela vous mènera à «<a href="http://glfscidm001{% url "inventory:my_resource_list" %}">My Items</a>», votre inventaire personnalisé.
+
+    </li>
+    <li>
+      Dans votre liste, cliquez sur un titre pour entrer cet enregistrement.
+    </li>
+    <li>
+      Examinez toutes les informations et assurez-vous que le contenu est exact et à jour.
+      Assurez-vous de consulter l'intégralité de l'enregistrement (bouton vert au-dessus «Review Full Record») en plus de la page de résumé.
+      Vous pouvez apporter des modifications à l'enregistrement en cliquant sur le bouton jaune «Edit» au-dessus.
+    </li>
+    <li>
+      Lorsque vous êtes satisfait de l'enregistrement, cliquez sur le bouton bleu au-dessus, «Certify Record».
+    <li>
+      Confirmez la certification en cliquant «Yes».
+    </li>
+
+  </ul>
+  <p>
+    Pour ajouter de nouvelles ressources à l'inventaire, cliquez simplement sur le bouton «New Resource» dans la page «My Items».
+    Enfin, les enregistrements peuvent être marqués pour suppression ou pour publication de données ouvertes en cliquant sur «Flag for Deletion» et «Flag for Publication», respectivement.
+  </p>
+  <p>
+    Si vous souhaitez organiser une réunion pour discuter de ce qui précède, veuillez me le faire savoir!
+    En outre, vos commentaires sur l'application Web seraient les bienvenus et les plus appréciés.
+  </p>
+
+  Merci,
+
+
+
 
 {% else %}
+
+{# ENGLISH VERSION #}
 
 <p>
   Hello {{object.user.first_name}},
@@ -19,12 +77,16 @@
     <li>
       Log into the
       <a href="http://glfscidm001">Data Management website</a>.
-      <b>If you have never logged on before, your default username is <u>{{object.user.username}}</u> and your temporary password is <u>Welcome1</u>.</b>
-      Once logged in, you can change your password in the account settings.
+
+      {% if  object.user.password == "pbkdf2_sha256$100000$aDyHhz2nhW58$yZBIrsyRWd8S+ILHmG8pEvSzkO+SwIkNbvME0VS2OdA=" %}
+        If you have never signed on before, your default username is <b><u>{{object.user.username}}</u></b> and your temporary password is <b><u>Welcome1</u></b>.
+        Once logged in, you can change your password in the account settings.
+      {% endif %}
+
     </li>
     <li>
       From the Data Management website homepage, click on the "Regional Data Inventory "App.
-      This will take you to “<a href="http://glfscidm001{% url "inventory:my_resource_list" %}">My List</a>”, your personalized inventory.
+      This will take you to “<a href="http://glfscidm001{% url "inventory:my_resource_list" %}">My Items</a>”, your personalized inventory.
     </li>
     <li>
       From your list, click on a title to enter that record.
@@ -41,10 +103,14 @@
 
   </ul>
   <p>
-    To add a new resources to the inventory, just click on the “new resource” button from your “my items” page.
+    To add a new resources to the inventory, just click on the “new resource” button from your “my items” page. Finally, records can be flagged for deletion or open data publication by clicking the "Flag for Deletion" and "Flag for Publication", respectively.
+  </p>
+  <p>
     If you would like to set up a meeting to discuss any of the above, please let me know! Also, your feedback about the inventory app would be most welcomed and appreciated.
   </p>
   Best,
+
+  {% endif %}
 
 <br><br>
 David Fishman<br><br>
@@ -55,6 +121,3 @@ david.fishman@dfo-mpo.gc.ca / Tel: 506-851-6150 <br>
 Gestionnaire de données, Direction des Sciences, Région du Golfe <br>
 Peches et Océans Canada, Gouvernement du Canada <br>
 david.fishman@dfo-mpo.gc.ca / Tél: 506-851-6150 <br>
-
-
-{% endif %}
