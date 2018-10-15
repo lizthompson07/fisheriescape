@@ -1,0 +1,57 @@
+{% extends "inventory/inventory_base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="nav-map">
+<br>
+  {% if object.id %}
+  <p>
+    <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
+    <a href="{% url 'inventory:dm_section_list' %}">Section List</a> >
+    <a href="{% url 'inventory:dm_section_detail' object.id %}">{{object.section}}</a> >
+    Edit
+  </p>
+  {% else %}
+  <p>
+    <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
+    <a href="{% url 'inventory:dm_section_list' %}">Section List</a> >
+    New
+  </p>
+  {% endif %}
+</div>
+<div class="container">
+
+{% load static %}
+{# Load js file to allow for popout window #}
+{% if object.id %}
+  <h1>{{object.section}}</h1><br>
+{% else %}
+  <h1>New Section</h1>
+{% endif %}
+
+<style media="screen">
+  label{
+    font-weight: bold;
+  }
+</style>
+
+<form method="post" class="form">
+    {% for field in form  %}
+      {%bootstrap_field field placeholder=False%}
+    {% endfor %}
+    {% csrf_token %}
+    <input type="submit" name="" value="Submit" class="btn btn-primary">
+    {% if object.id %}
+    <a class="btn btn-secondary" href="{% url 'inventory:dm_section_detail' object.id %}">Cancel</a>
+    {% else %}
+    <a class="btn btn-secondary" href="{% url 'inventory:dm_section_list' %}">Cancel</a>
+
+    {% endif %}
+
+</form>
+
+</div>
+
+
+{% endblock content %}

@@ -84,6 +84,18 @@ urlpatterns = [
     path('dm-admin/custodian-list/', views.DataManagementCustodianListView.as_view(), name ="dm_custodian_list" ),
     path('dm-admin/custodian/<int:pk>/detail/', views.DataManagementCustodianDetailView.as_view(), name ="dm_custodian_detail" ),
     path('dm-admin/custodian/<int:person>/send-request-for-certification/', views.send_certification_request, name ="send_certification_email" ),
+    path('dm-admin/published-resource-list/', views.PublishedResourcesListView.as_view(), name ="dm_published_list" ),
+    path('dm-admin/flagged/<str:flag_type>/', views.FlaggedListView.as_view(), name ="dm_flagged_list" ),
+
+    ## SECTIONS
+    path('my-section/', views.MySectionDetailView.as_view(), name ="my_section_detail" ),
+    path('dm-admin/sections/list/', views.SectionListView.as_view(), name ="dm_section_list" ),
+    path('dm-admin/sections/detail/<int:pk>/', views.SectionDetailView.as_view(), name ="dm_section_detail" ),
+    path('dm-admin/sections/edit/<int:pk>/', views.SectionUpdateView.as_view(), name ="dm_section_edit" ),
+    path('dm-admin/sections/delete/<int:pk>/', views.SectionDeleteView.as_view(), name ="dm_section_delete" ),
+    path('dm-admin/sections/new/', views.SectionCreateView.as_view(), name ="dm_section_new" ),
+    path('dm-admin/sections/<int:section>/send-section-report/', views.send_section_report, name ="send_section_report_email" ),
+
 
     # RESOURCE CERTIFICATION #
     ##########################

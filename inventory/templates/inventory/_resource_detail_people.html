@@ -1,9 +1,29 @@
 <ul>
   {% for item in object.resource_people.all %}
   <li><a href="{% url 'inventory:resource_person_edit' item.id %}">{{item.person.user.first_name}} {{item.person.user.last_name}} - {{item.role}}</a>&nbsp;
-    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="remove person from record">
-      <a href="{% url 'inventory:resource_person_delete' item.id %}" class="red-font">&times;</a>
-    </span>
+    {% if item.role.id == 1 %}
+      {% if custodian_count <= 1 %}
+
+      <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cannot delete a sole custodian. Add a new custodian before removing.">
+        &times
+        {# if there is only one custodian, do not delete #}
+      </span>
+
+      {% else %}
+
+      <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="remove person from record">
+        {# if there is only one custodian, do not delete #}
+        <a href="{% url 'inventory:resource_person_delete' item.id %}" class="red-font">&times;</a>
+      </span>
+
+      {% endif %}
+    {% else %}
+      <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="remove person from record">
+        {# if there is only one custodian, do not delete #}
+        <a href="{% url 'inventory:resource_person_delete' item.id %}" class="red-font">&times;</a>
+      </span>
+    {% endif %}
+
   </li>
   {% empty %}
   <em>No people</em>

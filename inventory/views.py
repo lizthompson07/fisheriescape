@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
@@ -81,6 +81,7 @@ class ResourceDetailView(DetailView):
         context['kcount_cst'] = self.object.keywords.filter(keyword_domain_id__exact=6).count()
         context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
         context['kcount_loc'] = self.object.keywords.filter(keyword_domain_id__exact=7).count()
+        context['custodian_count'] = self.object.resource_people.filter(role=1).count()
         verified = False
         if "<ul />" in xml_export.verify(self.object):
             verified = True
@@ -246,6 +247,26 @@ class ResourcePersonCreateView(LoginRequiredMixin, CreateView):
         context['person']= person
         return context
 
+    def form_valid(self, form):
+        object = form.save()
+
+        #if the person is being added as a custodian
+        if object.role.id == 1:
+            print("123")
+
+            email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
+            # send the email object
+            if settings.MY_ENVR != 'dev':
+                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+            else:
+                print('not sending email since in dev mode')
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+            messages.success(self.request, '{} has been added as {} and a notification email has been sent to them!'.format(object.person.full_name, object.role))
+        else:
+            messages.success(self.request, '{} has been added as {}!'.format(object.person.full_name, object.role))
+
+        return super().form_valid(form)
+
 class ResourcePersonUpdateView(LoginRequiredMixin, UpdateView):
     model = models.ResourcePerson
     template_name ='inventory/resource_person_form.html'
@@ -267,7 +288,6 @@ class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('inventory:resource_detail', kwargs={'pk':self.object.resource.id})
-
 
 # PERSON #
 ##########
@@ -668,6 +688,8 @@ def export_resource_xml(request, resource, publish):
 
     if publish == "yes":
         my_resource.fgp_publication_date = timezone.now()
+        my_resource.flagged_4_publication = False
+
         my_resource.save()
 
     # Create the HttpResponse object
@@ -692,7 +714,19 @@ class DataManagementHomeTemplateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        published_records = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
+        context["published_records"] = published_records
+
+        flagged_4_deletion = models.Resource.objects.filter(flagged_4_deletion=True).count()
+        context["flagged_4_deletion"] = flagged_4_deletion
+
+        flagged_4_publication = models.Resource.objects.filter(flagged_4_publication=True).count()
+        context["flagged_4_publication"] = flagged_4_publication
+
         return context
+
+
 
 class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
     login_url = '/accounts/login_required/'
@@ -700,7 +734,7 @@ class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = models.ResourcePerson.objects.filter(role=1).order_by("person")
+        queryset = models.ResourcePerson.objects.filter(role=1).order_by("person__user__last_name","person__user__first_name" )
 
         # retain only the unique items, and keep them in order according to keys (cannot use a set for this reason)
         custodian_dict = OrderedDict()
@@ -714,6 +748,9 @@ class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
 
         context['custodian_list'] = custodian_list
         context['custodian_count'] = len(custodian_list)
+
+        context['now'] = timezone.now()
+
         return context
 
 class DataManagementCustodianDetailView(LoginRequiredMixin, DetailView):
@@ -742,11 +779,169 @@ def send_certification_request(request, person):
         send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
     else:
         print('not sending email since in dev mode')
+        print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+
 
     my_person.user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
     return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk':my_person.user_id}))
 
+
+class PublishedResourcesListView(LoginRequiredMixin, ListView):
+    template_name = "inventory/dm_published_resource.html"
+    queryset = models.Resource.objects.filter(fgp_publication_date__isnull=False)
+
+
+class FlaggedListView(LoginRequiredMixin, ListView):
+    template_name = "inventory/dm_flagged_list.html"
+
+    def get_queryset(self):
+        if self.kwargs["flag_type"] == "publication":
+            queryset = models.Resource.objects.filter(flagged_4_publication=True)
+        elif self.kwargs["flag_type"] == "deletion":
+            queryset = models.Resource.objects.filter(flagged_4_deletion=True)
+        return queryset
+
+
+## SECTIONS
+
+class SectionListView(LoginRequiredMixin, ListView):
+    template_name = "inventory/dm_section_list.html"
+    queryset = models.Section.objects.all().order_by("branch","division","section")
+
+class SectionDetailView(LoginRequiredMixin, DetailView):
+    template_name = "inventory/dm_section_detail.html"
+    model = models.Section
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        email = emails.SectionReportEmail(self.object.unit_head,  self.object)
+        context['email'] = email
+        context['now'] = timezone.now()
+        return context
+
+
+def send_section_report(request, section):
+    # grab a copy of the resource
+    my_section = models.Section.objects.get(pk=section)
+    my_person = my_section.unit_head
+    # create a new email object
+    email = emails.SectionReportEmail(my_person, my_section)
+    # send the email object
+    if settings.MY_ENVR != 'dev':
+        send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+    else:
+        print('not sending email since in dev mode')
+        print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+
+
+    models.Correspondence.objects.create(custodian = my_person.user,  subject = "Section head report")
+    messages.success(request, "the email has been sent and the correspondence has been logged!")
+    return HttpResponseRedirect(reverse('inventory:dm_section_detail', kwargs={'pk':section}))
+
+
+class SectionUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "inventory/dm_section_form.html"
+    model = models.Section
+    fields = "__all__"
+
+    def form_valid(self, form):
+
+        # get instance of group
+        my_group = Group.objects.get(id=7)
+
+        # remove all users from group
+        for u in User.objects.filter(groups__name='inventory_section_head'):
+            my_group.user_set.remove(u)
+
+        #re-add section head users to group
+        for s in models.Section.objects.all():
+            if s.unit_head:
+                my_group.user_set.add(s.unit_head.user)
+
+        #make sure admin users have access to the view
+        for u in User.objects.filter(is_superuser = True):
+            my_group.user_set.add(u)
+
+        return super().form_valid(form)
+
+class SectionDeleteView(LoginRequiredMixin, DeleteView):
+    template_name = "inventory/dm_section_confirm_delete.html"
+    model = models.Section
+    success_url = reverse_lazy("inventory:dm_section_list")
+
+class SectionCreateView(LoginRequiredMixin, CreateView):
+    template_name = "inventory/dm_section_form.html"
+    model = models.Section
+    fields = "__all__"
+
+    def form_valid(self, form):
+        object = form.save()
+        # get instance of group
+        my_group = Group.objects.get(id=7)
+
+        # remove all users from group
+        for u in User.objects.filter(groups__name='inventory_section_head'):
+            my_group.user_set.remove(u)
+
+        #re-add section head users to group
+        for s in models.Section.objects.all():
+            if s.unit_head:
+                my_group.user_set.add(s.unit_head.user)
+
+        #make sure admin users have access to the view
+        for u in User.objects.filter(is_superuser = True):
+            my_group.user_set.add(u)
+
+        return super().form_valid(form)
+
+class MySectionDetailView(LoginRequiredMixin, TemplateView):
+    template_name = "inventory/my_section_detail.html"
+    model = models.Section
+    login_url = '/accounts/login_required/'
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # grab the user
+        user_id = self.request.user.id
+        my_section = models.Section.objects.filter(unit_head_id = user_id).first()
+
+        resource_list = my_section.resources.all().order_by("title_eng")
+
+        ## NOTE if there is ever a need to have a person with two sections under them, this view will have to be modified so that a list of sections is returned to the user.
+        #Would simply have to remove the first() function from my_section
+
+        context['object'] = my_section
+        context['resource_list'] = resource_list
+        context['now'] = timezone.now()
+
+        certified_within_year = 0
+        certified_within_6_months = 0
+        for r in my_section.resources.all():
+            try:
+                days_elapsed = (timezone.now()-r.certification_history.order_by("-certification_date").first().certification_date).days
+            except Exception as e:
+                print(e)
+            else:
+                if days_elapsed < 183: # six months
+                    certified_within_6_months = certified_within_6_months +1
+                    certified_within_year = certified_within_year +1
+                elif days_elapsed < 365:
+                    certified_within_year = certified_within_year +1
+
+        context['certified_within_6_months'] = certified_within_6_months
+        context['certified_within_year'] = certified_within_year
+
+        published_on_fgp = 0
+        for r in my_section.resources.all():
+            if r.fgp_publication_date: # six months
+                published_on_fgp = published_on_fgp +1
+
+        context['published_on_fgp'] = published_on_fgp
+
+        return context
 
 # RESOURCE CERTIFICATION #
 ##########################
