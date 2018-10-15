@@ -23,6 +23,16 @@
 {% block left_auth %}
   <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}"> Full Inventory </a></li>
   <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_resource_list' %}"> My Items </a></li>
+
+  {% for group in user.groups.all %}
+    {% if group.name == "inventory_section_head"   %}
+      <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a></li>
+    {% endif %}
+
+  {% endfor %}
+
+
+
 {% endblock left_auth %}
 {% block left_admin %}
   <li class="nav-item"><a class="nav-link" href="{% url 'inventory:dm_home' %}"> DM Admin </a></li>
