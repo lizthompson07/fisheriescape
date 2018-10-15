@@ -1004,38 +1004,39 @@ class MySectionDetailView(LoginRequiredMixin, TemplateView):
         user_id = self.request.user.id
         my_section = models.Section.objects.filter(unit_head_id = user_id).first()
 
-        resource_list = my_section.resources.all().order_by("title_eng")
+        if my_section:
+            resource_list = my_section.resources.all().order_by("title_eng")
+            context['resource_list'] = resource_list
 
-        ## NOTE if there is ever a need to have a person with two sections under them, this view will have to be modified so that a list of sections is returned to the user.
-        #Would simply have to remove the first() function from my_section
+            ## NOTE if there is ever a need to have a person with two sections under them, this view will have to be modified so that a list of sections is returned to the user.
+            #Would simply have to remove the first() function from my_section
 
-        context['object'] = my_section
-        context['resource_list'] = resource_list
-        context['now'] = timezone.now()
+            context['object'] = my_section
+            context['now'] = timezone.now()
 
-        certified_within_year = 0
-        certified_within_6_months = 0
-        for r in my_section.resources.all():
-            try:
-                days_elapsed = (timezone.now()-r.certification_history.order_by("-certification_date").first().certification_date).days
-            except Exception as e:
-                print(e)
-            else:
-                if days_elapsed < 183: # six months
-                    certified_within_6_months = certified_within_6_months +1
-                    certified_within_year = certified_within_year +1
-                elif days_elapsed < 365:
-                    certified_within_year = certified_within_year +1
+            certified_within_year = 0
+            certified_within_6_months = 0
+            for r in my_section.resources.all():
+                try:
+                    days_elapsed = (timezone.now()-r.certification_history.order_by("-certification_date").first().certification_date).days
+                except Exception as e:
+                    print(e)
+                else:
+                    if days_elapsed < 183: # six months
+                        certified_within_6_months = certified_within_6_months +1
+                        certified_within_year = certified_within_year +1
+                    elif days_elapsed < 365:
+                        certified_within_year = certified_within_year +1
 
-        context['certified_within_6_months'] = certified_within_6_months
-        context['certified_within_year'] = certified_within_year
+            context['certified_within_6_months'] = certified_within_6_months
+            context['certified_within_year'] = certified_within_year
 
-        published_on_fgp = 0
-        for r in my_section.resources.all():
-            if r.fgp_publication_date: # six months
-                published_on_fgp = published_on_fgp +1
+            published_on_fgp = 0
+            for r in my_section.resources.all():
+                if r.fgp_publication_date: # six months
+                    published_on_fgp = published_on_fgp +1
 
-        context['published_on_fgp'] = published_on_fgp
+            context['published_on_fgp'] = published_on_fgp
 
         return context
 
