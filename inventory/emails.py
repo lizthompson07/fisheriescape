@@ -97,3 +97,20 @@ class AddedAsCustodianEmail:
         }
         rendered = t.render(context)
         return rendered
+
+class RemovedAsCustodianEmail:
+
+    def __init__(self, object, user):
+        self.subject = 'You have been removed as a custodian'
+        self.message = self.load_html_template(object,user)
+        self.from_email = from_email
+        self.to_list = [user.email,]
+
+    def load_html_template(self, object,user):
+        t = loader.get_template('inventory/email_removed_as_custodian.html')
+        context ={
+            'object': object,
+            'user': user,
+        }
+        rendered = t.render(context)
+        return rendered
