@@ -46,13 +46,13 @@ def port_sample_tests(sample):
 
 def lab_sample_tests(fish_detail):
     quality_control.run_data_point_tests(fish_detail, field_name="fish_length")
-    quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
-    quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
-    quality_control.run_test_202(fish_detail,"lab_sample")
-    quality_control.run_test_203(fish_detail,"lab_sample")
-    quality_control.run_test_204(fish_detail,"lab_sample")
-    quality_control.run_test_207(fish_detail,"lab_sample")
-    quality_control.run_test_208(fish_detail,"lab_sample")
+    # quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
+    # quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
+    # quality_control.run_test_202(fish_detail,"lab_sample")
+    # quality_control.run_test_203(fish_detail,"lab_sample")
+    # quality_control.run_test_204(fish_detail,"lab_sample")
+    # quality_control.run_test_207(fish_detail,"lab_sample")
+    # quality_control.run_test_208(fish_detail,"lab_sample")
 
 # PORT SAMPLE #
 ###############
@@ -269,6 +269,7 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
         context = super().get_context_data(**kwargs)
         # run the quality test on loading the data
         lab_sample_tests(self.object)
+
         # determine the progress of data entry
         ## there are 6 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
         progress = 0
