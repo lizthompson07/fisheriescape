@@ -271,6 +271,23 @@ class ResourcePersonUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/accounts/login_required/'
     form_class = forms.ResourcePersonForm
 
+    def form_valid(self, form):
+        object = form.save()
+
+        #if the person is being added as a custodian
+        if object.role.id == 1:
+            email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
+            # send the email object
+            if settings.MY_ENVR != 'dev':
+                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+            else:
+                print('not sending email since in dev mode')
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+            messages.success(self.request, '{} has been added as {} and a notification email has been sent to them!'.format(object.person.full_name, object.role))
+        else:
+            messages.success(self.request, '{} has been added as {}!'.format(object.person.full_name, object.role))
+
+        return super().form_valid(form)
 
 class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
     model = models.ResourcePerson
@@ -877,7 +894,7 @@ class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
         old_person.user.last_name = last_name
         old_person.user.email = email
         old_person.user.username = email
-        
+
         old_person.position_eng = position_eng
         old_person.position_fre = position_fre
         old_person.phone = phone
