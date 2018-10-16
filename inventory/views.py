@@ -425,6 +425,7 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
         old_person.user.first_name = first_name
         old_person.user.last_name = last_name
         old_person.user.email = email
+        old_person.user.username = email
 
         old_person.position_eng = position_eng
         old_person.position_fre = position_fre
@@ -875,7 +876,8 @@ class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
         old_person.user.first_name = first_name
         old_person.user.last_name = last_name
         old_person.user.email = email
-
+        old_person.user.username = email
+        
         old_person.position_eng = position_eng
         old_person.position_fre = position_fre
         old_person.phone = phone
