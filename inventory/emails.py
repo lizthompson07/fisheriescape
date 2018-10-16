@@ -14,7 +14,8 @@ class CertificationRequestEmail:
         self.subject = 'Your metadata inventory'
         self.message = self.load_html_template()
         self.from_email = admin_email
-        self.to_list = [person_object.user.email,]
+        self.to_list = [person_object.user.email, admin_email]
+        # self.cc_list = [admin_email,]
 
     def load_html_template(self):
         t = loader.get_template('inventory/email_certification_request.html')
@@ -34,7 +35,7 @@ class SectionReportEmail:
         self.subject = "Your Section's Data Inventory"
         self.message = self.load_html_template()
         self.from_email = admin_email
-        self.to_list = [person_object.user.email,]
+        self.to_list = [person_object.user.email,admin_email]
 
     def load_html_template(self):
         t = loader.get_template('inventory/email_section_head_report.html')

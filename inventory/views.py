@@ -809,7 +809,7 @@ def send_certification_request(request, person):
     email = emails.CertificationRequestEmail(my_person)
     # send the email object
     if settings.MY_ENVR != 'dev':
-        send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+        send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list, fail_silently=False,)
     else:
         print('not sending email since in dev mode')
         print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
