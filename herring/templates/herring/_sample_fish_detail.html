@@ -38,11 +38,15 @@
             </a>
           </td>
           <td align="center">
-            {% if d.otolith_processed_date%}
-            <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
-            {% else %}
-            <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+            {% if d.lab_processed_date%}
+
+              {% if d.otolith_processed_date%}
+              <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+              {% else %}
+              <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+              {% endif %}
             {% endif %}
+
           </td>
 
         </tr>

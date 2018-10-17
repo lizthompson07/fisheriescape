@@ -369,7 +369,7 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
 # Otolith
 
 class OtolithUpdateView(LoginRequiredMixin,UpdateView):
-    template_name = 'herring/lab_sample_form.html'
+    template_name = 'herring/otolith_form.html'
     model = models.FishDetail
     form_class = forms.OtolithForm
     login_url = '/accounts/login_required/'
@@ -377,7 +377,7 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # run the quality test on loading the data
-        my_dict = lab_sample_tests(self.object)
+        # my_dict = lab_sample_tests(self.object)
 
         # determine the progress of data entry
         ## there are 6 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
@@ -402,19 +402,17 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
         context['progress'] = progress
         context['total_tests'] = total_tests
 
-        qc_feedback_json = json.dumps(my_dict)
+        # qc_feedback_json = json.dumps(my_dict)
 
         # send JSON file to template so that it can be used by js script
-        context['qc_feedback_json'] = qc_feedback_json
+        # context['qc_feedback_json'] = qc_feedback_json
 
 
 
         # pass in a variable to help determine if the record is complete from a QC point of view
         ## Should be able to make this assessment via the global tests
 
-        context['test_201'] = self.object.sample_tests.filter(test_id=201).first().test_passed
-
-
+        # context['test_201'] = self.object.sample_tests.filter(test_id=201).first().test_passed
 
         return context
 
