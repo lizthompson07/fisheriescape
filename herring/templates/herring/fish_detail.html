@@ -19,6 +19,7 @@
   <br>
   <div class="btn-group">
     <a class="btn btn-warning" href="{% url 'herring:fish_update' object.sample.id object.id %}">Edit</a>
+    <a class="btn btn-primary" href="{% url 'herring:lab_sample_form' object.sample.id object.id %}">Data Entry Mode</a>
     <a class="btn btn-danger" href="{% url 'herring:fish_delete' object.sample.id object.id %}">Delete</a>
   </div>
 
