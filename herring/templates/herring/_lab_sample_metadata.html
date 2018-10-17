@@ -1,41 +1,33 @@
 <p>
+  <style media="screen">
+    .value{
+      font-weight: bold;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+  </style>
+
   <h4>Metadata:</h4>
+
   <div class="row">
     <div class="col">
-      <table class="table table-sm table-bordered">
-        <tr>
-          <td>
-            <b>Fish ID:</b>
-          </td>
-          <td>
-            {{object.id}}
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>Fish number:</b>
-          </td>
-          <td>
-            {{object.fish_number}}
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>Sample:</b>
-          </td>
-          <td>
-            {{object.sample.id}} collected by [{{object.sample.sampler}}] on {{object.last_modified_date|date:"F m, Y"}}
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>Sampler's ref. no.:</b>
-          </td>
-          <td>
-            {{object.sample.sampler_ref_number}}
-          </td>
-        </tr>
-      </table>
+      <p>
+        <span class="label">Fish ID:</span>
+        <span class="value">{{object.id}}</span> <br>
+
+        <span class="label">Fish number:</span>
+        <span class="value">{{object.fish_number}}</span> <br>
+
+        <span class="label">Sample number:</span>
+        <span class="value">{{object.sample.id}}</span> <br>
+
+        <span class="label">Collected by:</span>
+        <span class="value">{{object.sample.sampler.first_name}} {{object.sample.sampler.last_name}} on {{object.last_modified_date|date:"F m, Y"}}</span> <br>
+
+        <span class="label">Sampler's ref. no.: </span>
+        <span class="value">{{object.sample.sampler_ref_number}}</span> <br>
+      </p>
+
     </div>
   </div>
 </p>

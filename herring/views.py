@@ -39,10 +39,10 @@ class CloserTemplateView(TemplateView):
 #     return HttpResponseRedirect(reverse('herring:port_sample_detail', kwargs={"pk":sample}))
 
 def port_sample_tests(sample):
-    quality_control.run_test_202(sample,"port_sample")
-    quality_control.run_test_205(sample,"port_sample")
-    quality_control.run_test_231(sample,"port_sample")
-    quality_control.run_test_232(sample,"port_sample")
+    quality_control.run_test_mandatory_fields(sample,"port_sample")
+    quality_control.run_test_205(sample)
+    quality_control.run_test_231(sample)
+    quality_control.run_test_232(sample)
 
 
 def lab_sample_tests(fish_detail):
@@ -50,12 +50,23 @@ def lab_sample_tests(fish_detail):
     my_dict["fish_length"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_length")
     my_dict["fish_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
     my_dict["gonad_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
-    quality_control.run_test_202(fish_detail,"lab_sample")
-    quality_control.run_test_203(fish_detail,"lab_sample")
-    my_dict["global_204"] = quality_control.run_test_204(fish_detail,"lab_sample")
-    my_dict["global_207"] = quality_control.run_test_207(fish_detail,"lab_sample")
-    quality_control.run_test_208(fish_detail,"lab_sample")
-    quality_control.run_test_201(fish_detail,"lab_sample")
+    quality_control.run_test_mandatory_fields(fish_detail,"lab_sample")
+    quality_control.run_test_possible_range(fish_detail,"lab_sample")
+    my_dict["global_204"] = quality_control.run_test_204(fish_detail)
+    my_dict["global_207"] = quality_control.run_test_207(fish_detail)
+    quality_control.run_test_improbable_accepted(fish_detail,"lab_sample")
+    quality_control.run_test_qc_passed(fish_detail,"lab_sample")
+
+    return my_dict
+
+def otolith_tests(fish_detail):
+    my_dict = {}
+    my_dict["annulus_count"] = quality_control.run_data_point_tests(fish_detail, field_name="annulus_count")
+    quality_control.run_test_mandatory_fields(fish_detail,"otolith") # mandatory fields
+    quality_control.run_test_possible_range(fish_detail,"otolith") # possible range
+    my_dict["global_209"] = quality_control.run_test_209(fish_detail) # annulus_count length ratio
+    quality_control.run_test_improbable_accepted(fish_detail,"otolith") # improbable obs accepted
+    quality_control.run_test_qc_passed(fish_detail,"otolith") # all tests passed
 
     return my_dict
 
@@ -377,49 +388,39 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # run the quality test on loading the data
-        # my_dict = lab_sample_tests(self.object)
+        my_dict = otolith_tests(self.object)
 
         # determine the progress of data entry
-        ## there are 6 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
+        ## there are 2 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
         progress = 0
-        if self.object.fish_length:
+        if self.object.annulus_count:
             progress = progress + 1
-        if self.object.fish_weight:
+        if self.object.otolith_season:
             progress = progress + 1
-        if self.object.sex:
-            progress = progress + 1
-        if self.object.maturity:
-            progress = progress + 1
-        if self.object.gonad_weight != None:
-            progress = progress + 1
-        if self.object.sample.sampling_protocol.sampling_type == 2:
-            if self.object.parasite != None:
-                progress = progress + 1
-            total_tests = 6
-        else:
-            total_tests = 5
+
+        total_tests = 2
 
         context['progress'] = progress
         context['total_tests'] = total_tests
 
-        # qc_feedback_json = json.dumps(my_dict)
+        qc_feedback_json = json.dumps(my_dict)
 
         # send JSON file to template so that it can be used by js script
-        # context['qc_feedback_json'] = qc_feedback_json
+        context['qc_feedback_json'] = qc_feedback_json
 
 
 
         # pass in a variable to help determine if the record is complete from a QC point of view
         ## Should be able to make this assessment via the global tests
 
-        # context['test_201'] = self.object.sample_tests.filter(test_id=201).first().test_passed
+        context['test_200'] = self.object.sample_tests.filter(test_id=200).first().test_passed
 
         return context
 
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,
-            'lab_sampler': self.request.user,
+            'otolith_sampler': self.request.user,
             }
 
     def form_valid(self, form):
@@ -437,6 +438,6 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
 
             my_test.accepted = True
             my_test.save()
-        return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
+        return HttpResponseRedirect(reverse("herring:otolith_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.

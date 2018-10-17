@@ -123,6 +123,26 @@ def run_global_ratio_test(object_test, is_accepted):
         else:
             stop = True
 
+    elif object_test.test.id == 209:
+        if object_test.fish_detail.fish_length and object_test.fish_detail.annulus_count:
+            independent = object_test.fish_detail.fish_length
+            dependent = object_test.fish_detail.annulus_count
+            independent_name = object_test.fish_detail._meta.get_field("fish_length").verbose_name
+            dependent_name = object_test.fish_detail._meta.get_field("annulus_count").verbose_name
+            min = (-14.3554448587879 + 6.34008000506408E-02 * independent)
+            max = (-10.1477660949041 + 6.33784283545123E-02 * independent)
+
+            msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
+                independent_name,
+                dependent_name,
+                independent_name,
+                dependent_name,
+                min,
+                max,
+            )
+
+        else:
+            stop = True
     else:
         stop = True
 
@@ -149,7 +169,7 @@ def run_global_ratio_test(object_test, is_accepted):
 
 
 
-def run_test_202(object, object_type): # All mandatory fields complete
+def run_test_mandatory_fields(object, object_type): # All mandatory fields complete
     if object_type == "port_sample":
         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
         models.SampleTest.objects.filter(sample_id=object.id, test_id=202).delete()
@@ -166,9 +186,9 @@ def run_test_202(object, object_type): # All mandatory fields complete
         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=202).delete()
 
         # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=202,field_name=' global', test_passed=False)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=202,field_name=' global', test_passed=False, scope=1)
 
-        if object.fish_length and object.fish_weight and object.sex and object.maturity and object.gonad_weight != None:
+        if object.lab_sampler and object.fish_length and object.fish_weight and object.sex and object.maturity and object.gonad_weight != None:
             if object.sample.sampling_protocol.sampling_type == 2: # parasite assessment is only needed for at-sea samples
                 if object.parasite:
                     test.test_passed = True
@@ -177,14 +197,41 @@ def run_test_202(object, object_type): # All mandatory fields complete
 
             test.save()
 
-def run_test_203(object, object_type): # All data points are within their possible range
+    elif object_type == "otolith":
+        # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+        models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=206).delete()
+
+        # CREATE BLANK TESTS IN SAMPLETEST
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=206,field_name=' global', test_passed=False, scope=2)
+
+        if object.otolith_sampler and object.otolith_season and object.annulus_count:
+            test.test_passed = True
+            test.save()
+
+def run_test_possible_range(object, object_type): # All data points are within their possible range
     if object_type == "lab_sample":
         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=203).delete()
 
         # CREATE BLANK TESTS IN SAMPLETEST
         # and start off optimistic
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=203,field_name=' global', test_passed=True)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=203,field_name=' global', test_passed=True, scope=1)
+
+        # grab all test 22s related to sample
+        test22s = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=22, scope=1)
+        for t in test22s:
+            if not t.test_passed:
+                test.test_passed = False
+                test.save()
+                break
+
+    elif object_type == "otolith":
+        # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+        models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=210).delete()
+
+        # CREATE BLANK TESTS IN SAMPLETEST
+        # and start off optimistic
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=210,field_name=' global', test_passed=True, scope=2)
 
         # grab all test 22s related to sample
         test22s = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=22)
@@ -194,41 +241,54 @@ def run_test_203(object, object_type): # All data points are within their possib
                 test.save()
                 break
 
-def run_test_204(object, object_type): # fish length to weight
-    if object_type == "lab_sample":
+def run_test_204(object): # fish length to weight
+    # first determine if test 204 has been accepted
+    try:
+        is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=204).first().accepted
+    except Exception as e:
+        print(e)
+        is_accepted = None
 
-        # first determine if test 204 has been accepted
-        try:
-            is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=204).first().accepted
-        except Exception as e:
-            print(e)
-            is_accepted = None
+    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+    models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=204).delete()
 
-        # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-        models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=204).delete()
+    # CREATE BLANK TESTS IN SAMPLETEST
+    test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=204,field_name=' global', test_passed=False, scope=1)
+    return run_global_ratio_test(test, is_accepted)
 
-        # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=204,field_name=' global', test_passed=False)
-        return run_global_ratio_test(test, is_accepted)
+def run_test_207(object): # gonad weight, somatic weight and maturity level
+    # first determine if test 207 has been accepted
+    try:
+        is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).first().accepted
+    except Exception as e:
+        print(e)
+        is_accepted = None
 
-def run_test_207(object, object_type): # gonad weight, somatic weight and maturity level
-    if object_type == "lab_sample":
-        # first determine if test 204 has been accepted
-        try:
-            is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).first().accepted
-        except Exception as e:
-            print(e)
-            is_accepted = None
+    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+    models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).delete()
 
-        # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-        models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).delete()
-
-        # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=207,field_name=' global', test_passed=False)
-        return run_global_ratio_test(test, is_accepted)
+    # CREATE BLANK TESTS IN SAMPLETEST
+    test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=207,field_name=' global', test_passed=False, scope=1)
+    return run_global_ratio_test(test, is_accepted)
 
 
-def run_test_208(object, object_type): # all improbable observations been accepted
+def run_test_209(object): # fish length, annulus count
+    # first determine if test 209 has been accepted
+    try:
+        is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=209).first().accepted
+    except Exception as e:
+        print(e)
+        is_accepted = None
+
+    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+    models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=209).delete()
+
+    # CREATE BLANK TESTS IN SAMPLETEST
+    test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=209,field_name=' global', test_passed=False, scope=2)
+    return run_global_ratio_test(test, is_accepted)
+
+
+def run_test_improbable_accepted(object, object_type): # all improbable observations been accepted
     # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 204 AND 207
     if object_type == "lab_sample":
         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
@@ -236,7 +296,7 @@ def run_test_208(object, object_type): # all improbable observations been accept
 
         # CREATE BLANK TESTS IN SAMPLETEST
         # and start off optimistic
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=208,field_name=' global', test_passed=True)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=208,field_name=' global', test_passed=True, scope=1)
 
         # grab all test related to fish detail
         fish_detail_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id)
@@ -246,7 +306,23 @@ def run_test_208(object, object_type): # all improbable observations been accept
                 test.save()
                 break
 
-def run_test_201(object, object_type): # all quality control tests have been passed
+    elif object_type == "otolith":
+        # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+        models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=211).delete()
+
+        # CREATE BLANK TESTS IN SAMPLETEST
+        # and start off optimistic
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=211,field_name=' global', test_passed=True, scope=2)
+
+        # grab all test related to fish detail
+        fish_detail_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id)
+        for t in fish_detail_tests: # kEEP IN MIND THIS WILL INCLUDE OTOLITH SAMPLE TESTS
+            if t.accepted == False:
+                test.test_passed = False
+                test.save()
+                break
+
+def run_test_qc_passed(object, object_type): # all quality control tests have been passed
     # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 202 (mandatory fields), 203 (possible range), 208 (accepted improbable obsverations)
     if object_type == "lab_sample":
         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
@@ -254,7 +330,7 @@ def run_test_201(object, object_type): # all quality control tests have been pas
 
         # CREATE BLANK TESTS IN SAMPLETEST
         # and start off optimistic
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=201,field_name=' global', test_passed=True)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=201,field_name=' global', test_passed=True, scope=1)
 
         # grab all test related to fish detail
         fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=202) | Q(test_id=203) | Q(test_id=208) )
@@ -265,57 +341,71 @@ def run_test_201(object, object_type): # all quality control tests have been pas
                 test.save()
                 break
 
-
-def run_test_205(object, object_type): # sum of declared samples = sum from length frq count
-    if object_type == "port_sample":
+    elif object_type == "otolith":
         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-        models.SampleTest.objects.filter(sample_id=object.id, test_id=205).delete()
+        models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=200).delete()
+
         # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.SampleTest.objects.create(sample_id=object.id,test_id=205,test_passed=False)
+        # and start off optimistic
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=200,field_name=' global', test_passed=True, scope=2)
 
-        # get list of counts
-        count_list = []
-        for obj in object.length_frequency_objects.all():
-            count_list.append(obj.count)
-        # add the sum as context
-        count_sum = sum(count_list)
+        # grab all test related to fish detail
+        fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=211) | Q(test_id=206) | Q(test_id=210) )
 
-        if count_sum == object.total_fish_measured:
-            test.test_passed = True
-            test.save()
+        for t in fish_detail_global_tests: # Only looking at the tests of interest
+            if t.test_passed == False:
+                test.test_passed = False
+                test.save()
+                break
 
-def run_test_231(object, object_type): # all lab samples processed
-    if object_type == "port_sample":
-        # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-        models.SampleTest.objects.filter(sample_id=object.id, test_id=231).delete()
-        # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.SampleTest.objects.create(sample_id=object.id,test_id=231,test_passed=False)
-        # resave each fish detail record to run through fishdetail save method
-        for fishy in object.fish_details.all():
-            fishy.save()
-        # resave the sample instance to run thought sample save method
-        object.save()
-        # now conduct the test
-        if object.lab_processing_complete == True:
-            test.test_passed = True
-            test.save()
 
-def run_test_232(object, object_type): # all lab samples processed
-    if object_type == "port_sample":
-        # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-        models.SampleTest.objects.filter(sample_id=object.id, test_id=232).delete()
-        # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.SampleTest.objects.create(sample_id=object.id,test_id=232,test_passed=False)
+def run_test_205(object): # sum of declared samples = sum from length frq count
+    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+    models.SampleTest.objects.filter(sample_id=object.id, test_id=205).delete()
+    # CREATE BLANK TESTS IN SAMPLETEST
+    test = models.SampleTest.objects.create(sample_id=object.id,test_id=205,test_passed=False)
 
-        # resave each fish detail record to run through fishdetail save method
-        for fishy in object.fish_details.all():
-            fishy.save()
-        # resave the sample instance to run thought sample save method
-        object.save()
-        # now conduct the test
-        if object.otolith_processing_complete == True:
-            test_232.test_passed = True
-            test_232.save()
+    # get list of counts
+    count_list = []
+    for obj in object.length_frequency_objects.all():
+        count_list.append(obj.count)
+    # add the sum as context
+    count_sum = sum(count_list)
+
+    if count_sum == object.total_fish_measured:
+        test.test_passed = True
+        test.save()
+
+def run_test_231(object): # all lab samples processed
+    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+    models.SampleTest.objects.filter(sample_id=object.id, test_id=231).delete()
+    # CREATE BLANK TESTS IN SAMPLETEST
+    test = models.SampleTest.objects.create(sample_id=object.id,test_id=231,test_passed=False)
+    # resave each fish detail record to run through fishdetail save method
+    for fishy in object.fish_details.all():
+        fishy.save()
+    # resave the sample instance to run thought sample save method
+    object.save()
+    # now conduct the test
+    if object.lab_processing_complete == True:
+        test.test_passed = True
+        test.save()
+
+def run_test_232(object): # all lab samples processed
+    # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+    models.SampleTest.objects.filter(sample_id=object.id, test_id=232).delete()
+    # CREATE BLANK TESTS IN SAMPLETEST
+    test = models.SampleTest.objects.create(sample_id=object.id,test_id=232,test_passed=False)
+
+    # resave each fish detail record to run through fishdetail save method
+    for fishy in object.fish_details.all():
+        fishy.save()
+    # resave the sample instance to run thought sample save method
+    object.save()
+    # now conduct the test
+    if object.otolith_processing_complete == True:
+        test_232.test_passed = True
+        test_232.save()
 
 def run_data_point_tests(fish_detail, field_name):
     my_dict = {}
@@ -323,12 +413,16 @@ def run_data_point_tests(fish_detail, field_name):
     # parse field name
     if field_name == "fish_length":
         field = fish_detail.fish_length
+        scope = 1
     elif field_name == "fish_weight":
         field = fish_detail.fish_weight
+        scope = 1
     elif field_name == "gonad_weight":
         field = fish_detail.gonad_weight
+        scope = 1
     elif field_name == "annulus_count":
-        field = fish_detail.gonad_weight
+        field = fish_detail.annulus_count
+        scope = 2
     else:
         print("cannot parse field_name")
         stop = true
@@ -345,9 +439,9 @@ def run_data_point_tests(fish_detail, field_name):
         models.FishDetailTest.objects.filter(fish_detail_id=fish_detail.id, field_name=field_name).delete()
 
         # create test instance
-        test_21 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=21,test_passed=False, field_name=field_name)
-        test_22 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=22,test_passed=False, field_name=field_name)
-        test_23 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=23,test_passed=False, field_name=field_name)
+        test_21 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=21,test_passed=False, field_name=field_name, scope=scope)
+        test_22 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=22,test_passed=False, field_name=field_name, scope=scope)
+        test_23 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=23,test_passed=False, field_name=field_name, scope=scope)
 
         # RUN TESTS
         if field == None: # no value present; have to use this syntax otherwise a "0" value is excluded

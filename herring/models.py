@@ -128,15 +128,18 @@ class LengthBin(models.Model):
 
 class Test(models.Model):
     # Choices for sampling_type
-    POINT = 1
-    GLOBAL = 2
+    POINT = 'single_measurement'
+    LAB = 'lab_detail'
+    OTOLITH = 'otolith_detail'
 
     SCOPE_CHOICES = (
-        (GLOBAL,'Global'),
-        (POINT,'Data point'),
+        (LAB,'lab detail'),
+        (POINT,'single measurement'),
+        (OTOLITH,'otolith detail'),
     )
-    scope = models.IntegerField(choices=SCOPE_CHOICES)
+    scope = models.CharField(max_length=25, choices=SCOPE_CHOICES)
     description = models.CharField(max_length=255)
+    notes = models.CharField(max_length=1000, null=True, blank=True )
 
     def __str__(self):
         return str(self.id)
@@ -254,7 +257,7 @@ class FishDetail(models.Model):
     lab_processed_date = models.DateTimeField(blank=True, null=True)
     annulus_count = models.IntegerField(null=True, blank=True)
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
-    otolith_image = models.ImageField(blank=True, null=True, upload_to=img_file_name)
+    otolith_image_remote_filepath = models.CharField(max_length = 2000, blank=True, null=True)
     otolith_processed_date = models.DateTimeField(blank=True, null=True)
     remarks = models.TextField(null=True, blank=True)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
@@ -271,23 +274,17 @@ class FishDetail(models.Model):
 
     def save(self,*args,**kwargs):
         self.last_modified_date = timezone.now()
-        # print("{}{}{}{}{}".format(self.fish_length,  self.fish_weight , self.sex , self.maturity , self.gonad_weight))
         if self.fish_length and self.fish_weight and self.sex and self.maturity and self.gonad_weight != None and self.lab_sampler:
             if self.lab_processed_date == None:
                 self.lab_processed_date = timezone.now()
         else:
             self.lab_processed_date = None
-        if self.ager and self.annulus_count and self.otolith_season:
+        if self.otolith_sampler and self.annulus_count and self.otolith_season:
             if self.otolith_processed_date == None:
                 self.otolith_processed_date = timezone.now()
         else:
             self.otolith_processed_date = None
         super().save(*args,**kwargs)
-
-# class QualityFlag(models.Model):
-#     pass
-#
-#
 
 
 
@@ -326,9 +323,19 @@ class FishDetailTest(models.Model):
         (ANNULI,'annulus count'),
     )
 
+    # Choices for scope
+    LAB = 1
+    OTOLITH = 2
+
+    SCOPE_CHOICES = (
+        (LAB,' lab_detail'),
+        (OTOLITH,'otolith detail'),
+    )
+
     fish_detail = models.ForeignKey(FishDetail, on_delete=models.CASCADE, related_name='sample_tests')
     test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
     field_name = models.CharField(max_length=55, choices=FIELD_NAME_CHOICES)
+    scope = models.IntegerField(choices=SCOPE_CHOICES)
     test_passed = models.BooleanField(default = False)
     accepted = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
 
