@@ -13,6 +13,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.views import FilterView
 from django.utils import timezone
+import json
 from . import models
 from . import forms
 from . import filters
@@ -45,14 +46,18 @@ def port_sample_tests(sample):
 
 
 def lab_sample_tests(fish_detail):
-    quality_control.run_data_point_tests(fish_detail, field_name="fish_length")
-    # quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
-    # quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
-    # quality_control.run_test_202(fish_detail,"lab_sample")
-    # quality_control.run_test_203(fish_detail,"lab_sample")
-    # quality_control.run_test_204(fish_detail,"lab_sample")
-    # quality_control.run_test_207(fish_detail,"lab_sample")
-    # quality_control.run_test_208(fish_detail,"lab_sample")
+    my_dict = {}
+    my_dict["fish_length"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_length")
+    my_dict["fish_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
+    my_dict["gonad_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
+    quality_control.run_test_202(fish_detail,"lab_sample")
+    quality_control.run_test_203(fish_detail,"lab_sample")
+    my_dict["global_204"] = quality_control.run_test_204(fish_detail,"lab_sample")
+    my_dict["global_207"] = quality_control.run_test_207(fish_detail,"lab_sample")
+    quality_control.run_test_208(fish_detail,"lab_sample")
+    quality_control.run_test_201(fish_detail,"lab_sample")
+
+    return my_dict
 
 # PORT SAMPLE #
 ###############
@@ -223,6 +228,8 @@ class FishUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/fish_form.html'
     form_class = forms.FishForm
     model = models.FishDetail
+    login_url = '/accounts/login_required/'
+
 
     def get_initial(self):
         return {
@@ -240,8 +247,9 @@ class FishDeleteView(LoginRequiredMixin,DeleteView):
 
 # lab samples
 
-class LabSampleConfirmation(TemplateView):
+class LabSampleConfirmation(LoginRequiredMixin, TemplateView):
     template_name = 'herring/lab_sample_confirmation.html'
+    login_url = '/accounts/login_required/'
 
 
 def lab_sample_primer(request, sample):
@@ -264,11 +272,12 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/lab_sample_form.html'
     model = models.FishDetail
     form_class = forms.LabSampleForm
+    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # run the quality test on loading the data
-        lab_sample_tests(self.object)
+        my_dict = lab_sample_tests(self.object)
 
         # determine the progress of data entry
         ## there are 6 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
@@ -292,6 +301,21 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
 
         context['progress'] = progress
         context['total_tests'] = total_tests
+
+        qc_feedback_json = json.dumps(my_dict)
+
+        # send JSON file to template so that it can be used by js script
+        context['qc_feedback_json'] = qc_feedback_json
+
+
+
+        # pass in a variable to help determine if the record is complete from a QC point of view
+        ## Should be able to make this assessment via the global tests
+
+        context['test_201'] = self.object.sample_tests.filter(test_id=201).first().test_passed
+
+
+
         return context
 
     def get_initial(self):
@@ -303,6 +327,18 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         # port_sample_tests(self.object)
         object = form.save()
+        if form.cleaned_data["improbable_accepted"]:
+            field_name = form.cleaned_data["improbable_field"]
+            test_id = form.cleaned_data["improbable_test"]
+
+            # this means that an improbable measurement has been accepted.
+            if "global" in field_name:
+                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=test_id).first()
+            else:
+                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, field_name=field_name, test_id=test_id).first()
+
+            my_test.accepted = True
+            my_test.save()
         return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.

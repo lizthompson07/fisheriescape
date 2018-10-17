@@ -36,7 +36,7 @@
     {% if sample.lab_processing_complete %}
     <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_confirmation' object.id %}">Enter Lab Measurements</a>
     {% else %}
-    <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_setup' object.id %}">Enter Lab Measurements</a>
+    <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_primer' object.id %}">Enter Lab Measurements</a>
     {% endif %}
   </div>
 

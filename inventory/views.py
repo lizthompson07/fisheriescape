@@ -853,6 +853,9 @@ class FlaggedListView(LoginRequiredMixin, ListView):
             queryset = models.Resource.objects.filter(flagged_4_deletion=True)
         return queryset
 
+class CertificationListView(LoginRequiredMixin, ListView):
+    template_name = "inventory/dm_certification_list.html"
+    queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
 
 class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
     template_name = 'inventory/dm_custodian_form.html'

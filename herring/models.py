@@ -306,18 +306,18 @@ class SampleTest(models.Model):
 class FishDetailTest(models.Model):
 
     # Choices for field_name
-    GLOBAL = "global"
+    GLOBAL = " global"
     FISH_LEN = "fish_length"
     SOMATIC_WT = "fish_weight"
     GONAD_WT = "gonad_weight"
     ANNULI = "annulus_count"
 
     FIELD_NAME_CHOICES = (
-        (GLOBAL,'Global'),
-        (SOMATIC_WT,'Somatic weight'),
-        (GONAD_WT,'Gonad weight'),
-        (FISH_LEN,'Fish length'),
-        (ANNULI,'Annulus count'),
+        (GLOBAL,' global'),
+        (SOMATIC_WT,'somatic weight'),
+        (GONAD_WT,'gonad weight'),
+        (FISH_LEN,'fish length'),
+        (ANNULI,'annulus count'),
     )
 
     fish_detail = models.ForeignKey(FishDetail, on_delete=models.CASCADE, related_name='sample_tests')
