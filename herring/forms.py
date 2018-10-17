@@ -135,15 +135,15 @@ class OtolithForm(forms.ModelForm):
         # exclude = ["lab_processed_date", "otolith_processed_date"]
         fields = [
           "otolith_sampler",
-
           "annulus_count",
           "otolith_season",
-          "otolith_image",
-
+          "otolith_image_remote_filepath",
           "remarks",
           "last_modified_by",
         ]
-
+        labels = {
+            "otolith_image_remote_filepath":"Filepath to image"
+        }
         widgets = {
             "fish_length":forms.HiddenInput(),
             "fish_weight":forms.HiddenInput(),
@@ -151,15 +151,8 @@ class OtolithForm(forms.ModelForm):
             "maturity":forms.HiddenInput(),
             "gonad_weight":forms.HiddenInput(),
             "parasite":forms.HiddenInput(),
-            "remarks":forms.HiddenInput(),
-            "lab_sampler":forms.HiddenInput(),
+            "remarks":forms.Textarea(attrs={"rows":5}),
+            "otolith_sampler":forms.HiddenInput(),
             "last_modified_by":forms.HiddenInput(),
 
         }
-    # def clean_fish_length(self):
-    #     value = self.cleaned_data['fish_length']
-    #     print(str(value) + " is the value")
-    #     if value == 1:
-    #         print("hera!")
-    #         raise forms.ValidationError("bullshit!!")
-    #     return value

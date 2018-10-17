@@ -39,12 +39,13 @@
           </td>
           <td align="center">
             {% if d.lab_processed_date%}
-
-              {% if d.otolith_processed_date%}
-              <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
-              {% else %}
-              <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
-              {% endif %}
+              <a href="{% url 'herring:otolith_form' object.id d.id %}">
+                {% if d.otolith_processed_date%}
+                <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+                {% else %}
+                <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+                {% endif %}
+              </a>
             {% endif %}
 
           </td>
