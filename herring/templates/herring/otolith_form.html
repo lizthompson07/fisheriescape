@@ -47,7 +47,11 @@
 
         {% endfor %}
         <input type="submit" name="" value="Save" class="btn btn-primary">
-        <a class="btn btn-secondary" href="{% url 'herring:port_sample_detail' object.sample.id %}">Next</a>
+        {% if next_fish_id %}
+        <a class="btn btn-secondary" href="{% url 'herring:otolith_form' object.sample.id next_fish_id  %}">Next</a>
+        {% else %}
+        <a class="btn btn-secondary" href="{% url 'herring:port_sample_detail' object.sample.id %}">Back to Sample</a>
+        {% endif %}
       </form>
 
     </div>

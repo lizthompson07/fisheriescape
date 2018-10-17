@@ -404,8 +404,8 @@ def run_test_232(object): # all lab samples processed
     object.save()
     # now conduct the test
     if object.otolith_processing_complete == True:
-        test_232.test_passed = True
-        test_232.save()
+        test.test_passed = True
+        test.save()
 
 def run_data_point_tests(fish_detail, field_name):
     my_dict = {}

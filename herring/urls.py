@@ -36,5 +36,6 @@ urlpatterns = [
     path('samples/<int:sample>/lab/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name ="lab_sample_form"),
     # Otolith
     path('samples/<int:sample>/otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name ="otolith_form"),
+    # path('samples/<int:sample>/otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name ="otolith_form"),
 
 ]
