@@ -184,24 +184,30 @@ class Sample(models.Model):
         self.last_modified_date = timezone.now()
 
         # set lab_processing_complete
-        count = 0
-        for fish in self.fish_details.all():
-            if fish.lab_processed_date:
-                count = count + 1
-        if count == self.total_fish_preserved:
-            self.lab_processing_complete = True
-        else:
+        ## first test if there are enough or two many fish...
+        if not self.fish_details.count() == self.total_fish_preserved:
+            # then there is no chance for being comeplete
             self.lab_processing_complete = False
-
-        # set otolith_processing_complete
-        count = 0
-        for fish in self.fish_details.all():
-            if fish.otolith_processed_date:
-                count = count + 1
-        if count == self.total_fish_preserved:
-            self.otolith_processing_complete = True
-        else:
             self.otolith_processing_complete = False
+        else:
+            count = 0
+            for fish in self.fish_details.all():
+                if fish.lab_processed_date:
+                    count = count + 1
+            if count == self.total_fish_preserved:
+                self.lab_processing_complete = True
+            else:
+                self.lab_processing_complete = False
+
+            # set otolith_processing_complete
+            count = 0
+            for fish in self.fish_details.all():
+                if fish.otolith_processed_date:
+                    count = count + 1
+            if count == self.total_fish_preserved:
+                self.otolith_processing_complete = True
+            else:
+                self.otolith_processing_complete = False
 
         return super().save(*args,**kwargs)
 
@@ -244,7 +250,7 @@ class FishDetail(models.Model):
     gonad_weight = models.FloatField(null=True, blank=True)
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
     lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="lab_sampler_fish_details")
-    ager = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ager_fish_details")
+    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="otolith_sampler_fish_details")
     lab_processed_date = models.DateTimeField(blank=True, null=True)
     annulus_count = models.IntegerField(null=True, blank=True)
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -266,7 +272,7 @@ class FishDetail(models.Model):
     def save(self,*args,**kwargs):
         self.last_modified_date = timezone.now()
         # print("{}{}{}{}{}".format(self.fish_length,  self.fish_weight , self.sex , self.maturity , self.gonad_weight))
-        if self.fish_length and self.fish_weight and self.sex and self.maturity and self.gonad_weight and self.lab_sampler:
+        if self.fish_length and self.fish_weight and self.sex and self.maturity and self.gonad_weight != None and self.lab_sampler:
             if self.lab_processed_date == None:
                 self.lab_processed_date = timezone.now()
         else:
