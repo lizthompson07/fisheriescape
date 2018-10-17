@@ -407,9 +407,13 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
 
         # send JSON file to template so that it can be used by js script
         context['qc_feedback_json'] = qc_feedback_json
-
-
-
+        try:
+            next_fishy = models.FishDetail.objects.filter(sample=self.object.sample, fish_number=self.object.fish_number+1)[0]
+        except Exception as e:
+            print(e)
+        else:
+            context['next_fish_id'] = next_fishy.id
+            
         # pass in a variable to help determine if the record is complete from a QC point of view
         ## Should be able to make this assessment via the global tests
 
@@ -441,3 +445,31 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
         return HttpResponseRedirect(reverse("herring:otolith_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
+
+
+# def next_object_in_model(qs,sample,current_pk):
+#     kill = False
+#     for object in qs:
+#         if kill == True:
+#             return object.id
+#             print("printing object ID")
+#             break
+#         else:
+#             if object.id == current_pk:
+#                 kill=True
+#     return qs[0].id
+#
+# def get_new_pk(request, sample, current_pk):
+#     qs = models.FishDetail.objects.filter(sample_id=sample).order_by('fish_number')
+#
+#     try:
+#         next_pk = next_object_in_model(qs,sample,current_pk)
+#     except :
+#         messages.success(request, "All done!!")
+#         return HttpResponseRedirect(redirect_to=reverse(viewname='books:transaction_list'))
+#     else:
+#         if next_pk == None:
+#             messages.success(request, "All done!!")
+#             return HttpResponseRedirect(redirect_to=reverse(viewname='books:transaction_list'))
+#         else:
+#             return HttpResponseRedirect(redirect_to=reverse(viewname='books:new_review_item', kwargs={'pk':next_pk}))
