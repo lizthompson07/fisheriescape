@@ -12,8 +12,7 @@
     </thead>
     <tbody>
       {% for t in object.sample_tests.all  %}
-        {% if t.scope == 1 %}
-
+        {% if t.scope == 2 %}
           <tr>
             <td>{{t.test}}</td>
             <td>{{t.get_field_name_display}}</td>
