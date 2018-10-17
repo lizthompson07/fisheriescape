@@ -1,140 +1,104 @@
 {% load static %}
 {% load verbose_names %}
+
+<style media="screen">
+  .value{
+    font-weight: bold;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+</style>
+
 <h4>Sample Details:</h4>
 <br>
-<p><b>
-  {%get_verbose_field_name object "id"%}:
-</b><br>
-{{object.id}}
+<p>
+  <span class="label">{%get_verbose_field_name object "id"%}:</span>
+  <span class="value">{{object.id}}</span> <br>
+
+  <span class="label">Date of sample collection:</span>
+  <span class="value">{{object.sample_date|date:"F d, Y"}}</span> <br>
+
+  <span class="label">{%get_verbose_field_name object "sampler_ref_number"%}:</span>
+  <span class="value">{{object.sampler_ref_number}}</span> <br>
+
+  <span class="label">Collected by: </span>
+  <span class="value">{{object.sampler}}</span> <br>
+</p>
+<p>
+  <span class="label">Expected number of length frequencies: </span>
+  <span class="value"> {{object.total_fish_measured}}</span>
+  <a href="#" data-toggle="tooltip" data-placement="top" title="Edit the number of fish measured" onclick="return popitup('{% url 'herring:port_sample_edit_pop' object.id "measured" %}','popoutWindow0')">
+    <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
+  </a>
+  <br>
+
+  <span class="label">Actual number of length frequencies: </span>
+  <span class="value {% if sum_count ==  object.total_fish_measured %}green-font{%else%}red-font{% endif %}">
+    {{sum_count}}
+  </span> <br>
+</p>
+<p>
+  <span class="label">Expected number of lab samples: </span>
+  <span class="value"> {{object.total_fish_preserved}}</span>
+
+
+  <a href="#" data-toggle="tooltip" data-placement="top" title="Edit the  number of fish preserved" onclick="return popitup('{% url 'herring:port_sample_edit_pop' object.id "preserved" %}','popoutWindow0')">
+    <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
+  </a>
+  <br>
+
+  <span class="label">Actual number of lab samples: </span>
+  <span class="value {% if object.fish_details.count ==  object.total_fish_preserved %}green-font{%else%}red-font{% endif %}">
+    {{object.fish_details.count}} <br>
+  </span>
 </p>
 
-<p><b>
-  {%get_verbose_field_name object "sample_date"%}:
-</b><br>
-{{object.sample_date|date:"F d, Y"}}
-</p>
-
-<p><b>
-  {%get_verbose_field_name object "sampler_ref_number"%}:
-</b><br>
-{{object.sampler_ref_number}}
-</p>
-
-<p><b>
-  {%get_verbose_field_name object "sampler"%}:
-</b><br>
-{{object.sampler}}
-</p>
 
 <div id="full" class="collapse">
-  <p><b>
-    District code:
-  </b><br>
-  {{object.district.district_code}}
-</p>
+  <p>
+    <span class="label">    District code:  </span>
+    <span class="value">{{object.district.district_code}}</span> <br>
 
-<p>
-  <b>
-    Lat. / Long. (decimal degree)
-  </b><br>
-  {{object.latitude_n}} / {{object.longitude_w}}
-</p>
-<p>
-  <b>
-    {%get_verbose_field_name object "fishing_area"%}:
-  </b><br>
-  {{object.fishing_area}}
-</p>
+    <span class="label">    Lat. / Long. (decimal degree)  </span>
+    <span class="value">{{object.latitude_n}} / {{object.longitude_w}}</span> <br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "gear"%}:
-  </b><br>
-  {{object.gear}}
-</p>
+    <span class="label">    {%get_verbose_field_name object "fishing_area"%}:  </span>
+    <span class="value">{{object.fishing_area}} </span><br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "experimental_net_used"%}:
-  </b><br>
-  {{object.experimental_net_used|yesno:"yes,no,not-specified"}}
-</p>
-<p>
-  <b>
-    {%get_verbose_field_name object "vessel"%}:
-  </b><br>
-  {{object.vessel}}
-</p>
+    <span class="label">    {%get_verbose_field_name object "gear"%}:  </span>
+    <span class="value">{{object.gear}} </span><br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "mesh_size"%}:
-  </b><br>
-  {{object.mesh_size}}
-</p>
+    <span class="label">    {%get_verbose_field_name object "experimental_net_used"%}:  </span>
+    <span class="value">{{object.experimental_net_used|yesno:"yes,no,not-specified"}} </span><br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "catch_weight_lbs"%}:
-  </b><br>
-  {{object.catch_weight_lbs}}
-</p>
+    <span class="label">    {%get_verbose_field_name object "vessel"%}:  </span>
+    <span class="value">{{object.vessel}} </span><br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "sample_weight_lbs"%}:
-  </b><br>
-  {{object.sample_weight_lbs}}
-</p>
+    <span class="label">    {%get_verbose_field_name object "mesh_size"%}:  </span>
+    <span class="value">{{object.mesh_size}}</span><br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "total_fish_measured"%}:
-  </b><br>
-  {{object.total_fish_measured}}
-</p>
-<p>
-  <b>
-    {%get_verbose_field_name object "total_fish_preserved"%}:
-  </b><br>
-  {{object.total_fish_preserved}}
-</p>
+    <span class="label">    {%get_verbose_field_name object "catch_weight_lbs"%}:  </span>
+    <span class="value">{{object.catch_weight_lbs}} </span><br>
+    <span class="label">    {%get_verbose_field_name object "sample_weight_lbs"%}:  </span>
+    <span class="value">{{object.sample_weight_lbs}}</span> <br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "remarks"%}:
-  </b><br>
-  {{object.remarks}}
-</p>
+    <span class="label">    {%get_verbose_field_name object "remarks"%}:  </span>
+    <span class="value">{{object.remarks}}</span> <br>
+  </p>
+  <p>
+    <span class="label">    {%get_verbose_field_name object "creation_date"%}:  </span>
+    <span class="value">{{object.creation_date}}</span> <br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "creation_date"%}:
-  </b><br>
-  {{object.creation_date}}
-</p>
+    <span class="label">    {%get_verbose_field_name object "created_by"%}:  </span>
+    <span class="value">{{object.created_by}}</span> <br>
+  </p>
+  <p>
+    <span class="label">    {%get_verbose_field_name object "last_modified_date"%}:  </span>
+    <span class="value">{{object.last_modified_date}}</span><br>
 
-<p>
-  <b>
-    {%get_verbose_field_name object "last_modified_date"%}:
-  </b><br>
-  {{object.last_modified_date}}
-</p>
-
-<p>
-  <b>
-    {%get_verbose_field_name object "created_by"%}:
-  </b><br>
-  {{object.created_by}}
-</p>
-
-<p>
-  <b>
-    {%get_verbose_field_name object "last_modified_by"%}:
-  </b><br>
-  {{object.last_modified_by}}
-</p>
-
+    <span class="label">    {%get_verbose_field_name object "last_modified_by"%}:  </span>
+    <span class="value">{{object.last_modified_by}}</span>    <br>
+  </p>
 
 </div>
 <a href="#full" data-toggle="collapse" id="fold">(more...)</a>

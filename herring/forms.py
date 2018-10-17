@@ -26,6 +26,31 @@ class PortSampleForm(forms.ModelForm):
 
         }
 
+class PortSampleFishMeasuredForm(forms.ModelForm):
+    class Meta:
+        model = models.Sample
+        fields = ["total_fish_measured", "last_modified_by"]
+        labels={
+            # 'district':mark_safe("District (<a href='#' >search</a>)"),
+            # 'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
+        }
+        widgets = {
+            'last_modified_by':forms.HiddenInput(),
+        }
+
+class PortSampleFishPreservedForm(forms.ModelForm):
+    class Meta:
+        model = models.Sample
+        fields = ["total_fish_preserved", "last_modified_by"]
+        labels={
+            # 'district':mark_safe("District (<a href='#' >search</a>)"),
+            # 'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
+        }
+        widgets = {
+            'last_modified_by':forms.HiddenInput(),
+        }
+
+
 class LengthFrquencyWizardSetupForm(forms.Form):
     minimum_length = forms.FloatField(required=True,min_value=0, max_value=50, widget=forms.NumberInput(attrs={'placeholder': 'mulitple of 0.5 cm'}))
     maximum_length = forms.FloatField(required=True,min_value=0, max_value=50, widget=forms.NumberInput(attrs={'placeholder': 'mulitple of 0.5 cm'}))
@@ -76,6 +101,46 @@ class LabSampleForm(forms.ModelForm):
           "parasite",
           "remarks",
           "lab_sampler",
+          "last_modified_by",
+        ]
+
+        widgets = {
+            "fish_length":forms.HiddenInput(),
+            "fish_weight":forms.HiddenInput(),
+            "sex":forms.HiddenInput(),
+            "maturity":forms.HiddenInput(),
+            "gonad_weight":forms.HiddenInput(),
+            "parasite":forms.HiddenInput(),
+            "remarks":forms.HiddenInput(),
+            "lab_sampler":forms.HiddenInput(),
+            "last_modified_by":forms.HiddenInput(),
+
+        }
+    # def clean_fish_length(self):
+    #     value = self.cleaned_data['fish_length']
+    #     print(str(value) + " is the value")
+    #     if value == 1:
+    #         print("hera!")
+    #         raise forms.ValidationError("bullshit!!")
+    #     return value
+
+
+class OtolithForm(forms.ModelForm):
+    improbable_field = forms.CharField(widget=forms.HiddenInput(), required = False)
+    improbable_test = forms.CharField(widget=forms.HiddenInput(), required = False)
+    improbable_accepted = forms.CharField(widget=forms.HiddenInput(), required = False)
+
+    class Meta:
+        model = models.FishDetail
+        # exclude = ["lab_processed_date", "otolith_processed_date"]
+        fields = [
+          "otolith_sampler",
+
+          "annulus_count",
+          "otolith_season",
+          "otolith_image",
+
+          "remarks",
           "last_modified_by",
         ]
 

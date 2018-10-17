@@ -108,6 +108,27 @@ class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
         port_sample_tests(self.object)
         return super().form_valid(form)
 
+
+class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
+    template_name = 'herring/port_sample_form_popout.html'
+    model = models.Sample
+
+    def get_form_class(self):
+        if self.kwargs["type"] == "measured":
+            return forms.PortSampleFishMeasuredForm
+        elif self.kwargs["type"] == "preserved":
+            return forms.PortSampleFishPreservedForm
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+            }
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse("herring:close_me"))
+
+
 class PortSampleDetailView(LoginRequiredMixin,DetailView):
     template_name = 'herring/port_sample_detail.html'
     model = models.Sample
@@ -290,7 +311,86 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
             progress = progress + 1
         if self.object.maturity:
             progress = progress + 1
-        if self.object.gonad_weight:
+        if self.object.gonad_weight != None:
+            progress = progress + 1
+        if self.object.sample.sampling_protocol.sampling_type == 2:
+            if self.object.parasite != None:
+                progress = progress + 1
+            total_tests = 6
+        else:
+            total_tests = 5
+
+        context['progress'] = progress
+        context['total_tests'] = total_tests
+
+        qc_feedback_json = json.dumps(my_dict)
+
+        # send JSON file to template so that it can be used by js script
+        context['qc_feedback_json'] = qc_feedback_json
+
+
+
+        # pass in a variable to help determine if the record is complete from a QC point of view
+        ## Should be able to make this assessment via the global tests
+
+        context['test_201'] = self.object.sample_tests.filter(test_id=201).first().test_passed
+
+
+
+        return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+            'lab_sampler': self.request.user,
+            }
+
+    def form_valid(self, form):
+        # port_sample_tests(self.object)
+        object = form.save()
+        if form.cleaned_data["improbable_accepted"]:
+            field_name = form.cleaned_data["improbable_field"]
+            test_id = form.cleaned_data["improbable_test"]
+
+            # this means that an improbable measurement has been accepted.
+            if "global" in field_name:
+                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=test_id).first()
+            else:
+                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, field_name=field_name, test_id=test_id).first()
+
+            my_test.accepted = True
+            my_test.save()
+        return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
+
+# this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
+
+
+
+# Otolith
+
+class OtolithUpdateView(LoginRequiredMixin,UpdateView):
+    template_name = 'herring/lab_sample_form.html'
+    model = models.FishDetail
+    form_class = forms.OtolithForm
+    login_url = '/accounts/login_required/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # run the quality test on loading the data
+        my_dict = lab_sample_tests(self.object)
+
+        # determine the progress of data entry
+        ## there are 6 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
+        progress = 0
+        if self.object.fish_length:
+            progress = progress + 1
+        if self.object.fish_weight:
+            progress = progress + 1
+        if self.object.sex:
+            progress = progress + 1
+        if self.object.maturity:
+            progress = progress + 1
+        if self.object.gonad_weight != None:
             progress = progress + 1
         if self.object.sample.sampling_protocol.sampling_type == 2:
             if self.object.parasite != None:
