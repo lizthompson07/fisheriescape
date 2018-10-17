@@ -1,4 +1,5 @@
 from . import models
+from django.db.models import  Q
 import math
 
 range_dict = {
@@ -53,14 +54,27 @@ range_dict = {
 
     }
 
-def run_global_ratio_test(object_test):
+def run_global_ratio_test(object_test, is_accepted):
+    my_dict = {}
     stop = False
     if object_test.test.id == 204:
         if object_test.fish_detail.fish_weight and object_test.fish_detail.fish_length:
             independent = object_test.fish_detail.fish_length
             dependent = object_test.fish_detail.fish_weight
+            independent_name = object_test.fish_detail._meta.get_field("fish_length").verbose_name
+            dependent_name = object_test.fish_detail._meta.get_field("fish_weight").verbose_name
             min = math.exp(-12.978 + 3.18 * math.log(independent))
             max = math.exp(-12.505 + 3.18 * math.log(independent))
+
+            msg = "The {} : {} ratio is outside of the probable range. \\n\\n For the given value of {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\n Are you confident in your measurements? \\n\\n Press [y] for YES or [n] for NO.".format(
+                independent_name,
+                dependent_name,
+                independent_name,
+                dependent_name,
+                min,
+                max,
+            )
+
         else:
             stop = True
 
@@ -69,7 +83,9 @@ def run_global_ratio_test(object_test):
             independent = object_test.fish_detail.fish_weight
             dependent = object_test.fish_detail.gonad_weight
             factor = object_test.fish_detail.maturity.id
-            print(factor)
+            independent_name = object_test.fish_detail._meta.get_field("fish_weight").verbose_name
+            dependent_name = object_test.fish_detail._meta.get_field("gonad_weight").verbose_name
+            # print(factor)
             if factor == 1:
                 min = 0
                 max = 1
@@ -94,26 +110,47 @@ def run_global_ratio_test(object_test):
             elif factor == 8:
                 min = math.exp(-7.18685438956137 + math.log(independent) * 1.40456267851141)
                 max = math.exp(-5.52714180205898 + math.log(independent) * 1.39515770753421)
+
+            msg = "The {} : {} ratio is outside of the probable range. \\n\\n For the given value of {} at maturity level {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\n Are you confident in your measurements? \\n\\n Press [y] for YES or [n] for NO.".format(
+                independent_name,
+                dependent_name,
+                independent_name,
+                factor,
+                dependent_name,
+                min,
+                max,
+            )
         else:
             stop = True
 
-    elif object_test.test.id == 208:
-        independent = object_test.fish_detail.fish_length
-        dependent = object_test.fish_detail.fish_weight
-        min = round(-14.3554448587879 + (independent) * 6.34008000506408E-02)
-        max = round(-10.1477660949041 + (independent) * 6.33784283545123E-02)
+    # elif object_test.test.id == 208:
+    #     independent = object_test.fish_detail.fish_length
+    #     dependent = object_test.fish_detail.fish_weight
+    #     min = round(-14.3554448587879 + (independent) * 6.34008000506408E-02)
+    #     max = round(-10.1477660949041 + (independent) * 6.33784283545123E-02)
     else:
         stop = True
 
     if not stop:
-        print("independent={};dependent={};min={}; max={}".format(independent,dependent,min,max))
-        print(dependent)
+        # print("independent={};dependent={};min={}; max={}".format(independent,dependent,min,max))
         if dependent < min or dependent > max:
             object_test.test_passed = False
-            object_test.accepted = False
+            if is_accepted == 1:
+                object_test.accepted = 1
+            # otherwise, not accepted
+            else:
+                object_test.accepted = 0
         else:
             object_test.test_passed = True
         object_test.save()
+
+    if object_test.accepted is 0:
+        # my_dict[field_name] = {}
+        my_dict["test"] = object_test.test_id
+        my_dict["msg"] = msg
+
+    return my_dict
+
 
 
 def run_test_202(object, object_type): # All mandatory fields complete
@@ -133,7 +170,7 @@ def run_test_202(object, object_type): # All mandatory fields complete
         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=202).delete()
 
         # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=202,field_name='global', test_passed=False)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=202,field_name=' global', test_passed=False)
 
         if object.fish_length and object.fish_weight and object.sex and object.maturity and object.gonad_weight:
             if object.sample.sampling_protocol.sampling_type == 2: # parasite assessment is only needed for at-sea samples
@@ -151,34 +188,52 @@ def run_test_203(object, object_type): # All data points are within their possib
 
         # CREATE BLANK TESTS IN SAMPLETEST
         # and start off optimistic
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=203,field_name='global', test_passed=True)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=203,field_name=' global', test_passed=True)
 
         # grab all test 22s related to sample
         test22s = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=22)
         for t in test22s:
-            print(t)
             if not t.test_passed:
-                t.test_passed = False
-                t.save()
+                test.test_passed = False
+                test.save()
                 break
 
 def run_test_204(object, object_type): # fish length to weight
     if object_type == "lab_sample":
+
+        # first determine if test 204 has been accepted
+        try:
+            is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=204).first().accepted
+        except Exception as e:
+            print(e)
+            is_accepted = None
+
         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=204).delete()
 
         # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=204,field_name='global', test_passed=False)
-        run_global_ratio_test(test)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=204,field_name=' global', test_passed=False)
+        return run_global_ratio_test(test, is_accepted)
+
+
 
 def run_test_207(object, object_type): # gonad weight, somatic weight and maturity level
     if object_type == "lab_sample":
+        # first determine if test 204 has been accepted
+        try:
+            is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).first().accepted
+            print(is_accepted)
+        except Exception as e:
+            print(e)
+            is_accepted = None
+
         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).delete()
 
         # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=207,field_name='global', test_passed=False)
-        run_global_ratio_test(test)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=207,field_name=' global', test_passed=False)
+        return run_global_ratio_test(test, is_accepted)
+
 
 def run_test_208(object, object_type): # all improbable observations been accepted
     # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 204 AND 207
@@ -188,12 +243,31 @@ def run_test_208(object, object_type): # all improbable observations been accept
 
         # CREATE BLANK TESTS IN SAMPLETEST
         # and start off optimistic
-        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=208,field_name='global', test_passed=True)
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=208,field_name=' global', test_passed=True)
 
         # grab all test related to fish detail
         fish_detail_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id)
         for t in fish_detail_tests: # kEEP IN MIND THIS WILL INCLUDE OTOLITH SAMPLE TESTS
             if t.accepted == False:
+                test.test_passed = False
+                test.save()
+                break
+
+def run_test_201(object, object_type): # all quality control tests have been passed
+    # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 202 (mandatory fields), 203 (possible range), 208 (accepted improbable obsverations)
+    if object_type == "lab_sample":
+        # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
+        models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=201).delete()
+
+        # CREATE BLANK TESTS IN SAMPLETEST
+        # and start off optimistic
+        test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=201,field_name=' global', test_passed=True)
+
+        # grab all test related to fish detail
+        fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=201) | Q(test_id=203) | Q(test_id=208) )
+
+        for t in fish_detail_global_tests: # Only looking at the tests of interest
+            if t.test_passed == False:
                 test.test_passed = False
                 test.save()
                 break
@@ -225,7 +299,6 @@ def run_test_231(object, object_type): # all lab samples processed
         test = models.SampleTest.objects.create(sample_id=object.id,test_id=231,test_passed=False)
         # resave each fish detail record to run through fishdetail save method
         for fishy in object.fish_details.all():
-            print(fishy)
             fishy.save()
         # resave the sample instance to run thought sample save method
         object.save()
@@ -252,6 +325,7 @@ def run_test_232(object, object_type): # all lab samples processed
             test_232.save()
 
 def run_data_point_tests(fish_detail, field_name):
+    my_dict = {}
     stop = False
     # parse field name
     if field_name == "fish_length":
@@ -267,6 +341,13 @@ def run_data_point_tests(fish_detail, field_name):
         stop = true
 
     if not stop:
+        # first determine if a test 23 has been accepted
+        try:
+            is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=fish_detail.id, field_name=field_name, test_id=23).first().accepted
+        except Exception as e:
+            print(e)
+            is_accepted = None
+
         # delete prior test instances
         models.FishDetailTest.objects.filter(fish_detail_id=fish_detail.id, field_name=field_name).delete()
 
@@ -276,18 +357,37 @@ def run_data_point_tests(fish_detail, field_name):
         test_23 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=23,test_passed=False, field_name=field_name)
 
         # RUN TESTS
-        if not field: # no value present
+        if field == None: # no value present; have to use this syntax otherwise a "0" value is excluded
             pass
         else: # continue testing
             test_21.test_passed = True
             test_21.save()
-            if field <= range_dict[field_name]['possible']['min'] or field > range_dict[field_name]['possible']['max']:
+            if field < range_dict[field_name]['possible']['min'] or field > range_dict[field_name]['possible']['max']:
                 pass
             else:
                 test_22.test_passed = True
                 test_22.save()
-                if field <= range_dict[field_name]['probable']['min'] or field > range_dict[field_name]['probable']['max']:
-                    test_23.accepted = 0
+                if field < range_dict[field_name]['probable']['min'] or field > range_dict[field_name]['probable']['max']:
+                    # if the observation was accepted, continue to accept it
+                    if is_accepted == 1:
+                        test_23.accepted = 1
+                    # otherwise, not accepted
+                    else:
+                        test_23.accepted = 0
+
                 else:
                     test_23.test_passed = True
                 test_23.save()
+
+        # if an improbable has not yet been accepted, we have to return a package for the template so that it knows it will have to ask the user to validate observation
+        if test_23.accepted is 0:
+            # my_dict[field_name] = {}
+            my_dict["verbose_name"] = fish_detail._meta.get_field(field_name).verbose_name
+            my_dict["test"] = 23
+            my_dict["msg"] = "{} is outside of the probable range. \\n\\n A value was expected between {} and {}. \\n\\n Are you confident in your measurements? \\n\\n Press [y] for YES or [n] for NO.".format(
+                my_dict["verbose_name"],
+                range_dict[field_name]['probable']['min'],
+                range_dict[field_name]['probable']['max'],
+            )
+        # print(my_dict)
+        return my_dict

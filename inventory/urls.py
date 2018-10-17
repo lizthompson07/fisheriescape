@@ -87,6 +87,7 @@ urlpatterns = [
     path('dm-admin/custodian/<int:person>/', views.CustodianPersonUpdateView.as_view(), name ="dm_person_edit" ),
     path('dm-admin/published-resource-list/', views.PublishedResourcesListView.as_view(), name ="dm_published_list" ),
     path('dm-admin/flagged/<str:flag_type>/', views.FlaggedListView.as_view(), name ="dm_flagged_list" ),
+    path('dm-admin/certifications/', views.CertificationListView.as_view(), name ="dm_certification_list" ),
 
     ## SECTIONS
     path('my-section/', views.MySectionDetailView.as_view(), name ="my_section_detail" ),

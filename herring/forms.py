@@ -60,7 +60,10 @@ class FishForm(forms.ModelForm):
         }
 
 class LabSampleForm(forms.ModelForm):
-    # prompt = forms.CharField(widget=forms.TextInput(attrs={"placeholder":"Input Here!"}))
+    improbable_field = forms.CharField(widget=forms.HiddenInput(), required = False)
+    improbable_test = forms.CharField(widget=forms.HiddenInput(), required = False)
+    improbable_accepted = forms.CharField(widget=forms.HiddenInput(), required = False)
+
     class Meta:
         model = models.FishDetail
         # exclude = ["lab_processed_date", "otolith_processed_date"]
