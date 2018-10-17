@@ -14,6 +14,8 @@ urlpatterns = [
     path('samples/port/<int:pk>/detail/', views.PortSampleDetailView.as_view(), name ="port_sample_detail"),
     path('samples/port/<int:pk>/edit/', views.PortSampleUpdateView.as_view(), name ="port_sample_edit"),
     path('samples/port/<int:pk>/delete/', views.PortSampleDeleteView.as_view(), name ="port_sample_delete"),
+    path('samples/port/<int:pk>/edit-fish-<str:type>/', views.PortSamplePopoutUpdateView.as_view(), name ="port_sample_edit_pop"),
+
 
     # Length Frequency #
     ####################
@@ -28,10 +30,11 @@ urlpatterns = [
     path('samples/<int:sample>/fish/new/', views.FishCreateView.as_view(), name ="fish_create"),
     path('samples/<int:sample>/fish/<int:pk>/edit/', views.FishUpdateView.as_view(), name ="fish_update"),
     path('samples/<int:sample>/fish/<int:pk>/delete/', views.FishDeleteView.as_view(), name ="fish_delete"),
-    # Lab samples
+    # Lab
     path('samples/<int:sample>/lab-sample-confirmation', views.LabSampleConfirmation.as_view(), name ="lab_sample_confirmation"),
     path('samples/<int:sample>/new-lab-sample', views.lab_sample_primer, name ="lab_sample_primer"),
-    path('samples/<int:sample>/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name ="lab_sample_form"),
-
+    path('samples/<int:sample>/lab/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name ="lab_sample_form"),
+    # Otolith
+    path('samples/<int:sample>/otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name ="otolith_form"),
 
 ]

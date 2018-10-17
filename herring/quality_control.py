@@ -66,7 +66,7 @@ def run_global_ratio_test(object_test, is_accepted):
             min = math.exp(-12.978 + 3.18 * math.log(independent))
             max = math.exp(-12.505 + 3.18 * math.log(independent))
 
-            msg = "The {} : {} ratio is outside of the probable range. \\n\\n For the given value of {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\n Are you confident in your measurements? \\n\\n Press [y] for YES or [n] for NO.".format(
+            msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
                 independent_name,
                 dependent_name,
                 independent_name,
@@ -79,7 +79,7 @@ def run_global_ratio_test(object_test, is_accepted):
             stop = True
 
     elif object_test.test.id == 207:
-        if object_test.fish_detail.maturity and object_test.fish_detail.fish_weight and object_test.fish_detail.gonad_weight:
+        if object_test.fish_detail.maturity and object_test.fish_detail.fish_weight and object_test.fish_detail.gonad_weight != None:
             independent = object_test.fish_detail.fish_weight
             dependent = object_test.fish_detail.gonad_weight
             factor = object_test.fish_detail.maturity.id
@@ -111,7 +111,7 @@ def run_global_ratio_test(object_test, is_accepted):
                 min = math.exp(-7.18685438956137 + math.log(independent) * 1.40456267851141)
                 max = math.exp(-5.52714180205898 + math.log(independent) * 1.39515770753421)
 
-            msg = "The {} : {} ratio is outside of the probable range. \\n\\n For the given value of {} at maturity level {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\n Are you confident in your measurements? \\n\\n Press [y] for YES or [n] for NO.".format(
+            msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {} at maturity level {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
                 independent_name,
                 dependent_name,
                 independent_name,
@@ -123,17 +123,13 @@ def run_global_ratio_test(object_test, is_accepted):
         else:
             stop = True
 
-    # elif object_test.test.id == 208:
-    #     independent = object_test.fish_detail.fish_length
-    #     dependent = object_test.fish_detail.fish_weight
-    #     min = round(-14.3554448587879 + (independent) * 6.34008000506408E-02)
-    #     max = round(-10.1477660949041 + (independent) * 6.33784283545123E-02)
     else:
         stop = True
 
     if not stop:
-        # print("independent={};dependent={};min={}; max={}".format(independent,dependent,min,max))
+        print("independent={};dependent={};min={}; max={}".format(independent,dependent,min,max))
         if dependent < min or dependent > max:
+            print(123)
             object_test.test_passed = False
             if is_accepted == 1:
                 object_test.accepted = 1
@@ -172,7 +168,7 @@ def run_test_202(object, object_type): # All mandatory fields complete
         # CREATE BLANK TESTS IN SAMPLETEST
         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=202,field_name=' global', test_passed=False)
 
-        if object.fish_length and object.fish_weight and object.sex and object.maturity and object.gonad_weight:
+        if object.fish_length and object.fish_weight and object.sex and object.maturity and object.gonad_weight != None:
             if object.sample.sampling_protocol.sampling_type == 2: # parasite assessment is only needed for at-sea samples
                 if object.parasite:
                     test.test_passed = True
@@ -215,14 +211,11 @@ def run_test_204(object, object_type): # fish length to weight
         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=204,field_name=' global', test_passed=False)
         return run_global_ratio_test(test, is_accepted)
 
-
-
 def run_test_207(object, object_type): # gonad weight, somatic weight and maturity level
     if object_type == "lab_sample":
         # first determine if test 204 has been accepted
         try:
             is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).first().accepted
-            print(is_accepted)
         except Exception as e:
             print(e)
             is_accepted = None
@@ -264,7 +257,7 @@ def run_test_201(object, object_type): # all quality control tests have been pas
         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=201,field_name=' global', test_passed=True)
 
         # grab all test related to fish detail
-        fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=201) | Q(test_id=203) | Q(test_id=208) )
+        fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=202) | Q(test_id=203) | Q(test_id=208) )
 
         for t in fish_detail_global_tests: # Only looking at the tests of interest
             if t.test_passed == False:

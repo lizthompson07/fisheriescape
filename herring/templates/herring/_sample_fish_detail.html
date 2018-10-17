@@ -12,21 +12,22 @@
 </p>
 
 {% else %}
-
-  <table class='table table-hover table-sm table-bordered'>
-    <thead>
-      <th>#</th>
-      <th align="center">Lab Proccessed</th>
-      <th align="center">Aged</th>
-    </thead>
-    <tbody>
-      {% for d in object.fish_details.all  %}
+<div class="row">
+  <div class="col-9">
+    <table class='table table-hover table-sm table-bordered' >
+      <thead>
+        <th >#</th>
+        <th style="text-align: center;width: 150px;">Lab Proccessed</th>
+        <th style="text-align: center;width: 150px;">Aged</th>
+      </thead>
+      <tbody>
+        {% for d in object.fish_details.all  %}
         <tr class='clickable-row' data-href='#'>
-            <td>
-              <a href="{% url 'herring:fish_detail' object.id d.id %}">
-                Fish {{d.fish_number}}
-              </a>
-            </td>
+          <td>
+            <a href="{% url 'herring:fish_detail' object.id d.id %}">
+              Fish {{d.fish_number}}
+            </a>
+          </td>
           <td align="center">
             <a href="{% url 'herring:lab_sample_form' object.id d.id %}">
               {% if d.lab_processed_date%}
@@ -45,10 +46,11 @@
           </td>
 
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <br>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
   <p>
     <b>TOTAL: {{object.fish_details.count}}</b>
   </p>
