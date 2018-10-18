@@ -244,7 +244,7 @@
           if (userResponse.match(/fish wt/gi)) {
             $("#id_fish_weight").val(userResponse.toLowerCase().replace("fish wt","").trim());
           } else {
-            $("#id_fish_weight").val(userResponse.toLowerCase().replace("scale_1","").trim());
+            $("#id_fish_weight").val(userResponse.toLowerCase().replace("scale_1","").replace("g","").trim());
           }
           clickSubmit = true;
         }
