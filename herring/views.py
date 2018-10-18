@@ -493,3 +493,55 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
 #             return HttpResponseRedirect(redirect_to=reverse(viewname='books:transaction_list'))
 #         else:
 #             return HttpResponseRedirect(redirect_to=reverse(viewname='books:new_review_item', kwargs={'pk':next_pk}))
+
+
+
+# SHARED #
+##########
+
+
+def move_record(request, sample, type, direction, current_id):
+    # shared vars
+    message_start = "You are at the start of the recordset."
+    message_end = "You are at the end of the recordset."
+
+    if type == "lab":
+        viewname = "herring:lab_sample_form"
+    else:
+        viewname = "herring:otolith_form"
+
+
+    # prime a listto store ids
+    id_list = []
+
+    record_count = models.FishDetail.objects.filter(sample_id=sample).count()
+
+    # populate a list with all fish detail ids
+    for f in models.FishDetail.objects.filter(sample_id=sample).order_by("id"):
+        id_list.append(f.id)
+
+    # figure out where the current record is within recordset
+    current_index = id_list.index(current_id)
+
+    # PgaeUp
+    if direction == "prev":
+        # if at beginning, cannot go further back!
+        if current_index == 0:
+            messages.success(request, message_start)
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample':sample, "pk":current_id,}))
+        # otherwise, just move backwards 1
+        else:
+            target_id = id_list[current_index-1]
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample':sample, "pk":target_id}))
+
+    # PageDown
+    elif direction == "next":
+        # if you are at the end of the recordset, there is nowhere to go!
+        if current_id == id_list[-1]:
+            messages.success(request, message_end)
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample':sample, "pk":current_id,}))
+
+        # othersise move forward 1
+        else:
+            target_id = id_list[current_index+1]
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample':sample, "pk":target_id}))

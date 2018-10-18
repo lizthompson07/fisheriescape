@@ -11,7 +11,7 @@
 <br>
   <p>
     <a href="{% url 'herring:sample_list' %}">All Samples</a> >
-    <a href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
+    <a id="home" href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
     Fish {{object.id}}
   </p>
 </div>
@@ -40,9 +40,12 @@
           {# (<em>Last modified on  {{object.last_modified_date|date:"F m, Y"}} by {{object.last_modified_by}}</em>) #}
         {# </p> #}
         <div class="float-right btn-group">
-          {% if progress == total_tests and test_201 %}
-          <button type="button" class="btn btn-lg btn-primary">Next</button>
-          {% endif %}
+          <a class="btn btn-warning" href="#" id="myBtn">Help</a>
+
+          {# {% if progress == total_tests and test_201 %} #}
+          {# <button type="button" class="btn btn-lg btn-primary">Next</button> #}
+          {# {% endif %} #}
+
           {# <button type="button" id="startDataCapture" class="btn btn-lg btn-success">Click to Start Data Capture!</button> #}
         </div>
       </div>
@@ -61,7 +64,7 @@
       {% include "herring/_lab_sample_measurements.html" %}
 
     </div>
-    <div class="col-6">
+    <div class="col-8">
       {% include "herring/_lab_sample_qc.html" %}
 
     </div>
@@ -80,7 +83,76 @@
   </p>
 
 </div>
+
+
+
+
+<!-- The Modal -->
+<!-- Modal content -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <h3>Help Menu</h3>
+    <br>
+    <div class="row">
+      <div class="col-6">
+            <table class="table table-sm table-bordered">
+              <thead>
+                <th>Action</th>
+                <th>Key</th>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Help Menu</td>
+                  <td>F1</td>
+                </tr>
+                <tr>
+                  <td>Exit Help Menu</td>
+                  <td>Esacpe</td>
+                </tr>
+                <tr>
+                  <td>New Record</td>
+                  <td>F2</td>
+                </tr>
+                <tr>
+                  <td>Move to previous record</td>
+                  <td>PageUp</td>
+                </tr>
+                <tr>
+                  <td>Move to next record</td>
+                  <td>PageDown</td>
+                </tr>
+                <tr>
+                  <td>Back to sample detail page</td>
+                  <td>Home</td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </div>
+
+      <a href="#" class="closeBtn" id="closeBtn">Close (Esc)</a>
+    </div>
+  </div>
+</div>
+
+
 <script type="text/javascript">
+
+// disable the tab key
+function disableKey(keyName) {
+  $(document).keydown(function(event){
+    if ( event.key == keyName ) {
+      event.preventDefault()
+    }
+  });
+}
+disableKey("Tab")
+
+
+
+// pageUpDownKeys(prevPageHref, nextPageHref)
+
+
   // var keepPrompting = true;
   var clickSubmit = false;
   var audio = new Audio("{% static "/sounds/success.wav" %}");
@@ -91,11 +163,19 @@
   var qcFeedbackLookup = '{{qc_feedback_json|safe}}';
   var qcFeedbackObject = JSON.parse(qcFeedbackLookup);
 
+  var nextPageHref = "{% url "herring:move_record" object.sample.id "lab" "next" object.id %}";
+  var prevPageHref = "{% url "herring:move_record" object.sample.id "lab" "prev" object.id %}";
+
 
   var newRecordURL = "{% url 'herring:lab_sample_primer' object.sample.id %}"
   audio.onended = function () {
     $("input").click();
   }
+
+
+
+
+
   $(document).ready(function () {
     if (progress == totalTests) {
       if (test201Passed === "True") {
@@ -112,6 +192,40 @@
     $("#prompt").focus();
   })
 
+  $(document).keydown(function(event){
+      if ( event.key == 'PageDown' ) {
+        event.preventDefault()
+        document.location.href = nextPageHref;
+      }
+      else if ( event.key == 'PageUp' ) {
+        event.preventDefault()
+        document.location.href = prevPageHref;
+      }
+      else if ( event.key == 'Home' ) {
+        event.preventDefault()
+        speak("Returning to sample detail page.")
+        $("#home")[0].click();
+      }
+      else if (event.key == 'F2') {
+        event.preventDefault()
+        if (progress == totalTests && test201Passed == "True") {
+          // redirect to new record
+          window.location.href=newRecordURL;
+        } else {
+          speak("cannot go to new record until sample is complete and until all quality tests have been passed.")
+        }
+      }
+      else if (event.key == 'F1') {
+        event.preventDefault()
+        $("#myBtn")[0].click();
+
+      }
+      else if (event.key == 'Escape') {
+        event.preventDefault()
+        $("#closeBtn")[0].click();
+
+      }
+  });
 
   function improbableMeasurementValidation() {
     var msgLite = "Improbable measurement. Are you confident?"
@@ -179,9 +293,7 @@
       userResponse = $("#prompt").val();
       userResponse = userResponse.trim()
 
-      if (userResponse == 'h') {
-        // open help modal
-      } else if (userResponse.match(/comment/gi)) {
+      if (userResponse.match(/comment/gi)) {
         if (overwrite($("#id_remarks"))) {
           $("#id_remarks").val(userResponse.toLowerCase().replace("comment","").trim());
           clickSubmit = true;
@@ -254,16 +366,6 @@
           $("#id_maturity").val(userResponse.toLowerCase().replace("enter maturity","").trim());
           clickSubmit = true;
         }
-      } else if (userResponse.match(/new/gi) || userResponse == 'n') {
-        clickSubmit = false;
-        if (progress == totalTests && test201Passed == "True") {
-          // redirect to new record
-          window.location.href=newRecordURL;
-        } else {
-          // alert("cannot go to new record until sample is complete.");
-          speak("cannot go to new record until sample is complete and until all quality tests have been passed.")
-
-        }
       }
 
 
@@ -278,6 +380,10 @@
       } else {
         $("#prompt").val("");
       }
+
+      ///////////////////
+
+
     }
   });
 
