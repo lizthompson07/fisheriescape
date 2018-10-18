@@ -3,6 +3,13 @@ from django.core import validators
 from . import models
 from django.utils.safestring import mark_safe
 
+class SamplerForm(forms.ModelForm):
+    class Meta:
+        model = models.Sampler
+        fields = "__all__"
+        widgets = {
+            'notes':forms.Textarea(attrs={'rows': '3'}),
+        }
 
 class PortSampleForm(forms.ModelForm):
     class Meta:
@@ -10,6 +17,7 @@ class PortSampleForm(forms.ModelForm):
         fields = "__all__"
         exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete"]
         labels={
+            'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
             'district':mark_safe("District (<a href='#' >search</a>)"),
             'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
         }

@@ -70,6 +70,20 @@ def otolith_tests(fish_detail):
 
     return my_dict
 
+# SAMPLER #
+###########
+
+class SamplerPopoutCreateView(LoginRequiredMixin,CreateView):
+    template_name = 'herring/sampler_form_popout.html'
+    model = models.Sampler
+    form_class = forms.SamplerForm
+    success_url = reverse_lazy("herring:close_me")
+    #
+    # def form_valid(self, form):
+    #     object = form.save()
+    #     return HttpResponseRedirect(reverse("herring:close_me"))
+
+
 # PORT SAMPLE #
 ###############
 class SampleFilterView(LoginRequiredMixin, FilterView):
@@ -119,6 +133,12 @@ class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
         port_sample_tests(self.object)
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["add_sampler_href"] = reverse("herring:sampler_new_pop")
+
+        return context
 
 class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/port_sample_form_popout.html'
@@ -413,7 +433,7 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
             print(e)
         else:
             context['next_fish_id'] = next_fishy.id
-            
+
         # pass in a variable to help determine if the record is complete from a QC point of view
         ## Should be able to make this assessment via the global tests
 

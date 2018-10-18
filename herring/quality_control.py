@@ -172,10 +172,10 @@ def run_global_ratio_test(object_test, is_accepted):
 def run_test_mandatory_fields(object, object_type): # All mandatory fields complete
     if object_type == "port_sample":
         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-        models.SampleTest.objects.filter(sample_id=object.id, test_id=202).delete()
+        models.SampleTest.objects.filter(sample_id=object.id, test_id=230).delete()
 
         # CREATE BLANK TESTS IN SAMPLETEST
-        test = models.SampleTest.objects.create(sample_id=object.id,test_id=202,test_passed=False)
+        test = models.SampleTest.objects.create(sample_id=object.id,test_id=230,test_passed=False)
 
         if object.sampling_protocol and object.sample_date and object.sampler and object.sampler_ref_number and object.total_fish_preserved and object.total_fish_measured:
             test.test_passed = True
