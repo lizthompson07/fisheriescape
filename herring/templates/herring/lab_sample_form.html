@@ -234,7 +234,7 @@
           if (userResponse.match(/Gonad/gi)) {
             $("#id_gonad_weight").val(userResponse.toLowerCase().replace("enter Gonad wt","").trim());
           } else {
-            $("#id_gonad_weight").val(userResponse.toLowerCase().replace("scale_2","").trim());
+            $("#id_gonad_weight").val(userResponse.toLowerCase().replace("scale_2","").replace("g","").trim());
           }
           clickSubmit = true;
         }
