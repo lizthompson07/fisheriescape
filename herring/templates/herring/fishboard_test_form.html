@@ -1,0 +1,135 @@
+{% extends "herring/herring_base.html" %}
+
+{% load static %}
+
+{% block content %}
+<div class="nav-map">
+<br>
+  <p>
+    <a href="{% url 'herring:sample_list' %}">All Samples</a> >
+    <a href="{% url 'herring:port_sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+    Electronic Fish Board Initialization
+  </p>
+</div>
+
+
+<div class="container" style="text-align: center;">
+<br><br>
+  <h1>  Electronic Fish Board Initialization </h1>
+
+  <br><br>
+
+  <h3>Please follow the instructions below:</h3>
+  <br><br>
+
+  <h2 class="blue-font" style="font-weight: bold;">
+    <span id="instructions">Please press the "Date/Time" button on the board</span>
+  </h2>
+  <br><br>
+  <div align="center">
+    <input type="text" placeholder="Input here!" id="prompt1" class="float-center form-control " style="width: 200px">
+  </div>
+
+</div>
+
+<script type="text/javascript">
+  // var keepPrompting = true;
+  var clickSubmit = false;
+  var audio = new Audio("{% static "/sounds/success.wav" %}");
+  var succesURL = "{% url 'herring:lab_sample_primer' view.kwargs.sample %}"
+
+  audio.onended = function () {
+    $("input").click();
+  }
+
+  $(document).ready(function () {
+    speak("Initializing Fish Measurement Board")
+    $("#prompt1").focus();
+  })
+
+
+// for when the enter button is pressed on the prompt control
+  $("#prompt1").keypress(function(e) {
+    if(e.which == 13) {
+      e.preventDefault()
+      var userResponse = $("#prompt1").val();
+      userResponse = userResponse.trim()
+
+      if (userResponse.match(/date_time/gi)) {
+        goToNextTest(1)
+      }
+
+
+    }
+  });
+
+
+function initialPrompt2() {
+  // prep the next test
+  $("#prompt2").keypress(function(e) {
+    if(e.which == 13) {
+      e.preventDefault()
+      userResponse = $("#prompt2").val();
+      userResponse = userResponse.trim();
+
+      if (userResponse.match(/ruler1/gi)) {
+        goToNextTest("2")
+      }
+
+
+    }
+  });
+}
+
+function initialPrompt3() {
+  // prep the next test
+  $("#prompt3").keypress(function(e) {
+    if(e.which == 13) {
+      e.preventDefault()
+      userResponse = $("#prompt3").val();
+      userResponse = userResponse.trim();
+
+      if (userResponse.match(/enter maturity 1/gi)) {
+        goToNextTest("3")
+      }
+
+
+    }
+  });
+}
+
+  function goToNextTest(current_test) {
+    if (current_test == 1) {
+      audio.play(); // this will also submit the form for some reason.
+      $("#prompt1").unbind();
+      $("#prompt1").val("");
+      $("#prompt1").attr("id","prompt2");
+      $("#instructions").text("Please tap the stylus on the ruler");
+      $("#prompt2").focus();
+      initialPrompt2()
+    }
+    if (current_test == 2) {
+      audio.play(); // this will also submit the form for some reason.
+      $("#prompt2").unbind();
+      $("#prompt2").val("");
+      $("#prompt2").attr("id","prompt3");
+      $("#instructions").text("Please enter Maturity Level 1 on the board");
+      $("#prompt3").focus();
+      initialPrompt3()
+    }
+    if (current_test == 3) {
+      $("#prompt3").unbind();
+      $("#prompt3").val("");
+      $("#prompt3").prop("hidden",true);
+      speak("Initializing complete. Ready to start measurements")
+      $("#instructions").text("Initialization Complete...");
+      document.location.href = succesURL
+
+    }
+  }
+
+
+</script>
+
+
+{% endblock content %}

@@ -319,6 +319,11 @@ def lab_sample_primer(request, sample):
         "pk":my_fishy.id,
     }))
 
+class FishboardTestView(LoginRequiredMixin,TemplateView):
+    template_name = 'herring/fishboard_test_form.html'
+    login_url = '/accounts/login_required/'
+
+
 
 class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/lab_sample_form.html'

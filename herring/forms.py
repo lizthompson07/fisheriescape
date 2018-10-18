@@ -29,9 +29,9 @@ class PortSampleForm(forms.ModelForm):
             'last_modified_date':forms.HiddenInput(),
             'last_modified_by':forms.HiddenInput(),
             'sampling_protocol':forms.HiddenInput(),
-            'latitude_n':forms.NumberInput(attrs={'placeholder':"dd.ddddd"}),
-            'longitude_w':forms.NumberInput(attrs={'placeholder':"dd.ddddd"}),
-
+            'latitude_n':forms.NumberInput(),
+            'longitude_w':forms.NumberInput(),
+            'vessel_cfvn':forms.TextInput(),
         }
 
 class PortSampleFishMeasuredForm(forms.ModelForm):

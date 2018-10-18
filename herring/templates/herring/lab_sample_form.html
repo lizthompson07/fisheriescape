@@ -1,10 +1,8 @@
 {% extends "herring/herring_base.html" %}
 
-{% load bootstrap4 %}
-{% load verbose_names %}
-{% load percentage %}
-{% load divide %}
 {% load static %}
+{% load divide %}
+{% load percentage %}
 
 {% block content %}
 <div class="nav-map">
@@ -103,15 +101,11 @@
               <tbody>
                 <tr>
                   <td>Help Menu</td>
-                  <td>F1</td>
+                  <td>Help</td>
                 </tr>
                 <tr>
                   <td>Exit Help Menu</td>
-                  <td>Esacpe</td>
-                </tr>
-                <tr>
-                  <td>New Record</td>
-                  <td>F2</td>
+                  <td>Esc</td>
                 </tr>
                 <tr>
                   <td>Move to previous record</td>
@@ -206,20 +200,15 @@ disableKey("Tab")
         speak("Returning to sample detail page.")
         $("#home")[0].click();
       }
-      else if (event.key == 'F2') {
-        event.preventDefault()
-        if (progress == totalTests && test201Passed == "True") {
-          // redirect to new record
-          window.location.href=newRecordURL;
-        } else {
-          speak("cannot go to new record until sample is complete and until all quality tests have been passed.")
-        }
-      }
-      else if (event.key == 'F1') {
-        event.preventDefault()
-        $("#myBtn")[0].click();
-
-      }
+      // else if (event.key == 'F2') {
+      //   event.preventDefault()
+      //   if (progress == totalTests && test201Passed == "True") {
+      //     // redirect to new record
+      //     window.location.href=newRecordURL;
+      //   } else {
+      //     speak("cannot go to new record until sample is complete and until all quality tests have been passed.")
+      //   }
+      // }
       else if (event.key == 'Escape') {
         event.preventDefault()
         $("#closeBtn")[0].click();
@@ -298,7 +287,12 @@ disableKey("Tab")
           $("#id_remarks").val(userResponse.toLowerCase().replace("comment","").trim());
           clickSubmit = true;
         }
-      } else if (userResponse.match(/ruler1/gi)) {
+      }
+      else if (userResponse.match(/Help/gi)) {
+        // EXAMPLE:  Ruler1 279.2123
+        $("#myBtn")[0].click();
+      }
+      else if (userResponse.match(/ruler1/gi)) {
         // EXAMPLE:  Ruler1 279.2123
         if (overwrite($("#id_fish_length"))) {
           $("#id_fish_length").val(userResponse.toLowerCase().replace("ruler1","").trim());
