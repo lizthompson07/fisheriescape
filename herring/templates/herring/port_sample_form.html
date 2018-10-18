@@ -69,4 +69,14 @@
   </form>
 </div>
 
+<script type="text/javascript">
+  $("#add_sampler").click(function () {
+    // document.location.href = "{% url "herring:sampler_new_pop" %}"
+
+    popitup('{% url 'herring:sampler_new_pop' %}','popoutWindow0')
+  })
+
+
+</script>
+
 {% endblock content %}

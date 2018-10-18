@@ -7,6 +7,11 @@ urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name ="close_me" ),
     path('', views.IndexView.as_view(), name ="index" ),
 
+    # SAMPLER #
+    ###########
+    path('sampler/new/', views.SamplerPopoutCreateView.as_view(), name ="sampler_new_pop"),
+
+
     # PORT SAMPLE #
     ###############
     path('samples/list/', views.SampleFilterView.as_view(), name ="sample_list"),
