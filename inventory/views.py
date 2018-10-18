@@ -857,6 +857,10 @@ class CertificationListView(LoginRequiredMixin, ListView):
     template_name = "inventory/dm_certification_list.html"
     queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
 
+class ModificationListView(LoginRequiredMixin, ListView):
+    template_name = "inventory/dm_modification_list.html"
+    queryset = models.Resource.objects.all().order_by("-date_last_modified")[:50]
+
 class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
     template_name = 'inventory/dm_custodian_form.html'
     form_class = forms.PersonCreateForm
