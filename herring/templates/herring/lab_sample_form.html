@@ -152,13 +152,25 @@ disableKey("Tab")
   var audio = new Audio("{% static "/sounds/success.wav" %}");
   var progress = {{progress}};
   var totalTests = {{total_tests}};
-  var test201Passed = "{{test_201}}";
+  {% if test_201 %}
+    var test201Passed = true;
+  {% else %}
+    var test201Passed = false;
+  {% endif %}
+
+  {% if last_record %}
+    var lastRecord = true;
+  {% else %}
+    var lastRecord = false;
+  {% endif %}
 
   var qcFeedbackLookup = '{{qc_feedback_json|safe}}';
   var qcFeedbackObject = JSON.parse(qcFeedbackLookup);
 
   var nextPageHref = "{% url "herring:move_record" object.sample.id "lab" "next" object.id %}";
   var prevPageHref = "{% url "herring:move_record" object.sample.id "lab" "prev" object.id %}";
+  var deleteFishDetail = "{% url "herring:delete_fish_detail" object.sample.id object.id %}";
+
 
 
   var newRecordURL = "{% url 'herring:lab_sample_primer' object.sample.id %}"
@@ -172,16 +184,13 @@ disableKey("Tab")
 
   $(document).ready(function () {
     if (progress == totalTests) {
-      if (test201Passed === "True") {
-        speak("sample complete.")
-
-      } else {
-        // speak("sample complete, but there are problems with the sample quality.")
+      if (test201Passed && lastRecord) {
+        speak("Sample complete. Moving to next sample.")
+        window.location.href=newRecordURL;
 
       }
     }
     improbableMeasurementValidation()
-
 
     $("#prompt").focus();
   })
@@ -197,8 +206,25 @@ disableKey("Tab")
       }
       else if ( event.key == 'Home' ) {
         event.preventDefault()
-        speak("Returning to sample detail page.")
-        $("#home")[0].click();
+        if (test201Passed || lastRecord == false) {
+          // if the form is filled out, go ahead and leave
+          speak("Returning to sample detail page.")
+          $("#home")[0].click();
+        }
+        else {
+          // if this is a trailing record, then it should be deleled
+          speak("Are you sure you want to leave?")
+          while (userInput != "y" && userInput != "n") {
+            var userInput = prompt("Leaving this page before it is complete will result in it being deleted. \n\nAre you sure you want to leave?\n\nPress [y] for YES or [n] for NO.")
+          }
+          if (userInput === 'y') {
+            speak("Returning to sample detail page.")
+            document.location.href = deleteFishDetail
+
+          }
+        }
+
+
       }
       // else if (event.key == 'F2') {
       //   event.preventDefault()
@@ -247,7 +273,7 @@ disableKey("Tab")
 
 
   function overwrite(control) {
-    var msg = "Do you want to overwrite the existing data in this field? Press 'y' for YES or 'n' for NO."
+    var msg = "Do you want to overwrite the existing data in this field? Press [y] for YES or [n] for NO."
     var msgLite = "do you want to overwrite?"
     var assess = true
     var userInput

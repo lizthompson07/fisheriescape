@@ -364,12 +364,25 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
         # send JSON file to template so that it can be used by js script
         context['qc_feedback_json'] = qc_feedback_json
 
-
-
         # pass in a variable to help determine if the record is complete from a QC point of view
         ## Should be able to make this assessment via the global tests
 
         context['test_201'] = self.object.sample_tests.filter(test_id=201).first().test_passed
+
+        # determine if this is the last sample in the series
+        record_count = models.FishDetail.objects.filter(sample_id=self.kwargs["sample"]).count()
+
+        # populate a list with all fish detail ids
+        id_list = []
+        for f in models.FishDetail.objects.filter(sample_id=self.kwargs["sample"]).order_by("id"):
+            id_list.append(f.id)
+
+        #determine if this fish is on the leading edge
+        if self.object.id == id_list[-1]:
+            context['last_record'] = True
+            # messages.success(self.request, "ttest")
+
+
 
 
 
@@ -396,10 +409,16 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
 
             my_test.accepted = True
             my_test.save()
+
         return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
+
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
 
+def delete_fish_detail(request, sample, pk):
+    fishy = models.FishDetail.objects.get(pk=pk)
+    fishy.delete()
+    return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs = {"pk":sample}))
 
 
 # Otolith
