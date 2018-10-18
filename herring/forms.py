@@ -15,11 +15,11 @@ class PortSampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         fields = "__all__"
-        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete"]
+        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete", "vessel"]
         labels={
             'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
             'district':mark_safe("District (<a href='#' >search</a>)"),
-            'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
+            # 'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
         }
         widgets = {
             'remarks':forms.Textarea(attrs={'rows': '5'}),
@@ -131,6 +131,7 @@ class LabSampleForm(forms.ModelForm):
     #         print("hera!")
     #         raise forms.ValidationError("bullshit!!")
     #     return value
+
 
 
 class OtolithForm(forms.ModelForm):

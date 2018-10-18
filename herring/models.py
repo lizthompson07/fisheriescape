@@ -159,6 +159,7 @@ class Sample(models.Model):
     gear = models.ForeignKey(Gear, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     experimental_net_used = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
     vessel = models.ForeignKey(Vessel, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
+    vessel_cfvn = models.IntegerField(null=True, blank=True)
     mesh_size = models.ForeignKey(MeshSize, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     catch_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Catch weight (lbs)")
     sample_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Sample weight (lbs)")
