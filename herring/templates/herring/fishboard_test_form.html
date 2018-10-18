@@ -23,7 +23,7 @@
   <br><br>
 
   <h2 class="blue-font" style="font-weight: bold;">
-    <span id="instructions">Please press the "Date/Time" button on the board</span>
+    <span id="instructions">Please press the "Time/Date" button on the board</span>
   </h2>
   <br><br>
   <div align="center">
@@ -55,7 +55,7 @@
       var userResponse = $("#prompt1").val();
       userResponse = userResponse.trim()
 
-      if (userResponse.match(/date_time/gi)) {
+      if (userResponse.match(/time_date/gi)) {
         goToNextTest(1)
       }
 
