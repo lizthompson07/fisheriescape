@@ -22,6 +22,10 @@
       <a class="btn btn-danger" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
     {% elif user.is_superuser   %}
       <a class="btn btn-danger" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
+    {% else %}
+    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cannot be deleted when there are fish detail files or length frequencies that exist.">
+      <a class="btn btn-danger disabled" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
+    </span>
     {% endif %}
   </div>
 
