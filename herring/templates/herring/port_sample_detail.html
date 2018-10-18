@@ -18,10 +18,10 @@
   <br>
   <div class="btn-group">
     <a class="btn btn-warning" href="{% url 'herring:port_sample_edit' object.id %}">Edit</a>
-    {% if object.length_frequencies.count > 0  %}
-    <a class="btn btn-danger disabled" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
-    {% else %}
-    <a class="btn btn-danger" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
+    {% if object.length_frequencies.count == 0 and object.fish_detail.count == 0   %}
+      <a class="btn btn-danger" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
+    {% elif user.is_superuser   %}
+      <a class="btn btn-danger" href="{% url 'herring:port_sample_delete' object.id %}">Delete</a>
     {% endif %}
   </div>
 

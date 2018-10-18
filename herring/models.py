@@ -245,7 +245,7 @@ def img_file_name(instance, filename):
     return img_name
 
 class FishDetail(models.Model):
-    sample = models.ForeignKey(Sample, related_name="fish_details", on_delete=models.DO_NOTHING)
+    sample = models.ForeignKey(Sample, related_name="fish_details", on_delete=models.CASCADE)
     fish_number = models.IntegerField()
     fish_length = models.FloatField(null=True, blank=True)
     fish_weight = models.FloatField(null=True, blank=True)
