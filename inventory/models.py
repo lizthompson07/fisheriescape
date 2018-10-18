@@ -379,7 +379,7 @@ class Resource(models.Model):
     def save(self,*args,**kwargs):
         if self.uuid == None:
             self.uuid = uuid.uuid1()
-
+        self.date_last_modified = timezone.now()
         super().save(*args,**kwargs)
 
 
