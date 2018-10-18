@@ -38,17 +38,9 @@
             {% for field in form  %}
             <tr>
 
-
-              {% if field.name == 'district' %}
               <td width='80%'>
-
-                {% bootstrap_field field size='small' layout='horizontal' %}
+                {% bootstrap_field field size='small' layout='horizontal' placeholder=""%}
               </td>
-              {% else %}
-              <td width='80%'>
-                {% bootstrap_field field size='small' layout='horizontal' %}
-              </td>
-              {% endif %}
 
             </tr>
 
@@ -75,6 +67,8 @@
 
     popitup('{% url 'herring:sampler_new_pop' %}','popoutWindow0')
   })
+
+
 
 
 </script>
