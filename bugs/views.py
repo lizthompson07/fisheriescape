@@ -90,4 +90,4 @@ def bug_resolved(request, pk):
     bug.date_resolved = timezone.now()
     bug.save()
 
-    return HttpResponseRedirect(reverse('bugs:bug_list'))
+    return HttpResponseRedirect(reverse('bugs:bug_list_4_app', kwargs={"application":bug.application}))
