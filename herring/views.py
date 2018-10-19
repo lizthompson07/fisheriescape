@@ -78,12 +78,21 @@ class SamplerPopoutCreateView(LoginRequiredMixin,CreateView):
     template_name = 'herring/sampler_form_popout.html'
     model = models.Sampler
     form_class = forms.SamplerForm
-    success_url = reverse_lazy("herring:close_me")
-    #
-    # def form_valid(self, form):
-    #     object = form.save()
-    #     return HttpResponseRedirect(reverse("herring:close_me"))
 
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy("herring:close_sampler", kwargs={"sampler":object.id}))
+
+
+
+class SamplerCloseTemplateView(TemplateView):
+    template_name = 'herring/sampler_close.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object = models.Sampler.objects.get(pk = self.kwargs["sampler"])
+        context["object"]= object
+        return context
 
 # PORT SAMPLE #
 ###############
@@ -114,6 +123,35 @@ class PortSampleCreateView(LoginRequiredMixin,CreateView):
         port_sample_tests(object)
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get a list of districts
+        district_list = []
+        for d in models.District.objects.all():
+            for l in d.locality_list.split(", "):
+                html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(p=d.province_id,d=d.district_id, l=l.replace("'",""),prov=d.get_province_id_display().upper())
+                district_list.append(html_insert)
+        context['district_list'] = district_list
+
+        # get a list of samplers
+        sampler_list = []
+        for s in models.Sampler.objects.all():
+            if s.first_name:
+                first = s.first_name.replace("'","")
+            else:
+                first = None
+
+            if s.last_name:
+                last = s.last_name.replace("'","")
+            else:
+                last = None
+
+            html_insert = '<a href="#" class="sampler_insert" code={id}>{first} {last}</a>'.format(id=s.id,first=first, last=last)
+            sampler_list.append(html_insert)
+        context['sampler_list'] = sampler_list
+        return context
+
 class PortSampleDeleteView(LoginRequiredMixin,DeleteView):
     template_name = 'herring/sample_confirm_delete.html'
     model = models.Sample
@@ -137,8 +175,6 @@ class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["add_sampler_href"] = reverse("herring:sampler_new_pop")
-
         # get a list of districts
         district_list = []
         for d in models.District.objects.all():
@@ -146,6 +182,23 @@ class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
                 html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(p=d.province_id,d=d.district_id, l=l.replace("'",""),prov=d.get_province_id_display().upper())
                 district_list.append(html_insert)
         context['district_list'] = district_list
+
+        # get a list of samplers
+        sampler_list = []
+        for s in models.Sampler.objects.all():
+            if s.first_name:
+                first = s.first_name.replace("'","")
+            else:
+                first = None
+
+            if s.last_name:
+                last = s.last_name.replace("'","")
+            else:
+                last = None
+
+            html_insert = '<a href="#" class="sampler_insert" code={id}>{first} {last}</a>'.format(id=s.id,first=first, last=last)
+            sampler_list.append(html_insert)
+        context['sampler_list'] = sampler_list
         return context
 
 class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):

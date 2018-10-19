@@ -41,13 +41,13 @@
               {% if field.name == "district" %}
                 <div id="district_interpreter_div">
                   <div class="form-group row" style="margin-bottom: 0px;">
-                    <label for="district" class="col-md-3 col-form-label">District (any part of name or code)</label>
+                    <label for="district_interpreter" class="col-md-3 col-form-label">District (any part of name or code)</label>
                     <div class="col-md-9">
-                      <input type="text" class="form-control tab" id="district">
+                      <input type="text" class="form-control tab" id="district_interpreter">
                     </div>
                   </div>
                   <div class="form-group row" style="margin-bottom: 0px;">
-                    <label for="district" class="col-md-3 col-form-label"></label>
+                    <label for="district_list" class="col-md-3 col-form-label"></label>
                     <div class="col-md-9">
                       <p id="district_list"></p>
                     </div>
@@ -57,12 +57,40 @@
                 <div id="district_field_div">
                   {% bootstrap_field field size='small' layout='horizontal' placeholder=""%}
                   <div class="form-group row" style="margin-top: 0px;">
-                    <label for="district" class="col-md-3 col-form-label"></label>
+                    <label for="clear_district" class="col-md-3 col-form-label"></label>
                     <div class="col-md-9">
-                      <a href="#" id="clear_district">clear</a>
+                      <a href="#" id="clear_district" class="red-font">(clear district)</a>
                     </div>
                   </div>
                 </div>
+
+                {% elif field.name == "sampler" %}
+                  <div id="sampler_interpreter_div">
+                    <div class="form-group row" style="margin-bottom: 0px;">
+                      <label for="sampler_interpreter" class="col-md-3 col-form-label">Sampler (any part of name)</label>
+                      <div class="col-md-9">
+                        <input type="text" class="form-control tab" id="sampler_interpreter">
+                      </div>
+                    </div>
+                    <div class="form-group row" style="margin-bottom: 0px;">
+                      <label for="sampler_list" class="col-md-3 col-form-label"></label>
+                      <div class="col-md-9">
+                        <p id="sampler_list" style="margin-bottom: 0px;"></p>
+                        <a href="#" id="add_sampler">(add new sampler)</a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="sampler_field_div">
+                    {% bootstrap_field field size='small' layout='horizontal' placeholder=""%}
+                    <div class="form-group row" style="margin-top: 0px;">
+                      <label for="clear_sampler" class="col-md-3 col-form-label"></label>
+                      <div class="col-md-9">
+                        <a href="#" id="clear_sampler" class="red-font">(clear sampler)</a>
+                      </div>
+                    </div>
+                  </div>
+
 
                 {% else %}
 
@@ -89,9 +117,15 @@
   </form>
 </div>
 
+<button  class="hidden" id="add_sampler_btn"></button>
+
+
 <script type="text/javascript">
+window.name = "motherWindow"
 var position = 0;
 var districtList = {{district_list|safe}}
+var samplerList = {{sampler_list|safe}}
+
 function assignIndexToElements(indexName, className) {
   for (var i = 0; i < $("."+className).length; i++) {
     $("."+className)[i].setAttribute(indexName,i)
@@ -141,24 +175,35 @@ function enterKey(className, submitButtonId) {
   });
 }
 
-
-
   $("#add_sampler").click(function () {
     // document.location.href = "{% url "herring:sampler_new_pop" %}"
-
     popitup('{% url 'herring:sampler_new_pop' %}','popoutWindow0')
   })
 
   assignIndexToElements("index", "tab")
   startFocusOnElement("id_sample_date")
-  disableKey("Tab")
+  // disableKey("Tab")
   enterKey("tab", "submit" )
 
   $(document).ready(function() {
-    $("#district_field_div").prop("hidden",true)
+
+    {% if object.district %}
+      $("#district_interpreter_div").prop("hidden",true)
+    {% else %}
+      $("#district_field_div").prop("hidden",true)
+    {% endif %}
+
+    {% if object.sampler %}
+      $("#sampler_interpreter_div").prop("hidden",true)
+      $("#add_sampler").prop("hidden",true)
+    {% else %}
+      $("#sampler_field_div").prop("hidden",true)
+      $("#add_sampler").prop("hidden",true)
+    {% endif %}
+
   });
 
-  $("#district").keyup(function(e) {
+  $("#district_interpreter").keyup(function(e) {
     $("#district_list").html("")
       if ( (this.value.length >=2 && this.value.match(/^\d+$/)) || this.value.length >=3 ) {
         for (var i = 0; i < districtList.length; i++) {
@@ -186,16 +231,63 @@ function enterKey(className, submitButtonId) {
       }
   });
 
+  $("#sampler_interpreter").keyup(function(e) {
+    $("#sampler_list").html("")
+    $("#add_sampler").prop("hidden",true)
+      if (this.value.length >=3 ) {
+        $("#add_sampler").prop("hidden",false)
+        for (var i = 0; i < samplerList.length; i++) {
+          // console.log(123);
+          var re = new RegExp(this.value, 'gi');
+
+          if (samplerList[i].match(re)) {
+            $("#sampler_list").html(
+              $("#sampler_list").html() + samplerList[i]+'<br>')
+          }
+        }
+
+
+
+        $(".sampler_insert").click(function() {
+          $("#sampler_field_div").prop("hidden",false)
+          $("#sampler_interpreter_div").prop("hidden",true)
+          code = this.getAttribute("code")
+          $("#id_sampler").val(code)
+
+          $("#district_interpreter")[0].focus()
+
+        });
+
+      }
+  });
+
+
+
+
   $("#clear_district").click(function() {
-    $("#district").val("")
+    $("#district_interpreter").val("")
     $("#district_list").html("")
     $("#district_field_div").prop("hidden",true)
     $("#district_interpreter_div").prop("hidden",false)
-    $("#district")[0].focus()
+    $("#district_interpreter")[0].focus()
 
   });
 
 
-</script>
+    $("#clear_sampler").click(function() {
+      $("#sampler_interpreter").val("")
+      $("#sampler_list").html("")
+      $("#sampler_field_div").prop("hidden",true)
+      $("#sampler_interpreter_div").prop("hidden",false)
+      $("#sampler_interpreter")[0].focus()
+      $("#add_sampler").prop("hidden",true)
+    });
 
+$("#add_sampler_btn").click(function () {
+  $("#sampler_field_div").prop("hidden",false)
+  $("#sampler_interpreter_div").prop("hidden",true)
+  $("#district_interpreter")[0].focus()
+})
+
+</script>
 {% endblock content %}
