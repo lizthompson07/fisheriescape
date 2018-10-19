@@ -17,7 +17,7 @@ class PortSampleForm(forms.ModelForm):
         fields = "__all__"
         exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete", "vessel"]
         labels={
-            'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
+            # 'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
             # 'district':mark_safe("District (<a href='#' >search</a>)"),
             'vessel_cfvn':"Vessel CFVN",
         }
@@ -31,8 +31,8 @@ class PortSampleForm(forms.ModelForm):
             'last_modified_date':forms.HiddenInput(),
             'last_modified_by':forms.HiddenInput(),
             'sampling_protocol':forms.HiddenInput(),
-            'latitude_n':forms.NumberInput(attrs=attr_dict),
-            'longitude_w':forms.NumberInput(attrs=attr_dict),
+            'latitude_n':forms.TextInput(attrs=attr_dict),
+            'longitude_w':forms.TextInput(attrs=attr_dict),
             'vessel_cfvn':forms.TextInput(),
             'sampler_ref_number':forms.TextInput(attrs=attr_dict),
             'sampler':forms.Select(attrs=attr_dict),
