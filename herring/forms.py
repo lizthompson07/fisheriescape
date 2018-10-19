@@ -12,6 +12,7 @@ class SamplerForm(forms.ModelForm):
         }
 
 class PortSampleForm(forms.ModelForm):
+    do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
     class Meta:
         model = models.Sample
         fields = "__all__"
@@ -46,9 +47,6 @@ class PortSampleForm(forms.ModelForm):
             'sample_weight_lbs':forms.NumberInput(attrs=attr_dict),
             'total_fish_measured':forms.NumberInput(attrs=attr_dict),
             'total_fish_preserved':forms.NumberInput(attrs=attr_dict),
-
-
-
         }
 
 class PortSampleFishMeasuredForm(forms.ModelForm):

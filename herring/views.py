@@ -34,11 +34,6 @@ class CloserTemplateView(TemplateView):
 # QUALITY CONTROL #
 ###################
 
-# def retest_sample(request, sample):
-#     s = models.Sample.objects.get(pk=sample)
-#     port_sample_tests(s)
-#     return HttpResponseRedirect(reverse('herring:port_sample_detail', kwargs={"pk":sample}))
-
 def port_sample_tests(sample):
     quality_control.run_test_mandatory_fields(sample,"port_sample")
     quality_control.run_test_205(sample)
@@ -83,8 +78,6 @@ class SamplerPopoutCreateView(LoginRequiredMixin,CreateView):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy("herring:close_sampler", kwargs={"sampler":object.id}))
 
-
-
 class SamplerCloseTemplateView(TemplateView):
     template_name = 'herring/sampler_close.html'
 
@@ -104,7 +97,7 @@ class SampleFilterView(LoginRequiredMixin, FilterView):
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
         if kwargs["data"] is None:
-            kwargs["data"] = {"SeasonSince": timezone.now().year-1 }
+            kwargs["data"] = {"season": timezone.now().year }
         return kwargs
 
 class PortSampleCreateView(LoginRequiredMixin,CreateView):
@@ -116,12 +109,17 @@ class PortSampleCreateView(LoginRequiredMixin,CreateView):
         return {
             'created_by': self.request.user,
             'last_modified_by': self.request.user,
+            'do_another': 1,
         }
 
     def form_valid(self, form):
         object = form.save()
         port_sample_tests(object)
-        return super().form_valid(form)
+        if form.cleaned_data["do_another"] == 1:
+            return HttpResponseRedirect(reverse_lazy('herring:port_sample_new'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('herring:sample_list'))
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
