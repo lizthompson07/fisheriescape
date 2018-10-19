@@ -13,6 +13,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.views import FilterView
 from django.utils import timezone
+
 import json
 from . import models
 from . import forms
@@ -138,11 +139,20 @@ class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
 
         context["add_sampler_href"] = reverse("herring:sampler_new_pop")
 
+        # get a list of districts
+        district_list = []
+        for d in models.District.objects.all():
+            for l in d.locality_list.split(", "):
+                html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(p=d.province_id,d=d.district_id, l=l.replace("'",""),prov=d.get_province_id_display().upper())
+                district_list.append(html_insert)
+        context['district_list'] = district_list
         return context
 
 class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/port_sample_form_popout.html'
     model = models.Sample
+
+
 
     def get_form_class(self):
         if self.kwargs["type"] == "measured":

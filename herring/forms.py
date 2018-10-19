@@ -18,20 +18,37 @@ class PortSampleForm(forms.ModelForm):
         exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete", "vessel"]
         labels={
             'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
-            'district':mark_safe("District (<a href='#' >search</a>)"),
-            # 'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
+            # 'district':mark_safe("District (<a href='#' >search</a>)"),
+            'vessel_cfvn':"Vessel CFVN",
         }
+        attr_dict = {"class":"tab",}
+
         widgets = {
-            'remarks':forms.Textarea(attrs={'rows': '5'}),
-            'sample_date':forms.DateInput(attrs={'type': 'date'}),
+            'remarks':forms.Textarea(attrs={'rows': '5',"class":"tab",}),
+            'sample_date':forms.DateInput(attrs={'type': 'date',"class":"tab",}),
             'creation_date':forms.HiddenInput(),
             'created_by':forms.HiddenInput(),
             'last_modified_date':forms.HiddenInput(),
             'last_modified_by':forms.HiddenInput(),
             'sampling_protocol':forms.HiddenInput(),
-            'latitude_n':forms.NumberInput(),
-            'longitude_w':forms.NumberInput(),
+            'latitude_n':forms.NumberInput(attrs=attr_dict),
+            'longitude_w':forms.NumberInput(attrs=attr_dict),
             'vessel_cfvn':forms.TextInput(),
+            'sampler_ref_number':forms.TextInput(attrs=attr_dict),
+            'sampler':forms.Select(attrs=attr_dict),
+            'district':forms.Select(attrs=attr_dict),
+            'fishing_area':forms.Select(attrs=attr_dict),
+            'gear':forms.Select(attrs=attr_dict),
+            'experimental_net_used':forms.Select(attrs=attr_dict),
+            'vessel_cfvn':forms.TextInput(attrs=attr_dict),
+            'mesh_size':forms.Select(attrs=attr_dict),
+            'catch_weight_lbs':forms.NumberInput(attrs=attr_dict),
+            'sample_weight_lbs':forms.NumberInput(attrs=attr_dict),
+            'total_fish_measured':forms.NumberInput(attrs=attr_dict),
+            'total_fish_preserved':forms.NumberInput(attrs=attr_dict),
+
+
+
         }
 
 class PortSampleFishMeasuredForm(forms.ModelForm):
