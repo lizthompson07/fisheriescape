@@ -37,9 +37,37 @@
           <table>
             {% for field in form  %}
             <tr>
-
               <td width='80%'>
+              {% if field.name == "district" %}
+                <div id="district_interpreter_div">
+                  <div class="form-group row" style="margin-bottom: 0px;">
+                    <label for="district" class="col-md-3 col-form-label">District (any part of name or code)</label>
+                    <div class="col-md-9">
+                      <input type="text" class="form-control tab" id="district">
+                    </div>
+                  </div>
+                  <div class="form-group row" style="margin-bottom: 0px;">
+                    <label for="district" class="col-md-3 col-form-label"></label>
+                    <div class="col-md-9">
+                      <p id="district_list"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="district_field_div">
+                  {% bootstrap_field field size='small' layout='horizontal' placeholder=""%}
+                  <div class="form-group row" style="margin-top: 0px;">
+                    <label for="district" class="col-md-3 col-form-label"></label>
+                    <div class="col-md-9">
+                      <a href="#" id="clear_district">clear</a>
+                    </div>
+                  </div>
+                </div>
+
+                {% else %}
+
                 {% bootstrap_field field size='small' layout='horizontal' placeholder=""%}
+              {% endif %}
               </td>
 
             </tr>
@@ -51,7 +79,7 @@
       </div>
 
       <p>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button id="submit" type="submit" class="btn btn-primary">Submit</button>
         {% if object.id %}
           <a class="btn btn-secondary" href="#">Cancel</a>
         {% else %}
@@ -62,13 +90,110 @@
 </div>
 
 <script type="text/javascript">
+var position = 0;
+var districtList = {{district_list|safe}}
+function assignIndexToElements(indexName, className) {
+  for (var i = 0; i < $("."+className).length; i++) {
+    $("."+className)[i].setAttribute(indexName,i)
+  }
+  // have this variable called position that will always have the index of the focused element
+  $("."+className).focus(function () {
+    position = Number(this.getAttribute(indexName))
+  })
+}
+
+
+function startFocusOnElement(targetId) {
+  $(document).ready(function() {
+    $("#"+ targetId )[0].focus()
+  });
+}
+
+function disableKey(keyName) {
+  $(document).keydown(function(event){
+    if ( event.key == keyName ) {
+      event.preventDefault()
+    }
+  });
+}
+
+
+function enterKey(className, submitButtonId) {
+  $(document).keydown(function(event){
+
+    // determine how many fields there are
+    var maxCount = $("."+className).length;
+    if ( event.key == 'Enter' ) {
+      event.preventDefault()
+      // DESIRED BEHAVIOUR:
+      // if you press enter, it will act as down arrow, unless you are on the last field, at which point
+      // it will act as a submit button
+
+      // if we are on the last button
+      if (position == maxCount-1) {
+        $("#"+submitButtonId)[0].click()
+      }
+      // else, jump to the next record
+      else {
+        $("."+className)[position+1].focus();
+      }
+    }
+  });
+}
+
+
+
   $("#add_sampler").click(function () {
     // document.location.href = "{% url "herring:sampler_new_pop" %}"
 
     popitup('{% url 'herring:sampler_new_pop' %}','popoutWindow0')
   })
 
+  assignIndexToElements("index", "tab")
+  startFocusOnElement("id_sample_date")
+  disableKey("Tab")
+  enterKey("tab", "submit" )
 
+  $(document).ready(function() {
+    $("#district_field_div").prop("hidden",true)
+  });
+
+  $("#district").keyup(function(e) {
+    $("#district_list").html("")
+      if ( (this.value.length >=2 && this.value.match(/^\d+$/)) || this.value.length >=3 ) {
+        for (var i = 0; i < districtList.length; i++) {
+          // console.log(123);
+          var re = new RegExp(this.value, 'gi');
+
+          if (districtList[i].match(re)) {
+            $("#district_list").html(
+              $("#district_list").html() + districtList[i]+'<br>')
+          }
+        }
+
+
+
+        $(".district_insert").click(function() {
+          $("#district_field_div").prop("hidden",false)
+          $("#district_interpreter_div").prop("hidden",true)
+          code = this.getAttribute("code")
+          $("#id_district").val(code)
+
+          $("#id_latitude_n")[0].focus()
+
+        });
+
+      }
+  });
+
+  $("#clear_district").click(function() {
+    $("#district").val("")
+    $("#district_list").html("")
+    $("#district_field_div").prop("hidden",true)
+    $("#district_interpreter_div").prop("hidden",false)
+    $("#district")[0].focus()
+
+  });
 
 
 </script>
