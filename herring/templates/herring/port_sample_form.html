@@ -107,11 +107,13 @@
       </div>
 
       <p>
-        <button id="submit" type="submit" class="btn btn-primary">Submit</button>
         {% if object.id %}
-          <a class="btn btn-secondary" href="#">Cancel</a>
+          <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+          <a class="btn btn-secondary" href="{% url 'herring:port_sample_detail' object.id %}">Cancel</a>
         {% else %}
-          <a class="btn btn-secondary" href="{% url 'herring:index' %}">Cancel</a>
+          <button id="submit" type="submit" class="btn btn-success">Save and Next</button>
+          <button id="submit_done" type="submit" class="btn btn-primary">Save and Done</button>
+          <a class="btn btn-secondary" href="{% url 'herring:sample_list' %}">Cancel</a>
         {% endif %}
       </p>
   </form>
@@ -126,66 +128,25 @@ var position = 0;
 var districtList = {{district_list|safe}}
 var samplerList = {{sampler_list|safe}}
 
-function assignIndexToElements(indexName, className) {
-  for (var i = 0; i < $("."+className).length; i++) {
-    $("."+className)[i].setAttribute(indexName,i)
-  }
-  // have this variable called position that will always have the index of the focused element
-  $("."+className).focus(function () {
-    position = Number(this.getAttribute(indexName))
-  })
-}
 
 
-function startFocusOnElement(targetId) {
-  $(document).ready(function() {
-    $("#"+ targetId )[0].focus()
-  });
-}
 
-function disableKey(keyName) {
-  $(document).keydown(function(event){
-    if ( event.key == keyName ) {
-      event.preventDefault()
-    }
-  });
-}
-
-
-function enterKey(className, submitButtonId) {
-  $(document).keydown(function(event){
-
-    // determine how many fields there are
-    var maxCount = $("."+className).length;
-    if ( event.key == 'Enter' ) {
-      event.preventDefault()
-      // DESIRED BEHAVIOUR:
-      // if you press enter, it will act as down arrow, unless you are on the last field, at which point
-      // it will act as a submit button
-
-      // if we are on the last button
-      if (position == maxCount-1) {
-        $("#"+submitButtonId)[0].click()
-      }
-      // else, jump to the next record
-      else {
-        $("."+className)[position+1].focus();
-      }
-    }
-  });
-}
 
   $("#add_sampler").click(function () {
     // document.location.href = "{% url "herring:sampler_new_pop" %}"
     popitup('{% url 'herring:sampler_new_pop' %}','popoutWindow0')
   })
 
-  assignIndexToElements("index", "tab")
-  startFocusOnElement("id_sample_date")
-  // disableKey("Tab")
-  enterKey("tab", "submit" )
+  $("#submit_done").click(function () {
+    // clear the do_another field
+    $("#id_do_another").val("")
+  })
+
 
   $(document).ready(function() {
+
+    $("#id_sample_date" )[0].focus()
+
 
     {% if object.district %}
       $("#district_interpreter_div").prop("hidden",true)
@@ -288,6 +249,14 @@ $("#add_sampler_btn").click(function () {
   $("#sampler_interpreter_div").prop("hidden",true)
   $("#district_interpreter")[0].focus()
 })
+
+
+$("input").keydown(function(event){
+  if ( event.key == "Enter" ) {
+    event.preventDefault()
+  }
+});
+
 
 </script>
 {% endblock content %}
