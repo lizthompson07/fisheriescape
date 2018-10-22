@@ -183,6 +183,7 @@ disableKey("Tab")
 
 
   $(document).ready(function () {
+    improbableMeasurementValidation()
     if (progress == totalTests) {
       if (test201Passed && lastRecord) {
         speak("Sample complete. Moving to next sample.")
@@ -190,7 +191,6 @@ disableKey("Tab")
       }
     }
     else {
-      improbableMeasurementValidation()
       speak("ready.")
     }
 
