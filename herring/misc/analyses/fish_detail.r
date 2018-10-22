@@ -1,7 +1,7 @@
 rm(list = ls())
 
 # Import file from local dir
-detail = read.csv("C:\\Users\\fishmand\\Projects\gulf_sci_site\herring\misc\analyses\raw data\\raw data\\GLF_HERRING_HERRING_DETAIL.txt", header=T)
+detail = read.csv("https://gccode.ssc-spc.gc.ca/dfo-gulf-science/glf_sci_site/blob/master/herring/misc/analyses/raw%20data/GLF_HERRING_HERRING_DETAIL.txt", header=T)
 
 
 
