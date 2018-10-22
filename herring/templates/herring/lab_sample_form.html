@@ -187,10 +187,12 @@ disableKey("Tab")
       if (test201Passed && lastRecord) {
         speak("Sample complete. Moving to next sample.")
         window.location.href=newRecordURL;
-
       }
     }
-    improbableMeasurementValidation()
+    else {
+      improbableMeasurementValidation()
+      speak("ready.")
+    }
 
     $("#prompt").focus();
   })
@@ -198,10 +200,12 @@ disableKey("Tab")
   $(document).keydown(function(event){
       if ( event.key == 'PageDown' ) {
         event.preventDefault()
+        speak("Changing Record")
         document.location.href = nextPageHref;
       }
       else if ( event.key == 'PageUp' ) {
         event.preventDefault()
+        speak("Changing Record")
         document.location.href = prevPageHref;
       }
       else if ( event.key == 'Home' ) {
