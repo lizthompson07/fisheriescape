@@ -442,10 +442,6 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
             context['last_record'] = True
             # messages.success(self.request, "ttest")
 
-
-
-
-
         return context
 
     def get_initial(self):
@@ -548,37 +544,6 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
             my_test.save()
         return HttpResponseRedirect(reverse("herring:otolith_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
-# this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
-
-
-# def next_object_in_model(qs,sample,current_pk):
-#     kill = False
-#     for object in qs:
-#         if kill == True:
-#             return object.id
-#             print("printing object ID")
-#             break
-#         else:
-#             if object.id == current_pk:
-#                 kill=True
-#     return qs[0].id
-#
-# def get_new_pk(request, sample, current_pk):
-#     qs = models.FishDetail.objects.filter(sample_id=sample).order_by('fish_number')
-#
-#     try:
-#         next_pk = next_object_in_model(qs,sample,current_pk)
-#     except :
-#         messages.success(request, "All done!!")
-#         return HttpResponseRedirect(redirect_to=reverse(viewname='books:transaction_list'))
-#     else:
-#         if next_pk == None:
-#             messages.success(request, "All done!!")
-#             return HttpResponseRedirect(redirect_to=reverse(viewname='books:transaction_list'))
-#         else:
-#             return HttpResponseRedirect(redirect_to=reverse(viewname='books:new_review_item', kwargs={'pk':next_pk}))
-
-
 
 # SHARED #
 ##########
@@ -591,7 +556,7 @@ def move_record(request, sample, type, direction, current_id):
 
     if type == "lab":
         viewname = "herring:lab_sample_form"
-    else:
+    elif type == "otolith":
         viewname = "herring:otolith_form"
 
 
