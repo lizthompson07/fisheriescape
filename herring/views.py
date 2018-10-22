@@ -204,7 +204,6 @@ class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
     model = models.Sample
 
 
-
     def get_form_class(self):
         if self.kwargs["type"] == "measured":
             return forms.PortSampleFishMeasuredForm
