@@ -219,12 +219,16 @@ disableKey("Tab")
           // if this is a trailing record, then it should be deleled
           speak("Are you sure you want to leave?")
           while (userInput != "y" && userInput != "n") {
-            var userInput = prompt("Leaving this page before it is complete will result in it being deleted. \n\nAre you sure you want to leave?\n\nPress [y] for YES or [n] for NO.")
+            var userInput = prompt("Are you sure you want to leave?\n\nPress [y] for YES or [n] for NO.")
           }
           if (userInput === 'y') {
             speak("Returning to sample detail page.")
-            document.location.href = deleteFishDetail
-
+            if ($("#id_fish_length").val()=="" && $("#id_fish_weight").val()=="" && $("#id_gonad_weight").val()=="" && $("#id_sex").val()=="" && $("#id_maturity").val()=="" && $("#id_parasite").val()=="") {
+              document.location.href = deleteFishDetail
+            }
+            else{
+              $("#home")[0].click() // go back to the sample
+            }
           }
         }
 

@@ -11,7 +11,7 @@
 <br>
   <p>
     <a href="{% url 'herring:sample_list' %}">All Samples</a> >
-    <a href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
+    <a id="home" href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
     Fish {{object.id}}
   </p>
 </div>
@@ -33,12 +33,14 @@
     Fish #{{object.fish_number}}
   </h1>
 
-
   <br><br>
 
   <div class="row">
     <div class="col-5">
       <h4>Otolith Detail:</h4>
+      <div class="btn-group ">
+        <a class="btn btn-warning" href="#" id="myBtn">Preview Fish Detail (F1)</a>
+      </div>
       <form method="post">
         {% csrf_token %}
         <input type="submit" value="submit" class="hidden">
@@ -46,12 +48,19 @@
           {%bootstrap_field field layout='horizontal'%}
 
         {% endfor %}
-        <input type="submit" name="" value="Save" class="btn btn-primary">
-        {% if next_fish_id %}
-        <a class="btn btn-secondary" href="{% url 'herring:otolith_form' object.sample.id next_fish_id  %}">Next</a>
-        {% else %}
-        <a class="btn btn-secondary" href="{% url 'herring:port_sample_detail' object.sample.id %}">Back to Sample</a>
-        {% endif %}
+        {# <input type="submit" name="" value="Save" class="btn btn-primary"> #}
+
+        <br>
+        <div class="btn-group">
+          {% if next_fish_id %}
+          <a id="submit-next" class="btn btn-primary submit" href="#">Save and Next</a>
+          {% else %}
+          <a id="submit-back" class="btn btn-primary submit" href="#">Save and Back</a>
+          {% endif %}
+          <a class="btn btn-secondary" href="{% url 'herring:port_sample_detail' object.sample.id %}">Cancel</a>
+
+        </div>
+
       </form>
 
     </div>
@@ -62,11 +71,6 @@
       {% include "herring/_otolith_qc.html" %}
 
     </div>
-  </div>
-  <br>
-  <div class="btn-group ">
-    <a class="btn btn-warning" href="#" id="myBtn">Preview Fish Detail</a>
-
   </div>
 
 
@@ -113,12 +117,11 @@
   var progress = {{progress}};
   var totalTests = {{total_tests}};
   var test200Passed = "{{test_200}}";
-
   var qcFeedbackLookup = '{{qc_feedback_json|safe}}';
   var qcFeedbackObject = JSON.parse(qcFeedbackLookup);
 
-
-  var newRecordURL = "{% url 'herring:lab_sample_primer' object.sample.id %}"
+  var nextPageHref = "{% url "herring:move_record" object.sample.id "otolith" "next" object.id %}";
+  var prevPageHref = "{% url "herring:move_record" object.sample.id "otolith" "prev" object.id %}";
 
   $(document).ready(function () {
 
@@ -126,6 +129,34 @@
 
     $("#id_annulus_count").focus();
   })
+
+  $(document).keydown(function(event){
+      if ( event.key == 'PageDown' ) {
+        event.preventDefault()
+        document.location.href = nextPageHref;
+      }
+      else if ( event.key == 'PageUp' ) {
+        event.preventDefault()
+        document.location.href = prevPageHref;
+      }
+      else if ( event.key == 'F1' ) {
+        event.preventDefault()
+        $("#myBtn")[0].click();
+      }
+      else if ( event.key == 'Enter' ) {
+        event.preventDefault()
+        $(".closeBtn")[0].click();
+        if ($("#id_annulus_count").val()!="" && $("#id_otolith_season").val()!="" ) {
+          $(".submit")[0].click()
+        }
+      }
+    })
+
+    $("#submit-next").click(function () {
+      $("form").submit()
+      improbableMeasurementValidation()
+      document.location.href = nextPageHref
+    })
 
 
   function improbableMeasurementValidation() {
@@ -146,7 +177,6 @@
           $("#id_improbable_test").val(qcFeedbackObject[check_list[i]].test);
           $("#id_improbable_accepted").val(1);
           $("form").submit()
-
         }
         break
       }
