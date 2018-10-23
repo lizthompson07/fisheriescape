@@ -153,6 +153,7 @@ class OtolithForm(forms.ModelForm):
     improbable_field = forms.CharField(widget=forms.HiddenInput(), required = False)
     improbable_test = forms.CharField(widget=forms.HiddenInput(), required = False)
     improbable_accepted = forms.CharField(widget=forms.HiddenInput(), required = False)
+    last_fish = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = models.FishDetail
@@ -161,22 +162,19 @@ class OtolithForm(forms.ModelForm):
           "otolith_sampler",
           "annulus_count",
           "otolith_season",
-          "otolith_image_remote_filepath",
+          # "otolith_image_remote_filepath",
           "remarks",
           "last_modified_by",
         ]
         labels = {
-            "otolith_image_remote_filepath":"Filepath to image"
+            "otolith_image_remote_filepath":"Image filepath",
+            "remarks":"Remarks (optional)",
         }
         widgets = {
             "fish_length":forms.HiddenInput(),
-            "fish_weight":forms.HiddenInput(),
-            "sex":forms.HiddenInput(),
-            "maturity":forms.HiddenInput(),
-            "gonad_weight":forms.HiddenInput(),
-            "parasite":forms.HiddenInput(),
-            "remarks":forms.Textarea(attrs={"rows":5}),
+            "remarks":forms.Textarea(attrs={"rows":3}),
             "otolith_sampler":forms.HiddenInput(),
             "last_modified_by":forms.HiddenInput(),
-
+            "annulus_count":forms.TextInput(),
+            "otolith_season":forms.Select(),
         }
