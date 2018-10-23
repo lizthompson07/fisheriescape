@@ -44,6 +44,10 @@ Thumbs.db
 /media/*
 media_conf.py
 
+# access files dir #
+####################
+/access_files/*
+
 # if you want to untrack a file... Do these commands #
 ######################################################
 #git rm -r --cached .
