@@ -178,3 +178,9 @@
   vertical-align: middle;
   padding-right: 5px;
 }
+
+.gone{
+  visibility: hidden;
+  width: 0%;
+  padding: 0px;
+}
