@@ -170,7 +170,7 @@ disableKey("Tab")
   var nextPageHref = "{% url "herring:move_record" object.sample.id "lab" "next" object.id %}";
   var prevPageHref = "{% url "herring:move_record" object.sample.id "lab" "prev" object.id %}";
   var deleteFishDetail = "{% url "herring:delete_fish_detail" object.sample.id object.id %}";
-
+  var giveReadyQueue = true
 
 
   var newRecordURL = "{% url 'herring:lab_sample_primer' object.sample.id %}"
@@ -191,7 +191,9 @@ disableKey("Tab")
       }
     }
     else {
-      speak("ready.")
+      if (giveReadyQueue) {
+        speak("ready.")
+      }
     }
 
     $("#prompt").focus();
@@ -251,7 +253,6 @@ disableKey("Tab")
   });
 
   function improbableMeasurementValidation() {
-    var msgLite = "Improbable measurement. Are you confident?"
     var userInput
     // JSON atributes to check
     check_list = ["fish_length","fish_weight","gonad_weight","global_204", "global_207"]
@@ -259,6 +260,7 @@ disableKey("Tab")
     for (var i = 0; i < check_list.length; i++) {
       if (jQuery.isEmptyObject(qcFeedbackObject[check_list[i]]) == false) {
         // means there is a problem that needs dealing with
+        var msgLite = qcFeedbackObject[check_list[i]].msg_lite
         speak(msgLite);
         while (userInput != "y" && userInput != "n") {
           userInput = prompt(qcFeedbackObject[check_list[i]].msg)
@@ -267,6 +269,7 @@ disableKey("Tab")
           speak("redo measurement");
         } else {
           // if user is confident, we will communicate this back to the server and mark yes for accepted
+          giveReadyQueue = false
           $("#id_improbable_field").val(check_list[i]);
           $("#id_improbable_test").val(qcFeedbackObject[check_list[i]].test);
           $("#id_improbable_accepted").val(1);

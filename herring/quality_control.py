@@ -10,9 +10,9 @@ range_dict = {
             "comments":"range of historical data based on 344097 observations is  17-480mm",
             },
             "probable":{
-                "min":50,
+                "min":150,
                 "max":386,
-                "comments":"based on 344097 observations of historical data; [mean +- 2 x SD] = [197.5884, 385.8797]; decision was made in meeting with herring group to allow very small measurements THEREFORE the above comment is moot for the lower bound",
+                "comments":"based on 344097 observations of historical data; [mean +- 2 x SD] = [197.5884, 385.8797]; decision was made in meeting with herring group to allow very small measurements THEREFORE the above comment is moot for the lower bound. Arbitrariliy selected 150 mm as lower bound"
             },
         },
         "fish_weight":{
@@ -65,7 +65,7 @@ def run_global_ratio_test(object_test, is_accepted):
             dependent_name = object_test.fish_detail._meta.get_field("fish_weight").verbose_name
             min = math.exp(-12.978 + 3.18 * math.log(independent))
             max = math.exp(-12.505 + 3.18 * math.log(independent))
-
+            msg_lite = "Improbable measurement for {} : {}".format(independent_name,dependent_name)
             msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
                 independent_name,
                 dependent_name,
@@ -111,6 +111,7 @@ def run_global_ratio_test(object_test, is_accepted):
                 min = math.exp(-7.18685438956137 + math.log(independent) * 1.40456267851141)
                 max = math.exp(-5.52714180205898 + math.log(independent) * 1.39515770753421)
 
+            msg_lite = "Improbable measurement for {} : {}".format(independent_name,dependent_name)
             msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {} at maturity level {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
                 independent_name,
                 dependent_name,
@@ -131,7 +132,7 @@ def run_global_ratio_test(object_test, is_accepted):
             dependent_name = object_test.fish_detail._meta.get_field("annulus_count").verbose_name
             min = (-14.3554448587879 + 6.34008000506408E-02 * independent)
             max = (-10.1477660949041 + 6.33784283545123E-02 * independent)
-
+            msg_lite = "Improbable measurement for {} : {}".format(independent_name,dependent_name)
             msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
                 independent_name,
                 dependent_name,
@@ -164,6 +165,7 @@ def run_global_ratio_test(object_test, is_accepted):
         # my_dict[field_name] = {}
         my_dict["test"] = object_test.test_id
         my_dict["msg"] = msg
+        my_dict["msg_lite"] = msg_lite
 
     return my_dict
 
@@ -471,6 +473,7 @@ def run_data_point_tests(fish_detail, field_name):
             # my_dict[field_name] = {}
             my_dict["verbose_name"] = fish_detail._meta.get_field(field_name).verbose_name
             my_dict["test"] = 23
+            my_dict["msg_lite"] = "Improbable measurement for {}".format(my_dict["verbose_name"])
             my_dict["msg"] = "{} is outside of the probable range. \\n\\n A value was expected between {} and {}. \\n\\n Are you confident in your measurements? \\n\\n Press [y] for YES or [n] for NO.".format(
                 my_dict["verbose_name"],
                 range_dict[field_name]['probable']['min'],
