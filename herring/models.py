@@ -115,7 +115,7 @@ class MeshSize(models.Model):
     size_inches_decimal = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return "{} / {}".format(self.size_mm, self.size_inches)
+        return "{} / {}".format(self.size_inches, self.size_mm)
 
     class Meta:
         ordering = ['size_mm']
