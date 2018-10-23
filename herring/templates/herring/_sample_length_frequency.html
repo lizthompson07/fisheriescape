@@ -16,7 +16,7 @@
     </p>
 
     {% else %}
-      <h5><u>From Sample:</u></h5>
+      <h5><em>From Sample:</em></h5>
     <table>
       {% for freq in object.length_frequency_objects.all  %}
       <tr>
@@ -48,7 +48,7 @@
     {% endif %}
   </div>
   <div class="col">
-    <h5><u>From Fish Detail:</u></h5>
+    <h5><em>From Fish Detail:</em></h5>
 
     {% if object.fish_details.count == 0  %}
     <br>
