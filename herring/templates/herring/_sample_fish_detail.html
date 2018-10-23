@@ -1,7 +1,7 @@
 {% load static %}
 
 
-<h4>Fish Detail Files:</h4>
+<h4>Fish Details:</h4>
 <br>
 {% if object.fish_details.count == 0  %}
 <br>
@@ -13,12 +13,12 @@
 
 {% else %}
 <div class="row">
-  <div class="col-9">
+  <div class="col-10">
     <table class='table table-hover table-sm table-bordered' >
       <thead>
         <th >#</th>
-        <th style="text-align: center;width: 150px;">Lab Proccessed</th>
-        <th style="text-align: center;width: 150px;">Aged</th>
+        <th style="text-align: center;">Lab</th>
+        <th style="text-align: center;">Otoliths</th>
       </thead>
       <tbody>
         {% for d in object.fish_details.all  %}

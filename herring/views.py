@@ -20,6 +20,10 @@ from . import forms
 from . import filters
 from . import emails
 from . import quality_control
+
+from numpy import arange, histogram
+import math
+import collections
 # Create your views here.
 
 class IndexView(GroupRequiredMixin,TemplateView):
@@ -224,16 +228,12 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
     template_name = 'herring/port_sample_detail.html'
     model = models.Sample
 
-    # def dispatch(request, *args, **kwargs):
-    #     port_sample_tests(self.object)
-    #     return super().dispatch(request, *args, **kwargs)
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         port_sample_tests(self.object)
 
-        # create a list of length freq counts
+        # create a list of length freq counts FOR SAMPLE
         if self.object.length_frequency_objects.count()>0:
             count_list = []
             for obj in self.object.length_frequency_objects.all():
@@ -249,6 +249,38 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
             playback_string = "Reading back frequency counts. "
             playback_string = playback_string + ", ".join(str(count) for count in count_list)
             context['playback_string'] = playback_string
+
+
+        # create a list of length freq counts FISH DETAILs
+        length_list = []
+        for obj in self.object.fish_details.all().order_by("fish_length"):
+            if obj.fish_length:
+                original_length_cm = obj.fish_length/10
+                integer = math.floor(original_length_cm)
+                decimal = (original_length_cm - integer)
+                if decimal > 0 and  decimal <= 0.5:
+                    new_decimal = 0.5
+                else:
+                    new_decimal = 1
+                binned_length = new_decimal+integer
+
+                length_list.append(binned_length)
+        if len(length_list) > 0:
+            # return a dict of length_bins and corresponding counts
+            bin_dict = collections.Counter(length_list)
+            bin_list = arange(min(length_list),max(length_list)+0.5, step=0.5)
+            max_fish_detail_count = 0
+            sum_fish_detail_count = 0
+            for i in range(0,len(bin_list)):
+                count = bin_dict[bin_list[i]]
+                bin_dict[bin_list[i]]=count
+                if count > max_fish_detail_count:
+                    max_fish_detail_count = count
+                sum_fish_detail_count = sum_fish_detail_count + count
+            context['bin_list'] = bin_list
+            context['bin_dict'] = bin_dict
+            context['max_fish_detail_count'] = max_fish_detail_count
+            context['sum_fish_detail_count'] = sum_fish_detail_count
 
         return context
 
@@ -507,6 +539,8 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
 
         # send JSON file to template so that it can be used by js script
         context['qc_feedback_json'] = qc_feedback_json
+
+        # provide some context about the position of the current record
         try:
             next_fishy = models.FishDetail.objects.filter(sample=self.object.sample, fish_number=self.object.fish_number+1)[0]
         except Exception as e:
@@ -542,6 +576,8 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
 
             my_test.accepted = True
             my_test.save()
+
+
         return HttpResponseRedirect(reverse("herring:otolith_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 

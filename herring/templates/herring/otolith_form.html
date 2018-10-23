@@ -33,47 +33,80 @@
     Fish #{{object.fish_number}}
   </h1>
 
-  <br><br>
+  <br>
 
   <div class="row">
     <div class="col-5">
+      {% include "herring/_lab_sample_metadata.html" %}
+
       <h4>Otolith Detail:</h4>
       <div class="btn-group ">
-        <a class="btn btn-warning" href="#" id="myBtn">Preview Fish Detail (F1)</a>
       </div>
       <form method="post">
         {% csrf_token %}
-        <input type="submit" value="submit" class="hidden">
+
         {% for field in form %}
-          {%bootstrap_field field layout='horizontal'%}
+          {%bootstrap_field field layout='horizontal' placeholder=""%}
 
         {% endfor %}
         {# <input type="submit" name="" value="Save" class="btn btn-primary"> #}
 
-        <br>
-        <div class="btn-group">
-          {% if next_fish_id %}
-          <a id="submit-next" class="btn btn-primary submit" href="#">Save and Next</a>
-          {% else %}
-          <a id="submit-back" class="btn btn-primary submit" href="#">Save and Back</a>
-          {% endif %}
-          <a class="btn btn-secondary" href="{% url 'herring:port_sample_detail' object.sample.id %}">Cancel</a>
 
-        </div>
+        <br>
+
+        <input type="submit" class="btn btn-warning gone" value="Validate" id="validate">
+        {% if next_fish_id %}
+        <a id="next" class="btn btn-primary gone" href="#">Next</a>
+        {% else %}
+        <a id="next" class="btn btn-success gone" href="#">All Done!</a>
+        {% endif %}
+        <a class="btn btn-secondary" href="{% url 'herring:port_sample_detail' object.sample.id %}">Cancel</a>
 
       </form>
-
     </div>
     <div class="col-1">
 
     </div>
     <div class="col-5">
       {% include "herring/_otolith_qc.html" %}
+      <br>
+      <h4>Shortcuts:</h4>
+      <table class="table table-sm table-bordered" style="width: 65%;">
+        <thead>
+          <th>Action</th>
+          <th>Key</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <a href="#" id="myBtn">Preview Fish Detail</a>
+            </td>
+            <td>F1</td>
+          </tr>
+          <tr>
+            <td>Exit Preview Mode</td>
+            <td>Esc</td>
+          </tr>
+          <tr>
+            <td>Move to previous record (without saving)</td>
+            <td>PageUp</td>
+          </tr>
+          <tr>
+            <td>Move to next record (without saving)</td>
+            <td>PageDown</td>
+          </tr>
+          <tr>
+            <td>Back to sample detail page</td>
+            <td>Home</td>
+          </tr>
+        </tbody>
+      </table>
+
 
     </div>
   </div>
-
-
+<div class="row">
+</div>
 </div>
 
 
@@ -81,8 +114,6 @@
 <!-- Modal content -->
 <div id="myModal" class="modal">
   <div class="modal-content">
-    {# <h1>Review Email:</h1> #}
-    {% include "herring/_lab_sample_metadata.html" %}
 
     <p>
       <span class="label">Fish lenth:</span>
@@ -103,31 +134,58 @@
 
     <div class="container">
 
-      <a href="#" class="btn btn-lg btn-primary float-center closeBtn">Close</a>
+      <a href="#" class="btn btn-lg btn-primary float-center closeBtn">Close (Esc)</a>
       {# <a href="{% url 'inventory:send_certification_email' object.user_id %}" class="btn btn-lg btn-warning float-center">Send Away!</a> #}
     </div>
   </div>
 
-
 </div>
+
+
+
 
 <script type="text/javascript">
   // var keepPrompting = true;
   var clickSubmit = false;
   var progress = {{progress}};
   var totalTests = {{total_tests}};
-  var test200Passed = "{{test_200}}";
+  {% if test_200 %}
+    var test200Passed = true;
+  {% else %}
+    var test200Passed = false;
+  {% endif %}
   var qcFeedbackLookup = '{{qc_feedback_json|safe}}';
   var qcFeedbackObject = JSON.parse(qcFeedbackLookup);
 
   var nextPageHref = "{% url "herring:move_record" object.sample.id "otolith" "next" object.id %}";
   var prevPageHref = "{% url "herring:move_record" object.sample.id "otolith" "prev" object.id %}";
+  var nextFishy = "{{next_fish_id}}"
+
+
 
   $(document).ready(function () {
-
     improbableMeasurementValidation()
+    // if the otolith detail is complete, just show the next btn; otherwise must validate first
+    if (test200Passed) {
+      $("#next").removeClass("gone")
+      $("#next").focus();
+    }
+    else {
+      $("#validate").removeClass("gone")
+      $("#id_annulus_count").focus();
+    }
 
-    $("#id_annulus_count").focus();
+
+  })
+
+
+  $("#next").click(function () {
+    if (nextFishy == "") {
+      $("#home")[0].click()
+    }
+    else {
+      document.location.href = nextPageHref;
+    }
   })
 
   $(document).keydown(function(event){
@@ -143,19 +201,19 @@
         event.preventDefault()
         $("#myBtn")[0].click();
       }
-      else if ( event.key == 'Enter' ) {
+      else if ( event.key == 'Escape' ) {
         event.preventDefault()
         $(".closeBtn")[0].click();
-        if ($("#id_annulus_count").val()!="" && $("#id_otolith_season").val()!="" ) {
-          $(".submit")[0].click()
-        }
+      }
+      else if ( event.key == 'Home' ) {
+        $("#home")[0].click()
       }
     })
 
     $("#submit-next").click(function () {
       $("form").submit()
       improbableMeasurementValidation()
-      document.location.href = nextPageHref
+      // document.location.href = nextPageHref
     })
 
 

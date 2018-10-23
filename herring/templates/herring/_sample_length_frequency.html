@@ -1,47 +1,92 @@
 {% load static %}
 {% load divide %}
+{% load lookup %}
 {% load percentage %}
 <h4>Length Frequencies:</h4>
-
-{% if object.length_frequencies.count == 0  %}
 <br>
-<p>
-  <em>
-    No length frequencies have been entered for this sample.
-  </em>
-</p>
+<div class="row">
 
-{% else %}
+  <div class="col">
+    {% if object.length_frequencies.count == 0  %}
+    <br>
+    <p>
+      <em>
+        No length frequencies have been entered for this sample.
+      </em>
+    </p>
 
-<br>
-<button class='btn btn-sm btn-dark' id="read-aloud"> Read back list </button>
-<br><br>
+    {% else %}
+      <h5><u>From Sample:</u></h5>
+    <table>
+      {% for freq in object.length_frequency_objects.all  %}
+      <tr>
+        <td>{{freq.length_bin}}&nbsp;</td>
+        <td width = "75%">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="{{freq.count}}" aria-valuemin="0" aria-valuemax="{{max_count}}" style="width: {{ freq.count|divide:max_count|percentage}}">
+              {{freq.count}}
+            </div>
+          </div>
+        </td>
+        <td>
+          <a href="#" onclick="return popitup('{% url 'herring:lf_wizard_correction' object.id freq.length_bin.bin_length_cm freq.id %}','popoutWindow0')">
+            <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td><b>TOTAL:</b></td>
+        <td><b>{{sum_count}}</b></td>
+      </tr>
+    </table>
+    <br>
+    <p>
+      <button class='btn btn-sm btn-dark' id="read-aloud"> Read back list </button>
+    </p>
 
-<table>
-  {% for freq in object.length_frequency_objects.all  %}
-  <tr>
-    <td>{{freq.length_bin}}&nbsp;</td>
-    <td width = "75%">
-      <div class="progress">
-        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="{{freq.count}}" aria-valuemin="0" aria-valuemax="{{max_count}}" style="width: {{ freq.count|divide:max_count|percentage}}">
-          {{freq.count}}
-        </div>
-      </div>
-    </td>
-    <td>
-      <a href="#" onclick="return popitup('{% url 'herring:lf_wizard_correction' object.id freq.length_bin.bin_length_cm freq.id %}','popoutWindow0')">
-        <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
-      </a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
-<br>
-<p>
-  <b>TOTAL COUNTS: {{sum_count}}</b>
-</p>
+    {% endif %}
+  </div>
+  <div class="col">
+    <h5><u>From Fish Detail:</u></h5>
 
-{% endif %}
+    {% if object.fish_details.count == 0  %}
+    <br>
+    <p>
+      <em>
+        No fish details have been entered for this sample.
+      </em>
+    </p>
+
+    {% else %}
+    <table>
+      {% for bin in bin_list  %}
+      <tr>
+        <td>{{bin}} cm&nbsp;</td>
+        <td width = "75%">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="bin_dict|lookup:bin" aria-valuemin="0" aria-valuemax="{{max_fish_detail_count}}" style="width: {{ bin_dict|lookup:bin|divide:max_fish_detail_count|percentage}}">
+              {{bin_dict|lookup:bin}}
+            </div>
+          </div>
+        </td>
+
+      </tr>
+      {% endfor %}
+      <tr>
+        <td><b>TOTAL:</b></td>
+        <td><b>{{sum_fish_detail_count}}</b></td>
+      </tr>
+    </table>
+    {% endif %}
+
+  </div>
+
+</div>
+
+
+{# <b>TOTAL: {{sum_fish_detail_count}}</b> #}
+
 
 
 
@@ -51,23 +96,6 @@
       var playbackString = "{{playback_string}}"
 
       console.log(speechSynthesis.getVoices());
-      // $("#read-aloud").click(function() {
-      //   var msg = new SpeechSynthesisUtterance();
-      //   var voices = window.speechSynthesis.getVoices();
-      //   console.log(voices);
-      //   msg.voice = voices[0]; // Note: some voices don't support altering params
-      //   msg.voiceURI = 'native';
-      //   msg.volume = 1; // 0 to 1
-      //   msg.rate = 1; // 0.1 to 10
-      //   msg.pitch = 1; //0 to 2
-      //   msg.text = playbackString;
-      //   msg.lang = 'en-US';
-      //   msg.onend = function(e) {
-      //     console.log('Finished in ' + event.elapsedTime + ' seconds.');
-      //   };
-      //
-      //   speechSynthesis.speak(msg);
-      // })
 
       $("#read-aloud").click(function() {
         speak(playbackString);

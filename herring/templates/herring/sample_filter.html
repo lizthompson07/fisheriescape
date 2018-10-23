@@ -30,21 +30,21 @@
   <br>
   <div class="btn-group">
     <a href="{% url 'herring:port_sample_new' %}" class="btn btn-sm btn-outline-primary ">New Port Sample</a>
-    <a href="#" class="btn btn-sm btn-outline-primary ">New Sea Sample</a>
+    <a href="#" class="btn btn-sm btn-outline-primary disabled">New Sea Sample</a>
   </div>
   <br>
   <br>
-  <table class="table table-hover">
+  <table class="table table-hover table-sm">
     <thead>
       <tr>
         <th scope="col">Sample #</th>
         <th scope="col">Type</th>
         <th scope="col">Sample Date</th>
-        <th scope="col">Sampler's Reference No.</th>
+        <th scope="col" style="width: 150px;">Sampler's Reference No.</th>
         <th scope="col">Sampler Name</th>
-        <th scope="col">Lab Processing Complete</th>
-        <th scope="col">Otolith Processing Complete</th>
-        <th scope="col">QC Issues</th>
+        <th scope="col" style="text-align: center;">Lab Processed</th>
+        <th scope="col" style="text-align: center;">Otoliths Processed</th>
+        {# <th scope="col">QC Issues</th> #}
 
 
       </tr>
