@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, AccessMixin
+from django.db.models import Q
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render
@@ -207,7 +208,6 @@ class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/port_sample_form_popout.html'
     model = models.Sample
 
-
     def get_form_class(self):
         if self.kwargs["type"] == "measured":
             return forms.PortSampleFishMeasuredForm
@@ -231,7 +231,18 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        port_sample_tests(self.object)
+        # port_sample_tests(self.object)
+
+
+            # quality_control.run_test_mandatory_fields(sample,"port_sample")
+            # quality_control.run_test_205(sample)
+            # quality_control.run_test_231(sample)
+            # quality_control.run_test_232(sample)
+
+
+        # pass in the tests
+        tests = models.Test.objects.filter(Q(id=205) | Q(id=230) | Q(id=231) | Q(id=232) )
+        context['tests'] = tests
 
         # create a list of length freq counts FOR SAMPLE
         if self.object.length_frequency_objects.count()>0:
@@ -281,6 +292,15 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
             context['bin_dict'] = bin_dict
             context['max_fish_detail_count'] = max_fish_detail_count
             context['sum_fish_detail_count'] = sum_fish_detail_count
+
+        # provide a list of fish detail lab_processed_dates
+        for fishy in self.object.fish_details.all():
+           fishy.save()
+        # resave the sample instance to run thought sample save method
+        self.object.save()
+        print(self.object.lab_processing_complete)
+        # now conduct the test
+
 
         return context
 
@@ -425,7 +445,16 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # pass in the tests
+        tests = models.Test.objects.filter(Q(id=201) | Q(id=202) | Q(id=203) | Q(id=204) | Q(id=207) | Q(id=208) | Q(id=300) | Q(id=301) | Q(id=302) | Q(id=303)| Q(id=304)| Q(id=305)| Q(id=306)| Q(id=307)| Q(id=308) ).order_by("id")
+        context['tests'] = tests
+
+
         # run the quality test on loading the data
+
+
+
         my_dict = lab_sample_tests(self.object)
 
         # determine the progress of data entry
@@ -475,6 +504,8 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
             # messages.success(self.request, "ttest")
 
         return context
+
+
 
     def get_initial(self):
         return {

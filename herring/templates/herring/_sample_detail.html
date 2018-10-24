@@ -99,10 +99,16 @@
     <span class="label">    {%get_verbose_field_name object "last_modified_by"%}:  </span>
     <span class="value">{{object.last_modified_by}}</span>    <br>
   </p>
-
+  <div class="hidden" style="height: 0px;">
+    <span class="mandatory">{{object.sampling_protocol}}</span>
+    <span class="mandatory">{{object.sample_date}}</span>
+    <span class="mandatory">{{object.sampler}}</span>
+    <span class="mandatory">{{object.sampler_ref_number}}</span>
+    <span class="mandatory">{{object.total_fish_preserved}}</span>
+    <span class="mandatory">{{object.total_fish_measured}}</span>
+  </div>
 </div>
 <a href="#full" data-toggle="collapse" id="fold">(more...)</a>
-
 
 <script type="text/javascript">
   $(document).ready(function () {

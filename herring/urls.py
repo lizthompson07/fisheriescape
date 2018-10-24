@@ -53,5 +53,3 @@ urlpatterns = [
     path('sample/<int:sample>/<str:type>/<str:direction>/', views.move_record, name ="move_record" ),
 
 ]
-
-# test

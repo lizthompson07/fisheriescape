@@ -2,6 +2,7 @@
 
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load static %}
 
 {% block content %}
 <div class="nav-map">
@@ -67,7 +68,39 @@
   </div>
 
 </div>
+{{object.total_fish_measured}}
+<script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
+
 <script type="text/javascript">
   window.name = "portSampleDetail"
+  var lengthFrequencySum = Number({{sum_count}})
+
+  {% if object.total_fish_measured %}
+    var totalFishMeasured = Number({{object.total_fish_measured}})
+  {%else%}
+    var totalFishMeasured = 0
+  {%endif%}
+
+  {% if object.lab_processing_complete %}
+    var labProcessingComplete = true
+  {%else%}
+    var labProcessingComplete = false
+  {%endif%}
+
+  {% if object.otolith_processing_complete %}
+    var otolithProcessingComplete = true
+  {%else%}
+    var otolithProcessingComplete = false
+  {%endif%}
+
+  $(document).ready(function() {
+     testMandatoryFields("port_sample")
+     test205(lengthFrequencySum, totalFishMeasured)
+     test231(labProcessingComplete)
+     test232(otolithProcessingComplete)
+  });
+
+
+
 </script>
 {% endblock content %}

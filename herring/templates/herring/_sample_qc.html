@@ -9,24 +9,20 @@
 
   <table class='table table-sm table-bordered'>
     <thead>
-      <th>Test ID</th>
+      <th>Id</th>
       <th>Scope</th>
       <th>Test Description</th>
       <th>Result</th>
     </thead>
     <tbody>
-      {% for t in object.sample_tests.all  %}
+      {% for t in tests %}
       <tr>
-        <td>{{t.test}}</td>
-        <td>{{t.test.get_scope_display}}</td>
-        <td>{{t.test.description}}</td>
-        {% if t.test_passed %}
-          <td class='good'>
-        {% else %}
-          <td class='bad'>
-        {% endif %}
-        {{t.test_passed|yesno:"passed,failed"}}</td>
+        <td>{{t.id}}</td>
+        <td>{{t.scope}}</td>
+        <td>{{t.description}}</td>
+        <td id=id_test_{{t.id}}></td>
       </tr>
+
       {% endfor %}
     </tbody>
   </table>
