@@ -127,15 +127,17 @@ class LabSampleForm(forms.ModelForm):
           "last_modified_by",
         ]
 
+        attr_dict = {"class":"mandatory"}
+
         widgets = {
-            "fish_length":forms.HiddenInput(),
-            "fish_weight":forms.HiddenInput(),
-            "sex":forms.HiddenInput(),
-            "maturity":forms.HiddenInput(),
-            "gonad_weight":forms.HiddenInput(),
-            "parasite":forms.HiddenInput(),
+            "fish_length":forms.HiddenInput(attrs=attr_dict),
+            "fish_weight":forms.HiddenInput(attrs=attr_dict),
+            "sex":forms.HiddenInput(attrs=attr_dict),
+            "maturity":forms.HiddenInput(attrs=attr_dict),
+            "gonad_weight":forms.HiddenInput(attrs=attr_dict),
+            "parasite":forms.HiddenInput(attrs=attr_dict),
             "remarks":forms.HiddenInput(),
-            "lab_sampler":forms.HiddenInput(),
+            "lab_sampler":forms.HiddenInput(attrs=attr_dict),
             "last_modified_by":forms.HiddenInput(),
 
         }

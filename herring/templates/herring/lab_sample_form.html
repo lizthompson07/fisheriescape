@@ -129,6 +129,7 @@
   </div>
 </div>
 
+<script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
 
 <script type="text/javascript">
 
@@ -179,10 +180,24 @@ disableKey("Tab")
   }
 
 
-
-
-
   $(document).ready(function () {
+
+    // determine the sample type and adjust whether 'parasite' is '.mandatory'
+    {% if object.sample.sampling_protocol.sampling_type == 1 %}
+      $("#id_parasite").removeClass("mandatory")
+    {% endif %}
+    testMandatoryFields("lab_sample")
+
+    // for testing
+    $("#id_test_203").text("passed")
+    $("#id_test_208").text("passed")
+
+    testQCPassed("lab_sample") // should be the last test
+
+
+
+
+
     improbableMeasurementValidation()
     if (progress == totalTests) {
       if (test201Passed && lastRecord) {
