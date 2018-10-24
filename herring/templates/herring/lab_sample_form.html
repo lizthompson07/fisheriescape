@@ -188,14 +188,17 @@ disableKey("Tab")
     {% endif %}
     testMandatoryFields("lab_sample")
 
-    // for testing
-    $("#id_test_203").text("passed")
-    $("#id_test_208").text("passed")
+
+
+    testDataPoints("fish_length")
+    testDataPoints("fish_weight")
+    testDataPoints("gonad_weight")
+
+    testPossibleRange("lab_sample")
+    testGlobalRatio(204)
+    testGlobalRatio(207)
 
     testQCPassed("lab_sample") // should be the last test
-
-
-
 
 
     improbableMeasurementValidation()
