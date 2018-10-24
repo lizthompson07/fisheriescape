@@ -1,3 +1,15 @@
+function markTestPassed(testId) {
+  $("#"+testId).text("passed")
+  $("#"+testId).addClass("good")
+  $("#"+testId).removeClass("bad")
+}
+
+function markTestFailed(testId) {
+  $("#"+testId).text("failed")
+  $("#"+testId).addClass("bad")
+  $("#"+testId).removeClass("good")
+}
+
 var rangeObject = {
       "fish_length":{
         "possible":{
@@ -49,22 +61,88 @@ var rangeObject = {
         },
     }
 
-// make sure to run this as last test
+function testPossibleRange(objectType) {
+  if (objectType == "lab_sample") {
+    // grab all test related to fish detail and see if any failed
+    testList = [301,304,307]
+    for (var i = 0; i < testList.length; i++) {
+      if ($("#id_test_"+testList[i]).text() != "passed") {
+        markTestFailed("id_test_203")
+        break
+      }
+      else {
+        markTestPassed("id_test_203")
+      }
+    }
+  }
+}
+
+function testDataPoints(fieldName) {
+  var stop = false
+  if (fieldName == "fish_length") {
+    test = [300,301,302]
+  }
+  else if (fieldName == "fish_weight"){
+    test = [303,304,305]
+  }
+  else if (fieldName == "gonad_weight"){
+    test = [306,307,308]
+  }
+  else if (fieldName == "annulus_count"){
+    test = [309,310,311]
+  }
+  else {
+    // bad fieldName
+    stop = true
+  }
+
+  // provided a good fieldName was provided
+  if (stop == false) {
+    // field is not empty
+    if ( $("#id_"+fieldName)[0].value == "") {
+      markTestFailed("id_test_"+test[0])
+      markTestFailed("id_test_"+test[1])
+      markTestFailed("id_test_"+test[2])
+    }
+    else {
+      // test 1 is passed
+      markTestPassed("id_test_"+test[0])
+      fieldValue = Number($("#id_"+fieldName)[0].value)
+
+      // check possible range
+      if (fieldValue < rangeObject[fieldName].possible.min || fieldValue > rangeObject[fieldName].possible.max ) {
+        markTestFailed("id_test_"+test[1])
+        markTestFailed("id_test_"+test[2])
+      }
+      else{
+        // test 2 passed
+        markTestPassed("id_test_"+test[1])
+
+        // check probable range
+        if (fieldValue < rangeObject[fieldName].probable.min || fieldValue > rangeObject[fieldName].probable.max ) {
+          markTestFailed("id_test_"+test[2])
+        }
+        else {
+          // test 3 passed
+          markTestPassed("id_test_"+test[2])
+        }
+      }
+    }
+  }
+}
+
 function testQCPassed(objectType) {
+  // make sure to run this as last test
   if (objectType == "lab_sample") {
     // grab all test related to fish detail and see if any failed
     testList = [202,203,208]
     for (var i = 0; i < testList.length; i++) {
       if ($("#id_test_"+testList[i]).text() != "passed") {
-        $("#id_test_201").text("failed")
-        $("#id_test_201").addClass("bad")
-        $("#id_test_201").removeClass("good")
+        markTestFailed("id_test_201")
         break
       }
       else {
-        $("#id_test_201").text("passed")
-        $("#id_test_201").addClass("good")
-        $("#id_test_201").removeClass("bad")
+        markTestPassed("id_test_201")
       }
     }
   }
@@ -84,15 +162,11 @@ function testQCPassed(objectType) {
 
     for (var i = 0; i < testList.length; i++) {
       if ($("#id_test_"+testList[i]).innerHTML != "passed") {
-        $("#id_test_201").text("failed")
-        $("#id_test_201").addClass("bad")
-        $("#id_test_201").removeClass("good")
+        markTestFailed("id_test_20")
         break
       }
       else {
-        $("#id_test_201").text("passed")
-        $("#id_test_201").addClass("good")
-        $("#id_test_201").removeClass("bad")
+        markTestPassed("id_test_20")
       }
     }
   }
@@ -102,30 +176,24 @@ function testMandatoryFields(objectType) {
   if (objectType == "port_sample") {
     for (var i = 0; i < $(".mandatory").length; i++) {
       if ($(".mandatory")[i].innerHTML == "" || $(".mandatory")[i].innerHTML == "None") {
-        $("#id_test_230").text("failed")
-        $("#id_test_230").addClass("bad")
-        $("#id_test_230").removeClass("good")
+        markTestFailed("id_test_230")
         break
       }
       else {
-        $("#id_test_230").text("passed")
-        $("#id_test_230").addClass("good")
-        $("#id_test_230").removeClass("bad")
+        markTestPassed("id_test_230")
       }
     }
   }
   else if (objectType == "lab_sample") {
     for (var i = 0; i < $(".mandatory").length; i++) {
       if ($(".mandatory")[i].value == "" || $(".mandatory")[i].value == "None") {
-        $("#id_test_202").text("failed")
-        $("#id_test_202").addClass("bad")
-        $("#id_test_202").removeClass("good")
+
+        markTestFailed("id_test_202")
         break
       }
       else {
-        $("#id_test_202").text("passed")
-        $("#id_test_202").addClass("good")
-        $("#id_test_202").removeClass("bad")
+        markTestPassed("id_test_202")
+
       }
     }
   }
@@ -139,49 +207,93 @@ function testMandatoryFields(objectType) {
 
 function test205(lengthFrequencySum, totalFishMeasured) {
   if (lengthFrequencySum == totalFishMeasured) {
-    $("#id_test_205").text("passed")
-    $("#id_test_205").addClass("good")
-    $("#id_test_205").removeClass("bad")
+    markTestPassed("id_test_205")
+
   }
   else {
-    $("#id_test_205").text("failed")
-    $("#id_test_205").addClass("bad")
-    $("#id_test_205").removeClass("good")
+    markTestFailed("id_test_205")
   }
 }
 
 function test231(labProcessingComplete) {
   if (labProcessingComplete) {
-    $("#id_test_231").text("passed")
-    $("#id_test_231").addClass("good")
-    $("#id_test_231").removeClass("bad")
+    markTestPassed("id_test_231")
   }
   else {
-    $("#id_test_231").text("failed")
-    $("#id_test_231").addClass("bad")
-    $("#id_test_231").removeClass("good")
+    markTestFailed("id_test_231")
   }
 
 }
 
 function test232(otolithProcessingComplete) {
   if (otolithProcessingComplete) {
-    $("#id_test_232").text("passed")
-    $("#id_test_232").addClass("good")
-    $("#id_test_232").removeClass("bad")
+    markTestPassed("id_test_232")
   }
   else {
-    $("#id_test_232").text("failed")
-    $("#id_test_232").addClass("bad")
-    $("#id_test_232").removeClass("good")
+    markTestFailed("id_test_232")
   }
 }
 
-function testGlobalRatio() {
-  var obj = {}
+function testGlobalRatio(testId) {
   var stop = false
+  if (testId == 204) {
+    var independentVar = Number($("#id_fish_length")[0].value)
+    var dependentVar = Number($("#id_fish_weight")[0].value)
+    var independentName = "fish length"
+    var dependentName = "fish weight"
+    var min = Math.exp(-12.978 + 3.18 * Math.log(independentVar))
+    var max = Math.exp(-12.505 + 3.18 * Math.log(independentVar))
+    var msgLite = `Improbable measurement for ${independentName} : ${dependentName}`
+    var msg = `The ${independentName} : ${dependentName} ratio is outside of the probable range. \n\nFor the given value of ${independentName}, ${dependentName} most commonly ranges between ${parseFloat(Math.round(min * 100) / 100).toFixed(1)} and ${parseFloat(Math.round(max * 100) / 100).toFixed(1)}. \n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO.`
+  }
+  else if (testId == 204) {
+    var independentVar = Number($("#id_fish_length")[0].value)
+    var dependentVar = Number($("#id_fish_weight")[0].value)
+    var independentName = "fish length"
+    var dependentName = "fish weight"
+    var min = Math.exp(-12.978 + 3.18 * Math.log(independentVar))
+    var max = Math.exp(-12.505 + 3.18 * Math.log(independentVar))
+    var msgLite = `Improbable measurement for ${independentName} : ${dependentName}`
+    var msg = `The ${independentName} : ${dependentName} ratio is outside of the probable range. \n\nFor the given value of ${independentName}, ${dependentName} most commonly ranges between ${parseFloat(Math.round(min * 100) / 100).toFixed(1)} and ${parseFloat(Math.round(max * 100) / 100).toFixed(1)}. \n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO.`
+  }
+  else {
+    stop = true
+  }
+
+
+  if (stop == false) {
+    console.log(`independent=${independentVar};dependent=${dependentVar};min=${min}; max=${max}`);
+    if (dependentVar < min || dependentVar > max){
+      markTestFailed("id_test_"+testId)
+    }
+    else {
+      markTestPassed("id_test_"+testId)
+
+    }
+  }
 
 }
+
+
+//         if dependent < min or dependent > max:
+//             print(123)
+//             object_test.test_passed = False
+//             if is_accepted == 1:
+//                 object_test.accepted = 1
+//             # otherwise, not accepted
+//             else:
+//                 object_test.accepted = 0
+//         else:
+//             object_test.test_passed = True
+//         object_test.save()
+//
+//     if object_test.accepted is 0:
+//         # my_dict[field_name] = {}
+//         my_dict["test"] = object_test.test_id
+//         my_dict["msg"] = msg
+//         my_dict["msg_lite"] = msg_lite
+//
+
 
 // def run_global_ratio_test(object_test, is_accepted):
 //     my_dict = {}
@@ -300,86 +412,8 @@ function testGlobalRatio() {
 //
 //
 //
-// def run_test_possible_range(object, object_type): # All data points are within their possible range
-//     if object_type == "lab_sample":
-//         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=203).delete()
 //
-//         # CREATE BLANK TESTS IN SAMPLETEST
-//         # and start off optimistic
-//         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=203,field_name=' global', test_passed=True, scope=1)
-//
-//         # grab all test 22s related to sample
-//         test22s = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=22, scope=1)
-//         for t in test22s:
-//             if not t.test_passed:
-//                 test.test_passed = False
-//                 test.save()
-//                 break
-//
-//     elif object_type == "otolith":
-//         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=210).delete()
-//
-//         # CREATE BLANK TESTS IN SAMPLETEST
-//         # and start off optimistic
-//         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=210,field_name=' global', test_passed=True, scope=2)
-//
-//         # grab all test 22s related to sample
-//         test22s = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=22)
-//         for t in test22s:
-//             if not t.test_passed:
-//                 test.test_passed = False
-//                 test.save()
-//                 break
-//
-// def run_test_204(object): # fish length to weight
-//     # first determine if test 204 has been accepted
-//     try:
-//         is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=204).first().accepted
-//     except Exception as e:
-//         print(e)
-//         is_accepted = None
-//
-//     # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//     models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=204).delete()
-//
-//     # CREATE BLANK TESTS IN SAMPLETEST
-//     test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=204,field_name=' global', test_passed=False, scope=1)
-//     return run_global_ratio_test(test, is_accepted)
-//
-// def run_test_207(object): # gonad weight, somatic weight and maturity level
-//     # first determine if test 207 has been accepted
-//     try:
-//         is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).first().accepted
-//     except Exception as e:
-//         print(e)
-//         is_accepted = None
-//
-//     # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//     models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=207).delete()
-//
-//     # CREATE BLANK TESTS IN SAMPLETEST
-//     test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=207,field_name=' global', test_passed=False, scope=1)
-//     return run_global_ratio_test(test, is_accepted)
-//
-//
-// def run_test_209(object): # fish length, annulus count
-//     # first determine if test 209 has been accepted
-//     try:
-//         is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=209).first().accepted
-//     except Exception as e:
-//         print(e)
-//         is_accepted = None
-//
-//     # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//     models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=209).delete()
-//
-//     # CREATE BLANK TESTS IN SAMPLETEST
-//     test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=209,field_name=' global', test_passed=False, scope=2)
-//     return run_global_ratio_test(test, is_accepted)
-//
-//
+
 // def run_test_improbable_accepted(object, object_type): # all improbable observations been accepted
 //     # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 204 AND 207
 //     if object_type == "lab_sample":

@@ -22,7 +22,10 @@ class Sampler(models.Model):
     notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return "{}, {}".format(self.last_name,self.first_name)
+        if not self.first_name:
+            return "{}".format(self.last_name)
+        else:
+            return "{}, {}".format(self.last_name, self.first_name)
 
     class Meta:
         ordering = ['last_name','first_name']
