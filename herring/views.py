@@ -493,21 +493,7 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
             }
 
     def form_valid(self, form):
-        # port_sample_tests(self.object)
         object = form.save()
-        # if form.cleaned_data["improbable_accepted"]:
-        #     field_name = form.cleaned_data["improbable_field"]
-        #     test_id = form.cleaned_data["improbable_test"]
-        #
-        #     # this means that an improbable measurement has been accepted.
-        #     if "global" in field_name:
-        #         my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=test_id).first()
-        #     else:
-        #         my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, field_name=field_name, test_id=test_id).first()
-        #
-        #     my_test.accepted = True
-        #     my_test.save()
-
         print(form.cleaned_data["where_to"])
         if form.cleaned_data["where_to"] == "home":
             return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs={'pk':object.sample.id,}))
@@ -538,10 +524,12 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
     form_class = forms.OtolithForm
     login_url = '/accounts/login_required/'
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # run the quality test on loading the data
-        my_dict = otolith_tests(self.object)
+        # pass in the tests
+        tests = models.Test.objects.filter(Q(id=200) | Q(id=206) | Q(id=209) | Q(id=210) | Q(id=211) | Q(id=309) | Q(id=310) | Q(id=311)  ).order_by("id")
+        context['tests'] = tests
 
         # determine the progress of data entry
         ## there are 2 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
@@ -550,16 +538,10 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
             progress = progress + 1
         if self.object.otolith_season:
             progress = progress + 1
-
         total_tests = 2
 
         context['progress'] = progress
         context['total_tests'] = total_tests
-
-        qc_feedback_json = json.dumps(my_dict)
-
-        # send JSON file to template so that it can be used by js script
-        context['qc_feedback_json'] = qc_feedback_json
 
         # provide some context about the position of the current record
         try:
@@ -568,11 +550,6 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
             print(e)
         else:
             context['next_fish_id'] = next_fishy.id
-
-        # pass in a variable to help determine if the record is complete from a QC point of view
-        ## Should be able to make this assessment via the global tests
-
-        context['test_200'] = self.object.sample_tests.filter(test_id=200).first().test_passed
 
         return context
 
@@ -585,21 +562,14 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         # port_sample_tests(self.object)
         object = form.save()
-        if form.cleaned_data["improbable_accepted"]:
-            field_name = form.cleaned_data["improbable_field"]
-            test_id = form.cleaned_data["improbable_test"]
-
-            # this means that an improbable measurement has been accepted.
-            if "global" in field_name:
-                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=test_id).first()
-            else:
-                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, field_name=field_name, test_id=test_id).first()
-
-            my_test.accepted = True
-            my_test.save()
-
-
-        return HttpResponseRedirect(reverse("herring:otolith_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
+        if form.cleaned_data["where_to"] == "home":
+            return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs={'pk':object.sample.id,}))
+        elif form.cleaned_data["where_to"] == "prev":
+            return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"otolith","direction":"prev", "current_id":object.id}))
+        elif form.cleaned_data["where_to"] == "next":
+            return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"otolith","direction":"next", "current_id":object.id}))
+        else:
+            return HttpResponseRedirect(reverse("herring:otolith_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 
 # SHARED #

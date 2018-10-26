@@ -1,0 +1,31 @@
+
+<!-- The Modal -->
+<!-- Modal content -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+
+    <p>
+      <span class="label">Fish lenth:</span>
+      <span class="value">{{object.fish_length}} mm</span> <br>
+
+      <span class="label">Fish weight:</span>
+      <span class="value">{{object.fish_weight}} g</span> <br>
+
+      <span class="label">Sex:</span>
+      <span class="value">{{object.sex}}</span> <br>
+
+      <span class="label">Maturity:</span>
+      <span class="value">{{object.maturity}}</span> <br>
+
+      <span class="label">Gonad weight:</span>
+      <span class="value">{{object.gonad_weight}} g</span> <br>
+    </p>
+
+    <div class="container">
+
+      <a href="#" class="btn btn-lg btn-primary float-center closeBtn">Close (Esc)</a>
+      {# <a href="{% url 'inventory:send_certification_email' object.user_id %}" class="btn btn-lg btn-warning float-center">Send Away!</a> #}
+    </div>
+  </div>
+
+</div>
