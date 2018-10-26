@@ -1,39 +1,56 @@
 {% load divide %}
 {% load percentage %}
 {% load nz %}
-<h4>Data Quality:</h4>
-  <table class='table table-sm table-bordered'>
-    <thead>
-      <th>Test ID</th>
-      <th>Field</th>
-      <th>Test Description</th>
-      <th>Result</th>
-      <th style="text-align: center;">Accepted</th>
-    </thead>
-    <tbody>
-      {% for t in object.sample_tests.all  %}
-        {% if t.scope == 1 %}
+{% load tostring %}
 
-          <tr>
-            <td>{{t.test}}</td>
-            <td>{{t.get_field_name_display}}</td>
-            <td>{{t.test.description}}</td>
-            {% if t.test_passed %}
-              <td class='good'>
-            {% else %}
-              <td class='bad'>
+<style media="screen">
+
+  .test_accept{
+    width: 100px;
+    text-align: center;
+    border: 0px;
+    padding: 0px;
+    opacity: 0;
+  }
+
+</style>
+
+<h4>Data Quality:</h4>
+<table class='table table-sm table-bordered'>
+  <thead>
+    <th>Id</th>
+    <th>Scope</th>
+    <th>Test Description</th>
+    <th style="text-align: center;width:100px">Result</th>
+    <th style="text-align: center;width:100px">Accepted</th>
+  </thead>
+  <tbody>
+    {% for t in tests %}
+    <tr>
+      <td>{{t.id}}</td>
+      <td>{{t.scope}}</td>
+      <td>{{t.description}}</td>
+      <td id="display_test_{{t.id}}" style="text-align: center;"></td>
+
+
+      {% if t.id == 204 or t.id == 207  or t.id == 302  or t.id == 305 or t.id == 308 %}
+        {% with t.id|tostring as test_id %}
+          {% for field in form  %}
+            {% if test_id in field.name  %}
+            <td>
+              {{field}}
+            </td>
             {% endif %}
-            {{t.test_passed|yesno:"passed,failed"}}</td>
-            {% if t.accepted == 1 %}
-              <td class='good' align="center">
-            {% elif t.accepted == 0 %}
-              <td class='bad' align="center">
-            {% else %}
-              <td align="center">
-            {% endif %}
-            {{t.get_accepted_display|nz:""}}</td>
-          </tr>
-        {% endif %}
-      {% endfor %}
-    </tbody>
-  </table>
+          {% endfor %}
+        {% endwith %}
+
+
+      {% else %}
+      <td></td>
+
+      {% endif %}
+
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
