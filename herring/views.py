@@ -6,9 +6,10 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, AccessMixin
 from django.db.models import Q
-from braces.views import GroupRequiredMixin
+from braces.views import GroupRequiredMixin, AnonymousRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -27,10 +28,20 @@ import math
 import collections
 # Create your views here.
 
-class IndexView(GroupRequiredMixin,TemplateView):
-    template_name = 'herring/index.html'
-    group_required = [u"herring_access",]
-    login_url = '/accounts/login_required/'
+def not_in_herring_group(user):
+    if user:
+        return user.groups.filter(name='herring_access').count() != 0
+#
+@login_required(login_url = '/accounts/login_required/')
+@user_passes_test(not_in_herring_group, login_url='/accounts/denied/')
+def index(request):
+    return render(request, 'herring/index.html')
+
+# class IndexView(AnonymousRequiredMixin,TemplateView):
+#     template_name = 'herring/index.html'
+    # group_required = [u"herring_access",]
+    # login_url = '/accounts/login_required/'
+
 
 class CloserTemplateView(TemplateView):
     template_name = 'herring/close_me.html'
