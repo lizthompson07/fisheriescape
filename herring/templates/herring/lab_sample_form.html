@@ -1,25 +1,25 @@
 {% extends "herring/herring_base.html" %}
 
 {% load static %}
-{% load divide %}
-{% load percentage %}
-
+{% load bootstrap4 %}
 {% block content %}
-<div class="nav-map">
-<br>
-  <p>
-    <a href="{% url 'herring:sample_list' %}">All Samples</a> >
-    <a id="home" href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
-    Fish {{object.id}}
-  </p>
-</div>
-
-{# <embed src="{% static "/sounds/success.wav" %}" autostart="false" width="0" height="0" id="sound1" enablejavascript="true"> #}
 
 <style media="screen">
   .indent-med{
     font-size: .9em
   }
+  .form-group{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    width:90%;
+  }
+
+  {% if not last_record %}
+  body{
+    background-color: wheat;
+  }
+  {% endif %}
+
 </style>
 
 <div class="indent-med">
@@ -34,313 +34,257 @@
         <input type="text" placeholder="Input here!" id="prompt" class="form-control">
       </div>
       <div class="col-6">
-        {# <p class="float-right"> #}
-          {# (<em>Last modified on  {{object.last_modified_date|date:"F m, Y"}} by {{object.last_modified_by}}</em>) #}
-        {# </p> #}
         <div class="float-right btn-group">
           <a class="btn btn-warning" href="#" id="myBtn">Help</a>
-
-          {# {% if progress == total_tests and test_201 %} #}
-          {# <button type="button" class="btn btn-lg btn-primary">Next</button> #}
-          {# {% endif %} #}
-
-          {# <button type="button" id="startDataCapture" class="btn btn-lg btn-success">Click to Start Data Capture!</button> #}
         </div>
       </div>
 
     </div>
-  {# <hr> #}
+
   <form method="post">
     {% csrf_token %}
-    <input type="submit" value="submit" class="hidden">
-    <span class="red-font">{{form}}</span>
+    <div class="row">
+      <div class="col-4">
+        {% include "herring/_lab_sample_metadata.html" %}
+        <fieldset>
+          {% for field in form  %}
+          {% if field.name == "remarks" %}
+            <br><br>
+            {%bootstrap_field field layout="horizontal" size="small" placeholder=""%}
+          {% elif "test_" in field.name %}
+            {# do nothing #}
+          {% else %}
+            {%bootstrap_field field layout="horizontal" size="small" placeholder=""%}
+          {% endif %}
+          {% endfor %}
+          <input type="submit" value="submit" class="hidden" id="submit">
+        </fieldset>
+
+      </div>
+      <div class="col-8">
+        {% include "herring/_lab_sample_qc.html" %}
+
+      </div>
+    </div>
+
+    {% include "herring/_lab_sample_progress.html" %}
+    {% include "herring/_lab_sample_help_modal.html" %}
   </form>
 
-  <div class="row">
-    <div class="col-4">
-      {% include "herring/_lab_sample_metadata.html" %}
-      {% include "herring/_lab_sample_measurements.html" %}
-
-    </div>
-    <div class="col-8">
-      {% include "herring/_lab_sample_qc.html" %}
-
-    </div>
-  </div>
-
-
-
-  <p>
-    <h4>Progress:</h4>
-    <div class="progress" style="height: 2em;">
-      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{progress|divide:total_tests|percentage}};" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="{{total_tests}}"></div>
-    </div>
-    <em>
-      {{progress}} of {{total_tests}} meaurements complete
-    </em>
-  </p>
-
 </div>
 
 
-
-
-<!-- The Modal -->
-<!-- Modal content -->
-<div id="myModal" class="modal">
-  <div class="modal-content">
-    <h3>Help Menu</h3>
-    <br>
-    <div class="row">
-      <div class="col-6">
-            <table class="table table-sm table-bordered">
-              <thead>
-                <th>Action</th>
-                <th>Key</th>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Help Menu</td>
-                  <td>Help</td>
-                </tr>
-                <tr>
-                  <td>Exit Help Menu</td>
-                  <td>Esc</td>
-                </tr>
-                <tr>
-                  <td>Move to previous record</td>
-                  <td>PageUp</td>
-                </tr>
-                <tr>
-                  <td>Move to next record</td>
-                  <td>PageDown</td>
-                </tr>
-                <tr>
-                  <td>Back to sample detail page</td>
-                  <td>Home</td>
-                </tr>
-              </tbody>
-            </table>
-        </div>
-      </div>
-
-      <a href="#" class="closeBtn" id="closeBtn">Close (Esc)</a>
-    </div>
-  </div>
-</div>
 
 <script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
 
 <script type="text/javascript">
 
-// disable the tab key
-function disableKey(keyName) {
-  $(document).keydown(function(event){
-    if ( event.key == keyName ) {
+$(document).ready(function () {
+
+  // if port sample, we do not test for parasite.
+  {% if object.sample.sampling_protocol.sampling_type == 1 %}
+    $("#id_parasite").removeClass("mandatory")
+    $("#id_parasite").prop("disabled", true)
+  {% endif %}
+
+  // upon ready we run all qc tests
+  runTests()
+
+  // start with focus on #prompt
+  $("#prompt").focus();
+})
+
+
+// set the test201Passed var
+if ($("#display_test_201").text() === "passed") {
+  var test201Passed = true;
+} else {
+  var test201Passed = false;
+}
+
+// lastRecord i.e., are you on the last record in the set?
+{% if last_record %}
+  var lastRecord = true;
+{% else %}
+  var lastRecord = false;
+{% endif %}
+
+
+function runTests() {
+
+  // reset the qcFeedback object
+  qcFeedbackObject = {}
+
+  // check to see if the mandatory fields are present
+  testMandatoryFields("lab_sample")
+
+  // run data point tests; will also identify improbable measurements on data points
+  testDataPoints("fish_length")
+  testDataPoints("fish_weight")
+  testDataPoints("gonad_weight")
+
+  // check if all points are in possible range
+  testPossibleRange("lab_sample")
+
+  // check global ratios
+  testGlobalRatio(204)
+  testGlobalRatio(207)
+
+  // see if any improbably measurements have not been accepted. if so, then test them
+  improbableMeasurementValidation()
+
+  // test to see if all improbable measurements have been accepted
+  testImprobableAccepted("lab_sample")
+
+  // test to see that all qc elements have been checked off
+  testQCPassed("lab_sample") // should be the last test
+
+  // update the sample progress
+  var totalTests = $(".mandatory").length - 1 // subtract one for the lab_sampler
+  var progress = 0
+
+  // determine sample progress and mark measurement fields with .good or .bad
+  for (var i = 0; i < totalTests; i++) {
+    // mark class = good
+    if ($(".mandatory")[i].value !== "") {
+      $("#"+ $(".mandatory")[i].id ).addClass("good")
+      $("#"+ $(".mandatory")[i].id ).removeClass("bad")
+      progress++
+    // mark class = bad
+    } else {
+      $("#"+ $(".mandatory")[i].id ).addClass("bad")
+      $("#"+ $(".mandatory")[i].id ).removeClass("good")
+    }
+  }
+
+  // update progress bar
+  $(".progress-bar")[0].style.width = ((progress/totalTests)*100) + "%"
+
+  // re-set the test201Passed var
+  if ($("#display_test_201").text() === "passed") {
+    var test201Passed = true;
+  } else {
+    var test201Passed = false;
+  }
+
+  // console.log(`progress = ${progress}; total tests = ${totalTests}; last record = ${lastRecord}; test201Passed = ${test201Passed}`);
+  if (progress === totalTests) {
+    if (test201Passed && lastRecord) {
+      speak("Sample complete. Moving to next sample.")
+      $("#id_where_to").val("new") // go to prev
+      $("#submit")[0].click()
+    }
+  } else {
+    if (giveReadyQueue) {
+      speak("ready.")
+    }
+  }
+  // make sure the focus stays on the prompt
+  $("#prompt").focus();
+}
+
+var inputAccepted = false;
+var audio = new Audio("{% static "/sounds/success.wav" %}");
+var deleteFishDetail = "{% url "herring:delete_fish_detail" object.sample.id object.id %}";
+var giveReadyQueue = true
+
+// audio.onended = function () {
+//   runTests()
+// }
+
+
+$(document).keydown(function(event){
+    if ( event.key === 'PageDown' ) {
+      event.preventDefault()
+      speak("Changing Record")
+      $("#id_where_to").val("next") // go to prev
+      $("#submit")[0].click()
+    }
+    else if ( event.key === 'PageUp' ) {
+      event.preventDefault()
+      speak("Changing Record")
+      $("#id_where_to").val("prev") // go to prev
+      $("#submit")[0].click()
+    }
+    // disable tab
+    else if ( event.key === 'Tab' ) {
       event.preventDefault()
     }
-  });
-}
-disableKey("Tab")
-
-
-
-// pageUpDownKeys(prevPageHref, nextPageHref)
-
-
-  // var keepPrompting = true;
-  var clickSubmit = false;
-  var audio = new Audio("{% static "/sounds/success.wav" %}");
-  var progress = {{progress}};
-  var totalTests = {{total_tests}};
-  {% if test_201 %}
-    var test201Passed = true;
-  {% else %}
-    var test201Passed = false;
-  {% endif %}
-
-  {% if last_record %}
-    var lastRecord = true;
-  {% else %}
-    var lastRecord = false;
-  {% endif %}
-
-  var qcFeedbackLookup = '{{qc_feedback_json|safe}}';
-  var qcFeedbackObject = JSON.parse(qcFeedbackLookup);
-
-  var nextPageHref = "{% url "herring:move_record" object.sample.id "lab" "next" object.id %}";
-  var prevPageHref = "{% url "herring:move_record" object.sample.id "lab" "prev" object.id %}";
-  var deleteFishDetail = "{% url "herring:delete_fish_detail" object.sample.id object.id %}";
-  var giveReadyQueue = true
-
-
-  var newRecordURL = "{% url 'herring:lab_sample_primer' object.sample.id %}"
-  audio.onended = function () {
-    $("input").click();
-  }
-
-
-  $(document).ready(function () {
-
-    // determine the sample type and adjust whether 'parasite' is '.mandatory'
-    {% if object.sample.sampling_protocol.sampling_type == 1 %}
-      $("#id_parasite").removeClass("mandatory")
-    {% endif %}
-    testMandatoryFields("lab_sample")
-
-
-
-    testDataPoints("fish_length")
-    testDataPoints("fish_weight")
-    testDataPoints("gonad_weight")
-
-    testPossibleRange("lab_sample")
-    testGlobalRatio(204)
-    testGlobalRatio(207)
-
-    testQCPassed("lab_sample") // should be the last test
-
-
-    improbableMeasurementValidation()
-    if (progress == totalTests) {
-      if (test201Passed && lastRecord) {
-        speak("Sample complete. Moving to next sample.")
-        window.location.href=newRecordURL;
+    else if ( event.key === 'Home' ) {
+      event.preventDefault()
+      if (test201Passed ) {
+        // if the form is filled out, go ahead and leave
+        $("#id_where_to").val("home") // go back to the sample
+        $("#submit")[0].click()
       }
-    }
-    else {
-      if (giveReadyQueue) {
-        speak("ready.")
-      }
-    }
-
-    $("#prompt").focus();
-  })
-
-  $(document).keydown(function(event){
-      if ( event.key == 'PageDown' ) {
-        event.preventDefault()
-        speak("Changing Record")
-        document.location.href = nextPageHref;
-      }
-      else if ( event.key == 'PageUp' ) {
-        event.preventDefault()
-        speak("Changing Record")
-        document.location.href = prevPageHref;
-      }
-      else if ( event.key == 'Home' ) {
-        event.preventDefault()
-        if (test201Passed || lastRecord == false) {
-          // if the form is filled out, go ahead and leave
+      else {
+        // if this is a trailing record, then it should be deleled
+        speak("Are you sure you want to leave?")
+        while (userInput !== "y" && userInput !== "n") {
+          var userInput = prompt("Are you sure you want to leave?\n\nPress [y] for YES or [n] for NO.")
+        }
+        if (userInput === 'y') {
           speak("Returning to sample detail page.")
-          $("#home")[0].click();
-        }
-        else {
-          // if this is a trailing record, then it should be deleled
-          speak("Are you sure you want to leave?")
-          while (userInput != "y" && userInput != "n") {
-            var userInput = prompt("Are you sure you want to leave?\n\nPress [y] for YES or [n] for NO.")
+          if ($("#id_fish_length").val()=="" && $("#id_fish_weight").val()=="" && $("#id_gonad_weight").val()=="" && $("#id_sex").val()=="" && $("#id_maturity").val()=="" && $("#id_parasite").val()=="") {
+            document.location.href = deleteFishDetail
           }
-          if (userInput === 'y') {
-            speak("Returning to sample detail page.")
-            if ($("#id_fish_length").val()=="" && $("#id_fish_weight").val()=="" && $("#id_gonad_weight").val()=="" && $("#id_sex").val()=="" && $("#id_maturity").val()=="" && $("#id_parasite").val()=="") {
-              document.location.href = deleteFishDetail
-            }
-            else{
-              $("#home")[0].click() // go back to the sample
-            }
+          else{
+            $("#id_where_to").val("home") // go back to the sample
+            $("#submit")[0].click() // go back to the sample
           }
         }
-
-
-      }
-      // else if (event.key == 'F2') {
-      //   event.preventDefault()
-      //   if (progress == totalTests && test201Passed == "True") {
-      //     // redirect to new record
-      //     window.location.href=newRecordURL;
-      //   } else {
-      //     speak("cannot go to new record until sample is complete and until all quality tests have been passed.")
-      //   }
-      // }
-      else if (event.key == 'Escape') {
-        event.preventDefault()
-        $("#closeBtn")[0].click();
-
-      }
-  });
-
-  function improbableMeasurementValidation() {
-    var userInput
-    // JSON atributes to check
-    check_list = ["fish_length","fish_weight","gonad_weight","global_204", "global_207"]
-
-    for (var i = 0; i < check_list.length; i++) {
-      if (jQuery.isEmptyObject(qcFeedbackObject[check_list[i]]) == false) {
-        // means there is a problem that needs dealing with
-        var msgLite = qcFeedbackObject[check_list[i]].msg_lite
-        speak(msgLite);
-        while (userInput != "y" && userInput != "n") {
-          userInput = prompt(qcFeedbackObject[check_list[i]].msg)
-        }
-        if (userInput == 'n') {
-          speak("redo measurement");
-        } else {
-          // if user is confident, we will communicate this back to the server and mark yes for accepted
-          giveReadyQueue = false
-          $("#id_improbable_field").val(check_list[i]);
-          $("#id_improbable_test").val(qcFeedbackObject[check_list[i]].test);
-          $("#id_improbable_accepted").val(1);
-          $("form").submit()
-
-        }
-        break
       }
     }
+
+    else if (event.key === 'Escape') {
+      event.preventDefault()
+      $("#closeBtn")[0].click();
+
+    }
+});
+
+
+
+function overwrite(control) {
+  var msg = "Do you want to overwrite the existing data in this field? Press [y] for YES or [n] for NO."
+  var msgLite = "do you want to overwrite?"
+  var assess = true
+  var userInput
+
+  // first determine whether an assessment is necessary
+  if (control.val() !== "") {
+    assess=true;
+  } else {
+    assess=false;
   }
 
-
-
-  function overwrite(control) {
-    var msg = "Do you want to overwrite the existing data in this field? Press [y] for YES or [n] for NO."
-    var msgLite = "do you want to overwrite?"
-    var assess = true
-    var userInput
-
-    // first determine whether an assessment is necessary
-    if (control.val() != "") {
-      assess=true;
-    } else {
-      assess=false;
+  if (assess  === true) {
+    speak(msgLite);
+    while (userInput !== "y" && userInput !== "n") {
+      userInput = prompt(msg)
     }
-
-
-    if (assess  == true) {
-      speak(msgLite);
-      while (userInput != "y" && userInput != "n") {
-        userInput = prompt(msg)
-      }
-      if (userInput == 'n') {
-        return false
-      } else {
-        return true
-      }
+    if (userInput === 'n') {
+      return false
     } else {
       return true
     }
+  } else {
+    return true
   }
+}
 
 // for when the enter button is pressed on the prompt control
   $("#prompt").keypress(function(e) {
-    if(e.which == 13) {
+    if(e.which === 13) {
       e.preventDefault()
       userResponse = $("#prompt").val();
       userResponse = userResponse.trim()
+      inputAccepted = false;
 
       if (userResponse.match(/comment/gi)) {
         if (overwrite($("#id_remarks"))) {
           $("#id_remarks").val(userResponse.toLowerCase().replace("comment","").trim());
-          clickSubmit = true;
+          inputAccepted = true;
         }
       }
       else if (userResponse.match(/Help/gi)) {
@@ -350,93 +294,106 @@ disableKey("Tab")
       else if (userResponse.match(/ruler1/gi)) {
         // EXAMPLE:  Ruler1 279.2123
         if (overwrite($("#id_fish_length"))) {
+          // reset accepted status
+          markTestAccepted("id_test_302_accepted", null)
+          // write to field
           $("#id_fish_length").val(userResponse.toLowerCase().replace("ruler1","").trim());
-          clickSubmit = true;
+          inputAccepted = true;
         }
-      } else if (userResponse.match(/sex/gi)) {
+      }
+      else if (userResponse.match(/sex/gi)) {
         // 'EXAMPLE:  Sex male
         if (overwrite($("#id_sex"))) {
           strSex = userResponse.toLowerCase().replace("sex","").trim()
           if (strSex=='male') {
             $("#id_sex").val(1);
-            clickSubmit = true;
+            inputAccepted = true;
           } else if (strSex=='female') {
             $("#id_sex").val(2);
-            clickSubmit = true;
+            inputAccepted = true;
           } else if (strSex=='h') {
             $("#id_sex").val(3);
-            clickSubmit = true;
+            inputAccepted = true;
           } else if (strSex=='u') {
             $("#id_sex").val(9);
-            clickSubmit = true;
+            inputAccepted = true;
           } else {
-            clickSubmit = false
+            inputAccepted = false
           }
         }
-      } else if (userResponse.match(/parasites/gi)) {
+      }
+      else if (userResponse.match(/parasites/gi)) {
         // 'EXAMPLE:  Parasites Y
         if (overwrite($("#id_parasite"))) {
           strParasite = userResponse.toLowerCase().replace("parasites","").trim()
           if (strParasite=='y') {
             $("#id_parasite").val(1);
-            clickSubmit = true;
+            inputAccepted = true;
           } else if (strParasite=='n') {
             $("#id_parasite").val(0);
-            clickSubmit = true;
+            inputAccepted = true;
           } else {
-            clickSubmit = false
+            inputAccepted = false
           }
 
         }
 
-      } else if (userResponse.match(/Gonad/gi) || userResponse.match(/scale_2/gi)) {
+      }
+      else if (userResponse.match(/Gonad/gi) || userResponse.match(/scale_2/gi)) {
         // 'EXAMPLE:  Enter Gonad wt 50.1 __OR__ Scale_2 50.0001 g
         if (overwrite($("#id_gonad_weight"))) {
+          // reset accepted status
+          markTestAccepted("id_test_308_accepted", null)
+          // write to field
           if (userResponse.match(/Gonad/gi)) {
             $("#id_gonad_weight").val(userResponse.toLowerCase().replace("enter Gonad wt","").trim());
           } else {
             $("#id_gonad_weight").val(userResponse.toLowerCase().replace("scale_2","").replace("g","").trim());
           }
-          clickSubmit = true;
+          inputAccepted = true;
         }
-      } else if (userResponse.match(/fish wt/gi) || userResponse.match(/scale_1/gi)) {
+      }
+      else if (userResponse.match(/fish wt/gi) || userResponse.match(/scale_1/gi)) {
         // 'EXAMPLE:  Scale_1 1000.000 g __OR__ Enter Fish wt 1000
         if (overwrite($("#id_fish_weight"))) {
+          // reset accepted status
+          markTestAccepted("id_test_305_accepted", null)
+          // write to field
           if (userResponse.match(/fish wt/gi)) {
             $("#id_fish_weight").val(userResponse.toLowerCase().replace("fish wt","").trim());
           } else {
             $("#id_fish_weight").val(userResponse.toLowerCase().replace("scale_1","").replace("g","").trim());
           }
-          clickSubmit = true;
+          inputAccepted = true;
         }
-      } else if (userResponse.match(/Enter Maturity/gi)) {
+      }
+      else if (userResponse.match(/Enter Maturity/gi)) {
         // 'EXAMPLE:  Enter Maturity 1
         if (overwrite($("#id_maturity"))) {
           $("#id_maturity").val(userResponse.toLowerCase().replace("enter maturity","").trim());
-          clickSubmit = true;
+          inputAccepted = true;
         }
       }
 
-
       ////////////////////////
-
-      if (clickSubmit == true) {
-        $("#prompt").prop("disabled", true)
-        audio.play(); // this will also submit the form for some reason.
-        // $("form").submit()
-
-
-      } else {
-        $("#prompt").val("");
+      // if input is accepted, play a sound and re-run tests
+      if (inputAccepted === true) {
+        audio.play();
+        
+        runTests()
       }
-
-      ///////////////////
-
-
+      // no matter what the input, clear the prompt line
+      $("#prompt").val("");
     }
   });
 
 
+  function sleep(miliseconds) {
+     var currentTime = new Date().getTime();
+
+     while (currentTime + miliseconds >= new Date().getTime()) {
+     }
+  }
 </script>
 
 

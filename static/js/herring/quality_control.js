@@ -1,13 +1,41 @@
-function markTestPassed(testId) {
-  $("#"+testId).text("passed")
-  $("#"+testId).addClass("good")
-  $("#"+testId).removeClass("bad")
+function markTest(testId, testPassed) {
+  pass = "passed"
+  fail = "failed"
+  if (testPassed === null) {
+    $("#"+testId).text("")
+    $("#"+testId).removeClass("good")
+    $("#"+testId).removeClass("bad")
+  }
+  else if (testPassed === true) {
+    $("#"+testId).text(pass)
+    $("#"+testId).addClass("good")
+    $("#"+testId).removeClass("bad")
+  }
+  else if (testPassed === false) {
+    $("#"+testId).text(fail)
+    $("#"+testId).addClass("bad")
+    $("#"+testId).removeClass("good")
+  }
 }
 
-function markTestFailed(testId) {
-  $("#"+testId).text("failed")
-  $("#"+testId).addClass("bad")
-  $("#"+testId).removeClass("good")
+function markTestAccepted(testId, testPassed) {
+  pass = "yes"
+  fail = "no"
+  if (testPassed === null) {
+    $("#"+testId).val("")
+    $("#"+testId).removeClass("good")
+    $("#"+testId).removeClass("bad")
+  }
+  else if (testPassed === true) {
+    $("#"+testId).val(pass)
+    $("#"+testId).addClass("good")
+    $("#"+testId).removeClass("bad")
+  }
+  else if (testPassed === false) {
+    $("#"+testId).val(fail)
+    $("#"+testId).addClass("bad")
+    $("#"+testId).removeClass("good")
+  }
 }
 
 var rangeObject = {
@@ -61,17 +89,93 @@ var rangeObject = {
         },
     }
 
+// initialize  blank qcFeedback object
+var qcFeedbackObject = {}
+
+
+function testImprobableAccepted(objectType) {
+  if (objectType === "lab_sample") {
+    // grab all test related to probability
+    testList = [204,207,302,305,308]
+    failedTests = []
+    blankTests = []
+
+    // first determine if there is an improbable observation, or if blank; also set formatting on the "accepted" column
+    for (var i = 0; i < testList.length; i++) {
+      if ($("#display_test_"+testList[i]).text() === "failed") {
+        failedTests.push(testList[i])
+      }
+      else if ($("#display_test_"+testList[i]).text() === "") {
+        blankTests.push(testList[i])
+      }
+      // formatting
+      if ($("#id_test_"+testList[i]+"_accepted").val() === "no") {
+        markTestAccepted("id_test_"+testList[i]+"_accepted", false)
+      } else if ($("#id_test_"+testList[i]+"_accepted").val() === "yes") {
+        markTestAccepted("id_test_"+testList[i]+"_accepted", true)
+      }
+    }
+    // if all tests are blank, this test should be blank too
+    if (blankTests.length === testList.length) {
+      markTest("display_test_208", null)
+    }
+    // everything has been tested and there are no failed tests
+    else if (failedTests.length === 0 && blankTests.length === 0){
+      markTest("display_test_208", true)
+    }
+    // there are some passed tests and no failed tests... remain on standby
+    else if (failedTests.length === 0){
+      markTest("display_test_208", null)
+    }
+    // finally, there are some failed test and we have to make sure they have been accepted
+    else {
+      var pass = true;
+      for (var i = 0; i < failedTests.length; i++) {
+        // check to see if accepted
+        if ($("#id_test_"+failedTests[i]+"_accepted").val() !== "yes") {
+          console.log("break!");
+          // if not, then mark test as failed and leave loop
+          markTest("display_test_208", false)
+          pass= false
+          break
+        }
+      }
+      if (pass) {
+        // if there are still blank tests, remain on standby
+        if (blankTests.length > 0) {
+          markTest("display_test_208", null)
+        // score test as successful
+        }else {
+          markTest("display_test_208", true)
+        }
+      }
+    }
+  }
+}
+
 function testPossibleRange(objectType) {
-  if (objectType == "lab_sample") {
+  var stop = false
+  if (objectType === "lab_sample") {
     // grab all test related to fish detail and see if any failed
     testList = [301,304,307]
+    // do one loop to ensure values are present
     for (var i = 0; i < testList.length; i++) {
-      if ($("#id_test_"+testList[i]).text() != "passed") {
-        markTestFailed("id_test_203")
+      if ($("#display_test_"+testList[i]).text() === "") {
+        markTest("display_test_203", null)
+        stop = true
         break
       }
-      else {
-        markTestPassed("id_test_203")
+    }
+    if (stop === false) {
+      // do a second loop to assign a value
+      for (var i = 0; i < testList.length; i++) {
+        if ($("#display_test_"+testList[i]).text() !== "passed") {
+          markTest("display_test_203", false)
+          break
+        }
+        else {
+          markTest("display_test_203", true)
+        }
       }
     }
   }
@@ -79,16 +183,18 @@ function testPossibleRange(objectType) {
 
 function testDataPoints(fieldName) {
   var stop = false
-  if (fieldName == "fish_length") {
+  var fieldVerboseName = fieldName.replace("_"," ")
+
+  if (fieldName === "fish_length") {
     test = [300,301,302]
   }
-  else if (fieldName == "fish_weight"){
+  else if (fieldName === "fish_weight"){
     test = [303,304,305]
   }
-  else if (fieldName == "gonad_weight"){
+  else if (fieldName === "gonad_weight"){
     test = [306,307,308]
   }
-  else if (fieldName == "annulus_count"){
+  else if (fieldName === "annulus_count"){
     test = [309,310,311]
   }
   else {
@@ -97,34 +203,53 @@ function testDataPoints(fieldName) {
   }
 
   // provided a good fieldName was provided
-  if (stop == false) {
+  if (stop === false) {
     // field is not empty
-    if ( $("#id_"+fieldName)[0].value == "") {
-      markTestFailed("id_test_"+test[0])
-      markTestFailed("id_test_"+test[1])
-      markTestFailed("id_test_"+test[2])
+    if ( $("#id_"+fieldName)[0].value === "") {
+      markTest("display_test_"+test[0], false)
+      markTest("display_test_"+test[1], null)
+      markTest("display_test_"+test[2], null)
     }
     else {
       // test 1 is passed
-      markTestPassed("id_test_"+test[0])
+      markTest("display_test_"+test[0], true)
       fieldValue = Number($("#id_"+fieldName)[0].value)
 
       // check possible range
       if (fieldValue < rangeObject[fieldName].possible.min || fieldValue > rangeObject[fieldName].possible.max ) {
-        markTestFailed("id_test_"+test[1])
-        markTestFailed("id_test_"+test[2])
+        markTest("display_test_"+test[1], false)
+        markTest("display_test_"+test[2], null)
       }
       else{
         // test 2 passed
-        markTestPassed("id_test_"+test[1])
+        markTest("display_test_"+test[1], true)
 
         // check probable range
         if (fieldValue < rangeObject[fieldName].probable.min || fieldValue > rangeObject[fieldName].probable.max ) {
-          markTestFailed("id_test_"+test[2])
+          markTest("display_test_"+test[2], false)
+          // is the test already accepted?
+          if ($("#id_test_"+test[2]+"_accepted").val()=="yes") {
+            // do nothing
+          } else {
+            markTestAccepted("id_test_"+test[2]+"_accepted", false)
+            // send some information
+            var min = parseFloat(Math.round(rangeObject[fieldName].probable.min * 100) / 100).toFixed(1)
+            var max = parseFloat(Math.round(rangeObject[fieldName].probable.max * 100) / 100).toFixed(1)
+            var msg = `${fieldVerboseName} is outside of the probable range. \n\nA value was expected between ${min} and ${max}. \n\nAre you confident in your measurements? \n\n Press [y] for YES or [n] for NO.`
+            var msgLite = `Improbable measurement for ${fieldVerboseName}`
+
+            // write to the qcFeedbackObject
+            qcFeedbackObject[test[2]] = {}
+            qcFeedbackObject[test[2]].msg = msg
+            qcFeedbackObject[test[2]].msgLite = msgLite
+            qcFeedbackObject[test[2]].testId = test[2]
+
+          }
         }
         else {
           // test 3 passed
-          markTestPassed("id_test_"+test[2])
+          markTest("display_test_"+test[2], true)
+          markTestAccepted("id_test_"+test[2]+"_accepted", null)
         }
       }
     }
@@ -133,20 +258,20 @@ function testDataPoints(fieldName) {
 
 function testQCPassed(objectType) {
   // make sure to run this as last test
-  if (objectType == "lab_sample") {
+  if (objectType === "lab_sample") {
     // grab all test related to fish detail and see if any failed
     testList = [202,203,208]
     for (var i = 0; i < testList.length; i++) {
-      if ($("#id_test_"+testList[i]).text() != "passed") {
-        markTestFailed("id_test_201")
+      if ($("#display_test_"+testList[i]).text() !== "passed") {
+        markTest("display_test_201", false)
         break
       }
       else {
-        markTestPassed("id_test_201")
+        markTest("display_test_201", true)
       }
     }
   }
-  else if (objectType == "otolith") {
+  else if (objectType === "otolith") {
     // grab all test related to fish detail and see if any failed
     testList = [202,203,208]
 
@@ -154,50 +279,50 @@ function testQCPassed(objectType) {
     //         fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=211) | Q(test_id=206) | Q(test_id=210) )
     //
     //         for t in fish_detail_global_tests: # Only looking at the tests of interest
-    //             if t.test_passed == False:
+    //             if t.test_passed === False:
     //                 test.test_passed = False
     //                 test.save()
     //                 break
 
 
     for (var i = 0; i < testList.length; i++) {
-      if ($("#id_test_"+testList[i]).innerHTML != "passed") {
-        markTestFailed("id_test_20")
+      if ($("#display_test_"+testList[i]).innerHTML !== "passed") {
+        markTest("display_test_20", false)
         break
       }
       else {
-        markTestPassed("id_test_20")
+        markTest("display_test_20", true)
       }
     }
   }
 }
 
 function testMandatoryFields(objectType) {
-  if (objectType == "port_sample") {
+  if (objectType === "port_sample") {
     for (var i = 0; i < $(".mandatory").length; i++) {
-      if ($(".mandatory")[i].innerHTML == "" || $(".mandatory")[i].innerHTML == "None") {
-        markTestFailed("id_test_230")
+      if ($(".mandatory")[i].innerHTML === "" || $(".mandatory")[i].innerHTML === "None") {
+        markTest("display_test_230", false)
         break
       }
       else {
-        markTestPassed("id_test_230")
+        markTest("display_test_230", true)
       }
     }
   }
-  else if (objectType == "lab_sample") {
+  else if (objectType === "lab_sample") {
     for (var i = 0; i < $(".mandatory").length; i++) {
-      if ($(".mandatory")[i].value == "" || $(".mandatory")[i].value == "None") {
+      if ($(".mandatory")[i].value === "" || $(".mandatory")[i].value === "None") {
 
-        markTestFailed("id_test_202")
+        markTest("display_test_202",false)
         break
       }
       else {
-        markTestPassed("id_test_202")
+        markTest("display_test_202", true)
 
       }
     }
   }
-  else if (objectType == "otolith") {
+  else if (objectType === "otolith") {
     // if object.otolith_sampler and object.otolith_season and object.annulus_count:
    //             test.test_passed = True
    //             test.save()
@@ -206,217 +331,222 @@ function testMandatoryFields(objectType) {
 }
 
 function test205(lengthFrequencySum, totalFishMeasured) {
-  if (lengthFrequencySum == totalFishMeasured) {
-    markTestPassed("id_test_205")
+  if (lengthFrequencySum === totalFishMeasured) {
+    markTest("display_test_205", true)
 
   }
   else {
-    markTestFailed("id_test_205")
+    markTest("display_test_205", false)
   }
 }
 
 function test231(labProcessingComplete) {
   if (labProcessingComplete) {
-    markTestPassed("id_test_231")
+    markTest("display_test_231", true)
   }
   else {
-    markTestFailed("id_test_231")
+    markTest("display_test_231", false)
   }
 
 }
 
 function test232(otolithProcessingComplete) {
   if (otolithProcessingComplete) {
-    markTestPassed("id_test_232")
+    markTest("display_test_232", true)
   }
   else {
-    markTestFailed("id_test_232")
+    markTest("display_test_232", false)
   }
 }
 
+
+function improbableMeasurementValidation() {
+    // JSON atributes to check
+    testList = [302,305,308,204,207,]
+
+    for (var i = 0; i < testList.length; i++) {
+      if (jQuery.isEmptyObject(qcFeedbackObject[testList[i]]) === false) {
+        // means there is a problem that needs dealing with
+        var test = testList[i]
+        var msgLite = qcFeedbackObject[test].msgLite
+        var msg = qcFeedbackObject[test].msg
+        speak(msgLite);
+
+        // give the machine a bit of time to catch up!
+        setTimeout(testFunc,1200);
+
+        // package the remaining code to be called by the setTimeout func
+        function testFunc (){
+          var userInput;
+          while (userInput !== "y" && userInput !== "n") {
+            userInput = prompt(msg)
+          }
+
+          if (userInput === 'n') {
+            giveReadyQueue = false
+            speak("redo measurement");
+            markTestAccepted("id_test_"+test+"_accepted", false)
+
+          } else {
+            // if user is confident, we will mark yes for accepted
+            giveReadyQueue = false
+            console.log("id_test_"+test+"_accepted");
+            markTestAccepted("id_test_"+test+"_accepted", true)
+            audio.play();
+            runTests();
+          }
+        }
+        break
+      }
+    }
+  }
+
 function testGlobalRatio(testId) {
   var stop = false
-  if (testId == 204) {
-    var independentVar = Number($("#id_fish_length")[0].value)
-    var dependentVar = Number($("#id_fish_weight")[0].value)
-    var independentName = "fish length"
-    var dependentName = "fish weight"
-    var min = Math.exp(-12.978 + 3.18 * Math.log(independentVar))
-    var max = Math.exp(-12.505 + 3.18 * Math.log(independentVar))
-    var msgLite = `Improbable measurement for ${independentName} : ${dependentName}`
-    var msg = `The ${independentName} : ${dependentName} ratio is outside of the probable range. \n\nFor the given value of ${independentName}, ${dependentName} most commonly ranges between ${parseFloat(Math.round(min * 100) / 100).toFixed(1)} and ${parseFloat(Math.round(max * 100) / 100).toFixed(1)}. \n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO.`
+  if (testId === 204) {
+    var independentVar = $("#id_fish_length")[0].value
+    var dependentVar = $("#id_fish_weight")[0].value
+    console.log(independentVar);
+    if (independentVar !== "" && dependentVar !== "") {
+      // set the strings to numbers for further processing
+      independentVar = Number($("#id_fish_length")[0].value)
+      dependentVar = Number($("#id_fish_weight")[0].value)
+      var independentName = "fish length"
+      var dependentName = "fish weight"
+      var min = Math.exp(-12.978 + 3.18 * Math.log(independentVar))
+      var max = Math.exp(-12.505 + 3.18 * Math.log(independentVar))
+      var msgLite = `Improbable measurement for ${independentName} : ${dependentName} ratio`
+      var msg = `The ${independentName} : ${dependentName} ratio is outside of the probable range. \n\nFor the given value of ${independentName}, ${dependentName} most commonly ranges between ${parseFloat(Math.round(min * 100) / 100).toFixed(1)} and ${parseFloat(Math.round(max * 100) / 100).toFixed(1)}. \n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO.`
+
+    }
+    else {
+      stop = true
+    }
   }
-  else if (testId == 204) {
+  else if (testId === 207) {
+    var independentVar = $("#id_fish_weight")[0].value
+    var dependentVar = $("#id_gonad_weight")[0].value
+    var factor = Number($("#id_maturity")[0].value)
+    // only do the test if all vars are present
+
+    if (independentVar !== "" && dependentVar !== "" && factor !== "") {
+      // set the strings to numbers for further processing
+      independentVar = Number($("#id_fish_weight")[0].value)
+      dependentVar = Number($("#id_gonad_weight")[0].value)
+
+      var independentName = "somatic weight"
+      var dependentName = "gonad weight"
+      if (factor === 1){
+        min = 0
+        max = 1
+      }
+      else if (factor === 2){
+        min = 0
+        max = Math.exp(-4.13529659279963 + Math.log(independentVar) * 0.901314871086489)
+      }
+      else if (factor === 3){
+        min = Math.exp(-9.73232467962432 + Math.log(independentVar) * 1.89741087890489)
+        max = Math.exp(-7.36823392683834 + Math.log(independentVar) * 1.89014326451594)
+      }
+      else if (factor === 4){
+        min = Math.exp(-3.47650267387848 + Math.log(independentVar) * 1.032305979081)
+        max = Math.exp(-1.26270682092335 + Math.log(independentVar) * 1.01753432622181)
+      }
+      else if (factor === 5){
+        min = Math.exp(-5.20139782140475 + Math.log(independentVar) * 1.57823918381865)
+        max = Math.exp(-4.17515855708087 + Math.log(independentVar) * 1.56631264086027)
+      }
+      else if (factor === 6){
+        min = Math.exp(-4.98077570284809 + Math.log(independentVar) * 1.53819945023286)
+        max = Math.exp(-3.99324471338789 + Math.log(independentVar) * 1.53661353195509)
+      }
+      else if (factor === 7){
+        min = Math.exp(-5.89580204167729 + Math.log(independentVar) * 1.27478993476955)
+        max = Math.exp(-2.94435270310896 + Math.log(independentVar) * 1.19636077686861)
+      }
+      else if (factor === 8){
+        min = Math.exp(-7.18685438956137 + Math.log(independentVar) * 1.40456267851141)
+        max = Math.exp(-5.52714180205898 + Math.log(independentVar) * 1.39515770753421)
+      }
+
+      var msgLite = `Improbable measurement for ${independentName} : ${dependentName} ratio`
+      var msg = `The ${independentName} : ${dependentName} ratio is outside of the probable range. \n\nFor the given value of ${independentName} at maturity level ${factor}, ${dependentName} most commonly ranges between ${parseFloat(Math.round(min * 100) / 100).toFixed(1)} and ${parseFloat(Math.round(max * 100) / 100).toFixed(1)}. \n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO.`
+    }
+    else {
+      stop = true
+    }
+  }
+  else if (testId === 209) {
     var independentVar = Number($("#id_fish_length")[0].value)
-    var dependentVar = Number($("#id_fish_weight")[0].value)
-    var independentName = "fish length"
-    var dependentName = "fish weight"
-    var min = Math.exp(-12.978 + 3.18 * Math.log(independentVar))
-    var max = Math.exp(-12.505 + 3.18 * Math.log(independentVar))
-    var msgLite = `Improbable measurement for ${independentName} : ${dependentName}`
-    var msg = `The ${independentName} : ${dependentName} ratio is outside of the probable range. \n\nFor the given value of ${independentName}, ${dependentName} most commonly ranges between ${parseFloat(Math.round(min * 100) / 100).toFixed(1)} and ${parseFloat(Math.round(max * 100) / 100).toFixed(1)}. \n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO.`
+    var dependentVar = Number($("#id_annulus_count")[0].value)
+    if (independentVar !=="" && dependentVar !== "") {
+      var independentName = "fish length"
+      var dependentName = "annulus count"
+      var min = (-14.3554448587879 + 6.34008000506408E-02 * independentVar)
+      var max = (-10.1477660949041 + 6.33784283545123E-02 * independentVar)
+
+      var msgLite = `Improbable measurement for ${independentName} : ${dependentName} ratio`
+      var msg = `The ${independentName} : ${dependentName} ratio is outside of the probable range. \n\nFor the given value of ${independentName}, ${dependentName} most commonly ranges between ${parseFloat(Math.round(min * 100) / 100).toFixed(1)} and ${parseFloat(Math.round(max * 100) / 100).toFixed(1)}. \n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO.`
+    }
+    else {
+      stop = true
+    }
   }
   else {
     stop = true
   }
 
-
-  if (stop == false) {
+  // if the test was stopped, it means we are not ready to evaluate and the test should be left blank
+  if (stop) {
+    markTest("display_test_"+testId, null)
+    markTestAccepted("id_test_"+testId+"_accepted", null)
+  }
+  else {
     console.log(`independent=${independentVar};dependent=${dependentVar};min=${min}; max=${max}`);
     if (dependentVar < min || dependentVar > max){
-      markTestFailed("id_test_"+testId)
+      markTest("display_test_"+testId, false)
+
+      // check to see if the failed test has already been accepted
+      if ($("#id_test_"+testId+"_accepted").val() === "yes") {
+        // do nothing
+      }
+      // if it hasn't, this information should be logged in the qcFeedbackObject
+      else {
+        // write to the qcFeedbackObject
+        qcFeedbackObject[testId] = {}
+        qcFeedbackObject[testId].msg = msg
+        qcFeedbackObject[testId].msgLite = msgLite
+        qcFeedbackObject[testId].testId = testId
+      }
     }
     else {
-      markTestPassed("id_test_"+testId)
-
+      markTest("display_test_"+testId, true)
+      markTestAccepted("id_test_"+testId+"_accepted", null)
     }
   }
-
 }
 
 
-//         if dependent < min or dependent > max:
-//             print(123)
-//             object_test.test_passed = False
-//             if is_accepted == 1:
-//                 object_test.accepted = 1
-//             # otherwise, not accepted
-//             else:
-//                 object_test.accepted = 0
-//         else:
-//             object_test.test_passed = True
-//         object_test.save()
-//
-//     if object_test.accepted is 0:
-//         # my_dict[field_name] = {}
-//         my_dict["test"] = object_test.test_id
-//         my_dict["msg"] = msg
-//         my_dict["msg_lite"] = msg_lite
-//
 
+// // function checkAcceptedTests(objectType) {
+//   if (objectType === "lab_sample") {
+//     // grab all test related to probability
+//     testList = [204,207,302,305,308]
+//     for (var i = 0; i < testList.length; i++) {
+//       if ($("#id_test_"+testList[i]+"_accepted").val() === "") {
+//         markTest("display_test_"+testList[i]+"_accepted",false, "yesNo")
+//       }
+//       else {
+//         markTest("display_test_"+testList[i]+"_accepted",true, "yesNo")
+//       }
+//     }
+//   }
+// }
 
-// def run_global_ratio_test(object_test, is_accepted):
-//     my_dict = {}
-//     stop = False
-//     if object_test.test.id == 204:
-//         if object_test.fish_detail.fish_weight and object_test.fish_detail.fish_length:
-//             independent = object_test.fish_detail.fish_length
-//             dependent = object_test.fish_detail.fish_weight
-//             independent_name = object_test.fish_detail._meta.get_field("fish_length").verbose_name
-//             dependent_name = object_test.fish_detail._meta.get_field("fish_weight").verbose_name
-//             min = math.exp(-12.978 + 3.18 * math.log(independent))
-//             max = math.exp(-12.505 + 3.18 * math.log(independent))
-//             msg_lite = "Improbable measurement for {} : {}".format(independent_name,dependent_name)
-//             msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
-//                 independent_name,
-//                 dependent_name,
-//                 independent_name,
-//                 dependent_name,
-//                 min,
-//                 max,
-//             )
-//
-//         else:
-//             stop = True
-//
-//     elif object_test.test.id == 207:
-//         if object_test.fish_detail.maturity and object_test.fish_detail.fish_weight and object_test.fish_detail.gonad_weight != None:
-//             independent = object_test.fish_detail.fish_weight
-//             dependent = object_test.fish_detail.gonad_weight
-//             factor = object_test.fish_detail.maturity.id
-//             independent_name = object_test.fish_detail._meta.get_field("fish_weight").verbose_name
-//             dependent_name = object_test.fish_detail._meta.get_field("gonad_weight").verbose_name
-//             # print(factor)
-//             if factor == 1:
-//                 min = 0
-//                 max = 1
-//             elif factor == 2:
-//                 min = 0
-//                 max = math.exp(-4.13529659279963 + math.log(independent) * 0.901314871086489)
-//             elif factor == 3:
-//                 min = math.exp(-9.73232467962432 + math.log(independent) * 1.89741087890489)
-//                 max = math.exp(-7.36823392683834 + math.log(independent) * 1.89014326451594)
-//             elif factor == 4:
-//                 min = math.exp(-3.47650267387848 + math.log(independent) * 1.032305979081)
-//                 max = math.exp(-1.26270682092335 + math.log(independent) * 1.01753432622181)
-//             elif factor == 5:
-//                 min = math.exp(-5.20139782140475 + math.log(independent) * 1.57823918381865)
-//                 max = math.exp(-4.17515855708087 + math.log(independent) * 1.56631264086027)
-//             elif factor == 6:
-//                 min = math.exp(-4.98077570284809 + math.log(independent) * 1.53819945023286)
-//                 max = math.exp(-3.99324471338789 + math.log(independent) * 1.53661353195509)
-//             elif factor == 7:
-//                 min = math.exp(-5.89580204167729 + math.log(independent) * 1.27478993476955)
-//                 max = math.exp(-2.94435270310896 + math.log(independent) * 1.19636077686861)
-//             elif factor == 8:
-//                 min = math.exp(-7.18685438956137 + math.log(independent) * 1.40456267851141)
-//                 max = math.exp(-5.52714180205898 + math.log(independent) * 1.39515770753421)
-//
-//             msg_lite = "Improbable measurement for {} : {}".format(independent_name,dependent_name)
-//             msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {} at maturity level {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
-//                 independent_name,
-//                 dependent_name,
-//                 independent_name,
-//                 factor,
-//                 dependent_name,
-//                 min,
-//                 max,
-//             )
-//         else:
-//             stop = True
-//
-//     elif object_test.test.id == 209:
-//         if object_test.fish_detail.fish_length and object_test.fish_detail.annulus_count:
-//             independent = object_test.fish_detail.fish_length
-//             dependent = object_test.fish_detail.annulus_count
-//             independent_name = object_test.fish_detail._meta.get_field("fish_length").verbose_name
-//             dependent_name = object_test.fish_detail._meta.get_field("annulus_count").verbose_name
-//             min = (-14.3554448587879 + 6.34008000506408E-02 * independent)
-//             max = (-10.1477660949041 + 6.33784283545123E-02 * independent)
-//             msg_lite = "Improbable measurement for {} : {}".format(independent_name,dependent_name)
-//             msg = "The {} : {} ratio is outside of the probable range. \\n\\nFor the given value of {}, {} most commonly ranges between {:.2f} and {:.2f}. \\n\\nAre you confident in your measurements? \\n\\nPress [y] for YES or [n] for NO.".format(
-//                 independent_name,
-//                 dependent_name,
-//                 independent_name,
-//                 dependent_name,
-//                 min,
-//                 max,
-//             )
-//
-//         else:
-//             stop = True
-//     else:
-//         stop = True
-//
-//     if not stop:
-//         print("independent={};dependent={};min={}; max={}".format(independent,dependent,min,max))
-//         if dependent < min or dependent > max:
-//             print(123)
-//             object_test.test_passed = False
-//             if is_accepted == 1:
-//                 object_test.accepted = 1
-//             # otherwise, not accepted
-//             else:
-//                 object_test.accepted = 0
-//         else:
-//             object_test.test_passed = True
-//         object_test.save()
-//
-//     if object_test.accepted is 0:
-//         # my_dict[field_name] = {}
-//         my_dict["test"] = object_test.test_id
-//         my_dict["msg"] = msg
-//         my_dict["msg_lite"] = msg_lite
-//
-//     return my_dict
-//
-//
-//
-//
 
 // def run_test_improbable_accepted(object, object_type): # all improbable observations been accepted
 //     # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 204 AND 207
-//     if object_type == "lab_sample":
+//     if object_type === "lab_sample":
 //         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
 //         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=208).delete()
 //
@@ -427,12 +557,12 @@ function testGlobalRatio(testId) {
 //         # grab all test related to fish detail
 //         fish_detail_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id)
 //         for t in fish_detail_tests: # kEEP IN MIND THIS WILL INCLUDE OTOLITH SAMPLE TESTS
-//             if t.accepted == False:
+//             if t.accepted === False:
 //                 test.test_passed = False
 //                 test.save()
 //                 break
 //
-//     elif object_type == "otolith":
+//     elif object_type === "otolith":
 //         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
 //         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=211).delete()
 //
@@ -443,14 +573,14 @@ function testGlobalRatio(testId) {
 //         # grab all test related to fish detail
 //         fish_detail_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id)
 //         for t in fish_detail_tests: # kEEP IN MIND THIS WILL INCLUDE OTOLITH SAMPLE TESTS
-//             if t.accepted == False:
+//             if t.accepted === False:
 //                 test.test_passed = False
 //                 test.save()
 //                 break
 //
 // def run_test_qc_passed(object, object_type): # all quality control tests have been passed
 //     # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 202 (mandatory fields), 203 (possible range), 208 (accepted improbable obsverations)
-//     if object_type == "lab_sample":
+//     if object_type === "lab_sample":
 //         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
 //         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=201).delete()
 //
@@ -462,12 +592,12 @@ function testGlobalRatio(testId) {
 //         fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=202) | Q(test_id=203) | Q(test_id=208) )
 //
 //         for t in fish_detail_global_tests: # Only looking at the tests of interest
-//             if t.test_passed == False:
+//             if t.test_passed === False:
 //                 test.test_passed = False
 //                 test.save()
 //                 break
 //
-//     elif object_type == "otolith":
+//     elif object_type === "otolith":
 //         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
 //         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=200).delete()
 //
@@ -479,7 +609,7 @@ function testGlobalRatio(testId) {
 //         fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=211) | Q(test_id=206) | Q(test_id=210) )
 //
 //         for t in fish_detail_global_tests: # Only looking at the tests of interest
-//             if t.test_passed == False:
+//             if t.test_passed === False:
 //                 test.test_passed = False
 //                 test.save()
 //                 break
@@ -489,16 +619,16 @@ function testGlobalRatio(testId) {
 //     my_dict = {}
 //     stop = False
 //     # parse field name
-//     if field_name == "fish_length":
+//     if field_name === "fish_length":
 //         field = fish_detail.fish_length
 //         scope = 1
-//     elif field_name == "fish_weight":
+//     elif field_name === "fish_weight":
 //         field = fish_detail.fish_weight
 //         scope = 1
-//     elif field_name == "gonad_weight":
+//     elif field_name === "gonad_weight":
 //         field = fish_detail.gonad_weight
 //         scope = 1
-//     elif field_name == "annulus_count":
+//     elif field_name === "annulus_count":
 //         field = fish_detail.annulus_count
 //         scope = 2
 //     else:
@@ -522,7 +652,7 @@ function testGlobalRatio(testId) {
 //         test_23 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=23,test_passed=False, field_name=field_name, scope=scope)
 //
 //         # RUN TESTS
-//         if field == None: # no value present; have to use this syntax otherwise a "0" value is excluded
+//         if field === None: # no value present; have to use this syntax otherwise a "0" value is excluded
 //             pass
 //         else: # continue testing
 //             test_21.test_passed = True
@@ -534,7 +664,7 @@ function testGlobalRatio(testId) {
 //                 test_22.save()
 //                 if field < range_dict[field_name]['probable']['min'] or field > range_dict[field_name]['probable']['max']:
 //                     # if the observation was accepted, continue to accept it
-//                     if is_accepted == 1:
+//                     if is_accepted === 1:
 //                         test_23.accepted = 1
 //                     # otherwise, not accepted
 //                     else:

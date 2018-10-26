@@ -7,40 +7,27 @@
     <td>
       Fish length (mm)
     </td>
-    {% if object.fish_length %}
+    <td class="display_fish_length">
+      {{object.fish_length|nz:""}}
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Fish weight (g)
+    </td>
+    <td class="bad">
+      {{object.fish_weight|nz:""}}
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Sex
+    </td>
     <td class="good">
-      {% else %}
-      <td class="bad">
-        {% endif %}
-        {{object.fish_length|nz:""}}
-      </td>
-    </tr>
-
-    <tr>
-      <td>
-        Fish weight (g)
-      </td>
-      {% if object.fish_weight %}
-      <td class="good">
-        {% else %}
-        <td class="bad">
-          {% endif %}
-          {{object.fish_weight|nz:""}}
-        </td>
-      </tr>
-
-      <tr>
-        <td>
-          Sex
-        </td>
-        {% if object.sex %}
-        <td class="good">
-          {% else %}
-          <td class="bad">
-            {% endif %}
-            {{object.sex|nz:""}}
-          </td>
-        </tr>
+      {{object.sex|nz:""}}
+    </td>
+  </tr>
 
         <tr>
           <td>
