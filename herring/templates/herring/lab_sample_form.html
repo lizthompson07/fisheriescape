@@ -379,7 +379,7 @@ function overwrite(control) {
       // if input is accepted, play a sound and re-run tests
       if (inputAccepted === true) {
         audio.play();
-        
+
         runTests()
       }
       // no matter what the input, clear the prompt line
@@ -388,12 +388,6 @@ function overwrite(control) {
   });
 
 
-  function sleep(miliseconds) {
-     var currentTime = new Date().getTime();
-
-     while (currentTime + miliseconds >= new Date().getTime()) {
-     }
-  }
 </script>
 
 
