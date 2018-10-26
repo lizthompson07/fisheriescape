@@ -5,7 +5,8 @@ app_name = 'herring'
 
 urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name ="close_me" ),
-    path('', views.IndexView.as_view(), name ="index" ),
+    # path('', views.IndexView.as_view(), name ="index" ),
+    path('', views.index, name ="index" ),
 
     # SAMPLER #
     ###########

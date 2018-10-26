@@ -29,6 +29,18 @@ class IndexView(TemplateView):
 # class DataFlowTemplateView(TemplateView):
 #     template_name = 'landing/dataflow.html'
 
+class DeniedAccessTemplateView(TemplateView):
+    template_name = 'index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        messages.error(self.request, "Sorry, you are not authorized to view this page. Please contact the site administrator to request access.")
+        return  context
+
+# class DataFlowTemplateView(TemplateView):
+#     template_name = 'landing/dataflow.html'
+
+
 class UserLoginView(LoginView):
     template_name = "registration/login.html"
 
