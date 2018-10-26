@@ -145,6 +145,8 @@ var samplerList = {{sampler_list|safe}}
 
   $(document).ready(function() {
 
+
+
     $("#id_sample_date" )[0].focus()
 
 
@@ -166,7 +168,7 @@ var samplerList = {{sampler_list|safe}}
 
   $("#district_interpreter").keyup(function(e) {
     $("#district_list").html("")
-      if ( (this.value.length >=2 && this.value.match(/^\d+$/)) || this.value.length >=3 ) {
+      if ( (this.value.length >=2 && this.value.match(/^\d+$/)) || this.value.length >=4 ) {
         for (var i = 0; i < districtList.length; i++) {
           // console.log(123);
           var re = new RegExp(this.value, 'gi');

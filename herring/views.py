@@ -6,8 +6,10 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, AccessMixin
-from braces.views import GroupRequiredMixin
+from django.db.models import Q
+from braces.views import GroupRequiredMixin, AnonymousRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -26,10 +28,20 @@ import math
 import collections
 # Create your views here.
 
-class IndexView(GroupRequiredMixin,TemplateView):
-    template_name = 'herring/index.html'
-    group_required = [u"herring_access",]
-    login_url = '/accounts/login_required/'
+def not_in_herring_group(user):
+    if user:
+        return user.groups.filter(name='herring_access').count() != 0
+#
+@login_required(login_url = '/accounts/login_required/')
+@user_passes_test(not_in_herring_group, login_url='/accounts/denied/')
+def index(request):
+    return render(request, 'herring/index.html')
+
+# class IndexView(AnonymousRequiredMixin,TemplateView):
+#     template_name = 'herring/index.html'
+    # group_required = [u"herring_access",]
+    # login_url = '/accounts/login_required/'
+
 
 class CloserTemplateView(TemplateView):
     template_name = 'herring/close_me.html'
@@ -207,7 +219,6 @@ class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'herring/port_sample_form_popout.html'
     model = models.Sample
 
-
     def get_form_class(self):
         if self.kwargs["type"] == "measured":
             return forms.PortSampleFishMeasuredForm
@@ -231,7 +242,18 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        port_sample_tests(self.object)
+        # port_sample_tests(self.object)
+
+
+            # quality_control.run_test_mandatory_fields(sample,"port_sample")
+            # quality_control.run_test_205(sample)
+            # quality_control.run_test_231(sample)
+            # quality_control.run_test_232(sample)
+
+
+        # pass in the tests
+        tests = models.Test.objects.filter(Q(id=205) | Q(id=230) | Q(id=231) | Q(id=232) )
+        context['tests'] = tests
 
         # create a list of length freq counts FOR SAMPLE
         if self.object.length_frequency_objects.count()>0:
@@ -281,6 +303,15 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
             context['bin_dict'] = bin_dict
             context['max_fish_detail_count'] = max_fish_detail_count
             context['sum_fish_detail_count'] = sum_fish_detail_count
+
+        # provide a list of fish detail lab_processed_dates
+        for fishy in self.object.fish_details.all():
+           fishy.save()
+        # resave the sample instance to run thought sample save method
+        self.object.save()
+        print(self.object.lab_processing_complete)
+        # now conduct the test
+
 
         return context
 
@@ -425,8 +456,11 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # run the quality test on loading the data
-        my_dict = lab_sample_tests(self.object)
+
+        # pass in the tests
+        tests = models.Test.objects.filter(Q(id=201) | Q(id=202) | Q(id=203) | Q(id=204) | Q(id=207) | Q(id=208) | Q(id=300) | Q(id=301) | Q(id=302) | Q(id=303)| Q(id=304)| Q(id=305)| Q(id=306)| Q(id=307)| Q(id=308) ).order_by("id")
+        context['tests'] = tests
+
 
         # determine the progress of data entry
         ## there are 6 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
@@ -451,30 +485,17 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
         context['progress'] = progress
         context['total_tests'] = total_tests
 
-        qc_feedback_json = json.dumps(my_dict)
-
-        # send JSON file to template so that it can be used by js script
-        context['qc_feedback_json'] = qc_feedback_json
-
-        # pass in a variable to help determine if the record is complete from a QC point of view
-        ## Should be able to make this assessment via the global tests
-
-        context['test_201'] = self.object.sample_tests.filter(test_id=201).first().test_passed
-
         # determine if this is the last sample in the series
-        record_count = models.FishDetail.objects.filter(sample_id=self.kwargs["sample"]).count()
-
-        # populate a list with all fish detail ids
+        ## populate a list with all fish detail ids
         id_list = []
         for f in models.FishDetail.objects.filter(sample_id=self.kwargs["sample"]).order_by("id"):
             id_list.append(f.id)
 
-        #determine if this fish is on the leading edge
+        ##determine if this fish is on the leading edge
         if self.object.id == id_list[-1]:
             context['last_record'] = True
-            # messages.success(self.request, "ttest")
-
         return context
+
 
     def get_initial(self):
         return {
@@ -483,22 +504,19 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
             }
 
     def form_valid(self, form):
-        # port_sample_tests(self.object)
         object = form.save()
-        if form.cleaned_data["improbable_accepted"]:
-            field_name = form.cleaned_data["improbable_field"]
-            test_id = form.cleaned_data["improbable_test"]
+        print(form.cleaned_data["where_to"])
+        if form.cleaned_data["where_to"] == "home":
+            return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs={'pk':object.sample.id,}))
+        elif form.cleaned_data["where_to"] == "prev":
+            return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"lab","direction":"prev", "current_id":object.id}))
+        elif form.cleaned_data["where_to"] == "next":
+            return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"lab","direction":"next", "current_id":object.id}))
+        elif form.cleaned_data["where_to"] == "new":
+            return HttpResponseRedirect(reverse("herring:lab_sample_primer", kwargs={'sample':object.sample.id,}))
+        else:
+            return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
-            # this means that an improbable measurement has been accepted.
-            if "global" in field_name:
-                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=test_id).first()
-            else:
-                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, field_name=field_name, test_id=test_id).first()
-
-            my_test.accepted = True
-            my_test.save()
-
-        return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
@@ -517,10 +535,12 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
     form_class = forms.OtolithForm
     login_url = '/accounts/login_required/'
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # run the quality test on loading the data
-        my_dict = otolith_tests(self.object)
+        # pass in the tests
+        tests = models.Test.objects.filter(Q(id=200) | Q(id=206) | Q(id=209) | Q(id=210) | Q(id=211) | Q(id=309) | Q(id=310) | Q(id=311)  ).order_by("id")
+        context['tests'] = tests
 
         # determine the progress of data entry
         ## there are 2 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
@@ -529,16 +549,10 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
             progress = progress + 1
         if self.object.otolith_season:
             progress = progress + 1
-
         total_tests = 2
 
         context['progress'] = progress
         context['total_tests'] = total_tests
-
-        qc_feedback_json = json.dumps(my_dict)
-
-        # send JSON file to template so that it can be used by js script
-        context['qc_feedback_json'] = qc_feedback_json
 
         # provide some context about the position of the current record
         try:
@@ -547,11 +561,6 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
             print(e)
         else:
             context['next_fish_id'] = next_fishy.id
-
-        # pass in a variable to help determine if the record is complete from a QC point of view
-        ## Should be able to make this assessment via the global tests
-
-        context['test_200'] = self.object.sample_tests.filter(test_id=200).first().test_passed
 
         return context
 
@@ -564,21 +573,14 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         # port_sample_tests(self.object)
         object = form.save()
-        if form.cleaned_data["improbable_accepted"]:
-            field_name = form.cleaned_data["improbable_field"]
-            test_id = form.cleaned_data["improbable_test"]
-
-            # this means that an improbable measurement has been accepted.
-            if "global" in field_name:
-                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=test_id).first()
-            else:
-                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, field_name=field_name, test_id=test_id).first()
-
-            my_test.accepted = True
-            my_test.save()
-
-
-        return HttpResponseRedirect(reverse("herring:otolith_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
+        if form.cleaned_data["where_to"] == "home":
+            return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs={'pk':object.sample.id,}))
+        elif form.cleaned_data["where_to"] == "prev":
+            return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"otolith","direction":"prev", "current_id":object.id}))
+        elif form.cleaned_data["where_to"] == "next":
+            return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"otolith","direction":"next", "current_id":object.id}))
+        else:
+            return HttpResponseRedirect(reverse("herring:otolith_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 
 # SHARED #
