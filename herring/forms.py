@@ -108,9 +108,10 @@ class FishForm(forms.ModelForm):
         }
 
 class LabSampleForm(forms.ModelForm):
-    improbable_field = forms.CharField(widget=forms.HiddenInput(), required = False)
-    improbable_test = forms.CharField(widget=forms.HiddenInput(), required = False)
-    improbable_accepted = forms.CharField(widget=forms.HiddenInput(), required = False)
+    # improbable_field = forms.CharField(widget=forms.HiddenInput(), required = False)
+    # improbable_test = forms.CharField(widget=forms.HiddenInput(), required = False)
+    # improbable_accepted = forms.CharField(widget=forms.HiddenInput(), required = False)
+    where_to = forms.CharField(widget=forms.HiddenInput(), required = False)
 
     class Meta:
         model = models.FishDetail
@@ -125,30 +126,33 @@ class LabSampleForm(forms.ModelForm):
           "remarks",
           "lab_sampler",
           "last_modified_by",
+          "test_204_accepted",
+          "test_207_accepted",
+          "test_302_accepted",
+          "test_305_accepted",
+          "test_308_accepted",
         ]
 
         attr_dict = {"class":"mandatory"}
+        attr_dict_1 = {"class":"test_accept"}
 
         widgets = {
-            "fish_length":forms.HiddenInput(attrs=attr_dict),
-            "fish_weight":forms.HiddenInput(attrs=attr_dict),
-            "sex":forms.HiddenInput(attrs=attr_dict),
-            "maturity":forms.HiddenInput(attrs=attr_dict),
-            "gonad_weight":forms.HiddenInput(attrs=attr_dict),
-            "parasite":forms.HiddenInput(attrs=attr_dict),
-            "remarks":forms.HiddenInput(),
+            "fish_length":forms.NumberInput(attrs=attr_dict),
+            "fish_weight":forms.NumberInput(attrs=attr_dict),
+            "sex":forms.Select(attrs=attr_dict),
+            "maturity":forms.Select(attrs=attr_dict),
+            "gonad_weight":forms.NumberInput(attrs=attr_dict),
+            "parasite":forms.Select(attrs=attr_dict),
+            "remarks":forms.Textarea(attrs={"rows":"3"}),
             "lab_sampler":forms.HiddenInput(attrs=attr_dict),
             "last_modified_by":forms.HiddenInput(),
 
+            "test_204_accepted":forms.TextInput(attrs=attr_dict_1),
+            "test_207_accepted":forms.TextInput(attrs=attr_dict_1),
+            "test_302_accepted":forms.TextInput(attrs=attr_dict_1),
+            "test_305_accepted":forms.TextInput(attrs=attr_dict_1),
+            "test_308_accepted":forms.TextInput(attrs=attr_dict_1),
         }
-    # def clean_fish_length(self):
-    #     value = self.cleaned_data['fish_length']
-    #     print(str(value) + " is the value")
-    #     if value == 1:
-    #         print("hera!")
-    #         raise forms.ValidationError("bullshit!!")
-    #     return value
-
 
 
 class OtolithForm(forms.ModelForm):

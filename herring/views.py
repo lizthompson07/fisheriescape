@@ -451,12 +451,6 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
         context['tests'] = tests
 
 
-        # run the quality test on loading the data
-
-
-
-        my_dict = lab_sample_tests(self.object)
-
         # determine the progress of data entry
         ## there are 6 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
         progress = 0
@@ -480,31 +474,16 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
         context['progress'] = progress
         context['total_tests'] = total_tests
 
-        qc_feedback_json = json.dumps(my_dict)
-
-        # send JSON file to template so that it can be used by js script
-        context['qc_feedback_json'] = qc_feedback_json
-
-        # pass in a variable to help determine if the record is complete from a QC point of view
-        ## Should be able to make this assessment via the global tests
-
-        context['test_201'] = self.object.sample_tests.filter(test_id=201).first().test_passed
-
         # determine if this is the last sample in the series
-        record_count = models.FishDetail.objects.filter(sample_id=self.kwargs["sample"]).count()
-
-        # populate a list with all fish detail ids
+        ## populate a list with all fish detail ids
         id_list = []
         for f in models.FishDetail.objects.filter(sample_id=self.kwargs["sample"]).order_by("id"):
             id_list.append(f.id)
 
-        #determine if this fish is on the leading edge
+        ##determine if this fish is on the leading edge
         if self.object.id == id_list[-1]:
             context['last_record'] = True
-            # messages.success(self.request, "ttest")
-
         return context
-
 
 
     def get_initial(self):
@@ -516,20 +495,31 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         # port_sample_tests(self.object)
         object = form.save()
-        if form.cleaned_data["improbable_accepted"]:
-            field_name = form.cleaned_data["improbable_field"]
-            test_id = form.cleaned_data["improbable_test"]
+        # if form.cleaned_data["improbable_accepted"]:
+        #     field_name = form.cleaned_data["improbable_field"]
+        #     test_id = form.cleaned_data["improbable_test"]
+        #
+        #     # this means that an improbable measurement has been accepted.
+        #     if "global" in field_name:
+        #         my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=test_id).first()
+        #     else:
+        #         my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, field_name=field_name, test_id=test_id).first()
+        #
+        #     my_test.accepted = True
+        #     my_test.save()
 
-            # this means that an improbable measurement has been accepted.
-            if "global" in field_name:
-                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=test_id).first()
-            else:
-                my_test = models.FishDetailTest.objects.filter(fish_detail_id=object.id, field_name=field_name, test_id=test_id).first()
+        print(form.cleaned_data["where_to"])
+        if form.cleaned_data["where_to"] == "home":
+            return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs={'pk':object.sample.id,}))
+        elif form.cleaned_data["where_to"] == "prev":
+            return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"lab","direction":"prev", "current_id":object.id}))
+        elif form.cleaned_data["where_to"] == "next":
+            return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"lab","direction":"next", "current_id":object.id}))
+        elif form.cleaned_data["where_to"] == "new":
+            return HttpResponseRedirect(reverse("herring:lab_sample_primer", kwargs={'sample':object.sample.id,}))
+        else:
+            return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
-            my_test.accepted = True
-            my_test.save()
-
-        return HttpResponseRedirect(reverse("herring:lab_sample_form", kwargs={'sample':object.sample.id, 'pk':object.id}))
 
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.

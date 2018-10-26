@@ -263,6 +263,15 @@ class FishDetail(models.Model):
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
     otolith_image_remote_filepath = models.CharField(max_length = 2000, blank=True, null=True)
     otolith_processed_date = models.DateTimeField(blank=True, null=True)
+
+    test_204_accepted = models.CharField(max_length = 5, null=True, blank=True) # ligh_length:fish_weight
+    test_207_accepted = models.CharField(max_length = 5, null=True, blank=True) # gonad weight : somatic weight : maturity level
+    test_209_accepted = models.CharField(max_length = 5, null=True, blank=True) # number of annuli : fish length
+    test_302_accepted = models.CharField(max_length = 5, null=True, blank=True) # fish length within probable range
+    test_305_accepted = models.CharField(max_length = 5, null=True, blank=True) # somatic weight within probable range
+    test_308_accepted = models.CharField(max_length = 5, null=True, blank=True) # gonad weight within probable range
+    test_311_accepted = models.CharField(max_length = 5, null=True, blank=True) # annulus count within probable range
+
     remarks = models.TextField(null=True, blank=True)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_details")
