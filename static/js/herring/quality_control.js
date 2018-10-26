@@ -5,16 +5,20 @@ function markTest(testId, testPassed) {
     $("#"+testId).text("")
     $("#"+testId).removeClass("good")
     $("#"+testId).removeClass("bad")
+    $("#"+testId).removeClass("mild-concern")
+
   }
   else if (testPassed === true) {
     $("#"+testId).text(pass)
     $("#"+testId).addClass("good")
     $("#"+testId).removeClass("bad")
+    $("#"+testId).removeClass("mild-concern")
   }
   else if (testPassed === false) {
     $("#"+testId).text(fail)
     $("#"+testId).addClass("bad")
     $("#"+testId).removeClass("good")
+    $("#"+testId).removeClass("mild-concern")
   }
 }
 
@@ -25,16 +29,22 @@ function markTestAccepted(testId, testPassed) {
     $("#"+testId).val("")
     $("#"+testId).removeClass("good")
     $("#"+testId).removeClass("bad")
+    $("#"+testId).removeClass("mild-concern")
+    $("#"+testId)[0].style.opacity = 0
   }
   else if (testPassed === true) {
     $("#"+testId).val(pass)
     $("#"+testId).addClass("good")
     $("#"+testId).removeClass("bad")
+    $("#"+testId).removeClass("mild-concern")
+    $("#"+testId)[0].style.opacity = 100
   }
   else if (testPassed === false) {
     $("#"+testId).val(fail)
     $("#"+testId).addClass("bad")
     $("#"+testId).removeClass("good")
+    $("#"+testId).removeClass("mild-concern")
+    $("#"+testId)[0].style.opacity = 100
   }
 }
 
@@ -94,60 +104,72 @@ var qcFeedbackObject = {}
 
 
 function testImprobableAccepted(objectType) {
+  failedTests = []
+  blankTests = []
+
   if (objectType === "lab_sample") {
     // grab all test related to probability
     testList = [204,207,302,305,308]
-    failedTests = []
-    blankTests = []
+    targetTest = 208
+  }
+  if (objectType === "otolith_sample") {
+    // grab all test related to probability
+    testList = [209,311]
+    targetTest = 211
+  }
 
-    // first determine if there is an improbable observation, or if blank; also set formatting on the "accepted" column
-    for (var i = 0; i < testList.length; i++) {
-      if ($("#display_test_"+testList[i]).text() === "failed") {
-        failedTests.push(testList[i])
-      }
-      else if ($("#display_test_"+testList[i]).text() === "") {
-        blankTests.push(testList[i])
-      }
-      // formatting
-      if ($("#id_test_"+testList[i]+"_accepted").val() === "no") {
-        markTestAccepted("id_test_"+testList[i]+"_accepted", false)
-      } else if ($("#id_test_"+testList[i]+"_accepted").val() === "yes") {
-        markTestAccepted("id_test_"+testList[i]+"_accepted", true)
+  // first determine if there is an improbable observation, or if blank; also set formatting on the "accepted" column
+  for (var i = 0; i < testList.length; i++) {
+    if ($("#display_test_"+testList[i]).text() === "failed") {
+      failedTests.push(testList[i])
+    }
+    else if ($("#display_test_"+testList[i]).text() === "") {
+      blankTests.push(testList[i])
+    }
+    // formatting
+    if ($("#id_test_"+testList[i]+"_accepted").val() === "no") {
+      markTestAccepted("id_test_"+testList[i]+"_accepted", false)
+    } else if ($("#id_test_"+testList[i]+"_accepted").val() === "yes") {
+      markTestAccepted("id_test_"+testList[i]+"_accepted", true)
+      // remove formatting from the test itself
+      $("#display_test_"+testList[i]).removeClass("bad")
+      $("#display_test_"+testList[i]).addClass("mild-concern")
+    }
+  }
+  // if all tests are blank, this test should be blank too
+  if (blankTests.length === testList.length) {
+    markTest("display_test_"+targetTest, null)
+  }
+  // everything has been tested and there are no failed tests
+  else if (failedTests.length === 0 && blankTests.length === 0){
+    markTest("display_test_"+targetTest, true)
+  }
+  // there are some passed tests and no failed tests... remain on standby
+  else if (failedTests.length === 0){
+    markTest("display_test_"+targetTest, null)
+  }
+  // finally, there are some failed test and we have to make sure they have been accepted
+  else {
+    var pass = true;
+    for (var i = 0; i < failedTests.length; i++) {
+      // check to see if accepted
+
+      if ($("#id_test_"+failedTests[i]+"_accepted").val() !== "yes") {
+        console.log("break!");
+        // if not, then mark test as failed and leave loop
+        markTest("display_test_"+targetTest, false)
+        pass= false
+        break
       }
     }
-    // if all tests are blank, this test should be blank too
-    if (blankTests.length === testList.length) {
-      markTest("display_test_208", null)
-    }
-    // everything has been tested and there are no failed tests
-    else if (failedTests.length === 0 && blankTests.length === 0){
-      markTest("display_test_208", true)
-    }
-    // there are some passed tests and no failed tests... remain on standby
-    else if (failedTests.length === 0){
-      markTest("display_test_208", null)
-    }
-    // finally, there are some failed test and we have to make sure they have been accepted
-    else {
-      var pass = true;
-      for (var i = 0; i < failedTests.length; i++) {
-        // check to see if accepted
-        if ($("#id_test_"+failedTests[i]+"_accepted").val() !== "yes") {
-          console.log("break!");
-          // if not, then mark test as failed and leave loop
-          markTest("display_test_208", false)
-          pass= false
-          break
-        }
-      }
-      if (pass) {
-        // if there are still blank tests, remain on standby
-        if (blankTests.length > 0) {
-          markTest("display_test_208", null)
-        // score test as successful
-        }else {
-          markTest("display_test_208", true)
-        }
+    if (pass) {
+      // if there are still blank tests, remain on standby
+      if (blankTests.length > 0) {
+        console.log("hello!");
+        markTest("display_test_"+targetTest, null)
+      // score test as successful
+      }else {
+        markTest("display_test_"+targetTest, true)
       }
     }
   }
@@ -156,30 +178,35 @@ function testImprobableAccepted(objectType) {
 function testPossibleRange(objectType) {
   var stop = false
   if (objectType === "lab_sample") {
-    // grab all test related to fish detail and see if any failed
     testList = [301,304,307]
-    // do one loop to ensure values are present
-    for (var i = 0; i < testList.length; i++) {
-      if ($("#display_test_"+testList[i]).text() === "") {
-        markTest("display_test_203", null)
-        stop = true
-        break
-      }
+    targetTest = 203
+  }
+  else if (objectType === "otolith_sample") {
+    testList = [310,]
+    targetTest = 210
+  }
+
+  // do one loop to ensure values are present
+  for (var i = 0; i < testList.length; i++) {
+    if ($("#display_test_"+testList[i]).text() === "") {
+      markTest("display_test_"+targetTest, null)
+      stop = true
+      break
     }
+  }
     if (stop === false) {
       // do a second loop to assign a value
       for (var i = 0; i < testList.length; i++) {
         if ($("#display_test_"+testList[i]).text() !== "passed") {
-          markTest("display_test_203", false)
+          markTest("display_test_"+targetTest, false)
           break
         }
         else {
-          markTest("display_test_203", true)
+          markTest("display_test_"+targetTest, true)
         }
       }
     }
   }
-}
 
 function testDataPoints(fieldName) {
   var stop = false
@@ -261,72 +288,53 @@ function testQCPassed(objectType) {
   if (objectType === "lab_sample") {
     // grab all test related to fish detail and see if any failed
     testList = [202,203,208]
-    for (var i = 0; i < testList.length; i++) {
-      if ($("#display_test_"+testList[i]).text() !== "passed") {
-        markTest("display_test_201", false)
-        break
-      }
-      else {
-        markTest("display_test_201", true)
-      }
-    }
+    targetTest = 201
   }
-  else if (objectType === "otolith") {
+  else if (objectType === "otolith_sample") {
     // grab all test related to fish detail and see if any failed
-    testList = [202,203,208]
+    testList = [206,210,211]
+    targetTest = 200
 
-    //         # grab all test related to fish detail
-    //         fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=211) | Q(test_id=206) | Q(test_id=210) )
-    //
-    //         for t in fish_detail_global_tests: # Only looking at the tests of interest
-    //             if t.test_passed === False:
-    //                 test.test_passed = False
-    //                 test.save()
-    //                 break
+  }
 
-
-    for (var i = 0; i < testList.length; i++) {
-      if ($("#display_test_"+testList[i]).innerHTML !== "passed") {
-        markTest("display_test_20", false)
-        break
-      }
-      else {
-        markTest("display_test_20", true)
-      }
+  for (var i = 0; i < testList.length; i++) {
+    if ($("#display_test_"+testList[i]).text() !== "passed") {
+      markTest("display_test_"+targetTest, false)
+      break
+    }
+    else {
+      markTest("display_test_"+targetTest, true)
     }
   }
 }
 
 function testMandatoryFields(objectType) {
   if (objectType === "port_sample") {
-    for (var i = 0; i < $(".mandatory").length; i++) {
-      if ($(".mandatory")[i].innerHTML === "" || $(".mandatory")[i].innerHTML === "None") {
-        markTest("display_test_230", false)
-        break
-      }
-      else {
-        markTest("display_test_230", true)
-      }
-    }
+      var targetTest = 230
   }
   else if (objectType === "lab_sample") {
-    for (var i = 0; i < $(".mandatory").length; i++) {
-      if ($(".mandatory")[i].value === "" || $(".mandatory")[i].value === "None") {
-
-        markTest("display_test_202",false)
-        break
-      }
-      else {
-        markTest("display_test_202", true)
-
-      }
-    }
+    var targetTest = 202
   }
-  else if (objectType === "otolith") {
-    // if object.otolith_sampler and object.otolith_season and object.annulus_count:
-   //             test.test_passed = True
-   //             test.save()
-   //
+  else if (objectType === "otolith_sample") {
+    var targetTest = 206
+  }
+
+  // run the loop
+  for (var i = 0; i < $(".mandatory").length; i++) {
+    // for the port sample, we are looking to read .innerHTML while for lab and otolith form we read .value
+    if (objectType === "port_sample") {
+        var myTest = ($(".mandatory")[i].innerHTML === "" || $(".mandatory")[i].innerHTML === "None")
+    }
+    else {
+        var myTest = ($(".mandatory")[i].value === "" || $(".mandatory")[i].value === "None")
+    }
+    if (myTest) {
+      markTest("display_test_"+targetTest, false)
+      break
+    }
+    else {
+      markTest("display_test_"+targetTest, true)
+    }
   }
 }
 
@@ -360,9 +368,9 @@ function test232(otolithProcessingComplete) {
 }
 
 
-function improbableMeasurementValidation() {
+function improbableMeasurementValidation(talkBack = true) {
     // JSON atributes to check
-    testList = [302,305,308,204,207,]
+    testList = [302,305,308,204,207,311,209]
 
     for (var i = 0; i < testList.length; i++) {
       if (jQuery.isEmptyObject(qcFeedbackObject[testList[i]]) === false) {
@@ -370,7 +378,10 @@ function improbableMeasurementValidation() {
         var test = testList[i]
         var msgLite = qcFeedbackObject[test].msgLite
         var msg = qcFeedbackObject[test].msg
-        speak(msgLite);
+
+        if (talkBack) {
+          speak(msgLite);
+        }
 
         // give the machine a bit of time to catch up!
         setTimeout(testFunc,1200);
@@ -384,7 +395,9 @@ function improbableMeasurementValidation() {
 
           if (userInput === 'n') {
             giveReadyQueue = false
-            speak("redo measurement");
+            if (talkBack) {
+              speak("redo measurement");
+            }
             markTestAccepted("id_test_"+test+"_accepted", false)
 
           } else {
@@ -392,7 +405,9 @@ function improbableMeasurementValidation() {
             giveReadyQueue = false
             console.log("id_test_"+test+"_accepted");
             markTestAccepted("id_test_"+test+"_accepted", true)
-            audio.play();
+            if (talkBack) {
+              audio.play();
+            }
             runTests();
           }
         }
@@ -406,7 +421,6 @@ function testGlobalRatio(testId) {
   if (testId === 204) {
     var independentVar = $("#id_fish_length")[0].value
     var dependentVar = $("#id_fish_weight")[0].value
-    console.log(independentVar);
     if (independentVar !== "" && dependentVar !== "") {
       // set the strings to numbers for further processing
       independentVar = Number($("#id_fish_length")[0].value)
@@ -477,9 +491,12 @@ function testGlobalRatio(testId) {
     }
   }
   else if (testId === 209) {
-    var independentVar = Number($("#id_fish_length")[0].value)
-    var dependentVar = Number($("#id_annulus_count")[0].value)
+    var independentVar = $("#id_fish_length")[0].value
+    var dependentVar = $("#id_annulus_count")[0].value
     if (independentVar !=="" && dependentVar !== "") {
+      // set the strings to numbers for further processing
+      var independentVar = Number($("#id_fish_length")[0].value)
+      var dependentVar = Number($("#id_annulus_count")[0].value)
       var independentName = "fish length"
       var dependentName = "annulus count"
       var min = (-14.3554448587879 + 6.34008000506408E-02 * independentVar)

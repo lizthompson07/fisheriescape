@@ -108,9 +108,6 @@ class FishForm(forms.ModelForm):
         }
 
 class LabSampleForm(forms.ModelForm):
-    # improbable_field = forms.CharField(widget=forms.HiddenInput(), required = False)
-    # improbable_test = forms.CharField(widget=forms.HiddenInput(), required = False)
-    # improbable_accepted = forms.CharField(widget=forms.HiddenInput(), required = False)
     where_to = forms.CharField(widget=forms.HiddenInput(), required = False)
 
     class Meta:
@@ -156,10 +153,8 @@ class LabSampleForm(forms.ModelForm):
 
 
 class OtolithForm(forms.ModelForm):
-    improbable_field = forms.CharField(widget=forms.HiddenInput(), required = False)
-    improbable_test = forms.CharField(widget=forms.HiddenInput(), required = False)
-    improbable_accepted = forms.CharField(widget=forms.HiddenInput(), required = False)
     last_fish = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    where_to = forms.CharField(widget=forms.HiddenInput(), required = False)
 
     class Meta:
         model = models.FishDetail
@@ -168,19 +163,29 @@ class OtolithForm(forms.ModelForm):
           "otolith_sampler",
           "annulus_count",
           "otolith_season",
+          "fish_length",
           # "otolith_image_remote_filepath",
           "remarks",
           "last_modified_by",
+          "test_209_accepted",
+          "test_311_accepted",
         ]
         labels = {
             "otolith_image_remote_filepath":"Image filepath",
             "remarks":"Remarks (optional)",
         }
+
+        attr_dict = {"class":"mandatory"}
+        attr_dict_1 = {"class":"test_accept"}
+
         widgets = {
             "fish_length":forms.HiddenInput(),
             "remarks":forms.Textarea(attrs={"rows":3}),
-            "otolith_sampler":forms.HiddenInput(),
+            "otolith_sampler":forms.HiddenInput(attrs=attr_dict),
             "last_modified_by":forms.HiddenInput(),
-            "annulus_count":forms.TextInput(),
-            "otolith_season":forms.Select(),
+            "annulus_count":forms.TextInput(attrs=attr_dict),
+            "otolith_season":forms.Select(attrs=attr_dict),
+
+            "test_209_accepted":forms.TextInput(attrs=attr_dict_1),
+            "test_311_accepted":forms.TextInput(attrs=attr_dict_1),
         }
