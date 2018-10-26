@@ -8,6 +8,9 @@ urlpatterns = [
 
 
     path('login/', views.UserLoginView.as_view(), name='login'),
+
+    path('denied/', views.DeniedAccessTemplateView.as_view(), name='denied_access'),
+
     path('signup/', views.signup, name='signup'),
     path('activate/<str:uidb64>/<str:token>', views.activate, name='activate'),
     path('resend-verification-email/<str:email>', views.resend_verification_email, name='resend_verification_email'),
