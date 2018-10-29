@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bf14f425-aec2-42aa-ba67-64eee864c055" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/glf_sci_site.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/glf_sci_site.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/herring/templates/herring/port_sample_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/herring/templates/herring/port_sample_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/herring/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/herring/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/herring/templates/herring/lab_sample_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/herring/templates/herring/lab_sample_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/herring/visio/lab measurements.vsd" beforeDir="false" afterPath="$PROJECT_DIR$/herring/visio/lab measurements.vsd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/js/herring/quality_control.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/herring/quality_control.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../helper_files/git_commands.md" beforeDir="false" afterPath="$PROJECT_DIR$/../helper_files/git_commands.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../helper_files/linux_commands.md" beforeDir="false" afterPath="$PROJECT_DIR$/../helper_files/linux_commands.md" afterDir="false" />
@@ -25,35 +23,36 @@
       <usages-collector id="statistics.lifecycle.project">
         <counts>
           <entry key="project.closed" value="1" />
+          <entry key="project.open.time.15" value="1" />
           <entry key="project.open.time.17" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.opened" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="html" value="3" />
-          <entry key="js" value="1" />
-          <entry key="py" value="1" />
+          <entry key="html" value="5" />
+          <entry key="js" value="2" />
+          <entry key="py" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="HTML" value="3" />
-          <entry key="JavaScript" value="1" />
-          <entry key="Python" value="1" />
+          <entry key="HTML" value="5" />
+          <entry key="JavaScript" value="2" />
+          <entry key="Python" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="html" value="10" />
-          <entry key="js" value="69" />
+          <entry key="html" value="22" />
+          <entry key="js" value="79" />
           <entry key="py" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="HTML" value="10" />
-          <entry key="JavaScript" value="69" />
+          <entry key="HTML" value="22" />
+          <entry key="JavaScript" value="79" />
           <entry key="Python" value="2" />
         </counts>
       </usages-collector>
@@ -63,160 +62,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/herring/templates/herring/port_sample_detail.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="489">
-              <caret line="96" column="6" selection-start-line="96" selection-start-column="6" selection-end-line="96" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/static/js/herring/quality_control.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="530">
-              <caret line="336" column="49" selection-start-line="336" selection-start-column="6" selection-end-line="336" selection-end-column="49" />
-              <folding>
-                <element signature="e#38#630#0" />
-                <element signature="e#103#257#0" />
-                <element signature="e#290#442#0" />
-                <element signature="e#476#628#0" />
-                <element signature="e#678#1380#0" />
-                <element signature="e#736#927#0" />
-                <element signature="e#960#1152#0" />
-                <element signature="e#1186#1378#0" />
-                <element signature="e#1400#3327#0" />
-                <element signature="e#1422#2001#0" />
-                <element signature="e#1443#1595#0" />
-                <element signature="e#1620#1990#0" />
-                <element signature="e#2025#2444#0" />
-                <element signature="e#2050#2219#0" />
-                <element signature="e#2244#2433#0" />
-                <element signature="e#2469#2889#0" />
-                <element signature="e#2494#2667#0" />
-                <element signature="e#2692#2878#0" />
-                <element signature="e#2915#3320#0" />
-                <element signature="e#2940#3104#0" />
-                <element signature="e#3129#3309#0" />
-                <element signature="e#3440#5871#0" />
-                <element signature="e#3515#3622#0" />
-                <element signature="e#3662#3757#0" />
-                <element signature="e#3921#4595#0" />
-                <element signature="e#3984#4027#0" />
-                <element signature="e#4088#4130#0" />
-                <element signature="e#4212#4285#0" />
-                <element signature="e#4351#4591#0" />
-                <element signature="e#4700#4752#0" />
-                <element signature="e#4878#4930#0" />
-                <element signature="e#5041#5093#0" />
-                <element signature="e#5191#5869#0" />
-                <element signature="e#5263#5560#0" />
-                <element signature="e#5369#5554#0" />
-                <element signature="e#5575#5865#0" />
-                <element signature="e#5669#5794#0" />
-                <element signature="e#5799#5859#0" />
-                <element signature="e#5912#6718#0" />
-                <element signature="e#5968#6023#0" />
-                <element signature="e#6068#6116#0" />
-                <element signature="e#6208#6355#0" />
-                <element signature="e#6265#6351#0" />
-                <element signature="e#6380#6714#0" />
-                <element signature="e#6474#6708#0" />
-                <element signature="e#6541#6622#0" />
-                <element signature="e#6636#6700#0" />
-                <element signature="e#6755#9334#0" />
-                <element signature="e#6864#6894#0" />
-                <element signature="e#6934#6964#0" />
-                <element signature="e#7005#7035#0" />
-                <element signature="e#7077#7107#0" />
-                <element signature="e#7115#7157#0" />
-                <element signature="e#7225#9332#0" />
-                <element signature="e#7299#7445#0" />
-                <element signature="e#7455#9328#0" />
-                <element signature="e#7729#7835#0" />
-                <element signature="e#7846#9322#0" />
-                <element signature="e#8069#9147#0" />
-                <element signature="e#8228#8267#0" />
-                <element signature="e#8273#9137#0" />
-                <element signature="e#9161#9314#0" />
-                <element signature="e#9370#9985#0" />
-                <element signature="e#9447#9568#0" />
-                <element signature="e#9613#9735#0" />
-                <element signature="e#9781#9983#0" />
-                <element signature="e#9844#9913#0" />
-                <element signature="e#9923#9979#0" />
-                <element signature="e#10066#10098#0" />
-                <element signature="e#10139#10169#0" />
-                <element signature="e#10214#10244#0" />
-                <element signature="e#10899#11049#0" />
-                <element signature="e#10949#10994#0" />
-                <element signature="e#11002#11047#0" />
-                <element signature="e#11091#11222#0" />
-                <element signature="e#11122#11166#0" />
-                <element signature="e#11174#11219#0" />
-                <element signature="e#11268#11402#0" />
-                <element signature="e#11303#11347#0" />
-                <element signature="e#11355#11400#0" />
-                <element signature="e#11463#12849#0" />
-                <element signature="e#11588#12845#0" />
-                <element signature="e#11663#12839#0" />
-                <element signature="e#11877#11914#0" />
-                <element signature="e#12109#12817#0" />
-                <element signature="e#12193#12242#0" />
-                <element signature="e#12277#12474#0" />
-                <element signature="e#12340#12396#0" />
-                <element signature="e#12480#12807#0" />
-                <element signature="e#12728#12771#0" />
-                <element signature="e#12884#18858#0" />
-                <element signature="e#12927#14015#0" />
-                <element signature="e#13091#13976#0" />
-                <element signature="e#13986#14011#0" />
-                <element signature="e#14043#16638#0" />
-                <element signature="e#14326#16599#0" />
-                <element signature="e#14618#14659#0" />
-                <element signature="e#14688#14802#0" />
-                <element signature="e#14831#15016#0" />
-                <element signature="e#15045#15228#0" />
-                <element signature="e#15257#15442#0" />
-                <element signature="e#15471#15656#0" />
-                <element signature="e#15685#15870#0" />
-                <element signature="e#15899#16084#0" />
-                <element signature="e#16609#16634#0" />
-                <element signature="e#16666#17783#0" />
-                <element signature="e#16831#17744#0" />
-                <element signature="e#17754#17779#0" />
-                <element signature="e#17791#17812#0" />
-                <element signature="e#17928#18034#0" />
-                <element signature="e#18042#18856#0" />
-                <element signature="e#18192#18730#0" />
-                <element signature="e#18369#18400#0" />
-                <element signature="e#18493#18724#0" />
-                <element signature="e#18740#18852#0" />
-                <element signature="e#18862#18909#0" />
-                <element signature="e#19368#19469#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/herring/views.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="244" selection-start-line="244" selection-end-line="244" />
-              <folding>
-                <element signature="e#0#35#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/herring/templates/herring/_sample_qc.html">
+        <entry file="file://$PROJECT_DIR$/herring/templates/herring/lab_sample_form.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="440">
-              <caret line="22" column="22" selection-start-line="22" selection-start-column="22" selection-end-line="22" selection-end-column="22" />
+            <state relative-caret-position="143">
+              <caret line="172" column="47" selection-start-line="172" selection-start-column="47" selection-end-line="172" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -234,8 +84,9 @@
         <option value="$PROJECT_DIR$/accounts/views.py" />
         <option value="$PROJECT_DIR$/herring/views.py" />
         <option value="$PROJECT_DIR$/herring/templates/herring/port_sample_detail.html" />
-        <option value="$PROJECT_DIR$/static/js/herring/quality_control.js" />
         <option value="$PROJECT_DIR$/herring/templates/herring/_sample_qc.html" />
+        <option value="$PROJECT_DIR$/static/js/herring/quality_control.js" />
+        <option value="$PROJECT_DIR$/herring/templates/herring/lab_sample_form.html" />
       </list>
     </option>
   </component>
@@ -372,9 +223,9 @@
     <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.20721272" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.24022005" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="0" visible="true" weight="0.22371365" />
+      <window_info anchor="bottom" id="Terminal" order="0" visible="true" weight="0.23042506" />
       <window_info anchor="bottom" id="Version Control" order="1" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="3" />
@@ -414,6 +265,23 @@
     <entry file="file://$PROJECT_DIR$/herring/templates/herring/_lab_sample_progress.html">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/herring/quality_control.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1400">
+          <caret line="36" column="18" selection-start-line="36" selection-start-column="18" selection-end-line="36" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/herring/templates/herring/_sample_qc.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="20">
+          <caret line="1" column="21" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/herring/views.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="200">
@@ -433,8 +301,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/static/js/herring/quality_control.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="530">
-          <caret line="336" column="49" selection-start-line="336" selection-start-column="6" selection-end-line="336" selection-end-column="49" />
+        <state relative-caret-position="141">
+          <caret line="386" column="37" lean-forward="true" selection-start-line="386" selection-start-column="37" selection-end-line="386" selection-end-column="37" />
           <folding>
             <element signature="e#38#630#0" />
             <element signature="e#103#257#0" />
@@ -504,63 +372,63 @@
             <element signature="e#9781#9983#0" />
             <element signature="e#9844#9913#0" />
             <element signature="e#9923#9979#0" />
-            <element signature="e#10066#10098#0" />
-            <element signature="e#10139#10169#0" />
-            <element signature="e#10214#10244#0" />
-            <element signature="e#10899#11049#0" />
-            <element signature="e#10949#10994#0" />
-            <element signature="e#11002#11047#0" />
-            <element signature="e#11091#11222#0" />
-            <element signature="e#11122#11166#0" />
-            <element signature="e#11174#11219#0" />
-            <element signature="e#11268#11402#0" />
-            <element signature="e#11303#11347#0" />
-            <element signature="e#11355#11400#0" />
-            <element signature="e#11463#12849#0" />
-            <element signature="e#11588#12845#0" />
-            <element signature="e#11663#12839#0" />
-            <element signature="e#11877#11914#0" />
-            <element signature="e#12109#12817#0" />
-            <element signature="e#12193#12242#0" />
-            <element signature="e#12277#12474#0" />
-            <element signature="e#12340#12396#0" />
-            <element signature="e#12480#12807#0" />
-            <element signature="e#12728#12771#0" />
-            <element signature="e#12884#18858#0" />
-            <element signature="e#12927#14015#0" />
-            <element signature="e#13091#13976#0" />
-            <element signature="e#13986#14011#0" />
-            <element signature="e#14043#16638#0" />
-            <element signature="e#14326#16599#0" />
-            <element signature="e#14618#14659#0" />
-            <element signature="e#14688#14802#0" />
-            <element signature="e#14831#15016#0" />
-            <element signature="e#15045#15228#0" />
-            <element signature="e#15257#15442#0" />
-            <element signature="e#15471#15656#0" />
-            <element signature="e#15685#15870#0" />
-            <element signature="e#15899#16084#0" />
-            <element signature="e#16609#16634#0" />
-            <element signature="e#16666#17783#0" />
-            <element signature="e#16831#17744#0" />
-            <element signature="e#17754#17779#0" />
-            <element signature="e#17791#17812#0" />
-            <element signature="e#17928#18034#0" />
-            <element signature="e#18042#18856#0" />
-            <element signature="e#18192#18730#0" />
-            <element signature="e#18369#18400#0" />
-            <element signature="e#18493#18724#0" />
-            <element signature="e#18740#18852#0" />
-            <element signature="e#18862#18909#0" />
-            <element signature="e#19368#19469#0" />
+            <element signature="e#10028#10872#0" />
+            <element signature="e#10066#10127#0" />
+            <element signature="e#10168#10198#0" />
+            <element signature="e#10243#10273#0" />
+            <element signature="e#10344#10870#0" />
+            <element signature="e#10492#10601#0" />
+            <element signature="e#10611#10712#0" />
+            <element signature="e#10729#10799#0" />
+            <element signature="e#10809#10866#0" />
+            <element signature="e#10930#11080#0" />
+            <element signature="e#10980#11025#0" />
+            <element signature="e#11033#11078#0" />
+            <element signature="e#11122#11253#0" />
+            <element signature="e#11153#11197#0" />
+            <element signature="e#11205#11250#0" />
+            <element signature="e#11299#11433#0" />
+            <element signature="e#11334#11378#0" />
+            <element signature="e#11386#11431#0" />
+            <element signature="e#12308#12505#0" />
+            <element signature="e#12371#12427#0" />
+            <element signature="e#12511#12838#0" />
+            <element signature="e#12759#12802#0" />
+            <element signature="e#12915#18889#0" />
+            <element signature="e#12958#14046#0" />
+            <element signature="e#13122#14007#0" />
+            <element signature="e#14017#14042#0" />
+            <element signature="e#14074#16669#0" />
+            <element signature="e#14357#16630#0" />
+            <element signature="e#14649#14690#0" />
+            <element signature="e#14719#14833#0" />
+            <element signature="e#14862#15047#0" />
+            <element signature="e#15076#15259#0" />
+            <element signature="e#15288#15473#0" />
+            <element signature="e#15502#15687#0" />
+            <element signature="e#15716#15901#0" />
+            <element signature="e#15930#16115#0" />
+            <element signature="e#16640#16665#0" />
+            <element signature="e#16697#17814#0" />
+            <element signature="e#16862#17775#0" />
+            <element signature="e#17785#17810#0" />
+            <element signature="e#17822#17843#0" />
+            <element signature="e#17959#18065#0" />
+            <element signature="e#18073#18887#0" />
+            <element signature="e#18223#18761#0" />
+            <element signature="e#18400#18431#0" />
+            <element signature="e#18524#18755#0" />
+            <element signature="e#18771#18883#0" />
+            <element signature="e#18893#18940#0" />
+            <element signature="e#19399#19500#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/herring/templates/herring/_sample_qc.html">
+    <entry file="file://$PROJECT_DIR$/herring/templates/herring/lab_sample_form.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="22" column="22" selection-start-line="22" selection-start-column="22" selection-end-line="22" selection-end-column="22" />
+        <state relative-caret-position="143">
+          <caret line="172" column="47" selection-start-line="172" selection-start-column="47" selection-end-line="172" selection-end-column="47" />
         </state>
       </provider>
     </entry>
