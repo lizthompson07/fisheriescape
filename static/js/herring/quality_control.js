@@ -391,7 +391,7 @@ function improbableMeasurementValidation(talkBack = true) {
         function testFunc (){
           var userInput;
           while (userInput !== "y" && userInput !== "n") {
-            userInput = prompt(msg)
+            userInput = prompt(msg).toLocaleLowerCase();
           }
 
           if (userInput === 'n') {

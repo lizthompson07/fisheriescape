@@ -170,7 +170,7 @@ function runTests() {
   // console.log(`progress = ${progress}; total tests = ${totalTests}; last record = ${lastRecord}; test201Passed = ${test201Passed}`);
   if (progress === totalTests) {
     if (test201Passed && lastRecord) {
-      speak("Sample complete. Moving to next sample.")
+      speak("Fish complete. Moving to next fish.")
       $("#id_where_to").val("new") // go to prev
       $("#submit")[0].click()
     }
@@ -261,7 +261,7 @@ function overwrite(control) {
   if (assess  === true) {
     speak(msgLite);
     while (userInput !== "y" && userInput !== "n") {
-      userInput = prompt(msg)
+      userInput = prompt(msg).toLocaleLowerCase();
     }
     if (userInput === 'n') {
       return false
