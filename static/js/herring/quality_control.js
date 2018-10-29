@@ -310,7 +310,8 @@ function testQCPassed(objectType) {
 
 function testMandatoryFields(objectType) {
   if (objectType === "port_sample") {
-      var targetTest = 230
+      var targetTest = 230;
+      console.log("hello!")
   }
   else if (objectType === "lab_sample") {
     var targetTest = 202
@@ -329,11 +330,11 @@ function testMandatoryFields(objectType) {
         var myTest = ($(".mandatory")[i].value === "" || $(".mandatory")[i].value === "None")
     }
     if (myTest) {
-      markTest("display_test_"+targetTest, false)
+      markTest("display_test_"+targetTest, false);
       break
     }
     else {
-      markTest("display_test_"+targetTest, true)
+      markTest("display_test_"+targetTest, true);
     }
   }
 }

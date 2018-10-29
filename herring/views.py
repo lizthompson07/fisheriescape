@@ -242,14 +242,6 @@ class PortSampleDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # port_sample_tests(self.object)
-
-
-            # quality_control.run_test_mandatory_fields(sample,"port_sample")
-            # quality_control.run_test_205(sample)
-            # quality_control.run_test_231(sample)
-            # quality_control.run_test_232(sample)
-
 
         # pass in the tests
         tests = models.Test.objects.filter(Q(id=205) | Q(id=230) | Q(id=231) | Q(id=232) )
