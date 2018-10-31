@@ -87,13 +87,13 @@ class Ticket(models.Model):
     RESOLVED = '2'
     ACTIVE = '5'
     IDLE = '6'
-    UNRESOLVED = '7'
+    CANCELLED = '7'
     WISHLIST = '8'
     STATUS_CHOICES = (
         (ACTIVE,'Active'),
         (RESOLVED,'Resolved'),
         (IDLE,'Idle'),
-        (UNRESOLVED,'Unresolved'),
+        (CANCELLED,'Cancelled'),
         (WISHLIST,'Wishlist'),
     )
 
