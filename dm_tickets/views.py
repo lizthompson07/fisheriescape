@@ -3,10 +3,9 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
-from django.views.generic import TemplateView, ListView,  UpdateView, DeleteView, CreateView, DetailView
+from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView
 from django_filters.views import FilterView
 import json
 from . import models
