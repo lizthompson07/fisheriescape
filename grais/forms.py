@@ -138,3 +138,24 @@ class SurfaceSpeciesForm(forms.ModelForm):
             'percent_coverage':forms.TextInput(attrs={'placeholder':"Value bewteen 0 and 1"}),
             'last_modified_by':forms.HiddenInput(),
         }
+
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = models.IncidentalReport
+        exclude = ["season","date_last_modified"]
+
+        labels = {
+            'reporter_name':"Name of person filing report",
+            'notes':"Notes (e.g., habitat, salinity, temperature, etc...) ",
+            'report_date': "Date report received",
+        }
+
+        widgets = {
+            'report_date':forms.DateInput(attrs={'type': 'date'}),
+            'date_of_occurence':forms.DateInput(attrs={'type': 'date'}),
+            'specimens_retained': forms.Select(),
+            'sighting_description': forms.Textarea(attrs={'rows': '3'}),
+            'notes': forms.Textarea(attrs={'rows': '3'}),
+            'last_modified_by':forms.HiddenInput(),
+        }

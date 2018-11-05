@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container">
 
-  <h1 class="big-header">AIS Sampling Stations </h1>
+  <h1 class="big-header">AIS Incidental Reports </h1>
   <p>TOTAL: {{object_list.count}}</p>
   <p>
   </p>
@@ -14,27 +14,24 @@
         {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp;
     {% endfor %}
     <input type="submit" value="Filter" class="btn btn btn-warning">
-    <a href="{% url 'grais:station_create' %}" class="btn btn btn-success ">New Station</a>
+    <a href="{% url 'grais:report_new' %}" class="btn btn btn-success ">New Report</a>
   </form>
 
   <table class="table table-hover table-sm">
     <thead>
       <tr>
-        <th scope="col">Station #</th>
-        <th scope="col">Name</th>
-        <th scope="col">Province</th>
-        <th scope="col">Sample Count</th>
+        <th scope="col">Report date</th>
+        <th scope="col">Type</th>
+        <th scope="col">Follow-ups</th>
 
       </tr>
     </thead>
     <tbody>
       {% for obj in object_list  %}
         <tr>
-          <td><a href="{% url 'grais:station_detail' obj.id %}">{{obj.id}}</a></td>
-          <td>{{obj.station_name}}</td>
-          <td>{{obj.province.abbrev}}</td>
-          <td>{{obj.samples.count}}</td>
-
+          <td><a href="{% url 'grais:report_detail' obj.id %}">{{obj.report_date|date:"F m, Y"}}</a></td>
+          <td>{{obj.get_report_type_display}}</td>
+          <td></td>
         </tr>
       {% endfor %}
       <br>
