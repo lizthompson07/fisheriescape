@@ -2,27 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bf14f425-aec2-42aa-ba67-64eee864c055" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/fishmand.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/grais/templates/grais/report_confirm_delete.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/grais/templates/grais/report_detail.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/grais/templates/grais/report_form.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/grais/templates/grais/report_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/glf_sci_site.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/glf_sci_site.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/filters.py" beforeDir="false" afterPath="$PROJECT_DIR$/grais/filters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/grais/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/grais/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/templates/grais/collector_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/grais/templates/grais/collector_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/templates/grais/grais_base.html" beforeDir="false" afterPath="$PROJECT_DIR$/grais/templates/grais/grais_base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/templates/grais/species_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/grais/templates/grais/species_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/templates/grais/station_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/grais/templates/grais/station_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/grais/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grais/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/grais/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/herring/misc/analyses/fish_detail.r" beforeDir="false" afterPath="$PROJECT_DIR$/herring/misc/analyses/fish_detail.r" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/herring/templates/herring/sample_filter.html" beforeDir="false" afterPath="$PROJECT_DIR$/herring/templates/herring/sample_filter.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/herring/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/herring/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/herring/visio/~$$herring workflows.~vsd" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -53,6 +34,7 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="R" value="12" />
+          <entry key="gitignore" value="1" />
           <entry key="html" value="22" />
           <entry key="js" value="5" />
           <entry key="md" value="1" />
@@ -65,6 +47,7 @@
           <entry key="HTML" value="22" />
           <entry key="JavaScript" value="5" />
           <entry key="Markdown" value="1" />
+          <entry key="PLAIN_TEXT" value="1" />
           <entry key="Python" value="16" />
           <entry key="R" value="8" />
           <entry key="Scratch" value="7" />
@@ -74,6 +57,7 @@
         <counts>
           <entry key="R" value="427" />
           <entry key="R Console" value="79" />
+          <entry key="gitignore" value="46" />
           <entry key="html" value="842" />
           <entry key="js" value="128" />
           <entry key="py" value="2556" />
@@ -85,7 +69,7 @@
         <counts>
           <entry key="HTML" value="842" />
           <entry key="JavaScript" value="128" />
-          <entry key="PLAIN_TEXT" value="19" />
+          <entry key="PLAIN_TEXT" value="65" />
           <entry key="Python" value="2499" />
           <entry key="R" value="201" />
           <entry key="Scratch" value="457" />
@@ -109,15 +93,24 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/grais/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="514">
+            <state relative-caret-position="379">
               <caret line="305" column="17" selection-start-line="305" selection-start-column="17" selection-end-line="305" selection-end-column="17" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
                 <marker date="1541426399928" expanded="true" signature="9457:9458" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="521">
+              <caret line="58" column="2" selection-start-line="58" selection-start-column="2" selection-end-line="58" selection-end-column="2" />
             </state>
           </provider>
         </entry>
@@ -180,6 +173,7 @@
         <option value="$PROJECT_DIR$/grais/forms.py" />
         <option value="$PROJECT_DIR$/grais/views.py" />
         <option value="$PROJECT_DIR$/grais/models.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -210,24 +204,6 @@
             <path>
               <item name="glf_sci_site" type="b2602c69:ProjectViewProjectNode" />
               <item name="glf_sci_site" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="glf_sci_site" type="b2602c69:ProjectViewProjectNode" />
-              <item name="glf_sci_site" type="462c0819:PsiDirectoryNode" />
-              <item name="grais" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="glf_sci_site" type="b2602c69:ProjectViewProjectNode" />
-              <item name="glf_sci_site" type="462c0819:PsiDirectoryNode" />
-              <item name="grais" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="glf_sci_site" type="b2602c69:ProjectViewProjectNode" />
-              <item name="glf_sci_site" type="462c0819:PsiDirectoryNode" />
-              <item name="grais" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="grais" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="glf_sci_site" type="b2602c69:ProjectViewProjectNode" />
@@ -354,7 +330,14 @@
       <option name="project" value="LOCAL" />
       <updated>1540835078757</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="updated commands">
+      <created>1541426461484</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1541426461484</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView">
@@ -373,16 +356,16 @@
     <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" sideWeight="0.50111854" side_tool="true" weight="0.27106228" />
-      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49888143" visible="true" weight="0.19621027" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.49888143" visible="true" weight="0.19621027" />
       <window_info id="Structure" order="2" sideWeight="0.50111854" side_tool="true" weight="0.27106228" />
       <window_info anchor="bottom" id="Terminal" order="0" sideWeight="0.49893504" weight="0.21140939" />
-      <window_info anchor="bottom" id="Version Control" order="1" weight="0.32885906" />
+      <window_info anchor="bottom" id="Version Control" order="1" visible="true" weight="0.32885906" />
       <window_info anchor="bottom" id="Event Log" order="2" sideWeight="0.50106496" side_tool="true" weight="0.21280992" />
       <window_info anchor="bottom" id="Python Console" order="3" weight="0.32885906" />
       <window_info anchor="bottom" id="Message" order="4" />
       <window_info anchor="bottom" id="Database Changes" order="5" show_stripe_button="false" />
       <window_info anchor="bottom" id="Find" order="6" weight="0.32922733" />
-      <window_info active="true" anchor="bottom" auto_hide="true" id="Run" order="7" visible="true" weight="0.32997763" />
+      <window_info anchor="bottom" auto_hide="true" id="Run" order="7" weight="0.32997763" />
       <window_info anchor="bottom" id="Debug" order="8" weight="0.39932886" />
       <window_info anchor="bottom" id="Cvs" order="9" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="10" weight="0.4" />
@@ -633,12 +616,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/grais/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="514">
+        <state relative-caret-position="379">
           <caret line="305" column="17" selection-start-line="305" selection-start-column="17" selection-end-line="305" selection-end-column="17" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
             <marker date="1541426399928" expanded="true" signature="9457:9458" ph="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="521">
+          <caret line="58" column="2" selection-start-line="58" selection-start-column="2" selection-end-line="58" selection-end-column="2" />
         </state>
       </provider>
     </entry>
