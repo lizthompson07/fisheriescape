@@ -109,8 +109,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="521">
-              <caret line="58" column="2" selection-start-line="58" selection-start-column="2" selection-end-line="58" selection-end-column="2" />
+            <state relative-caret-position="439">
+              <caret line="50" column="54" lean-forward="true" selection-start-line="50" selection-start-column="54" selection-end-line="50" selection-end-column="54" />
             </state>
           </provider>
         </entry>
@@ -356,10 +356,10 @@
     <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" sideWeight="0.50111854" side_tool="true" weight="0.27106228" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.49888143" visible="true" weight="0.19621027" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49888143" visible="true" weight="0.19621027" />
       <window_info id="Structure" order="2" sideWeight="0.50111854" side_tool="true" weight="0.27106228" />
-      <window_info anchor="bottom" id="Terminal" order="0" sideWeight="0.49893504" weight="0.21140939" />
-      <window_info anchor="bottom" id="Version Control" order="1" visible="true" weight="0.32885906" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="0" sideWeight="0.49893504" visible="true" weight="0.21140939" />
+      <window_info anchor="bottom" id="Version Control" order="1" weight="0.32885906" />
       <window_info anchor="bottom" id="Event Log" order="2" sideWeight="0.50106496" side_tool="true" weight="0.21280992" />
       <window_info anchor="bottom" id="Python Console" order="3" weight="0.32885906" />
       <window_info anchor="bottom" id="Message" order="4" />
@@ -627,8 +627,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="521">
-          <caret line="58" column="2" selection-start-line="58" selection-start-column="2" selection-end-line="58" selection-end-column="2" />
+        <state relative-caret-position="439">
+          <caret line="50" column="54" lean-forward="true" selection-start-line="50" selection-start-column="54" selection-end-line="50" selection-end-column="54" />
         </state>
       </provider>
     </entry>
