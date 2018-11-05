@@ -1,26 +1,17 @@
-from django.shortcuts import render
-import csv
-from django.shortcuts import render
-from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
-from django.conf import settings
-from django.core.mail import send_mail
+from django.views.generic import   UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django.contrib import messages
-from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, AccessMixin
 from django.db.models import Q
-from braces.views import GroupRequiredMixin, AnonymousRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django_filters.views import FilterView
 from django.utils import timezone
 
-import json
 from . import models
 from . import forms
 from . import filters
-from . import emails
 from . import quality_control
 
 from numpy import arange, histogram

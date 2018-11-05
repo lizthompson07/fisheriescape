@@ -10,7 +10,6 @@ detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\a
 rm(list = ls())
 # Import file from local dir
 detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\analyses\\raw_data\\length_freq.csv", header=T)
-detail
 plot(detail, type = 'h')
 abline(v = 19.5, col = 'blue', lty = 2)
 abline(v = 37, col = 'blue', lty = 2)
