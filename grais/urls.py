@@ -42,7 +42,6 @@ urlpatterns = [
     path('species/<int:pk>/edit', views.SpeciesUpdateView.as_view(), name ="species_edit" ),
     path('species/<int:pk>/delete', views.SpeciesDeleteView.as_view(), name ="species_delete" ),
 
-
     # PROBE MEASUREMENT #
     #####################
     path('sample/<int:sample>/probe-data/new/', views.ProbeMeasurementCreateView.as_view(), name ="probe_measurement_new" ),
@@ -80,5 +79,12 @@ urlpatterns = [
     #######
     path('csv-export/', views.export_csv_1, name ="export_csv_1" ),
 
+    # INCIDENTAL REPORT #
+    #####################
+    path('incidental-report/list/', views.ReportListView.as_view(), name ="report_list" ),
+    path('incidental-report/new', views.ReportCreateView.as_view(), name ="report_new" ),
+    path('incidental-report/<int:pk>/view', views.ReportDetailView.as_view(), name ="report_detail" ),
+    path('incidental-report/<int:pk>/edit', views.ReportUpdateView.as_view(), name ="report_edit" ),
+    path('incidental-report/<int:pk>/delete', views.ReportDeleteView.as_view(), name ="report_delete" ),
 
 ]

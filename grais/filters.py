@@ -14,7 +14,7 @@ class SampleFilter(django_filters.FilterSet):
         }
 
         def __init__(self, *args, **kwargs):
-            super(SampleFilter, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.filters['season'].extra.update(
                 {'empty_label': 'All Manufacturers'})
 
@@ -26,6 +26,16 @@ class StationFilter(django_filters.FilterSet):
             'station_name':['icontains'],
             'province':['exact'],
         }
+
+
+class ReportFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.IncidentalReport
+        fields = {
+            'season':['exact'],
+            'report_type':['exact'],
+        }
+
 
 class SpeciesFilter(django_filters.FilterSet):
     class Meta:

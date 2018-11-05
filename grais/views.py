@@ -1,21 +1,16 @@
 import csv
-from django.shortcuts import render
 from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, TemplateView
 from django.conf import settings
-from django.core.mail import send_mail
 from django.contrib import messages
-from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, AccessMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
-from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.views import FilterView
 from django.utils import timezone
 from . import models
 from . import forms
 from . import filters
-from . import emails
 
 class IndexView(GroupRequiredMixin,TemplateView):
     template_name = 'grais/index.html'
@@ -23,11 +18,8 @@ class IndexView(GroupRequiredMixin,TemplateView):
     login_url = '/accounts/login_required/'
 
 
-
-
 class DataFlowTemplateView(TemplateView):
     template_name = 'grais/dataflow.html'
-
 
 
 # SAMPLE #
@@ -523,3 +515,55 @@ def export_csv_1(request):
     writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
 
     return response
+
+
+# INCIDENTAL REPORT #
+#####################
+
+class ReportListView(LoginRequiredMixin, FilterView):
+    filterset_class = filters.ReportFilter
+    template_name = "grais/report_list.html"
+    login_url = '/accounts/login_required/'
+
+
+class ReportUpdateView(LoginRequiredMixin,  UpdateView):
+    login_url = '/accounts/login_required/'
+    model = models.IncidentalReport
+    form_class = forms.StationForm
+    template_name = "grais/report_form.html"
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class ReportCreateView(LoginRequiredMixin, CreateView):
+    model = models.IncidentalReport
+    login_url = '/accounts/login_required/'
+    form_class = forms.ReportForm
+    template_name = "grais/report_form.html"
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class ReportDetailView(LoginRequiredMixin, DetailView):
+    model = models.IncidentalReport
+    login_url = '/accounts/login_required/'
+    template_name = "grais/report_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+        return context
+
+
+class ReportDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.IncidentalReport
+    success_url = reverse_lazy('grais:report_list')
+    success_message = 'The report was successfully deleted!'
+    template_name = "grais/report_confirm_delete.html"
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
