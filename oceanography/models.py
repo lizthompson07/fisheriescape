@@ -2,6 +2,8 @@ import os
 from django.dispatch import receiver
 from django.db import models
 from django.utils import timezone
+from datetime import timedelta
+
 # Create your models here.
 
 def img_file_name(instance, filename):
@@ -82,9 +84,9 @@ class Bottle(models.Model):
             if self.timezone == "UTC":
                 self.date_time_UTC  = self.date_time
             elif self.timezone == "AST":
-                self.date_time_UTC  = self.date_time.replace(hour=self.date_time.hour+4)
+                self.date_time_UTC  = self.date_time + timedelta(hours=4)
             elif self.timezone == "ADT":
-                self.date_time_UTC  = self.date_time.replace(hour=self.date_time.hour+3)
+                self.date_time_UTC  = self.date_time + timedelta(hours=3)
         return super().save(*args,**kwargs)
 
 def file_directory_path(instance, filename):
