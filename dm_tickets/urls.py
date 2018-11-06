@@ -15,6 +15,9 @@ urlpatterns = [
     path('new/', views.TicketCreateView.as_view() , name="create"),
     path('<int:pk>/new-note/', views.TicketNoteUpdateView.as_view() , name="new_note"),
 
+    path('<int:ticket>/resovled/', views.mark_ticket_resolved, name="ticket_resolved"),
+    path('<int:ticket>/re-opened/', views.mark_ticket_active, name="ticket_reopened"),
+
     # EMAIL #
     #########
     path('<int:ticket>/send-resolved-notification/', views.send_resolved_email, name ="send_resolved_email" ),
