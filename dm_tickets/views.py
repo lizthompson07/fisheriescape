@@ -3,14 +3,16 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView
 from django_filters.views import FilterView
 
+from shutil import copyfile
 import json
+import os
+
 from . import models
 from . import forms
 from . import filters
@@ -303,29 +305,37 @@ class FileDeleteView(LoginRequiredMixin,DeleteView):
 
 
 def add_generic_file(request, ticket, type):
-    if settings.MY_ENVR == "dev":
-        print("cannot do transfer file from dev")
-    else:
-        my_ticket = models.Ticket.objects.get(pk=ticket)
+    # if settings.MY_ENVR == "dev":
+    #     print("cannot do transfer file from dev")
+    # else:
 
-        my_new_file = models.File.objects.create()
+    if type == "monitor":
+        filename = "5166_Hardware_Request_Monitor.pdf"
+    elif type == "computer":
+        filename = "5166_Hardware_Request_Computer.pdf"
+    elif type == "software":
+        filename = "5165_Software_Request.pdf"
 
-        my_new_file.caption = "unsigned hardware request form (generic)"
-        my_new_file.ticket_id = ticket
-        my_new_file.date_created = timezone.now()
-        
-        if type == "monitor":
-            filename = "5166_Hardware_Request_Monitor.pdf"
-        elif type == "computer":
-            filename = "5166_Hardware_Request_Computer.pdf"
-        elif type == "software":
-            filename = "5165_Software_Request.pdf"
 
-        
-        with open(static('docs/dm_tickets/{}'.format(filename)), 'rb') as doc_file:
-            my_new_file.file.save("hardware_request_form_#{}".format(my_ticket.id), File(doc_file), save=True)
+    source_file = os.path.join(settings.STATIC_DIR,"docs","dm_tickets",filename)
+    target_dir = os.path.join(settings.MEDIA_DIR,"dm_tickets","ticket_{}".format(ticket))
+    target_file= os.path.join(target_dir,filename)
 
-        my_new_file.save()
+    # create the new folder
+    try:
+        os.mkdir(target_dir)
+    except:
+        print("folder already exists")
+
+    copyfile(source_file,target_file)
+
+
+    my_new_file = models.File.objects.create(
+        caption = "unsigned hardware request form (generic)",
+        ticket_id = ticket,
+        date_created = timezone.now(),
+        file="dm_tickets/ticket_{}/{}".format(ticket,filename)
+    )
 
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
 

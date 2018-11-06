@@ -160,7 +160,7 @@ def ticket_directory_path(instance, filename):
 class File(models.Model):
     caption = models.CharField(max_length=255)
     ticket = models.ForeignKey(Ticket, related_name="files", on_delete=models.CASCADE)
-    file = models.FileField(upload_to=ticket_directory_path)
+    file = models.FileField(upload_to=ticket_directory_path, null=True, blank=True)
     date_created = models.DateTimeField(default=timezone.now)
 
     class Meta:
