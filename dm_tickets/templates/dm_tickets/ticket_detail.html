@@ -113,9 +113,26 @@
     </p>
 
     <p>
-      <b>Files:</b>
+        <div class="neighbours">
+            <b>Files:</b>
+        </div>
+
       {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-      <a class="btn btn-sm btn-light" onclick="return popitup('{% url 'tickets:file_create' ticket.id %}','FileCreate',500,1000)"> <i class="material-icons">add</i></a>
+        <div class="neighbours">
+          <a class="btn btn-sm btn-light" onclick="return popitup('{% url 'tickets:file_create' ticket.id %}','FileCreate',500,1000)"> <i class="material-icons">add</i></a>
+        </div>
+
+      <div class="dropdown neighbours">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Add Template File
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="{% url 'tickets:add_generic_file' object.id 'monitor' %}">monitor</a>
+          <a class="dropdown-item" href="{% url 'tickets:add_generic_file' object.id 'computer' %}">computer</a>
+          <a class="dropdown-item" href="{% url 'tickets:add_generic_file' object.id 'software' %}">software</a>
+        </div>
+      </div>
+
 
       <ul>
         {% for file in object.files.all  %}

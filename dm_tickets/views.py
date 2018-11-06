@@ -179,7 +179,15 @@ class TicketCreateView(CreateView):
             print('not sending email since in dev mode')
 
         messages.success(self.request, "The new ticket has been logged and a confirmation email has been sent!")
-        return HttpResponseRedirect(self.get_success_url())
+
+
+        # check to see if a generic file should be appended
+        if form.cleaned_data["generic_file_to_load"]:
+            return HttpResponseRedirect(reverse_lazy("tickets:add_generic_file", kwargs={"ticket":self.object.id, "type":form.cleaned_data["generic_file_to_load"]}))
+
+        # if nothing, just go to detail page
+        else:
+            return HttpResponseRedirect(self.get_success_url())
 
 class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Ticket
@@ -256,6 +264,8 @@ class FileCreateView(CreateView):
         #store a temporary message is the sessions middleware
         self.request.session['temp_msg'] = "The new file has been added and a notification email has been sent to the site administrator."
 
+        # determine if we should attach a generic file
+
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
 class FileUpdateView(UpdateView):
@@ -292,7 +302,7 @@ class FileDeleteView(LoginRequiredMixin,DeleteView):
         return reverse_lazy('tickets:close_me')
 
 
-def add_generic_file_hardware(request, ticket):
+def add_generic_file(request, ticket, type):
     if settings.MY_ENVR == "dev":
         print("cannot do transfer file from dev")
     else:
@@ -301,10 +311,18 @@ def add_generic_file_hardware(request, ticket):
         my_new_file = models.File.objects.create()
 
         my_new_file.caption = "unsigned hardware request form (generic)"
-        my_new_file.ticket = ticket
+        my_new_file.ticket_id = ticket
         my_new_file.date_created = timezone.now()
+        
+        if type == "monitor":
+            filename = "5166_Hardware_Request_Monitor.pdf"
+        elif type == "computer":
+            filename = "5166_Hardware_Request_Computer.pdf"
+        elif type == "software":
+            filename = "5165_Software_Request.pdf"
 
-        with open(static('docs/dm_tickets/5166_Hardware_Request_generic.pdf'), 'rb') as doc_file:
+        
+        with open(static('docs/dm_tickets/{}'.format(filename)), 'rb') as doc_file:
             my_new_file.file.save("hardware_request_form_#{}".format(my_ticket.id), File(doc_file), save=True)
 
         my_new_file.save()

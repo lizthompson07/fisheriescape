@@ -14,6 +14,8 @@ class TagForm(forms.ModelForm):
 
 class TicketForm(forms.ModelForm):
     primary_contact_email = forms.EmailField()
+    generic_file_to_load = forms.CharField(required = False, widget = forms.HiddenInput())
+
     field_order = [
         'title',
         'primary_contact',
