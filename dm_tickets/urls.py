@@ -38,9 +38,8 @@ urlpatterns = [
     path('<int:ticket>/file/<int:pk>/view', views.FileDetailView.as_view() , name="file_detail"),
     path('<int:ticket>/file/<int:pk>/edit', views.FileUpdateView.as_view() , name="file_update"),
     path('<int:ticket>/file/<int:pk>/delete', views.FileDeleteView.as_view() , name="file_delete"),
-    path('<int:ticket>/add_generic_file_hardware/', views.add_generic_file_hardware, name="add_generic_file_hardware"),
 
-
+    path('<int:ticket>/add_generic_file/<str:type>/', views.add_generic_file, name="add_generic_file"),
 
     # People #
     ##########

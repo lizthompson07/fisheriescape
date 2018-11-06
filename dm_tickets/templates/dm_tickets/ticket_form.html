@@ -6,6 +6,7 @@
 
     <div class="container">
 
+        <div class="neighbours" style="padding-right: 100px">
         {# Load js file to allow for popout window #}
         {% load static %}
         <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
@@ -18,7 +19,27 @@
         {% endif %}
         {% bootstrap_form_errors form %}
 
+        </div>
 
+
+        <div class="neighbours">
+        {% if not object %}
+            <div class="dropdown ">
+            <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Load template
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#" id="prefill-monitor">monitor</a>
+              <a class="dropdown-item" href="#" id="prefill-computer">computer</a>
+              <a class="dropdown-item" href="#" id="prefill-software">software</a>
+            </div>
+          </div>
+
+        {% endif %}
+
+        </div>
+
+    
 
         <form method="post" class="form">
             {% csrf_token %}
@@ -26,21 +47,7 @@
             {% for field in form  %}
 
 
-
-                {% if field.name == 'service_desk_ticket' %}
-                    {% bootstrap_label field.label %}
-                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-                    (<a href="#" onclick="return popitup('{% url 'tickets:sd_create' %}','sdTicketCreate',700,1000)">new ticket</a>)
-                    {% bootstrap_field field show_label=False %}
-
-
-                {% elif field.name == 'request_type' %}
-                    {% bootstrap_label field.label %}
-                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-                    (<a href="#" onclick="return popitup('{% url 'tickets:request_type_create' %}','RequestTypeCreate',300,500)">new type</a>)
-                    {% bootstrap_field field show_label=False %}
-
-                {% elif field.name == 'primary_contact' %}
+                {% if field.name == 'primary_contact' %}
                     {% bootstrap_label field.label %}
                     {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
                     (<a href="#" onclick="return popitup('{% url 'tickets:person_create' %}','RequestTypeCreate',300,500)">new person</a>)
@@ -88,6 +95,37 @@
 
   // when the primary contact is changed
   $("#id_primary_contact").change(updatePrimaryContactEmail)
+
+    $("#prefill-monitor").click(function () {
+        $("#id_title").val("Request for new monitor")
+        $("#id_description").val("Request for new monitor")
+        $("#id_sd_description").val("Request for new monitor")
+        $("#id_sd_primary_contact").val("50")
+        $("#id_financial_coding").val("xxx-xxx-xxx-0930-xxx")
+        $("#id_request_type").val("6")
+        $("#id_generic_file_to_load").val("monitor")
+    })
+
+
+    $("#prefill-computer").click(function () {
+        $("#id_title").val("Request for NEW / REPLACEMENT computer")
+        $("#id_description").val("Request for NEW / REPLACEMENT computer")
+        $("#id_sd_description").val("Request for NEW / REPLACEMENT computer")
+        $("#id_sd_primary_contact").val("50")
+        $("#id_financial_coding").val("xxx-xxx-xxx-0930-xxx")
+        $("#id_request_type").val("6")
+        $("#id_generic_file_to_load").val("computer")
+    })
+
+    $("#prefill-software").click(function () {
+        $("#id_title").val("Request for software XXXXXXXXXXXXX")
+        $("#id_description").val("Request for software XXXXXXXXXXXXX")
+        $("#id_sd_description").val("Request for software XXXXXXXXXXXXX")
+        $("#id_sd_primary_contact").val("50")
+        $("#id_financial_coding").val("xxx-xxx-xxx-0931-xxx")
+        $("#id_request_type").val("6")
+        $("#id_generic_file_to_load").val("software")
+    })
 
 </script>
 
