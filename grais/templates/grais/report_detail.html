@@ -1,5 +1,6 @@
 {% extends "grais/grais_base.html" %}
 {% load static %}
+{% load verbose_field_display %}
 
 
 {% block header %}
@@ -9,14 +10,18 @@
         height: 300px;  /* The height is 400 pixels */
         width: 100%;  /* The width is the width of the web page */
        }
-    </style>
+    .label{
+        font-weight: bold;
+    }
+
+</style>
 {% endblock header %}
 
 
 {% block content %}
 <div class="nav-map">
   <br>
-  <a href="{% url 'grais:station_list' %}">All stations</a> >
+  <a href="{% url 'grais:report_list' %}">All reports</a> >
   {{object}}
 </div>
 <div class="container">
@@ -25,42 +30,48 @@
   <h1>{{object}}</h1>
   <p>
     {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
-    <a class="btn btn-warning" href="{% url 'grais:station_edit' object.id %}">Edit</a>
-    {% if object.samples.count == 0 %}
-    <a class="btn btn-danger" href="{% url 'grais:station_delete' object.id %}">Delete</a>
-    {% else %}
-    <a class="btn btn-danger disabled" href="{% url 'grais:station_delete' object.id %}">Delete</a>
-    {% endif %}
+    <a class="btn btn-warning" href="{% url 'grais:report_edit' object.id %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'grais:report_delete' object.id %}">Delete</a>
   </p>
 
   <br><br>
 <div class="row">
   <div class="col">
     {# Detail about the sample #}
-      <p>
-        <b>Latitude (N)</b><br>
-        {{object.latitude_n|floatformat:6}}
-      </p>
-      <p>
-        <b>Longitude (W)</b><br>
-        {{object.longitude_w|floatformat:6}}
-      </p>
-      <p>
-        <b>depth (m)</b><br>
-        {{object.depth}}
-      </p>
-      <p>
-        <b>Site description</b><br>
-        {{object.site_desc}}
-      </p>
-      <p>
-        <b>Last modified by:</b><br>
-        {% if object.last_modified_by %}
-          @{{object.last_modified_by}}
-        {% else %}
-          n/a
-        {% endif %}
-      </p>
+
+    {% for field in field_list %}
+        {%verbose_field_display object field%}
+    {% endfor %}
+
+
+{##}
+{##}
+{##}
+{##}
+{#      <p>#}
+{#        <b>Latitude (N)</b><br>#}
+{#        {{object.latitude_n|floatformat:6}}#}
+{#      </p>#}
+{#      <p>#}
+{#        <b>Longitude (W)</b><br>#}
+{#        {{object.longitude_w|floatformat:6}}#}
+{#      </p>#}
+{#      <p>#}
+{#        <b>depth (m)</b><br>#}
+{#        {{object.depth}}#}
+{#      </p>#}
+{#      <p>#}
+{#        <b>Site description</b><br>#}
+{#        {{object.site_desc}}#}
+{#      </p>#}
+{#      <p>#}
+{#        <b>Last modified by:</b><br>#}
+{#        {% if object.last_modified_by %}#}
+{#          @{{object.last_modified_by}}#}
+{#        {% else %}#}
+{#          n/a#}
+{#        {% endif %}#}
+{#      </p>#}
 
   </div>
 

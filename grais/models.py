@@ -304,6 +304,9 @@ class IncidentalReport(models.Model):
 
     def __str__(self):
         return "Incidental Report #{}".format(self.id)
+
+    class Meta:
+        ordering = ["-report_date"]
         
 # TODO: create another model for report species... should have "confirmed" attribute
 # TODO: create followup model

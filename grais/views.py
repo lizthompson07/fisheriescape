@@ -554,6 +554,31 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            "report_date",
+            "reporter_name",
+            "report_type",
+            "language_of_report",
+            "call_answered_by",
+            "call_returned_by",
+            "location_description",
+            "latitude_n",
+            "longitude_w",
+            "specimens_retained",
+            "sighting_description",
+            "identified_by",
+            "date_of_occurence",
+            "obvservation_type",
+            "phone",
+            "email",
+            "notes",
+            "date_last_modified",
+            "last_modified_by",
+        ]
+
+        context["field_list"] = field_list
+
         return context
 
 
