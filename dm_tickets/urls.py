@@ -52,7 +52,7 @@ urlpatterns = [
     ################
     # path('request_type/<pk>/view/', views.RequestTypeDetailView.as_view() , name="request_type_detail"),
     # path('request_type/<pk>/edit/', views.RequestTypeUpdateView.as_view() , name="request_type_edit"),
-    path('request_type/new/', views.RequestTypeCreateView.as_view() , name="request_type_create"),
+    # path('request_type/new/', views.RequestTypeCreateView.as_view() , name="request_type_create"),
 
 
 
