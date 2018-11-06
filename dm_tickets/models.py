@@ -117,7 +117,7 @@ class Ticket(models.Model):
     priority = models.CharField(default=HIGH, max_length=1, choices=PRIORITY_CHOICES )
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     description = models.TextField(blank=True,null=True)
-    service_desk_ticket = models.ForeignKey(ServiceDeskTicket, blank=True,null=True, on_delete=models.DO_NOTHING)
+    # service_desk_ticket = models.ForeignKey(ServiceDeskTicket, blank=True,null=True, on_delete=models.DO_NOTHING)
     financial_coding = models.CharField(max_length=100, blank=True,null=True )
     notes = models.TextField(blank=True,null=True)
     notes_html = models.TextField(blank=True,null=True)
@@ -128,6 +128,13 @@ class Ticket(models.Model):
     tags = models.ManyToManyField(Tag)
     primary_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
     resolved_email_date = models.DateTimeField(null=True, blank=True)
+    # SERVICE DESK FIELDS
+    sd_ref_number = models.CharField(max_length=8, null=True, blank=True, verbose_name="Service desk reference #")
+    sd_ticket_url = models.URLField(null=True, blank=True, verbose_name="Service desk ticket URL")
+    sd_primary_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sd_tickets_persons", null=True, blank=True, verbose_name="Service desk primary contact")
+    sd_description = models.TextField(null=True, blank=True, verbose_name="Service desk ticket description")
+    sd_date_logged = models.DateTimeField(null=True, blank=True, verbose_name="Service desk date logged")
+
 
     def save(self,*args,**kwargs):
         if self.notes:
