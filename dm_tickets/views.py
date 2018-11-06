@@ -50,23 +50,35 @@ class TicketDetailView(DetailView):
             # pass
         context['email'] = emails.TicketResolvedEmail(self.object)
         context["field_group_1"] = [
-                "id",
+                # "id",
                 "primary_contact",
                 "title",
                 "section",
                 "status",
                 "priority",
                 "request_type",
-                "description",
             ]
 
         context["field_group_2"] = [
             "financial_coding",
-            "notes",
+            "description",
+            "notes_html",
         ]
 
+        context["field_group_3"] = [
+            "date_opened",
+            "date_modified",
+            "date_closed",
+            "resolved_email_date",
+        ]
 
-
+        context["field_group_4"] = [
+            "sd_ref_number",
+            "sd_ticket_url",
+            "sd_primary_contact",
+            "sd_description",
+            "sd_date_logged",
+        ]
         return context
 
 def send_resolved_email(request, ticket):
@@ -82,6 +94,19 @@ def send_resolved_email(request, ticket):
     my_ticket.resolved_email_date = timezone.now()
     my_ticket.save()
     messages.success(request, "the email has been sent!")
+    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk':ticket}))
+
+def mark_ticket_resolved(request, ticket):
+    my_ticket = models.Ticket.objects.get(pk=ticket)
+    my_ticket.date_closed = timezone.now()
+    my_ticket.save()
+    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk':ticket}))
+
+def mark_ticket_active(request, ticket):
+    my_ticket = models.Ticket.objects.get(pk=ticket)
+    my_ticket.status = "5"
+    my_ticket.date_closed = None
+    my_ticket.save()
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk':ticket}))
 
 
