@@ -4,69 +4,72 @@
 
 {% block content %}
 
-{# Load js file to allow for popout window #}
-{% load static %}
-<script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+    <div class="container">
 
-{% if object.id %}
+        {# Load js file to allow for popout window #}
+        {% load static %}
+        <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
 
-  <h1>{{object.title}}</h1>
-{% else %}
-  <h1>New Ticket</h1>
-{% endif %}
-{% bootstrap_form_errors form %}
-
-
-
-<form method="post" class="form">
-    {% csrf_token %}
-    {# {% bootstrap_form form %} #}
-    {% for field in form  %}
-
-
-
-      {% if field.name == 'service_desk_ticket' %}
-        {% bootstrap_label field.label %}
-        {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-        (<a href="#" onclick="return popitup('{% url 'tickets:sd_create' %}','sdTicketCreate',700,1000)">new ticket</a>)
-        {% bootstrap_field field show_label=False %}
-
-
-      {% elif field.name == 'request_type' %}
-        {% bootstrap_label field.label %}
-        {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-        (<a href="#" onclick="return popitup('{% url 'tickets:request_type_create' %}','RequestTypeCreate',300,500)">new type</a>)
-        {% bootstrap_field field show_label=False %}
-
-        {% elif field.name == 'primary_contact' %}
-          {% bootstrap_label field.label %}
-          {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-          (<a href="#" onclick="return popitup('{% url 'tickets:person_create' %}','RequestTypeCreate',300,500)">new person</a>)
-          {% bootstrap_field field show_label=False %}
-
-
-      {% else %}
-        {% bootstrap_field field%}
-      {% endif %}
-
-    {% endfor %}
-
-    <script type="text/javascript">
-      var user_name = "{{ user }}";
-    </script>
-    
-
-
-
-    {% buttons %}
-        <button type="submit" class="btn btn-primary">Submit</button>
         {% if object.id %}
-        <a class="btn btn-secondary" href="{% url 'tickets:detail' object.id %}">Cancel</a>
+
+            <h1>{{object.title}}</h1>
         {% else %}
-        <a class="btn btn-secondary" href="{% url 'tickets:list' %}">Cancel</a>
+            <h1>New Ticket</h1>
         {% endif %}
-    {% endbuttons %}
-</form>
+        {% bootstrap_form_errors form %}
+
+
+
+        <form method="post" class="form">
+            {% csrf_token %}
+            {# {% bootstrap_form form %} #}
+            {% for field in form  %}
+
+
+
+                {% if field.name == 'service_desk_ticket' %}
+                    {% bootstrap_label field.label %}
+                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+                    (<a href="#" onclick="return popitup('{% url 'tickets:sd_create' %}','sdTicketCreate',700,1000)">new ticket</a>)
+                    {% bootstrap_field field show_label=False %}
+
+
+                {% elif field.name == 'request_type' %}
+                    {% bootstrap_label field.label %}
+                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+                    (<a href="#" onclick="return popitup('{% url 'tickets:request_type_create' %}','RequestTypeCreate',300,500)">new type</a>)
+                    {% bootstrap_field field show_label=False %}
+
+                {% elif field.name == 'primary_contact' %}
+                    {% bootstrap_label field.label %}
+                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+                    (<a href="#" onclick="return popitup('{% url 'tickets:person_create' %}','RequestTypeCreate',300,500)">new person</a>)
+                    {% bootstrap_field field show_label=False %}
+
+
+                {% else %}
+                    {% bootstrap_field field%}
+                {% endif %}
+
+            {% endfor %}
+
+            <script type="text/javascript">
+                var user_name = "{{ user }}";
+            </script>
+
+
+
+
+            {% buttons %}
+                <button type="submit" class="btn btn-primary">Submit</button>
+                {% if object.id %}
+                    <a class="btn btn-secondary" href="{% url 'tickets:detail' object.id %}">Cancel</a>
+                {% else %}
+                    <a class="btn btn-secondary" href="{% url 'tickets:list' %}">Cancel</a>
+                {% endif %}
+            {% endbuttons %}
+        </form>
+    </div>
 
 
 

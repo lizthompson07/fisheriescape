@@ -2,7 +2,9 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load humanize %}
+{% load nz %}
 {% block content %}
+<div class="container">
   <br>
         <h1 class="text-center font-weight-bold ">
           Regional Data Management Ticketing System (RDMTS)
@@ -26,9 +28,6 @@
          </form>
 
 
-
-
-
       {# </div> #}
 
     <!-- The Modal -->
@@ -43,9 +42,8 @@
     {# </div> #}
   {# </div> #}
   <script src="{% static "js/modal.js" %}"></script>
-<div class="container">
 
-  <table class="table table-hover">
+  <table class="table table-hover table-sm">
     <thead>
       <tr>
 	      <th scope="col" width='150px'>Date modified</th>
@@ -82,7 +80,7 @@
 
           <td>{{ticket.people_pretty|safe}}</td>
           {# <td>{{ticket.tags_pretty}}</td> #}
-          <td>{{ticket.service_desk_ticket.ref_number}}</td>
+          <td>{{ticket.sd_ref_number|nz:""}}</td>
 
 
           {# <td>{{ticket.title}}</td> #}

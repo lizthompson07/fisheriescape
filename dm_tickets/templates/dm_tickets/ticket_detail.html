@@ -4,121 +4,88 @@
 {% load humanize %}
 {% load verbose_field_display %}
 {% block content %}
-  <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+{#  <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>#}
+
+    <style>
+        .label{
+            font-weight: bold;
+        }
+        .container{
+            margin-left: 100px;
+            margin-right: 100px;
+
+        }
+        .title-block{
+            text-align: center;
+        }
+
+    </style>
 
   {# If a new ticket was just added, there will be a message display upon returning to this page. The message will then be cleared #}
   {% if temp_msg %}
     {% bootstrap_alert temp_msg alert_type='success' %}
   {% endif %}
 
+<div class="indent-med">
 
-  <h1>{{object.title}}</h1>
-  <div class="btn-group">
+<div class="title-block">
 
-    <a href="{% url 'tickets:update' object.id %}" class="btn btn-warning">Edit</a>
-    <a href="{% url 'tickets:delete' object.id %}" class="btn btn-danger">Delete</a>
-    <a href="{% url 'tickets:new_note' object.id %}" class="btn btn-primary">Edit Notes</a>
-    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-    <a href="{% url 'tickets:list' %}" class="btn btn-secondary">Back to List</a>
-  </div>
+    <h1>{{object.title}} ({{ object.id }})</h1>
+    <a href="{% url 'tickets:list' %}" class="btn btn-dark">Back to List</a>
+    <div class="btn-group">
+
+        <a href="{% url 'tickets:update' object.id %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'tickets:delete' object.id %}" class="btn btn-danger">Delete</a>
+        <a href="{% url 'tickets:new_note' object.id %}" class="btn btn-primary">Edit Notes</a>
+        {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+        {% if user.is_superuser %}
+            {% if object.status == "5" %}
+                <a href="{% url "tickets:ticket_resolved" object.id %}" class="btn btn-success">Mark resolved</a>
+            {% else %}
+                <a href="{% url "tickets:ticket_reopened"  object.id %}" class="btn btn-secondary">Re-open ticket</a>
+            {% endif %}
+
+
+            {% if object.status == "2" and object.resolved_email_date == None %}
+                <a href="#" id="myBtn2" class="btn btn-outline-dark">Notify Client</a>
+            {% else %}
+                <a href="#" id="myBtn2" class="btn btn-outline-dark disabled">Notify Client</a>
+            {% endif %}
+        {% endif %}
+
+    </div>
+</div>
+
   <br><br>
 
 <div class="row">
-  <div class="col">
+  <div class="col-2">
         {% for field in field_group_1 %}
-
+            {%verbose_field_display object field%}
         {% endfor %}
 
 
-
-      <p>
-          <b>Id:</b><br>
-          {{object.id}}
-        </p>
-        <p>
-          <b>Title:</b><br>
-          {{object.title}}
-        </p>
-        <p>
-          <b>Section:</b><br>
-          {{object.section}}
-        </p>
-        <p>
-          <b>Status:</b><br>
-          {{object.get_status_display}}
-
-          {% if object.resolved_email_date %}
-            (<em>email sent on {{object.resolved_email_date|date:"F d, Y"}}</em>)
-          {% else %}
-            {% if user.is_authenticated and object.status == "2" %}
-            <br>
-            <a href="#" id="myBtn2" class="btn btn-sm btn-outline-primary">Notify Client</a>
-            {% endif %}
-          {% endif %}
-
-
-
-
-
-
-
-        </p>
-        <p>
-          <b>Priority:</b><br>
-          {{object.get_priority_display}}
-        </p>
-        <p>
-          <b>Request type:</b><br>
-          {{object.request_type}}
-        </p>
-        <p>
-          <b>Description:</b><br>
-          {{object.description|safe}}
-        </p>
-        <p>
-          <b>Primary contact:</b><br>
-          {{object.primary_contact}}
-        </p>
-        {% for key,value in mydict  %}
-          {{value}}
-        {% endfor %}
-
-
-
-
-  </div>
-  <div class="col">
-    <p>
-      <b>Financial coding:</b><br>
-      {{object.financial_coding}}
-    </p>
     <p>
       <b>Service Desk Ticket</b> (<a href="http://assystSelfService.ent.dfo-mpo.ca/assystnet" target="_blank">AssystNet</a>):<br>
       <!-- Trigger/Open The Modal -->
-      {% if object.service_desk_ticket.id  %}
-        <a id="myBtn" href="#">{{object.service_desk_ticket}}</a> (logged: {{object.service_desk_ticket.date_logged|naturaltime}})
+      {% if object.sd_ref_number  %}
+        <a id="myBtn" href="#">{{object.sd_ref_number}}</a> (logged: {{object.sd_date_logged|naturaltime}})
       {% else %}
-        {{object.service_desk_ticket}}
+        None
       {% endif %}
     </p>
-    <p>
-      <b>Notes:</b><br>
-      {{object.notes_html|safe}}
-    </p>
-    <p>
-      <b>Date created:</b><br>
-      {{object.date_opened|date:"F d Y"}} ({{object.date_opened|naturaltime}})
-    </p>
-    <p>
-      <b>Date closed:</b><br>
-      {{object.date_closed|date:"F d Y"}}
-    </p>
-    <p>
-      <b>Date last modified:</b><br>
-      {{object.date_modified|date:"F d Y"}} ({{object.date_modified|naturaltime}})
-    </p>
+
   </div>
-  <div class="col">
+  <div class="col-4">
+
+    {% for field in field_group_2 %}
+        {%verbose_field_display object field%}
+    {% endfor %}
+
+
+
+  </div>
+  <div class="col-4">
     <p>
       <b>People:</b>
       {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
@@ -162,7 +129,11 @@
       </ul>
     </p>
   </div>
-
+    <div class="col-2">
+         {% for field in field_group_3 %}
+            {%verbose_field_display object field%}
+        {% endfor %}
+    </div>
 </div>
 
 
@@ -205,7 +176,7 @@
             </div>
           </div>
 
-
+</div>
 
 <script src="{% static "js/modal.js" %}"></script>
 <script src="{% static "js/modalTwo.js" %}"></script>
