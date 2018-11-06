@@ -22,11 +22,7 @@ urlpatterns = [
     #########
     path('<int:ticket>/send-resolved-notification/', views.send_resolved_email, name ="send_resolved_email" ),
 
-    # Service Desk Tickets #
-    ########################
-    path('sd-ticket/<pk>/view/', views.ServiceDeskDetailView.as_view() , name="sd_detail"),
-    path('sd-ticket/<pk>/edit/', views.ServiceDeskUpdateView.as_view() , name="sd_edit"),
-    path('sd-ticket/new/', views.ServiceDeskCreateView.as_view() , name="sd_create"),
+
 
     # Tags #
     ########

@@ -185,29 +185,6 @@ class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.TicketNoteForm
 
 
-# Service Desk Ticket #
-#######################
-
-class ServiceDeskDetailView(UpdateView):
-    model = models.ServiceDeskTicket
-    form_class = forms.ServiceDeskTicketForm
-    template_name ='dm_tickets/service_desk_ticket_detail_popout.html'
-
-class ServiceDeskUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.ServiceDeskTicket
-    form_class = forms.ServiceDeskTicketForm
-    template_name ='dm_tickets/service_desk_ticket_form_popout.html'
-    login_url = '/accounts/login_required/'
-
-class ServiceDeskCreateView(LoginRequiredMixin, CreateView):
-    model = models.ServiceDeskTicket
-    form_class = forms.ServiceDeskTicketForm
-    template_name ='dm_tickets/service_desk_ticket_form_popout.html'
-    login_url = '/accounts/login_required/'
-
-    def get_success_url(self, **kwargs):
-        return reverse('tickets:close_me')
-
 
 # Tags #
 ########
@@ -359,14 +336,3 @@ def add_person_to_ticket(request, ticket, person):
     my_ticket.people.add(person)
     return HttpResponseRedirect(reverse('tickets:person_insert', kwargs={'ticket':ticket}))
 
-# Request Type #
-################
-
-
-class RequestTypeCreateView(CreateView):
-    model = models.RequestType
-    template_name ='dm_tickets/request_type_form_popout.html'
-    fields = '__all__'
-
-    def get_success_url(self, **kwargs):
-        return reverse('tickets:close_me')
