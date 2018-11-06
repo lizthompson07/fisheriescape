@@ -44,31 +44,6 @@ class RequestType(models.Model):
         return self.request_type
 
 
-class ServiceDeskTicket(models.Model):
-    ref_number = models.CharField(max_length=8)
-    ticket_url = models.URLField(null=True, blank=True)
-    person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
-    description = models.TextField(null=True,blank=True)
-    date_logged = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        if self.description:
-            if self.description.__len__() > 125:
-                my_descr = self.description[:125]+" ..."
-            else:
-                my_descr = self.description
-            my_str = "{} - {}".format(self.ref_number, my_descr)
-        else:
-            my_str = self.ref_number
-        return my_str
-
-
-    def get_absolute_url(self):
-        return reverse('tickets:sd_detail', kwargs={'pk':self.id})
-
-    class Meta:
-        ordering = ['-ref_number']
-
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
 

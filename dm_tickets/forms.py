@@ -10,17 +10,6 @@ class TagForm(forms.ModelForm):
             'tag':"Tag Name",
         }
 
-class ServiceDeskTicketForm(forms.ModelForm):
-    class Meta:
-        model = models.ServiceDeskTicket
-        fields = ("__all__")
-        labels={
-            'ref_number':"Reference Number",
-        }
-        widgets = {
-            'date_logged':forms.DateInput(attrs={'type': 'date'}),
-            'description':forms.Textarea(attrs={'rows': '5'}),
-        }
 
 
 class TicketForm(forms.ModelForm):
