@@ -13,9 +13,9 @@
 </h1>
 
 <br><br>
-  <p><b>Date logged:</b><br> {{object.service_desk_ticket.date_logged|date:"F d Y"}}</p>
-  <p><b>Logged by:</b><br> {{object.service_desk_ticket.person}}</p>
-  <p><b>Description:</b><br> {{object.service_desk_ticket.description}}</p>
+  <p><b>Date logged:</b><br> {{object.sd_date_logged|date:"F d Y"}}</p>
+  <p><b>Logged by:</b><br> {{object.sd_ticket.person}}</p>
+  <p><b>Description:</b><br> {{object.sd_description}}</p>
   <div class="float-right">
   {% if object.service_desk_ticket.id %}
     <a class="btn btn-large btn-warning my-btn" onclick="return popitup('{% url 'tickets:sd_edit' object.service_desk_ticket.id %}','sdTicketUpdate',700,1000)">Edit</a>

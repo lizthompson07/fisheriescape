@@ -49,6 +49,23 @@ class TicketDetailView(DetailView):
             print("type error: " + str(e))
             # pass
         context['email'] = emails.TicketResolvedEmail(self.object)
+        context["field_group_1"] = [
+                "id",
+                "primary_contact",
+                "title",
+                "section",
+                "status",
+                "priority",
+                "request_type",
+                "description",
+            ]
+
+        context["field_group_2"] = [
+            "financial_coding",
+            "notes",
+        ]
+
+
 
         return context
 
