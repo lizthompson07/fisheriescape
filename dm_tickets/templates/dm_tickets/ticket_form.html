@@ -32,6 +32,7 @@
               <a class="dropdown-item" href="#" id="prefill-monitor">monitor</a>
               <a class="dropdown-item" href="#" id="prefill-computer">computer</a>
               <a class="dropdown-item" href="#" id="prefill-software">software</a>
+              <a class="dropdown-item" href="#" id="prefill-security-exemption">IT security exemption</a>
             </div>
           </div>
 
@@ -99,7 +100,7 @@
     $("#prefill-monitor").click(function () {
         $("#id_title").val("Request for new monitor")
         $("#id_description").val("Request for new monitor")
-        $("#id_sd_description").val("Request for new monitor")
+        $("#id_sd_description").val("Request for new monitor; Please see attached documentation.")
         $("#id_sd_primary_contact").val("50")
         $("#id_financial_coding").val("xxx-xxx-xxx-0930-xxx")
         $("#id_request_type").val("6")
@@ -110,7 +111,7 @@
     $("#prefill-computer").click(function () {
         $("#id_title").val("Request for NEW / REPLACEMENT computer")
         $("#id_description").val("Request for NEW / REPLACEMENT computer")
-        $("#id_sd_description").val("Request for NEW / REPLACEMENT computer")
+        $("#id_sd_description").val("NEW / REPLACEMENT computer; Please see attached documentation.")
         $("#id_sd_primary_contact").val("50")
         $("#id_financial_coding").val("xxx-xxx-xxx-0930-xxx")
         $("#id_request_type").val("6")
@@ -120,12 +121,22 @@
     $("#prefill-software").click(function () {
         $("#id_title").val("Request for software XXXXXXXXXXXXX")
         $("#id_description").val("Request for software XXXXXXXXXXXXX")
-        $("#id_sd_description").val("Request for software XXXXXXXXXXXXX")
+        $("#id_sd_description").val("SOFTWARE REQUEST; Please see attached documentation")
         $("#id_sd_primary_contact").val("50")
         $("#id_financial_coding").val("xxx-xxx-xxx-0931-xxx")
-        $("#id_request_type").val("6")
+        $("#id_request_type").val("1")
         $("#id_generic_file_to_load").val("software")
     })
+
+     $("#prefill-security-exemption").click(function () {
+        $("#id_title").val("Request for DFO IT security exemption")
+        $("#id_description").val("DFO IT security exemption being requested for XXXXXXXXXXXXXX")
+        $("#id_sd_description").val("Request for DFO IT security exemption. Please see attached documentation")
+        $("#id_sd_primary_contact").val("50")
+        $("#id_request_type").val("15")
+        $("#id_generic_file_to_load").val("security_exemption")
+    })
+
 
 </script>
 

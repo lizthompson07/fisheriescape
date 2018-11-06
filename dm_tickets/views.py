@@ -315,6 +315,8 @@ def add_generic_file(request, ticket, type):
         filename = "5166_Hardware_Request_Computer.pdf"
     elif type == "software":
         filename = "5165_Software_Request.pdf"
+    elif type == "security_exemption":
+        filename = "Request_DFO_IT_Security_Exemption.doc"
 
 
     source_file = os.path.join(settings.STATIC_DIR,"docs","dm_tickets",filename)
