@@ -1,12 +1,15 @@
+from django.core.files import File
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView
 from django_filters.views import FilterView
+
 import json
 from . import models
 from . import forms
@@ -289,6 +292,25 @@ class FileDeleteView(LoginRequiredMixin,DeleteView):
         return reverse_lazy('tickets:close_me')
 
 
+def add_generic_file_hardware(request, ticket):
+    if settings.MY_ENVR == "dev":
+        print("cannot do transfer file from dev")
+    else:
+        my_ticket = models.Ticket.objects.get(pk=ticket)
+
+        my_new_file = models.File.objects.create()
+
+        my_new_file.caption = "unsigned hardware request form (generic)"
+        my_new_file.ticket = ticket
+        my_new_file.date_created = timezone.now()
+
+        with open(static('docs/dm_tickets/5166_Hardware_Request_generic.pdf'), 'rb') as doc_file:
+            my_new_file.file.save("hardware_request_form_#{}".format(my_ticket.id), File(doc_file), save=True)
+
+        my_new_file.save()
+
+    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
+
 
 # People #
 ##########
@@ -335,4 +357,5 @@ def add_person_to_ticket(request, ticket, person):
     my_ticket = models.Ticket.objects.get(id=ticket)
     my_ticket.people.add(person)
     return HttpResponseRedirect(reverse('tickets:person_insert', kwargs={'ticket':ticket}))
+
 

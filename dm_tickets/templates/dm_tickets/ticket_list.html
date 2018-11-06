@@ -23,7 +23,19 @@
               <input class="btn btn-sm btn-primary" type="submit" />
               <a class="btn btn-sm btn-outline-primary" href="#" id="myBtn">More Filter Options</a>
               <a class="btn btn-sm btn-outline-primary" href="."> Clear Filter</a>
-              <a class="btn btn-warning float-right" href="{% url 'tickets:create' %}">New Ticket</a>
+
+
+
+        <div class="dropdown float-right">
+        <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          New Ticket
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="{% url 'tickets:create' %}">Blank</a>
+          <a class="dropdown-item" href="{% url 'tickets:create' %}">Hardware</a>
+        </div>
+      </div>
+
 
          </form>
 
