@@ -331,7 +331,7 @@ def add_generic_file(request, ticket, type):
 
 
     my_new_file = models.File.objects.create(
-        caption = "unsigned hardware request form (generic)",
+        caption = "unsigned {} request form".format(type),
         ticket_id = ticket,
         date_created = timezone.now(),
         file="dm_tickets/ticket_{}/{}".format(ticket,filename)
