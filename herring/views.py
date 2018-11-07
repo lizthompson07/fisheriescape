@@ -1,11 +1,11 @@
-from django.views.generic import   UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
+from django.views.generic import   UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView, ListView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, AccessMixin
 from django.db.models import Q
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django_filters.views import FilterView
 from django.utils import timezone
 
@@ -17,6 +17,7 @@ from . import quality_control
 from numpy import arange, histogram
 import math
 import collections
+import csv
 # Create your views here.
 
 def not_in_herring_group(user):
@@ -615,3 +616,130 @@ def move_record(request, sample, type, direction, current_id):
         else:
             target_id = id_list[current_index+1]
             return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample':sample, "pk":target_id}))
+
+
+# PROGRESS REPORT #
+###################
+
+class ProgressReportListView(LoginRequiredMixin, ListView):
+    template_name = 'herring/progress_report_list.html'
+
+    def get_queryset(self):
+        return models.Sample.objects.order_by("-season").values('season').distinct()
+
+class ProgressReportDetailView(LoginRequiredMixin, ListView):
+    template_name = 'herring/progress_report_detail.html'
+
+    def get_queryset(self):
+        return models.Sample.objects.filter(season = self.kwargs["year"])
+
+    def get_context_data(self, **kwargs):
+        context = super(ProgressReportDetailView, self).get_context_data(**kwargs)
+
+        qs = models.Sample.objects.filter(season = self.kwargs["year"])
+
+
+        # sum of samples
+        context["sample_sum"] = qs.count
+
+        # sum of fish
+        running_total = 0
+        for sample in qs:
+            running_total =  running_total + sample.total_fish_preserved
+        context["fish_sum"] = running_total
+
+        # LAB PROCESSING
+
+        # sum of samples COMPLETE
+        context["sample_sum_lab_complete"] = qs.filter(lab_processing_complete=True).count
+
+        # sum of fish COMPLETE
+        running_total = 0
+        for sample in qs.filter(lab_processing_complete=True):
+            running_total = running_total + sample.total_fish_preserved
+        context["fish_sum_lab_complete"] = running_total
+
+        # sum of samples REMAINING
+        context["sample_sum_lab_remaining"] = qs.filter(lab_processing_complete=False).count
+
+        # sum of fish REMAINING
+        running_total = 0
+        for sample in qs.filter(lab_processing_complete=False):
+            running_total = running_total + sample.total_fish_preserved
+        context["fish_sum_lab_remaining"] = running_total
+
+        # OTOLITH PROCESSING
+
+        # sum of samples COMPLETE
+        context["sample_sum_oto_complete"] = qs.filter(otolith_processing_complete=True).count
+
+        # sum of fish COMPLETE
+        running_total = 0
+        for sample in qs.filter(otolith_processing_complete=True):
+            running_total = running_total + sample.total_fish_preserved
+        context["fish_sum_oto_complete"] = running_total
+
+        # sum of samples REMAINING
+        context["sample_sum_oto_remaining"] = qs.filter(otolith_processing_complete=False).count
+
+        # sum of fish REMAINING
+        running_total = 0
+        for sample in qs.filter(otolith_processing_complete=False):
+            running_total = running_total + sample.total_fish_preserved
+        context["fish_sum_oto_remaining"] = running_total
+
+
+        return context
+
+def export_progess_report(request, year):
+    # create instance of mission:
+    qs = models.Sample.objects.filter(season = year)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="herring_progress_report_{}.csv"'.format(year)
+    writer = csv.writer(response)
+
+    # write the header information
+    writer.writerow(['{} Herring Progress Report'.format(year),"","","","","",'Report generated on {}'.format(timezone.now().strftime('%Y-%m-%d %H:%M')),])
+
+    # write the header for the bottle table
+    writer.writerow(["", ])
+
+    writer.writerow([
+        "Season",
+        "Sample no.",
+        "Type",
+        "Sample date",
+        "Sampler's reference no.",
+        "Sampler Name",
+        "Fish preserved",
+        "Lab processing",
+        "Otoliths processing",
+   ])
+
+    for sample in qs:
+        if sample.lab_processing_complete:
+            lab_process = "done"
+        else:
+            lab_process = ""
+
+        if sample.otolith_processing_complete:
+            otolith_process = "done"
+        else:
+            otolith_process = ""
+
+        writer.writerow(
+            [
+                sample.season,
+                sample.id,
+                sample.sampling_protocol,
+                sample.sample_date.strftime('%Y-%m-%d'),
+                sample.sampler_ref_number,
+                sample.sampler,
+                sample.total_fish_preserved,
+                lab_process,
+                otolith_process,
+            ])
+
+    return response

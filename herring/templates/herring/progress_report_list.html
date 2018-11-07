@@ -1,0 +1,33 @@
+{% extends "herring/herring_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load lookup %}
+{% block content %}
+
+<div class="nav-map">
+<br>
+  <p>
+    <a href="{% url 'herring:index' %}">Herring Home</a> >
+    Progress report list
+  </p>
+</div>
+
+
+
+<div class="container">
+
+  <h1>Please select a year: </h1>
+    <ul>
+      {% for year in object_list  %}
+          <li>
+              <a href="{% url 'herring:progress_report_detail' year|lookup:"season" %}">
+                {{year|lookup:"season"}}
+              </a>
+          </li>
+      {% endfor %}
+
+    </ul>
+
+</div>
+
+{% endblock content %}

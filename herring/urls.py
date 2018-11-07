@@ -53,4 +53,11 @@ urlpatterns = [
     path('sample/<int:sample>/<str:type>/<str:direction>/<int:current_id>/', views.move_record, name ="move_record" ),
     path('sample/<int:sample>/<str:type>/<str:direction>/', views.move_record, name ="move_record" ),
 
+    # PROGRESS REPORT #
+    ###################
+    path('progress-report/list/', views.ProgressReportListView.as_view(), name ="progress_report_list"),
+    path('progress-report/<int:year>/', views.ProgressReportDetailView.as_view(), name="progress_report_detail"),
+    path('progress-report/<int:year>/export', views.export_progess_report, name="export_progress_report"),
+
+
 ]
