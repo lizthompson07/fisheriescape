@@ -1,6 +1,6 @@
 {% extends "oceanography/oceanography_base.html" %}
 {% load bootstrap4 %}
-{% load verbose_names %}
+{% load verbose_field_display %}
 {% load static %}
 
 {% block content %}
@@ -10,13 +10,22 @@
         height: 500px;  /* The height is 400 pixels */
         width: 100%;  /* The width is the width of the web page */
        }
+        .label{
+            font-weight: bold;
+        }
     </style>
   <div class="container">
     <h1>{{object.mission_name}}</h1>
     <div class="btn-group">
-      <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
+        {% if user.is_superuser %}
+        <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
+        {% else %}
+        <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning disabled">Edit</a>
+
+        {% endif %}
+
       <a href="{% url "oceanography:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
-      <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-success">Export CSV</a>
+      <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle CSV</a>
       <a href="{% url "oceanography:file_create" object.id %}" class="btn btn-info">Add a File</a>
       <a href="{% url "oceanography:mission_list" object.season %}" class="btn btn-dark">Back</a>
     </div>
@@ -24,45 +33,9 @@
 
 <div class="row">
   <div class="col">
-        <p>
-          <b>{%get_verbose_field_name object "mission_name" %}:</b><br>
-          {{object.mission_name}}
-        </p>
-        <p>
-          <b>{%get_verbose_field_name object "mission_number" %}:</b><br>
-          {{object.mission_number}}
-        </p>
-        <p>
-          <b>{%get_verbose_field_name object "vessel_name" %}:</b><br>
-          {{object.vessel_name}}
-        </p>
-        <p>
-          <b>{%get_verbose_field_name object "chief_scientist" %}:</b><br>
-          {{object.chief_scientist}}
-        </p>
-        <p>
-          <b>{%get_verbose_field_name object "samplers" %}:</b><br>
-          {{object.samplers}}
-        </p>
-        <p>
-          <b>{%get_verbose_field_name object "start_date" %}:</b><br>
-          {{object.start_date}}
-        </p>
-        <p>
-          <b>{%get_verbose_field_name object "probe" %}:</b><br>
-          {{object.probe}}
-        </p>
-        <p>
-          <b>{%get_verbose_field_name object "area_of_operation" %}:</b><br>
-          {{object.area_of_operation}}
-        </p>
-        <p>
-          <b>{%get_verbose_field_name object "notes" %}:</b><br>
-          {{object.notes}}
-        </p>
-
-
-
+        {% for field in field_list %}
+          {% verbose_field_display object field %}
+        {% endfor %}
   </div>
 
   <div class="col">
@@ -84,7 +57,7 @@
       </ul>
     </p>
     <br>
-    <b>Map:</b>
+    <b>Map of Bottles:</b>
 
     <div id="map"></div>
     <div id="lineMap"></div>
@@ -145,7 +118,7 @@
         strokeWeight: 2
       });
 
-      flightPath.setMap(map);
+      {#flightPath.setMap(map);#}
     }
 
     function loadScript() {

@@ -1,5 +1,6 @@
 import csv
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
@@ -8,10 +9,15 @@ from django.utils.text import slugify
 from django.urls import reverse_lazy
 from . import models
 from . import forms
-# Create your views here.
+
+
 
 class IndexTemplateView(TemplateView):
     template_name = "oceanography/index.html"
+
+
+# DOCS #
+########
 
 class DocListView(ListView):
     model = models.Doc
@@ -22,17 +28,22 @@ class DocListView(ListView):
         context['now'] = timezone.now()
         return context
 
-class DocCreateView(CreateView):
+class DocCreateView(LoginRequiredMixin, CreateView):
     model = models.Doc
     template_name = "oceanography/doc_form.html"
     form_class = forms.DocForm
     success_url = reverse_lazy("oceanography:doc_list")
+    login_url = '/accounts/login_required/'
 
-class DocUpdateView(UpdateView):
+class DocUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Doc
     template_name = "oceanography/doc_form.html"
     form_class = forms.DocForm
     success_url = reverse_lazy("oceanography:doc_list")
+    login_url = '/accounts/login_required/'
+
+# MISSIONS #
+############
 
 class MissionYearListView(TemplateView):
     template_name = "oceanography/mission_year_list.html"
@@ -70,13 +81,30 @@ class MissionDetailView(DetailView):
 
         context['google_api_key'] = settings.GOOGLE_API_KEY
 
+        context['field_list'] = [
+            "mission_name",
+            "mission_number",
+            "vessel_name",
+            "ship_call_sign",
+            "chief_scientist",
+            "samplers",
+            "start_date",
+            "end_date",
+            "number_of_profiles",
+            "probe",
+            "area_of_operation",
+            "notes",
+        ]
+
+
         return context
 
 
-class MissionUpdateView(UpdateView):
+class MissionUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "oceanography/mission_form.html"
     model = models.Mission
     form_class = forms.MissionForm
+    login_url = '/accounts/login_required/'
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("oceanography:mission_detail", kwargs={"pk":self.object.id})
@@ -88,6 +116,9 @@ class MissionUpdateView(UpdateView):
         context["editable"] = True
         return context
 
+
+# BOTTLES #
+###########
 
 class BottleListView(ListView):
     template_name = "oceanography/bottle_list.html"
@@ -115,10 +146,11 @@ class BottleDetailView(UpdateView):
         return context
 
 
-class BottleUpdateView(UpdateView):
+class BottleUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "oceanography/bottle_form.html"
     model = models.Bottle
     form_class = forms.BottleForm
+    login_url = '/accounts/login_required/'
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("oceanography:bottle_detail", kwargs={"pk":self.object.id})
