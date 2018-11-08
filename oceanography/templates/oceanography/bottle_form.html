@@ -17,7 +17,11 @@
           {% if editable %}
           <input type="submit" class="btn btn-primary" value="Submit">
           {% else %}
-          <a href="{% url "oceanography:bottle_edit" object.id %}" class="btn btn-warning">Edit</a>
+              {% if user.is_superuser %}
+              <a href="{% url "oceanography:bottle_edit" object.id %}" class="btn btn-warning">Edit</a>
+              {% else %}
+              <a href="{% url "oceanography:bottle_edit" object.id %}" class="btn btn-warning disabled">Edit</a>
+              {% endif %}
           {% endif %}
           <a href="{% url "oceanography:bottle_list" object.mission.id %}" class="btn btn-secondary">Back</a>
         </div>
