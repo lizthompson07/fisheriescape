@@ -18,8 +18,14 @@
           {% if editable %}
           <input type="submit" class="btn btn-primary" value="Submit">
           {% else %}
-          <a href="{% url "oceanography:file_edit" object.id %}" class="btn btn-warning">Edit</a>
-          <a href="{% url "oceanography:file_delete" object.id %}" class="btn btn-danger">Delete</a>
+              {% if user.is_superuser %}
+                <a href="{% url "oceanography:file_edit" object.id %}" class="btn btn-warning">Edit</a>
+                <a href="{% url "oceanography:file_delete" object.id %}" class="btn btn-danger">Delete</a>
+              {% else %}
+                <a href="{% url "oceanography:file_edit" object.id %}" class="btn btn-warning disabled">Edit</a>
+                <a href="{% url "oceanography:file_delete" object.id %}" class="btn btn-danger disabled">Delete</a>
+              {% endif %}
+
 
           {% endif %}
           {% if object.id %}

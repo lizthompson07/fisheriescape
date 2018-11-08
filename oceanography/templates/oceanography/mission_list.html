@@ -5,7 +5,7 @@
 {% block content %}
 
 {% load static %}
-<div class="container">
+<div class="indent-med">
 <div class="jumbotron">
   <h1>Oceanography Doc Library</h1>
 </div>
@@ -21,6 +21,7 @@
         <th scope="col">Mission name</th>
         <th scope="col">Mission number</th>
         <th scope="col">Chief scientist</th>
+        <th scope="col">Number of CTD profiles</th>
         <th scope="col">Number of bottles</th>
       </tr>
     </thead>
@@ -31,6 +32,7 @@
           <td><a href="{% url "oceanography:mission_detail" m.id %}">{{m.mission_name}}</a></td>
           <td>{{m.mission_number}}</td>
           <td>{{m.chief_scientist}}</td>
+          <td>{{m.number_of_profiles}}</td>
           <td>{{m.bottles.count}}</td>
         </tr>
       {% endfor %}
