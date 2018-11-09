@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'grais',
     'oceanography',
     'herring',
+    'camp',
     'lib',
 ]
 
@@ -97,6 +98,8 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+DATABASE_ROUTERS = ['glf_sci_site.routers.DevDatabaseRouter',]
+
 #for mysql
 DATABASES = {
     'default': {
@@ -106,6 +109,10 @@ DATABASES = {
             'read_default_file':MY_CNF,
             'init_command': 'SET default_storage_engine=INNODB',
         },
+    },
+    'dev_db': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
