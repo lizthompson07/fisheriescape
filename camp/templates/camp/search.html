@@ -1,0 +1,89 @@
+{% extends "camp/camp_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block title %}Docs{% endblock title %}
+
+{% block content %}
+
+{# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+<div class="container">
+  <div class="jumbotron">
+    <h1>Please enter the search criteria:</h1>
+  </div>
+</div>
+
+<div class="container">
+    <form method="post">
+
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-4">
+                {% bootstrap_form form layout='horizontal' %}
+            </div>
+        </div>
+        <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search">
+    </form>
+
+</div>
+
+<script type="application/javascript">
+    // VARS
+    var stationList = {{ station_list|safe }}
+
+    $(document).ready(function() {
+        // Stuff to do as soon as the DOM is ready
+        if($("#id_site").val().length > 0 ) {
+            $("#id_station").prop("disabled",false)
+            refreshStationList()
+        }
+        else{
+            $("#id_station").prop("disabled",true)
+        }
+
+    });
+
+    $("#id_site").change(function () {
+        refreshStationList()
+    })
+
+    function refreshStationList() {
+        // clear existing and nucleate with starter option (blank)
+            $('#id_station').empty();
+            var starterOption = new Option("---", "");
+            $("#id_station").append(starterOption);
+            $("#id_station").prop("disabled",true)
+
+            // populate the choice box with the appropriate choices
+            // new value of site
+            var site = $("#id_site").val()
+
+            // proceed if there is a value to site
+            if(site.length > 0) {
+
+                for (var i = 0; i < stationList.length; i++) {
+                    if(stationList[i].site == site) {
+
+                        var option = new Option(stationList[i].text, stationList[i].val);
+                        {#$(option).html("option text");#}
+                        $("#id_station").append(option);
+
+                        {#$('#id_station').append($('<option>').text("Select"));#}
+                    }
+
+
+                }
+
+                $("#id_station").prop("disabled",false)
+            }
+
+    }
+    $("form").submit(function () {
+        $("#submit").val("Searching...")
+        $("#submit").addClass("disabled")
+    })
+
+
+</script>
+
+{% endblock content %}

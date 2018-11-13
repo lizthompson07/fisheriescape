@@ -31,6 +31,7 @@ class Bug(models.Model):
     HERMORRHAGE = 4
     RDMTS = 5
     ACCOUNTS = 6
+    CAMP = 7
 
     APP_CHOICES = (
         (GENERAL,'General'),
@@ -39,6 +40,7 @@ class Bug(models.Model):
         (INVENTORY,'Data Inventory'),
         (HERMORRHAGE,'HerMorrhage'),
         (RDMTS,'Ticketing System'),
+        (CAMP, 'CAMP'),
     )
 
     APP_DICT = {
@@ -48,6 +50,7 @@ class Bug(models.Model):
         INVENTORY:'Data Inventory',
         HERMORRHAGE:'HerMorrhage',
         RDMTS:'Ticketing System',
+        CAMP: 'CAMP app',
     }
 
     user = models.ForeignKey('auth.User', on_delete=models.DO_NOTHING)

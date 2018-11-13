@@ -33,6 +33,7 @@ urlpatterns = [
     path('grais/', include('grais.urls')),
     path('hermorrhage/', include('herring.urls')),
     path('bugs/', include('bugs.urls')),
+    path('camp/', include('camp.urls')),
 
     # Password reset views. Views are part of accounts app #
     ########################################################
