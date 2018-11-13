@@ -28,6 +28,7 @@
 *.log
 *.sql
 *.sqlite3
+*.sqlite3-journal
 
 # OS generated files #
 ######################
