@@ -61,4 +61,4 @@ media_conf.py
 
 # my.cnf file should not be on the repo since it has the db password #
 ######################################################################
-my.cnf
+#my.cnf
