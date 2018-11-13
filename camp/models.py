@@ -35,7 +35,7 @@ class Station(models.Model):
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return "Site #{} @ {}".format(self.id, self.site.code)
+        return "{}".format(self.name)
 
 
 
@@ -57,14 +57,24 @@ class Species(models.Model):
 
 class Sample(models.Model):
     station = models.ForeignKey(Station, related_name='samples', on_delete=models.DO_NOTHING)
-    sample_start_date = models.DateTimeField(blank=True, null=True)
+    sample_start_date = models.DateTimeField()
     sample_end_date = models.DateTimeField(blank=True, null=True)
+    temperature_c = models.FloatField(null=True,blank=True, verbose_name="Temperature (°C)")
+    salinity = models.FloatField(null=True,blank=True, verbose_name="Salinity (ppt)")
+    disolved_o2 = models.FloatField(null=True,blank=True, verbose_name="dissolved oxygen (?mgl?)")
+    per_sediment_water_cont = models.FloatField(null=True,blank=True, verbose_name="sediment water content (%)")
+    per_sediment_organic_cont = models.FloatField(null=True,blank=True, verbose_name="sediment organic content (%)")
+    mean_sediment_grain_size = models.FloatField(null=True,blank=True, verbose_name="Mean sediment grain size (??)") # where 9999 means >2000
+    silicate = models.FloatField(null=True,blank=True, verbose_name="Silicate (µM)")
+    phosphate = models.FloatField(null=True,blank=True, verbose_name="Phosphate (µM)")
+    nitrates = models.FloatField(null=True,blank=True, verbose_name="NO3 + NO2(µM)")
+    nitrite = models.FloatField(null=True,blank=True, verbose_name="Nitrite (µM)")
+    ammonia = models.FloatField(null=True,blank=True, verbose_name="Ammonia (µM)")
     notes = models.TextField(blank=True, null=True)
     year = models.IntegerField(null=True, blank=True)
     month = models.IntegerField(null=True, blank=True)
-    date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
     last_modified = models.DateTimeField(blank=True, null=True)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="camp_sample_last_modified_by")
+    species = models.ManyToManyField(Species, through="SpeciesObservations")
 
     def save(self, *args, **kwargs):
         self.year = self.sample_start_date.year
@@ -74,23 +84,21 @@ class Sample(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ['-sample_start_date']
-
-
-# class Stage(models.Model):
-#     code = models.TextField(max_length=5)
-#     desc_eng = models.TextField(max_length=5)
-#     desc_fre = models.TextField(max_length=5, null=True, blank=True)
+        ordering = ['-sample_start_date', 'station']
+        unique_together = [["sample_start_date","station"],]
 
 
 class SpeciesObservations(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="sample_spp")
     sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name="sample_spp")
-    count_adults = models.IntegerField(default=0)
-    count_yoy = models.IntegerField(default=0)
-    count_unknown = models.IntegerField(default=0)
-    count_total = models.IntegerField(null=True, blank=True)
+    adults = models.FloatField(default=0)
+    yoy = models.FloatField(default=0)
+    unknown = models.FloatField(default=0)
+    total = models.FloatField(null=True, blank=True)
 
-    def save(self):
-        self.count_total = self.count_adults + self.count_yoy + self.count_unknown
-        return super().save()
+    def save(self, *args, **kwargs):
+        self.total = self.adults + self.yoy + self.unknown
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        unique_together = [["sample","species"],]

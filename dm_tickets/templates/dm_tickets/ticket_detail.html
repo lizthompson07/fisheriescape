@@ -107,7 +107,7 @@
         {% for tag in object.tags.all  %}
           <li><a href="." onclick="return popitup('{% url 'tickets:tag_detail' tag.id %}','Detail',500,1000)">{{tag.tag}} </a></li>
         {% empty %}
-          <span class="draw-attention"><em>There are no tags attached to this ticket.</em></span>
+          <span><em>There are no tags attached to this ticket.</em></span>
         {% endfor %}
       </ul>
     </p>

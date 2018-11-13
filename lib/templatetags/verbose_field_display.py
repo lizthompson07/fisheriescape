@@ -9,7 +9,14 @@ def verbose_field_display(instance, field_name, format=None):
     """
 
     field_instance = instance._meta.get_field(field_name)
-    verbose_name = field_instance.verbose_name.capitalize()
+    verbose_name = field_instance.verbose_name
+
+    # complicated little dance to make sure the first letter is capitalized.
+    # Do not want to use the capitalize() method since it makes the remaining portion of str lowercase
+    first_letter = verbose_name[0].upper()
+    str_list = list(verbose_name)
+    str_list[0] = first_letter
+    verbose_name = "".join(str_list)
 
     # first check if there is a value :
     if getattr(instance, field_name):
