@@ -1,0 +1,86 @@
+{% extends "camp/camp_base.html" %}
+{% load static %}
+{% load verbose_field_display %}
+
+{% block header %}
+<style>
+       /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
+    .label{
+        font-weight: bold;
+    }
+    </style>
+{% endblock header %}
+
+
+{% block content %}
+<div class="nav-map">
+  <br>
+  <a href="{% url 'camp:search' %}">Search</a> >
+  Sample {{object.id}}
+</div>
+
+<div class="container">
+
+  <br>
+  <h1>Sample {{object.id}} @ {{object.station}}</h1>
+  <p>
+    <div class="btn-group">
+      <a class="btn btn-warning" href="{% url 'camp:sample_edit' sample.id %}">Edit</a>
+      <a class="btn btn-danger disabled" href="{% url 'camp:sample_delete' sample.id %}">Delete</a>
+    </div>
+    <br><br>
+    <div class="row">
+        <div class="col">
+            {% for field in field_list %}
+                {% verbose_field_display object field %}
+            {% endfor %}
+        </div>
+        <div class="col">
+            <h3>Species observations:</h3>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <th rowspan="2">Species</th>
+                        <th colspan="4">Observations</th>
+                    </tr>
+                    <tr>
+                        <th>Adults</th>
+                        <th>YOY</th>
+                        <th>Other</th>
+                        <th>TOTAL</th>
+
+                    </tr>
+                    <tbody>
+                        {% for spp in object.sample_spp.all %}
+                            <tr>
+                                <td>{{spp.species}}</td>
+                                <td>{{spp.adults}}</td>
+                                <td>{{spp.yoy}}</td>
+                                <td>{{spp.unknown}}</td>
+                                <td><b>{{spp.total}}</b></td>
+                            </tr>
+                        {% endfor %}
+
+
+                    <td></td>
+                    </tbody>
+                </table>
+
+
+        </div>
+    </div>
+
+
+
+
+
+</div>
+
+
+
+
+
+{% endblock content %}
