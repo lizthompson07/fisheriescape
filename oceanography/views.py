@@ -84,6 +84,7 @@ class MissionDetailView(DetailView):
         context['field_list'] = [
             "mission_name",
             "mission_number",
+            "meds_id",
             "vessel_name",
             "ship_call_sign",
             "chief_scientist",
