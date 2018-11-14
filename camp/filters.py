@@ -12,11 +12,6 @@ class SampleFilter(django_filters.FilterSet):
             'station':['exact'],
         }
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.filters['season'].extra.update(
-                {'empty_label': 'All Manufacturers'})
-
 #
 # class StationFilter(django_filters.FilterSet):
 #     class Meta:
@@ -27,6 +22,15 @@ class SampleFilter(django_filters.FilterSet):
 #         }
 #
 #
+
+class SiteFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Site
+        fields = {
+            'site':['icontains'],
+            'province':['exact'],
+        }
+
 # class ReportFilter(django_filters.FilterSet):
 #     class Meta:
 #         model = models.IncidentalReport
@@ -36,29 +40,13 @@ class SampleFilter(django_filters.FilterSet):
 #         }
 #
 #
-# class SpeciesFilter(django_filters.FilterSet):
-#     class Meta:
-#         model = models.Species
-#         fields = {
-#             'common_name': ['icontains'],
-#             'scientific_name': ['icontains'],
-#             'biofouling':['exact']
-#         }
-#
-#
-# class SpeciesFilterFull(django_filters.FilterSet):
-#     class Meta:
-#         model = models.Species
-#         fields = {
-#             'common_name': ['icontains'],
-#             'scientific_name': ['icontains'],
-#             'tsn':['exact'],
-#             'aphia_id':['exact'],
-#             'biofouling':['exact'],
-#             'invasive':['exact'],
-#             'color_morph':['exact'],
-#         }
-#         labels = {
-#             'tsn':"TSN",
-#
-#         }
+class SpeciesFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Species
+        fields = {
+            'common_name_eng': ['icontains'],
+            'common_name_fre': ['icontains'],
+            'code': ['icontains'],
+        }
+
+

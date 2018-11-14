@@ -1,12 +1,8 @@
 from django.urls import path
 from . import views
-from django.contrib.auth import views as auth_views
-
-app_name = 'camp'
-
 urlpatterns = [
     # path('close/', views.CloserTemplateView.as_view(), name ="close_me" ),
-    path('', views.IndexView.as_view(), name ="index" ),
+    path('', views.index, name ="index" ),
     path('search/', views.SearchFormView.as_view(), name ="search" ),
     # path('dataflow/', views.DataFlowTemplateView.as_view(), name ="dataflow" ),
 
@@ -18,14 +14,30 @@ urlpatterns = [
     path('sample/<int:pk>/view', views.SampleDetailView.as_view(), name ="sample_detail" ),
     path('sample/<int:pk>/edit', views.SampleUpdateView.as_view(), name ="sample_edit" ),
     path('sample/<int:pk>/delete', views.SampleDeleteView.as_view(), name ="sample_delete" ),
-#
-#     # STATION #
-#     ###########
-#     path('station/', views.StationListView.as_view(), name ="station_list" ),
-#     path('station/new', views.StationCreateView.as_view(), name ="station_create" ),
-#     path('station/<int:pk>/view', views.StationDetailView.as_view(), name ="station_detail" ),
-#     path('station/<int:pk>/edit', views.StationUpdateView.as_view(), name ="station_edit" ),
-#     path('station/<int:pk>/delete', views.StationDeleteView.as_view(), name ="station_delete" ),
+
+    # SITE #
+    ########
+    path('sites/', views.SiteListView.as_view(), name ="site_list" ),
+    path('site/new', views.SiteCreateView.as_view(), name ="site_new" ),
+    path('site/<int:pk>/view', views.SiteDetailView.as_view(), name ="site_detail" ),
+    path('site/<int:pk>/edit', views.SiteUpdateView.as_view(), name ="site_edit" ),
+    path('site/<int:pk>/delete', views.SiteDeleteView.as_view(), name ="site_delete" ),
+
+    # STATION #
+    ###########
+    path('site/<int:site>/new-station/', views.StationCreateView.as_view(), name ="station_new" ),
+    path('station/<int:pk>/view', views.StationDetailView.as_view(), name ="station_detail" ),
+    path('station/<int:pk>/edit', views.StationUpdateView.as_view(), name ="station_edit" ),
+    path('station/<int:pk>/delete', views.StationDeleteView.as_view(), name ="station_delete" ),
+
+    # SPECIES #
+    ###########
+    path('species/', views.SpeciesListView.as_view(), name ="species_list" ),
+    path('species/new/', views.SpeciesCreateView.as_view(), name ="species_new" ),
+    path('species/<int:pk>/view', views.SpeciesDetailView.as_view(), name ="species_detail" ),
+    path('species/<int:pk>/edit', views.SpeciesUpdateView.as_view(), name ="species_edit" ),
+    path('species/<int:pk>/delete', views.SpeciesDeleteView.as_view(), name ="species_delete" ),
+
 #
 #     # COLLECTOR #
 #     #############
@@ -35,15 +47,7 @@ urlpatterns = [
 #     path('collector/<int:pk>/edit', views.CollectorUpdateView.as_view(), name ="collector_edit" ),
 #     path('collector/<int:pk>/delete', views.CollectorDeleteView.as_view(), name ="collector_delete" ),
 #
-#     # SPECIES #
-#     ###########
-#     path('species/', views.SpeciesListView.as_view(), name ="species_list" ),
-#     path('species/new', views.SpeciesCreateView.as_view(), name ="species_create" ),
-#     path('new-species-to-surface-<int:surface>/', views.SpeciesCreatePopoutView.as_view(), name ="species_add" ),
-#     path('species/<int:pk>/view', views.SpeciesDetailView.as_view(), name ="species_detail" ),
-#     path('species/<int:pk>/edit', views.SpeciesUpdateView.as_view(), name ="species_edit" ),
-#     path('species/<int:pk>/delete', views.SpeciesDeleteView.as_view(), name ="species_delete" ),
-#
+
 #     # PROBE MEASUREMENT #
 #     #####################
 #     path('sample/<int:sample>/probe-data/new/', views.ProbeMeasurementCreateView.as_view(), name ="probe_measurement_new" ),
@@ -90,3 +94,7 @@ urlpatterns = [
 #     path('incidental-report/<int:pk>/delete', views.ReportDeleteView.as_view(), name ="report_delete" ),
 #
 ]
+from django.contrib.auth import views as auth_views
+
+app_name = 'camp'
+
