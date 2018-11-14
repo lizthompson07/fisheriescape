@@ -12,6 +12,12 @@
     .label{
         font-weight: bold;
     }
+
+   /* Set the size of the div element that contains the map */
+      #map {
+        height: 300px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
     </style>
 {% endblock header %}
 
@@ -40,6 +46,9 @@
             {% endfor %}
         </div>
         <div class="col">
+          <div id="map"></div>
+            <br>
+
             <h3>Species observations:</h3>
                 <table class="table table-bordered table-sm">
                     <tr>
@@ -63,17 +72,35 @@
                                 <td><b>{{spp.total}}</b></td>
                             </tr>
                         {% endfor %}
-
-
-                    <td></td>
                     </tbody>
                 </table>
 
 
         </div>
+
     </div>
 
+<script>
 
+    // Initialize and add the map
+    function initMap() {
+      // The location of Uluru
+      var uluru = {lat: {{object.station.latitude_n}}, lng: {{object.station.longitude_w}}};
+      // The map, centered at Uluru
+      var map = new google.maps.Map(
+          document.getElementById('map'), {zoom: 10, center: uluru});
+      // The marker, positioned at Uluru
+      var marker = new google.maps.Marker({position: uluru, map: map});
+    }
+    </script>
+    <!--Load the API from the specified URL
+    * The async attribute allows the browser to render the page while the API loads
+    * The key parameter will contain your own API key (which is not needed for this tutorial)
+    * The callback parameter executes the initMap() function
+    -->
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initMap">
+    </script>
 
 
 

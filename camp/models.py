@@ -1,5 +1,5 @@
 from django.db import models
-# from django.urls import reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.contrib import auth
 
@@ -10,7 +10,7 @@ class Province(models.Model):
     abbrev = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
-        return "{} ({})".format(self.province, self.abbrev)
+        return "{} ({})".format(self.province_eng, self.abbrev)
 
 class Site(models.Model):
     site = models.CharField(max_length=255, blank=True, null=True)
@@ -25,14 +25,21 @@ class Site(models.Model):
     class Meta:
         ordering = ['province', 'site']
 
+    def get_absolute_url(self):
+        return reverse("camp:site_detail", kwargs={"pk": self.id})
 
 class Station(models.Model):
-    name = models.CharField(max_length=56)
+    name = models.CharField(max_length=255)
     site = models.ForeignKey('Site', on_delete=models.DO_NOTHING, related_name='stations', blank=True,
                                  null=True)
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    station_number = models.IntegerField(blank=True, null=True)
+
+    def get_absolute_url(self):
+        return reverse("camp:station_detail", kwargs={"pk": self.id})
+
 
     def __str__(self):
         return "{}".format(self.name)
@@ -40,8 +47,8 @@ class Station(models.Model):
 
 
 class Species(models.Model):
-    common_name_eng = models.CharField(max_length=255, blank=True, null=True)
-    common_name_fre = models.CharField(max_length=255, blank=True, null=True)
+    common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
+    common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
@@ -53,6 +60,9 @@ class Species(models.Model):
 
     class Meta:
         ordering = ['common_name_eng']
+
+    def get_absolute_url(self):
+        return reverse("camp:species_detail", kwargs={"pk": self.id})
 
 
 class Sample(models.Model):
@@ -102,3 +112,4 @@ class SpeciesObservations(models.Model):
 
     class Meta:
         unique_together = [["sample","species"],]
+        # ordering = ["-sample__year"] THIS IS WAY TOO SLOW!

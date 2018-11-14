@@ -3,7 +3,13 @@
 {% load bootstrap4 %}
 {% block content %}
 
-<div class="container">
+    <style type="text/css">
+        table{
+            font-size: 0.9em;
+        }
+    </style>
+
+<div class="indent-med">
 
   <h1 class="big-header">Herring Samples </h1>
   <p>TOTAL: {{object_list.count}}</p>
@@ -40,8 +46,10 @@
         <th scope="col">Sample #</th>
         <th scope="col">Type</th>
         <th scope="col">Sample Date</th>
-        <th scope="col" style="width: 150px;">Sampler's Reference No.</th>
+        <th scope="col" style="text-align: center;">Sampler's Reference No.</th>
         <th scope="col">Sampler Name</th>
+        <th scope="col" style="text-align: center;"># Fish Details</th>
+        <th scope="col" style="text-align: center;">Processing Date</th>
         <th scope="col" style="text-align: center;">Lab Processed</th>
         <th scope="col" style="text-align: center;">Otoliths Processed</th>
         {# <th scope="col">QC Issues</th> #}
@@ -55,16 +63,22 @@
           <td><a href="{% url 'herring:port_sample_detail' sample.id %}">{{sample.id}}</a></td>
           <td>{{sample.sampling_protocol}}</td>
           <td>{{sample.sample_date|date:'F d, Y'}}</td>
-          <td>{{sample.sampler_ref_number}}</td>
+          <td align='center'>{{sample.sampler_ref_number}}</td>
           <td>{{sample.sampler}}</td>
-          <td align='center'>
+
+            <td align='center'>{{sample.fish_details.count}}</td>
+            <td align='center'>{{sample.fish_details.last.lab_processed_date|date:"F d, Y"}}</td>
+
+            <td align='center'>
             {% if sample.lab_processing_complete %}
             <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
             {% else %}
             <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
             {% endif %}
-          </td>
-          <td align='center'>
+            </td>
+
+
+            <td align='center'>
             {% if sample.otolith_processing_complete %}
             <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
             {% else %}

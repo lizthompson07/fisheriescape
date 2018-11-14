@@ -1,8 +1,6 @@
 {% extends "camp/camp_base.html" %}
 {% load static %}
-
-{% block title %}Docs{% endblock title %}
-
+{% block title %}CAMP db{% endblock title %}
 {% block content %}
 
 {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
@@ -12,21 +10,26 @@
   </div>
 </div>
 
-<div class="container">
-  <h2>Please select among the following items:</h2>
-  <table class="table table-hover">
-    <tbody>
-      <tr><td><a href="{% url 'camp:search'  %}">Explore the Data</a></td></tr>
-      <tr><td><a href="#" class="not-ready">Data Extraction Tool</a></td></tr>
+{#<div class="container">#}
+{#  <h2>Please select among the following items:</h2>#}
+{#  <table class="table table-hover">#}
+{#    <tbody>#}
+{#      <tr><td><a href="{% url 'camp:search'  %}">Explore the Data</a></td></tr>#}
+{#      <tr><td><a href="#" class="under-dev">Data Extraction Tool</a></td></tr>#}
+{##}
+{#    </tbody>#}
+{#  </table>#}
+{#</div>#}
 
-    </tbody>
+<div align="center">
+  <table cellpadding="15px">
+    <tr >
+      <td><img src="{% static "/img/camp/mummi.jpg" %}" class="rounded" width="1000px" alt="..."></td>
+    </tr>
+
   </table>
+
 </div>
 
 
-    <script>
-        $(".not-ready").click(function () {
-            alert("view still under development");
-        })
-    </script>
 {% endblock content %}

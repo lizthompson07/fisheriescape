@@ -1,22 +1,32 @@
 import csv
-from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from braces.views import GroupRequiredMixin
-from django.urls import reverse_lazy, reverse
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Count
 from django.http import HttpResponse, HttpResponseRedirect
-from django_filters.views import FilterView
+from django.shortcuts import render
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
+
+from django_filters.views import FilterView
 from . import models
 from . import forms
 from . import filters
 from lib.functions.nz import nz
 
-class IndexView(LoginRequiredMixin, TemplateView):
-    template_name = 'camp/index.html'
-    login_url = '/accounts/login_required/'
 
+
+
+def not_in_camp_group(user):
+    if user:
+        return user.groups.filter(name='camp_access').count() != 0
+#
+@login_required(login_url = '/accounts/login_required/')
+@user_passes_test(not_in_camp_group, login_url='/accounts/denied/')
+def index(request):
+    return render(request, 'camp/index.html')
 
 class SearchFormView(LoginRequiredMixin, FormView):
     template_name = 'camp/search.html'
@@ -154,54 +164,215 @@ class SampleDeleteView(LoginRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
-#
-# # STATION #
-# ###########
-#
-# class StationListView(LoginRequiredMixin, FilterView):
-#     filterset_class = filters.StationFilter
-#     template_name = "grais/station_list.html"
-#     login_url = '/accounts/login_required/'
-#
-# class StationUpdateView(LoginRequiredMixin,  UpdateView):
-#     # permission_required = "__all__"
-#     raise_exception = True
-#     login_url = '/accounts/login_required/'
-#     model = models.Station
-#     form_class = forms.StationForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-# class StationCreateView(LoginRequiredMixin, CreateView):
-#     model = models.Station
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.StationForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-# class StationDetailView(LoginRequiredMixin, UpdateView):
-#     model = models.Station
-#     login_url = '/accounts/login_required/'
-#     fields =('__all__')
-#     template_name = 'grais/station_detail.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#         return context
-#
-# class StationDeleteView(LoginRequiredMixin, DeleteView):
-#     model = models.Station
-#     success_url = reverse_lazy('grais:station_list')
-#     success_message = 'The station was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
+
+# SITE #
+########
+
+class SiteListView(LoginRequiredMixin, FilterView):
+    filterset_class = filters.SiteFilter
+    template_name = "camp/site_list.html"
+    login_url = '/accounts/login_required/'
+
+class SiteUpdateView(LoginRequiredMixin,  UpdateView):
+    # permission_required = "__all__"
+    raise_exception = True
+    login_url = '/accounts/login_required/'
+    model = models.Site
+    form_class = forms.SiteForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+class SiteCreateView(LoginRequiredMixin, CreateView):
+    model = models.Site
+    login_url = '/accounts/login_required/'
+    form_class = forms.SiteForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+class SiteDetailView(LoginRequiredMixin, DetailView):
+    model = models.Site
+    login_url = '/accounts/login_required/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            "site",
+            "code",
+            "province",
+            "description",
+        ]
+        context['field_list'] = field_list
+
+        station_list =  []
+        for obj in self.object.stations.all():
+            if obj.latitude_n and obj.longitude_w:
+                station_list.append(
+                    [obj.name, obj.latitude_n, obj.longitude_w]
+                )
+        context['station_list'] = station_list
+
+
+        return context
+
+class SiteDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.Site
+    success_url = reverse_lazy('camp:site_list')
+    success_message = 'The site was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# STATION #
+###########
+
+class StationUpdateView(LoginRequiredMixin,  UpdateView):
+    # permission_required = "__all__"
+    raise_exception = True
+    login_url = '/accounts/login_required/'
+    model = models.Station
+    form_class = forms.StationForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class StationCreateView(LoginRequiredMixin, CreateView):
+    model = models.Station
+    login_url = '/accounts/login_required/'
+    form_class = forms.StationForm
+
+    def get_initial(self):
+        return {'site': self.kwargs["site"]}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        site = models.Site.objects.get(pk=self.kwargs["site"])
+        context['site'] = site
+        return context
+
+
+class StationDetailView(LoginRequiredMixin, DetailView):
+    model = models.Station
+    login_url = '/accounts/login_required/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            "name",
+            "site",
+            "station_number",
+            "latitude_n",
+            "longitude_w",
+            "description",
+        ]
+        context['field_list'] = field_list
+
+        return context
+
+class StationDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.Station
+    success_message = 'The station was successfully deleted!'
+
+    def get_success_url(self):
+        return reverse_lazy("camp:site_detail", kwargs={"pk":self.object.site.id})
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# SPECIES #
+###########
+
+class SpeciesListView(LoginRequiredMixin, FilterView):
+    template_name = "camp/species_list.html"
+    filterset_class = filters.SpeciesFilter
+    login_url = '/accounts/login_required/'
+
+class SpeciesDetailView(LoginRequiredMixin, DetailView):
+    model = models.Species
+    login_url = '/accounts/login_required/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+        context["field_list"] = [
+            'common_name_eng',
+            'common_name_fre',
+            'scientific_name',
+            'code',
+            'tsn',
+            'aphia_id',
+            'notes',
+        ]
+        
+        # get a list of x,y coords for the species
+        locations = []
+
+        # i want a queryset that has [species, station name, lat, lon, count of stn]
+
+        qs = models.SpeciesObservations.objects.filter(species = self.object).values(
+            'species_id',
+            'sample__station__id',
+            'sample__station__name',
+            'sample__station__latitude_n',
+            'sample__station__longitude_w'
+        ).distinct().annotate(dcount=Count('sample__station__id'))
+
+        for obj in qs:
+            if obj["sample__station__latitude_n"] and obj["sample__station__longitude_w"]:
+                year_last_seen = models.SpeciesObservations.objects.filter(species=self.object.id).filter(sample__station = obj["sample__station__id"]).order_by("-sample__sample_start_date").first().sample.sample_start_date.year
+                locations.append(
+                    [
+                        obj["sample__station__name"],
+                        obj["sample__station__latitude_n"],
+                        obj["sample__station__longitude_w"],
+                        obj["dcount"],
+                        year_last_seen,
+                    ]
+                )
+
+        context["locations"] = locations
+        return context
+
+
+class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Species
+    login_url = '/accounts/login_required/'
+    form_class = forms.SpeciesForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+class SpeciesCreateView(LoginRequiredMixin, CreateView):
+    model = models.Species
+    login_url = '/accounts/login_required/'
+    form_class = forms.SpeciesForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
+    model = models.Species
+    permission_required = "__all__"
+    success_url = reverse_lazy('camp:species_list')
+    success_message = 'The species was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+
+
 # # PERSON #
 # ##########
 #
@@ -376,59 +547,6 @@ class SampleDeleteView(LoginRequiredMixin, DeleteView):
 #         messages.success(self.request, self.success_message)
 #         return super().delete(request, *args, **kwargs)
 #
-# # SPECIES #
-# ###########
-#
-# class SpeciesListView(LoginRequiredMixin, FilterView):
-#     template_name = "grais/species_list.html"
-#     filterset_class = filters.SpeciesFilterFull
-#     login_url = '/accounts/login_required/'
-#
-# class SpeciesDetailView(LoginRequiredMixin, DetailView):
-#     model = models.Species
-#     fields = "__all__"
-#     login_url = '/accounts/login_required/'
-#
-# class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
-#     model = models.Species
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.SpeciesForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-# class SpeciesCreateView(LoginRequiredMixin, CreateView):
-#     model = models.Species
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.SpeciesForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-# class SpeciesCreatePopoutView(LoginRequiredMixin, CreateView):
-#     model = models.Species
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.SpeciesForm
-#     template_name = 'grais/species_form_popout.html'
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         self.request.session['temp_msg'] = "The new species has been added to the list."
-#
-#         return HttpResponseRedirect(reverse('grais:close_me'))
-#
-# class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
-#     model = models.Species
-#     permission_required = "__all__"
-#     success_url = reverse_lazy('grais:species_list')
-#     success_message = 'The species was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
 #
 # # SURFACES #
 # ############

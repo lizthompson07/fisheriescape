@@ -1,0 +1,50 @@
+{% extends "camp/camp_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+  <h1 class="big-header">CAMP Sites</h1>
+  <p>TOTAL: {{object_list.count}}</p>
+  <p>
+  </p>
+
+  <form class="form" action="." method="get">
+    {% for field in filter.form %}
+        {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp;
+    {% endfor %}
+    <input type="submit" value="Filter" class="btn btn btn-warning">
+    <a href="{% url 'camp:site_new' %}" class="btn btn btn-success ">New Site</a>
+  </form>
+
+  <table class="table table-hover table-sm">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Code</th>
+        <th scope="col">Province</th>
+        <th scope="col">No. of Stations</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in object_list  %}
+        <tr>
+          <td><a href="{% url 'camp:site_detail' obj.id %}">{{obj.id}}</a></td>
+          <td>{{obj.site}}</td>
+          <td>{{obj.code}}</td>
+          <td>{{obj.province.abbrev}}</td>
+          <td>{{obj.stations.count}}</td>
+
+        </tr>
+      {% endfor %}
+      <br>
+
+      </tbody>
+    </table>
+
+
+  </div>
+
+{% endblock content %}

@@ -2,28 +2,27 @@ from django import forms
 from django.core import validators
 from . import models
 
-#
-# class StationForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Station
-#         fields = "__all__"
-#         labels={
-#             'site_desc':"Site description",
-#             'depth':"Depth (m)",
-#         }
-#         widgets = {
-#             'last_modified_by':forms.HiddenInput(),
-#         }
-#
-#
-# class SpeciesForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Species
-#         fields = "__all__"
-#         widgets = {
-#             'last_modified_by':forms.HiddenInput(),
-#         }
 
+class SiteForm(forms.ModelForm):
+    class Meta:
+        model = models.Site
+        fields = "__all__"
+
+class StationForm(forms.ModelForm):
+    class Meta:
+        model = models.Station
+        fields = "__all__"
+        widgets = {
+            "latitude_n": forms.NumberInput(attrs={"placeholder":"DD.dddddd",}),
+            "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
+            "description": forms.Textarea(attrs={"rows": "3", }),
+            "site": forms.HiddenInput(),
+        }
+
+class SpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.Species
+        fields = "__all__"
 
 class SearchForm(forms.Form):
 
