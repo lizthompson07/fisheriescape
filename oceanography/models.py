@@ -44,8 +44,10 @@ class Mission(models.Model):
     probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING)
     area_of_operation = models.CharField(max_length=255, null=True, blank=True)
     number_of_profiles = models.IntegerField()
+    meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="MEDS ID")
     notes = models.CharField(max_length=255, null=True, blank=True)
-    season  = models.IntegerField(null=True, blank=True)
+    season = models.IntegerField(null=True, blank=True)
+
 
     def save(self,*args,**kwargs):
         if self.start_date:
