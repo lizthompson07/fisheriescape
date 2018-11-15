@@ -90,15 +90,15 @@ class FishingArea(models.Model):
     class Meta:
         ordering = ['nafo_area_code']
 
-class Vessel(models.Model):
-    cfvn = models.IntegerField(primary_key=True)
-    vessel_name = models.CharField(max_length=255, null=True, blank=True)
-
-    def __str__(self):
-        return "{} ({})".format(self.cfvn, self.vessel_name)
-
-    class Meta:
-        ordering = ['cfvn']
+# class Vessel(models.Model):
+#     cfvn = models.IntegerField(primary_key=True)
+#     vessel_name = models.CharField(max_length=255, null=True, blank=True)
+#
+#     def __str__(self):
+#         return "{} ({})".format(self.cfvn, self.vessel_name)
+#
+#     class Meta:
+#         ordering = ['cfvn']
 
 class Gear(models.Model):
     gear = models.CharField(max_length=255)
@@ -156,12 +156,13 @@ class Sample(models.Model):
     sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number")
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True )
+    mission_id = models.CharField(max_length=50, null=True, blank=True)
     latitude_n = models.CharField(max_length=50, null=True, blank=True, verbose_name="Latitude (N)")
     longitude_w = models.CharField(max_length=50, null=True, blank=True, verbose_name="Longitude (W)")
     fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     gear = models.ForeignKey(Gear, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     experimental_net_used = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-    vessel = models.ForeignKey(Vessel, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
+    # vessel = models.ForeignKey(Vessel, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     vessel_cfvn = models.IntegerField(null=True, blank=True)
     mesh_size = models.ForeignKey(MeshSize, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     catch_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Catch weight (lbs)")
