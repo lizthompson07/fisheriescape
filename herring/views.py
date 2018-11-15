@@ -12,7 +12,7 @@ from django.utils import timezone
 from . import models
 from . import forms
 from . import filters
-from . import quality_control
+# from . import quality_control
 
 from numpy import arange, histogram
 import math
@@ -42,37 +42,37 @@ class CloserTemplateView(TemplateView):
 # QUALITY CONTROL #
 ###################
 
-def port_sample_tests(sample):
-    quality_control.run_test_mandatory_fields(sample,"port_sample")
-    quality_control.run_test_205(sample)
-    quality_control.run_test_231(sample)
-    quality_control.run_test_232(sample)
-
-
-def lab_sample_tests(fish_detail):
-    my_dict = {}
-    my_dict["fish_length"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_length")
-    my_dict["fish_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
-    my_dict["gonad_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
-    quality_control.run_test_mandatory_fields(fish_detail,"lab_sample")
-    quality_control.run_test_possible_range(fish_detail,"lab_sample")
-    my_dict["global_204"] = quality_control.run_test_204(fish_detail)
-    my_dict["global_207"] = quality_control.run_test_207(fish_detail)
-    quality_control.run_test_improbable_accepted(fish_detail,"lab_sample")
-    quality_control.run_test_qc_passed(fish_detail,"lab_sample")
-
-    return my_dict
-
-def otolith_tests(fish_detail):
-    my_dict = {}
-    my_dict["annulus_count"] = quality_control.run_data_point_tests(fish_detail, field_name="annulus_count")
-    quality_control.run_test_mandatory_fields(fish_detail,"otolith") # mandatory fields
-    quality_control.run_test_possible_range(fish_detail,"otolith") # possible range
-    my_dict["global_209"] = quality_control.run_test_209(fish_detail) # annulus_count length ratio
-    quality_control.run_test_improbable_accepted(fish_detail,"otolith") # improbable obs accepted
-    quality_control.run_test_qc_passed(fish_detail,"otolith") # all tests passed
-
-    return my_dict
+# def port_sample_tests(sample):
+#     quality_control.run_test_mandatory_fields(sample,"port_sample")
+#     quality_control.run_test_205(sample)
+#     quality_control.run_test_231(sample)
+#     quality_control.run_test_232(sample)
+#
+#
+# def lab_sample_tests(fish_detail):
+# #     my_dict = {}
+# #     my_dict["fish_length"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_length")
+# #     my_dict["fish_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
+# #     my_dict["gonad_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
+# #     quality_control.run_test_mandatory_fields(fish_detail,"lab_sample")
+# #     quality_control.run_test_possible_range(fish_detail,"lab_sample")
+# #     my_dict["global_204"] = quality_control.run_test_204(fish_detail)
+# #     my_dict["global_207"] = quality_control.run_test_207(fish_detail)
+# #     quality_control.run_test_improbable_accepted(fish_detail,"lab_sample")
+# #     quality_control.run_test_qc_passed(fish_detail,"lab_sample")
+# #
+# #     return my_dict
+#
+# def otolith_tests(fish_detail):
+#     my_dict = {}
+#     my_dict["annulus_count"] = quality_control.run_data_point_tests(fish_detail, field_name="annulus_count")
+#     quality_control.run_test_mandatory_fields(fish_detail,"otolith") # mandatory fields
+#     quality_control.run_test_possible_range(fish_detail,"otolith") # possible range
+#     my_dict["global_209"] = quality_control.run_test_209(fish_detail) # annulus_count length ratio
+#     quality_control.run_test_improbable_accepted(fish_detail,"otolith") # improbable obs accepted
+#     quality_control.run_test_qc_passed(fish_detail,"otolith") # all tests passed
+#
+#     return my_dict
 
 # SAMPLER #
 ###########
@@ -95,8 +95,8 @@ class SamplerCloseTemplateView(TemplateView):
         context["object"]= object
         return context
 
-# PORT SAMPLE #
-###############
+# SAMPLE #
+##########
 class SampleFilterView(LoginRequiredMixin, FilterView):
     filterset_class = filters.SampleFilter
     template_name = "herring/sample_filter.html"
@@ -111,9 +111,9 @@ class SampleFilterView(LoginRequiredMixin, FilterView):
             kwargs["data"] = {"season": timezone.now().year }
         return kwargs
 
-class PortSampleCreateView(LoginRequiredMixin,CreateView):
-    template_name = 'herring/port_sample_form.html'
-    form_class = forms.PortSampleForm
+class SampleCreateView(LoginRequiredMixin,CreateView):
+    template_name = 'herring/sample_form.html'
+    form_class = forms.SampleForm
     model = models.Sample
 
     def get_initial(self):
@@ -125,9 +125,9 @@ class PortSampleCreateView(LoginRequiredMixin,CreateView):
 
     def form_valid(self, form):
         object = form.save()
-        port_sample_tests(object)
+        # port_sample_tests(object)
         if form.cleaned_data["do_another"] == 1:
-            return HttpResponseRedirect(reverse_lazy('herring:port_sample_new'))
+            return HttpResponseRedirect(reverse_lazy('herring:sample_new'))
         else:
             return HttpResponseRedirect(reverse_lazy('herring:sample_list'))
 
@@ -161,15 +161,15 @@ class PortSampleCreateView(LoginRequiredMixin,CreateView):
         context['sampler_list'] = sampler_list
         return context
 
-class PortSampleDeleteView(LoginRequiredMixin,DeleteView):
+class SampleDeleteView(LoginRequiredMixin,DeleteView):
     template_name = 'herring/sample_confirm_delete.html'
     model = models.Sample
     success_url = reverse_lazy("herring:sample_list")
 
 
-class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
-    template_name = 'herring/port_sample_form.html'
-    form_class = forms.PortSampleForm
+class SampleUpdateView(LoginRequiredMixin,UpdateView):
+    template_name = 'herring/sample_form.html'
+    form_class = forms.SampleForm
     model = models.Sample
 
     def get_initial(self):
@@ -178,7 +178,7 @@ class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
             }
 
     def form_valid(self, form):
-        port_sample_tests(self.object)
+        # port_sample_tests(self.object)
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -210,15 +210,15 @@ class PortSampleUpdateView(LoginRequiredMixin,UpdateView):
         context['sampler_list'] = sampler_list
         return context
 
-class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
-    template_name = 'herring/port_sample_form_popout.html'
+class SamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
+    template_name = 'herring/sample_form_popout.html'
     model = models.Sample
 
     def get_form_class(self):
         if self.kwargs["type"] == "measured":
-            return forms.PortSampleFishMeasuredForm
+            return forms.SampleFishMeasuredForm
         elif self.kwargs["type"] == "preserved":
-            return forms.PortSampleFishPreservedForm
+            return forms.SampleFishPreservedForm
 
     def get_initial(self):
         return {
@@ -230,8 +230,8 @@ class PortSamplePopoutUpdateView(LoginRequiredMixin,UpdateView):
         return HttpResponseRedirect(reverse("herring:close_me"))
 
 
-class PortSampleDetailView(LoginRequiredMixin,DetailView):
-    template_name = 'herring/port_sample_detail.html'
+class SampleDetailView(LoginRequiredMixin,DetailView):
+    template_name = 'herring/sample_detail.html'
     model = models.Sample
 
 
@@ -340,7 +340,7 @@ class LengthFrquencyWizardFormView(FormView):
 
 
         if current_length == to_length:
-            port_sample_tests(models.Sample.objects.get(pk=sample))
+            # port_sample_tests(models.Sample.objects.get(pk=sample))
             return HttpResponseRedirect(reverse('herring:close_me'))
         else:
             return HttpResponseRedirect(reverse('herring:lf_wizard', kwargs={
@@ -358,7 +358,7 @@ class LengthFrquencyUpdateView(UpdateView):
 
     def form_valid(self, form):
         object = form.save()
-        port_sample_tests(object.sample)
+        # port_sample_tests(object.sample)
         return HttpResponseRedirect(reverse('herring:close_me'))
 
 # FISH DETAIL #
@@ -403,7 +403,7 @@ class FishDeleteView(LoginRequiredMixin,DeleteView):
     model = models.FishDetail
 
     def get_success_url(self):
-        return reverse_lazy('herring:port_sample_detail', kwargs={'pk':self.kwargs['sample']})
+        return reverse_lazy('herring:sample_detail', kwargs={'pk':self.kwargs['sample']})
 
 
 
@@ -494,7 +494,7 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
         object = form.save()
         print(form.cleaned_data["where_to"])
         if form.cleaned_data["where_to"] == "home":
-            return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs={'pk':object.sample.id,}))
+            return HttpResponseRedirect(reverse("herring:sample_detail", kwargs={'pk':object.sample.id,}))
         elif form.cleaned_data["where_to"] == "prev":
             return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"lab","direction":"prev", "current_id":object.id}))
         elif form.cleaned_data["where_to"] == "next":
@@ -511,7 +511,7 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
 def delete_fish_detail(request, sample, pk):
     fishy = models.FishDetail.objects.get(pk=pk)
     fishy.delete()
-    return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs = {"pk":sample}))
+    return HttpResponseRedirect(reverse("herring:sample_detail", kwargs = {"pk":sample}))
 
 
 # Otolith
@@ -561,7 +561,7 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
         # port_sample_tests(self.object)
         object = form.save()
         if form.cleaned_data["where_to"] == "home":
-            return HttpResponseRedirect(reverse("herring:port_sample_detail", kwargs={'pk':object.sample.id,}))
+            return HttpResponseRedirect(reverse("herring:sample_detail", kwargs={'pk':object.sample.id,}))
         elif form.cleaned_data["where_to"] == "prev":
             return HttpResponseRedirect(reverse("herring:move_record", kwargs={'sample':object.sample.id,"type":"otolith","direction":"prev", "current_id":object.id}))
         elif form.cleaned_data["where_to"] == "next":

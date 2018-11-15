@@ -6,7 +6,7 @@
 
     <style type="text/css">
         table{
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
     </style>
 
@@ -36,8 +36,7 @@
 
   <br>
   <div class="btn-group">
-    <a href="{% url 'herring:port_sample_new' %}" class="btn btn-sm btn-outline-primary ">New Port Sample</a>
-    <a href="#" class="btn btn-sm btn-outline-primary disabled">New Sea Sample</a>
+    <a href="{% url 'herring:sample_new' %}" class="btn btn-sm btn-outline-primary ">New Sample</a>
   </div>
   <br>
   <br>
@@ -61,7 +60,7 @@
     <tbody>
       {% for sample in object_list  %}
         <tr>
-          <td><a href="{% url 'herring:port_sample_detail' sample.id %}">{{sample.id}}</a></td>
+          <td><a href="{% url 'herring:sample_detail' sample.id %}">{{sample.id}}</a></td>
           <td>{{sample.sampling_protocol}}</td>
           <td>{{sample.sample_date|date:'F d, Y'}}</td>
           <td align='center'>{{sample.sampler_ref_number}}</td>

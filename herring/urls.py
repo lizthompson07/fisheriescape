@@ -14,14 +14,14 @@ urlpatterns = [
     path('sample/sampler/<int:sampler>/close/', views.SamplerCloseTemplateView.as_view(), name ="close_sampler" ),
 
 
-    # PORT SAMPLE #
-    ###############
+    # SAMPLE #
+    ##########
     path('samples/list/', views.SampleFilterView.as_view(), name ="sample_list"),
-    path('samples/port/new/', views.PortSampleCreateView.as_view(), name ="port_sample_new"),
-    path('samples/port/<int:pk>/detail/', views.PortSampleDetailView.as_view(), name ="port_sample_detail"),
-    path('samples/port/<int:pk>/edit/', views.PortSampleUpdateView.as_view(), name ="port_sample_edit"),
-    path('samples/port/<int:pk>/delete/', views.PortSampleDeleteView.as_view(), name ="port_sample_delete"),
-    path('samples/port/<int:pk>/edit-fish-<str:type>/', views.PortSamplePopoutUpdateView.as_view(), name ="port_sample_edit_pop"),
+    path('samples/port/new/', views.SampleCreateView.as_view(), name ="sample_new"),
+    path('samples/port/<int:pk>/detail/', views.SampleDetailView.as_view(), name ="sample_detail"),
+    path('samples/port/<int:pk>/edit/', views.SampleUpdateView.as_view(), name ="sample_edit"),
+    path('samples/port/<int:pk>/delete/', views.SampleDeleteView.as_view(), name ="sample_delete"),
+    path('samples/port/<int:pk>/edit-fish-<str:type>/', views.SamplePopoutUpdateView.as_view(), name ="sample_edit_pop"),
 
 
     # Length Frequency #

@@ -8,14 +8,14 @@
   {% if object.id %}
   <p>
     <a href="{% url 'herring:sample_list' %}">All samples</a> >
-    <a href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
+    <a href="{% url 'herring:sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
     <a href="{% url 'herring:fish_detail' object.sample.id object.id %}">Fish {{object.id}}</a> >
     Edit
   </p>
   {% else %}
   <p>
     <a href="{% url 'herring:sample_list' %}">All samples</a> >
-    <a href="{% url 'herring:port_sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+    <a href="{% url 'herring:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
     New Fish
   </p>
   {% endif %}

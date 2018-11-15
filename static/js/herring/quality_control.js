@@ -309,9 +309,8 @@ function testQCPassed(objectType) {
 }
 
 function testMandatoryFields(objectType) {
-  if (objectType === "port_sample") {
+  if (objectType === "port_sample" || objectType === "sea_sample") {
       var targetTest = 230;
-      console.log("hello!")
   }
   else if (objectType === "lab_sample") {
     var targetTest = 202
@@ -323,7 +322,7 @@ function testMandatoryFields(objectType) {
   // run the loop
   for (var i = 0; i < $(".mandatory").length; i++) {
     // for the port sample, we are looking to read .innerHTML while for lab and otolith form we read .value
-    if (objectType === "port_sample") {
+    if (objectType === "port_sample" || objectType === "sea_sample") {
         var myTest = ($(".mandatory")[i].innerHTML === "" || $(".mandatory")[i].innerHTML === "None")
     }
     else {
@@ -543,165 +542,3 @@ function testGlobalRatio(testId) {
     }
   }
 }
-
-
-
-// // function checkAcceptedTests(objectType) {
-//   if (objectType === "lab_sample") {
-//     // grab all test related to probability
-//     testList = [204,207,302,305,308]
-//     for (var i = 0; i < testList.length; i++) {
-//       if ($("#id_test_"+testList[i]+"_accepted").val() === "") {
-//         markTest("display_test_"+testList[i]+"_accepted",false, "yesNo")
-//       }
-//       else {
-//         markTest("display_test_"+testList[i]+"_accepted",true, "yesNo")
-//       }
-//     }
-//   }
-// }
-
-
-// def run_test_improbable_accepted(object, object_type): # all improbable observations been accepted
-//     # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 204 AND 207
-//     if object_type === "lab_sample":
-//         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=208).delete()
-//
-//         # CREATE BLANK TESTS IN SAMPLETEST
-//         # and start off optimistic
-//         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=208,field_name=' global', test_passed=True, scope=1)
-//
-//         # grab all test related to fish detail
-//         fish_detail_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id)
-//         for t in fish_detail_tests: # kEEP IN MIND THIS WILL INCLUDE OTOLITH SAMPLE TESTS
-//             if t.accepted === False:
-//                 test.test_passed = False
-//                 test.save()
-//                 break
-//
-//     elif object_type === "otolith":
-//         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=211).delete()
-//
-//         # CREATE BLANK TESTS IN SAMPLETEST
-//         # and start off optimistic
-//         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=211,field_name=' global', test_passed=True, scope=2)
-//
-//         # grab all test related to fish detail
-//         fish_detail_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id)
-//         for t in fish_detail_tests: # kEEP IN MIND THIS WILL INCLUDE OTOLITH SAMPLE TESTS
-//             if t.accepted === False:
-//                 test.test_passed = False
-//                 test.save()
-//                 break
-//
-// def run_test_qc_passed(object, object_type): # all quality control tests have been passed
-//     # ORDER THAT THIS TEST IS RUN IS VERY IMPORTANT: MUST BE AFTER 202 (mandatory fields), 203 (possible range), 208 (accepted improbable obsverations)
-//     if object_type === "lab_sample":
-//         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=201).delete()
-//
-//         # CREATE BLANK TESTS IN SAMPLETEST
-//         # and start off optimistic
-//         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=201,field_name=' global', test_passed=True, scope=1)
-//
-//         # grab all test related to fish detail
-//         fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=202) | Q(test_id=203) | Q(test_id=208) )
-//
-//         for t in fish_detail_global_tests: # Only looking at the tests of interest
-//             if t.test_passed === False:
-//                 test.test_passed = False
-//                 test.save()
-//                 break
-//
-//     elif object_type === "otolith":
-//         # START BY DELETING ALL EXISTING SAMPLETEST FOR GIVEN SAMPLE
-//         models.FishDetailTest.objects.filter(fish_detail_id=object.id, test_id=200).delete()
-//
-//         # CREATE BLANK TESTS IN SAMPLETEST
-//         # and start off optimistic
-//         test = models.FishDetailTest.objects.create(fish_detail_id=object.id,test_id=200,field_name=' global', test_passed=True, scope=2)
-//
-//         # grab all test related to fish detail
-//         fish_detail_global_tests = models.FishDetailTest.objects.filter(fish_detail_id=object.id).filter(Q(test_id=211) | Q(test_id=206) | Q(test_id=210) )
-//
-//         for t in fish_detail_global_tests: # Only looking at the tests of interest
-//             if t.test_passed === False:
-//                 test.test_passed = False
-//                 test.save()
-//                 break
-//
-//
-// def run_data_point_tests(fish_detail, field_name):
-//     my_dict = {}
-//     stop = False
-//     # parse field name
-//     if field_name === "fish_length":
-//         field = fish_detail.fish_length
-//         scope = 1
-//     elif field_name === "fish_weight":
-//         field = fish_detail.fish_weight
-//         scope = 1
-//     elif field_name === "gonad_weight":
-//         field = fish_detail.gonad_weight
-//         scope = 1
-//     elif field_name === "annulus_count":
-//         field = fish_detail.annulus_count
-//         scope = 2
-//     else:
-//         print("cannot parse field_name")
-//         stop = true
-//
-//     if not stop:
-//         # first determine if a test 23 has been accepted
-//         try:
-//             is_accepted = models.FishDetailTest.objects.filter(fish_detail_id=fish_detail.id, field_name=field_name, test_id=23).first().accepted
-//         except Exception as e:
-//             print(e)
-//             is_accepted = None
-//
-//         # delete prior test instances
-//         models.FishDetailTest.objects.filter(fish_detail_id=fish_detail.id, field_name=field_name).delete()
-//
-//         # create test instance
-//         test_21 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=21,test_passed=False, field_name=field_name, scope=scope)
-//         test_22 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=22,test_passed=False, field_name=field_name, scope=scope)
-//         test_23 = models.FishDetailTest.objects.create(fish_detail_id=fish_detail.id,test_id=23,test_passed=False, field_name=field_name, scope=scope)
-//
-//         # RUN TESTS
-//         if field === None: # no value present; have to use this syntax otherwise a "0" value is excluded
-//             pass
-//         else: # continue testing
-//             test_21.test_passed = True
-//             test_21.save()
-//             if field < range_dict[field_name]['possible']['min'] or field > range_dict[field_name]['possible']['max']:
-//                 pass
-//             else:
-//                 test_22.test_passed = True
-//                 test_22.save()
-//                 if field < range_dict[field_name]['probable']['min'] or field > range_dict[field_name]['probable']['max']:
-//                     # if the observation was accepted, continue to accept it
-//                     if is_accepted === 1:
-//                         test_23.accepted = 1
-//                     # otherwise, not accepted
-//                     else:
-//                         test_23.accepted = 0
-//
-//                 else:
-//                     test_23.test_passed = True
-//                 test_23.save()
-//
-//         # if an improbable has not yet been accepted, we have to return a package for the template so that it knows it will have to ask the user to validate observation
-//         if test_23.accepted is 0:
-//             # my_dict[field_name] = {}
-//             my_dict["verbose_name"] = fish_detail._meta.get_field(field_name).verbose_name
-//             my_dict["test"] = 23
-//             my_dict["msg_lite"] = "Improbable measurement for {}".format(my_dict["verbose_name"])
-//             my_dict["msg"] = "{} is outside of the probable range. \\n\\n A value was expected between {} and {}. \\n\\n Are you confident in your measurements? \\n\\n Press [y] for YES or [n] for NO.".format(
-//                 my_dict["verbose_name"],
-//                 range_dict[field_name]['probable']['min'],
-//                 range_dict[field_name]['probable']['max'],
-//             )
-//         # print(my_dict)
-//         return my_dict
