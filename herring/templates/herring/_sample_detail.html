@@ -27,7 +27,7 @@
 <p>
   <span class="label">Expected number of length frequencies: </span>
   <span class="value"> {{object.total_fish_measured}}</span>
-  <a href="#" data-toggle="tooltip" data-placement="top" title="Edit the number of fish measured" onclick="return popitup('{% url 'herring:port_sample_edit_pop' object.id "measured" %}','popoutWindow0')">
+  <a href="#" data-toggle="tooltip" data-placement="top" title="Edit the number of fish measured" onclick="return popitup('{% url 'herring:sample_edit_pop' object.id "measured" %}','popoutWindow0')">
     <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
   </a>
   <br>
@@ -42,7 +42,7 @@
   <span class="value"> {{object.total_fish_preserved}}</span>
 
 
-  <a href="#" data-toggle="tooltip" data-placement="top" title="Edit the  number of fish preserved" onclick="return popitup('{% url 'herring:port_sample_edit_pop' object.id "preserved" %}','popoutWindow0')">
+  <a href="#" data-toggle="tooltip" data-placement="top" title="Edit the  number of fish preserved" onclick="return popitup('{% url 'herring:sample_edit_pop' object.id "preserved" %}','popoutWindow0')">
     <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
   </a>
   <br>

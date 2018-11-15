@@ -8,7 +8,7 @@
 <br>
   <p>
     <a href="{% url 'herring:sample_list' %}">All Samples</a> >
-    <a href="{% url 'herring:port_sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+    <a href="{% url 'herring:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
     Confirmation before proceeding
   </p>
 </div>
@@ -25,7 +25,7 @@
   <h3>Are you certain you want to create a new entry?</h3><br>
 
   <a class="btn btn-lg btn-danger" href="{% url 'herring:lab_sample_primer' view.kwargs.sample %}">Yes, I want to continue with a new entry!</a>
-  <a href="{% url 'herring:port_sample_detail' view.kwargs.sample %}" class="btn btn-lg btn-primary">Nevermind</a>
+  <a href="{% url 'herring:sample_detail' view.kwargs.sample %}" class="btn btn-lg btn-primary">Nevermind</a>
 
 </div>
 {%endblock content%}
