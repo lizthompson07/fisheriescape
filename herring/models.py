@@ -151,7 +151,7 @@ class Test(models.Model):
         ordering = ['scope', 'id']
 
 class Sample(models.Model):
-    sampling_protocol = models.ForeignKey(SamplingProtocol, related_name="samples", on_delete=models.DO_NOTHING, default=1)
+    sampling_protocol = models.ForeignKey(SamplingProtocol, related_name="samples", on_delete=models.DO_NOTHING)
     sample_date = models.DateTimeField()
     sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number")
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -172,7 +172,7 @@ class Sample(models.Model):
     old_id = models.IntegerField(null=True, blank=True)
     season =  models.IntegerField(null=True, blank=True)
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
-    tests = models.ManyToManyField(to=Test, through='SampleTest')
+    # tests = models.ManyToManyField(to=Test, through='SampleTest')
     lab_processing_complete = models.BooleanField(default=False)
     otolith_processing_complete = models.BooleanField(default=False)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
@@ -184,7 +184,7 @@ class Sample(models.Model):
         ordering = ['-sample_date']
 
     def get_absolute_url(self):
-        return reverse('herring:port_sample_detail', kwargs={'pk':self.id})
+        return reverse('herring:sample_detail', kwargs={'pk':self.id})
 
     def save(self,*args,**kwargs):
         self.season = self.sample_date.year
@@ -310,48 +310,48 @@ class LengthFrequency(models.Model):
         unique_together = (('sample', 'length_bin'),)
         ordering = ('sample', 'length_bin')
 
-class SampleTest(models.Model):
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='sample_tests')
-    test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
-    test_passed = models.BooleanField(default = False)
-
-    class Meta:
-        unique_together = (('sample', 'test'),)
-        ordering = ('sample', 'test')
-
-class FishDetailTest(models.Model):
-
-    # Choices for field_name
-    GLOBAL = " global"
-    FISH_LEN = "fish_length"
-    SOMATIC_WT = "fish_weight"
-    GONAD_WT = "gonad_weight"
-    ANNULI = "annulus_count"
-
-    FIELD_NAME_CHOICES = (
-        (GLOBAL,' global'),
-        (SOMATIC_WT,'somatic weight'),
-        (GONAD_WT,'gonad weight'),
-        (FISH_LEN,'fish length'),
-        (ANNULI,'annulus count'),
-    )
-
-    # Choices for scope
-    LAB = 1
-    OTOLITH = 2
-
-    SCOPE_CHOICES = (
-        (LAB,' lab_detail'),
-        (OTOLITH,'otolith detail'),
-    )
-
-    fish_detail = models.ForeignKey(FishDetail, on_delete=models.CASCADE, related_name='sample_tests')
-    test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
-    field_name = models.CharField(max_length=55, choices=FIELD_NAME_CHOICES)
-    scope = models.IntegerField(choices=SCOPE_CHOICES)
-    test_passed = models.BooleanField(default = False)
-    accepted = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-
-    class Meta:
-        unique_together = (('fish_detail','field_name','test'),)
-        ordering = ('fish_detail', 'field_name')
+# class SampleTest(models.Model):
+#     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='sample_tests')
+#     test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
+#     test_passed = models.BooleanField(default = False)
+#
+#     class Meta:
+#         unique_together = (('sample', 'test'),)
+#         ordering = ('sample', 'test')
+#
+# class FishDetailTest(models.Model):
+#
+#     # Choices for field_name
+#     GLOBAL = " global"
+#     FISH_LEN = "fish_length"
+#     SOMATIC_WT = "fish_weight"
+#     GONAD_WT = "gonad_weight"
+#     ANNULI = "annulus_count"
+#
+#     FIELD_NAME_CHOICES = (
+#         (GLOBAL,' global'),
+#         (SOMATIC_WT,'somatic weight'),
+#         (GONAD_WT,'gonad weight'),
+#         (FISH_LEN,'fish length'),
+#         (ANNULI,'annulus count'),
+#     )
+#
+#     # Choices for scope
+#     LAB = 1
+#     OTOLITH = 2
+#
+#     SCOPE_CHOICES = (
+#         (LAB,' lab_detail'),
+#         (OTOLITH,'otolith detail'),
+#     )
+#
+#     fish_detail = models.ForeignKey(FishDetail, on_delete=models.CASCADE, related_name='sample_tests')
+#     test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
+#     field_name = models.CharField(max_length=55, choices=FIELD_NAME_CHOICES)
+#     scope = models.IntegerField(choices=SCOPE_CHOICES)
+#     test_passed = models.BooleanField(default = False)
+#     accepted = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
+#
+#     class Meta:
+#         unique_together = (('fish_detail','field_name','test'),)
+#         ordering = ('fish_detail', 'field_name')

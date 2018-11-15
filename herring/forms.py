@@ -11,7 +11,7 @@ class SamplerForm(forms.ModelForm):
             'notes':forms.Textarea(attrs={'rows': '3'}),
         }
 
-class PortSampleForm(forms.ModelForm):
+class SampleForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
     class Meta:
         model = models.Sample
@@ -31,10 +31,10 @@ class PortSampleForm(forms.ModelForm):
             'created_by':forms.HiddenInput(),
             'last_modified_date':forms.HiddenInput(),
             'last_modified_by':forms.HiddenInput(),
-            'sampling_protocol':forms.HiddenInput(),
+            # 'sampling_protocol':forms.HiddenInput(),
             'latitude_n':forms.TextInput(attrs=attr_dict),
             'longitude_w':forms.TextInput(attrs=attr_dict),
-            'vessel_cfvn':forms.TextInput(),
+            # 'vessel_cfvn':forms.TextInput(),
             'sampler_ref_number':forms.TextInput(attrs=attr_dict),
             'sampler':forms.Select(attrs=attr_dict),
             'district':forms.Select(attrs=attr_dict),
@@ -49,7 +49,7 @@ class PortSampleForm(forms.ModelForm):
             'total_fish_preserved':forms.NumberInput(attrs=attr_dict),
         }
 
-class PortSampleFishMeasuredForm(forms.ModelForm):
+class SampleFishMeasuredForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         fields = ["total_fish_measured", "last_modified_by"]
@@ -61,7 +61,7 @@ class PortSampleFishMeasuredForm(forms.ModelForm):
             'last_modified_by':forms.HiddenInput(),
         }
 
-class PortSampleFishPreservedForm(forms.ModelForm):
+class SampleFishPreservedForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         fields = ["total_fish_preserved", "last_modified_by"]

@@ -8,13 +8,13 @@
   {% if object.id %}
   <p>
     <a href="{% url 'herring:sample_list' %}">All samples</a> >
-    <a href="{% url 'herring:port_sample_detail' object.id %}">Sample {{object.id}}</a> >
+    <a href="{% url 'herring:sample_detail' object.id %}">Sample {{object.id}}</a> >
     Edit
   </p>
   {% else %}
   <p>
     <a href="{% url 'herring:index' %}">Home</a> >
-    New Port Sample
+    New Sample
   </p>
   {% endif %}
 </div>
@@ -109,7 +109,7 @@
       <p>
         {% if object.id %}
           <button id="submit" type="submit" class="btn btn-primary">Submit</button>
-          <a class="btn btn-secondary" href="{% url 'herring:port_sample_detail' object.id %}">Cancel</a>
+          <a class="btn btn-secondary" href="{% url 'herring:sample_detail' object.id %}">Cancel</a>
         {% else %}
           <button id="submit" type="submit" class="btn btn-success">Save and Next</button>
           <button id="submit_done" type="submit" class="btn btn-primary">Save and Done</button>
