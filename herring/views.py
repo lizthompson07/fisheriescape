@@ -102,6 +102,9 @@ class SampleFilterView(LoginRequiredMixin, FilterView):
     template_name = "herring/sample_filter.html"
     login_url = '/accounts/login_required/'
 
+    def get_queryset(self):
+        return models.Sample.objects.all().order_by("-last_modified_date")
+
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
         if kwargs["data"] is None:
