@@ -59,6 +59,9 @@
     <span class="label">    District code:  </span>
     <span class="value">{{object.district.district_code}}</span> <br>
 
+    <span class="label">    Mission:  </span>
+    <span class="value">{{object.mission_id}}</span> <br>
+
     <span class="label">    Lat. / Long. (decimal degree)  </span>
     <span class="value">{{object.latitude_n}} / {{object.longitude_w}}</span> <br>
 
@@ -71,8 +74,8 @@
     <span class="label">    {%get_verbose_field_name object "experimental_net_used"%}:  </span>
     <span class="value">{{object.experimental_net_used|yesno:"yes,no,not-specified"}} </span><br>
 
-    <span class="label">    {%get_verbose_field_name object "vessel"%}:  </span>
-    <span class="value">{{object.vessel}} </span><br>
+    <span class="label">    {%get_verbose_field_name object "vessel_cfvn"%}:  </span>
+    <span class="value">{{object.vessel_cfvn}} </span><br>
 
     <span class="label">    {%get_verbose_field_name object "mesh_size"%}:  </span>
     <span class="value">{{object.mesh_size}}</span><br>

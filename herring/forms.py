@@ -16,7 +16,7 @@ class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         fields = "__all__"
-        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete", "vessel"]
+        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete",]
         labels={
             # 'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
             # 'district':mark_safe("District (<a href='#' >search</a>)"),
