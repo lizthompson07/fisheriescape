@@ -82,7 +82,7 @@
 $(document).ready(function () {
 
   // if port sample, we do not test for parasite.
-  {% if object.sample.sampling_protocol.sampling_type == 1 %}
+  {% if object.sample.type == 1 %}
     $("#id_parasite").removeClass("mandatory")
     $("#id_parasite").prop("disabled", true)
   {% endif %}
