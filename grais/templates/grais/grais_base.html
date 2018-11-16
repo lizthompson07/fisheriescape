@@ -13,16 +13,9 @@
 {% endblock body %}
 
 {% block left_all %}
-    {# About #}
-    <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      About
-    </a>
-    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-      <a class="dropdown-item" href="{% url 'grais:dataflow' %}">AIS Data Flow Chart</a>
-      <a class="dropdown-item disabled" href="#">Contacts</a>
-    </div>
-  </li>
+    <li class="nav-item wide-left"><a class="btn btn-dark " href="{% url 'grais:index' %}"> grAIS Home </a></li>
+
+
 
 {% endblock left_all %}
 
@@ -38,10 +31,8 @@
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
       <a class="dropdown-item" href="{% url "grais:sample_list" %}">Samples</a>
-      <a class="dropdown-item" href="{% url 'grais:station_list' %}">Station List</a>
-      <a class="dropdown-item" href="{% url 'grais:collector_list' %}">Collector List</a>
-      <a class="dropdown-item" href="{% url 'grais:species_list' %}">Species List</a>
-      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="{% url 'grais:station_list' %}">Stations</a>
+      <a class="dropdown-item" href="{% url 'grais:species_list' %}">Species</a>
     </div>
   </li>
 
@@ -59,7 +50,7 @@
 
     {# Green Crab Dropdown #}
     <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <a class="nav-link dropdown-toggle under-dev" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Green Crab Monitoring
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -72,3 +63,16 @@
 {% endblock left_auth %}
 
 {% block left_admin %}{% endblock left_admin %}
+
+{% block right_all %}
+{# About #}
+    <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      About
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="{% url 'grais:dataflow' %}">AIS Data Flow Chart</a>
+      <a class="dropdown-item disabled" href="#">Contacts</a>
+    </div>
+  </li>
+{% endblock %}

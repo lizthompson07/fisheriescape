@@ -11,15 +11,15 @@
 <div class="nav-map">
   <p><br>
     <a href="{% url 'grais:sample_list' %}">All samples</a> >
-    <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
-    <a href="{% url 'grais:line_detail' view.kwargs.sample view.kwargs.line %}">Line {{view.kwargs.line}}</a> >
-    <a href="{% url 'grais:surface_detail' view.kwargs.sample view.kwargs.line view.kwargs.surface %}">Surface {{view.kwargs.surface}}</a> >
-    Insert Species {{object.id}}
+    <a href="{% url 'grais:sample_detail' surface.line.sample.id %}"> {{surface.line.sample}}</a> >
+    <a href="{% url 'grais:line_detail' surface.line.id %}"> {{surface.line}}</a> >
+    <a href="{% url 'grais:surface_detail' surface.id %}"> {{surface}}</a> >
+    Insert Species
   </p><br>
 </div>
 
 <div class="container">
-  <h1>Add Species to Surface {{surface.id}}</h1>
+  <h1>Add Species to {{surface}}</h1>
 
   <form action="." method="get">
     <div class="row">
@@ -56,8 +56,8 @@
          <div class="scroll-med">
            {% for sp in object_list.all %}
            <p class="indent">
-             <a class="btn btn-sm btn-dark" href="#" onclick="return popitup('{% url 'grais:surface_spp_new_pop' view.kwargs.sample view.kwargs.line surface.id sp.id %}','surfaceSpeciesNew')"> <i class="material-icons">add</i></a>
-             {{sp.common_name}}
+             <a class="btn btn-sm btn-dark" href="#" onclick="return popitup('{% url 'grais:surface_spp_new_pop' surface.id sp.id %}','surfaceSpeciesNew')"> <i class="material-icons">add</i></a>
+             {{sp.common_name}} (<em>{{ sp.scientific_name }}</em>)
            </p>
            {% endfor %}
 
@@ -92,9 +92,28 @@
              <tbody>
                {% for s in surface_spp  %}
                  <tr>
-                   <td>{{s.species.common_name}}</td>
+                   <td>{{s.species.common_name}} (<em>{{ s.species.scientific_name }}</em>)</td>
                    <td>{{s.percent_coverage|percentage}}</td>
-                   <td><a href="#" onclick="return popitup('{% url 'grais:surface_spp_edit_pop' view.kwargs.sample view.kwargs.line surface.id s.id %}','surfaceSpeciesEdit')">edit</a></td>
+                    <td>
+                      <a href="#" onclick="return popitup('{% url 'grais:surface_spp_edit_pop' s.id %}','surfaceSpeciesEdit')">
+                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                      </a>
+                    </td>
+                    <td>
+                        <a class="delete-me" href="#" val="{{s.id}}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                        </a>
+                        <a id="secrect-delete-btn-{{ s.id }}" href="{% url 'grais:surface_spp_delete' s.id "insert" %}" class="hidden"></a>
+                    </td>
+
+
+
+
+
+
+
+                       <img src="" alt="">
+                   </a></td>
 
                  </tr>
                {% empty %}
@@ -123,5 +142,22 @@
    </div>
 
 </div>
+
+
+<script type="application/javascript">
+    $(".delete-me").click(function () {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        while (userInput !== "n" && userInput !== "y") {
+            userInput = prompt("Are you sure you want to delete this species from the surface? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+
+        }
+        if(userInput === "y") {
+          $("#secrect-delete-btn-"+objectId)[0].click();
+        }
+    })
+</script>
+
 
 {% endblock content %}

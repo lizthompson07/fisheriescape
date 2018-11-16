@@ -46,7 +46,7 @@ class Station(models.Model):
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
-        return "{} ({})".format(self.station_name, self.province.abbrev)
+        return "{}".format(self.station_name)
 
     def get_absolute_url(self):
         return reverse('grais:station_detail', kwargs={'pk': self.id})
@@ -76,16 +76,6 @@ class Species(models.Model):
         return reverse('grais:species_detail', kwargs={'pk': self.id})
 
 
-class Collector(models.Model):
-    tag_number = models.CharField(max_length=55, unique=True)
-
-    def __str__(self):
-        return "{}".format(self.tag_number)
-
-    def get_absolute_url(self):
-        return reverse('grais:collector_detail', kwargs={'pk': self.id})
-
-
 class Sample(models.Model):
     station = models.ForeignKey(Station, related_name='samples', on_delete=models.DO_NOTHING)
     date_deployed = models.DateTimeField()
@@ -101,7 +91,6 @@ class Sample(models.Model):
 
     def save(self, *args, **kwargs):
         self.season = self.date_deployed.year
-        self.notes_html = misaka.html(self.notes)
         if self.date_retrieved != None:
             self.days_deployed = (self.date_retrieved - self.date_deployed).days
         self.last_modified = timezone.now()
@@ -112,7 +101,7 @@ class Sample(models.Model):
         return reverse('grais:sample_detail', kwargs={'pk': self.id})
 
     def __str__(self):
-        return "Sample number {} @ {}".format(self.id, self.station)
+        return "Sample {}".format(self.id)
 
     @property
     def weeks_deployed(self):
@@ -125,7 +114,7 @@ class Sample(models.Model):
         ordering = ['-season', 'station', '-date_deployed']
 
 
-class Note(models.Model):
+class SampleNote(models.Model):
     sample = models.ForeignKey(Sample, related_name='notes', on_delete=models.DO_NOTHING)
     date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -134,23 +123,31 @@ class Note(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def get_absolute_url(self):
+        return reverse('grais:sample_detail', kwargs={'pk': self.sample.id,})
+
     class Meta:
         ordering = ["-date"]
 
 
 class Line(models.Model):
     sample = models.ForeignKey(Sample, related_name='lines', on_delete=models.DO_NOTHING)
-    collector = models.ForeignKey(Collector, related_name='lines', on_delete=models.DO_NOTHING, blank=True, null=True)
+    collector = models.CharField(max_length=56, blank=True, null=True)
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
-        return str(self.id)
+        if self.collector:
+            my_str = "Collector {}".format(self.collector)
+        else:
+            my_str = "Line {} (missing collector number)".format(self.id)
+
+        return my_str
 
     def get_absolute_url(self):
-        return reverse('grais:line_detail', kwargs={'sample': self.sample.id, 'pk': self.id})
+        return reverse('grais:line_detail', kwargs={'pk': self.id})
 
 
 def img_file_name(instance, filename):
@@ -169,7 +166,7 @@ class Surface(models.Model):
 
     line = models.ForeignKey(Line, related_name='surfaces', on_delete=models.DO_NOTHING)
     surface_type = models.CharField(max_length=2, choices=SURFACE_TYPE_CHOICES)
-    label = models.IntegerField()
+    label = models.CharField(max_length=255)
     image = models.ImageField(blank=True, null=True, upload_to=img_file_name)
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SurfaceSpecies')
@@ -177,13 +174,16 @@ class Surface(models.Model):
 
     def get_absolute_url(self):
         return reverse('grais:surface_detail', kwargs={
-            'sample': self.line.sample.id,
-            'line': self.line.id,
             'pk': self.id
         })
 
     def __str__(self):
-        return "surface #{}".format(self.id)
+        if self.label:
+            my_str = "{}".format(self.label)
+        else:
+            my_str = "Surface {} (missing label)".format(self.id)
+
+        return my_str
 
     class Meta:
         ordering = ['line', 'surface_type', 'label']
@@ -201,9 +201,6 @@ class SurfaceSpecies(models.Model):
 
     def get_absolute_url(self):
         return reverse('grais:surface_spp_detail_pop', kwargs={
-            'sample': self.surface.line.sample.id,
-            'line': self.surface.line.id,
-            'surface': self.surface.id,
             'pk': self.id,
         })
 

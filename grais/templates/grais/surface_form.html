@@ -9,9 +9,9 @@
   <p><br>
   {% if object.id %}
     <a href="{% url 'grais:sample_list' %}">All samples</a> >
-    <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{object.line.sample.id}}</a> >
-    <a href="{% url 'grais:line_detail' view.kwargs.sample view.kwargs.line %}">Line {{object.line.id}}</a> >
-    <a href="{% url 'grais:surface_detail' view.kwargs.sample view.kwargs.line object.id %}">Surface {{object.id}}</a> >
+    <a href="{% url 'grais:sample_detail' object.line.sample.id %}">{{object.line.sample}}</a> >
+    <a href="{% url 'grais:line_detail' object.line.id %}">Line {{object.line}}</a> >
+    <a href="{% url 'grais:surface_detail' object.id %}">{{object}}</a> >
     Edit
   {% else %}
     <a href="{% url 'grais:sample_list' %}">All samples</a> >
@@ -39,7 +39,7 @@
     <p>
       <input type="submit" value="Submit" class="btn btn-primary">
       {% if object.id %}
-        <a class="btn btn-secondary" href="{% url 'grais:surface_detail' object.line.sample.id object.line.id object.id %}">Back</a>
+        <a class="btn btn-secondary" href="{% url 'grais:surface_detail' object.id %}">Back</a>
       {% else %}
         <a class="btn btn-secondary" href="{% url 'grais:line_detail' view.kwargs.sample view.kwargs.line %}">Cancel</a>
       {% endif %}

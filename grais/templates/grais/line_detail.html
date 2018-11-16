@@ -17,23 +17,23 @@
 <div class="nav-map">
   <p><br>
     <a href="{% url 'grais:sample_list' %}">All samples</a> >
-    <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
-    Line {{object}}
+    <a href="{% url 'grais:sample_detail' object.sample.id %}"> {{object.sample}}</a> >
+    {{object}}
   </p><br>
 </div>
 
 <div class="container">
-  <h1>Line {{object}} deployed @ {{object.sample.station}}</h1>
+  <h1>{{object}}</h1>
   <div class="btn-group">
-    <a class="btn btn-warning" href="{% url 'grais:line_edit' object.sample.id object.id %}">Edit</a>
+    <a class="btn btn-warning" href="{% url 'grais:line_edit' object.id %}">Edit</a>
     {% if object.surfaces.count > 0 %}
-      <a class="btn btn-danger disabled" href="{% url 'grais:line_edit' object.sample.id object.id %}">Delete</a>
+      <a class="btn btn-danger disabled" href="{% url 'grais:line_edit' object.id %}">Delete</a>
     {% else %}
-      <a class="btn btn-danger" href="{% url 'grais:line_delete' object.sample.id object.id %}">Delete</a>
+      <a class="btn btn-danger" href="{% url 'grais:line_delete'  object.id %}">Delete</a>
     {% endif %}
   </div>
   <div class="btn-group">
-    <a class="btn btn-outline-primary" href="{% url 'grais:surface_new' object.sample.id object.id %}">Add Surface</a>
+    <a class="btn btn-outline-primary" href="{% url 'grais:surface_new' object.id %}">Add Surface</a>
   </div>
 
 <div class="row">
@@ -41,8 +41,8 @@
   <br><br>
     {# Detail about the line #}
     <p>
-      <b>DFO collector tag #:</b><br>
-        #{{object.collector.tag_number}}
+      <b>DFO collector tag:</b><br>
+        {{object.collector}}
     </p>
     <p>
       <b>Latitude / longitude:</b><br>
@@ -79,15 +79,15 @@
 <br><br>
 
       <h4>
-        <b>Surfaces:</b>
-        <a class="btn btn-sm btn-light" href="{% url 'grais:surface_new' object.sample.id object.id %}"> <i class="material-icons">add</i></a>
+        <b style="padding-right: 1.1em">Surfaces</b>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'grais:surface_new' object.id %}"> Add</a>
       </h4>
 
       <table class="table table-bordered">
         <thead>
           <th>Id</th>
           <th>Surface</th>
-          <th>Invasive spp.</th>
+{#          <th>Invasive spp.</th>#}
           <th>Total spp.</th>
           <th>Thumbnail</th>
         </thead>
@@ -96,7 +96,7 @@
             <tr>
 
               <td><b>
-                <a href="{% url 'grais:surface_detail' object.sample.id object.id s.id %}">{{s.id}}</a> </td>
+                <a href="{% url 'grais:surface_detail' s.id %}">{{s.id}}</a> </td>
               </b>
 
               {% if s.surface_type == 'pe' %}
@@ -104,11 +104,11 @@
               {% else %}
                 <td class="plate">
               {% endif %}
-                    {{s.get_surface_type_display}} {{s.label}}
+                    {{s.label}}
               </td>
 
               <td>{{s.species.count}}</td>
-              <td>{{s.species.count}}</td>
+{#              <td>{{s.species.count}}</td>#}
 
               {% if s.image %}
                 <td>
@@ -136,10 +136,10 @@
     function initialize() {
       var locations = [
         {% if object.latitude_n and object.longitude_w %}
-          ['<a href="{% url 'grais:line_detail' object.id line.id %}">Line {{line.id}}</a>',{{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/yellow_MarkerL.png" %}'],
+          ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>',{{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/yellow_MarkerL.png" %}'],
           {% for line in object.sample.lines.all %}
             {% if line.id != object.id %}
-              ['<a href="{% url 'grais:line_detail' object.id line.id %}">Line {{line.id}}</a>',{{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+              ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>',{{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/red_MarkerL.png" %}'],
             {% endif %}
           {% endfor %}
         {% else %}

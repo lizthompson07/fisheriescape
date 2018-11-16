@@ -37,9 +37,9 @@
           <td><a href="{% url 'grais:sample_detail' sample.id %}">{{sample.id}}</a></td>
           <td>{{sample.station}}</td>
           <td>{{sample.sampler}}</td>
-          <td>{{sample.date_deployed|date:'F d Y'}}</td>
+          <td>{{sample.date_deployed|date:'F d, Y'}}</td>
           {% if sample.date_retrieved %}
-            <td>{{sample.date_retrieved|date:'F d Y'}}</td>
+            <td>{{sample.date_retrieved|date:'F d, Y'}}</td>
             <td>{{sample.weeks_deployed}}</td>
           {% else %}
             <td>n/a</td>

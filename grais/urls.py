@@ -25,13 +25,11 @@ urlpatterns = [
     path('station/<int:pk>/edit', views.StationUpdateView.as_view(), name ="station_edit" ),
     path('station/<int:pk>/delete', views.StationDeleteView.as_view(), name ="station_delete" ),
 
-    # COLLECTOR #
+    # SAMPLE NOTE #
     #############
-    path('collector/', views.CollectorListView.as_view(), name ="collector_list" ),
-    path('collector/new', views.CollectorCreateView.as_view(), name ="collector_create" ),
-    path('collector/<int:pk>/view', views.CollectorDetailView.as_view(), name ="collector_detail" ),
-    path('collector/<int:pk>/edit', views.CollectorUpdateView.as_view(), name ="collector_edit" ),
-    path('collector/<int:pk>/delete', views.CollectorDeleteView.as_view(), name ="collector_delete" ),
+    path('sample/<int:sample>/sample-note/new/', views.SampleNoteCreateView.as_view(), name ="sample_note_new" ),
+    path('sample-note/<int:pk>/edit/', views.SampleNoteUpdateView.as_view(), name ="sample_note_edit" ),
+    path('sample-note/<int:pk>/delete/', views.sample_note_delete, name ="sample_note_delete" ),
 
     # SPECIES #
     ###########
@@ -45,31 +43,31 @@ urlpatterns = [
     # PROBE MEASUREMENT #
     #####################
     path('sample/<int:sample>/probe-data/new/', views.ProbeMeasurementCreateView.as_view(), name ="probe_measurement_new" ),
-    path('sample/<int:sample>/probe-data/<int:pk>/view/', views.ProbeMeasurementDetailView.as_view(), name ="probe_measurement_detail" ),
-    path('sample/<int:sample>/probe-data/<int:pk>/edit/', views.ProbeMeasurementUpdateView.as_view(), name ="probe_measurement_edit" ),
-    path('sample/<int:sample>/probe-data/<int:pk>/delete/', views.ProbeMeasurementDeleteView.as_view(), name ="probe_measurement_delete" ),
+    path('probe-data/<int:pk>/view/', views.ProbeMeasurementDetailView.as_view(), name ="probe_measurement_detail" ),
+    path('probe-data/<int:pk>/edit/', views.ProbeMeasurementUpdateView.as_view(), name ="probe_measurement_edit" ),
+    path('probe-data/<int:pk>/delete/', views.ProbeMeasurementDeleteView.as_view(), name ="probe_measurement_delete" ),
 
     # LINE #
     ########
     path('sample/<int:sample>/line/new/', views.LineCreateView.as_view(), name ="line_new" ),
-    path('sample/<int:sample>/line/<int:pk>/view/', views.LineDetailView.as_view(), name ="line_detail" ),
-    path('sample/<int:sample>/line/<int:pk>/edit/', views.LineUpdateView.as_view(), name ="line_edit" ),
-    path('sample/<int:sample>/line/<int:pk>/delete/', views.LineDeleteView.as_view(), name ="line_delete" ),
+    path('line/<int:pk>/view/', views.LineDetailView.as_view(), name ="line_detail" ),
+    path('line/<int:pk>/edit/', views.LineUpdateView.as_view(), name ="line_edit" ),
+    path('line/<int:pk>/delete/', views.LineDeleteView.as_view(), name ="line_delete" ),
 
     # SURFACE #
     ###########
-    path('sample/<int:sample>/line/<int:line>/surface/new/', views.SurfaceCreateView.as_view(), name ="surface_new" ),
-    path('sample/<int:sample>/line/<int:line>/surface/<int:pk>/view/', views.SurfaceDetailView.as_view(), name ="surface_detail" ),
-    path('sample/<int:sample>/line/<int:line>/surface/<int:pk>/edit/', views.SurfaceUpdateView.as_view(), name ="surface_edit" ),
-    path('sample/<int:sample>/line/<int:line>/surface/<int:pk>/delete/', views.SurfaceDeleteView.as_view(), name ="surface_delete" ),
+    path('line/<int:line>/surface/new/', views.SurfaceCreateView.as_view(), name ="surface_new" ),
+    path('surface/<int:pk>/view/', views.SurfaceDetailView.as_view(), name ="surface_detail" ),
+    path('surface/<int:pk>/edit/', views.SurfaceUpdateView.as_view(), name ="surface_edit" ),
+    path('surface/<int:pk>/delete/', views.SurfaceDeleteView.as_view(), name ="surface_delete" ),
 
     # SURFACE SPECIES #
     ###################
-    path('sample/<int:sample>/line/<int:line>/surface/<int:surface>/species/insert/', views.SpeciesInsertListView.as_view() , name="surface_spp_insert"),
-    path('sample/<int:sample>/line/<int:line>/surface/<int:surface>/species/<int:species>/new-surface=species/', views.SurfaceSpeciesCreatePopoutView.as_view(), name ="surface_spp_new_pop" ),
-    path('sample/<int:sample>/line/<int:line>/surface/<int:surface>/surface-species/<int:pk>/edit/', views.SurfaceSpeciesUpdatePopoutView.as_view(), name ="surface_spp_edit_pop" ),
-    path('sample/<int:sample>/line/<int:line>/surface/<int:surface>/surface-species/<int:pk>/view/', views.SurfaceSpeciesDetailPopoutView.as_view(), name ="surface_spp_detail_pop" ),
-    path('sample/<int:sample>/line/<int:line>/surface/<int:surface>/surface-species/<int:pk>/delete/', views.SurfaceSpeciesDeletePopoutView.as_view(), name ="surface_spp_delete_pop" ),
+    path('surface/<int:surface>/species/insert/', views.SpeciesInsertListView.as_view() , name="surface_spp_insert"),
+    path('surface/<int:surface>/species/<int:species>/new-surface-species/', views.SurfaceSpeciesCreatePopoutView.as_view(), name ="surface_spp_new_pop" ),
+    path('surface-species/<int:pk>/edit/', views.SurfaceSpeciesUpdatePopoutView.as_view(), name ="surface_spp_edit_pop" ),
+    # path('surface-species/<int:pk>/view/', views.SurfaceSpeciesDetailPopoutView.as_view(), name ="surface_spp_detail_pop" ),
+    path('surface-species/<int:pk>/delete/return-to-<str:backto>/', views.surface_species_delete, name ="surface_spp_delete" ),
 
     path('person/new', views.PersonCreateView.as_view(), name ="person_create" ),
     path('person/<int:pk>/view', views.PersonDetailView.as_view(), name ="person_detail" ),

@@ -16,22 +16,20 @@ function refreshParent() {
 </script>
 
 <div class="container">
-  <h1>New Collector</h1>
-  
+{% if object %}
+  <h1>Edit Note</h1>
+{% else %}
+  <h1>New Note</h1>
+{% endif %}
+
   <form method="post" class="form" >
       {% csrf_token %}
 
       {% bootstrap_form form %}
 
       {% buttons %}
-        {% if object.id %}
-          <button type="submit" class="btn btn-success" onclick="refreshParent()">Submit</button>
-        {% else %}
-          <button type="submit" class="btn btn-success" onclick="refreshParent()">Add</button>
-        {% endif %}
-
-          <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">Close</a>
-
+          <button type="submit" class="btn btn-primary" onclick="refreshParent()">Submit</button>
+          <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">Cancel</a>
       {% endbuttons %}
   </form>
 </div>
