@@ -525,13 +525,13 @@ class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView)
 #     model = models.Collector
 #     fields = "__all__"
 #     login_url = '/accounts/login_required/'
-#     # template_name = 'grais/collector_form_popout.html'
+#     # template_name = 'grais/samplenote_form_popout.html'
 #
 # class CollectorCreateView(LoginRequiredMixin, CreateView):
 #     model = models.Collector
 #     fields = "__all__"
 #     login_url = '/accounts/login_required/'
-#     template_name = 'grais/collector_form_popout.html'
+#     template_name = 'grais/samplenote_form_popout.html'
 #
 #     def form_valid(self, form):
 #         self.object = form.save()

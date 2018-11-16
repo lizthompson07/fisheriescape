@@ -1,17 +1,37 @@
-{#  COLLECTOR LINES #}
-        <h4>
-          <b>Notes</b>
-          <a class="btn btn-sm btn-outline-primary" href="{% url 'grais:line_new' object.id %}"> Add </a>
-        </h4>
-        <ul>
-            {% for obj in object.notes.all  %}
-              <li>
-                  <a href="#">{{obj.date|date:"F d, Y"}}</a> by {{ obj.author.first_name }} {{ obj.author.last_name }}: {{ obj.note }}
-              </li>
-            {% empty %}
-              <em>No notes on this file.</em>
-            {% endfor %}
+
+      <!-- The Modal -->
+      <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+          {% include "grais/_station_detail.html" %}
+        </div>
+      </div>
+      <script src="{% static "js/modal.js" %}"></script>
 
 
-        </ul>
+      <!-- The 2nd Modal -->
+      <div id="myModal1" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+          {% include "grais/_person_detail.html" %}
+        </div>
+      </div>
 
+      <script type="text/javascript">
+      // This is the same code as stored in modal.js only duplicated so that there can be a second modal window
+        var modal1 = document.getElementById('myModal1');
+        var btn1 = document.getElementById("myBtn1");
+        var span1 = document.getElementsByClassName("closeBtn1")[0];
+        btn1.onclick = function() {
+          modal1.style.display = "block";
+
+        }
+        span1.onclick = function() {
+          modal1.style.display = "none";
+        }
+        window.onclick = function(event) {
+          if (event.target == modal1) {
+              modal1.style.display = "none";
+          }
+        }
+      </script>

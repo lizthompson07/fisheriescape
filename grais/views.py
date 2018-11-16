@@ -74,6 +74,40 @@ class SampleDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+# SAMPLE NOTE #
+##############
+
+class SampleNoteUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.SampleNote
+    login_url = '/accounts/login_required/'
+    form_class = forms.SampleNoteForm
+
+
+class SampleNoteCreateView(LoginRequiredMixin, CreateView):
+    model = models.SampleNote
+    login_url = '/accounts/login_required/'
+    form_class = forms.SampleNoteForm
+
+    def get_context_data(self, **kwargs):
+        context = super(SampleNoteCreateView, self).get_context_data(**kwargs)
+        context["sample"] = models.Sample.objects.get(pk=self.kwargs["sample"])
+        return context
+
+    def get_initial(self):
+        sample = models.Sample.objects.get(pk=self.kwargs["sample"])
+        return {
+            "sample":sample,
+            "author": self.request.user
+        }
+
+
+def sample_note_delete(request, pk):
+    note = models.SampleNote.objects.get(pk=pk)
+    note.delete()
+    messages.success(request, "The note has been successfully deleted.")
+    return HttpResponseRedirect(reverse_lazy("grais:sample_detail", kwargs={"pk":note.sample_id}))
+
+
 # STATION #
 ###########
 
@@ -187,7 +221,7 @@ class ProbeMeasurementDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('grais:sample_detail', kwargs={'pk':self.kwargs['sample']})
+        return reverse_lazy('grais:sample_detail', kwargs={'pk':self.object.sample})
 
 
 # LINES #
@@ -216,10 +250,10 @@ class LineCreateView(LoginRequiredMixin, CreateView):
             # create instances of surfaces on the collector lines
             # create iterable
             for i in range(petris):
-                s = models.Surface.objects.create(line=self.object, surface_type = 'pe', label=i+1 )
+                s = models.Surface.objects.create(line=self.object, surface_type = 'pe', label="Petri dish {}".format(i+1) )
                 s.save()
             for i in range(plates):
-                s = models.Surface.objects.create(line=self.object, surface_type = 'pl', label=i+1 )
+                s = models.Surface.objects.create(line=self.object, surface_type = 'pl', label="Plate {}".format(i+1) )
                 s.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -253,47 +287,9 @@ class LineDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('grais:sample_detail', kwargs={'pk':self.kwargs['sample']})
+        return reverse_lazy('grais:sample_detail', kwargs={'pk':self.object.sample.id})
 
 
-# COLLECTORS #
-##############
-
-class CollectorListView(LoginRequiredMixin, ListView):
-    model = models.Collector
-    login_url = '/accounts/login_required/'
-
-class CollectorDetailView(LoginRequiredMixin, UpdateView):
-    model = models.Collector
-    fields = "__all__"
-    login_url = '/accounts/login_required/'
-    template_name = 'grais/collector_detail.html'
-
-class CollectorUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Collector
-    fields = "__all__"
-    login_url = '/accounts/login_required/'
-    # template_name = 'grais/collector_form_popout.html'
-
-class CollectorCreateView(LoginRequiredMixin, CreateView):
-    model = models.Collector
-    fields = "__all__"
-    login_url = '/accounts/login_required/'
-    template_name = 'grais/collector_form_popout.html'
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(reverse('grais:close_me'))
-
-class CollectorDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
-    model = models.Collector
-    permission_required = "__all__"
-    success_url = reverse_lazy('grais:collector_list')
-    success_message = 'The collector was successfully deleted!'
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 # SPECIES #
 ###########
@@ -400,7 +396,7 @@ class SurfaceDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('grais:line_detail', kwargs={'sample':self.kwargs['sample'],'pk':self.kwargs['line']})
+        return reverse_lazy('grais:line_detail', kwargs={'pk':self.object.line.id})
 
 
 
@@ -439,25 +435,28 @@ class SurfaceSpeciesUpdatePopoutView(LoginRequiredMixin,UpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-
-
-class SurfaceSpeciesDetailPopoutView(LoginRequiredMixin,UpdateView):
-    model = models.SurfaceSpecies
-    template_name ='grais/surface_species_detail_popout.html'
-    form_class = forms.SurfaceSpeciesForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        try:
-            extra_context = {'temp_msg':self.request.session['temp_msg']}
-            context.update(extra_context)
-            del self.request.session['temp_msg']
-        except Exception as e:
-            print("type error: " + str(e))
-            # pass
-
-        return context
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponseRedirect(reverse('grais:close_me'))
+#
+#
+# class SurfaceSpeciesDetailPopoutView(LoginRequiredMixin,UpdateView):
+#     model = models.SurfaceSpecies
+#     template_name ='grais/surface_species_detail_popout.html'
+#     form_class = forms.SurfaceSpeciesForm
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#
+#         try:
+#             extra_context = {'temp_msg':self.request.session['temp_msg']}
+#             context.update(extra_context)
+#             del self.request.session['temp_msg']
+#         except Exception as e:
+#             print("type error: " + str(e))
+#             # pass
+#
+#         return context
 
 class SpeciesInsertListView(FilterView):
     filterset_class = filters.SpeciesFilter
@@ -494,12 +493,18 @@ class SpeciesInsertListView(FilterView):
     #         kwargs["data"] = {"biofouling": True }
     #     return kwargs
 
-class SurfaceSpeciesDeletePopoutView(LoginRequiredMixin,DeleteView):
-    model = models.SurfaceSpecies
-    template_name ='grais/surface_species_confirm_delete.html'
 
-    def get_success_url(self):
-        return reverse_lazy('grais:close_me')
+
+def surface_species_delete(request,pk,backto):
+    object = models.SurfaceSpecies.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, "The species has been successfully deleted from {}.".format(object.surface))
+
+    if backto == "detail":
+        return HttpResponseRedirect(reverse_lazy("grais:surface_detail", kwargs={"pk": object.surface.id}))
+    else:
+        return HttpResponseRedirect(reverse_lazy("grais:surface_spp_insert", kwargs={"surface":object.surface.id}))
+
 
 
 # CSVs #

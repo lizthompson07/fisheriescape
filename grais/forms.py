@@ -38,6 +38,17 @@ class SampleForm(forms.ModelForm):
 
         }
 
+class SampleNoteForm(forms.ModelForm):
+    class Meta:
+        model = models.SampleNote
+        fields = "__all__"
+        widgets = {
+            'author':forms.HiddenInput(),
+            'sample': forms.HiddenInput(),
+
+        }
+
+
 class ProbeMeasurementForm(forms.ModelForm):
     class Meta:
         fields = ("__all__")
@@ -136,6 +147,7 @@ class SurfaceSpeciesForm(forms.ModelForm):
             'species':forms.HiddenInput(),
             'surface':forms.HiddenInput(),
             'percent_coverage':forms.TextInput(attrs={'placeholder':"Value bewteen 0 and 1"}),
+            'notes': forms.Textarea(attrs={"rows":"3"}),
             'last_modified_by':forms.HiddenInput(),
         }
 

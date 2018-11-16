@@ -7,26 +7,26 @@
 <div class="nav-map">
   <p><br>
     <a href="{% url 'grais:sample_list' %}">All samples</a> >
-    <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
-    <a href="{% url 'grais:line_detail' view.kwargs.sample view.kwargs.line %}">Line {{object.line}}</a> >
-    Surface {{object.id}}
+    <a href="{% url 'grais:sample_detail' object.line.sample.id %}">{{object.line.sample}}</a> >
+    <a href="{% url 'grais:line_detail' object.line.id %}">{{object.line}}</a> >
+    {{object}}
   </p><br>
 </div>
 
 <div class="container">
-  <h1>Surface {{object.id}}</h1>
+  <h1>{{object}}</h1>
 
   <p>
     <div class="btn-group">
-      <a class="btn btn-warning" href="{% url 'grais:surface_edit' view.kwargs.sample view.kwargs.line object.id %}">Edit</a>
+      <a class="btn btn-warning" href="{% url 'grais:surface_edit' object.id %}">Edit</a>
       {% if object.surface_spp.count > 0  %}
-      <a class="btn btn-danger disabled" href="{% url 'grais:surface_delete' view.kwargs.sample view.kwargs.line object.id %}">Delete</a>
+      <a class="btn btn-danger disabled" href="{% url 'grais:surface_delete' object.id %}">Delete</a>
       {% else %}
-      <a class="btn btn-danger" href="{% url 'grais:surface_delete' view.kwargs.sample view.kwargs.line object.id %}">Delete</a>
+      <a class="btn btn-danger" href="{% url 'grais:surface_delete' object.id %}">Delete</a>
       {% endif %}
     </div>
     <div class="btn-group">
-      <a class="btn btn-outline-primary" href="{% url "grais:surface_spp_insert" object.line.sample.id object.line.id object.id %}"> Add Species</a>
+      <a class="btn btn-outline-primary" href="{% url "grais:surface_spp_insert" object.id %}"> Add Species</a>
       <a class="btn btn-outline-primary" href="#" id="myBtn">Add Image</a>
     </div>
 
@@ -60,7 +60,7 @@
       <p>
         <b>Last modified by:</b><br>
         {% if object.last_modified_by %}
-          @{{object.last_modified_by}}
+          {{object.last_modified_by}}
         {% else %}
           n/a
         {% endif %}
@@ -95,20 +95,17 @@
           <th>#</th>
           <th>Common name</th>
           <th>Scientific name</th>
-          <th>Abbreviation</th>
-          <th>Percent coverage (%)</th>
           <th>Invasive</th>
           <th>Biofouling</th>
+          <th>Coverage (%)</th>
+          <th>Notes</th>
         </thead>
         <tbody>
           {% for s in object.surface_spp.all  %}
             <tr>
-              <td><a href="#" onclick="return popitup('{% url 'grais:surface_spp_detail_pop' view.kwargs.sample view.kwargs.line surface.id s.id %}','surfaceSpeciesView')">{{forloop.counter}}</a></td>
+              <td>{{forloop.counter}}</td>
               <td>{{s.species.common_name}}</td>
               <td><em>{{s.species.scientific_name}}</em></td>
-              <td>{{s.species.abbrev}}</td>
-              <td>{{s.percent_coverage|percentage}}</td>
-
               {% if s.species.invasive == True %}
                 <td class="bad">
               {% else %}
@@ -122,6 +119,20 @@
                 <td>
               {% endif %}
               {{s.species.biofouling|yesno}}</td>
+              <td>{{s.percent_coverage|percentage}}</td>
+              <td>{{s.notes}}</td>
+                <td>
+                      <a href="#" onclick="return popitup('{% url 'grais:surface_spp_edit_pop' s.id %}','surfaceSpeciesEdit')">
+                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                      </a>
+                    </td>
+                    <td>
+                        <a class="delete-me" href="#" val="{{s.id}}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                        </a>
+                        <a id="secrect-delete-btn-{{ s.id }}" href="{% url 'grais:surface_spp_delete' s.id "detail" %}" class="hidden"></a>
+                    </td>
+
             </tr>
           {% empty %}
             {# empty #}
@@ -136,5 +147,22 @@
 </div>
 
 </div>
+
+
+
+<script type="application/javascript">
+    $(".delete-me").click(function () {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        while (userInput !== "n" && userInput !== "y") {
+            userInput = prompt("Are you sure you want to delete this species from the surface? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+
+        }
+        if(userInput === "y") {
+          $("#secrect-delete-btn-"+objectId)[0].click();
+        }
+    })
+</script>
 
 {% endblock content %}
