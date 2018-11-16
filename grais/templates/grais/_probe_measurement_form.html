@@ -12,7 +12,7 @@
 <table class="table">
   <thead>
     {% for field in form  %}
-      {% if field.name == "sample" or field.name == "probe" or field.name == "time_date" or field.name == "tide_descriptor" %}
+      {% if field.name == "sample" or field.name == "probe" or field.name == "time_date" or field.name == "tide_descriptor" or field.name == "last_modified_by" %}
         {# do nothing - I AM DOING THE LAZY THING, SORRY #}
       {% else %}
         <th>{{field.label}}</th>
@@ -21,7 +21,9 @@
   </thead>
   <tbody>
     {% for field in form  %}
-      {% if field.name == "sample" or field.name == "probe" or field.name == "time_date" or field.name == "tide_descriptor" %}
+              {% if field.name == "sample" or field.name == "probe" or field.name == "time_date" or field.name == "tide_descriptor" or field.name == "last_modified_by" %}
+
+{#      {% if field.name == "sample" or field.name == "probe" or field.name == "time_date" or field.name == "tide_descriptor" %}#}
         {# do nothing - I AM DOING THE LAZY THING, SORRY #}
       {% else %}
         <td>  {% bootstrap_field field show_label=False%}</td>

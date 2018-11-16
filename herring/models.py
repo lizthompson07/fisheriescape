@@ -151,12 +151,22 @@ class Test(models.Model):
         ordering = ['scope', 'id']
 
 class Sample(models.Model):
+    # Choices for sample_type
+    PORT = 1
+    SEA = 2
+
+    SAMPLE_TYPE_CHOICES = (
+        (PORT, 'Port sample'),
+        (SEA, 'Sea sample'),
+    )
+
     sampling_protocol = models.ForeignKey(SamplingProtocol, related_name="samples", on_delete=models.DO_NOTHING)
+    type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES)
     sample_date = models.DateTimeField()
     sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number")
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True )
-    mission_id = models.CharField(max_length=50, null=True, blank=True)
+    survey_id = models.CharField(max_length=50, null=True, blank=True)
     latitude_n = models.CharField(max_length=50, null=True, blank=True, verbose_name="Latitude (N)")
     longitude_w = models.CharField(max_length=50, null=True, blank=True, verbose_name="Longitude (W)")
     fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
