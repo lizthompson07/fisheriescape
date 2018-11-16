@@ -21,6 +21,7 @@ class SampleForm(forms.ModelForm):
             # 'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
             # 'district':mark_safe("District (<a href='#' >search</a>)"),
             'vessel_cfvn':"Vessel CFVN",
+            'survey_id': "Survey ID",
         }
         attr_dict = {"class":"tab",}
 
