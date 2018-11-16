@@ -15,7 +15,7 @@
 
 <div class="container">
 
-  <h1>Sample {{object.id}} - {{ object.sampling_protocol }}</h1>
+  <h1>{{ object.get_type_display|title}} {{object.id}} </h1>
   <br>
   <div class="btn-group">
     <a class="btn btn-warning" href="{% url 'herring:sample_edit' object.id %}">Edit</a>
