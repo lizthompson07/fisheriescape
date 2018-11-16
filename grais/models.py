@@ -92,11 +92,11 @@ class Sample(models.Model):
     date_retrieved = models.DateTimeField(blank=True, null=True)
     days_deployed = models.IntegerField(blank=True, null=True)
     sampler = models.ForeignKey(Sampler, on_delete=models.DO_NOTHING, related_name='samples')
-    notes = models.TextField(blank=True, null=True)
-    notes_html = models.TextField(blank=True, null=True)
-    date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified = models.DateTimeField(blank=True, null=True)
+    # notes = models.TextField(blank=True, null=True)
+    # notes_html = models.TextField(blank=True, null=True)
+    # date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
     season = models.IntegerField(null=True, blank=True)
+    last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -123,6 +123,19 @@ class Sample(models.Model):
 
     class Meta:
         ordering = ['-season', 'station', '-date_deployed']
+
+
+class Note(models.Model):
+    sample = models.ForeignKey(Sample, related_name='notes', on_delete=models.DO_NOTHING)
+    date = models.DateTimeField(default=timezone.now)
+    author = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    note = models.TextField()
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        ordering = ["-date"]
 
 
 class Line(models.Model):
