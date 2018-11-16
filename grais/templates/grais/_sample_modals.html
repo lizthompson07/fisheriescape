@@ -1,0 +1,17 @@
+{#  COLLECTOR LINES #}
+        <h4>
+          <b>Notes</b>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'grais:line_new' object.id %}"> Add </a>
+        </h4>
+        <ul>
+            {% for obj in object.notes.all  %}
+              <li>
+                  <a href="#">{{obj.date|date:"F d, Y"}}</a> by {{ obj.author.first_name }} {{ obj.author.last_name }}: {{ obj.note }}
+              </li>
+            {% empty %}
+              <em>No notes on this file.</em>
+            {% endfor %}
+
+
+        </ul>
+
