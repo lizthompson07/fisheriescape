@@ -105,11 +105,11 @@ class SampleFilterView(LoginRequiredMixin, FilterView):
     def get_queryset(self):
         return models.Sample.objects.all().order_by("-last_modified_date")
 
-    def get_filterset_kwargs(self, filterset_class):
-        kwargs = super().get_filterset_kwargs(filterset_class)
-        if kwargs["data"] is None:
-            kwargs["data"] = {"season": timezone.now().year }
-        return kwargs
+    # def get_filterset_kwargs(self, filterset_class):
+    #     kwargs = super().get_filterset_kwargs(filterset_class)
+    #     if kwargs["data"] is None:
+    #         kwargs["data"] = {"season": timezone.now().year }
+    #     return kwargs
 
 class SampleCreateView(LoginRequiredMixin,CreateView):
     template_name = 'herring/sample_form.html'
@@ -462,7 +462,7 @@ class LabSampleUpdateView(LoginRequiredMixin,UpdateView):
             progress = progress + 1
         if self.object.gonad_weight != None:
             progress = progress + 1
-        if self.object.sample.sampling_protocol.sampling_type == 2:
+        if self.object.sample.type == 2:
             if self.object.parasite != None:
                 progress = progress + 1
             total_tests = 6
@@ -736,7 +736,7 @@ def export_progess_report(request, year):
             [
                 sample.season,
                 sample.id,
-                sample.sampling_protocol,
+                sample.get_type_display,
                 sample.sample_date.strftime('%Y-%m-%d'),
                 sample.sampler_ref_number,
                 sample.sampler,

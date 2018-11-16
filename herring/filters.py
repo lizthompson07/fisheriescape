@@ -9,16 +9,16 @@ class SampleFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filters['sampling_protocol'].label = 'Protocol'
+        # self.filters['sampling_protocol'].label = 'Protocol'
         self.filters['id'].label = 'Sample Id'
-        self.filters['season'].label = 'Year'
+        # self.filters['season'].label = 'Year'
         self.filters['sampler_ref_number'].label = "Sampler's reference no."
 
     class Meta:
         model = models.Sample
         fields = {
             'id':['exact'],
-            'season':['exact'],
+            # 'season':['exact'],
             'sampler_ref_number':['exact'],
-            'sampling_protocol':['exact'],
+            'type':['exact'],
         }
