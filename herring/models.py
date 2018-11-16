@@ -1,13 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.conf import settings
 from django.contrib import auth
-from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
-import markdown
-import os
-# Create your models here.
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -60,22 +54,6 @@ class District(models.Model):
         return "{}{}".format(self.province_id, self.district_id)
 
 
-class SamplingProtocol(models.Model):
-    # Choices for sampling_type
-    PORT = 1
-    SEA = 2
-
-    SAMPLING_TYPE_CHOICES = (
-        (PORT,'Port'),
-        (SEA,'At-sea'),
-    )
-    protocol = models.CharField(max_length=255)
-    sampling_type = models.IntegerField(choices=SAMPLING_TYPE_CHOICES, null=True, blank=True)
-    description = models.TextField()
-
-    def __str__(self):
-        return "{}".format(self.protocol)
-
 class FishingArea(models.Model):
     nafo_area_name = models.CharField(max_length=255)
     nafo_area_code = models.CharField(max_length=25, null=True, blank=True)
@@ -90,15 +68,6 @@ class FishingArea(models.Model):
     class Meta:
         ordering = ['nafo_area_code']
 
-# class Vessel(models.Model):
-#     cfvn = models.IntegerField(primary_key=True)
-#     vessel_name = models.CharField(max_length=255, null=True, blank=True)
-#
-#     def __str__(self):
-#         return "{} ({})".format(self.cfvn, self.vessel_name)
-#
-#     class Meta:
-#         ordering = ['cfvn']
 
 class Gear(models.Model):
     gear = models.CharField(max_length=255)
@@ -160,7 +129,6 @@ class Sample(models.Model):
         (SEA, 'Sea sample'),
     )
 
-    sampling_protocol = models.ForeignKey(SamplingProtocol, related_name="samples", on_delete=models.DO_NOTHING)
     type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES)
     sample_date = models.DateTimeField()
     sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number")
@@ -172,7 +140,6 @@ class Sample(models.Model):
     fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     gear = models.ForeignKey(Gear, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     experimental_net_used = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-    # vessel = models.ForeignKey(Vessel, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     vessel_cfvn = models.IntegerField(null=True, blank=True)
     mesh_size = models.ForeignKey(MeshSize, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     catch_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Catch weight (lbs)")
@@ -183,7 +150,6 @@ class Sample(models.Model):
     old_id = models.IntegerField(null=True, blank=True)
     season =  models.IntegerField(null=True, blank=True)
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
-    # tests = models.ManyToManyField(to=Test, through='SampleTest')
     lab_processing_complete = models.BooleanField(default=False)
     otolith_processing_complete = models.BooleanField(default=False)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
@@ -321,48 +287,3 @@ class LengthFrequency(models.Model):
         unique_together = (('sample', 'length_bin'),)
         ordering = ('sample', 'length_bin')
 
-# class SampleTest(models.Model):
-#     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='sample_tests')
-#     test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
-#     test_passed = models.BooleanField(default = False)
-#
-#     class Meta:
-#         unique_together = (('sample', 'test'),)
-#         ordering = ('sample', 'test')
-#
-# class FishDetailTest(models.Model):
-#
-#     # Choices for field_name
-#     GLOBAL = " global"
-#     FISH_LEN = "fish_length"
-#     SOMATIC_WT = "fish_weight"
-#     GONAD_WT = "gonad_weight"
-#     ANNULI = "annulus_count"
-#
-#     FIELD_NAME_CHOICES = (
-#         (GLOBAL,' global'),
-#         (SOMATIC_WT,'somatic weight'),
-#         (GONAD_WT,'gonad weight'),
-#         (FISH_LEN,'fish length'),
-#         (ANNULI,'annulus count'),
-#     )
-#
-#     # Choices for scope
-#     LAB = 1
-#     OTOLITH = 2
-#
-#     SCOPE_CHOICES = (
-#         (LAB,' lab_detail'),
-#         (OTOLITH,'otolith detail'),
-#     )
-#
-#     fish_detail = models.ForeignKey(FishDetail, on_delete=models.CASCADE, related_name='sample_tests')
-#     test = models.ForeignKey(Test, on_delete=models.DO_NOTHING)
-#     field_name = models.CharField(max_length=55, choices=FIELD_NAME_CHOICES)
-#     scope = models.IntegerField(choices=SCOPE_CHOICES)
-#     test_passed = models.BooleanField(default = False)
-#     accepted = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-#
-#     class Meta:
-#         unique_together = (('fish_detail','field_name','test'),)
-#         ordering = ('fish_detail', 'field_name')
