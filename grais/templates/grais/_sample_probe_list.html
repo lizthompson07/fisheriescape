@@ -1,21 +1,21 @@
   {#  PROBE DATA #}
 
         <h4>
-          <b>Probe Measurements</b>
+          <b style="padding-right: 1.1em">Probe Measurements</b>
           <a class="btn btn-sm btn-outline-primary"  href="{% url 'grais:probe_measurement_new' object.id %}"> Add </a>
         </h4>
-        <table class="table table-bordered ">
+        <table class="table table-bordered table-sm">
           <thead class="full-table">
             <th>Id</th>
             <th>Date collected</th>
             <th>Probe type</th>
           </thead>
           <tbody>
-            {% for datum in object.probe_data.all  %}
+            {% for obj in object.probe_data.all  %}
               <tr>
-                <td><a href="{% url 'grais:probe_measurement_detail' object.id datum.id %}">{{datum.id}}</a></td>
-                <td>{{datum.time_date}}</td>
-                <td>{{datum.probe}}</td>
+                <td><a href="{% url 'grais:probe_measurement_detail' obj.id %}">{{obj.id}}</a></td>
+                <td>{{obj.time_date}}</td>
+                <td>{{obj.probe}}</td>
               </tr>
             {% empty %}
               {# <td>n/a</td> #}

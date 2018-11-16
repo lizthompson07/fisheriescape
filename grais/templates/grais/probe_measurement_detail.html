@@ -7,14 +7,14 @@
 <p class="nav-map">
   <br>
   <a href="{% url 'grais:sample_list' %}">All samples</a> >
-  <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
+  <a href="{% url 'grais:sample_detail' object.sample.id %}"> {{object.sample}}</a> >
   Probe measurement {{object.id}}
 </p>
 <br>
 <div class="container">
   <div class="btn-group">
-    <a class="btn btn-warning" href="{% url 'grais:probe_measurement_edit' object.sample.id object.id %}" ">Edit</a>
-    <a class="btn btn-danger" href="{% url 'grais:probe_measurement_delete' object.sample.id object.id %}" ">Delete</a>
+    <a class="btn btn-warning" href="{% url 'grais:probe_measurement_edit' object.id %}" ">Edit</a>
+    <a class="btn btn-danger" href="{% url 'grais:probe_measurement_delete' object.id %}" ">Delete</a>
   </div>
   <br><br>
 

@@ -24,14 +24,14 @@ function refreshParent() {
   <p>
     Last modified by:<br>
     {% if object.last_modified_by %}
-      @{{object.last_modified_by}}
+      {{object.last_modified_by}}
     {% else %}
       n/a
     {% endif %}
   </p>
       {% buttons %}
-      <a class="btn btn-warning" href="{% url 'grais:surface_spp_edit_pop' object.surface.line.sample.id object.surface.line.id object.surface.id object.id %}">Edit</a>
-      <a class="btn btn-danger" href="{% url 'grais:surface_spp_delete_pop' object.surface.line.sample.id object.surface.line.id object.surface.id object.id %}">Delete</a>
+      <a class="btn btn-warning" href="{% url 'grais:surface_spp_edit_pop' object.id %}">Edit</a>
+      <a class="btn btn-danger" href="{% url 'grais:surface_spp_delete_pop' object.id %}">Delete</a>
       <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">Close</a>
       {% endbuttons %}
 </div>

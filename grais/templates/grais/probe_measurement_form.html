@@ -9,8 +9,8 @@
   {% if object.id %}
     <p>
       <a href="{% url 'grais:sample_list' %}">All samples</a> >
-      <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
-      <a href="{% url 'grais:probe_measurement_detail' view.kwargs.sample object.id %}">Probe measurement {{object.id}}</a> >
+      <a href="{% url 'grais:sample_detail' object.sample.id %}"> {{object.sample}}</a> >
+      <a href="{% url 'grais:probe_measurement_detail' object.id %}">Probe measurement {{object.id}}</a> >
       Edit
     </p>
   {% else %}
@@ -39,7 +39,12 @@
 
       {% buttons %}
           <button type="submit" class="btn btn-success">Submit</button>
+          {% if object %}
+          <a class="btn btn-secondary" href="{% url 'grais:sample_detail' object.sample.id %}">Cancel</a>
+              {% else %}
+
           <a class="btn btn-secondary" href="{% url 'grais:sample_detail' view.kwargs.sample %}">Cancel</a>
+          {% endif %}
       {% endbuttons %}
   </form>
 </div>

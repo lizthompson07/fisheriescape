@@ -18,7 +18,7 @@
 
     <p>
       <button type="submit" class="btn btn-lg btn-danger">Delete</button>
-      <a class="btn btn-lg btn-secondary" href="{% url 'grais:surface_spp_detail_pop' view.kwargs.sample view.kwargs.line view.kwargs.surface object.id %}">Cancel</a>
+      <a class="btn btn-lg btn-secondary" href="{% url 'grais:surface_spp_detail_pop' object.id %}">Cancel</a>
     </p>
 </form>
 </div>

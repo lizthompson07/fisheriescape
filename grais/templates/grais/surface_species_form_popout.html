@@ -7,17 +7,22 @@
 
 {# A script to refresh the parent window; to be called in when the buttons are pushed #}
 <script>
-window.resizeTo(width=700, height=700);
+window.resizeTo(width=700, height=500);
 
 window.onunload = refreshParent;
 function refreshParent() {
   window.opener.location.reload();
 }
+
+$(document).ready(function() {
+    // Stuff to do as soon as the DOM is ready
+    $("#id_percent_coverage")[0].focus()
+});
 </script>
 
 <div class="container">
   {% if object.id %}
-  <h2>Editing <em>{{object.species}}</em> on Surface {{view.kwargs.surface}}</h2>
+  <h2>Editing <em>{{object.species}}</em> on {{object.surface}}</h2>
 
   {% else %}
   <h1>Adding Species</h1>
