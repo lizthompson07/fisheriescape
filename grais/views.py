@@ -1,11 +1,15 @@
 import csv
-from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, TemplateView
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from braces.views import GroupRequiredMixin
-from django.urls import reverse_lazy, reverse
+from django.db.models import TextField, Value
+from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect
+
+from braces.views import GroupRequiredMixin
+from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, TemplateView
+from django.urls import reverse_lazy, reverse
 from django_filters.views import FilterView
 from django.utils import timezone
 from . import models
@@ -33,11 +37,11 @@ class SampleListView(LoginRequiredMixin, FilterView):
     template_name = "grais/sample_list.html"
     login_url = '/accounts/login_required/'
 
-    def get_filterset_kwargs(self, filterset_class):
-        kwargs = super().get_filterset_kwargs(filterset_class)
-        if kwargs["data"] is None:
-            kwargs["data"] = {"SeasonSince": timezone.now().year-2 }
-        return kwargs
+    # def get_filterset_kwargs(self, filterset_class):
+    #     kwargs = super().get_filterset_kwargs(filterset_class)
+    #     if kwargs["data"] is None:
+    #         kwargs["data"] = {"SeasonExact": timezone.now().year-2 }
+    #     return kwargs
 
 class SampleDetailView(LoginRequiredMixin, DetailView):
     model = models.Sample
@@ -46,6 +50,15 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
+        sampler_field_list = [
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'organization',
+
+        ]
+        context["sampler_field_list"] = sampler_field_list
         return context
 
 class SampleUpdateView(LoginRequiredMixin, UpdateView):
@@ -163,12 +176,15 @@ class PersonUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/accounts/login_required/'
     fields =('__all__')
     template_name = 'grais/person_form_popout.html'
+    success_url = reverse_lazy("grais:close_me")
 
 class PersonCreateView(LoginRequiredMixin, CreateView):
     model = models.Sampler
     login_url = '/accounts/login_required/'
     fields =('__all__')
     template_name = 'grais/person_form_popout.html'
+    success_url = reverse_lazy("grais:close_me")
+
 
 class PersonDetailView(LoginRequiredMixin, UpdateView):
     model = models.Sampler
@@ -221,7 +237,7 @@ class ProbeMeasurementDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('grais:sample_detail', kwargs={'pk':self.object.sample})
+        return reverse_lazy('grais:sample_detail', kwargs={'pk':self.object.sample.id})
 
 
 # LINES #
@@ -378,6 +394,11 @@ class SurfaceCreateView(LoginRequiredMixin, CreateView):
     form_class = forms.SurfaceForm
     login_url = '/accounts/login_required/'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["line"] = models.Line.objects.get(pk=self.kwargs['line'])
+        return context
+
     def get_initial(self):
         line = models.Line.objects.get(pk=self.kwargs['line'])
         return {
@@ -461,6 +482,8 @@ class SurfaceSpeciesUpdatePopoutView(LoginRequiredMixin,UpdateView):
 class SpeciesInsertListView(FilterView):
     filterset_class = filters.SpeciesFilter
     template_name = "grais/surface_species_insert.html"
+    queryset = models.Species.objects.annotate(search_term=Concat('common_name', 'scientific_name','abbrev', output_field=TextField()))
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

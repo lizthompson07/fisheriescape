@@ -74,34 +74,38 @@
       </p>
     </div>
     <div class="col">
-      {% if object.surface_spp.count == 0 %}
-        <p><em>This species is not present in the database.</em></p>
-      {% else %}
-        <h4>
-          <b>Present on Surfaces:</b>
-        </h4>
-        <table class="table table-bordered ">
-          <thead class="full-table">
-            <th>Sample</th>
-            <th>Line No.</th>
-            <th>Surface No.</th>
-          </thead>
-          <tbody>
-            {% for ss in object.surface_spp.all  %}
-              <tr>
-                <td><a href="{% url 'grais:sample_detail' ss.surface.line.sample.id %}">{{ss.surface.line.sample}}</a></td>
-                <td><a href="{% url 'grais:line_detail' ss.surface.line.sample.id ss.surface.line.id %}">{{ss.surface.line}}</a></td>
-                <td><a href="{% url 'grais:surface_detail' ss.surface.line.sample.id ss.surface.line.id ss.surface.id %}">{{ss.surface.id}}</a></td>
-              </tr>
-            {% empty %}
 
-            {% endfor %}
-          </tbody>
-        </table>
-        <p>
-          <b>TOTAL: {{object.surface_spp.count}}</b>
-        </p>
-      {% endif %}
+        {% if object.surface_spp.count == 0 %}
+            <p><em>This species is not present in the database.</em></p>
+        {% else %}
+            <p>This species has occured {{ object.surface_spp.count }} times in the database.</p>
+
+        {% endif %}
+
+{#        <h4>#}
+{#          <b>Presence in Database:</b>#}
+{#        </h4>#}
+{#        <table class="table table-bordered ">#}
+{#          <thead class="full-table">#}
+{#            <th>Number of samples</th>#}
+{#            <th>Number of lines</th>#}
+{#            <th>Number of surfaces</th>#}
+{#          </thead>#}
+{#          <tbody>#}
+{#            {% for ss in object.surface_spp.all  %}#}
+{#              <tr>#}
+{#                <td><a href="{% url 'grais:sample_detail' ss.surface.line.sample.id %}">{{ss.surface.line.sample}}</a></td>#}
+{#                <td><a href="{% url 'grais:line_detail' ss.surface.line.id %}">{{ss.surface.line}}</a></td>#}
+{#                <td><a href="{% url 'grais:surface_detail'  ss.surface.id %}">{{ss.surface.id}}</a></td>#}
+{#              </tr>#}
+{#            {% empty %}#}
+{##}
+{#            {% endfor %}#}
+{#          </tbody>#}
+{#        </table>#}
+{#        <p>#}
+{#          <b>TOTAL: {{object.surface_spp.count}}</b>#}
+{#        </p>#}
     </div>
   </div>
 

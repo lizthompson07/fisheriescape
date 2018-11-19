@@ -21,7 +21,10 @@
               {% endfor %}
 
               <input class="btn btn-sm btn-primary" type="submit" />
-              <a class="btn btn-sm btn-outline-primary" href="#" id="myBtn">More Filter Options</a>
+                <a href="#" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#more_filter_options">More Filter Options</a>
+
+
+
               <a class="btn btn-sm btn-outline-primary" href="."> Clear Filter</a>
 
         <a class="btn btn-warning float-right" href="{% url 'tickets:create' %}">New Ticket</a>
@@ -35,18 +38,31 @@
 
       {# </div> #}
 
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-      <!-- Modal content -->
-      <div class="modal-content">
-        {% include "dm_tickets/_filter_ticket.html" %}
-      </div>
-    </div>
+
+{#<!-- More Filter Options MODAL -->#}
+        <div class="modal fade" id="more_filter_options" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Filter options </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                  {% include "dm_tickets/_filter_ticket.html" %}
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
 
     {# </div> #}
   {# </div> #}
-  <script src="{% static "js/modal.js" %}"></script>
 
   <table class="table table-hover table-sm">
     <thead>

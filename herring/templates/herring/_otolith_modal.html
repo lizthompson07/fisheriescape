@@ -1,25 +1,44 @@
+{#<!-- Preview Fish Detail MODAL -->#}
+                <div class="modal fade" id="preview_fish_detail" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Preview Fish Detail </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                           <p>
+                              <span class="label">Fish lenth:</span>
+                              <span class="value">{{object.fish_length}} mm</span> <br>
+
+                              <span class="label">Fish weight:</span>
+                              <span class="value">{{object.fish_weight}} g</span> <br>
+
+                              <span class="label">Sex:</span>
+                              <span class="value">{{object.sex}}</span> <br>
+
+                              <span class="label">Maturity:</span>
+                              <span class="value">{{object.maturity}}</span> <br>
+
+                              <span class="label">Gonad weight:</span>
+                              <span class="value">{{object.gonad_weight}} g</span> <br>
+                            </p>
+
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
 <!-- The Modal -->
 <!-- Modal content -->
 <div id="myModal" class="modal">
   <div class="modal-content">
 
-    <p>
-      <span class="label">Fish lenth:</span>
-      <span class="value">{{object.fish_length}} mm</span> <br>
-
-      <span class="label">Fish weight:</span>
-      <span class="value">{{object.fish_weight}} g</span> <br>
-
-      <span class="label">Sex:</span>
-      <span class="value">{{object.sex}}</span> <br>
-
-      <span class="label">Maturity:</span>
-      <span class="value">{{object.maturity}}</span> <br>
-
-      <span class="label">Gonad weight:</span>
-      <span class="value">{{object.gonad_weight}} g</span> <br>
-    </p>
 
     <div class="container">
 

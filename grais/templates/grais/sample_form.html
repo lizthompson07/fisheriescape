@@ -31,18 +31,15 @@
 
 <form method="post" class="form">
     {% csrf_token %}
-
-    {# {% bootstrap_form form %} #}
     {% for field in form  %}
-
-      {% if field.name == 'notes' %}
-        {% bootstrap_label field.label %}
-        {% bootstrap_field field show_label=False %}
-        <a href="#" class="btn btn-sm btn-warning"  id="insertDate"> Insert Date</a>
-        <br><br>
+      {% if field.name == 'samplers' %}
+          {% bootstrap_field field %}
+          <div style="font-size: 0.9em; text-align: center; padding-bottom: 1.2em">
+            Sampler not in list? Click <b><a href="{% url 'grais:person_create'  %}" id="insertDate" target="_blank"> here</a></b> to insert a new one.
+          </div>
 
       {% else %}
-        {% bootstrap_field field%}
+        {% bootstrap_field field %}
       {% endif %}
     {% endfor %}
     <p>

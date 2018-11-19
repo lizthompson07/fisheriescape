@@ -1,16 +1,7 @@
 {% load bootstrap4 %}
 
-<h1>Add Surface Image &nbsp; &nbsp;
-  <div class="float-right">
-    <a href="#" class="btn btn-primary closeBtn my-btn">&times;</a>
-  </div>
-</h1>
-<br><br>
-<div class="container">
   <form class="form"  method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% bootstrap_form form %}
     <input type="submit" value="Add" class="btn btn-success ">
-
   </form>
-</div>

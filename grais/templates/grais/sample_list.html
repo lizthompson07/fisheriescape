@@ -25,7 +25,7 @@
       <tr>
         <th scope="col">Sample #</th>
         <th scope="col">Station</th>
-        <th scope="col">Sampler</th>
+{#        <th scope="col">Sampler</th>#}
         <th scope="col">Date Deployed</th>
         <th scope="col">Date Retreived</th>
         <th scope="col">Weeks deployed</th>
@@ -36,7 +36,7 @@
         <tr>
           <td><a href="{% url 'grais:sample_detail' sample.id %}">{{sample.id}}</a></td>
           <td>{{sample.station}}</td>
-          <td>{{sample.sampler}}</td>
+{#          <td>{{sample.sampler}}</td>#}
           <td>{{sample.date_deployed|date:'F d, Y'}}</td>
           {% if sample.date_retrieved %}
             <td>{{sample.date_retrieved|date:'F d, Y'}}</td>

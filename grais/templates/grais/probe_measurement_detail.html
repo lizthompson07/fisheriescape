@@ -13,8 +13,8 @@
 <br>
 <div class="container">
   <div class="btn-group">
-    <a class="btn btn-warning" href="{% url 'grais:probe_measurement_edit' object.id %}" ">Edit</a>
-    <a class="btn btn-danger" href="{% url 'grais:probe_measurement_delete' object.id %}" ">Delete</a>
+    <a class="btn btn-warning" href="{% url 'grais:probe_measurement_edit' object.id %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'grais:probe_measurement_delete' object.id %}">Delete</a>
   </div>
   <br><br>
 
@@ -22,14 +22,14 @@
     {% include "grais/_probe_measurement_form.html" %}
   </fieldset>
 
-  <p>
-    <b>Last modified by:</b><br>
-    {% if object.last_modified_by %}
-    {{object.last_modified_by}}
-    {% else %}
-    n/a
-    {% endif %}
-  </p>
+{#  <p>#}
+{#    <b>Last modified by:</b><br>#}
+{#    {% if object.last_modified_by %}#}
+{#    {{object.last_modified_by}}#}
+{#    {% else %}#}
+{#    n/a#}
+{#    {% endif %}#}
+{#  </p>#}
 
 
 </div>
