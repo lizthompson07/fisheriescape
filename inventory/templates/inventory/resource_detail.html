@@ -55,7 +55,8 @@
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item" href="#" onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')">Verify Completedness</a>
-          <a class="dropdown-item" href="#" id="myBtn">HNAP</a>
+          <a href="#" class="dropdown-item" data-toggle="modal" data-target="#hnap"> HNAP </a>
+
         </div>
       </div>
     </div>
@@ -65,42 +66,48 @@
     {% endif %}
   </div>
 
+  {#<!-- HNAP MODAL -->#}
+            <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
 
-    <!-- The Modal -->
-    <!-- Modal content -->
-    <div id="myModal" class="modal">
-      <div class="modal-content">
-        {% if verified %}
-          <p>
-            <h1>Are you going to publish this record to FGP?</h1>
-          </p>
-          <p>
-            <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3><br><br>
-          </p>
-          <div class="container">
-            <a class="btn btn-lg btn-warning closeBtn" href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
-            <a class="btn btn-lg btn-primary closeBtn" href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
-            <a href="#" class="btn btn-lg btn-secondary closeBtn">Forget the Whole Thing</a>
-          </div>
-        {% else %}
-          <p>
-            <h1>Just a heads up: this record did not pass the verification test</h1>
-          </p>
-          <p>
-            <h3>Click <a onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')" href="#">HERE</a> to see what still needs to be addressed.</h3><br><br>
-          </p>
-          <div class="container">
-            <a class="btn btn-lg btn-warning closeBtn" href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
-            <a href="#" class="btn btn-lg btn-secondary closeBtn my-btn">Nevermind</a>
-          </div>
-        {% endif %}
-      </div>
-    </div>
+                  <div class="modal-body">
+                      {% if verified %}
+                      <p>
+                        <h1>Are you going to publish this record to FGP?</h1>
+                      </p>
+                      <p>
+                        <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3><br><br>
+                      </p>
+
+                    {% else %}
+                      <p>
+                        <h1>Just a heads up: this record did not pass the verification test</h1>
+                      </p>
+                      <p>
+                        <h3>Click <a onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')" href="#">HERE</a> to see what still needs to be addressed.</h3><br><br>
+                      </p>
+
+                    {% endif %}
+                  </div>
+                  <div class="modal-footer">
+                      {% if verified %}
+                        <a class="btn btn-lg btn-warning closeBtn" href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
+                        <a class="btn btn-lg btn-primary closeBtn" href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
+                        <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole Thing</button>
+                    {% else %}
+                        <a class="btn btn-lg btn-warning closeBtn" href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
+                          <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind</button>
+                    {% endif %}
+
+                  </div>
+                </div>
+              </div>
+            </div>
 
 
 </p>
 
-<script src="{% static "js/modal.js" %}"></script>
 <br>
 
   <div class="row ">

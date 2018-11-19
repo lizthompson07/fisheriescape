@@ -1,16 +1,6 @@
-{% load static %}
 {% load verbose_field_display %}
-<script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
-
-<h1>
-    Service Desk Ticket Details:
-</h1>
-
-<br>
-       {% for field in field_group_4 %}
-            {%verbose_field_display object field%}
-        {% endfor %}
+{% for field in field_group_4 %}
+    {%verbose_field_display object field%}
+{% endfor %}
 
 
-      <a href="#" class="btn btn-dark closeBtn">Close</a>
-  </div>

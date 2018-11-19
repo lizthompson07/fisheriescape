@@ -34,7 +34,7 @@
             <td>
               <div class="btn-group">
                 <input type="submit" value="Filter" class="btn btn-warning" />
-                <a class="btn btn-info" href=".">Clear</a>
+{#                <a class="btn btn-info" href=".">Clear</a>#}
               </div>
             </td>
           </tr>
@@ -53,17 +53,21 @@
 
 
          <h3>Species List:</h3>
+            <h5>(common / latin / abbreviation)</h5>
+
          <div class="scroll-med">
            {% for sp in object_list.all %}
            <p class="indent">
-             <a class="btn btn-sm btn-dark" href="#" onclick="return popitup('{% url 'grais:surface_spp_new_pop' surface.id sp.id %}','surfaceSpeciesNew')"> <i class="material-icons">add</i></a>
-             {{sp.common_name}} (<em>{{ sp.scientific_name }}</em>)
+             <a class="btn btn-outline-dark" href="#" onclick="return popitup('{% url 'grais:surface_spp_new_pop' surface.id sp.id %}','surfaceSpeciesNew')">
+                 <img src="{% static 'admin/img/icon-addlink.svg'%}" alt="">
+             </a>
+               {{sp.common_name}} / <em>{{ sp.scientific_name }}</em> / {{ sp.abbrev }}
            </p>
            {% endfor %}
 
          </div>
          <br>
-           <a class="btn btn-sm btn-success" href="#" onclick="return popitup('{% url 'grais:species_add' surface.id %}','surfaceSpeciesNew')">Add New Species</a>
+           <a class="btn btn-sm btn-primary" href="{% url 'grais:species_add' surface.id %}" target="_blank">Add New Species</a>
 
        </div>
 
@@ -87,7 +91,7 @@
            <table class="table table-bordered ">
              <thead class="full-table">
                <th>Species name</th>
-               <th>Percent coverage (%)</th>
+               <th>Coverage (%)</th>
              </thead>
              <tbody>
                {% for s in surface_spp  %}

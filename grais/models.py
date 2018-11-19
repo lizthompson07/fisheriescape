@@ -11,7 +11,9 @@ import os
 class Sampler(models.Model):
     first_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255, blank=True, null=True)
-    notes = models.TextField(null=True, blank=True)
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=25, blank=True, null=True)
+    organization = models.CharField(max_length=1000, blank=True, null=True)
 
     def __str__(self):
         return "{} {}".format(self.first_name, self.last_name)
@@ -81,7 +83,8 @@ class Sample(models.Model):
     date_deployed = models.DateTimeField()
     date_retrieved = models.DateTimeField(blank=True, null=True)
     days_deployed = models.IntegerField(blank=True, null=True)
-    sampler = models.ForeignKey(Sampler, on_delete=models.DO_NOTHING, related_name='samples')
+    # sampler = models.ForeignKey(Sampler, on_delete=models.DO_NOTHING, related_name='samples')
+    samplers = models.ManyToManyField(Sampler)
     # notes = models.TextField(blank=True, null=True)
     # notes_html = models.TextField(blank=True, null=True)
     # date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
@@ -225,9 +228,21 @@ class ProbeMeasurement(models.Model):
         (HIGH, 'High'),
         (LOW, 'Low'),
     )
+
+    # Choices for timezone
+    AST = 'AST'
+    ADT = 'ADT'
+    UTC = 'UTC'
+    TIMEZONE_CHOICES = (
+        (AST, 'AST'),
+        (ADT, 'ADT'),
+        (UTC, 'UTC'),
+    )
+
     sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name="probe_data")
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
     time_date = models.DateTimeField(blank=True, null=True)
+    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
     tide_descriptor = models.CharField(max_length=2, choices=TIDE_DESCRIPTOR_CHOICES, blank=True, null=True)
     probe_depth = models.FloatField(blank=True, null=True)
     temp_c = models.FloatField(blank=True, null=True)
@@ -237,13 +252,14 @@ class ProbeMeasurement(models.Model):
     sp_cond_ms = models.FloatField(blank=True, null=True)
     spc_ms = models.FloatField(blank=True, null=True)
     ph = models.FloatField(blank=True, null=True)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    turbidiy = models.FloatField(blank=True, null=True)
+    weather_notes = models.CharField(max_length=1000, blank=True, null=True)
 
     def __str__(self):
         return self.time_date
 
     def get_absolute_url(self):
-        return reverse("grais:probe_measurement_detail", kwargs={'sample': self.sample.id, "pk": self.id})
+        return reverse("grais:probe_measurement_detail", kwargs={"pk": self.id})
 
 
 # def img_file_name(instance, filename):

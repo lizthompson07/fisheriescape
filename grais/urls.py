@@ -11,19 +11,19 @@ urlpatterns = [
 
     # SAMPLE #
     ##########
-    path('sample/list', views.SampleListView.as_view(), name ="sample_list" ),
-    path('sample/new', views.SampleCreateView.as_view(), name ="sample_new" ),
-    path('sample/<int:pk>/view', views.SampleDetailView.as_view(), name ="sample_detail" ),
-    path('sample/<int:pk>/edit', views.SampleUpdateView.as_view(), name ="sample_edit" ),
-    path('sample/<int:pk>/delete', views.SampleDeleteView.as_view(), name ="sample_delete" ),
+    path('sample/list/', views.SampleListView.as_view(), name ="sample_list" ),
+    path('sample/new/', views.SampleCreateView.as_view(), name ="sample_new" ),
+    path('sample/<int:pk>/view/', views.SampleDetailView.as_view(), name ="sample_detail" ),
+    path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name ="sample_edit" ),
+    path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name ="sample_delete" ),
 
     # STATION #
     ###########
     path('station/', views.StationListView.as_view(), name ="station_list" ),
-    path('station/new', views.StationCreateView.as_view(), name ="station_create" ),
-    path('station/<int:pk>/view', views.StationDetailView.as_view(), name ="station_detail" ),
-    path('station/<int:pk>/edit', views.StationUpdateView.as_view(), name ="station_edit" ),
-    path('station/<int:pk>/delete', views.StationDeleteView.as_view(), name ="station_delete" ),
+    path('station/new/', views.StationCreateView.as_view(), name ="station_create" ),
+    path('station/<int:pk>/view/', views.StationDetailView.as_view(), name ="station_detail" ),
+    path('station/<int:pk>/edit/', views.StationUpdateView.as_view(), name ="station_edit" ),
+    path('station/<int:pk>/delete/', views.StationDeleteView.as_view(), name ="station_delete" ),
 
     # SAMPLE NOTE #
     #############
@@ -34,11 +34,11 @@ urlpatterns = [
     # SPECIES #
     ###########
     path('species/', views.SpeciesListView.as_view(), name ="species_list" ),
-    path('species/new', views.SpeciesCreateView.as_view(), name ="species_create" ),
+    path('species/new/', views.SpeciesCreateView.as_view(), name ="species_create" ),
     path('new-species-to-surface-<int:surface>/', views.SpeciesCreatePopoutView.as_view(), name ="species_add" ),
-    path('species/<int:pk>/view', views.SpeciesDetailView.as_view(), name ="species_detail" ),
-    path('species/<int:pk>/edit', views.SpeciesUpdateView.as_view(), name ="species_edit" ),
-    path('species/<int:pk>/delete', views.SpeciesDeleteView.as_view(), name ="species_delete" ),
+    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name ="species_detail" ),
+    path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name ="species_edit" ),
+    path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name ="species_delete" ),
 
     # PROBE MEASUREMENT #
     #####################
@@ -69,9 +69,9 @@ urlpatterns = [
     # path('surface-species/<int:pk>/view/', views.SurfaceSpeciesDetailPopoutView.as_view(), name ="surface_spp_detail_pop" ),
     path('surface-species/<int:pk>/delete/return-to-<str:backto>/', views.surface_species_delete, name ="surface_spp_delete" ),
 
-    path('person/new', views.PersonCreateView.as_view(), name ="person_create" ),
-    path('person/<int:pk>/view', views.PersonDetailView.as_view(), name ="person_detail" ),
-    path('person/<int:pk>/edit', views.PersonUpdateView.as_view(), name ="person_edit" ),
+    path('person/new/', views.PersonCreateView.as_view(), name ="person_create" ),
+    path('person/<int:pk>/view/', views.PersonDetailView.as_view(), name ="person_detail" ),
+    path('person/<int:pk>/edit/', views.PersonUpdateView.as_view(), name ="person_edit" ),
 
     # CSV #
     #######
@@ -80,9 +80,9 @@ urlpatterns = [
     # INCIDENTAL REPORT #
     #####################
     path('incidental-report/list/', views.ReportListView.as_view(), name ="report_list" ),
-    path('incidental-report/new', views.ReportCreateView.as_view(), name ="report_new" ),
-    path('incidental-report/<int:pk>/view', views.ReportDetailView.as_view(), name ="report_detail" ),
-    path('incidental-report/<int:pk>/edit', views.ReportUpdateView.as_view(), name ="report_edit" ),
-    path('incidental-report/<int:pk>/delete', views.ReportDeleteView.as_view(), name ="report_delete" ),
+    path('incidental-report/new/', views.ReportCreateView.as_view(), name ="report_new" ),
+    path('incidental-report/<int:pk>/view/', views.ReportDetailView.as_view(), name ="report_detail" ),
+    path('incidental-report/<int:pk>/edit/', views.ReportUpdateView.as_view(), name ="report_edit" ),
+    path('incidental-report/<int:pk>/delete/', views.ReportDeleteView.as_view(), name ="report_delete" ),
 
 ]

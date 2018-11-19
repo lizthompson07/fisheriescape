@@ -30,6 +30,7 @@ class SampleForm(forms.ModelForm):
         exclude = ['date_created','last_modified','season', 'notes_html', 'days_deployed','collector_lines']
         labels={
             'site_desc':"Site description",
+            'samplers':"Samplers (ctrl+click to select multiple)"
         }
         widgets = {
             'date_deployed':forms.DateInput(attrs={'type': 'date'}),
@@ -54,7 +55,7 @@ class ProbeMeasurementForm(forms.ModelForm):
         fields = ("__all__")
         model = models.ProbeMeasurement
         labels={
-            'time_date':"Date / Time Atlantic Standard Time (yyyy-mm-dd hh:mm:ss)",
+            'time_date':"Date / Time (yyyy-mm-dd hh:mm:ss)",
             'probe_depth':"Probe depth (m)",
             'probe':"Probe name",
             'temp_c':"Temp (°C)",
@@ -67,14 +68,14 @@ class ProbeMeasurementForm(forms.ModelForm):
         }
 
         widgets = {
-            'temp_c':forms.NumberInput(attrs={'placeholder':'°C'}),
-            'time_date':forms.DateTimeInput(attrs={'placeholder':'yyyy-mm-dd hh:mm:ss'}),
-            'sal_ppt':forms.NumberInput(attrs={'placeholder':'ppt'}),
-            'o2_percent':forms.NumberInput(attrs={'placeholder':'%'}),
-            'o2_mgl':forms.NumberInput(attrs={'placeholder':'mg/l'}),
-            'sp_cond_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
-            'spc_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
-            'probe_depth':forms.NumberInput(attrs={'placeholder':'m'}),
+            # 'temp_c':forms.NumberInput(attrs={'placeholder':'°C'}),
+            # 'time_date':forms.DateTimeInput(attrs={'placeholder':'yyyy-mm-dd hh:mm:ss'}),
+            # 'sal_ppt':forms.NumberInput(attrs={'placeholder':'ppt'}),
+            # 'o2_percent':forms.NumberInput(attrs={'placeholder':'%'}),
+            # 'o2_mgl':forms.NumberInput(attrs={'placeholder':'mg/l'}),
+            # 'sp_cond_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
+            # 'spc_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
+            # 'probe_depth':forms.NumberInput(attrs={'placeholder':'m'}),
             'last_modified_by':forms.HiddenInput(),
 
         }
