@@ -63,3 +63,7 @@ media_conf.py
 # my.cnf file should not be on the repo since it has the db password #
 ######################################################################
 my.cnf
+
+# Google API key #
+##################
+google_api_key.py
