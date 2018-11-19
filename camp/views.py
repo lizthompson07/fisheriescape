@@ -29,7 +29,7 @@ def index(request):
     return render(request, 'camp/index.html')
 
 class SearchFormView(LoginRequiredMixin, FormView):
-    template_name = 'camp/search.html'
+    template_name = 'camp/sample_search.html'
     login_url = '/accounts/login_required/'
     form_class = forms.SearchForm
 
@@ -130,7 +130,7 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
             "sample_end_date",
             "temperature_c",
             "salinity",
-            "disolved_o2",
+            "dissolved_o2",
             "per_sediment_water_cont",
             "per_sediment_organic_cont",
             "mean_sediment_grain_size",

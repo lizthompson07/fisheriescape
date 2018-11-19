@@ -51,6 +51,27 @@ class SearchForm(forms.Form):
 class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
+        exclude = [
+            'species',
+            'sample_spp',
+            'year',
+            'month',
+            'last_modified',
+        ]
+        labels={
+            'notes':"Misc. notes",
+            'sample_start_date': "Start date/time ",
+        }
+        widgets = {
+            'date_deployed':forms.DateInput(attrs={'type': 'date'}),
+            'date_retrieved':forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': '3'}),
+
+        }
+
+class SampleCreateForm(forms.ModelForm):
+    class Meta:
+        model = models.Sample
         exclude = ['date_created','last_modified','season', 'notes_html', 'days_deployed','collector_lines']
         labels={
             'site_desc':"Site description",
@@ -61,6 +82,7 @@ class SampleForm(forms.ModelForm):
             'last_modified_by':forms.HiddenInput(),
 
         }
+#
 #
 # class ProbeMeasurementForm(forms.ModelForm):
 #     class Meta:
