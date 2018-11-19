@@ -82,7 +82,8 @@
         <tbody>
           <tr>
             <td>
-              <a href="#" id="myBtn">Preview Fish Detail</a>
+              <a href="#" class="" data-toggle="modal" data-target="#preview_fish_detail" id="preview"> Preview Fish Detail </a>
+
             </td>
             <td>F1</td>
           </tr>
@@ -221,7 +222,7 @@ $(document).keydown(function(event){
     }
     else if (event.key === 'F1') {
       event.preventDefault()
-      $("#myBtn")[0].click();
+      $("#preview")[0].click();
     }
 });
 

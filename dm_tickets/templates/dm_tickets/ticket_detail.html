@@ -47,9 +47,9 @@
 
 
             {% if object.status == "2" and object.resolved_email_date == None %}
-                <a href="#" id="myBtn2" class="btn btn-outline-dark">Notify Client</a>
+                <a href="#" class="btn btn-outline-dark" data-toggle="modal" data-target="#notify-client">Notify Client</a>
             {% else %}
-                <a href="#" id="myBtn2" class="btn btn-outline-dark disabled">Notify Client</a>
+                <a href="#" class="btn btn-outline-dark disabled" data-toggle="modal" data-target="#notify-client">Notify Client</a>
             {% endif %}
         {% endif %}
 
@@ -69,7 +69,8 @@
       <b>Service Desk Ticket</b> (<a href="http://assystSelfService.ent.dfo-mpo.ca/assystnet" target="_blank">AssystNet</a>):<br>
       <!-- Trigger/Open The Modal -->
       {% if object.sd_ref_number  %}
-        <a id="myBtn" href="#">{{object.sd_ref_number}}</a> (logged: {{object.sd_date_logged|naturaltime}})
+          <a href="#" class="" data-toggle="modal" data-target="#sd_ticket_modal">{{object.sd_ref_number}}</a>(logged: {{object.sd_date_logged|naturaltime}})
+
       {% else %}
         None
       {% endif %}
@@ -156,50 +157,68 @@
 
 
      <!-- The Modal -->
-    <div id="myModal" class="modal">
-      <!-- Modal content -->
-      <div class="modal-content">
-        {% include "dm_tickets/_sd_detail.html" %}
-      </div>
-    </div>
-
-    <!-- The Modal -->
-          <!-- Modal content -->
-          <div id="myModal2" class="modal">
-            <div class="modal-content">
-              <h1>Review Email:</h1>
-              <table class="table table-bordered">
-                <tr>
-                  <td><b>From</b></td>
-                  <td>{{email.from_email}}</td>
-                </tr>
-                <tr>
-                  <td><b>To</b></td>
-                  <td>{{email.to_list}}</td>
-                </tr>
-                <tr>
-                  <td><b>Subject</b></td>
-                  <td>{{email.subject}}</td>
-                </tr>
-                <tr>
-                  <td><b>Message</b></td>
-                    <td>{{email.message}}</td>
-                </tr>
-              </table>
-              <div class="container">
-                <a href="{% url 'tickets:send_resolved_email' object.id %}" class="btn btn-lg btn-warning">Send Away!</a>
-                <a href="#" class="btn btn-secondary closeBtn2">Back</a>
-
+{#<!-- modal_label MODAL -->#}
+          <div class="modal fade" id="sd_ticket_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">Service Desk Ticket Details </h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    {% include "dm_tickets/_sd_detail.html" %}
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <a class="btn btn-warning" href="#" target="_blank">Edit</a>
+                </div>
               </div>
             </div>
           </div>
 
+
+{#<!-- Notify Client MODAL -->#}
+                <div class="modal fade" id="notify-client" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Review Email </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                          <table class="table table-bordered">
+                            <tr>
+                              <td><b>From</b></td>
+                              <td>{{email.from_email}}</td>
+                            </tr>
+                            <tr>
+                              <td><b>To</b></td>
+                              <td>{{email.to_list}}</td>
+                            </tr>
+                            <tr>
+                              <td><b>Subject</b></td>
+                              <td>{{email.subject}}</td>
+                            </tr>
+                            <tr>
+                              <td><b>Message</b></td>
+                                <td>{{email.message}}</td>
+                            </tr>
+                          </table>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <a href="{% url 'tickets:send_resolved_email' object.id %}" class="btn btn-lg btn-warning">Send Away!</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
 </div>
-
-<script src="{% static "js/modal.js" %}"></script>
-<script src="{% static "js/modalTwo.js" %}"></script>
-
-
 
 
 

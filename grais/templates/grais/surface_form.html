@@ -15,8 +15,8 @@
     Edit
   {% else %}
     <a href="{% url 'grais:sample_list' %}">All samples</a> >
-    <a href="{% url 'grais:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
-    <a href="{% url 'grais:line_detail' view.kwargs.sample view.kwargs.line %}">Line {{view.kwargs.line}}</a> >
+    <a href="{% url 'grais:sample_detail' line.sample.id %}">{{line.sample}}</a> >
+    <a href="{% url 'grais:line_detail' line.id %}">{{line}}</a> >
     New Surface
   {% endif %}
   </p>
@@ -41,7 +41,7 @@
       {% if object.id %}
         <a class="btn btn-secondary" href="{% url 'grais:surface_detail' object.id %}">Back</a>
       {% else %}
-        <a class="btn btn-secondary" href="{% url 'grais:line_detail' view.kwargs.sample view.kwargs.line %}">Cancel</a>
+        <a class="btn btn-secondary" href="{% url 'grais:line_detail' view.kwargs.line %}">Cancel</a>
       {% endif %}
     </p>
 </form>

@@ -1,37 +1,50 @@
+{% load verbose_field_display %}
 
-      <!-- The Modal -->
-      <div id="myModal" class="modal">
-        <!-- Modal content -->
-        <div class="modal-content">
+
+{#<!-- STATION MODAL -->#}
+<div class="modal fade" id="station_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">{{object.station.station_name}} </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
           {% include "grais/_station_detail.html" %}
-        </div>
+
       </div>
-      <script src="{% static "js/modal.js" %}"></script>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <a class="btn btn-warning" href="{% url 'grais:station_edit' object.station.id %}" target="_blank">Edit</a>
+      </div>
+    </div>
+  </div>
+</div>
 
 
-      <!-- The 2nd Modal -->
-      <div id="myModal1" class="modal">
-        <!-- Modal content -->
+{#<!-- SAMPLER Modals  -->#}
+{% for sampler in object.samplers.all %}
+    <div class="modal fade" id="sampler_{{ sampler.id }}" tabindex="-1" role="dialog" aria-labelledby="TEST TITLE" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-          {% include "grais/_person_detail.html" %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Details on {{ sampler }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              {% for field in sampler_field_list %}
+                {% verbose_field_display sampler field %}
+              {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <a class="btn btn-warning" href="{% url 'grais:person_edit' pk=sampler.id %}" target="_blank">Edit</a>
+          </div>
         </div>
       </div>
-
-      <script type="text/javascript">
-      // This is the same code as stored in modal.js only duplicated so that there can be a second modal window
-        var modal1 = document.getElementById('myModal1');
-        var btn1 = document.getElementById("myBtn1");
-        var span1 = document.getElementsByClassName("closeBtn1")[0];
-        btn1.onclick = function() {
-          modal1.style.display = "block";
-
-        }
-        span1.onclick = function() {
-          modal1.style.display = "none";
-        }
-        window.onclick = function(event) {
-          if (event.target == modal1) {
-              modal1.style.display = "none";
-          }
-        }
-      </script>
+    </div>
+{% endfor %}

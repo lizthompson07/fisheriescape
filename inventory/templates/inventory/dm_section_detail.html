@@ -22,8 +22,11 @@
 
   <div class="btn-group">
     <a class="btn btn-warning" href="{% url "inventory:dm_section_edit" object.id %}">Edit</a>
-    <a class="btn btn-primary" href="#" id="myBtn">Send Report to Section Head</a>
-    <a class="btn btn-danger" href="{% url "inventory:dm_section_delete" object.id %}" id="myBtn">Delete</a>
+      <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#send-email"> Send Report to Section Head </a>
+      <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#delete"> Delete </a>
+
+
+
   </div>
 <br><br>
 
@@ -132,43 +135,66 @@
 
   </div>
 
+      {#<!-- Send Report to Section Head MODAL -->#}
+      <div class="modal fade" id="send-email" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle"> Send Report to Section Head </h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr>
+                      <td><b>From</b></td>
+                      <td>{{email.from_email}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>To</b></td>
+                      <td>{{email.to_list}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Subject</b></td>
+                      <td>{{email.subject}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Message</b></td>
 
+                        <td>{{email.message}}</td>
 
-  <!-- The Modal -->
-  <!-- Modal content -->
-  <div id="myModal" class="modal">
-    <div class="modal-content">
-      <h1>Review Email:</h1>
-      <table class="table table-bordered">
-        <tr>
-          <td><b>From</b></td>
-          <td>{{email.from_email}}</td>
-        </tr>
-        <tr>
-          <td><b>To</b></td>
-          <td>{{email.to_list}}</td>
-        </tr>
-        <tr>
-          <td><b>Subject</b></td>
-          <td>{{email.subject}}</td>
-        </tr>
-        <tr>
-          <td><b>Message</b></td>
+                    </tr>
+                  </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-lg btn-primary closeBtn" data-dismiss="modal">Nevermind</button>
+              <a href="{% url 'inventory:send_section_report_email' object.id %}" class="btn btn-lg btn-warning float-center">Send Away!</a>
 
-            <td>{{email.message}}</td>
-
-        </tr>
-      </table>
-      <div class="container">
-
-        <a href="#" class="btn btn-lg btn-primary float-center closeBtn">Nevermind</a>
-        <a href="{% url 'inventory:send_section_report_email' object.id %}" class="btn btn-lg btn-warning float-center">Send Away!</a>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-
-  <script src="{% static "js/modal.js" %}"></script>
+  {#<!-- Delete MODAL -->#}
+      <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle"> Confirm Delete </h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                This has not yet been developped.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
 

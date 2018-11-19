@@ -35,7 +35,9 @@
       </div>
       <div class="col-6">
         <div class="float-right btn-group">
-          <a class="btn btn-warning" href="#" id="myBtn">Help</a>
+
+            <a id="click_for_help" href="#" class="btn btn-warning" data-toggle="modal" data-target="#help"> Help </a>
+
         </div>
       </div>
 
@@ -289,7 +291,7 @@ function overwrite(control) {
       }
       else if (userResponse.match(/Help/gi)) {
         // EXAMPLE:  Ruler1 279.2123
-        $("#myBtn")[0].click();
+        $("#click_for_help")[0].click();
       }
       else if (userResponse.match(/ruler1/gi)) {
         // EXAMPLE:  Ruler1 279.2123
