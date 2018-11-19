@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 from . import media_conf
+from . import google_api_key
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,7 +24,7 @@ MEDIA_DIR = os.path.join(BASE_DIR,'media')
 MY_ENVR = media_conf.where_am_i()
 MY_CNF = os.path.join(BASE_DIR,'my.cnf')
 WEB_APP_NAME = "GulfScienceDataManagement"
-GOOGLE_API_KEY = "***REMOVED***"
+GOOGLE_API_KEY = google_api_key.GOOGLE_API_KEY
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
