@@ -42,7 +42,10 @@ class Station(models.Model):
 
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{} ({})".format(self.name, self.site.site)
+
+    class Meta:
+        ordering = ['name',]
 
 
 
@@ -102,18 +105,19 @@ class Sample(models.Model):
         (UTC, 'UTC'),
     )
 
+    camp_id = models.IntegerField(blank=True, null=True, verbose_name="CAMP Id")
     station = models.ForeignKey(Station, related_name='samples', on_delete=models.DO_NOTHING)
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
     start_date = models.DateTimeField(verbose_name="Start date / time (yyyy-mm-dd hh:mm:ss)")
     end_date = models.DateTimeField(blank=True, null=True, verbose_name="End date / time (yyyy-mm-dd hh:mm:ss)")
     weather_notes = models.CharField(max_length=1000, blank=True, null=True)
+    rain_past_24_hours = models.BooleanField(default=False, verbose_name="Has it rained in the past 24 h?")
     temperature_c = models.FloatField(null=True,blank=True, verbose_name="Temperature (°C)")
     salinity = models.FloatField(null=True,blank=True, verbose_name="Salinity (ppt)")
     dissolved_o2 = models.FloatField(null=True,blank=True, verbose_name="dissolved oxygen (mg/L)")
     water_turbidity = models.IntegerField(choices=TURBIDITY_CHOICES, blank=True, null=True)
     tide_state = models.CharField(max_length=5, choices=TIDE_STATE_CHOICES, blank=True, null=True)
     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
-    rain_past_24_hours = models.BooleanField(default=False, verbose_name="Has it rained in the past 24 h?")
     samplers = models.CharField(max_length=1000, blank=True, null=True)
 
     percent_sand = models.FloatField(null=True,blank=True, verbose_name="Sand (%)")
