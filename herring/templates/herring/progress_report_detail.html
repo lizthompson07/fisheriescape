@@ -57,7 +57,7 @@
             {% else %}
                 <td class="bad">
             {% endif %}
-                {{ sample.lab_processing_complete|yesno:"done," }}
+                {{ sample.fish_details.last.lab_processed_date|date:"F d, Y" }}
             </td>
 
             {% if sample.otolith_processing_complete %}
@@ -65,7 +65,7 @@
             {% else %}
                 <td class="bad">
             {% endif %}
-                {{ sample.otolith_processing_complete |yesno:"done," }}
+                {{ sample.fish_details.last.otolith_processed_date|date:"F d, Y" }}
             </td>
 
 
