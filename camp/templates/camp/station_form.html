@@ -3,22 +3,25 @@
 {% load bootstrap4 %}
 {% block content %}
 
-<div class="nav-map">
-{% if object.id %}
-  <p><br>
-    <a href="{% url 'camp:site_list' %}">All Sites</a> >
-    <a href="{% url 'camp:site_detail' object.site.id %}">{{object.site}}</a> >
-    <a href="{% url 'camp:station_detail' object.id %}">{{object}}</a> >
-    Edit
-  </p>
-{% else %}
-  <p>
-    <a href="{% url 'camp:site_list' %}">All Sites</a> >
-    <a href="{% url 'camp:site_detail' site.id %}">{{site}}</a> >
-    New Station for {{ site }}
-  </p>
-  {% endif %}
-</div>
+    {% if site or object %}
+        <div class="nav-map">
+            {% if object.id %}
+              <p><br>
+                <a href="{% url 'camp:site_list' %}">All Sites</a> >
+                <a href="{% url 'camp:site_detail' object.site.id %}">{{object.site}}</a> >
+                <a href="{% url 'camp:station_detail' object.id %}">{{object}}</a> >
+                Edit
+              </p>
+            {% else %}
+              <p>
+                <a href="{% url 'camp:site_list' %}">All Sites</a> >
+                <a href="{% url 'camp:site_detail' site.id %}">{{site}}</a> >
+                New Station for {{ site }}
+              </p>
+              {% endif %}
+            </div>
+
+    {% endif %}
 
 <div class="container">
 
@@ -38,10 +41,13 @@
 
   {% buttons %}
       <button type="submit" class="btn btn-success">Submit</button>
-      {% if object.id %}
-        <a class="btn btn-secondary" href="{% url 'camp:station_detail' object.id %}">Back</a>
-      {% else %}
-        <a class="btn btn-secondary" href="{% url 'camp:site_detail' site.id %}">Cancel</a>
+
+        {% if object %}
+            <a class="btn btn-secondary" href="{% url 'camp:station_detail' object.id %}">Back</a>
+        {% elif site %}
+            <a class="btn btn-secondary" href="{% url 'camp:site_detail' site.id %}">Cancel</a>
+        {% else %}
+            <a class="btn btn-secondary" href="{% url 'camp:close_me'%}">Cancel</a>
       {% endif %}
 
   {% endbuttons %}

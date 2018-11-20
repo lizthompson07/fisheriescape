@@ -1,5 +1,6 @@
 {% extends "camp/camp_base.html" %}
 {% load static %}
+{% load nz %}
 {% load verbose_field_display %}
 
 {% block header %}
@@ -42,14 +43,19 @@
     <div class="row">
         <div class="col">
             {% for field in field_list %}
-                {% verbose_field_display object field %}
+                {% verbose_field_display object field None True %}
             {% endfor %}
         </div>
         <div class="col">
           <div id="map"></div>
             <br>
-
-            <h3>Species observations:</h3>
+            <div class="neighbours">
+                <h3>Species observations:</h3>
+            </div>
+            <div class="neighbours">
+                <a href={% url 'camp:species_obs_search' object.id %} class="btn btn-outline-primary">Add</a>
+            </div>
+            <br><br>
                 <table class="table table-bordered table-sm">
                     <tr>
                         <th rowspan="2">Species</th>
@@ -63,13 +69,26 @@
 
                     </tr>
                     <tbody>
-                        {% for spp in object.sample_spp.all %}
+                        {% for obj in object.sample_spp.all %}
                             <tr>
-                                <td>{{spp.species}}</td>
-                                <td>{{spp.adults}}</td>
-                                <td>{{spp.yoy}}</td>
-                                <td>{{spp.unknown}}</td>
-                                <td><b>{{spp.total}}</b></td>
+                                <td>{{obj.species}}</td>
+                                <td>{{obj.adults|nz:"--"}}</td>
+                                <td>{{obj.yoy|nz:"--"}}</td>
+                                <td>{{obj.unknown|nz:"--"}}</td>
+                                <td><b>{{obj.total|nz:"--"}}</b></td>
+                                <td>
+                                  <a href="#" onclick="return popitup('{% url 'camp:species_obs_edit' obj.id %}','popoutWindow')">
+                                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                                  </a>
+                                </td>
+                                <td>
+                                    <a class="delete-me" href="#" val="{{obj.id}}">
+                                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                                    </a>
+                                    <a id="secrect-delete-btn-{{ obj.id }}" href="{% url 'camp:species_obs_delete' obj.id "detail" %}" class="hidden"></a>
+                                </td>
+
+
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -101,6 +120,29 @@
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initMap">
     </script>
+
+
+
+
+
+
+<script type="application/javascript">
+    $(".delete-me").click(function () {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        while (userInput !== "n" && userInput !== "y") {
+            userInput = prompt("Are you sure you want to delete this species from the sample? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+
+        }
+        if(userInput === "y") {
+          $("#secrect-delete-btn-"+objectId)[0].click();
+        }
+    })
+</script>
+
+
+
 
 
 

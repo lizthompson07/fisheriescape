@@ -1,0 +1,152 @@
+{% extends "camp/camp_base.html" %}
+{% load static %}
+{% load nz %}
+{% load bootstrap4 %}
+
+{% block content %}
+ {{ test |safe}}
+ {{ test }}
+<div class="nav-map">
+  <p><br>
+    <a href="{% url 'camp:sample_search' %}">Search</a> >
+    <a href="{% url 'camp:sample_detail' sample.id %}"> {{sample}}</a> >
+    Insert Species
+  </p><br>
+</div>
+
+<div class="container">
+{#  <h1>Add Species to {{sample}}</h1>#}
+
+
+     <div class="row">
+
+       <div class="col" style="font-size: .9em">
+        <p>
+            <input type="text" id="user_input"></input>
+        </p>
+
+         <h3>Species List:</h3>
+            <h5>(common / latin / abbreviation)</h5>
+
+         <div id="species-list" class="" style="font: 0.85em;"></div>
+         <br>
+       Species not in list? Click <a class="" href="{% url 'camp:species_new' %}" target="_blank">here</a> to add a new one.
+
+       </div>
+
+       <div class="col">
+
+
+            <h3>Added:</h3>
+           <table class="table table-bordered table-sm">
+                    <tr>
+                        <th rowspan="2">Species</th>
+                        <th colspan="4">Observations</th>
+                    </tr>
+                    <tr>
+                        <th>Adults</th>
+                        <th>YOY</th>
+                        <th>Other</th>
+                        <th>TOTAL</th>
+
+                    </tr>
+                    <tbody>
+                        {% for obj in sample.sample_spp.all %}
+                            <tr>
+                                <td>{{obj.species}}</td>
+                                <td>{{obj.adults|nz:"--"}}</td>
+                                <td>{{obj.yoy|nz:"--"}}</td>
+                                <td>{{obj.unknown|nz:"--"}}</td>
+                                <td><b>{{obj.total|nz:"--"}}</b></td>
+                                <td>
+                                  <a href="#" onclick="return popitup('{% url 'camp:species_obs_edit' obj.id %}','popoutWindow')">
+                                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                                  </a>
+                                </td>
+                                <td>
+                                    <a class="delete-me" href="#" val="{{obj.id}}">
+                                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                                    </a>
+                                    <a id="secrect-delete-btn-{{ obj.id }}" href="{% url 'camp:species_obs_delete' obj.id "insert" %}" class="hidden"></a>
+                                </td>
+
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+
+
+
+       </div>
+
+
+   </div>
+
+
+
+
+   </div>
+
+
+</div>
+<script type="application/javascript">
+    var speciesList = {{ species_list |safe }}
+
+
+    $(".delete-me").click(function () {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        while (userInput !== "n" && userInput !== "y") {
+            userInput = prompt("Are you sure you want to delete this species from the sample? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+        }
+        if(userInput === "y") {
+          $("#secrect-delete-btn-"+objectId)[0].click();
+        }
+    })
+
+
+    $(document).ready(function() {
+        // Stuff to do as soon as the DOM is ready
+        $("#user_input").focus()
+        
+
+    });
+
+    $("#user_input").keydown(function (event) {
+        if (event.key == "Enter"){
+            $(".add-btn")[0].click()
+        }
+    })
+    
+    $("#user_input").keyup(function(e) {
+    $("#species-list").html("")
+      if (this.value.length >=2 ) {
+        for (var i = 0; i < speciesList.length; i++) {
+          // console.log(123);
+          var re = new RegExp(this.value, 'gi');
+
+          if (speciesList[i].match(re)) {
+            $("#species-list").html(
+              $("#species-list").html() + speciesList[i]+'<br>')
+          }
+        }
+        $(".add-btn").click(function () {
+            $("#user_input").val("")
+            $("#species-list").html("")
+            $("#user_input").focus()
+            var targetURL = this.getAttribute("target-url")
+            popitup(targetURL,"popoutWindow")
+        })
+
+      }
+  });
+
+
+
+</script>
+
+{% endblock content %}

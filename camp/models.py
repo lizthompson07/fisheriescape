@@ -1,8 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib import auth
-
+from lib.functions import nz
 
 class Province(models.Model):
     province_eng = models.CharField(max_length=255, blank=True, null=True)
@@ -105,7 +104,7 @@ class Sample(models.Model):
         (UTC, 'UTC'),
     )
 
-    camp_id = models.IntegerField(blank=True, null=True, verbose_name="CAMP Id")
+    camp_id = models.IntegerField(blank=True, null=True, verbose_name="CAMP Id", unique=True)
     station = models.ForeignKey(Station, related_name='samples', on_delete=models.DO_NOTHING)
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
     start_date = models.DateTimeField(verbose_name="Start date / time (yyyy-mm-dd hh:mm:ss)")
@@ -132,8 +131,6 @@ class Sample(models.Model):
     unsampled_vegetation_inside = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Vegetation present inside sample area (underwater) but outside of quadrat")
     unsampled_vegetation_outside = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Vegetation present outside of sample area (underwater)")
 
-
-
     per_sediment_water_cont = models.FloatField(null=True,blank=True, verbose_name="sediment water content (%)")
     per_sediment_organic_cont = models.FloatField(null=True,blank=True, verbose_name="sediment organic content (%)")
     mean_sediment_grain_size = models.FloatField(null=True,blank=True, verbose_name="Mean sediment grain size (??)") # where 9999 means >2000
@@ -148,12 +145,12 @@ class Sample(models.Model):
     year = models.IntegerField(null=True, blank=True)
     month = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
-    species = models.ManyToManyField(Species, through="SpeciesObservations")
+    species = models.ManyToManyField(Species, through="SpeciesObservation")
 
 
     def save(self, *args, **kwargs):
-        self.year = self.sample_start_date.year
-        self.month = self.sample_start_date.month
+        self.year = self.start_date.year
+        self.month = self.start_date.month
         self.last_modified = timezone.now()
 
         super().save(*args, **kwargs)
@@ -162,17 +159,23 @@ class Sample(models.Model):
         ordering = ['-start_date', 'station']
         unique_together = [["start_date","station"],]
 
+    def get_absolute_url(self):
+        return reverse("camp:sample_detail", kwargs={"pk": self.id})
 
-class SpeciesObservations(models.Model):
+    def __str__(self):
+        return "Sample {}".format(self.camp_id)
+
+
+class SpeciesObservation(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="sample_spp")
     sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name="sample_spp")
-    adults = models.FloatField(default=0)
-    yoy = models.FloatField(default=0)
-    unknown = models.FloatField(default=0)
+    adults = models.FloatField(blank=True, null=True)
+    yoy = models.FloatField(blank=True, null=True, verbose_name="young of the year")
+    unknown = models.FloatField(blank=True, null=True)
     total = models.FloatField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        self.total = self.adults + self.yoy + self.unknown
+        self.total = nz.nz(self.adults,0) + nz.nz(self.yoy,0)+ nz.nz(self.unknown,0)
         return super().save(*args, **kwargs)
 
     class Meta:
