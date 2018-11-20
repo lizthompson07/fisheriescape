@@ -8,3 +8,5 @@
 
 # TODO: sample views (CRUD)
 
+# TODO: in sample_form, make station a smart field... see herring sample form
+# TODO: would be nice to have sediment total = 100% in sample_form

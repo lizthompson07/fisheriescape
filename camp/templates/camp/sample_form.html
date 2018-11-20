@@ -7,13 +7,13 @@
 <br>
   {% if object.id %}
   <p>
-    <a href="{% url 'grais:sample_list' %}">All samples</a> >
-    <a href="{% url 'grais:sample_detail' object.id %}">Sample {{object.id}}</a> >
+    <a href="{% url 'camp:sample_search' %}">All samples</a> >
+    <a href="{% url 'camp:sample_detail' object.id %}">{{object}}</a> >
     Edit
   </p>
   {% else %}
   <p>
-    <a href="{% url 'grais:sample_list' %}">All samples</a> >
+    <a href="{% url 'camp:sample_search' %}">All samples</a> >
     New Sample
   </p>
   {% endif %}
@@ -34,43 +34,24 @@
 
     {# {% bootstrap_form form %} #}
     {% for field in form  %}
-
-      {% if field.name == 'notes' %}
-        {% bootstrap_label field.label %}
-        {% bootstrap_field field show_label=False %}
-        <a href="#" class="btn btn-sm btn-warning"  id="insertDate"> Insert Date</a>
-        <br><br>
-
-      {% else %}
-        {% bootstrap_field field%}
-      {% endif %}
+        {% bootstrap_field field placeholder="" %}
     {% endfor %}
     <p>
       <button type="submit" class="btn btn-primary">Submit</button>
       {% if object.id %}
-        <a class="btn btn-secondary" href="{% url 'grais:sample_detail' object.id %}">Cancel</a>
+        <a class="btn btn-secondary" href="{% url 'camp:sample_detail' object.id %}">Cancel</a>
       {% else %}
-        <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Cancel</a>
+        <a class="btn btn-secondary" href="{% url 'camp:sample_search' %}">Cancel</a>
       {% endif %}
     </p>
 </form>
 <script type="text/javascript">
-  // js script to add date to notes field
-  $("#insertDate").click(function() {
 
-    var today = new Date();
-    var strDate = today.toDateString()
-    var strInjection = ""
-
-    if ($("#id_notes").val()==="") {
-      strInjection = strDate + ": ";
-    }else {
-      strInjection =  "\n\n" + strDate + ": ";
-    }
-
-    $("#id_notes").val($("#id_notes").val() + strInjection)
-
-  })
+    $("#id_start_date").change(function () {
+        if($("#id_end_date").val() === "" ) {
+            $("#id_end_date").val(this.value)
+        }
+    })
 
 </script>
 </div>
