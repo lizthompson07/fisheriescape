@@ -3,7 +3,7 @@ from django.utils.safestring import SafeString
 register = template.Library()
 
 @register.simple_tag
-def verbose_field_display(instance, field_name, format=None):
+def verbose_field_display(instance, field_name, format=None, DisplayTime=False):
     """
     Returns a standard display block for a field based on the verbose fieldname
     """
@@ -29,7 +29,10 @@ def verbose_field_display(instance, field_name, format=None):
         # check to see if it is a datefield
         elif field_instance.get_internal_type() == 'DateTimeField':
             datetime_obj = getattr(instance, field_name)
-            field_value = datetime_obj.strftime('%Y-%m-%d')
+            if DisplayTime:
+                field_value = datetime_obj.strftime('%Y-%m-%d %H:%M')
+            else:
+                field_value = datetime_obj.strftime('%Y-%m-%d')
 
         # check to see if it is a url
         elif str(getattr(instance, field_name)).startswith("http"):
