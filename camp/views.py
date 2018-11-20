@@ -69,7 +69,7 @@ class SearchFormView(LoginRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("camp:sample_list", kwargs={"year":year,"month":month,"site":site,"station":station,"species":species,}))
         else:
             messages.error(self.request,"The search requested has returned too many results. Please try again.")
-            return HttpResponseRedirect(reverse("camp:search"))
+            return HttpResponseRedirect(reverse("camp:sample_search"))
 
 
 
@@ -126,8 +126,8 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
 
         context["field_list"] = [
             "station",
-            "sample_start_date",
-            "sample_end_date",
+            "start_date",
+            "end_date",
             "temperature_c",
             "salinity",
             "dissolved_o2",
@@ -151,8 +151,18 @@ class SampleUpdateView(LoginRequiredMixin, UpdateView):
 
 class SampleCreateView(LoginRequiredMixin, CreateView):
     model = models.Sample
-    form_class = forms.SampleForm
+    form_class = forms.SampleCreateForm
     login_url = '/accounts/login_required/'
+
+    def get_initial(self):
+        return {
+            'do_another':False
+        }
+
+    # def form_valid(self, form):
+    #     do_another = form.cleaned_data['do_another']
+    #     if do_another:
+    #         return HttpResponseRedirect(reverse_lazy(""))
 
 
 class SampleDeleteView(LoginRequiredMixin, DeleteView):
@@ -329,7 +339,7 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
 
         for obj in qs:
             if obj["sample__station__latitude_n"] and obj["sample__station__longitude_w"]:
-                year_last_seen = models.SpeciesObservations.objects.filter(species=self.object.id).filter(sample__station = obj["sample__station__id"]).order_by("-sample__sample_start_date").first().sample.sample_start_date.year
+                year_last_seen = models.SpeciesObservations.objects.filter(species=self.object.id).filter(sample__station = obj["sample__station__id"]).order_by("-sample__start_date").first().sample.start_date.year
                 locations.append(
                     [
                         obj["sample__station__name"],

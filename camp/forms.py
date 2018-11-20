@@ -49,6 +49,8 @@ class SearchForm(forms.Form):
 
 
 class SampleForm(forms.ModelForm):
+    do_another = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = models.Sample
         exclude = [
@@ -60,11 +62,8 @@ class SampleForm(forms.ModelForm):
         ]
         labels={
             'notes':"Misc. notes",
-            'sample_start_date': "Start date/time ",
         }
         widgets = {
-            'date_deployed':forms.DateInput(attrs={'type': 'date'}),
-            'date_retrieved':forms.DateInput(attrs={'type': 'date'}),
             'notes': forms.Textarea(attrs={'rows': '3'}),
 
         }
@@ -72,17 +71,20 @@ class SampleForm(forms.ModelForm):
 class SampleCreateForm(forms.ModelForm):
     class Meta:
         model = models.Sample
-        exclude = ['date_created','last_modified','season', 'notes_html', 'days_deployed','collector_lines']
+        exclude = [
+            'species',
+            'sample_spp',
+            'year',
+            'month',
+            'last_modified',
+        ]
         labels={
-            'site_desc':"Site description",
+            'notes':"Misc. notes",
         }
         widgets = {
-            'date_deployed':forms.DateInput(attrs={'type': 'date'}),
-            'date_retrieved':forms.DateInput(attrs={'type': 'date'}),
-            'last_modified_by':forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={'rows': '3'}),
 
         }
-#
 #
 # class ProbeMeasurementForm(forms.ModelForm):
 #     class Meta:
