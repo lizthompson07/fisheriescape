@@ -722,27 +722,30 @@ def export_progess_report(request, year):
    ])
 
     for sample in qs:
-        if sample.lab_processing_complete:
-            lab_process = "done"
+        if sample.fish_details.count():
+            if sample.fish_details.last().lab_processed_date:
+                lab_processed_date = sample.fish_details.last().lab_processed_date.strftime('%Y-%m-%d')
+            else:
+                lab_processed_date = ""
+            if sample.fish_details.last().otolith_processed_date:
+                otolith_processed_date = sample.fish_details.last().otolith_processed_date.strftime('%Y-%m-%d')
+            else:
+                otolith_processed_date = ""
         else:
-            lab_process = ""
-
-        if sample.otolith_processing_complete:
-            otolith_process = "done"
-        else:
-            otolith_process = ""
+            lab_processed_date = ""
+            otolith_processed_date = ""
 
         writer.writerow(
             [
                 sample.season,
                 sample.id,
-                sample.get_type_display,
+                sample.get_type_display(),
                 sample.sample_date.strftime('%Y-%m-%d'),
                 sample.sampler_ref_number,
                 sample.sampler,
                 sample.total_fish_preserved,
-                lab_process,
-                otolith_process,
+                lab_processed_date,
+                otolith_processed_date,
             ])
 
     return response
