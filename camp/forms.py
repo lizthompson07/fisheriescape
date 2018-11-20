@@ -19,6 +19,19 @@ class StationForm(forms.ModelForm):
             "site": forms.HiddenInput(),
         }
 
+
+class NoSiteStationForm(forms.ModelForm):
+    class Meta:
+        model = models.Station
+        fields = "__all__"
+        widgets = {
+            "latitude_n": forms.NumberInput(attrs={"placeholder":"DD.dddddd",}),
+            "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
+            "description": forms.Textarea(attrs={"rows": "3", }),
+            # "site": forms.HiddenInput(),
+        }
+
+
 class SpeciesForm(forms.ModelForm):
     class Meta:
         model = models.Species
@@ -83,9 +96,28 @@ class SampleCreateForm(forms.ModelForm):
         }
         widgets = {
             'notes': forms.Textarea(attrs={'rows': '3'}),
+            # 'station': forms.HiddenInput()
 
         }
-#
+
+class SpeciesObservationForm(forms.ModelForm):
+
+    class Meta:
+        model = models.SpeciesObservation
+        exclude = ["total",]
+        labels={
+
+        }
+        widgets = {
+            'species':forms.HiddenInput(),
+            'sample':forms.HiddenInput(),
+            # 'percent_coverage':forms.TextInput(attrs={'placeholder':"Value bewteen 0 and 1"}),
+            'notes': forms.Textarea(attrs={"rows":"3"}),
+
+        }
+
+
+
 # class ProbeMeasurementForm(forms.ModelForm):
 #     class Meta:
 #         fields = ("__all__")

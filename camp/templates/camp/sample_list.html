@@ -28,7 +28,7 @@
           <td><a href="{% url 'camp:sample_detail' sample.id %}">{{sample.id}}</a></td>
           <td>{{sample.station.site}}</td>
           <td>{{sample.station}}</td>
-          <td>{{sample.sample_start_date|date:'F Y'}}</td>
+          <td>{{sample.start_date|date:'F d, Y'}}</td>
           <td>{{sample.sample_spp.count}}</td>
 
         </tr>
