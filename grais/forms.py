@@ -2,6 +2,11 @@ from django import forms
 from django.core import validators
 from . import models
 
+NULL_YES_NO_CHOICES = (
+    (None,"----"),
+    (True, "Yes"),
+    (False, "No"),
+)
 
 class StationForm(forms.ModelForm):
     class Meta:
@@ -167,8 +172,9 @@ class ReportForm(forms.ModelForm):
         widgets = {
             'report_date':forms.DateInput(attrs={'type': 'date'}),
             'date_of_occurence':forms.DateInput(attrs={'type': 'date'}),
-            'specimens_retained': forms.Select(),
+            'specimens_retained': forms.Select(choices=NULL_YES_NO_CHOICES),
             'sighting_description': forms.Textarea(attrs={'rows': '3'}),
             'notes': forms.Textarea(attrs={'rows': '3'}),
             'last_modified_by':forms.HiddenInput(),
         }
+
