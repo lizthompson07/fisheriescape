@@ -275,12 +275,15 @@ class ProbeMeasurement(models.Model):
 #     return img_name
 
 class IncidentalReport(models.Model):
-    # Choices for report_type
+    # Choices for report_source
     PHONE = 1
-    EMAIL = 2
-    REPORT_TYPE_CHOICES = (
-        (PHONE, 'Telephone hotline'),
-        (EMAIL, 'E-mail'),
+    INVADERS_EMAIL = 2
+    PERS_EMAIL = 3
+
+    REPORT_SOURCE_CHOICES = (
+        (PHONE, 'Gulf AIS Hotline'),
+        (INVADERS_EMAIL, 'Gulf Invaders E-mail'),
+        (PERS_EMAIL, 'Personal E-mail'),
     )
 
     # Choices for language
@@ -299,9 +302,25 @@ class IncidentalReport(models.Model):
         (ONGOING, 'Ongoing presence'),
     )
 
-    report_date = models.DateTimeField()
-    reporter_name = models.CharField(max_length=150)
-    report_type = models.IntegerField(choices=REPORT_TYPE_CHOICES)
+    # Choices for requestor
+
+    PUB = 1
+    ACAD = 2
+    PRIV = 3
+    PROV = 4
+    FED = 5
+    REQUESTOR_TYPE_CHOICES = (
+        (PUB,"public"),
+        (ACAD,"academia"),
+        (PRIV,"private sector"),
+        (PROV,"provincial government"),
+        (FED,"federal government"),
+    )
+
+    report_date = models.DateTimeField(default=timezone.now)
+    requestor_name = models.CharField(max_length=150)
+    requestor_type = models.IntegerField(choices=REQUESTOR_TYPE_CHOICES, blank=True, null=True)
+    report_source = models.IntegerField(choices=REPORT_SOURCE_CHOICES)
     language_of_report = models.IntegerField(choices=LANGUAGE_CHOICES)
     call_answered_by = models.CharField(max_length=150, null=True, blank=True)
     call_returned_by = models.CharField(max_length=150, null=True, blank=True)
@@ -317,6 +336,7 @@ class IncidentalReport(models.Model):
     email = models.EmailField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     season = models.IntegerField()
+    specimens_confirmation = models.NullBooleanField(blank=True, null=True)
     date_last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
