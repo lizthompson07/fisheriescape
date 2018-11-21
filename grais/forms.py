@@ -142,13 +142,13 @@ class SurfaceSpeciesForm(forms.ModelForm):
         fields = "__all__"
         labels={
             'percent_coverage':"Coverage",
-            'longitude_w':"Longitude",
+            'notes':"Optional notes",
         }
         widgets = {
             'species':forms.HiddenInput(),
             'surface':forms.HiddenInput(),
             'percent_coverage':forms.TextInput(attrs={'placeholder':"Value bewteen 0 and 1"}),
-            'notes': forms.Textarea(attrs={"rows":"3"}),
+            'notes': forms.Textarea(attrs={"rows":"3", "placeholder":""}),
             'last_modified_by':forms.HiddenInput(),
         }
 
