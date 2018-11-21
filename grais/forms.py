@@ -2,12 +2,6 @@ from django import forms
 from django.core import validators
 from . import models
 
-NULL_YES_NO_CHOICES = (
-    (None,"----"),
-    (True, "Yes"),
-    (False, "No"),
-)
-
 class StationForm(forms.ModelForm):
     class Meta:
         model = models.Station
@@ -35,7 +29,7 @@ class SampleForm(forms.ModelForm):
         exclude = ['date_created','last_modified','season', 'notes_html', 'days_deployed','collector_lines']
         labels={
             'site_desc':"Site description",
-            'samplers':"Samplers (ctrl+click to select multiple)"
+            'samplers':"Samplers"
         }
         widgets = {
             'date_deployed':forms.DateInput(attrs={'type': 'date'}),
@@ -172,9 +166,10 @@ class ReportForm(forms.ModelForm):
         widgets = {
             'report_date':forms.DateInput(attrs={'type': 'date'}),
             'date_of_occurence':forms.DateInput(attrs={'type': 'date'}),
-            'specimens_retained': forms.Select(choices=NULL_YES_NO_CHOICES),
             'sighting_description': forms.Textarea(attrs={'rows': '3'}),
             'notes': forms.Textarea(attrs={'rows': '3'}),
             'last_modified_by':forms.HiddenInput(),
+            # 'species':forms.SelectMultiple(attr={"name":"id_species[]"})
         }
+
 

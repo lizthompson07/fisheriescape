@@ -588,7 +588,7 @@ class ReportListView(LoginRequiredMixin, FilterView):
 class ReportUpdateView(LoginRequiredMixin,  UpdateView):
     login_url = '/accounts/login_required/'
     model = models.IncidentalReport
-    form_class = forms.StationForm
+    form_class = forms.ReportForm
     template_name = "grais/report_form.html"
 
     def get_initial(self):
@@ -616,8 +616,8 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
 
         field_list = [
             "report_date",
-            "reporter_name",
-            "report_type",
+            "requestor_name",
+            "report_source",
             "language_of_report",
             "call_answered_by",
             "call_returned_by",
@@ -627,8 +627,8 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
             "specimens_retained",
             "sighting_description",
             "identified_by",
-            "date_of_occurence",
-            "obvservation_type",
+            "date_of_occurrence",
+            "observation_type",
             "phone",
             "email",
             "notes",

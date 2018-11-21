@@ -3,8 +3,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import auth
 from django.core.validators import MaxValueValidator, MinValueValidator
-import misaka
-import os
 
 
 # Create your models here.
@@ -317,11 +315,22 @@ class IncidentalReport(models.Model):
         (FED,"federal government"),
     )
 
+    # basic details
+    species = models.ManyToManyField(Species, verbose_name="Concerning which species")
     report_date = models.DateTimeField(default=timezone.now)
+    language_of_report = models.IntegerField(choices=LANGUAGE_CHOICES)
     requestor_name = models.CharField(max_length=150)
     requestor_type = models.IntegerField(choices=REQUESTOR_TYPE_CHOICES, blank=True, null=True)
     report_source = models.IntegerField(choices=REPORT_SOURCE_CHOICES)
-    language_of_report = models.IntegerField(choices=LANGUAGE_CHOICES)
+    species_confirmation = models.NullBooleanField(blank=True, null=True)
+    gulf_ais_confirmed = models.NullBooleanField(blank=True, null=True)
+    seeking_general_info_ais = models.NullBooleanField(blank=True, null=True)
+    seeking_general_info_non_ais = models.NullBooleanField(blank=True, null=True)
+    management_related = models.NullBooleanField(blank=True, null=True)
+    dfo_it_related = models.NullBooleanField(blank=True, null=True)
+    incorrect_region = models.NullBooleanField(blank=True, null=True)
+
+    # sighting details
     call_answered_by = models.CharField(max_length=150, null=True, blank=True)
     call_returned_by = models.CharField(max_length=150, null=True, blank=True)
     location_description = models.CharField(max_length=500, null=True, blank=True)
@@ -330,13 +339,13 @@ class IncidentalReport(models.Model):
     specimens_retained = models.NullBooleanField(blank=True, null=True)
     sighting_description = models.TextField(null=True, blank=True)
     identified_by = models.CharField(max_length=150, null=True, blank=True)
-    date_of_occurence = models.DateTimeField()
-    obvservation_type = models.IntegerField(choices=OBSERVATION_TYPE_CHOICES)
+    date_of_occurrence = models.DateTimeField()
+    observation_type = models.IntegerField(choices=OBSERVATION_TYPE_CHOICES)
     phone = models.CharField(max_length=50, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     season = models.IntegerField()
-    specimens_confirmation = models.NullBooleanField(blank=True, null=True)
+
     date_last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
