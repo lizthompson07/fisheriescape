@@ -20,7 +20,7 @@
                 <tbody>
                     {% for object in object_list %}
                         <tr>
-                            <td>{{ object.last_modified_date|naturaltime }}</td>
+                            <td>{{ object.last_modified_date }} ({{ object.last_modified_date|naturaltime }})</td>
                             <td>{{ object.last_modified_by.first_name }} {{ object.last_modified_by.last_name }}</td>
                             <td><a href="{% url 'herring:fish_detail' object.sample.id object.id  %}">{{ object.id}}</a></td>
                             <td><a href="{% url 'herring:sample_detail' object.sample.id %}">{{ object.sample.id}}</a></td>
