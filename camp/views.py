@@ -351,6 +351,8 @@ class SpeciesListView(LoginRequiredMixin, FilterView):
     template_name = "camp/species_list.html"
     filterset_class = filters.SpeciesFilter
     login_url = '/accounts/login_required/'
+    queryset = models.Species.objects.annotate(
+        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
 
 class SpeciesDetailView(LoginRequiredMixin, DetailView):
     model = models.Species
@@ -429,6 +431,37 @@ class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView)
 # SPECIES OBSERVATIONS #
 ########################
 
+class SpeciesObservationInsertView(TemplateView):
+    template_name = "camp/species_obs_insert.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sample = models.Sample.objects.get(pk=self.kwargs['sample'])
+        context['sample']= sample
+        sample_spp = models.Sample.objects.get(pk=sample.id).sample_spp.all()
+        context['sample_spp']= sample_spp
+
+        queryset = models.Species.objects.annotate(
+            search_term=Concat('common_name_eng','common_name_fre', 'scientific_name', 'code', output_field=TextField()))
+
+        # get a list of species
+        species_list = []
+        for obj in queryset:
+            # html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
+            #         p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
+            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / {} / <em>{}</em> / {}</span>'.format(
+                reverse("camp:species_obs_new", kwargs={"sample":sample.id, "species":obj.id}),
+                static("admin/img/icon-addlink.svg"),
+                obj.common_name_eng,
+                obj.common_name_fre,
+                obj.scientific_name,
+                obj.code
+            )
+            species_list.append(html_insert)
+        context['species_list'] = species_list
+        return context
+
+
 class SpeciesObservationCreateView(LoginRequiredMixin,CreateView):
     model = models.SpeciesObservation
     template_name ='camp/species_obs_form_popout.html'
@@ -466,35 +499,6 @@ class SpeciesObservationUpdateView(LoginRequiredMixin,UpdateView):
         return HttpResponseRedirect(reverse('camp:close_me'))
 
 
-class SpeciesObservationInsertView(TemplateView):
-    template_name = "camp/species_obs_insert.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        sample = models.Sample.objects.get(pk=self.kwargs['sample'])
-        context['sample']= sample
-        sample_spp = models.Sample.objects.get(pk=sample.id).sample_spp.all()
-        context['sample_spp']= sample_spp
-
-        queryset = models.Species.objects.annotate(
-            search_term=Concat('common_name_eng','common_name_fre', 'scientific_name', 'code', output_field=TextField()))
-
-        # get a list of species
-        species_list = []
-        for obj in queryset:
-            # html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
-            #         p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
-            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / {} / <em>{}</em> / {}</span>'.format(
-                reverse("camp:species_obs_new", kwargs={"sample":sample.id, "species":obj.id}),
-                static("admin/img/icon-addlink.svg"),
-                obj.common_name_eng,
-                obj.common_name_fre,
-                obj.scientific_name,
-                obj.code
-            )
-            species_list.append(html_insert)
-        context['species_list'] = species_list
-        return context
 
 def species_observation_delete(request,pk,backto):
     object = models.SpeciesObservation.objects.get(pk=pk)
