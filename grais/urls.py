@@ -63,7 +63,7 @@ urlpatterns = [
 
     # SURFACE SPECIES #
     ###################
-    path('surface/<int:surface>/species/insert/', views.SpeciesInsertListView.as_view() , name="surface_spp_insert"),
+    path('surface/<int:surface>/species/insert/', views.SurfacaeSpeciesInsertView.as_view() , name="surface_spp_insert"),
     path('surface/<int:surface>/species/<int:species>/new-surface-species/', views.SurfaceSpeciesCreatePopoutView.as_view(), name ="surface_spp_new_pop" ),
     path('surface-species/<int:pk>/edit/', views.SurfaceSpeciesUpdatePopoutView.as_view(), name ="surface_spp_edit_pop" ),
     # path('surface-species/<int:pk>/view/', views.SurfaceSpeciesDetailPopoutView.as_view(), name ="surface_spp_detail_pop" ),

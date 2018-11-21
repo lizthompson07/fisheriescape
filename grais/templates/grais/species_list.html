@@ -2,96 +2,74 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
+    <div class="container">
 
-  <h1 class="big-header">grAIS Species List </h1>
-  <p>TOTAL: {{object_list.count}}</p>
-
-
-
-<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filter_list">Filter List</a>
+        <h1 class="big-header">grAIS Species List </h1>
+        <p>TOTAL: {{ object_list.count }}</p>
 
 
-  <a href="{% url 'grais:species_create' %}" class="btn btn-outline-primary">New Species</a><br>
+        <form action="." method="get">
+            <div class="neighbours">
+                <table>
+                    {% for field in filter.form %}
+                        <tr>
+                            <td><em>{{ field.label }}:</em></td>
+                            <td>{{ field }}</td>
 
-{#<!-- Filter List MODAL -->#}
-<div class="modal fade" id="filter_list" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Filter List </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-          <form action="." method="get">
-        <p>
-          <table>
-              {% for field in filter.form  %}
-              <tr>
-                <td><em>{{field.label}}:</em></td>
-                <td>{{field}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="neighbours btn-group">
+                <input type="submit" value="Filter" class="btn btn-warning"/>
+                <a href="{% url 'grais:species_create' %}" class="btn btn-primary">New Species</a><br>
+            </div>
+        </form>
 
-              </tr>
-              {% endfor %}
-            </table>
-              <br><br>
-              <p>
-                <input type="submit" value="Filter" class="btn btn-warning" />
-                <a class="btn btn-info" href=".">Clear</a>
-              </p>
-        </p>
-       </form>
-      </div>
-      <div class="modal-footer">
-{#        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>#}
-{#        <a class="btn btn-warning" href="#" target="_blank">Edit</a>#}
-      </div>
+
+        <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+                <th scope="col">Common name</th>
+                <th scope="col">Scientific name</th>
+                <th scope="col">Abbreviation</th>
+                <th scope="col">ITIS TSN</th>
+                <th scope="col">AphiaID</th>
+                <th scope="col">Has color morph?</th>
+                <th scope="col">Invasive?</th>
+                <th scope="col">Biofouling?</th>
+                <th scope="col">Has occurred in db?</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td><a href="{% url 'grais:species_detail' object.id %}">{{ object.common_name }}</a></td>
+                    <td><em>{{ object.scientific_name }}</em></td>
+                    <td>{{ object.abbrev }}</td>
+                    <td>{{ object.tsn }}</td>
+                    <td>{{ object.aphia_id }}</td>
+                    <td>{{ object.color_morph|yesno }}</td>
+                    <td>{{ object.invasive|yesno }}</td>
+                    <td>{{ object.biofouling|yesno }}</td>
+                    <td>
+                        {% if object.surface_spp.count > 0 %}
+                            yes
+                        {% else %}
+                            no
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <br>
+            </tbody>
+        </table>
+
+
     </div>
-  </div>
-</div>
 
-
-  <table class="table table-hover table-sm">
-    <thead>
-      <tr>
-        <th scope="col">Common name</th>
-        <th scope="col">Scientific name</th>
-        <th scope="col">Abbreviation</th>
-        <th scope="col">ITIS TSN</th>
-        <th scope="col">AphiaID</th>
-        <th scope="col">Has color morph?</th>
-        <th scope="col">Invasive?</th>
-        <th scope="col">Biofouling?</th>
-        <th scope="col">Has occurred in db?</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for object in object_list  %}
-        <tr>
-          <td><a href="{% url 'grais:species_detail' object.id %}">{{object.common_name}}</a></td>
-          <td><em>{{object.scientific_name}}</em></td>
-          <td>{{object.abbrev}}</td>
-          <td>{{object.tsn}}</td>
-          <td>{{object.aphia_id}}</td>
-          <td>{{object.color_morph|yesno}}</td>
-          <td>{{object.invasive|yesno}}</td>
-          <td>{{object.biofouling|yesno}}</td>
-          <td>
-            {% if object.surface_spp.count > 0  %}
-            yes
-            {% else %}
-            no
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-      <br>
-      </tbody>
-    </table>
-
-
-  </div>
-
+    <script type="application/javascript">
+        $("#id_search_term")[0].focus()
+    </script>
+    
 {% endblock content %}
