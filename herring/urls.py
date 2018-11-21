@@ -60,4 +60,8 @@ urlpatterns = [
     path('progress-report/<int:year>/export', views.export_progess_report, name="export_progress_report"),
 
 
+    # ADMIN #
+    #########
+    path('check-usage/', views.CheckUsageListView.as_view(), name="check_usage"),
+
 ]

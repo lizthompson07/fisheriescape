@@ -67,7 +67,15 @@
                             </div>
                           </div>
 
-
+                        {% elif field.name == "percent_mud" %}
+                        {% bootstrap_field field size='small' layout='horizontal' placeholder=""%}
+                            <hr>
+                            <div class="form-group row" style="font-weight: bold;">
+                                <label for="id_total_sediments" class="col-md-3 col-form-label">TOTAL (%)</label>
+                                <div class="col-md-9">
+                                    <p id="id_total_sediments" style="font-size: 2em">0</p>
+                                </div>
+                            </div>
                         {% else %}
 
                         {% bootstrap_field field size='small' layout='horizontal' placeholder=""%}
@@ -119,6 +127,9 @@
           $("#station_field_div").prop("hidden",true)
           $("#add_station").prop("hidden",true)
         {% endif %}
+
+        addPercentages()
+
     });
 
 
@@ -162,18 +173,40 @@
       $("#add_station").prop("hidden",true)
     });
 
-$("#add_station_btn").click(function () {
-  $("#station_field_div").prop("hidden",false)
-  $("#station_interpreter_div").prop("hidden",true)
-  $("#id_timezone")[0].focus()
-})
+    $("#add_station_btn").click(function () {
+      $("#station_field_div").prop("hidden",false)
+      $("#station_interpreter_div").prop("hidden",true)
+      $("#id_timezone")[0].focus()
+    })
 
 
-$("input").keydown(function(event){
-  if ( event.key == "Enter" ) {
-    event.preventDefault()
-  }
-});
+    $("input").keydown(function(event){
+      if ( event.key == "Enter" ) {
+        event.preventDefault()
+      }
+    });
+
+
+    $(".addable").keyup(function () {
+        addPercentages()
+    })
+
+    function addPercentages() {
+            var totVal = 0
+            for (var i = 0; i < 4; i++) {
+                totVal = Number($(".addable")[i].value) + totVal
+            }
+
+            if(totVal === 100) {
+                $("#id_total_sediments").removeClass("bad")
+                $("#id_total_sediments").addClass("good")
+            } else {
+                $("#id_total_sediments").removeClass("good")
+                $("#id_total_sediments").addClass("bad")
+            }
+
+            $("#id_total_sediments").text(totVal)
+    }
 
 
     </script>
