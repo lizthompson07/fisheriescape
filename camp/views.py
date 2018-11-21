@@ -154,7 +154,7 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
             'end_date',
             'weather_notes',
             'rain_past_24_hours',
-            'temperature_c',
+            'h2o_temperature_c',
             'salinity',
             'dissolved_o2',
             'water_turbidity',
@@ -171,6 +171,7 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
             'excessive_green_algae_shore',
             'unsampled_vegetation_inside',
             'unsampled_vegetation_outside',
+            "notes",
         ]
 
         return context
@@ -476,17 +477,18 @@ class SpeciesObservationInsertView(TemplateView):
         context['sample_spp']= sample_spp
 
         queryset = models.Species.objects.annotate(
-            search_term=Concat('common_name_eng', 'scientific_name', 'code', output_field=TextField()))
+            search_term=Concat('common_name_eng','common_name_fre', 'scientific_name', 'code', output_field=TextField()))
 
         # get a list of species
         species_list = []
         for obj in queryset:
             # html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
             #         p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
-            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
+            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / {} / <em>{}</em> / {}</span>'.format(
                 reverse("camp:species_obs_new", kwargs={"sample":sample.id, "species":obj.id}),
                 static("admin/img/icon-addlink.svg"),
                 obj.common_name_eng,
+                obj.common_name_fre,
                 obj.scientific_name,
                 obj.code
             )

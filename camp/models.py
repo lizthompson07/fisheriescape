@@ -111,7 +111,7 @@ class Sample(models.Model):
     end_date = models.DateTimeField(blank=True, null=True, verbose_name="End date / time (yyyy-mm-dd hh:mm:ss)")
     weather_notes = models.CharField(max_length=1000, blank=True, null=True)
     rain_past_24_hours = models.BooleanField(default=False, verbose_name="Has it rained in the past 24 h?")
-    temperature_c = models.FloatField(null=True,blank=True, verbose_name="Temperature (°C)")
+    h2o_temperature_c = models.FloatField(null=True,blank=True, verbose_name="Water temperature (°C)")
     salinity = models.FloatField(null=True,blank=True, verbose_name="Salinity (ppt)")
     dissolved_o2 = models.FloatField(null=True,blank=True, verbose_name="dissolved oxygen (mg/L)")
     water_turbidity = models.IntegerField(choices=TURBIDITY_CHOICES, blank=True, null=True)
