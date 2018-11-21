@@ -32,7 +32,7 @@ class ReportFilter(django_filters.FilterSet):
         model = models.IncidentalReport
         fields = {
             'season':['exact'],
-            'report_type':['exact'],
+            'report_source':['exact'],
         }
 
 
