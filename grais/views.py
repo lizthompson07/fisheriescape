@@ -3,6 +3,7 @@ import csv
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import TextField, Value
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect
@@ -312,8 +313,10 @@ class LineDeleteView(LoginRequiredMixin, DeleteView):
 
 class SpeciesListView(LoginRequiredMixin, FilterView):
     template_name = "grais/species_list.html"
-    filterset_class = filters.SpeciesFilterFull
+    filterset_class = filters.SpeciesFilter
     login_url = '/accounts/login_required/'
+    queryset = models.Species.objects.annotate(
+        search_term=Concat('common_name', 'scientific_name', 'abbrev', output_field=TextField()))
 
 class SpeciesDetailView(LoginRequiredMixin, DetailView):
     model = models.Species
@@ -422,6 +425,39 @@ class SurfaceDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # SURFACE SPECIES #
+###################
+
+class SurfacaeSpeciesInsertView(TemplateView):
+    template_name = "grais/surface_species_insert.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        surface = models.Surface.objects.get(pk=self.kwargs['surface'])
+        context['surface']= surface
+        surface_spp = models.Surface.objects.get(pk=surface.id).surface_spp.all()
+        context['surface_spp']= surface_spp
+
+        # get a list of species
+        species_list = []
+        for obj in models.Species.objects.all():
+            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
+                reverse("grais:surface_spp_new_pop", kwargs={"surface":surface.id, "species":obj.id}),
+                static("admin/img/icon-addlink.svg"),
+                obj.common_name,
+                obj.scientific_name,
+                obj.abbrev
+            )
+            species_list.append(html_insert)
+        context['species_list'] = species_list
+
+        total_coverage = 0
+        for sp in surface_spp:
+            total_coverage += sp.percent_coverage
+        context['total_coverage']= total_coverage
+
+        return context
+
+
 class SurfaceSpeciesCreatePopoutView(LoginRequiredMixin,CreateView):
     model = models.SurfaceSpecies
     template_name ='grais/surface_species_form_popout.html'
@@ -439,9 +475,10 @@ class SurfaceSpeciesCreatePopoutView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        species = self.kwargs['species']
-        species = models.Species.objects.get(id=species)
+        species = models.Species.objects.get(id=self.kwargs['species'])
         context['species']= species
+        surface = models.Surface.objects.get(id=self.kwargs['surface'])
+        context['surface'] = surface
         return context
 
     def form_valid(self, form):
@@ -479,42 +516,36 @@ class SurfaceSpeciesUpdatePopoutView(LoginRequiredMixin,UpdateView):
 #
 #         return context
 
-class SpeciesInsertListView(FilterView):
-    filterset_class = filters.SpeciesFilter
-    template_name = "grais/surface_species_insert.html"
-    queryset = models.Species.objects.annotate(search_term=Concat('common_name', 'scientific_name','abbrev', output_field=TextField()))
+# class SpeciesInsertListView(FilterView):
+#     filterset_class = filters.SpeciesFilter
+#     template_name = "grais/surface_species_insert.html"
+#     queryset = models.Species.objects.annotate(search_term=Concat('common_name', 'scientific_name','abbrev', output_field=TextField()))
+#
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         surface = self.kwargs['surface']
+#         my_surface = models.Surface.objects.get(id=surface)
+#         context['surface']= my_surface
+#         surface_spp = models.Surface.objects.get(id=surface).surface_spp.all()
+#         context['surface_spp']= surface_spp
+#         total_coverage = 0
+#         for sp in surface_spp:
+#             total_coverage += sp.percent_coverage
+#
+#         context['total_coverage']= total_coverage
+#
+#         # confirmation message for when a new species is added to the list
+#         try:
+#             extra_context = {'temp_msg':self.request.session['temp_msg']}
+#             context.update(extra_context)
+#             del self.request.session['temp_msg']
+#         except Exception as e:
+#             print("type error: " + str(e))
+#             # pass
+#
+#         return context
 
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        surface = self.kwargs['surface']
-        my_surface = models.Surface.objects.get(id=surface)
-        context['surface']= my_surface
-        surface_spp = models.Surface.objects.get(id=surface).surface_spp.all()
-        context['surface_spp']= surface_spp
-        total_coverage = 0
-        for sp in surface_spp:
-            total_coverage += sp.percent_coverage
-
-        context['total_coverage']= total_coverage
-
-        # confirmation message for when a new species is added to the list
-        try:
-            extra_context = {'temp_msg':self.request.session['temp_msg']}
-            context.update(extra_context)
-            del self.request.session['temp_msg']
-        except Exception as e:
-            print("type error: " + str(e))
-            # pass
-
-        return context
-
-
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     if kwargs["data"] is None:
-    #         kwargs["data"] = {"biofouling": True }
-    #     return kwargs
 
 
 
