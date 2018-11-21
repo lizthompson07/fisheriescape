@@ -76,9 +76,15 @@ class SampleForm(forms.ModelForm):
         labels={
             'notes':"Misc. notes",
         }
+
+        class_addable = {"class":"addable"}
+
         widgets = {
             'notes': forms.Textarea(attrs={'rows': '3'}),
-
+            'percent_sand':forms.NumberInput(attrs=class_addable),
+            'percent_gravel': forms.NumberInput(attrs=class_addable),
+            'percent_rock': forms.NumberInput(attrs=class_addable),
+            'percent_mud': forms.NumberInput(attrs=class_addable),
         }
 
 class SampleCreateForm(forms.ModelForm):
@@ -94,12 +100,16 @@ class SampleCreateForm(forms.ModelForm):
         labels={
             'notes':"Misc. notes",
         }
+
+        class_addable = {"class": "addable"}
+
         widgets = {
             'notes': forms.Textarea(attrs={'rows': '3'}),
-            # 'station': forms.HiddenInput()
-
+            'percent_sand': forms.NumberInput(attrs=class_addable),
+            'percent_gravel': forms.NumberInput(attrs=class_addable),
+            'percent_rock': forms.NumberInput(attrs=class_addable),
+            'percent_mud': forms.NumberInput(attrs=class_addable),
         }
-
 class SpeciesObservationForm(forms.ModelForm):
 
     class Meta:

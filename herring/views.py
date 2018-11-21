@@ -749,3 +749,14 @@ def export_progess_report(request, year):
             ])
 
     return response
+
+
+# ADMIN #
+#########
+
+class CheckUsageListView(LoginRequiredMixin, ListView):
+    template_name = "herring/check_usage.html"
+    model = models.FishDetail
+
+    # show only the top twenty results
+    queryset = model.objects.all().order_by('-last_modified_date')[:50]

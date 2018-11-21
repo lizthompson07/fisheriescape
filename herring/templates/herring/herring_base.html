@@ -51,4 +51,8 @@
 
 {% endblock left_auth %}
 
-{% block left_admin %}{% endblock left_admin %}
+{% block left_admin %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'herring:check_usage' %}">Check Usage</a></li>
+
+
+{% endblock left_admin %}
