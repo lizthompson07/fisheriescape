@@ -1,0 +1,38 @@
+{% load humanize %}
+
+<style>
+    td,th{
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+</style>
+
+
+    <h3>Modified Fish Details</h3>
+    <ul>
+            <table>
+                <thead>
+                    <th>Last modified</th>
+                    <th>Modified by</th>
+                    <th>Fish detail</th>
+                    <th>Sample</th>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                        <tr>
+                            <td>{{ object.last_modified_date|naturaltime }}</td>
+                            <td>{{ object.last_modified_by.first_name }} {{ object.last_modified_by.last_name }}</td>
+                            <td><a href="{% url 'herring:fish_detail' object.sample.id object.id  %}">{{ object.id}}</a></td>
+                            <td><a href="{% url 'herring:sample_detail' object.sample.id %}">{{ object.sample.id}}</a></td>
+                        </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+
+    </ul>
+
+
+
