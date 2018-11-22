@@ -3,6 +3,5 @@
 
 # TODO: french species names.. need to have field and to populate table
 # TODO: report followups
-# TODO: mobile/sessile field for spp
-# TODO: species obs at the line level. need to have a text field for notes.
-# TODO: species obs at the sample level. need to have a text field for notes.
+
+# TODO: delete biofouling field in models.species ... all checks done. safe

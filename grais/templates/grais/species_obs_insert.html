@@ -10,11 +10,17 @@
 
     <div class="nav-map">
         <p><br>
+
             <a href="{% url 'grais:sample_list' %}">All samples</a> >
-            <a href="{% url 'grais:sample_detail' surface.line.sample.id %}"> {{ surface.line.sample }}</a> >
-            <a href="{% url 'grais:line_detail' surface.line.id %}"> {{ surface.line }}</a> >
-            <a href="{% url 'grais:surface_detail' surface.id %}"> {{ surface }}</a> >
+
+            {% if sample %}
+                <a href="{% url 'grais:sample_detail' sample.id %}"> {{ sample }}</a> >
+            {% else %}
+                <a href="{% url 'grais:sample_detail' line.sample.id %}"> {{ line.sample }}</a> >
+                <a href="{% url 'grais:line_detail' line.id %}"> {{ line }}</a> >
+            {% endif %}
             Insert Species
+
         </p><br>
     </div>
 
@@ -27,21 +33,6 @@
         <div class="row">
 
             <div class="col" style="font-size: .9em">
-
-
-                {% if surface.image %}
-                    <a href="{{ surface.image.url }}">
-                        <img src="{{ surface.image.url }}"
-                             alt="problem locating surface image {{ surface.image.url }}" class="img-thumbnail"
-                             width="400 em">
-                    </a>
-
-                    {#  display the image #}
-                {% else %}
-                    <em>
-                        No image has been added.
-                    </em>
-                {% endif %}<br><br>
 
 
                 <label for="user_input">What species would you like to add? (enter any part of name)</label>
@@ -64,20 +55,24 @@
                 <h3>Added:</h3>
                 <table class="table table-bordered ">
                     <thead class="full-table">
+                    <th>Date observed</th>
                     <th>Species name</th>
-                    <th>Coverage (%)</th>
+                    <th>Notes</th>
                     </thead>
                     <tbody>
-                    {% for s in surface_spp %}
+
+                    {% for s in spp_list %}
                         <tr>
+                            <td>{{ s.observation_date|date:"F m, Y" }}</td>
                             <td>{{ s.species.common_name }} (<em>{{ s.species.scientific_name }}</em>)</td>
-                            <td>{{ s.percent_coverage|percentage }}</td>
+                            <td>{{ s.notes }}</td>
                             <td>
                                 <a href="#"
-                                   onclick="return popitup('{% url 'grais:surface_spp_edit_pop' s.id %}','surfaceSpeciesEdit')">
+                                   onclick="return popitup('{% url 'grais:spp_obs_edit_pop' view.kwargs.type s.id %}','popWindow')">
                                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
                                          title="Edit">
                                 </a>
+
                             </td>
                             <td>
                                 <a class="delete-me" href="#" val="{{ s.id }}">
@@ -85,25 +80,23 @@
                                          title="Delete">
                                 </a>
                                 <a id="secrect-delete-btn-{{ s.id }}"
-                                   href="{% url 'grais:surface_spp_delete' s.id "insert" %}" class="hidden"></a>
+                                   href="{% url 'grais:spp_obs_delete' view.kwargs.type s.id "insert" %}" class="hidden"></a>
                             </td>
 
 
+                            <img src="" alt="">
                             </a></td>
 
                         </tr>
                     {% empty %}
-                        {# empty #}
+                        <tr>
+                        <td colspan="3">Nothing added yet.</td>
+                        </tr>
                     {% endfor %}
-                    <tr>
-                        <td><b>TOTAL:</b></td>
-                        <td><b>{{ total_coverage|percentage:0 }}</b></td>
-                    </tr>
+
                     </tbody>
                 </table>
 
-
-                <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
 
 
             </div>

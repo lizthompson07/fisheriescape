@@ -61,6 +61,16 @@ urlpatterns = [
     path('surface/<int:pk>/edit/', views.SurfaceUpdateView.as_view(), name ="surface_edit" ),
     path('surface/<int:pk>/delete/', views.SurfaceDeleteView.as_view(), name ="surface_delete" ),
 
+    # SPECIES OBSERVATIONS (for sample and line level obs) #
+    ########################################################
+    path('species-observation/<str:type>/<int:pk>/insert/', views.SpeciesObservationInsertView.as_view() , name="spp_obs_insert"),
+    path('species-observation/<str:type>/<int:pk>/new-spp/<int:species>/', views.SpeciesObservationCreatePopoutView.as_view(), name ="spp_obs_new_pop" ),
+    path('species-observation/<str:type>/obs-pk/<int:pk>/edit/', views.SpeciesObservationUpdatePopoutView.as_view(), name ="spp_obs_edit_pop" ),
+    # path('surface-species/<int:pk>/view/', views.SurfaceSpeciesDetailPopoutView.as_view(), name ="surface_spp_detail_pop" ),
+    path('species-observation/<str:type>/obs-pk/<int:pk>/delete/return-to-<str:backto>/', views.species_observation_delete, name ="spp_obs_delete" ),
+
+
+
     # SURFACE SPECIES #
     ###################
     path('surface/<int:surface>/species/insert/', views.SurfacaeSpeciesInsertView.as_view() , name="surface_spp_insert"),

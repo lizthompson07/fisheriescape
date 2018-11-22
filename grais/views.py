@@ -323,6 +323,18 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
     fields = "__all__"
     login_url = '/accounts/login_required/'
 
+    def get_context_data(self, **kwargs):
+        context = super(SpeciesDetailView, self).get_context_data(**kwargs)
+        context["field_list"] = [
+            'common_name',
+            'scientific_name',
+            'abbrev',
+            'epibiont_type',
+            'color_morph',
+            'invasive',
+        ]
+        return context
+
 class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Species
     login_url = '/accounts/login_required/'
@@ -423,6 +435,139 @@ class SurfaceDeleteView(LoginRequiredMixin, DeleteView):
         return reverse_lazy('grais:line_detail', kwargs={'pk':self.object.line.id})
 
 
+# SPECIES OBSERVATIONS (for sample and line level obs) #
+########################################################
+
+# this is shared between SampleSpecies and LineSpecies
+class SpeciesObservationInsertView(TemplateView):
+    template_name = "grais/species_obs_insert.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        type = self.kwargs['type']
+        pk = self.kwargs['pk']
+
+        if type == "sample":
+            sample = models.Sample.objects.get(pk=pk)
+            context['sample'] = sample
+            spp_list = sample.sample_spp.all()
+            context['spp_list'] = spp_list
+        elif type == "line":
+            line = models.Line.objects.get(pk=pk)
+            context['line'] = line
+            spp_list = line.line_spp.all()
+            context['spp_list'] = spp_list
+
+
+
+
+        # get a list of species
+        species_list = []
+        for obj in models.Species.objects.all():
+            if type == "sample":
+                url = reverse("grais:spp_obs_new_pop", kwargs={"type":"sample", "pk": sample.id, "species": obj.id}),
+            elif type == "line":
+                url = reverse("grais:spp_obs_new_pop", kwargs={"type":"line","pk": line.id, "species": obj.id}),
+
+            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
+                url[0],
+                static("admin/img/icon-addlink.svg"),
+                obj.common_name,
+                obj.scientific_name,
+                obj.abbrev
+            )
+            species_list.append(html_insert)
+        context['species_list'] = species_list
+
+        return context
+
+
+class SpeciesObservationCreatePopoutView(LoginRequiredMixin,CreateView):
+    template_name ='grais/species_obs_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.SurfaceSpeciesForm
+
+    def get_form_class(self):
+        if self.kwargs["type"]=="sample":
+            return forms.SampleSpeciesForm
+        elif self.kwargs["type"]=="line":
+            return forms.LineSpeciesForm
+
+
+    def get_queryset(self):
+        if self.kwargs["type"]=="sample":
+            return models.Sample.objects.all()
+        elif self.kwargs["type"]=="line":
+            return models.Line.objects.all()
+
+    def get_initial(self):
+        my_dict = {}
+
+        if self.kwargs["type"]=="sample":
+            my_dict["sample"] = models.Sample.objects.get(pk=self.kwargs['pk'])
+        elif self.kwargs["type"]=="line":
+            my_dict["line"] = models.Line.objects.get(pk=self.kwargs['pk'])
+
+        my_dict["species"] = models.Species.objects.get(pk=self.kwargs['species'])
+
+        return my_dict
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.kwargs["type"]=="sample":
+            context['sample'] = models.Sample.objects.all
+        elif self.kwargs["type"]=="line":
+            context['line'] = models.Line.objects.all
+
+        species = models.Species.objects.get(id=self.kwargs['species'])
+        context['species']= species
+
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponseRedirect(reverse('grais:close_me'))
+
+class SpeciesObservationUpdatePopoutView(LoginRequiredMixin,UpdateView):
+    template_name ='grais/species_obs_form_popout.html'
+
+    def get_form_class(self):
+        if self.kwargs["type"]=="sample":
+            return forms.SampleSpeciesForm
+        elif self.kwargs["type"]=="line":
+            return forms.LineSpeciesForm
+
+    def get_queryset(self):
+        if self.kwargs["type"]=="sample":
+            return models.SampleSpecies.objects.all()
+        elif self.kwargs["type"]=="line":
+            return models.LineSpecies.objects.all()
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponseRedirect(reverse('grais:close_me'))
+
+
+def species_observation_delete(request,type,pk,backto):
+    if type == "sample":
+        object = models.SampleSpecies.objects.get(pk=pk)
+        linked_object = object.sample
+        detail_url_name = "grais:sample_detail"
+    elif type == "line":
+        object = models.LineSpecies.objects.get(pk=pk)
+        linked_object = object.line
+        detail_url_name = "grais:line_detail"
+
+    object.delete()
+    messages.success(request, "The species has been successfully deleted from {}.".format(linked_object))
+
+    if backto == "detail":
+        return HttpResponseRedirect(reverse_lazy(detail_url_name, kwargs={"pk": linked_object.id}))
+    else:
+        return HttpResponseRedirect(reverse_lazy("grais:spp_obs_insert", kwargs={"type":type, "pk":linked_object.id}))
+
+
 
 # SURFACE SPECIES #
 ###################
@@ -496,57 +641,6 @@ class SurfaceSpeciesUpdatePopoutView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         return HttpResponseRedirect(reverse('grais:close_me'))
-#
-#
-# class SurfaceSpeciesDetailPopoutView(LoginRequiredMixin,UpdateView):
-#     model = models.SurfaceSpecies
-#     template_name ='grais/surface_species_detail_popout.html'
-#     form_class = forms.SurfaceSpeciesForm
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#
-#         try:
-#             extra_context = {'temp_msg':self.request.session['temp_msg']}
-#             context.update(extra_context)
-#             del self.request.session['temp_msg']
-#         except Exception as e:
-#             print("type error: " + str(e))
-#             # pass
-#
-#         return context
-
-# class SpeciesInsertListView(FilterView):
-#     filterset_class = filters.SpeciesFilter
-#     template_name = "grais/surface_species_insert.html"
-#     queryset = models.Species.objects.annotate(search_term=Concat('common_name', 'scientific_name','abbrev', output_field=TextField()))
-#
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         surface = self.kwargs['surface']
-#         my_surface = models.Surface.objects.get(id=surface)
-#         context['surface']= my_surface
-#         surface_spp = models.Surface.objects.get(id=surface).surface_spp.all()
-#         context['surface_spp']= surface_spp
-#         total_coverage = 0
-#         for sp in surface_spp:
-#             total_coverage += sp.percent_coverage
-#
-#         context['total_coverage']= total_coverage
-#
-#         # confirmation message for when a new species is added to the list
-#         try:
-#             extra_context = {'temp_msg':self.request.session['temp_msg']}
-#             context.update(extra_context)
-#             del self.request.session['temp_msg']
-#         except Exception as e:
-#             print("type error: " + str(e))
-#             # pass
-#
-#         return context
-
-
 
 
 def surface_species_delete(request,pk,backto):
