@@ -56,14 +56,26 @@ class Station(models.Model):
 
 
 class Species(models.Model):
+    # choices for epibiont_type
+    UNK = None
+    SES = 'ses'
+    MOB = 'mob'
+    EPIBIONT_TYPE_CHOICES = (
+        (UNK, "-----"),
+        (SES, "sessile"),
+        (MOB, "mobile"),
+    )
+
+
     common_name = models.CharField(max_length=255, blank=True, null=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
-    abbrev = models.CharField(max_length=255, blank=True, null=True)
-    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
+    abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name="abbreviation")
+    epibiont_type = models.CharField(max_length=10, blank=True, null=True, choices=EPIBIONT_TYPE_CHOICES)
+    tsn = models.IntegerField(blank=True, null=True, verbose_name="Taxonomic Serial Number")
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     color_morph = models.BooleanField(verbose_name="Has color morph")
-    invasive = models.BooleanField()
-    biofouling = models.BooleanField()
+    invasive = models.BooleanField(verbose_name="is invasive?")
+    # biofouling = models.BooleanField()
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
@@ -86,6 +98,7 @@ class Sample(models.Model):
     # notes = models.TextField(blank=True, null=True)
     # notes_html = models.TextField(blank=True, null=True)
     # date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    species = models.ManyToManyField(Species, through='SampleSpecies')
     season = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -115,6 +128,18 @@ class Sample(models.Model):
         ordering = ['-season', 'station', '-date_deployed']
 
 
+class SampleSpecies(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="sample_spp")
+    sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name="sample_spp")
+    observation_date = models.DateTimeField()
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = (('species', 'sample'),)
+
+
+
+
 class SampleNote(models.Model):
     sample = models.ForeignKey(Sample, related_name='notes', on_delete=models.DO_NOTHING)
     date = models.DateTimeField(default=timezone.now)
@@ -137,6 +162,7 @@ class Line(models.Model):
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+    species = models.ManyToManyField(Species, through='LineSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
@@ -154,6 +180,16 @@ class Line(models.Model):
 def img_file_name(instance, filename):
     img_name = 'grais/sample_{}/{}'.format(instance.line.sample.id, filename)
     return img_name
+
+
+class LineSpecies(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="line_spp")
+    line = models.ForeignKey(Line, on_delete=models.DO_NOTHING, related_name="line_spp")
+    observation_date = models.DateTimeField()
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = (('species', 'line'),)
 
 
 class Surface(models.Model):

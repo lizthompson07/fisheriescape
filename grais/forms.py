@@ -152,6 +152,37 @@ class SurfaceSpeciesForm(forms.ModelForm):
         }
 
 
+class SampleSpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.SampleSpecies
+        fields = "__all__"
+        labels={
+            # 'percent_coverage':"Coverage",
+            # 'notes':"Optional notes",
+        }
+        widgets = {
+            'species':forms.HiddenInput(),
+            'sample':forms.HiddenInput(),
+            'observation_date':forms.DateInput(attrs={'type':'date'}),
+            'notes': forms.Textarea(attrs={"rows":"3", "placeholder":""}),
+        }
+
+class LineSpeciesForm(SampleSpeciesForm):
+    class Meta:
+        model = models.LineSpecies
+        fields = "__all__"
+        labels={
+            # 'percent_coverage':"Coverage",
+            # 'notes':"Optional notes",
+        }
+        widgets = {
+            'species':forms.HiddenInput(),
+            'line':forms.HiddenInput(),
+            'observation_date':forms.DateInput(attrs={'type':'date'}),
+            'notes': forms.Textarea(attrs={"rows":"3", "placeholder":""}),
+        }
+
+
 class ReportForm(forms.ModelForm):
     class Meta:
         model = models.IncidentalReport
