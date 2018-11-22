@@ -7,240 +7,255 @@
 {% load static %}
 
 {% block content %}
-{# <div class="nav-map"> #}
-{# <br> #}
-  {# <p> #}
+    {# <div class="nav-map"> #}
+    {# <br> #}
+    {# <p> #}
     {# <a href="{% url 'herring:sample_list' %}">All Samples</a> > #}
     {# <a id="home" href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> > #}
     {# Fish {{object.id}} #}
-  {# </p> #}
-{# </div> #}
+    {# </p> #}
+    {# </div> #}
 
-{# <embed src="{% static "/sounds/success.wav" %}" autostart="false" width="0" height="0" id="sound1" enablejavascript="true"> #}
+    {# <embed src="{% static "/sounds/success.wav" %}" autostart="false" width="0" height="0" id="sound1" enablejavascript="true"> #}
 
-<style media="screen">
-  .indent-med{
-    font-size: .9em;
-  }
-  label{
-    font-weight: bold;
-  }
-</style>
+    <style media="screen">
+        .indent-med {
+            font-size: .9em;
+        }
 
-<div class="indent-med">
+        label {
+            font-weight: bold;
+        }
+    </style>
 
-  <h1>
-    Fish #{{object.fish_number}}
-  </h1>
+    <div class="indent-med">
 
-  <br>
+        <h1>
+            Fish #{{ object.fish_number }}
+        </h1>
 
-  <div class="row">
-    <div class="col-5">
-      {% include "herring/_lab_sample_metadata.html" %}
-
-      <h4>Otolith Detail:</h4>
-      <div class="btn-group ">
-      </div>
-      <form method="post">
-        {% csrf_token %}
-
-        <fieldset>
-          {% for field in form  %}
-          {% if "test_" in field.name %}
-            {# do nothing #}
-          {% else %}
-            {%bootstrap_field field layout="horizontal" size="small" placeholder=""%}
-          {% endif %}
-          {% endfor %}
-        </fieldset>
-
-        <input type="submit" class="hidden"  id="submit">
         <br>
 
+        <div class="row">
+            <div class="col-5">
+                {% include "herring/_lab_sample_metadata.html" %}
 
-        {% if next_fish_id %}
-        <a href="#" class="btn btn-primary submit-proxy submit-next">Save and Next</a>
+                <h4>Otolith Detail:</h4>
+                <div class="btn-group ">
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+
+                    <fieldset>
+                        {% for field in form %}
+                            {% if "test_" in field.name %}
+                                {# do nothing #}
+                            {% else %}
+                                {% bootstrap_field field layout="horizontal" size="small" placeholder="" %}
+                            {% endif %}
+                        {% endfor %}
+                    </fieldset>
+
+                    <input type="submit" class="hidden" id="submit">
+                    <br>
+
+
+                    {% if next_fish_id %}
+                        <a href="#" class="btn btn-primary submit-proxy submit-next">Save and Next</a>
+                    {% else %}
+                        <a href="#" class="btn btn-success submit-proxy submit-home">Save and Back</a>
+                    {% endif %}
+                    <a class="btn btn-secondary" href="{% url 'herring:sample_detail' object.sample.id %}">Cancel</a>
+
+            </div>
+            <div class="col-1">
+
+            </div>
+            <div class="col-5">
+                {% include "herring/_otolith_qc.html" %}
+                <br>
+                <h4>Shortcuts:</h4>
+                <table class="table table-sm table-bordered" style="width: 65%;">
+                    <thead>
+                    <th>Action</th>
+                    <th>Key</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Back to sample detail page</td>
+                        <td>Home</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="#" class="" data-toggle="modal" data-target="#preview_fish_detail" id="preview">
+                                Preview Fish Detail </a>
+
+                        </td>
+                        <td>F1</td>
+                    </tr>
+                    <tr>
+                        <td>Move to previous record (without saving)</td>
+                        <td>PageUp</td>
+                    </tr>
+                    <tr>
+                        <td>Move to next record (without saving)</td>
+                        <td>PageDown</td>
+                    </tr>
+                    </tbody>
+                </table>
+                </form>
+
+
+            </div>
+        </div>
+        <div class="row">
+        </div>
+    </div>
+
+    {% include "herring/_otolith_modal.html" %}
+
+
+
+    <script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
+
+    <script type="text/javascript">
+        // initialize var
+        var test200Passed
+
+        $(document).ready(function () {
+            // upon ready we run all qc tests
+            runTests()
+
+            // start with focus on #prompt
+            $("#id_annulus_count").focus();
+        })
+
+
+        // lastRecord i.e., are you on the last record in the set?
+        {% if last_record %}
+            var lastRecord = true;
         {% else %}
-        <a href="#" class="btn btn-success submit-proxy submit-home">Save and Back</a>
+            var lastRecord = false;
         {% endif %}
-        <a class="btn btn-secondary" href="{% url 'herring:sample_detail' object.sample.id %}">Cancel</a>
-
-    </div>
-    <div class="col-1">
-
-    </div>
-    <div class="col-5">
-      {% include "herring/_otolith_qc.html" %}
-      <br>
-      <h4>Shortcuts:</h4>
-      <table class="table table-sm table-bordered" style="width: 65%;">
-        <thead>
-          <th>Action</th>
-          <th>Key</th>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <a href="#" class="" data-toggle="modal" data-target="#preview_fish_detail" id="preview"> Preview Fish Detail </a>
-
-            </td>
-            <td>F1</td>
-          </tr>
-          <tr>
-            <td>Exit Preview Mode</td>
-            <td>Esc</td>
-          </tr>
-          <tr>
-            <td>Move to previous record (without saving)</td>
-            <td>PageUp</td>
-          </tr>
-          <tr>
-            <td>Move to next record (without saving)</td>
-            <td>PageDown</td>
-          </tr>
-          <tr>
-            <td>Back to sample detail page</td>
-            <td>Home</td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
 
 
-    </div>
-  </div>
-<div class="row">
-</div>
-</div>
+        function runTests() {
 
-{% include "herring/_otolith_modal.html" %}
+            // reset the qcFeedback object
+            qcFeedbackObject = {}
 
+            // check to see if the mandatory fields are present
+            testMandatoryFields("otolith_sample")
 
+            // run data point tests; will also identify improbable measurements on data points
+            testDataPoints("annulus_count")
 
-<script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
+            // check if all points are in possible range
+            testPossibleRange("otolith_sample")
 
-<script type="text/javascript">
-// initialize var
-var test200Passed
+            // check global ratios
+            testGlobalRatio(209)
 
-$(document).ready(function () {
-  // upon ready we run all qc tests
-  runTests()
+            // see if any improbably measurements have not been accepted. if so, then test them
+            improbableMeasurementValidation(false)
 
-  // start with focus on #prompt
-  $("#id_annulus_count").focus();
-})
+            // test to see if all improbable measurements have been accepted
+            testImprobableAccepted("otolith_sample")
 
+            // test to see that all qc elements have been checked off
+            testQCPassed("otolith_sample") // should be the last test
 
+            // update the sample progress
+            var totalTests = $(".mandatory").length - 1 // subtract one for the lab_sampler
+            var progress = 0
 
-// lastRecord i.e., are you on the last record in the set?
-{% if last_record %}
-  var lastRecord = true;
-{% else %}
-  var lastRecord = false;
-{% endif %}
+            // determine sample progress and mark measurement fields with .good or .bad
+            for (var i = 0; i < totalTests; i++) {
+                if ($(".mandatory")[i].value !== "") {
+                    progress++
+                }
+            }
 
+            // re-set the test200Passed var
+            if ($("#display_test_200").text() === "passed") {
+                test200Passed = true;
+                $("#submit").prop("disabled", false)
+                $(".submit-proxy").removeClass("disabled")
+            } else {
+                test200Passed = false;
+                $("#submit").prop("disabled", true)
+                $(".submit-proxy").addClass("disabled")
+            }
+        }
 
-function runTests() {
+        $(document).keydown(function (event) {
+            if (event.key === 'PageDown') {
+                event.preventDefault()
+                if (test200Passed === false) {
+                    userInput = confirm("This record is not complete. Are you sure you want to leave this record?")
+                    if (userInput) {
+                        $("#submit").prop("disabled", false)
+                        $(".submit-proxy").removeClass("disabled")
+                        window.location.href = "{{ next_record }}"
+                    }
+                }
+                $("#id_where_to").val("next") // go to next
+                $("#submit")[0].click()
 
-  // reset the qcFeedback object
-  qcFeedbackObject = {}
+            }
+            else if (event.key === 'PageUp') {
+                event.preventDefault()
+                if (test200Passed === false) {
+                    userInput = confirm("This record is not complete. Are you sure you want to leave this record?")
+                    if (userInput) {
+                        $("#submit").prop("disabled", false)
+                        $(".submit-proxy").removeClass("disabled")
+                        window.location.href = "{{ prev_record }}"
+                    }
+                }
+                $("#id_where_to").val("prev") // go to prev
+                $("#submit")[0].click()
+            }
 
-  // check to see if the mandatory fields are present
-  testMandatoryFields("otolith_sample")
+            else if (event.key === 'Home') {
+                event.preventDefault()
+                if (test200Passed === false) {
+                    userInput = confirm("This record is not complete. Are you sure you want to leave this record?")
+                    if (userInput) {
+                        $("#submit").prop("disabled", false)
+                        $(".submit-proxy").removeClass("disabled")
+                        window.location.href = "{{ home }}"
+                    }
+                }
+                $("#id_where_to").val("home") // go home
+                $("#submit")[0].click()
+            }
 
-  // run data point tests; will also identify improbable measurements on data points
-  testDataPoints("annulus_count")
+            else if (event.key === 'Escape') {
+                event.preventDefault()
+                $(".closeBtn")[0].click();
+            }
+            else if (event.key === 'F1') {
+                event.preventDefault()
+                $("#preview")[0].click();
+            }
+        });
 
-  // check if all points are in possible range
-  testPossibleRange("otolith_sample")
+        $(".mandatory").change(function () {
+            runTests()
+        })
 
-  // check global ratios
-  testGlobalRatio(209)
+        $(".submit-next").click(function () {
+            $("#id_where_to").val("next") // go to prev
+            $("#submit")[0].click() // go to prev
+        })
 
-  // see if any improbably measurements have not been accepted. if so, then test them
-  improbableMeasurementValidation(false)
+        $(".submit-home").click(function () {
+            $("#id_where_to").val("home") // go to prev
+            $("#submit")[0].click() // go to prev
+        })
 
-  // test to see if all improbable measurements have been accepted
-  testImprobableAccepted("otolith_sample")
-
-  // test to see that all qc elements have been checked off
-  testQCPassed("otolith_sample") // should be the last test
-
-  // update the sample progress
-  var totalTests = $(".mandatory").length - 1 // subtract one for the lab_sampler
-  var progress = 0
-
-  // determine sample progress and mark measurement fields with .good or .bad
-  for (var i = 0; i < totalTests; i++) {
-    if ($(".mandatory")[i].value !== "") {
-      progress++
-    }
-  }
-
-  // re-set the test200Passed var
-  if ($("#display_test_200").text() === "passed") {
-    test200Passed = true;
-    $("#submit").prop("disabled", false)
-    $(".submit-proxy").removeClass("disabled")
-  } else {
-    test200Passed = false;
-    $("#submit").prop("disabled", true)
-    $(".submit-proxy").addClass("disabled")
-  }
-}
-
-$(document).keydown(function(event){
-    if ( event.key === 'PageDown' ) {
-      event.preventDefault()
-      // speak("Changing Record")
-      $("#id_where_to").val("next") // go to prev
-      $("#submit")[0].click()
-    }
-    else if ( event.key === 'PageUp' ) {
-      event.preventDefault()
-      // speak("Changing Record")
-      $("#id_where_to").val("prev") // go to prev
-      $("#submit")[0].click()
-    }
-
-    else if ( event.key === 'Home' ) {
-      event.preventDefault()
-      if (test200Passed) {
-        // save and go home
-        $("#id_where_to").val("home") // go back to the sample
-        $("#submit")[0].click()
-      }
-
-
-    }
-
-    else if (event.key === 'Escape') {
-      event.preventDefault()
-      $(".closeBtn")[0].click();
-    }
-    else if (event.key === 'F1') {
-      event.preventDefault()
-      $("#preview")[0].click();
-    }
-});
-
-$(".mandatory").change(function() {
-  runTests()
-})
-
-$(".submit-next").click(function () {
-  $("#id_where_to").val("next") // go to prev
-  $("#submit")[0].click() // go to prev
-})
-
-$(".submit-home").click(function () {
-    $("#id_where_to").val("home") // go to prev
-    $("#submit")[0].click() // go to prev
-})
-
-</script>
+    </script>
 
 
 
