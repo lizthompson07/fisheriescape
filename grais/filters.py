@@ -48,7 +48,7 @@ class SpeciesFilterFull(django_filters.FilterSet):
         fields = {
             'tsn':['exact'],
             'aphia_id':['exact'],
-            'biofouling':['exact'],
+            'epibiont_type':['exact'],
             'invasive':['exact'],
             'color_morph':['exact'],
         }
