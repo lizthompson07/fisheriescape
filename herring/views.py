@@ -549,6 +549,10 @@ class OtolithUpdateView(LoginRequiredMixin,UpdateView):
         else:
             context['next_fish_id'] = next_fishy.id
 
+        context["prev_record"] = reverse("herring:move_record", kwargs={'sample':self.object.sample.id,"type":"otolith","direction":"prev", "current_id":self.object.id})
+        context["next_record"] = reverse("herring:move_record", kwargs={'sample':self.object.sample.id,"type":"otolith","direction":"next", "current_id":self.object.id})
+        context["home"] = reverse("herring:sample_detail", kwargs={'pk':self.object.sample.id,})
+
         return context
 
     def get_initial(self):
