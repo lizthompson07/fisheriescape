@@ -98,6 +98,7 @@ class Sample(models.Model):
     # notes = models.TextField(blank=True, null=True)
     # notes_html = models.TextField(blank=True, null=True)
     # date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    old_id = models.IntegerField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SampleSpecies')
     season = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
@@ -129,8 +130,8 @@ class Sample(models.Model):
 
 
 class SampleSpecies(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="sample_spp")
-    sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name="sample_spp")
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="sample_spp")
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="sample_spp")
     observation_date = models.DateTimeField()
     notes = models.TextField(blank=True, null=True)
 
@@ -141,7 +142,7 @@ class SampleSpecies(models.Model):
 
 
 class SampleNote(models.Model):
-    sample = models.ForeignKey(Sample, related_name='notes', on_delete=models.DO_NOTHING)
+    sample = models.ForeignKey(Sample, related_name='notes', on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
     note = models.TextField()
@@ -157,7 +158,7 @@ class SampleNote(models.Model):
 
 
 class Line(models.Model):
-    sample = models.ForeignKey(Sample, related_name='lines', on_delete=models.DO_NOTHING)
+    sample = models.ForeignKey(Sample, related_name='lines', on_delete=models.CASCADE)
     collector = models.CharField(max_length=56, blank=True, null=True)
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
@@ -184,7 +185,7 @@ def img_file_name(instance, filename):
 
 class LineSpecies(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="line_spp")
-    line = models.ForeignKey(Line, on_delete=models.DO_NOTHING, related_name="line_spp")
+    line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name="line_spp")
     observation_date = models.DateTimeField()
     notes = models.TextField(blank=True, null=True)
 
@@ -201,7 +202,7 @@ class Surface(models.Model):
         (PLATE, 'Plate'),
     )
 
-    line = models.ForeignKey(Line, related_name='surfaces', on_delete=models.DO_NOTHING)
+    line = models.ForeignKey(Line, related_name='surfaces', on_delete=models.CASCADE)
     surface_type = models.CharField(max_length=2, choices=SURFACE_TYPE_CHOICES)
     label = models.CharField(max_length=255)
     image = models.ImageField(blank=True, null=True, upload_to=img_file_name)
@@ -228,7 +229,7 @@ class Surface(models.Model):
 
 class SurfaceSpecies(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="surface_spp")
-    surface = models.ForeignKey(Surface, on_delete=models.DO_NOTHING, related_name="surface_spp")
+    surface = models.ForeignKey(Surface, on_delete=models.CASCADE, related_name="surface_spp")
     percent_coverage = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
     notes = models.TextField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -273,7 +274,7 @@ class ProbeMeasurement(models.Model):
         (UTC, 'UTC'),
     )
 
-    sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name="probe_data")
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="probe_data")
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
     time_date = models.DateTimeField(blank=True, null=True)
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)

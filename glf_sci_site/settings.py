@@ -111,7 +111,7 @@ DATABASES = {
             'init_command': 'SET default_storage_engine=INNODB',
         },
     },
-    'dev_db': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'TIME_ZONE': 'America/Halifax',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),

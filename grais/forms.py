@@ -26,7 +26,7 @@ class SpeciesForm(forms.ModelForm):
 class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
-        exclude = ['date_created','last_modified','season', 'notes_html', 'days_deployed','collector_lines']
+        exclude = ['date_created','last_modified','season', 'notes_html', 'days_deployed','collector_lines', 'species']
         labels={
             'site_desc':"Site description",
             'samplers':"Samplers"
@@ -102,7 +102,7 @@ class LineCreateForm(forms.ModelForm):
 class LineForm(forms.ModelForm):
     class Meta:
         model = models.Line
-        fields = "__all__"
+        exclude = ['species',]
         labels={
             'collector':"DFO collector tag #",
             'latitude_n':"Latitude (N)",

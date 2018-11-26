@@ -12,6 +12,14 @@ class DevDatabaseRouter:
         """
         Attempts to read any models will always look at the production db ("default").
         """
+        #
+        # if MY_ENVR == 'dev':
+        #     if model._meta.app_label == 'auth' or model._meta.app_label == 'sessions' or model._meta.app_label == 'grais' or model._meta.app_label == 'herring':
+        #         return None
+        #     else:
+        #         return 'dev_db'
+        # else:
+        #     return None
 
         return None
 
