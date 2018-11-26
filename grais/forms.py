@@ -26,7 +26,7 @@ class SpeciesForm(forms.ModelForm):
 class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
-        exclude = ['date_created','last_modified','season', 'notes_html', 'days_deployed','collector_lines', 'species']
+        exclude = ['date_created','last_modified','season', 'notes_html', 'days_deployed','collector_lines', 'species', 'old_id']
         labels={
             'site_desc':"Site description",
             'samplers':"Samplers"
