@@ -1,7 +1,6 @@
 from .import models
 
-def resave_all(details = models.FishDetail.objects.all()):
+def resave_all(sample = models.Sample.objects.all()):
 
-    for d in details:
-        detail = models.FishDetail.objects.get(pk = d.id)
-        detail.save()
+    for obj in sample:
+        obj.save()
