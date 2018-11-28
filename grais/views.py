@@ -505,9 +505,10 @@ class SpeciesObservationCreatePopoutView(LoginRequiredMixin,CreateView):
 
         if self.kwargs["type"]=="sample":
             my_dict["sample"] = models.Sample.objects.get(pk=self.kwargs['pk'])
+            my_dict['observation_date'] = my_dict["sample"].date_retrieved
         elif self.kwargs["type"]=="line":
             my_dict["line"] = models.Line.objects.get(pk=self.kwargs['pk'])
-
+            my_dict['observation_date'] = my_dict["line"].sample.date_retrieved
         my_dict["species"] = models.Species.objects.get(pk=self.kwargs['species'])
 
         return my_dict
