@@ -8,6 +8,7 @@ class SampleFilter(django_filters.FilterSet):
     class Meta:
         model = models.Sample
         fields = {
+            'id':['exact'],
             'station':['exact'],
             # 'sampler':['exact'],
         }
