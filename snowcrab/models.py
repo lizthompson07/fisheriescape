@@ -16,6 +16,32 @@ class Vessel(models.Model):
         ordering = ['name']
 
 
+class Cruise(models.Model):
+    cruise_number = models.CharField(max_length=25)
+    mission_number = models.CharField(max_length=25)
+    vessel = models.ForeignKey(Vessel, related_name="cruises", on_delete=models.DO_NOTHING, blank=True, null=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    chief_scientist = models.CharField(max_length=255)
+    remarks = models.TextField(null=True, blank=True)
+    season = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-start_date']
+
+    def save(self, *args, **kwargs):
+        self.season = self.start_date.year
+        self.cruise_number = self.cruise_number.upper()
+        self.mission_number = self.mission_number.upper()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.mission_number
+
+    def get_absolute_url(self):
+        return reverse('fish:cruise_detail', kwargs={'pk': self.id})
+
+
 class Zone(models.Model):
     zone_name = models.CharField(max_length=255)
     nafo_area_code = models.CharField(max_length=25, null=True, blank=True)
@@ -36,11 +62,12 @@ class Set(models.Model):
         (AVG, "average"),
     )
 
-    set_name = models.CharField("Tow ID", verbose_name="Tow ID string")
-    set_number = models.IntegerField(verbose_name="Daily tow number")
-    year = models.IntegerField(verbose_name="Survey year")
-    month = models.IntegerField(verbose_name="Survey month")
-    day = models.IntegerField(verbose_name="Survey calendar day")
+    cruise = models.ForeignKey(Cruise, related_name="sets", on_delete=models.DO_NOTHING, blank=True, null=True)
+    set_name = models.CharField(blank=True, null=True, max_length=56, verbose_name="Tow ID string")
+    set_number = models.IntegerField(blank=True, null=True, verbose_name="Daily tow number")
+    year = models.IntegerField(blank=True, null=True, verbose_name="Survey year")
+    month = models.IntegerField(blank=True, null=True, verbose_name="Survey month")
+    day = models.IntegerField(blank=True, null=True, verbose_name="Survey calendar day")
     zone = models.ForeignKey(Zone, related_name="sets", on_delete=models.DO_NOTHING)
     valid = models.NullBooleanField(verbose_name="Tow quality(i.e. is it valid?)", blank=True, null=True)
     latitude_start_logbook = models.FloatField(blank=True, null=True,
@@ -69,17 +96,9 @@ class Set(models.Model):
     bottom_temperature_logbook = models.FloatField(blank=True, null=True, verbose_name="Bottom water temperature")
     warp_logbook = models.IntegerField(blank=True, null=True, verbose_name="Trawl warp length(in fathoms)")
     swept_area = models.FloatField(blank=True, null=True, verbose_name="Tow swept area(square meters)")
-    swept_area_method = models.CharField(max_length=255, choices=SWEPT_AREA_METHOD,
+    swept_area_method = models.CharField(max_length=255, choices=SWEPT_AREA_METHOD, blank=True, null=True,
                                          verbose_name="Swept-area calculation method")
     comment = models.TextField(blank=True, null=True, verbose_name="Tow comments")
-
-
-class ShellCondition(models.Model):
-    label = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.label
 
 
 class Sex(models.Model):
@@ -97,10 +116,9 @@ class Crab(models.Model):
     abdomen_width = models.FloatField(blank=True, null=True)
     chela_height = models.FloatField(blank=True, null=True)
     maturity = models.CharField(max_length=255, blank=True, null=True)
-    shell_condition = models.ForeignKey(ShellCondition, on_delete=models.DO_NOTHING)
-    shell_condition_mossy = models.BooleanField(default=False)
-    gonad_colour = models.CharField(max_length=255, blank=True, null=True)
-    egg_colour = models.CharField(max_length=255, blank=True, null=True)
+    shell_condition = models.CharField(max_length=2, blank=True, null=True)
+    gonad_colour = models.IntegerField(blank=True, null=True)
+    egg_colour = models.IntegerField(blank=True, null=True)
     eggs_remaining = models.IntegerField(blank=True, null=True)
     tag_number = models.IntegerField(blank=True, null=True)
     missing_legs = models.CharField(max_length=10, blank=True, null=True)
@@ -108,5 +126,3 @@ class Crab(models.Model):
     samplers = models.CharField(max_length=1000, blank=True, null=True)
     weight = models.FloatField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
-
-
