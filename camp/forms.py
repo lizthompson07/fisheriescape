@@ -137,9 +137,20 @@ class ReportSearchForm(forms.Form):
     for obj in models.Species.objects.all():
         SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
 
+    REPORT_CHOICES = (
+        (None, "---"),
+        (1,"Species counts by year"),
+        (2, "Species richness by year"),
+    )
+
+    report = forms.ChoiceField(required = True, choices = REPORT_CHOICES)
     species = forms.MultipleChoiceField(required = True, choices = SPECIES_CHOICES)
 
     # field_order = ["year","month","site","station","species"]
+
+
+
+
 
 
 # class ProbeMeasurementForm(forms.ModelForm):
