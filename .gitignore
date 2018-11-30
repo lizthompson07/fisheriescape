@@ -71,3 +71,6 @@ google_api_key.py
 # temp Folders #
 ################
 camp/templates/camp/temp/*
+
+# Shell scripts #
+#################
