@@ -132,25 +132,12 @@ class SpeciesObservationForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    #
-    # SITE_CHOICES = ((None, "---"),)
-    # for obj in models.Site.objects.all().order_by("site"):
-    #     SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
-    #
-    # STATION_CHOICES = ((None, "---"),)
-    # for obj in models.Station.objects.all():
-    #     STATION_CHOICES = STATION_CHOICES.__add__(((obj.id, obj),))
 
     SPECIES_CHOICES = ((None, "---"),)
     for obj in models.Species.objects.all():
         SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
 
-
-    # year = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder':"all years"}))
-    # month = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder':"all months"}))
-    # site = forms.ChoiceField(required = False, choices=SITE_CHOICES)
-    # station = forms.ChoiceField(required = False, choices = STATION_CHOICES)
-    species = forms.ChoiceField(required = False, choices = SPECIES_CHOICES)
+    species = forms.MultipleChoiceField(required = True, choices = SPECIES_CHOICES)
 
     # field_order = ["year","month","site","station","species"]
 
