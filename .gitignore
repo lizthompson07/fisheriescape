@@ -67,3 +67,7 @@ my.cnf
 # Google API key #
 ##################
 google_api_key.py
+
+# temp Folders #
+################
+temp/*
