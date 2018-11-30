@@ -610,9 +610,11 @@ def report_species(request, species):
 
     # TODO: quotient should change depending on the max / median value of the counrs... there should then be another var passed to the vars.R file containing the y-axis label
     target_file = os.path.join(target_dir, "vars.R").replace("\\", "\\\\")
-    print(target_file)
+    # print(target_file)
     # execute the rscript that will generate the html file
     f = open(target_file, "w+")
+    os.chmod(f.name, 0o777)
+
     f.write("counts = c({})\n".format(str(counts).replace("[", "").replace("]", "")))
     f.write("years = c({})\n".format(str(dates).replace("[", "").replace("]", "")))
     # f.write("species = '{}'\n".format(my_species.))
@@ -622,7 +624,7 @@ def report_species(request, species):
 
     # r_file = os.path.join(base_dir, 'R_scripts/species_count.R').replace("\\", "\\\\")
     r_file = os.path.join(base_dir, 'R_scripts','species_count.R').replace("\\", "\\\\")
-    print(r_file)
+    # print(r_file)
     subprocess.call("Rscript --vanilla {}".format(r_file), shell=True)
 
     context = {}
