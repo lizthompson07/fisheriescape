@@ -46,6 +46,12 @@ urlpatterns = [
     path('sample/<int:sample>/species/<int:species>/add/', views.SpeciesObservationCreateView.as_view(), name ="species_obs_new" ),
     path('species-observation/<int:pk>/edit/', views.SpeciesObservationUpdateView.as_view(), name ="species_obs_edit" ),
     path('species-observation/<int:pk>/delete/return-to-<str:backto>/', views.species_observation_delete, name ="species_obs_delete" ),
+
+    # Reports #
+    ###########
+    path('reports/<int:species>/species-count/', views.report_species, name="species_report"),
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+
 ]
 
 app_name = 'camp'

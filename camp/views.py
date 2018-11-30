@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models import Count, TextField
+from django.db.models import Count, TextField, Sum
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -18,6 +18,8 @@ from . import models
 from . import forms
 from . import filters
 from lib.functions.nz import nz
+from shutil import rmtree
+import os
 
 class CloserTemplateView(TemplateView):
     template_name = 'grais/close_me.html'
@@ -32,6 +34,10 @@ def not_in_camp_group(user):
 @user_passes_test(not_in_camp_group, login_url='/accounts/denied/')
 def index(request):
     return render(request, 'camp/index.html')
+
+
+# SAMPLE #
+##########
 
 class SearchFormView(LoginRequiredMixin, FormView):
     template_name = 'camp/sample_search.html'
@@ -77,9 +83,6 @@ class SearchFormView(LoginRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("camp:sample_search"))
 
 
-
-# SAMPLE #
-##########
 
 # class CloserTemplateView(TemplateView):
 #     template_name = 'grais/close_me.html'
@@ -509,4 +512,99 @@ def species_observation_delete(request,pk,backto):
         return HttpResponseRedirect(reverse_lazy("camp:sample_detail", kwargs={"pk": object.sample.id}))
     else:
         return HttpResponseRedirect(reverse_lazy("camp:species_obs_search", kwargs={"sample":object.sample.id}))
-#
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(LoginRequiredMixin, FormView):
+    template_name = 'camp/report_search.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.ReportSearchForm
+
+    # def get_initial(self):
+    #     return {'year':timezone.now().year-1}
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #
+        # station_list = []
+        # for obj in models.Station.objects.all():
+        #     station_list.append({"site": obj.site_id, "val": obj.id, "text": obj.name})
+        #
+        # context["station_list"] = station_list
+        return context
+
+    def form_valid(self, form):
+        # year = form.cleaned_data["year"]
+        # month = form.cleaned_data["month"]
+        # site = nz(form.cleaned_data["site"], None)
+        # station = nz(form.cleaned_data["station"], None)
+        species = form.cleaned_data["species"]
+        #
+        # # check to see how many results will be returned
+        # qs = models.Sample.objects.all()
+        # if year:
+        #     qs = qs.filter(year=year)
+        # if month:
+        #     qs = qs.filter(month=month)
+        # if station:
+        #     qs = qs.filter(station=station)
+        # if site and not station:
+        #     qs = qs.filter(station__site=site)
+        # if species:
+        #     qs = qs.filter(sample_spp__species=species)
+        #
+        # if qs.count() < 1000:
+        #     return HttpResponseRedirect(reverse("camp:sample_list",
+        #                                         kwargs={"year": year, "month": month, "site": site, "station": station,
+        #                                                 "species": species, }))
+        # else:
+        #     messages.error(self.request, "The search requested has returned too many results. Please try again.")
+        return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species":species}))
+
+
+def report_species(request, species):
+    # instantiate species
+    myspecies = models.Species.objects.get(pk=species)
+
+    # start by cleaning the temp dir
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    target_dir = os.path.join(base_dir, 'templates',"camp",'temp')
+    try:
+        rmtree(target_dir)
+    except:
+        print("no such dir.")
+
+    # fetch species data
+    my_species = models.Species.objects.get(pk=species)
+
+    # i want a queryset that has [species, station name, lat, lon, count of stn]
+
+    qs = models.SpeciesObservation.objects.filter(species=my_species).values(
+        'sample__year'
+    ).distinct().annotate(dsum=Sum('total'))
+
+    counts = []
+    dates = []
+    for obj in qs:
+        counts.append(obj["dsum"]/1000)
+        dates.append(obj["sample__year"])
+        
+    # create a new file containing data
+
+    os.mkdir(target_dir)
+    target_file = os.path.join(target_dir, "vars.R")
+    f = open(target_file, "w+")
+    f.write("counts = c({})\n".format(str(counts).replace("[","").replace("]","")))
+    f.write("dates = c({})\n".format(str(dates).replace("[","").replace("]","")))
+    # f.write("species = '{}'\n".format(my_species.))
+    f.close()
+    # execute R script to generate dynamic plot
+    import subprocess
+    r_file = os.path.join(base_dir, 'test.R').replace("\\","\\\\")
+    print(r_file)
+    subprocess.call("Rscript --vanilla {}".format(r_file), shell=True)
+
+    context = {}
+    context["species"] = my_species
+    return render(request, "camp/species_report.html", context=context)
