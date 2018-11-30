@@ -40,3 +40,5 @@ my_widget = dygraphs::dyRangeSelector(my_graph, dateWindow = range(data[[1]]))
 newpath = paste(here::here(), "/camp/templates/camp/temp/test-graph.html", sep = "")
 print(newpath)
 htmlwidgets::saveWidget(my_widget, file=newpath )
+
+Sys.chmod(newpath, mode = "0777", use_umask = TRUE)
