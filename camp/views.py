@@ -565,20 +565,22 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
 
 def report_species(request, species):
     # instantiate species
-    myspecies = models.Species.objects.get(pk=species)
+    my_species = models.Species.objects.get(pk=species)
 
     # start by cleaning the temp dir
     base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(base_dir, 'templates',"camp",'temp')
-    try:
-        rmtree(target_dir)
-    except:
-        print("no such dir.")
 
-    # fetch species data
-    my_species = models.Species.objects.get(pk=species)
+    # try:
+    #     rmtree(target_dir)
+    # except:
+    #     print("no such dir.")
 
-    # i want a queryset that has [species, station name, lat, lon, count of stn]
+    for root, dirs, files in os.walk(target_dir):
+        for f in files:
+            os.unlink(os.path.join(root, f))
+        for d in dirs:
+            rmtree(os.path.join(root, d))
 
     qs = models.SpeciesObservation.objects.filter(species=my_species).values(
         'sample__year'
@@ -592,7 +594,6 @@ def report_species(request, species):
         
     # create a new file containing data
 
-    os.mkdir(target_dir)
     target_file = os.path.join(target_dir, "vars.R")
     f = open(target_file, "w+")
     f.write("counts = c({})\n".format(str(counts).replace("[","").replace("]","")))
