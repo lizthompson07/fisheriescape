@@ -70,4 +70,4 @@ google_api_key.py
 
 # temp Folders #
 ################
-temp/*
+/temp/*
