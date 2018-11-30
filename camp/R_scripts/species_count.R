@@ -1,8 +1,15 @@
-path = paste(here::here(), "/camp/templates/camp/temp/vars.R", sep = "")
-source(path)
+# set paths
+temp_root = paste(here::here(), "/camp/templates/camp/temp", sep="")
+vars_path = paste(temp_root, "/vars.R", sep = "")
+html_path = paste(temp_root, "/temp_report.html", sep = "")
 
 
-data = list(dates = dates, counts = counts)
+# bring in data
+source(vars_path)
+data = list()
+data$years = years
+data$counts = counts
+
 format = "numeric"
 attrs <- list()
 attrs$title <- " "
@@ -34,11 +41,8 @@ my_graph = htmlwidgets::createWidget(name = "dygraphs", x = x, width = NULL,
                                      height = NULL, htmlwidgets::sizingPolicy(browser.padding = 20,
                                                                               browser.fill = FALSE), elementId = NULL)
 
-# my_graph = dygraphs::dygraph(my_list, main = "New Haven Temperatures")
 my_widget = dygraphs::dyRangeSelector(my_graph, dateWindow = range(data[[1]]))
+htmlwidgets::saveWidget(my_widget, file=html_path)
 
-newpath = paste(here::here(), "/camp/templates/camp/temp/test-graph.html", sep = "")
-print(newpath)
-htmlwidgets::saveWidget(my_widget, file=newpath )
+Sys.chmod(temp_root, mode = "0777", use_umask = TRUE)
 
-Sys.chmod(newpath, mode = "0777", use_umask = TRUE)
