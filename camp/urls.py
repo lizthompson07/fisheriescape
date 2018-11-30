@@ -49,7 +49,8 @@ urlpatterns = [
 
     # Reports #
     ###########
-    path('reports/<int:species>/species-count/', views.report_species, name="species_report"),
+    path('reports/<str:species_list>/species-count/', views.report_species, name="species_report"),
+    path('reports/species-richness/', views.report_species, name="species_richness"),
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
 
 ]

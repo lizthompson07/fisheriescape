@@ -5,15 +5,14 @@
 
     <div class="nav-map">
         <br>
-        <a href="{% url 'camp:report_search' %}"> Reports</a> >
-        <em>{{ species.common_name_eng }}</em>
+        <a href="{% url 'camp:report_search' %}"> Back </a>
     </div>
 
-    <div style="text-align: center;">
-        <h1>{{ species }}: Species Count by Year</h1>
-    </div>
+{#    <div style="text-align: center;">#}
+{#        <h1>{{ species }}: Species Count by Year</h1>#}
+{#    </div>#}
 
-    <div class="container" align="center">
+    <div class="" align="center" >
         {% include "camp/temp/species_counts_report.html" %}
     </div>
 
