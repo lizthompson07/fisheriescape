@@ -618,8 +618,9 @@ def report_species(request, species):
     f.close()
     # execute R script to generate dynamic plot
     import subprocess
-    r_file = os.path.join(base_dir, 'R_scripts/species_count.R').replace("\\", "\\\\")
-    print(r_file)
+
+    # r_file = os.path.join(base_dir, 'R_scripts/species_count.R').replace("\\", "\\\\")
+    r_file = os.path.join(base_dir, 'R_scripts/species_count.R')
     subprocess.call("Rscript --vanilla {}".format(r_file), shell=True)
 
     context = {}
