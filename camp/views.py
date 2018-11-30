@@ -17,6 +17,7 @@ from django_filters.views import FilterView
 from . import models
 from . import forms
 from . import filters
+from . import reports
 from lib.functions.nz import nz
 from shutil import rmtree
 import os
@@ -537,44 +538,12 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
     login_url = '/accounts/login_required/'
     form_class = forms.ReportSearchForm
 
-    # def get_initial(self):
-    #     return {'year':timezone.now().year-1}
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        #
-        # station_list = []
-        # for obj in models.Station.objects.all():
-        #     station_list.append({"site": obj.site_id, "val": obj.id, "text": obj.name})
-        #
-        # context["station_list"] = station_list
         return context
 
     def form_valid(self, form):
-        # year = form.cleaned_data["year"]
-        # month = form.cleaned_data["month"]
-        # site = nz(form.cleaned_data["site"], None)
-        # station = nz(form.cleaned_data["station"], None)
         species = form.cleaned_data["species"]
-        #
-        # # check to see how many results will be returned
-        # qs = models.Sample.objects.all()
-        # if year:
-        #     qs = qs.filter(year=year)
-        # if month:
-        #     qs = qs.filter(month=month)
-        # if station:
-        #     qs = qs.filter(station=station)
-        # if site and not station:
-        #     qs = qs.filter(station__site=site)
-        # if species:
-        #     qs = qs.filter(sample_spp__species=species)
-        #
-        # if qs.count() < 1000:
-        #     return HttpResponseRedirect(reverse("camp:sample_list",
-        #                                         kwargs={"year": year, "month": month, "site": site, "station": station,
-        #                                                 "species": species, }))
-        # else:
-        #     messages.error(self.request, "The search requested has returned too many results. Please try again.")
         return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species": species}))
 
 
@@ -584,48 +553,23 @@ def report_species(request, species):
 
     # start by cleaning the temp dir
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    target_dir = os.path.join(base_dir, 'templates', "camp", 'temp')
+    target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
+    target_file = os.path.join(target_dir,'species_counts_report.html')
 
-    # try:
-    #     rmtree(target_dir)
-    # except:
-    #     print("no such dir.")
-
-    # for root, dirs, files in os.walk(target_dir):
-    #     for f in files:
-    #         os.unlink(os.path.join(root, f))
-    #     for d in dirs:
-    #         rmtree(os.path.join(root, d))
+    try:
+        rmtree(target_dir)
+    except:
+        print("no such dir.")
+    os.mkdir(target_dir)
 
     # create a new file containing data
     qs = models.SpeciesObservation.objects.filter(species=my_species).values(
         'sample__year'
     ).distinct().annotate(dsum=Sum('total'))
 
-    counts = []
-    dates = []
-    for obj in qs:
-        counts.append(obj["dsum"] / 1000)
-        dates.append(obj["sample__year"])
-
-    # TODO: quotient should change depending on the max / median value of the counrs... there should then be another var passed to the vars.R file containing the y-axis label
-    target_file = os.path.join(target_dir, "vars.R").replace("\\", "\\\\")
-    # print(target_file)
-    # execute the rscript that will generate the html file
-    f = open(target_file, "w+")
-    os.chmod(f.name, 0o777)
-
-    f.write("counts = c({})\n".format(str(counts).replace("[", "").replace("]", "")))
-    f.write("years = c({})\n".format(str(dates).replace("[", "").replace("]", "")))
-    # f.write("species = '{}'\n".format(my_species.))
-    f.close()
-    # execute R script to generate dynamic plot
-    import subprocess
-
-    # r_file = os.path.join(base_dir, 'R_scripts/species_count.R').replace("\\", "\\\\")
-    r_file = os.path.join(base_dir, 'R_scripts','species_count.R').replace("\\", "\\\\")
-    # print(r_file)
-    subprocess.call("Rscript --vanilla {}".format(r_file), shell=True)
+    counts = [i["dsum"] for i in qs]
+    years = [i["sample__year"] for i in qs]
+    reports.generate_species_count_report(counts,years, my_species.common_name_eng, target_file)
 
     context = {}
     context["species"] = my_species
