@@ -74,3 +74,4 @@ camp/templates/camp/temp/*
 
 # Shell scripts #
 #################
+*.sh
