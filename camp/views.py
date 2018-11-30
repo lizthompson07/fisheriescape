@@ -591,12 +591,13 @@ def report_species(request, species):
     # except:
     #     print("no such dir.")
 
-    for root, dirs, files in os.walk(target_dir):
-        for f in files:
-            os.unlink(os.path.join(root, f))
-        for d in dirs:
-            rmtree(os.path.join(root, d))
+    # for root, dirs, files in os.walk(target_dir):
+    #     for f in files:
+    #         os.unlink(os.path.join(root, f))
+    #     for d in dirs:
+    #         rmtree(os.path.join(root, d))
 
+    # create a new file containing data
     qs = models.SpeciesObservation.objects.filter(species=my_species).values(
         'sample__year'
     ).distinct().annotate(dsum=Sum('total'))
@@ -608,9 +609,9 @@ def report_species(request, species):
         dates.append(obj["sample__year"])
 
     # TODO: quotient should change depending on the max / median value of the counrs... there should then be another var passed to the vars.R file containing the y-axis label
-    # create a new file containing data
-
-    target_file = os.path.join(target_dir, "vars.R")
+    target_file = os.path.join(target_dir, "vars.R").replace("\\", "\\\\")
+    print(target_file)
+    # execute the rscript that will generate the html file
     f = open(target_file, "w+")
     f.write("counts = c({})\n".format(str(counts).replace("[", "").replace("]", "")))
     f.write("years = c({})\n".format(str(dates).replace("[", "").replace("]", "")))
@@ -620,7 +621,8 @@ def report_species(request, species):
     import subprocess
 
     # r_file = os.path.join(base_dir, 'R_scripts/species_count.R').replace("\\", "\\\\")
-    r_file = os.path.join(base_dir, 'R_scripts/species_count.R')
+    r_file = os.path.join(base_dir, 'R_scripts','species_count.R').replace("\\", "\\\\")
+    print(r_file)
     subprocess.call("Rscript --vanilla {}".format(r_file), shell=True)
 
     context = {}
