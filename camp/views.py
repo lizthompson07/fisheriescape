@@ -543,34 +543,16 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
-        species = form.cleaned_data["species"]
-        return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species": species}))
+        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
+        report = form.cleaned_data["report"]
+        
+        if condition:
+            pass
+        return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species_list": species_list}))
 
 
-def report_species(request, species):
-    # instantiate species
-    my_species = models.Species.objects.get(pk=species)
+def report_species(request, species_list):
 
-    # start by cleaning the temp dir
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
-    target_file = os.path.join(target_dir,'species_counts_report.html')
+    reports.generate_species_count_report(species_list)
 
-    try:
-        rmtree(target_dir)
-    except:
-        print("no such dir.")
-    os.mkdir(target_dir)
-
-    # create a new file containing data
-    qs = models.SpeciesObservation.objects.filter(species=my_species).values(
-        'sample__year'
-    ).distinct().annotate(dsum=Sum('total'))
-
-    counts = [i["dsum"] for i in qs]
-    years = [i["sample__year"] for i in qs]
-    reports.generate_species_count_report(counts,years, my_species.common_name_eng, target_file)
-
-    context = {}
-    context["species"] = my_species
-    return render(request, "camp/report_species_count.html", context=context)
+    return render(request, "camp/report_species_count.html")

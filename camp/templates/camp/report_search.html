@@ -5,6 +5,13 @@
 {% block title %}Docs{% endblock title %}
 
 {% block content %}
+    <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen"
+          type="text/css">
+    <style>
+        .ms-container {
+            width: 700px;
+        }
+    </style>
 
     {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
     <div class="container">
@@ -17,12 +24,20 @@
         <form method="post">
 
             {% csrf_token %}
-            <div class="row">
-                <div class="col-4">
-                    {% bootstrap_form form layout='horizontal' %}
-                </div>
-            </div>
-            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search">
+            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search"><br><br>
+            {% for field in form %}
+
+                {% if field.name == "species" %}
+                    <div class="mydiv">
+                        {% bootstrap_field field %}
+
+                    </div>
+                {% else %}
+                    {% bootstrap_field field %}
+                {% endif %}
+            {% endfor %}
+
+
         </form>
         <br>
         <p>
@@ -30,6 +45,19 @@
 
 
     </div>
+
+    <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
+    <script type="application/javascript">
+        $("#id_species").multiSelect()
+
+        $("#id_report").change(function () {
+            if (this.value == 2) {
+                $(".mydiv").addClass("hidden")
+            }
+        })
+
+    </script>
+
     {##}
     {#<script type="application/javascript">#}
     {#    // VARS#}
@@ -90,12 +118,6 @@
     {##}
     {#</script>#}
 
-
-
-    <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
-    <script type="application/javascript">
-        $("#id_species").multiSelect()
-    </script>
 
 
 {% endblock content %}
