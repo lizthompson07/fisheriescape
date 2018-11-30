@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
+from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 
 from django_filters.views import FilterView
 from . import models
@@ -21,16 +21,18 @@ from lib.functions.nz import nz
 from shutil import rmtree
 import os
 
+
 class CloserTemplateView(TemplateView):
     template_name = 'grais/close_me.html'
-
 
 
 def not_in_camp_group(user):
     if user:
         return user.groups.filter(name='camp_access').count() != 0
+
+
 #
-@login_required(login_url = '/accounts/login_required/')
+@login_required(login_url='/accounts/login_required/')
 @user_passes_test(not_in_camp_group, login_url='/accounts/denied/')
 def index(request):
     return render(request, 'camp/index.html')
@@ -51,7 +53,7 @@ class SearchFormView(LoginRequiredMixin, FormView):
 
         station_list = []
         for obj in models.Station.objects.all():
-            station_list.append({"site":obj.site_id,"val":obj.id,"text":obj.name})
+            station_list.append({"site": obj.site_id, "val": obj.id, "text": obj.name})
 
         context["station_list"] = station_list
         return context
@@ -59,9 +61,9 @@ class SearchFormView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         year = form.cleaned_data["year"]
         month = form.cleaned_data["month"]
-        site = nz(form.cleaned_data["site"],None)
-        station = nz(form.cleaned_data["station"],None)
-        species = nz(form.cleaned_data["species"],None)
+        site = nz(form.cleaned_data["site"], None)
+        station = nz(form.cleaned_data["station"], None)
+        species = nz(form.cleaned_data["species"], None)
 
         # check to see how many results will be returned
         qs = models.Sample.objects.all()
@@ -75,13 +77,14 @@ class SearchFormView(LoginRequiredMixin, FormView):
             qs = qs.filter(station__site=site)
         if species:
             qs = qs.filter(sample_spp__species=species)
-        
-        if qs.count() < 1000:
-            return HttpResponseRedirect(reverse("camp:sample_list", kwargs={"year":year,"month":month,"site":site,"station":station,"species":species,}))
-        else:
-            messages.error(self.request,"The search requested has returned too many results. Please try again.")
-            return HttpResponseRedirect(reverse("camp:sample_search"))
 
+        if qs.count() < 1000:
+            return HttpResponseRedirect(reverse("camp:sample_list",
+                                                kwargs={"year": year, "month": month, "site": site, "station": station,
+                                                        "species": species, }))
+        else:
+            messages.error(self.request, "The search requested has returned too many results. Please try again.")
+            return HttpResponseRedirect(reverse("camp:sample_search"))
 
 
 # class CloserTemplateView(TemplateView):
@@ -121,8 +124,9 @@ class SampleFilterView(LoginRequiredMixin, FilterView):
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
         if kwargs["data"] is None:
-            kwargs["data"] = {"SeasonExact": timezone.now().year-1 }
+            kwargs["data"] = {"SeasonExact": timezone.now().year - 1}
         return kwargs
+
 
 class SampleDetailView(LoginRequiredMixin, DetailView):
     model = models.Sample
@@ -179,6 +183,7 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
 
         return context
 
+
 class SampleUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Sample
     form_class = forms.SampleForm
@@ -196,7 +201,7 @@ class SampleCreateView(LoginRequiredMixin, CreateView):
         # get a list of Stations
         station_list = []
         for s in models.Station.objects.all():
-            html_insert = '<a href="#" class="station_insert" code={id}>{station}</a>'.format(id=s.id,station=s)
+            html_insert = '<a href="#" class="station_insert" code={id}>{station}</a>'.format(id=s.id, station=s)
             station_list.append(html_insert)
         context['station_list'] = station_list
         return context
@@ -225,7 +230,8 @@ class SiteListView(LoginRequiredMixin, FilterView):
     template_name = "camp/site_list.html"
     login_url = '/accounts/login_required/'
 
-class SiteUpdateView(LoginRequiredMixin,  UpdateView):
+
+class SiteUpdateView(LoginRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
     login_url = '/accounts/login_required/'
@@ -235,6 +241,7 @@ class SiteUpdateView(LoginRequiredMixin,  UpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+
 class SiteCreateView(LoginRequiredMixin, CreateView):
     model = models.Site
     login_url = '/accounts/login_required/'
@@ -242,6 +249,7 @@ class SiteCreateView(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
 
 class SiteDetailView(LoginRequiredMixin, DetailView):
     model = models.Site
@@ -259,7 +267,7 @@ class SiteDetailView(LoginRequiredMixin, DetailView):
         ]
         context['field_list'] = field_list
 
-        station_list =  []
+        station_list = []
         for obj in self.object.stations.all():
             if obj.latitude_n and obj.longitude_w:
                 station_list.append(
@@ -267,8 +275,8 @@ class SiteDetailView(LoginRequiredMixin, DetailView):
                 )
         context['station_list'] = station_list
 
-
         return context
+
 
 class SiteDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Site
@@ -283,7 +291,7 @@ class SiteDeleteView(LoginRequiredMixin, DeleteView):
 # STATION #
 ###########
 
-class StationUpdateView(LoginRequiredMixin,  UpdateView):
+class StationUpdateView(LoginRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
     login_url = '/accounts/login_required/'
@@ -315,6 +323,7 @@ class NoSiteStationCreateView(LoginRequiredMixin, CreateView):
     form_class = forms.NoSiteStationForm
     success_url = reverse_lazy("camp:close_me")
 
+
 class StationDetailView(LoginRequiredMixin, DetailView):
     model = models.Station
     login_url = '/accounts/login_required/'
@@ -335,12 +344,13 @@ class StationDetailView(LoginRequiredMixin, DetailView):
 
         return context
 
+
 class StationDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Station
     success_message = 'The station was successfully deleted!'
 
     def get_success_url(self):
-        return reverse_lazy("camp:site_detail", kwargs={"pk":self.object.site.id})
+        return reverse_lazy("camp:site_detail", kwargs={"pk": self.object.site.id})
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -356,6 +366,7 @@ class SpeciesListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     queryset = models.Species.objects.annotate(
         search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
+
 
 class SpeciesDetailView(LoginRequiredMixin, DetailView):
     model = models.Species
@@ -373,13 +384,13 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
             'aphia_id',
             'notes',
         ]
-        
+
         # get a list of x,y coords for the species
         locations = []
 
         # i want a queryset that has [species, station name, lat, lon, count of stn]
 
-        qs = models.SpeciesObservation.objects.filter(species = self.object).values(
+        qs = models.SpeciesObservation.objects.filter(species=self.object).values(
             'species_id',
             'sample__station__id',
             'sample__station__name',
@@ -389,7 +400,9 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
 
         for obj in qs:
             if obj["sample__station__latitude_n"] and obj["sample__station__longitude_w"]:
-                year_last_seen = models.SpeciesObservation.objects.filter(species=self.object.id).filter(sample__station = obj["sample__station__id"]).order_by("-sample__start_date").first().sample.start_date.year
+                year_last_seen = models.SpeciesObservation.objects.filter(species=self.object.id).filter(
+                    sample__station=obj["sample__station__id"]).order_by(
+                    "-sample__start_date").first().sample.start_date.year
                 locations.append(
                     [
                         obj["sample__station__name"],
@@ -412,6 +425,7 @@ class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+
 class SpeciesCreateView(LoginRequiredMixin, CreateView):
     model = models.Species
     login_url = '/accounts/login_required/'
@@ -419,6 +433,7 @@ class SpeciesCreateView(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
 
 class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
     model = models.Species
@@ -440,12 +455,13 @@ class SpeciesObservationInsertView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sample = models.Sample.objects.get(pk=self.kwargs['sample'])
-        context['sample']= sample
+        context['sample'] = sample
         sample_spp = models.Sample.objects.get(pk=sample.id).sample_spp.all()
-        context['sample_spp']= sample_spp
+        context['sample_spp'] = sample_spp
 
         queryset = models.Species.objects.annotate(
-            search_term=Concat('common_name_eng','common_name_fre', 'scientific_name', 'code', output_field=TextField()))
+            search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code',
+                               output_field=TextField()))
 
         # get a list of species
         species_list = []
@@ -453,7 +469,7 @@ class SpeciesObservationInsertView(TemplateView):
             # html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
             #         p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
             html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / {} / <em>{}</em> / {}</span>'.format(
-                reverse("camp:species_obs_new", kwargs={"sample":sample.id, "species":obj.id}),
+                reverse("camp:species_obs_new", kwargs={"sample": sample.id, "species": obj.id}),
                 static("admin/img/icon-addlink.svg"),
                 obj.common_name_eng,
                 obj.common_name_fre,
@@ -465,9 +481,9 @@ class SpeciesObservationInsertView(TemplateView):
         return context
 
 
-class SpeciesObservationCreateView(LoginRequiredMixin,CreateView):
+class SpeciesObservationCreateView(LoginRequiredMixin, CreateView):
     model = models.SpeciesObservation
-    template_name ='camp/species_obs_form_popout.html'
+    template_name = 'camp/species_obs_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.SpeciesObservationForm
 
@@ -477,33 +493,32 @@ class SpeciesObservationCreateView(LoginRequiredMixin,CreateView):
         return {
             'sample': sample,
             'species': species,
-            }
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         species = models.Species.objects.get(id=self.kwargs['species'])
         sample = models.Sample.objects.get(id=self.kwargs['sample'])
-        context['species']= species
-        context['sample']= sample
+        context['species'] = species
+        context['sample'] = sample
         return context
 
     def form_valid(self, form):
         self.object = form.save()
         return HttpResponseRedirect(reverse('camp:close_me'))
 
-class SpeciesObservationUpdateView(LoginRequiredMixin,UpdateView):
-    model = models.SpeciesObservation
-    template_name ='camp/species_obs_form_popout.html'
-    form_class = forms.SpeciesObservationForm
 
+class SpeciesObservationUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.SpeciesObservation
+    template_name = 'camp/species_obs_form_popout.html'
+    form_class = forms.SpeciesObservationForm
 
     def form_valid(self, form):
         self.object = form.save()
         return HttpResponseRedirect(reverse('camp:close_me'))
 
 
-
-def species_observation_delete(request,pk,backto):
+def species_observation_delete(request, pk, backto):
     object = models.SpeciesObservation.objects.get(pk=pk)
     object.delete()
     messages.success(request, "The species has been successfully deleted from {}.".format(object.sample))
@@ -511,7 +526,7 @@ def species_observation_delete(request,pk,backto):
     if backto == "detail":
         return HttpResponseRedirect(reverse_lazy("camp:sample_detail", kwargs={"pk": object.sample.id}))
     else:
-        return HttpResponseRedirect(reverse_lazy("camp:species_obs_search", kwargs={"sample":object.sample.id}))
+        return HttpResponseRedirect(reverse_lazy("camp:species_obs_search", kwargs={"sample": object.sample.id}))
 
 
 # REPORTS #
@@ -560,7 +575,7 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
         #                                                 "species": species, }))
         # else:
         #     messages.error(self.request, "The search requested has returned too many results. Please try again.")
-        return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species":species}))
+        return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species": species}))
 
 
 def report_species(request, species):
@@ -569,7 +584,7 @@ def report_species(request, species):
 
     # start by cleaning the temp dir
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    target_dir = os.path.join(base_dir, 'templates',"camp",'temp')
+    target_dir = os.path.join(base_dir, 'templates', "camp", 'temp')
 
     # try:
     #     rmtree(target_dir)
@@ -589,23 +604,24 @@ def report_species(request, species):
     counts = []
     dates = []
     for obj in qs:
-        counts.append(obj["dsum"]/1000)
+        counts.append(obj["dsum"] / 1000)
         dates.append(obj["sample__year"])
-        
+
+    # TODO: quotient should change depending on the max / median value of the counrs... there should then be another var passed to the vars.R file containing the y-axis label
     # create a new file containing data
 
     target_file = os.path.join(target_dir, "vars.R")
     f = open(target_file, "w+")
-    f.write("counts = c({})\n".format(str(counts).replace("[","").replace("]","")))
-    f.write("dates = c({})\n".format(str(dates).replace("[","").replace("]","")))
+    f.write("counts = c({})\n".format(str(counts).replace("[", "").replace("]", "")))
+    f.write("years = c({})\n".format(str(dates).replace("[", "").replace("]", "")))
     # f.write("species = '{}'\n".format(my_species.))
     f.close()
     # execute R script to generate dynamic plot
     import subprocess
-    r_file = os.path.join(base_dir, 'test.R').replace("\\","\\\\")
+    r_file = os.path.join(base_dir, 'R_scripts/species_count.R').replace("\\", "\\\\")
     print(r_file)
     subprocess.call("Rscript --vanilla {}".format(r_file), shell=True)
 
     context = {}
     context["species"] = my_species
-    return render(request, "camp/species_report.html", context=context)
+    return render(request, "camp/report_species_count.html", context=context)
