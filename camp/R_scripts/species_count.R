@@ -44,5 +44,8 @@ my_graph = htmlwidgets::createWidget(name = "dygraphs", x = x, width = NULL,
 my_widget = dygraphs::dyRangeSelector(my_graph, dateWindow = range(data[[1]]))
 htmlwidgets::saveWidget(my_widget, file=html_path)
 
-Sys.chmod(temp_root, mode = "7777", use_umask = TRUE)
+Sys.chmod(temp_root, "777", use_umask = TRUE)
+f <- list.files(temp_root, all.files = TRUE, full.names = TRUE, recursive = TRUE)
+Sys.chmod(f, (file.info(f)$mode | "777"))
+
 
