@@ -1,7 +1,12 @@
 # set paths
-temp_root = paste(here::here(), "/camp/templates/camp/temp", sep="")
-vars_path = paste(temp_root, "/vars.R", sep = "")
-html_path = paste(temp_root, "/temp_report.html", sep = "")
+temp_root = paste(here::here(), "camp","templates","camp","temp", sep="/")
+vars_path = paste(temp_root, "vars.R", sep = "/")
+html_path = paste(temp_root, "temp_report.html", sep = "/")
+
+# clean up destination
+# f <- list.files(temp_root, all.files = TRUE, full.names = TRUE, recursive = TRUE)
+# file.remove(f)
+
 
 
 # bring in data
