@@ -6,33 +6,13 @@ from . import models
 import numpy as np
 import os
 
+# produce a list of vectorized colors
 N = 100
 x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 colors = [
-    "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
+    "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50 + 2 * x, 30 + 2 * y)
 ]
-#
-# colors = [
-#     'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond',
-#     'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral', 'cornflowerblue',
-#     'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkgrey',
-#     'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon',
-#     'darkseagreen', 'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet', 'deeppink',
-#     'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia',
-#     'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow', 'grey', 'honeydew', 'hotpink',
-#     'indianred', 'indigo', 'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue',
-#     'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightgrey', 'lightpink',
-#     'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue',
-#     'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine', 'mediumblue',
-#     'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise',
-#     'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace',
-#     'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise',
-#     'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple', 'red', 'rosybrown',
-#     'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue',
-#     'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle', 'tomato',
-#     'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen'
-# ]
 
 
 def generate_species_count_report(species_list):
@@ -83,7 +63,7 @@ def generate_species_count_report(species_list):
     save(p)
 
 
-def generate_species_richness_report():
+def generate_species_richness_report(site=None):
     # start assigning files and by cleaning the temp dir
     base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
@@ -103,36 +83,89 @@ def generate_species_richness_report():
         title="Count of Species Observations by Year",
         tools="pan,box_zoom,wheel_zoom,reset,save",
         x_axis_label='Year',
-        y_axis_label='Count',
-        plot_width=1200, plot_height=600,
+        y_axis_label='Species count',
+        plot_width=1200, plot_height=800,
         x_axis_type="linear"
 
     )
-
     p.grid.grid_line_alpha = 1
-    qs_years = models.Sample.objects.all().order_by("year").values(
-        'year',
-    ).distinct()
 
-    years = []
-    counts = []
+    if site:
+        # reset title
+        p.title.text = "Count of Species Observations by Year - {}".format(models.Site.objects.get(pk=site))
 
-    for obj in qs_years:
-        y = obj['year']
-        annual_obs = models.SpeciesObservation.objects.filter(sample__year=y).values(
-            'species_id',
+        # first we need a list of stations
+        stations = models.Station.objects.filter(site_id=site).order_by("name")
+
+        i = 0
+        for station in stations:
+            print(station)
+            qs_years = models.Sample.objects.filter(station=station).order_by("year").values(
+                'year',
+            ).distinct()
+
+            years = []
+            counts = []
+
+            for obj in qs_years:
+                y = obj['year']
+                annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station=station).values(
+                    'species_id',
+                ).distinct()
+                species_set = set([i["species_id"] for i in annual_obs])
+                years.append(y)
+                counts.append(len(species_set))
+
+            legend_title = str(station)
+            p.line(years, counts, legend=legend_title, line_width=1, line_color=colors[i], line_dash="4 4")
+            p.circle(years, counts, legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3)
+            i += 1
+
+        # Show a line for entire site
+        qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values(
+            'year',
         ).distinct()
-        species_set = set([i["species_id"] for i in annual_obs])
-        years.append(y)
-        print(years)
-        counts.append(len(species_set))
-        print(counts)
-    # my_sp = models.Species.objects.get(pk=sp_id)
-    legend_title = "Number of species observed"
-    p.line(years, counts, legend=legend_title, line_width=3)
-    p.circle(years, counts, legend=legend_title, fill_color='white', size=8)
-    # TODO: should we show the number of stations visited?
-    save(p)
 
-# TODO: number of species observed by year at a giving station..
-# it can be combined with this one but instead of selecting a station there would be an all option
+        years = []
+        counts = []
+
+        for obj in qs_years:
+            y = obj['year']
+            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site).values(
+                'species_id',
+            ).distinct()
+            species_set = set([i["species_id"] for i in annual_obs])
+            years.append(y)
+            counts.append(len(species_set))
+
+        legend_title = "Entire site"
+        p.line(years, counts, legend=legend_title, line_width=3, line_color='black')
+        p.circle(years, counts, legend=legend_title, fill_color='black', line_color='black', size=8)
+        # TODO: should we show the number of stations visited?
+
+
+    else:
+        qs_years = models.Sample.objects.all().order_by("year").values(
+            'year',
+        ).distinct()
+
+        years = []
+        counts = []
+
+        for obj in qs_years:
+            y = obj['year']
+            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y).values(
+                'species_id',
+            ).distinct()
+            species_set = set([i["species_id"] for i in annual_obs])
+            years.append(y)
+            print(years)
+            counts.append(len(species_set))
+            print(counts)
+        # my_sp = models.Species.objects.get(pk=sp_id)
+        legend_title = "All stations"
+        p.line(years, counts, legend=legend_title, line_width=3)
+        p.circle(years, counts, legend=legend_title, fill_color='white', size=8)
+        # TODO: should we show the number of stations visited?
+
+    save(p)
