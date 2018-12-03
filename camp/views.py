@@ -549,7 +549,16 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
         if report == 1:
             return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species_list": species_list}))
         elif report == 2:
-            return HttpResponseRedirect(reverse("camp:species_richness", ))
+            try:
+                site = int(form.cleaned_data["sites"])
+            except:
+                site = None
+                print("no site provided")
+
+            if site:
+                return HttpResponseRedirect(reverse("camp:species_richness", kwargs={"site": site} ))
+            else:
+                return HttpResponseRedirect(reverse("camp:species_richness"))
 
 
 def report_species_count(request, species_list):
@@ -557,8 +566,11 @@ def report_species_count(request, species_list):
     reports.generate_species_count_report(species_list)
     return render(request, "camp/report_display.html")
 
-def report_species_richness(request):
+def report_species_richness(request, site=None):
 
-    reports.generate_species_richness_report()
+    if site:
+        reports.generate_species_richness_report(site)
+    else:
+        reports.generate_species_richness_report()
+
     return render(request, "camp/report_display.html")
-

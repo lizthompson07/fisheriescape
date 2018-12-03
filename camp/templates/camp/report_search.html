@@ -24,18 +24,24 @@
         <form method="post">
 
             {% csrf_token %}
-            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search"><br><br>
             {% for field in form %}
 
                 {% if field.name == "species" %}
-                    <div class="mydiv">
+                    <div class="species_div">
                         {% bootstrap_field field %}
 
                     </div>
+                {% elif field.name == "sites" %}
+                    <div class="site_div">
+                        {% bootstrap_field field %}
+
+                    </div>
+
                 {% else %}
                     {% bootstrap_field field %}
                 {% endif %}
             {% endfor %}
+            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search"><br><br>
 
 
         </form>
@@ -48,78 +54,30 @@
 
     <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
     <script type="application/javascript">
-        $("#id_species").multiSelect()
+
+        function hideAll() {
+            $(".species_div").addClass("gone")
+            $(".site_div").addClass("gone")
+        }
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            hideAll()
+        });
 
         $("#id_report").change(function () {
-            if (this.value == 2) {
-                $(".mydiv").addClass("hidden")
+            hideAll()
+            if (this.value == 1) {
+                $(".species_div").removeClass("gone")
+                $("#id_species").multiSelect()
+
             }
-            else if (this.value == 1) {
-                $(".mydiv").removeClass("hidden")
+            else if (this.value == 2) {
+                $(".site_div").removeClass("gone")
             }
         })
 
     </script>
-
-    {##}
-    {#<script type="application/javascript">#}
-    {#    // VARS#}
-    {#    var stationList = {{ station_list|safe }}#}
-    {##}
-    {#    $(document).ready(function() {#}
-    {#        // Stuff to do as soon as the DOM is ready#}
-    {#        if($("#id_site").val().length > 0 ) {#}
-    {#            $("#id_station").prop("disabled",false)#}
-    {#            refreshStationList()#}
-    {#        }#}
-    {#        else{#}
-    {#            $("#id_station").prop("disabled",true)#}
-    {#        }#}
-    {##}
-    {#    });#}
-    {##}
-    {#    $("#id_site").change(function () {#}
-    {#        refreshStationList()#}
-    {#    })#}
-    {##}
-    {#    function refreshStationList() {#}
-    {#        // clear existing and nucleate with starter option (blank)#}
-    {#            $('#id_station').empty();#}
-    {#            var starterOption = new Option("---", "");#}
-    {#            $("#id_station").append(starterOption);#}
-    {#            $("#id_station").prop("disabled",true)#}
-    {##}
-    {#            // populate the choice box with the appropriate choices#}
-    {#            // new value of site#}
-    {#            var site = $("#id_site").val()#}
-    {##}
-    {#            // proceed if there is a value to site#}
-    {#            if(site.length > 0) {#}
-    {##}
-    {#                for (var i = 0; i < stationList.length; i++) {#}
-    {#                    if(stationList[i].site == site) {#}
-    {##}
-    {#                        var option = new Option(stationList[i].text, stationList[i].val);#}
-    {#$(option).html("option text");#}
-    {#                        $("#id_station").append(option);#}
-    {##}
-    {#$('#id_station').append($('<option>').text("Select"));#}
-    {#                    }#}
-    {##}
-    {##}
-    {#                }#}
-    {##}
-    {#                $("#id_station").prop("disabled",false)#}
-    {#            }#}
-    {##}
-    {#    }#}
-    {#    $("form").submit(function () {#}
-    {#        $("#submit").val("Searching...")#}
-    {#        $("#submit").addClass("disabled")#}
-    {#    })#}
-    {##}
-    {##}
-    {#</script>#}
 
 
 
