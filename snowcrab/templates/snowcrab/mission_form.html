@@ -1,0 +1,37 @@
+{% extends "snowcrab/snowcrab_base.html" %}
+{% load bootstrap4 %}
+
+
+{% block content %}
+
+  <div class="container">
+    {% if object.id %}
+    <h1>{{object.mission_name}}</h1>
+    {% else %}
+    <h1>New Document</h1>
+    {% endif %}
+
+      <form  method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="btn-group">
+          {% if editable %}
+          <input type="submit" class="btn btn-primary" value="Submit">
+          {% else %}
+          <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
+          <a href="{% url "oceanography:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
+          <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-info">Export CSV</a>
+          {% endif %}
+          <a href="{% url "oceanography:mission_list" object.season %}" class="btn btn-secondary">Back</a>
+        </div>
+        <br><br>
+
+        <fieldset {% if not editable %}disabled   {% endif %}>
+        {%bootstrap_form form%}
+        </fieldset>
+
+      </form>
+    <br>
+
+  </div>
+
+{% endblock content %}
