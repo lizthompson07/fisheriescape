@@ -544,15 +544,21 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
-        report = form.cleaned_data["report"]
+        report = int(form.cleaned_data["report"])
         
-        if condition:
-            pass
-        return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species_list": species_list}))
+        if report == 1:
+            return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species_list": species_list}))
+        elif report == 2:
+            return HttpResponseRedirect(reverse("camp:species_richness", ))
 
 
-def report_species(request, species_list):
+def report_species_count(request, species_list):
 
     reports.generate_species_count_report(species_list)
+    return render(request, "camp/report_display.html")
 
-    return render(request, "camp/report_species_count.html")
+def report_species_richness(request):
+
+    reports.generate_species_richness_report()
+    return render(request, "camp/report_display.html")
+
