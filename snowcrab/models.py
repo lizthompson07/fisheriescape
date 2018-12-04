@@ -165,7 +165,7 @@ class Sex(models.Model):
 class Crab(models.Model):
     set = models.ForeignKey(Set, on_delete=models.DO_NOTHING, related_name="crabs")
     crab_number = models.IntegerField(blank=True, null=True)
-    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="crabs")
+    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="crabs", blank=True, null=True)
     carapace_width = models.FloatField(blank=True, null=True)
     abdomen_width = models.FloatField(blank=True, null=True)
     chela_height = models.FloatField(blank=True, null=True)
@@ -187,3 +187,4 @@ class Crab(models.Model):
 
     class Meta:
         ordering = ['crab_number']
+        unique_together = ['crab_number', 'set']
