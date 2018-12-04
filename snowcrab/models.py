@@ -36,7 +36,7 @@ class Cruise(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.mission_number
+        return "Cruise {}".format(self.mission_number)
 
     def get_absolute_url(self):
         return reverse('fish:cruise_detail', kwargs={'pk': self.id})
@@ -100,6 +100,11 @@ class Set(models.Model):
                                          verbose_name="Swept-area calculation method")
     comment = models.TextField(blank=True, null=True, verbose_name="Tow comments")
 
+    class Meta:
+        ordering = ['start_time_logbook']
+
+    def __str__(self):
+        return "Set {}".format(self.set_name)
 
 class Sex(models.Model):
     sex = models.CharField(max_length=255)
@@ -126,3 +131,9 @@ class Crab(models.Model):
     samplers = models.CharField(max_length=1000, blank=True, null=True)
     weight = models.FloatField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "Crab {}".format(self.crab_number)
+
+    class Meta:
+        ordering = ['crab_number']

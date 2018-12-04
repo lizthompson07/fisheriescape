@@ -11,118 +11,114 @@ from . import models
 from . import forms
 
 
-
 class IndexTemplateView(TemplateView):
     template_name = "snowcrab/index.html"
 
-#
-# # DOCS #
-# ########
-#
-# class DocListView(ListView):
-#     model = models.Doc
-#     template_name = "oceanography/doc_list.html"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['now'] = timezone.now()
-#         return context
-#
-# class DocCreateView(LoginRequiredMixin, CreateView):
-#     model = models.Doc
-#     template_name = "oceanography/doc_form.html"
-#     form_class = forms.DocForm
-#     success_url = reverse_lazy("oceanography:doc_list")
-#     login_url = '/accounts/login_required/'
-#
-# class DocUpdateView(LoginRequiredMixin, UpdateView):
-#     model = models.Doc
-#     template_name = "oceanography/doc_form.html"
-#     form_class = forms.DocForm
-#     success_url = reverse_lazy("oceanography:doc_list")
-#     login_url = '/accounts/login_required/'
-#
-# # MISSIONS #
-# ############
-#
-# class MissionYearListView(TemplateView):
-#     template_name = "oceanography/mission_year_list.html"
-#
-#     def get_context_data(self, **kwargs):
-#         # get context
-#         context = super().get_context_data(**kwargs)
-#
-#
-#         # create a reference list of years
-#         season_list = []
-#         for item in models.Mission.objects.values("season").distinct():
-#             season_list.append(item["season"])
-#
-#         context["season_list"] = season_list
-#         return context
-#
-#
-# class MissionListView(ListView):
-#     template_name = "oceanography/mission_list.html"
-#
-#     def get_queryset(self):
-#         return models.Mission.objects.filter(season = self.kwargs["year"])
-#
-#
-# class MissionDetailView(DetailView):
-#     template_name = "oceanography/mission_detail.html"
-#     model = models.Mission
-#
-#     def get_context_data(self, **kwargs):
-#         # get context
-#         context = super().get_context_data(**kwargs)
-#
-#         context["editable"] = False
-#
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#
-#         context['field_list'] = [
-#             "mission_name",
-#             "mission_number",
-#             "meds_id",
-#             "vessel_name",
-#             "ship_call_sign",
-#             "chief_scientist",
-#             "samplers",
-#             "start_date",
-#             "end_date",
-#             "number_of_profiles",
-#             "probe",
-#             "area_of_operation",
-#             "notes",
-#         ]
-#
-#
-#         return context
-#
-#
-# class MissionUpdateView(LoginRequiredMixin, UpdateView):
-#     template_name = "oceanography/mission_form.html"
-#     model = models.Mission
-#     form_class = forms.MissionForm
-#     login_url = '/accounts/login_required/'
-#
-#     def get_success_url(self, **kwargs):
-#         return reverse_lazy("oceanography:mission_detail", kwargs={"pk":self.object.id})
-#
-#     def get_context_data(self, **kwargs):
-#         # get context
-#         context = super().get_context_data(**kwargs)
-#
-#         context["editable"] = True
-#         return context
-#
+
+# CRUISE #
+##########
+
+class CruiseListView(LoginRequiredMixin, ListView):
+    template_name = "snowcrab/cruise_list.html"
+    model = models.Cruise
+
+
+class CruiseDetailView(LoginRequiredMixin, DetailView):
+    template_name = "snowcrab/cruise_detail.html"
+    model = models.Cruise
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+
+        context["editable"] = False
+
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        context['field_list'] = [
+            "cruise_number",
+            "mission_number",
+            "vessel",
+            "start_date",
+            "end_date",
+            "chief_scientist",
+            "remarks",
+            "season",
+        ]
+
+        return context
+
+
+class CruiseUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "snowcrab/cruise_form.html"
+    model = models.Cruise
+    form_class = forms.CruiseForm
+    login_url = '/accounts/login_required/'
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("crab:cruise_detail", kwargs={"pk": self.object.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+
+        context["editable"] = True
+        return context
+
+
+# SETS #
+########
+
+class SetDetailView(LoginRequiredMixin, DetailView):
+    template_name = "snowcrab/set_detail.html"
+    model = models.Set
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+
+        context['field_list_1'] = [
+            'set_name',
+            'set_number',
+            'year',
+            'month',
+            'day',
+            'zone',
+            'valid',
+        ]
+        context['field_list_2'] = [
+            'latitude_start_logbook',
+            'latitude_end_logbook',
+            'longitude_start_logbook',
+            'longitude_end_logbook',
+            'latitude_start',
+            'latitude_end',
+            'longitude_start',
+            'longitude_end',
+        ]
+        context['field_list_3'] = [
+            'start_time_logbook',
+            'end_time_logbook',
+            'start_time',
+            'end_time',
+        ]
+        context['field_list_4'] = [
+            'depth_logbook',
+            'bottom_temperature_logbook',
+            'warp_logbook',
+            'swept_area',
+            'swept_area_method',
+            'comment',
+        ]
+
+        return context
+
 #
 # # BOTTLES #
 # ###########
 #
 # class BottleListView(ListView):
-#     template_name = "oceanography/bottle_list.html"
+#     template_name = "oceanography/_set_list.html"
 #
 #     def get_queryset(self):
 #         return models.Bottle.objects.filter(mission = self.kwargs["mission"])
