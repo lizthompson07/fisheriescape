@@ -1,0 +1,51 @@
+{% extends "snowcrab/snowcrab_base.html" %}
+
+
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'crab:index'  %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Cruises</li>
+        </ol>
+    </nav>
+
+    {% load static %}
+    {% load nz %}
+    <div class="indent-med">
+
+
+    <p>
+        <a href="{% url 'crab:index' %}" class="btn btn-dark">Back</a>
+    </p>
+
+    {# <h2>Please select from the following:</h2> #}
+    <table class="table table-hover table-sm">
+        <thead>
+        <tr>
+            <th scope="col">Season</th>
+            <th scope="col">Mission number</th>
+            <th scope="col">Vessel</th>
+            <th scope="col">Chief scientist</th>
+            <th scope="col">Number of Sets</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for obj in object_list %}
+            <tr>
+                <td>{{ obj.season }}</td>
+                <td><a href="{% url 'crab:cruise_detail' obj.id %}">{{ obj.mission_number }}</a></td>
+                <td>{{ obj.vessel }}</td>
+                <td>{{ obj.chief_scientist }}</td>
+                <td>{{ obj.sets.count }}</td>
+            </tr>
+        {% endfor %}
+
+
+        </tbody>
+    </table>
+
+
+{% endblock content %}

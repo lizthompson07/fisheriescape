@@ -32,6 +32,7 @@ class Bug(models.Model):
     RDMTS = 5
     ACCOUNTS = 6
     CAMP = 7
+    SNOWCRAB = 8
 
     APP_CHOICES = (
         (GENERAL,'General'),
@@ -41,6 +42,7 @@ class Bug(models.Model):
         (HERMORRHAGE,'HerMorrhage'),
         (RDMTS,'Ticketing System'),
         (CAMP, 'CAMP'),
+        (SNOWCRAB, 'Snow Crab'),
     )
 
     APP_DICT = {

@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'herring',
     'camp',
     'lib',
+    'snowcrab',
 ]
 
 MIDDLEWARE = [

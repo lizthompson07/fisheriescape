@@ -34,6 +34,7 @@ urlpatterns = [
     path('hermorrhage/', include('herring.urls')),
     path('bugs/', include('bugs.urls')),
     path('camp/', include('camp.urls')),
+    path('snowcrab/', include('snowcrab.urls')),
 
     # Password reset views. Views are part of accounts app #
     ########################################################
