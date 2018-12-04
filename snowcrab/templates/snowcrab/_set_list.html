@@ -1,0 +1,42 @@
+{# <h2>Please select from the following:</h2> #}
+<table class="table table-hover table-sm">
+    <thead>
+    <tr>
+
+        <th scope="col">#</th>
+        <th scope="col">Set name</th>
+        <th scope="col">Date</th>
+        <th scope="col">Set number</th>
+        <th scope="col">Zone</th>
+        <th scope="col">Valid</th>
+        <th scope="col">Comments</th>
+        <th scope="col">Crabs measured</th>
+
+
+
+    </tr>
+    </thead>
+    <tbody>
+
+    {% for obj in object.sets.all %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+                <a href="{% url 'crab:set_detail' obj.id %}">
+                    {{ obj.set_name }}
+                </a>
+            </td>
+            <td>{{ obj.start_time_logbook }}</td>
+            <td>{{ obj.set_number }}</td>
+            <td>{{ obj.zone }}</td>
+            <td>{{ obj.valid|yesno }}</td>
+
+            <td>{{ obj.comment }}</td>
+            <td>{{ obj.crabs.count }}</td>
+
+        </tr>
+    {% endfor %}
+
+
+    </tbody>
+</table>
