@@ -1,0 +1,79 @@
+{% extends "snowcrab/snowcrab_base.html" %}
+{% load bootstrap4 %}
+{% load verbose_field_display %}
+{% load static %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'crab:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'crab:cruise_list' %}">Cruises</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'crab:cruise_detail' object.cruise.id %}">{{ object.cruise }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+    </style>
+
+
+    <div class="indent-med">
+    <h1>{{ object }}</h1>
+    <div class="btn-group">
+        {% if user.is_superuser %}
+            {#                <a href="{% url "crab:cruise_edit" object.id %}" class="btn btn-warning">Edit</a>#}
+        {% else %}
+            <a href="{% url "crab:cruise_edit" object.id %}" class="btn btn-warning disabled">Edit</a>
+
+        {% endif %}
+
+        {#            <a href="{% url "crab:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>#}
+        {#            <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle#}
+        {#                CSV</a>#}
+        {#            <a href="{% url "oceanography:file_create" object.id %}" class="btn btn-info">Add a File</a>#}
+        {#            <a href="{% url "oceanography:mission_list" object.season %}" class="btn btn-dark">Back</a>#}
+    </div>
+    <br><br>
+
+    <div class="row">
+        <div class="col">
+            {% for field in field_list_1 %}
+                {% verbose_field_display object field %}
+            {% endfor %}
+        </div>
+        <div class="col">
+            {% for field in field_list_2 %}
+                {% verbose_field_display object field %}
+            {% endfor %}
+        </div>
+        <div class="col">
+            {% for field in field_list_3 %}
+                {% verbose_field_display object field None True%}
+            {% endfor %}
+        </div>
+        <div class="col">
+            {% for field in field_list_4 %}
+                {% verbose_field_display object field %}
+            {% endfor %}
+        </div>
+
+        <div class="col">
+
+
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3>Crabs Measurements:</h3>
+                {% include "snowcrab/_crab_list.html" %}
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock content %}
