@@ -5,8 +5,22 @@ from django.contrib import auth
 
 
 class Vessel(models.Model):
+    # choices for hull_material
+    WOOD = 'wood'
+    FIBER = 'fiberglass'
+    STEEL = 'steel'
+    HULL_MATERIAL_CHOICES = (
+        (WOOD, WOOD),
+        (FIBER, FIBER),
+        (STEEL, STEEL),
+    )
+
     name = models.CharField(max_length=255, blank=True, null=True)
     cvrn = models.IntegerField(blank=True, null=True)
+    length = models.IntegerField(blank=True, null=True)
+    horsepower = models.IntegerField(blank=True, null=True)
+    hull_material = models.CharField(max_length=25, blank=True, null=True, choices=HULL_MATERIAL_CHOICES )
+
     notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -16,27 +30,63 @@ class Vessel(models.Model):
         ordering = ['name']
 
 
+
+
 class Cruise(models.Model):
-    cruise_number = models.CharField(max_length=25)
-    mission_number = models.CharField(max_length=25)
+    # choices for trawl_type
+    NEPH = 'Nephrops'
+    TRAWL_TYPE_CHOICES = (
+        (NEPH,'Nephrops'),
+    )
+
+    # choices for trawl_method
+    SIDE = 'side'
+    STERN = 'stern'
+    TRAWL_METHOD_CHOICES = (
+        (SIDE, SIDE),
+        (STERN, STERN),
+    )
+
+    # choices for season
+    SUMMER = 'summer'
+    FALL = 'fall'
+    SEASON_CHOICES = (
+        (FALL, FALL),
+        (SUMMER, SUMMER),
+    )
+
+    # choices for acoustic_sensor
+    SCAN = 'Scanmar'
+    NET = 'Netmind'
+    ESONAR = 'eSonar'
+    ACOUSTIC_SENSOR_CHOICES = (
+        (SCAN, SCAN),
+        (NET, NET),
+        (ESONAR, ESONAR),
+    )
+
     vessel = models.ForeignKey(Vessel, related_name="cruises", on_delete=models.DO_NOTHING, blank=True, null=True)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    chief_scientist = models.CharField(max_length=255)
+    trawl_type = models.CharField(max_length=56, blank=True, null=True,choices=TRAWL_TYPE_CHOICES)
+    trawl_method = models.CharField(max_length=56, blank=True, null=True, choices=TRAWL_METHOD_CHOICES)
+    acoustic_sensor = models.CharField(max_length=56, blank=True, null=True , choices=ACOUSTIC_SENSOR_CHOICES)
+    minilog = models.NullBooleanField(blank=True, null=True)
+    star_oddi = models.NullBooleanField(blank=True, null=True)
+    chief_scientist = models.CharField(max_length=255, blank=True, null=True)
+    season = models.CharField(null=True, blank=True, max_length=25, choices=SEASON_CHOICES)
+    year = models.IntegerField(null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
-    season = models.IntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ['-start_date']
 
     def save(self, *args, **kwargs):
-        self.season = self.start_date.year
-        self.cruise_number = self.cruise_number.upper()
-        self.mission_number = self.mission_number.upper()
+        self.year = self.start_date.year
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return "Cruise {}".format(self.mission_number)
+        return "{} {}".format(self.season, self.year)
 
     def get_absolute_url(self):
         return reverse('fish:cruise_detail', kwargs={'pk': self.id})
@@ -61,14 +111,13 @@ class Set(models.Model):
         (MOD, "model"),
         (AVG, "average"),
     )
-
-    cruise = models.ForeignKey(Cruise, related_name="sets", on_delete=models.DO_NOTHING, blank=True, null=True)
+    cruise = models.ForeignKey(Cruise, related_name="sets", on_delete=models.DO_NOTHING)
     set_name = models.CharField(blank=True, null=True, max_length=56, verbose_name="Tow ID string")
     set_number = models.IntegerField(blank=True, null=True, verbose_name="Daily tow number")
     year = models.IntegerField(blank=True, null=True, verbose_name="Survey year")
     month = models.IntegerField(blank=True, null=True, verbose_name="Survey month")
     day = models.IntegerField(blank=True, null=True, verbose_name="Survey calendar day")
-    zone = models.ForeignKey(Zone, related_name="sets", on_delete=models.DO_NOTHING)
+    zone = models.ForeignKey(Zone, related_name="sets", on_delete=models.DO_NOTHING, blank=True, null=True)
     valid = models.NullBooleanField(verbose_name="Tow quality(i.e. is it valid?)", blank=True, null=True)
     latitude_start_logbook = models.FloatField(blank=True, null=True,
                                                verbose_name="Start latitude decimal degrees from logbook")
@@ -126,6 +175,7 @@ class Crab(models.Model):
     egg_colour = models.IntegerField(blank=True, null=True)
     eggs_remaining = models.IntegerField(blank=True, null=True)
     tag_number = models.IntegerField(blank=True, null=True)
+    position_type = models.CharField(max_length=2, blank=True, null=True)
     missing_legs = models.CharField(max_length=10, blank=True, null=True)
     durometer = models.FloatField(blank=True, null=True)
     samplers = models.CharField(max_length=1000, blank=True, null=True)

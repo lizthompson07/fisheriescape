@@ -69,7 +69,7 @@
 
                 {% for set in object.sets.all %}
                     {% if set.latitude_start_logbook and set.longitude_start_logbook%}
-                        ['<a href="#">Set {{set.id}}</a>', {{set.latitude_start_logbook}}, {{set.longitude_start_logbook}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+                        ['<a href="{% url 'crab:set_detail' set.id %}">Set {{set.set_name}}</a>', {{set.latitude_start_logbook}}, {{set.longitude_start_logbook}}, '{% static "/img/icons/boat.png" %}'],
                     {% endif %}
                 {% endfor %}
             ];
@@ -82,22 +82,24 @@
             var bounds = new google.maps.LatLngBounds();
 
             for (i = 0; i < locations.length; i++) {
-                {#marker = new google.maps.Marker({#}
-                {#    position: new google.maps.LatLng(locations[i][1], locations[i][2]),#}
-                {#    map: map,#}
-                {#    icon: null,#}
-                {#});#}
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+                    map: map,
+                    icon: locations[i][3],
+                });
 
-                bounds.extend(new google.maps.LatLng(locations[i][1], locations[i][2]));
+                bounds.extend(marker.position);
+                {#uncomment this if you don't want the markers#}
+                {#bounds.extend(new google.maps.LatLng(locations[i][1], locations[i][2]));#}
 
 
-                {##}
-                {#google.maps.event.addListener(marker, 'click', (function (marker, i) {#}
-                {#    return function () {#}
-                {#        infowindow.setContent(locations[i][0]);#}
-                {#        infowindow.open(map, marker);#}
-                {#    }#}
-                {#})(marker, i));#}
+
+                google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                    return function () {
+                        infowindow.setContent(locations[i][0]);
+                        infowindow.open(map, marker);
+                    }
+                })(marker, i));
             }
 
             map.fitBounds(bounds);

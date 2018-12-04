@@ -36,14 +36,16 @@ class CruiseDetailView(LoginRequiredMixin, DetailView):
         context['google_api_key'] = settings.GOOGLE_API_KEY
 
         context['field_list'] = [
-            "cruise_number",
-            "mission_number",
-            "vessel",
-            "start_date",
-            "end_date",
-            "chief_scientist",
-            "remarks",
-            "season",
+            'vessel',
+            'start_date',
+            'end_date',
+            'trawl_type',
+            'trawl_method',
+            'acoustic_sensor',
+            'minilog',
+            'star_oddi',
+            'chief_scientist',
+            'remarks',
         ]
 
         return context
@@ -88,8 +90,8 @@ class SetDetailView(LoginRequiredMixin, DetailView):
         ]
         context['field_list_2'] = [
             'latitude_start_logbook',
-            'latitude_end_logbook',
             'longitude_start_logbook',
+            'latitude_end_logbook',
             'longitude_end_logbook',
             'latitude_start',
             'latitude_end',
