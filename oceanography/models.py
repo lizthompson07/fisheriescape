@@ -64,7 +64,7 @@ class Bottle(models.Model):
     )
 
     mission = models.ForeignKey(Mission, related_name="bottles", on_delete=models.CASCADE)
-    bottle_uid = models.CharField(max_length=10)
+    bottle_uid = models.CharField(max_length=10, unique=True)
     station = models.CharField(null=True, blank=True, max_length=25, verbose_name="Station")
     stratum = models.IntegerField(null=True, blank=True, verbose_name="Stratum")
     set = models.IntegerField(null=True, blank=True, verbose_name="Set #")
