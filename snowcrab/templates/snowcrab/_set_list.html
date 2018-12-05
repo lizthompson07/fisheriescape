@@ -13,28 +13,32 @@
         <th scope="col">Crabs measured</th>
 
 
-
     </tr>
     </thead>
     <tbody>
 
     {% for obj in object.sets.all %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>
-                <a href="{% url 'crab:set_detail' obj.id %}">
-                    {{ obj.set_name }}
-                </a>
-            </td>
-            <td>{{ obj.start_time_logbook }}</td>
-            <td>{{ obj.set_number }}</td>
-            <td>{{ obj.zone }}</td>
-            <td>{{ obj.valid|yesno }}</td>
+        {% if not obj.valid %}
+            <tr class="bad">
 
-            <td>{{ obj.comment }}</td>
-            <td>{{ obj.crabs.count }}</td>
+                {% else %}
+            <tr>
+        {% endif %}
+    <td>{{ forloop.counter }}</td>
+    <td>
+        <a href="{% url 'crab:set_detail' obj.id %}">
+            {{ obj.set_name }}
+        </a>
+    </td>
+    <td>{{ obj.start_time_logbook }}</td>
+    <td>{{ obj.set_number }}</td>
+    <td>{{ obj.zone }}</td>
+    <td>{{ obj.valid|yesno }}</td>
 
-        </tr>
+    <td>{{ obj.comment }}</td>
+    <td>{{ obj.crabs.count }}</td>
+
+    </tr>
     {% endfor %}
 
 
