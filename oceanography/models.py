@@ -93,7 +93,7 @@ class Bottle(models.Model):
     bottle_depth_m = models.FloatField(null=True, blank=True, verbose_name="Bottle depth (m)")
     temp_c = models.FloatField(null=True, blank=True, verbose_name="Temperature (°C)")
     salinity = models.FloatField(null=True, blank=True, verbose_name="Salinity")
-    sal_units = models.CharField(max_length=5, null=True, blank=True, choices=SAL_UNITS_CHOICES)
+    sal_units = models.CharField(max_length=5, null=True, blank=True, choices=SAL_UNITS_CHOICES, verbose_name="Salinity units")
     ph = models.FloatField(null=True, blank=True, verbose_name="pH")
     lat_DDdd = models.FloatField(null=True, blank=True, verbose_name="Latitude")
     long_DDdd = models.FloatField(null=True, blank=True, verbose_name="Longitude")
