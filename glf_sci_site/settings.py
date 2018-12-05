@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'camp',
     'lib',
     'snowcrab',
+    'meq',
 ]
 
 MIDDLEWARE = [
