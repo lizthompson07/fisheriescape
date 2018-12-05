@@ -111,6 +111,9 @@ class Bottle(models.Model):
                 self.date_time_UTC  = self.date_time + timedelta(hours=3)
         return super().save(*args,**kwargs)
 
+    class Meta:
+        ordering = ['mission','bottle_uid']
+
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'oceanography/{0}/{1}'.format(instance.mission.mission_number, filename)
