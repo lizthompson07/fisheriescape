@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'inventory',
     'bugs',
     'grais',
-    'oceanography',
+    # 'oceanography',
     'herring',
     'camp',
     'lib',
