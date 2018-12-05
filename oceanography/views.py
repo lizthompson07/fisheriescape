@@ -82,8 +82,9 @@ class MissionDetailView(DetailView):
         context['google_api_key'] = settings.GOOGLE_API_KEY
 
         context['field_list'] = [
-            "mission_name",
             "mission_number",
+            "institute",
+            "mission_name",
             "meds_id",
             "vessel_name",
             "ship_call_sign",
@@ -177,9 +178,11 @@ def export_mission_csv(request, pk):
 
 
     # write the header information
+    writer.writerow(['institute', m.institute])
     writer.writerow(['mission_name', m.mission_name])
     writer.writerow(['mission_number', m.mission_number])
     writer.writerow(['vessel_name', m.vessel_name])
+    writer.writerow(['ship_call_sign', m.ship_call_sign])
     writer.writerow(['chief_scientist', m.chief_scientist])
     writer.writerow(['samplers', m.samplers])
     writer.writerow(['start_date (yyyy-mm-dd)', m.start_date.strftime('%Y-%m-%d')])
@@ -201,7 +204,8 @@ def export_mission_csv(request, pk):
     "sounding_m",
     "bottle_depth_m",
     "temp_c",
-    "sal_ppt",
+    "salinity",
+    "salinity_units",
     "ph",
     "lat_DDdd",
     "long_DDdd",
@@ -231,7 +235,8 @@ def export_mission_csv(request, pk):
         b.sounding_m,
         b.bottle_depth_m,
         b.temp_c,
-        b.sal_ppt,
+        b.salinity,
+        b.get_sal_units_display(),
         b.ph,
         b.lat_DDdd,
         b.long_DDdd,

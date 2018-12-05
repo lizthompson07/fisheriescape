@@ -32,7 +32,15 @@ class Probe(models.Model):
     def __str__(self):
         return self.probe_name
 
+class Institute(models.Model):
+    name = models.CharField(max_length=255)
+    abbrev = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
 class Mission(models.Model):
+    institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
     mission_name = models.CharField(max_length=255)
     mission_number = models.CharField(max_length=255)
     vessel_name = models.CharField(max_length=255)
@@ -56,6 +64,15 @@ class Mission(models.Model):
 
 
 class Bottle(models.Model):
+
+    # Choices for sal_units
+    PPT = "PPT"
+    PSU = "PSU"
+    SAL_UNITS_CHOICES = (
+        (PPT, "parts per thousand (PPT)"),
+        (PSU, "practical salinity unit (PSU)"),
+    )
+
     # Choices for timezone
     TIMEZONE_CHOICES = (
         ("AST","Atlantic Standard Time"),
@@ -75,7 +92,8 @@ class Bottle(models.Model):
     sounding_m = models.FloatField(null=True, blank=True, verbose_name="Sounding (m)")
     bottle_depth_m = models.FloatField(null=True, blank=True, verbose_name="Bottle depth (m)")
     temp_c = models.FloatField(null=True, blank=True, verbose_name="Temperature (°C)")
-    sal_ppt = models.FloatField(null=True, blank=True, verbose_name="Salinity (ppt)")
+    salinity = models.FloatField(null=True, blank=True, verbose_name="Salinity")
+    sal_units = models.CharField(max_length=5, null=True, blank=True, choices=SAL_UNITS_CHOICES)
     ph = models.FloatField(null=True, blank=True, verbose_name="pH")
     lat_DDdd = models.FloatField(null=True, blank=True, verbose_name="Latitude")
     long_DDdd = models.FloatField(null=True, blank=True, verbose_name="Longitude")

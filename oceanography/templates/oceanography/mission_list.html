@@ -4,44 +4,46 @@
 
 {% block content %}
 
-{% load static %}
+    {% load static %}
     {% load nz %}
-<div class="indent-med">
-<div class="jumbotron">
-  <h1>Oceanography Doc Library</h1>
-</div>
+    <div class="indent-med">
+    <div class="jumbotron">
+        <h1>Oceanography Doc Library</h1>
+    </div>
 
-<p>
-  <a href="{% url 'oceanography:index'  %}" class="btn btn-dark">Back</a>
-</p>
+    <p>
+        <a href="{% url 'oceanography:index' %}" class="btn btn-dark">Back</a>
+    </p>
 
-  {# <h2>Please select from the following:</h2> #}
-  <table class="table table-hover table-sm">
-    <thead>
-      <tr>
-          <th scope="col">Mission number</th>
-          <th scope="col">MEDS ID</th>
-          <th scope="col">Mission name</th>
-        <th scope="col">Chief scientist</th>
-        <th scope="col">Number of CTD profiles</th>
-        <th scope="col">Number of bottles</th>
-      </tr>
-    </thead>
-    <tbody>
-
-      {% for m in object_list  %}
+    {# <h2>Please select from the following:</h2> #}
+    <table class="table table-hover table-sm">
+        <thead>
         <tr>
-            <td><a href="{% url "oceanography:mission_detail" m.id %}">{{m.mission_number}}</a></td>
-            <td>{{m.meds_id|nz:""}}</td>
-            <td>{{m.mission_name}}</td>
-          <td>{{m.chief_scientist}}</td>
-          <td>{{m.number_of_profiles}}</td>
-          <td>{{m.bottles.count}}</td>
+            <th scope="col">Mission number</th>
+            <th scope="col">Institute</th>
+            <th scope="col">MEDS ID</th>
+            <th scope="col">Mission name</th>
+            <th scope="col">Chief scientist</th>
+            <th scope="col">Number of CTD profiles</th>
+            <th scope="col">Number of bottles</th>
         </tr>
-      {% endfor %}
+        </thead>
+        <tbody>
+
+        {% for m in object_list %}
+            <tr>
+                <td><a href="{% url "oceanography:mission_detail" m.id %}">{{ m.mission_number }}</a></td>
+                <td>{{ m.institute.abbrev }}</td>
+                <td>{{ m.meds_id|nz:"" }}</td>
+                <td>{{ m.mission_name }}</td>
+                <td>{{ m.chief_scientist }}</td>
+                <td>{{ m.number_of_profiles }}</td>
+                <td>{{ m.bottles.count }}</td>
+            </tr>
+        {% endfor %}
 
 
-      </tbody>
+        </tbody>
     </table>
 
 
