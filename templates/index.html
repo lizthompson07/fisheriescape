@@ -31,102 +31,163 @@
         </div>
         <br><br>
 
-        <div class="row justify-content-center">
 
-            {#            <div class="col center">#}
-            <div class=" text-center">
+        <table class="table  table-sm table-striped" style="margin-left: auto; margin-right: auto;">
+            <thead>
+            <th></th>
+            <th>Application Name</th>
+            <th>Status</th>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <a href="
+                            {% if user.is_authenticated %}#}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="
+                            {% if user.is_authenticated %}#}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
+                        Regional Data Inventory
+                    </a>
+                </td>
+                <td class="good"> Active</td>
+            </tr>
 
-                {% with 200 as my_width %}
-                    {% with 50 as my_mar %}
-                        {% with 40 as my_img_width %}
+            <tr>
+                <td>
+                    <a href="{% url 'tickets:list' %}">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'tickets:list' %}">
+                        Data Management Ticketing System
+                    </a>
+                </td>
+                <td class="good"> Active</td>
+            </tr>
 
+            <tr>
+                <td>
+                    <a href="{% url 'grais:index' %}">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'grais:index' %}">
+                     grAIS: Gulf Region Aquatic Invasive Species
+                    </a>
+                </td>
+                <td class="good"> Active</td>
+            </tr>
 
+            <tr>
+                <td>
+                    <a href="{% url 'herring:index' %}">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'herring:index' %}">
+                     HERmorrhage
+                    </a>
+                </td>
+                <td class="good"> Active</td>
+            </tr>
 
-                            {% if user.is_authenticated %}
-                                <a href="{% url 'inventory:my_resource_list' %}" class="neighbours"
-                                   style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                            {% else %}
-                                <a href="{% url 'inventory:resource_list' %}" class="text-center neighbours"
-                                   style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                            {% endif %}
-                        <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                        <div class="caption">
-                            <p>Regional Data Inventory</p>
-                        </div>
-                        </a>
+            <tr>
+                <td>
+                    <a href="{% url 'oceanography:index' %}">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'oceanography:index' %}">
+                     Gulf Region Oceanographic Archive
+                    </a>
+                </td>
+                <td class="good"> Active</td>
+            </tr>
 
-                            <a href="{% url 'tickets:list' %}" class="neighbours"
-                               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                                <div class="caption">
-                                    <p>DM Tickets</p>
-                                </div>
-                            </a>
+            <tr>
+                <td>
+                    <a href="{% url 'camp:index' %}">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'camp:index' %}">
+                     Community Aquatic Monitoring Program (CAMP) db
+                    </a>
+                </td>
+                <td class="good"> Active</td>
+            </tr>
 
-                            <a href="{% url 'grais:index' %}" class="neighbours"
-                               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                                <div class="caption">
-                                    <p>grAIS<br></p>
-                                </div>
-                            </a>
+            <tr>
+                <td>
+                    <a href="{% url 'crab:index' %}">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'crab:index' %}">
+                     Gulf Region Snow Crab db
+                    </a>
+                </td>
+                <td class="good"> Active</td>
+            </tr>
 
-                            <a href="{% url 'herring:index' %}" class="neighbours"
-                               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                                <div class="caption">
-                                    <p>HERmorrhage</p>
-                                </div>
-                            </a>
+            <tr>
+                <td>
+                    <a href="#" class="under-dev">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="#" class="under-dev">
+                        Marine Diets db
+                    </a>
+                </td>
+                <td class="concern"> Development</td>
+            </tr>
 
-                            <a href="{% url 'oceanography:index' %}" class="neighbours"
-                               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                                <div class="caption">
-                                    <p>Oceanography</p>
-                                </div>
-                            </a>
+            <tr>
+                <td>
+                    <a href="#" class="under-dev">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="#" class="under-dev">
+                        Marine Environmental Quality (MEQ) db
+                    </a>
+                </td>
+                <td class="concern"> Development</td>
+            </tr>
 
-                            <a href="{% url 'camp:index' %}" class="neighbours"
-                               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                                <div class="caption">
-                                    <p>CAMP db</p>
-                                </div>
-                            </a>
+            </tbody>
+        </table>
 
-                            <a href="{% url 'crab:index' %}" class="neighbours"
-                               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                                <div class="caption">
-                                    <p>Snow Crab</p>
-                                </div>
-                            </a>
-
-                            <a href="#" class="neighbours under-dev"
-                               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                                <div class="caption">
-                                    <p>MEQ</p>
-                                </div>
-                            </a>
-                            <a href="#" class="neighbours under-dev"
-                               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">
-                                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">
-                                <div class="caption">
-                                    <p>Marine Diets db</p>
-                                </div>
-                            </a>
-                        {% endwith %}
-                    {% endwith %}
-
-                {% endwith %}
-
-            </div>
-        </div>
-    </div>
-
-    </div>
+        {#            <a href="#" class="neighbours under-dev"#}
+        {#               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">#}
+        {#                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">#}
+        {#                <div class="caption">#}
+        {#                    <p>MEQ</p>#}
+        {#                </div>#}
+        {#            </a>#}
+        {#            <a href="#" class="neighbours under-dev"#}
+        {#               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">#}
+        {#                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">#}
+        {#                <div class="caption">#}
+        {#                    <p>Marine Diets db</p>#}
+        {#                </div>#}
+        {#            </a>#}
+        {#            {% endwith %}#}
+        {#            {% endwith %}#}
+        {##}
+        {#            {% endwith %}#}
 
     </div>
 
