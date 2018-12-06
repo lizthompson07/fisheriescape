@@ -76,18 +76,15 @@ class MissionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         # get context
         context = super().get_context_data(**kwargs)
-
         context["editable"] = False
-
         context['google_api_key'] = settings.GOOGLE_API_KEY
-
         context['field_list'] = [
             "mission_number",
-            "institute",
             "mission_name",
+            "description",
+            "institute",
             "meds_id",
-            "vessel_name",
-            "ship_call_sign",
+            "vessel",
             "chief_scientist",
             "samplers",
             "start_date",
@@ -97,8 +94,6 @@ class MissionDetailView(DetailView):
             "area_of_operation",
             "notes",
         ]
-
-
         return context
 
 
@@ -181,8 +176,7 @@ def export_mission_csv(request, pk):
     writer.writerow(['institute', m.institute])
     writer.writerow(['mission_name', m.mission_name])
     writer.writerow(['mission_number', m.mission_number])
-    writer.writerow(['vessel_name', m.vessel_name])
-    writer.writerow(['ship_call_sign', m.ship_call_sign])
+    writer.writerow(['vessel', m.vessel])
     writer.writerow(['chief_scientist', m.chief_scientist])
     writer.writerow(['samplers', m.samplers])
     writer.writerow(['start_date (yyyy-mm-dd)', m.start_date.strftime('%Y-%m-%d')])

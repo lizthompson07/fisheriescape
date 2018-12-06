@@ -39,12 +39,23 @@ class Institute(models.Model):
     def __str__(self):
         return self.name
 
+class Vessel(models.Model):
+    name = models.CharField(max_length=255)
+    call_sign = models.CharField(max_length=56, null=True, blank=True)
+
+    def __str__(self):
+        return "{} {}".format(self.name, self.call_sign)
+
+    class Meta:
+        ordering = ['name',]
+
 class Mission(models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
     mission_name = models.CharField(max_length=255)
     mission_number = models.CharField(max_length=255)
-    vessel_name = models.CharField(max_length=255)
-    ship_call_sign = models.CharField(max_length=255, null=True, blank=True)
+    description = models.CharField(max_length=255, null=True, blank=True)
+    # vessel_name = models.CharField(max_length=255)
+    # ship_call_sign = models.CharField(max_length=255, null=True, blank=True)
     chief_scientist = models.CharField(max_length=255)
     samplers = models.CharField(max_length=255, null=True, blank=True)
     start_date = models.DateTimeField(null=True, blank=True)
@@ -55,7 +66,7 @@ class Mission(models.Model):
     meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="MEDS ID")
     notes = models.CharField(max_length=255, null=True, blank=True)
     season = models.IntegerField(null=True, blank=True)
-
+    vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="missions", blank=True, null=True)
 
     def save(self,*args,**kwargs):
         if self.start_date:
