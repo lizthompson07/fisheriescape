@@ -7,7 +7,10 @@ def resave_all_samples(samples = models.Sample.objects.all()):
     for s in samples:
         s.save()
 
-
+def resave_all_obs():
+    species_obs = models.SpeciesObservation.objects.filter(species__sav=True)
+    for obj in species_obs:
+        obj.save()
 
 def seed_db():
 

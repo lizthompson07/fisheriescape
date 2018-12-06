@@ -29,7 +29,7 @@ class DevDatabaseRouter:
         """
         # print(model._meta.app_label)
         if MY_ENVR == 'dev':
-            if model._meta.app_label == 'auth' or model._meta.app_label == 'sessions' or model._meta.app_label == 'oceanography' or model._meta.app_label == 'snowcrab':
+            if model._meta.app_label == 'auth' or model._meta.app_label == 'sessions' or model._meta.app_label == 'camp' or model._meta.app_label == 'snowcrab':
                 return None
             else:
                 return 'dev_db'
