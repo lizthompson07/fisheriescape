@@ -181,7 +181,8 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
             'unsampled_vegetation_outside',
             "notes",
         ]
-
+        context["non_sav_count"] = models.SpeciesObservation.objects.filter(sample=self.object).filter(species__sav=False).count
+        context["sav_count"] = models.SpeciesObservation.objects.filter(sample=self.object).filter(species__sav=True).count
         return context
 
 
@@ -190,6 +191,16 @@ class SampleUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.SampleForm
     login_url = '/accounts/login_required/'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get a list of Stations
+        station_list = []
+        for s in models.Station.objects.all():
+            html_insert = '<a href="#" class="station_insert" code={id}>{station}</a>'.format(id=s.id, station=s)
+            station_list.append(html_insert)
+        context['station_list'] = station_list
+        return context
 
 class SampleCreateView(LoginRequiredMixin, CreateView):
     model = models.Sample

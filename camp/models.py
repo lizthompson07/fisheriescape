@@ -55,6 +55,7 @@ class Species(models.Model):
     code = models.CharField(max_length=255, blank=True, null=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
+    sav = models.BooleanField(default=False, verbose_name="Submerged aquatic vegetation (SAV)")
     notes = models.TextField(max_length=255, null=True, blank=True)
 
     def __str__(self):
@@ -104,7 +105,7 @@ class Sample(models.Model):
         (UTC, 'UTC'),
     )
 
-    camp_id = models.IntegerField(blank=True, null=True, verbose_name="CAMP Id", unique=True)
+    nutrient_sample_id = models.IntegerField(blank=True, null=True, verbose_name="nutrient sample ID", unique=True)
     station = models.ForeignKey(Station, related_name='samples', on_delete=models.DO_NOTHING)
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
     start_date = models.DateTimeField(verbose_name="Start date / time (yyyy-mm-dd hh:mm:ss)")
@@ -163,19 +164,19 @@ class Sample(models.Model):
         return reverse("camp:sample_detail", kwargs={"pk": self.id})
 
     def __str__(self):
-        return "Sample {}".format(self.camp_id)
+        return "Sample {}".format(self.id)
 
 
 class SpeciesObservation(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="sample_spp")
     sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name="sample_spp")
-    adults = models.FloatField(blank=True, null=True)
-    yoy = models.FloatField(blank=True, null=True, verbose_name="young of the year")
-    unknown = models.FloatField(blank=True, null=True)
-    total = models.FloatField(null=True, blank=True)
+    adults = models.IntegerField(blank=True, null=True)
+    yoy = models.IntegerField(blank=True, null=True, verbose_name="young of the year (YOY)")
+    total_non_sav = models.IntegerField(null=True, blank=True)
+    total_sav = models.FloatField(blank=True, null=True, verbose_name="SAV level") # this is reserved only for SAV
 
     def save(self, *args, **kwargs):
-        self.total = nz.nz(self.adults,0) + nz.nz(self.yoy,0)+ nz.nz(self.unknown,0)
+        self.total_non_sav = nz.nz(self.adults,0) + nz.nz(self.yoy,0)
         return super().save(*args, **kwargs)
 
     class Meta:
