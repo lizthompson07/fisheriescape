@@ -155,7 +155,7 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
         # ]
 
         context["field_list"] = [
-            'camp_id',
+            'nutrient_sample_id',
             'station',
             'timezone',
             'start_date',
