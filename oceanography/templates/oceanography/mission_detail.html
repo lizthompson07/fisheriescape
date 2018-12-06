@@ -16,7 +16,7 @@
         }
     </style>
     <div class="container">
-        <h1>{{ object.mission_name }}</h1>
+        <h1>{{ object.mission_number }} / {{ object.mission_name }}</h1>
         <div class="btn-group">
             {% if user.is_superuser %}
                 <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
