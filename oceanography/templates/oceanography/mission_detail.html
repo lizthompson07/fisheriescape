@@ -67,18 +67,8 @@
             </div>
         </div>
     </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>
     <script>
-
-        var locations = [
-
-            {% for bottle in object.bottles.all %}
-                {% if bottle.lat_DDdd and bottle.long_DDdd %}
-                    ['<a href="{% url 'oceanography:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>', {{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/icons/milk_bottle.png" %}'],
-                {% endif %}
-            {% endfor %}
-        ];
-
 
         function initialize() {
             var locations = [
@@ -89,64 +79,81 @@
                     {% endif %}
                 {% endfor %}
             ];
-            window.map = new google.maps.Map(document.getElementById('map'), {
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            });
 
-            var infowindow = new google.maps.InfoWindow();
-
+            var mapElement = document.getElementById('map');
+            var map = new google.maps.Map(mapElement, {mapTypeId: google.maps.MapTypeId.SATELITTE});
+            var iw = new google.maps.InfoWindow();
             var bounds = new google.maps.LatLngBounds();
 
-            for (i = 0; i < locations.length; i++) {
-                if (true) {
-
-                }
-
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-                    map: map,
-                    icon: locations[i][3]
-                });
-
-                bounds.extend(marker.position);
-
-                google.maps.event.addListener(marker, 'click', (function (marker, i) {
-                    return function () {
-                        infowindow.setContent(locations[i][0]);
-                        infowindow.open(map, marker);
-                    }
-                })(marker, i));
-            }
-
-            map.fitBounds(bounds);
-
-            var flightPlanCoordinates = [
-                {% for bottle in object.bottles.all %}
-                    {% if bottle.lat_DDdd and bottle.long_DDdd %}
-                        {lat: {{bottle.lat_DDdd}}, lng: {{bottle.long_DDdd}}},
-                    {% endif %}
-                {% endfor %}
-            ];
-
-            var flightPath = new google.maps.Polyline({
-                path: flightPlanCoordinates,
-                geodesic: true,
-                strokeColor: '#0133FE',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
+            var oms = new OverlappingMarkerSpiderfier(map, {
+                markersWontMove: true,
+                markersWontHide: true,
+                basicFormatEvents: true
             });
 
-            {#flightPath.setMap(map);#}
+            for (var i = 0; i < locations.length; i++) {
+                (function () {  // make a closure over the marker and marker data
+                    var markerData = locations[i];  // e.g. { lat: 50.123, lng: 0.123, text: 'XYZ' }
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(markerData[1], markerData[2]),
+                        icon: markerData[3]
+                    });  // markerData works here as a LatLngLiteral
+                    google.maps.event.addListener(marker, 'spider_click', function (e) {  // 'spider_click', not plain 'click'
+                        iw.setContent(markerData[0]);
+                        iw.open(map, marker);
+                    });
+                    oms.addMarker(marker);  // adds the marker to the spiderfier _and_ the map
+                    bounds.extend(marker.position);
+                })();
+
+            }
+            map.fitBounds(bounds);
         }
 
-        function loadScript() {
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-            document.body.appendChild(script);
-        }
+        {##}
+        {#for (i = 0; i < locations.length; i++) {#}
+        {#    marker = new google.maps.Marker({#}
+        {#        position: new google.maps.LatLng(locations[i][1], locations[i][2]),#}
+        {#        map: map,#}
+        {#        icon: locations[i][3]#}
+        {#    });#}
+        {##}
+        {#    bounds.extend(marker.position);#}
+        {##}
+        {#    google.maps.event.addListener(marker, 'spider_click', (function (marker, i) {#}
+        {#        return function () {#}
+        {##}
+        {#            infowindow.setContent(locations[i][0]);#}
+        {#            infowindow.open(map, marker);#}
+        {#        }#}
+        {#    })(marker, i));#}
+        {#}#}
 
-        window.onload = loadScript;
+            {#for (var i = 0, len = window.mapData.length; i < len; i++) {#}
+            {#    (function () {  // make a closure over the marker and marker data#}
+            {#        var markerData = window.mapData[i];  // e.g. { lat: 50.123, lng: 0.123, text: 'XYZ' }#}
+            {#        var marker = new google.maps.Marker({position: markerData});  // markerData works here as a LatLngLiteral#}
+            {#        google.maps.event.addListener(marker, 'spider_click', function (e) {  // 'spider_click', not plain 'click'#}
+            {#            iw.setContent(markerData.text);#}
+            {#            iw.open(map, marker);#}
+            {#        });#}
+            {#        oms.addMarker(marker);  // adds the marker to the spiderfier _and_ the map#}
+            {#    })();#}
+            {#}#}
+                {##}
+                {#                map.fitBounds(bounds);#}
+                {##}
+                {##}
+                {#            }#}
+
+                function loadScript() {
+                    var script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+                    document.body.appendChild(script);
+                }
+
+                window.onload = loadScript;
 
     </script>
 
