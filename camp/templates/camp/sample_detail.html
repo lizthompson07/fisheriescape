@@ -53,7 +53,16 @@
             </div>
             <div class="col">
                 <h3>Station Map:</h3>
-                <div id="map"></div>
+                {% if object.station.latitude and object.station.longitude %}
+                    <div id="map"></div>
+                {% else %}
+                    <br>
+                    <em>
+                        The {{ object.station.station_name }} is missing coordinates. The station details can be updated
+                        <a href="{% url 'camp:station_edit' object.station.id %}" target="_blank">here</a>.
+                    </em>
+                    <br>
+                {% endif %}
                 <br>
                 {% include "camp/_species_list.html" %}
 

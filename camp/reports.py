@@ -1,18 +1,11 @@
 from bokeh.plotting import figure, output_file, save
+from bokeh import palettes
 from django.db.models import Sum, Count
 from shutil import rmtree
 from . import models
 
 import numpy as np
 import os
-
-# produce a list of vectorized colors
-N = 100
-x = np.random.random(size=N) * 100
-y = np.random.random(size=N) * 100
-colors = [
-    "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50 + 2 * x, 30 + 2 * y)
-]
 
 
 def generate_species_count_report(species_list):
@@ -44,13 +37,21 @@ def generate_species_count_report(species_list):
     # print(species_list)
     my_list = species_list.split(",")
 
+    # prime counter variable
     i = 0
+
+    # generate color palette
+    if len(my_list) <= 9:
+        colors = palettes.Set1[len(my_list)]
+    else:
+        colors = palettes.Category20[len(my_list)]
+
     for obj in my_list:
         sp_id = int(obj.replace("'", ""))
         # create a new file containing data
         qs = models.SpeciesObservation.objects.filter(species=sp_id).values(
             'sample__year'
-        ).distinct().annotate(dsum=Sum('total'))
+        ).distinct().annotate(dsum=Sum('total_non_sav'))
 
         years = [i["sample__year"] for i in qs]
         counts = [i["dsum"] for i in qs]
@@ -97,6 +98,12 @@ def generate_species_richness_report(site=None):
         # first we need a list of stations
         stations = models.Station.objects.filter(site_id=site).order_by("name")
 
+        # generate color palette
+        if len(stations) <= 9:
+            colors = palettes.Set1[len(stations)]
+        else:
+            colors = palettes.Category20[len(stations)]
+
         i = 0
         for station in stations:
             print(station)
@@ -109,7 +116,8 @@ def generate_species_richness_report(site=None):
 
             for obj in qs_years:
                 y = obj['year']
-                annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station=station).values(
+                annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station=station,
+                                                                      species__sav=False).values(
                     'species_id',
                 ).distinct()
                 species_set = set([i["species_id"] for i in annual_obs])
@@ -117,7 +125,7 @@ def generate_species_richness_report(site=None):
                 counts.append(len(species_set))
 
             legend_title = str(station)
-            p.line(years, counts, legend=legend_title, line_width=1, line_color=colors[i], line_dash="4 4")
+            p.line(years, counts, legend=legend_title, line_width=1, line_color=colors[i])  # , line_dash="4 4"
             p.circle(years, counts, legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3)
             i += 1
 
@@ -131,7 +139,8 @@ def generate_species_richness_report(site=None):
 
         for obj in qs_years:
             y = obj['year']
-            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site).values(
+            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
+                                                                  species__sav=False).values(
                 'species_id',
             ).distinct()
             species_set = set([i["species_id"] for i in annual_obs])
@@ -154,7 +163,7 @@ def generate_species_richness_report(site=None):
 
         for obj in qs_years:
             y = obj['year']
-            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y).values(
+            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, species__sav=False).values(
                 'species_id',
             ).distinct()
             species_set = set([i["species_id"] for i in annual_obs])
