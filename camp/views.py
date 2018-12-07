@@ -19,8 +19,6 @@ from . import forms
 from . import filters
 from . import reports
 from lib.functions.nz import nz
-from shutil import rmtree
-import os
 
 
 class CloserTemplateView(TemplateView):
@@ -426,6 +424,7 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
                 )
 
         context["locations"] = locations
+
         return context
 
 
@@ -490,6 +489,11 @@ class SpeciesObservationInsertView(TemplateView):
             )
             species_list.append(html_insert)
         context['species_list'] = species_list
+        context["non_sav_count"] = models.SpeciesObservation.objects.filter(sample=sample).filter(
+            species__sav=False).count
+        context["sav_count"] = models.SpeciesObservation.objects.filter(sample=sample).filter(
+            species__sav=True).count
+
         return context
 
 
@@ -497,7 +501,13 @@ class SpeciesObservationCreateView(LoginRequiredMixin, CreateView):
     model = models.SpeciesObservation
     template_name = 'camp/species_obs_form_popout.html'
     login_url = '/accounts/login_required/'
-    form_class = forms.SpeciesObservationForm
+
+    def get_form_class(self):
+        species = models.Species.objects.get(pk=self.kwargs['species'])
+        if species.sav:
+            return forms.SAVObservationForm
+        else:
+            return forms.NonSAVObservationForm
 
     def get_initial(self):
         sample = models.Sample.objects.get(pk=self.kwargs['sample'])
@@ -523,7 +533,13 @@ class SpeciesObservationCreateView(LoginRequiredMixin, CreateView):
 class SpeciesObservationUpdateView(LoginRequiredMixin, UpdateView):
     model = models.SpeciesObservation
     template_name = 'camp/species_obs_form_popout.html'
-    form_class = forms.SpeciesObservationForm
+
+    def get_form_class(self):
+        species = self.object.species
+        if species.sav:
+            return forms.SAVObservationForm
+        else:
+            return forms.NonSAVObservationForm
 
     def form_valid(self, form):
         self.object = form.save()

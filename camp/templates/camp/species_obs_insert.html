@@ -42,48 +42,7 @@
 
 
                 <h3>Added:</h3>
-                <table class="table table-bordered table-sm">
-                    <tr>
-                        <th rowspan="2">Species</th>
-                        <th colspan="4">Observations</th>
-                    </tr>
-                    <tr>
-                        <th>Adults</th>
-                        <th>YOY</th>
-                        <th>Other</th>
-                        <th>TOTAL</th>
-
-                    </tr>
-                    <tbody>
-                    {% for obj in sample.sample_spp.all %}
-                        <tr>
-                            <td>{{ obj.species }}</td>
-                            <td>{{ obj.adults|nz:"--" }}</td>
-                            <td>{{ obj.yoy|nz:"--" }}</td>
-                            <td>{{ obj.unknown|nz:"--" }}</td>
-                            <td><b>{{ obj.total|nz:"--" }}</b></td>
-                            <td>
-                                <a href="#"
-                                   onclick="return popitup('{% url 'camp:species_obs_edit' obj.id %}','popoutWindow')">
-                                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                                         title="Edit">
-                                </a>
-                            </td>
-                            <td>
-                                <a class="delete-me" href="#" val="{{ obj.id }}">
-                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                         title="Delete">
-                                </a>
-                                <a id="secrect-delete-btn-{{ obj.id }}"
-                                   href="{% url 'camp:species_obs_delete' obj.id "insert" %}" class="hidden"></a>
-                            </td>
-
-
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <b>Total species count: {{ sample.sample_spp.count }}</b>
+                {% include "camp/_species_list.html" %}
 
             </div>
 

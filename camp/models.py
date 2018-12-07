@@ -52,7 +52,7 @@ class Species(models.Model):
     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
-    code = models.CharField(max_length=255, blank=True, null=True)
+    code = models.CharField(max_length=255, blank=True, null=True, unique=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     sav = models.BooleanField(default=False, verbose_name="Submerged aquatic vegetation (SAV)")

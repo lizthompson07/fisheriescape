@@ -1,28 +1,27 @@
-<div class="neighbours">
-    <h3>Species observations:</h3>
+{% load nz %}
+{% load static %}
+
+<div class="">
+    <h3>Species Observations:</h3>
 </div>
-<div class="neighbours">
-    <a href={% url 'camp:species_obs_search' object.id %} class="btn btn-outline-primary">Add</a>
-</div>
-<br><br>
 <table class="table table-bordered table-sm">
     <tr>
         <th rowspan="2">Species</th>
-        <th colspan="4">Observations</th>
+        <th colspan="3">Observations</th>
     </tr>
     <tr>
         <th>Adults</th>
         <th>YOY</th>
-        <th>Other</th>
         <th>TOTAL</th>
 
     </tr>
     <tbody>
     {% for obj in sample.sample_spp.all %}
-        {% if obj.species.sav %}
+        {% if not obj.species.sav %}
             <tr>
                 <td>{{ obj.species }}</td>
-                <td>{{ obj.unknown|nz:"--" }}</td>
+                <td>{{ obj.adults|nz:"--" }}</td>
+                <td>{{ obj.yoy|nz:"--" }}</td>
                 <td><b>{{ obj.total_non_sav|nz:"--" }}</b></td>
                 <td>
                     <a href="#"
@@ -37,25 +36,31 @@
                              title="Delete">
                     </a>
                     <a id="secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'camp:species_obs_delete' obj.id "detail" %}" class="hidden"></a>
+                       href="
+                    {% if object %}
+                        {% url 'camp:species_obs_delete' obj.id "detail" %}
+                    {% else %}
+                        {% url 'camp:species_obs_delete' obj.id "insert" %}
+                    {% endif %}
+                       " class="hidden"></a>
                 </td>
             </tr>
         {% endif %}
     {% endfor %}
+    <tr style="font-weight: bold;">
+        <td>TOTAL COUNT: <span style="margin-left: 15px">{{ non_sav_count|nz:0 }}</span></td>
+    </tr>
     </tbody>
 </table>
-<b>Total species count: {{ non_sav_count }}</b>
-
-
-<div class="">
-    <h3>SAV observations:</h3>
-</div>
 
 <br><br>
+<div class="">
+    <h3>SAV Observations:</h3>
+</div>
 <table class="table table-bordered table-sm">
     <thead>
-        <th>Species</th>
-        <th>Category / Level</th>
+    <th>Species</th>
+    <th>Level</th>
     </thead>
     <tbody>
     {% for obj in sample.sample_spp.all %}
@@ -76,11 +81,19 @@
                              title="Delete">
                     </a>
                     <a id="secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'camp:species_obs_delete' obj.id "detail" %}" class="hidden"></a>
+                       href="
+                    {% if object %}
+                        {% url 'camp:species_obs_delete' obj.id "detail" %}
+                    {% else %}
+                        {% url 'camp:species_obs_delete' obj.id "insert" %}
+                    {% endif %}
+                       " class="hidden"></a>
                 </td>
             </tr>
         {% endif %}
     {% endfor %}
+    <tr style="font-weight: bold;">
+        <td>TOTAL COUNT: <span style="margin-left: 15px">{{ sav_count|nz:0 }}</span></td>
+    </tr>
     </tbody>
 </table>
-<b>Total species count: {{ sav_count }}</b>
