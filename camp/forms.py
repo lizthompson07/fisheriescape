@@ -8,12 +8,13 @@ class SiteForm(forms.ModelForm):
         model = models.Site
         fields = "__all__"
 
+
 class StationForm(forms.ModelForm):
     class Meta:
         model = models.Station
         fields = "__all__"
         widgets = {
-            "latitude_n": forms.NumberInput(attrs={"placeholder":"DD.dddddd",}),
+            "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             "description": forms.Textarea(attrs={"rows": "3", }),
             "site": forms.HiddenInput(),
@@ -25,7 +26,7 @@ class NoSiteStationForm(forms.ModelForm):
         model = models.Station
         fields = "__all__"
         widgets = {
-            "latitude_n": forms.NumberInput(attrs={"placeholder":"DD.dddddd",}),
+            "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             "description": forms.Textarea(attrs={"rows": "3", }),
             # "site": forms.HiddenInput(),
@@ -37,8 +38,8 @@ class SpeciesForm(forms.ModelForm):
         model = models.Species
         fields = "__all__"
 
-class SearchForm(forms.Form):
 
+class SearchForm(forms.Form):
     SITE_CHOICES = ((None, "---"),)
     for obj in models.Site.objects.all().order_by("site"):
         SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
@@ -51,17 +52,13 @@ class SearchForm(forms.Form):
     for obj in models.Species.objects.all():
         SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
 
+    year = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all years"}))
+    month = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all months"}))
+    site = forms.ChoiceField(required=False, choices=SITE_CHOICES)
+    station = forms.ChoiceField(required=False, choices=STATION_CHOICES)
+    species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
 
-    year = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder':"all years"}))
-    month = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder':"all months"}))
-    site = forms.ChoiceField(required = False, choices=SITE_CHOICES)
-    station = forms.ChoiceField(required = False, choices = STATION_CHOICES)
-    species = forms.ChoiceField(required = False, choices = SPECIES_CHOICES)
-
-    field_order = ["year","month","site","station","species"]
-
-
-
+    field_order = ["year", "month", "site", "station", "species"]
 
 
 class SampleForm(forms.ModelForm):
@@ -76,32 +73,8 @@ class SampleForm(forms.ModelForm):
             'month',
             'last_modified',
         ]
-        labels={
-            'notes':"Misc. notes",
-        }
-
-        class_addable = {"class":"addable"}
-
-        widgets = {
-            'notes': forms.Textarea(attrs={'rows': '3'}),
-            'percent_sand':forms.NumberInput(attrs=class_addable),
-            'percent_gravel': forms.NumberInput(attrs=class_addable),
-            'percent_rock': forms.NumberInput(attrs=class_addable),
-            'percent_mud': forms.NumberInput(attrs=class_addable),
-        }
-
-class SampleCreateForm(forms.ModelForm):
-    class Meta:
-        model = models.Sample
-        exclude = [
-            'species',
-            'sample_spp',
-            'year',
-            'month',
-            'last_modified',
-        ]
-        labels={
-            'notes':"Misc. notes",
+        labels = {
+            'notes': "Misc. notes",
         }
 
         class_addable = {"class": "addable"}
@@ -113,26 +86,71 @@ class SampleCreateForm(forms.ModelForm):
             'percent_rock': forms.NumberInput(attrs=class_addable),
             'percent_mud': forms.NumberInput(attrs=class_addable),
         }
-class SpeciesObservationForm(forms.ModelForm):
 
+
+class SampleCreateForm(forms.ModelForm):
+    class Meta:
+        model = models.Sample
+        exclude = [
+            'species',
+            'sample_spp',
+            'year',
+            'month',
+            'last_modified',
+        ]
+        labels = {
+            'notes': "Misc. notes",
+        }
+
+        class_addable = {"class": "addable"}
+
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': '3'}),
+            'percent_sand': forms.NumberInput(attrs=class_addable),
+            'percent_gravel': forms.NumberInput(attrs=class_addable),
+            'percent_rock': forms.NumberInput(attrs=class_addable),
+            'percent_mud': forms.NumberInput(attrs=class_addable),
+        }
+
+
+class NonSAVObservationForm(forms.ModelForm):
     class Meta:
         model = models.SpeciesObservation
-        exclude = ["total",]
-        labels={
+        exclude = [
+            'total_sav',
+            'total_non_sav',
+        ]
+        labels = {
 
         }
         widgets = {
-            'species':forms.HiddenInput(),
-            'sample':forms.HiddenInput(),
+            'species': forms.HiddenInput(),
+            'sample': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": "3"}),
+        }
+
+
+class SAVObservationForm(forms.ModelForm):
+    class Meta:
+        model = models.SpeciesObservation
+        exclude = [
+            'total_non_sav',
+            'adults',
+            'yoy',
+        ]
+        labels = {
+
+        }
+        widgets = {
+            'species': forms.HiddenInput(),
+            'sample': forms.HiddenInput(),
             # 'percent_coverage':forms.TextInput(attrs={'placeholder':"Value bewteen 0 and 1"}),
-            'notes': forms.Textarea(attrs={"rows":"3"}),
+            'notes': forms.Textarea(attrs={"rows": "3"}),
 
         }
 
 
-
 class ReportSearchForm(forms.Form):
-
     SPECIES_CHOICES = ((None, "---"),)
     for obj in models.Species.objects.all().order_by("common_name_eng"):
         SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
@@ -143,20 +161,15 @@ class ReportSearchForm(forms.Form):
 
     REPORT_CHOICES = (
         (None, "---"),
-        (1,"Species counts by year"),
+        (1, "Species counts by year"),
         (2, "Species richness by year"),
     )
 
-    report = forms.ChoiceField(required = True, choices = REPORT_CHOICES)
-    species = forms.MultipleChoiceField(required = False, choices = SPECIES_CHOICES)
-    sites = forms.ChoiceField(required = False, choices = SITE_CHOICES)
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    species = forms.MultipleChoiceField(required=False, choices=SPECIES_CHOICES)
+    sites = forms.ChoiceField(required=False, choices=SITE_CHOICES)
 
     # field_order = ["year","month","site","station","species"]
-
-
-
-
-
 
 # class ProbeMeasurementForm(forms.ModelForm):
 #     class Meta:
