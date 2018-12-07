@@ -53,7 +53,7 @@
             </div>
             <div class="col">
                 <h3>Station Map:</h3>
-                {% if object.station.latitude and object.station.longitude %}
+                {% if object.station.latitude_n and object.station.longitude_w %}
                     <div id="map"></div>
                 {% else %}
                     <br>
