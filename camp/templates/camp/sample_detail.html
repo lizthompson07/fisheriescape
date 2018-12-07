@@ -39,6 +39,10 @@
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'camp:sample_edit' sample.id %}">Edit</a>
             <a class="btn btn-danger disabled" href="{% url 'camp:sample_delete' sample.id %}">Delete</a>
+
+            <a href={% url 'camp:species_obs_search' object.id %} class="btn btn-success">Add Species</a>
+
+
         </div>
         <br><br>
         <div class="row">
@@ -48,6 +52,7 @@
                 {% endfor %}
             </div>
             <div class="col">
+                <h3>Station Map:</h3>
                 <div id="map"></div>
                 <br>
                 {% include "camp/_species_list.html" %}

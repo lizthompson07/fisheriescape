@@ -7,7 +7,7 @@
 
 {# A script to refresh the parent window; to be called in when the buttons are pushed #}
 <script>
-window.resizeTo(width=700, height=600);
+window.resizeTo(width=700, height=500);
 
 window.onunload = refreshParent;
 function refreshParent() {
@@ -21,9 +21,9 @@ $(document).ready(function() {
 </script>
 
 <div class="container">
-  {% if object.id %}
+  {% if object %}
   <h1>{{object.sample}}</h1>
-    <h3>Editing {{species}} </h3>
+    <h3>Editing {{object.species}} </h3>
 
   {% else %}
   <h1>{{sample}}</h1>
