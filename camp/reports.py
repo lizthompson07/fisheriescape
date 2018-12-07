@@ -125,7 +125,7 @@ def generate_species_richness_report(site=None):
                 counts.append(len(species_set))
 
             legend_title = str(station)
-            p.line(years, counts, legend=legend_title, line_width=1, line_color=colors[i])  # , line_dash="4 4"
+            p.line(years, counts, legend=legend_title, line_width=1, line_color=colors[i])  #
             p.circle(years, counts, legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3)
             i += 1
 
@@ -148,7 +148,7 @@ def generate_species_richness_report(site=None):
             counts.append(len(species_set))
 
         legend_title = "Entire site"
-        p.line(years, counts, legend=legend_title, line_width=3, line_color='black')
+        p.line(years, counts, legend=legend_title, line_width=3, line_color='black', line_dash="4 4")
         p.circle(years, counts, legend=legend_title, fill_color='black', line_color='black', size=8)
         # TODO: should we show the number of stations visited?
 
