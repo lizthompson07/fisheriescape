@@ -404,6 +404,7 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
             'species_id',
             'sample__station__id',
             'sample__station__name',
+            'sample__station__site__site',
             'sample__station__latitude_n',
             'sample__station__longitude_w'
         ).distinct().annotate(dcount=Count('sample__station__id'))
@@ -415,7 +416,7 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
                     "-sample__start_date").first().sample.start_date.year
                 locations.append(
                     [
-                        obj["sample__station__name"],
+                        "{} ({})".format(obj["sample__station__name"],obj["sample__station__site__site"]),
                         obj["sample__station__latitude_n"],
                         obj["sample__station__longitude_w"],
                         obj["dcount"],
