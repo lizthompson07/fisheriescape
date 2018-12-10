@@ -50,6 +50,15 @@
                         {% for field in form %}
                             {% if "test_" in field.name %}
                                 {# do nothing #}
+                            {% elif field.name == "annulus_count" %}
+                                {% bootstrap_field field layout="horizontal" size="small" placeholder="" %}
+                                <div class="row">
+                                    <div class="col-md-3"></div>
+                                    <div style="font-size: small; padding-left: 10px" class="col-md-9;">
+                                        <p><em>(use code -99 for uncountable)</em></p>
+                                    </div>
+                                </div>
+
                             {% else %}
                                 {% bootstrap_field field layout="horizontal" size="small" placeholder="" %}
                             {% endif %}
