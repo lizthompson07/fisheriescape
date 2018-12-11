@@ -41,14 +41,15 @@
             <tbody>
             <tr>
                 <td>
+
                     <a href="
-                            {% if user.is_authenticated %}#}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
+                            {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
                         <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
                     </a>
                 </td>
                 <td>
                     <a href="
-                            {% if user.is_authenticated %}#}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
+                            {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
                         Regional Data Inventory
                     </a>
                 </td>
