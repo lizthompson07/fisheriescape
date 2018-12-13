@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'bootstrap4',
+    'easy_pdf',
     'accounts',
     'dm_tickets',
     'inventory',
@@ -192,6 +193,7 @@ MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = STATIC_DIR
 
 if MY_ENVR == "dev":
     STATICFILES_DIRS = [
