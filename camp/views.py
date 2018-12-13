@@ -4,15 +4,14 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models import Count, TextField, Sum
+from django.db.models import Count, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
-
+from easy_pdf.views import PDFTemplateView
 from django_filters.views import FilterView
 from . import models
 from . import forms
@@ -179,8 +178,10 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
             'unsampled_vegetation_outside',
             "notes",
         ]
-        context["non_sav_count"] = models.SpeciesObservation.objects.filter(sample=self.object).filter(species__sav=False).count
-        context["sav_count"] = models.SpeciesObservation.objects.filter(sample=self.object).filter(species__sav=True).count
+        context["non_sav_count"] = models.SpeciesObservation.objects.filter(sample=self.object).filter(
+            species__sav=False).count
+        context["sav_count"] = models.SpeciesObservation.objects.filter(sample=self.object).filter(
+            species__sav=True).count
         return context
 
 
@@ -199,6 +200,7 @@ class SampleUpdateView(LoginRequiredMixin, UpdateView):
             station_list.append(html_insert)
         context['station_list'] = station_list
         return context
+
 
 class SampleCreateView(LoginRequiredMixin, CreateView):
     model = models.Sample
@@ -416,7 +418,7 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
                     "-sample__start_date").first().sample.start_date.year
                 locations.append(
                     [
-                        "{} ({})".format(obj["sample__station__name"],obj["sample__station__site__site"]),
+                        "{} ({})".format(obj["sample__station__name"], obj["sample__station__site__site"]),
                         obj["sample__station__latitude_n"],
                         obj["sample__station__longitude_w"],
                         obj["dcount"],
@@ -566,6 +568,10 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
     login_url = '/accounts/login_required/'
     form_class = forms.ReportSearchForm
 
+    def get_initial(self):
+        # default the year to the year of the latest samples
+        return {"year": models.Sample.objects.all().order_by("-start_date").first().start_date.year}
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
@@ -573,32 +579,54 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
         report = int(form.cleaned_data["report"])
-        
+
         if report == 1:
             return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species_list": species_list}))
         elif report == 2:
             try:
-                site = int(form.cleaned_data["sites"])
+                site = int(form.cleaned_data["site"])
             except:
                 site = None
                 print("no site provided")
 
             if site:
-                return HttpResponseRedirect(reverse("camp:species_richness", kwargs={"site": site} ))
+                return HttpResponseRedirect(reverse("camp:species_richness", kwargs={"site": site}))
             else:
                 return HttpResponseRedirect(reverse("camp:species_richness"))
+        elif report == 3:
+            site = int(form.cleaned_data["site"])
+            year = int(form.cleaned_data["year"])
+            return HttpResponseRedirect(reverse("camp:watershed_report", kwargs={"site": site, "year": year}))
 
 
 def report_species_count(request, species_list):
-
     reports.generate_species_count_report(species_list)
     return render(request, "camp/report_display.html")
 
-def report_species_richness(request, site=None):
 
+def report_species_richness(request, site=None):
     if site:
         reports.generate_species_richness_report(site)
     else:
         reports.generate_species_richness_report()
 
     return render(request, "camp/report_display.html")
+
+
+# from wkhtmltopdf.views import PDFTemplateView
+
+class AnnualWatershedReportTemplateView(PDFTemplateView):
+    template_name = 'camp/report_watershed_display.html'
+
+    def get_filename(self):
+        site = models.Site.objects.get(pk=self.kwargs['site']).site
+        return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
+
+    def get_context_data(self, **kwargs):
+        reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
+        site = models.Site.objects.get(pk=self.kwargs['site']).site
+        return super().get_context_data(
+            pagesize="A4 landscape",
+            title="{} Annual Report {}".format(site, self.kwargs['year']),
+            **kwargs
+        )
