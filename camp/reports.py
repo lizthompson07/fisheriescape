@@ -242,11 +242,11 @@ def generate_annual_watershed_report(site, year):
     target_file_do = os.path.join(target_dir, 'do.png')
     target_file_greeb_crab = os.path.join(target_dir, 'green_crab.png')
 
-    try:
-        rmtree(target_dir)
-    except:
-        print("no such dir.")
-    os.mkdir(target_dir)
+    # try:
+    #     rmtree(target_dir)
+    # except:
+    #     print("no such dir.")
+    # os.mkdir(target_dir)
 
     generate_sub_pie_chart(site, year, target_file_pie)
     generate_sub_species_richness(site, target_file_richness)
