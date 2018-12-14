@@ -4,7 +4,6 @@ from django.dispatch import receiver
 from django.utils import timezone
 # from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
-# import misaka
 import markdown
 # Create your models here.
 
