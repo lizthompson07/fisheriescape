@@ -47,6 +47,7 @@
         <th scope="col">Type</th>
         <th scope="col">Sample Collection Date</th>
         <th scope="col" style="text-align: center;">Sampler Ref. No.</th>
+        <th scope="col" style="text-align: center;">Experimental?</th>
         <th scope="col">Sampler</th>
         <th scope="col" style="text-align: center;"># Fish Processed</th>
         <th scope="col" style="text-align: center;">Date Processed</th>
@@ -64,6 +65,7 @@
           <td>{{sample.get_type_display}}</td>
           <td>{{sample.sample_date|date:'F d, Y'}}</td>
           <td align='center'>{{sample.sampler_ref_number}}</td>
+          <td align='center'>{{sample.experimental_net_used|yesno:"yes,no,n/a"}}</td>
           <td>{{sample.sampler}}</td>
 
             <td align='center'>{{sample.fish_details.count}}</td>
