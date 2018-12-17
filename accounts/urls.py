@@ -18,12 +18,7 @@ urlpatterns = [
     path('users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='account'),
     path('users/change-password/', views.change_password, name='change_password'),
     path('account-request/', views.account_request, name='account_request'),
-    path('login_required/', auth_views.LoginView, kwargs={
-        'extra_context': {
-            'message': "You must be logged in to access this page",
-        },
-        "template_name": "registration/login.html"
-    }),
+    path('login_required/', views.UserLoginRequiredView.as_view())
 
     ### NOTE: Password reset views are mapped in the glf_sci_site urls.py file. Views are still in the Accounts app views.py
 

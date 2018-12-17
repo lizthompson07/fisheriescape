@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import TemplateView, UpdateView, CreateView #,ListView, DetailView, CreateView, DeleteView
+from django.views.generic import TemplateView, UpdateView, CreateView  # ,ListView, DetailView, CreateView, DeleteView
 
 from .tokens import account_activation_token
 from . import forms
@@ -25,6 +25,7 @@ from inventory import models as inventory_models
 class IndexView(TemplateView):
     template_name = 'accounts/index.html'
 
+
 # class DataFlowTemplateView(TemplateView):
 #     template_name = 'landing/dataflow.html'
 
@@ -33,8 +34,10 @@ class DeniedAccessTemplateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        messages.error(self.request, "Sorry, you are not authorized to view this page. Please contact the site administrator to request access.")
-        return  context
+        messages.error(self.request,
+                       "Sorry, you are not authorized to view this page. Please contact the site administrator to request access.")
+        return context
+
 
 # class DataFlowTemplateView(TemplateView):
 #     template_name = 'landing/dataflow.html'
@@ -43,8 +46,10 @@ class DeniedAccessTemplateView(TemplateView):
 class UserLoginView(LoginView):
     template_name = "registration/login.html"
 
+
 class UserLogoutView(LogoutView):
     next_page = reverse_lazy("index")
+
 
 class UserUpdateView(UpdateView):
     model = get_user_model()
@@ -56,6 +61,7 @@ class UserUpdateView(UpdateView):
         self.object.username = self.object.email
         return super().form_valid(form)
 
+
 def change_password(request):
     # user_model = get_user_model()
     # print(user_model.id)
@@ -65,18 +71,19 @@ def change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)  # Important!
             messages.success(request, 'Your password was successfully updated!')
-            return redirect('index' )
+            return redirect('index')
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'registration/change_password.html', {
         'form': form
     })
 
+
 def account_verified(request):
     group = Group.objects.get(name='verified')
     if group in request.user.groups.all():
         messages.error(request, 'This account has already been verified')
-        return redirect('index' )
+        return redirect('index')
     else:
         if request.method == 'POST':
             form = SetPasswordForm(request.user, request.POST)
@@ -94,12 +101,12 @@ def account_verified(request):
                 user.groups.add(group)
 
                 messages.success(request, 'Your password was successfully updated!')
-                return redirect('index' )
+                return redirect('index')
         else:
             form = SetPasswordForm(request.user)
         return render(request, 'registration/account_verified.html', {
             'form': form
-    })
+        })
 
 
 def resend_verification_email(request, email):
@@ -114,13 +121,13 @@ def resend_verification_email(request, email):
     message = render_to_string('registration/acc_active_email.html', {
         'user': user,
         'domain': current_site.domain,
-        'uid':force_text(urlsafe_base64_encode(force_bytes(user.pk))),
-        'token':account_activation_token.make_token(user),
+        'uid': force_text(urlsafe_base64_encode(force_bytes(user.pk))),
+        'token': account_activation_token.make_token(user),
     })
     to_email = user.email
-    from_email='DoNotReply@{}.com'.format(settings.WEB_APP_NAME)
+    from_email = 'DoNotReply@{}.com'.format(settings.WEB_APP_NAME)
     email = EmailMessage(
-                mail_subject, message, to=[to_email], from_email=from_email,
+        mail_subject, message, to=[to_email], from_email=from_email,
     )
     if settings.MY_ENVR != 'dev':
         email.send()
@@ -137,14 +144,16 @@ def account_request(request):
         if form.is_valid():
             email = emails.AccountRequestEmail(form.cleaned_data)
             # send the email object
-            send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
             messages.success(request, 'An email with your request has been send to the application administrator')
-            return HttpResponseRedirect(reverse('index' ))
+            return HttpResponseRedirect(reverse('index'))
     else:
         form = forms.AccountRequestForm()
     return render(request, 'registration/account_request_form.html', {
         'form': form,
     })
+
 
 def signup(request):
     if request.method == 'POST':
@@ -160,13 +169,13 @@ def signup(request):
             message = render_to_string('registration/acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
-                'uid':force_text(urlsafe_base64_encode(force_bytes(user.pk))),
-                'token':account_activation_token.make_token(user),
+                'uid': force_text(urlsafe_base64_encode(force_bytes(user.pk))),
+                'token': account_activation_token.make_token(user),
             })
             to_email = form.cleaned_data.get('email')
-            from_email='DoNotReply@{}.com'.format(settings.WEB_APP_NAME)
+            from_email = 'DoNotReply@{}.com'.format(settings.WEB_APP_NAME)
             email = EmailMessage(
-                        mail_subject, message, to=[to_email], from_email=from_email,
+                mail_subject, message, to=[to_email], from_email=from_email,
             )
             if settings.MY_ENVR != 'dev':
                 email.send()
@@ -177,6 +186,7 @@ def signup(request):
     else:
         form = forms.SignupForm()
     return render(request, 'registration/signup.html', {'form': form})
+
 
 def activate(request, uidb64, token):
     try:
@@ -194,6 +204,7 @@ def activate(request, uidb64, token):
     else:
         return HttpResponse('Activation link is invalid!')
 
+
 # def UserResetPassword(request):
 #     form = UserForgotPasswordForm(None, request.POST)
 #     if request.method == 'POST':
@@ -208,13 +219,20 @@ class UserPassWordResetView(PasswordResetView):
     def get_success_url(self, **kwargs):
         messages.success(self.request, self.success_message)
         return reverse('index')
-#
+
+
 class UserPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = "registration/user_password_reset_confirm.html"
 
     def get_success_url(self, **kwargs):
-        messages.success(self.request, "Your password has been successfully reset! Please try logging in with your new password.")
+        messages.success(self.request,
+                         "Your password has been successfully reset! Please try logging in with your new password.")
         return reverse('index')
-#
-#     def dispatch(self, *args, **kwargs):
-#         return super().dispatch(*args, **kwargs)
+
+
+class UserLoginRequiredView(LoginView):
+    template_name = "registration/login.html"
+
+    def get_context_data(self, **kwargs):
+        messages.error(self.request, "You must be logged in to access this page")
+        return super(UserLoginRequiredView, self).get_context_data(**kwargs)
