@@ -1,10 +1,9 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model, update_session_auth_hash, login, authenticate
+from django.contrib.auth import get_user_model, update_session_auth_hash, login
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetConfirmView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
 from django.http import HttpResponseRedirect, HttpResponse
@@ -43,6 +42,9 @@ class DeniedAccessTemplateView(TemplateView):
 
 class UserLoginView(LoginView):
     template_name = "registration/login.html"
+
+class UserLogoutView(LogoutView):
+    next_page = reverse_lazy("index")
 
 class UserUpdateView(UpdateView):
     model = get_user_model()
