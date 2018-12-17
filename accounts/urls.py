@@ -6,7 +6,6 @@ app_name = 'accounts'
 
 urlpatterns = [
 
-
     path('login/', views.UserLoginView.as_view(), name='login'),
 
     path('denied/', views.DeniedAccessTemplateView.as_view(), name='denied_access'),
@@ -15,20 +14,17 @@ urlpatterns = [
     path('activate/<str:uidb64>/<str:token>', views.activate, name='activate'),
     path('resend-verification-email/<str:email>', views.resend_verification_email, name='resend_verification_email'),
     path('verified/', views.account_verified, name='verified'),
-    path('logout/', auth_views.logout, name='logout', kwargs={
-        'next_page':'/',
-        }),
+    path('logout/', views.UserLogoutView.as_view(), name='logout'),
     path('users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='account'),
     path('users/change-password/', views.change_password, name='change_password'),
     path('account-request/', views.account_request, name='account_request'),
-    path('login_required/', auth_views.login, kwargs={
+    path('login_required/', auth_views.LoginView, kwargs={
         'extra_context': {
             'message': "You must be logged in to access this page",
-            }
-        }),
+        },
+        "template_name": "registration/login.html"
+    }),
 
     ### NOTE: Password reset views are mapped in the glf_sci_site urls.py file. Views are still in the Accounts app views.py
-
-    
 
 ]
