@@ -4,15 +4,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models import TextField, Value
+from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect
 
 from braces.views import GroupRequiredMixin
-from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView
 from django.urls import reverse_lazy, reverse
 from django_filters.views import FilterView
-from django.utils import timezone
 from . import models
 from . import forms
 from . import filters
