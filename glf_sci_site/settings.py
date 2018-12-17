@@ -16,13 +16,13 @@ from . import google_api_key
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
-STATIC_DIR = os.path.join(BASE_DIR,'static')
-MEDIA_DIR = os.path.join(BASE_DIR,'media')
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 # Custom variables
 MY_ENVR = media_conf.where_am_i()
-MY_CNF = os.path.join(BASE_DIR,'my.cnf')
+MY_CNF = os.path.join(BASE_DIR, 'my.cnf')
 WEB_APP_NAME = "GulfScienceDataManagement"
 GOOGLE_API_KEY = google_api_key.GOOGLE_API_KEY
 
@@ -35,13 +35,10 @@ SECRET_KEY = 'dekdlvbhtlbo_wg_x32ovt9umh3ysbfa$+f@h7i8oe-45$c)pl'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['glfscidm001','127.0.0.1']
-
-
+ALLOWED_HOSTS = ['glfscidm001', '127.0.0.1', 'glf-sci-dm']
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'accounts/login/'
-
 
 # Application definition
 
@@ -98,25 +95,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASE_ROUTERS = ['glf_sci_site.routers.DevDatabaseRouter',]
+DATABASE_ROUTERS = ['glf_sci_site.routers.DevDatabaseRouter', ]
 
-#for mysql
+# for mysql
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'TIME_ZONE':'America/Halifax',
+        'TIME_ZONE': 'America/Halifax',
         'OPTIONS': {
-            'read_default_file':MY_CNF,
+            'read_default_file': MY_CNF,
             'init_command': 'SET default_storage_engine=INNODB',
         },
     },
     'dev_db': {
         'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -162,7 +158,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-#Email settings
+# Email settings
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
@@ -171,7 +167,6 @@ EMAIL_HOST_PASSWORD = ''
 # EMAIL_PORT = 587
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -186,7 +181,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 MEDIA_ROOT = MEDIA_DIR
@@ -197,7 +191,7 @@ STATIC_URL = '/static/'
 
 if MY_ENVR == "dev":
     STATICFILES_DIRS = [
-    STATIC_DIR,
+        STATIC_DIR,
     ]
 else:
     STATIC_ROOT = STATIC_DIR
