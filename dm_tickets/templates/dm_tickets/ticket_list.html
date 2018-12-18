@@ -80,7 +80,7 @@
     </thead>
 
     <tbody>
-      {% for ticket in object_list  %}
+      {% for ticket in filter.qs  %}
         <tr>
           <td>{{ticket.date_modified|naturaltime}}</td>
           <td>{{ticket.section}}</td>

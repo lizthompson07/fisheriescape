@@ -33,7 +33,7 @@
    </form>
    <div class="container">
 
-     {% for tag in object_list.all %}
+     {% for tag in filter.qs %}
      <p>
        <a href="{% url 'tickets:add_tag' ticket tag.id %}"><i class="material-icons">add</i></a>
        {{tag.tag}}

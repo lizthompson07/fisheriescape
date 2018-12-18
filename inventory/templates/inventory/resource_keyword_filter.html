@@ -41,7 +41,7 @@
             <th>Vernacular</th>
           </thead>
           <tbody>
-            {% for obj in object_list.all %}
+            {% for obj in filter.qs %}
               <tr>
                 <td class="indent">
                   <a class="btn btn-sm btn-dark" href="{% url "inventory:resource_keyword_add" resource.id obj.id keyword_type|slugify %}"> <i class="material-icons">add</i></a> &nbsp;

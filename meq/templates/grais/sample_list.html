@@ -32,7 +32,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for sample in object_list  %}
+      {% for sample in filter.qs  %}
         <tr>
           <td><a href="{% url 'grais:sample_detail' sample.id %}">{{sample.id}}</a></td>
           <td>{{sample.station}}</td>

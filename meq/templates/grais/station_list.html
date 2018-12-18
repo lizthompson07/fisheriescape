@@ -28,7 +28,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for obj in object_list  %}
+      {% for obj in filter.qs  %}
         <tr>
           <td><a href="{% url 'grais:station_detail' obj.id %}">{{obj.id}}</a></td>
           <td>{{obj.station_name}}</td>

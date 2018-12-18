@@ -42,7 +42,7 @@
     {# <div class="col"> #}
 
         <div class="scroll-lg">
-          {% for obj in object_list.all %}
+          {% for obj in filter.qs %}
             <div class="row">
               <div class="col-1">
                 <a class="btn btn-sm btn-dark indent" href="{% url "inventory:resource_citation_add" resource.id obj.id %}"> <i class="material-icons">add</i></a>
