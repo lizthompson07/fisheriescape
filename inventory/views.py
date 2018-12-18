@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.template import Context, loader
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.views.generic import ListView,  UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
 from accounts import models as accounts_models
 from collections import OrderedDict
@@ -20,6 +20,7 @@ from . import forms
 from . import filters
 from . import emails
 from . import xml_export
+
 
 # Create your views here.
 class CloserTemplateView(TemplateView):
@@ -33,8 +34,10 @@ class ResourceListView(FilterView):
     filterset_class = filters.ResourceFilter
     login_url = '/accounts/login_required/'
     template_name = 'inventory/resource_list.html'
-    queryset = models.Resource.objects.all().order_by("-status","title_eng")
-
+    # queryset = models.Resource.objects.all().order_by("-status", "title_eng")
+    queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
+        search_term=Concat('title_eng', 'title_fre', 'descr_eng', 'descr_fre', 'purpose_eng', 'purpose_fre',
+                           output_field=TextField()))
 
 
 class MyResourceListView(LoginRequiredMixin, TemplateView):
@@ -43,24 +46,24 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        custodian_queryset = models.Person.objects.get(pk = self.request.user.id).resource_people.filter(role=1)
+        custodian_queryset = models.Person.objects.get(pk=self.request.user.id).resource_people.filter(role=1)
         context['custodian_list'] = custodian_queryset
 
-        non_custodian_queryset= []
+        non_custodian_queryset = []
         for resource in models.Resource.objects.filter(people=self.request.user.id):
-            add=True
+            add = True
             for resource_person in resource.resource_people.all():
                 if resource_person.role.id == 1 and resource_person.person.user_id == self.request.user.id:
-                    add=False
-            if add==True:
+                    add = False
+            if add == True:
                 non_custodian_queryset.append(resource)
 
-         # retain only the unique items, and keep them in order according to keys (cannot use a set for this reason)
+        # retain only the unique items, and keep them in order according to keys (cannot use a set for this reason)
         resource_dict = OrderedDict()
         for item in non_custodian_queryset:
             resource_dict[item.id] = item
 
-        #convert the dict back into a list
+        # convert the dict back into a list
         non_custodian_list = []
         for item in resource_dict:
             non_custodian_list.append(resource_dict[item])
@@ -76,7 +79,8 @@ class ResourceDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['kcount_other'] = self.object.keywords.filter(~Q(keyword_domain_id = 8) & ~Q(keyword_domain_id = 6) & ~Q(keyword_domain_id = 7) & Q(is_taxonomic = False)).count()
+        context['kcount_other'] = self.object.keywords.filter(
+            ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).count()
         context['kcount_tc'] = self.object.keywords.filter(keyword_domain_id__exact=8).count()
         context['kcount_cst'] = self.object.keywords.filter(keyword_domain_id__exact=6).count()
         context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
@@ -85,11 +89,11 @@ class ResourceDetailView(DetailView):
         verified = False
         if "<ul />" in xml_export.verify(self.object):
             verified = True
-        context['verified']= verified
-
+        context['verified'] = verified
 
         # context['google_api_key'] = settings.GOOGLE_API_KEY
         return context
+
 
 class ResourceFullDetailView(UpdateView):
     model = models.Resource
@@ -99,6 +103,7 @@ class ResourceFullDetailView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['readonly'] = True
         return context
+
 
 class ResourceUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Resource
@@ -124,12 +129,13 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         object = form.save()
         if form.cleaned_data['add_custodian'] == True:
-            models.ResourcePerson.objects.create(resource_id=object.id,person_id=self.request.user.id,role_id=1)
+            models.ResourcePerson.objects.create(resource_id=object.id, person_id=self.request.user.id, role_id=1)
 
         if form.cleaned_data['add_point_of_contact'] == True:
-            models.ResourcePerson.objects.create(resource_id=object.id,person_id=50,role_id=4)
+            models.ResourcePerson.objects.create(resource_id=object.id, person_id=50, role_id=4)
 
         return super().form_valid(form)
+
 
 class ResourceDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Resource
@@ -140,6 +146,7 @@ class ResourceDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
 
 class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Resource
@@ -163,16 +170,18 @@ class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
             email = emails.FlagForDeletionEmail(self.object, self.request.user)
             # send the email object
             if settings.MY_ENVR != 'dev':
-                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                          recipient_list=email.to_list, fail_silently=False, )
             else:
                 print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
+                                                                      email.message))
 
-            messages.success(self.request, 'The data resource has been flagged for deletion and the regional data manager has been notified!')
+            messages.success(self.request,
+                             'The data resource has been flagged for deletion and the regional data manager has been notified!')
         else:
             messages.success(self.request, 'The data resource has been unflagged!')
-        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk":self.kwargs["pk"]}))
-
+        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk": self.kwargs["pk"]}))
 
 
 class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
@@ -197,16 +206,17 @@ class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
             email = emails.FlagForPublicationEmail(self.object, self.request.user)
             # send the email object
             if settings.MY_ENVR != 'dev':
-                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                          recipient_list=email.to_list, fail_silently=False, )
             else:
                 print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
-            messages.success(self.request, 'The data resource has been flagged for publication and the regional data manager has been notified!')
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
+                                                                      email.message))
+            messages.success(self.request,
+                             'The data resource has been flagged for publication and the regional data manager has been notified!')
         else:
             messages.success(self.request, 'The data resource has been unflagged!')
-        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk":self.kwargs["pk"]}))
-
-
+        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk": self.kwargs["pk"]}))
 
 
 # RESOURCE PERSON #
@@ -220,13 +230,14 @@ class ResourcePersonFilterView(FilterView):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
         my_resource = models.Resource.objects.get(id=resource)
-        context['resource']= my_resource
+        context['resource'] = my_resource
 
         return context
 
+
 class ResourcePersonCreateView(LoginRequiredMixin, CreateView):
     model = models.ResourcePerson
-    template_name ='inventory/resource_person_form.html'
+    template_name = 'inventory/resource_person_form.html'
     login_url = '/accounts/login_required/'
     form_class = forms.ResourcePersonForm
 
@@ -237,61 +248,71 @@ class ResourcePersonCreateView(LoginRequiredMixin, CreateView):
             'resource': resource,
             'person': person,
             # 'last_modified_by': self.request.user,
-            }
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= resource
+        context['resource'] = resource
         person = models.Person.objects.get(user_id=self.kwargs['person'])
-        context['person']= person
+        context['person'] = person
         return context
 
     def form_valid(self, form):
         object = form.save()
 
-        #if the person is being added as a custodian
+        # if the person is being added as a custodian
         if object.role.id == 1:
             email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
             if settings.MY_ENVR != 'dev':
-                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                          recipient_list=email.to_list, fail_silently=False, )
             else:
                 print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
-            messages.success(self.request, '{} has been added as {} and a notification email has been sent to them!'.format(object.person.full_name, object.role))
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
+                                                                      email.message))
+            messages.success(self.request,
+                             '{} has been added as {} and a notification email has been sent to them!'.format(
+                                 object.person.full_name, object.role))
         else:
             messages.success(self.request, '{} has been added as {}!'.format(object.person.full_name, object.role))
 
         return super().form_valid(form)
 
+
 class ResourcePersonUpdateView(LoginRequiredMixin, UpdateView):
     model = models.ResourcePerson
-    template_name ='inventory/resource_person_form.html'
+    template_name = 'inventory/resource_person_form.html'
     login_url = '/accounts/login_required/'
     form_class = forms.ResourcePersonForm
 
     def form_valid(self, form):
         object = form.save()
 
-        #if the person is being added as a custodian
+        # if the person is being added as a custodian
         if object.role.id == 1:
             email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
             if settings.MY_ENVR != 'dev':
-                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                          recipient_list=email.to_list, fail_silently=False, )
             else:
                 print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
-            messages.success(self.request, '{} has been added as {} and a notification email has been sent to them!'.format(object.person.full_name, object.role))
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
+                                                                      email.message))
+            messages.success(self.request,
+                             '{} has been added as {} and a notification email has been sent to them!'.format(
+                                 object.person.full_name, object.role))
         else:
             messages.success(self.request, '{} has been added as {}!'.format(object.person.full_name, object.role))
 
         return super().form_valid(form)
 
+
 class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
     model = models.ResourcePerson
-    template_name ='inventory/resource_person_confirm_delete.html'
+    template_name = 'inventory/resource_person_confirm_delete.html'
     success_url = reverse_lazy('inventory:resource_person')
     success_message = 'The person has been removed from the data resource!'
     login_url = '/accounts/login_required/'
@@ -299,26 +320,29 @@ class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         object = models.ResourcePerson.objects.get(pk=self.kwargs["pk"])
 
-        #if the person is being added as a custodian
+        # if the person is being added as a custodian
         if object.role.id == 1:
 
             email = emails.RemovedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
             if settings.MY_ENVR != 'dev':
-                send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                          recipient_list=email.to_list, fail_silently=False, )
             else:
                 print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
-            messages.success(self.request, '{} has been removed as {} and a notification email has been sent to them!'.format(object.person.full_name, object.role))
+                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
+                                                                      email.message))
+            messages.success(self.request,
+                             '{} has been removed as {} and a notification email has been sent to them!'.format(
+                                 object.person.full_name, object.role))
         else:
             messages.success(self.request, '{} has been removed as {}!'.format(object.person.full_name, object.role))
-
 
         # messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('inventory:resource_detail', kwargs={'pk':self.object.resource.id})
+        return reverse_lazy('inventory:resource_detail', kwargs={'pk': self.object.resource.id})
 
     # def delete(self):
     #     object = form.save()
@@ -339,6 +363,7 @@ class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
     #
     #     return super().form_valid(form)
 
+
 # PERSON #
 ##########
 
@@ -349,8 +374,8 @@ class PersonCreateView(LoginRequiredMixin, FormView):
 
     def get_success_url(self):
         return reverse_lazy('inventory:resource_person_add', kwargs={
-            'resource':self.kwargs['resource'],
-            'person':models.Person.objects.last().user_id,
+            'resource': self.kwargs['resource'],
+            'person': models.Person.objects.last().user_id,
         })
 
     def form_valid(self, form):
@@ -359,7 +384,7 @@ class PersonCreateView(LoginRequiredMixin, FormView):
 
         # form.send_email() cool to know you can call methods off of the form like this...
 
-        #step 0: retreive data from form
+        # step 0: retreive data from form
         first_name = form.cleaned_data['first_name']
         last_name = form.cleaned_data['last_name']
         email = form.cleaned_data['email']
@@ -397,8 +422,9 @@ class PersonCreateView(LoginRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= resource
+        context['resource'] = resource
         return context
+
 
 class PersonUpdateView(LoginRequiredMixin, FormView):
     template_name = 'inventory/person_form.html'
@@ -406,18 +432,18 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 
     def get_success_url(self):
         return reverse_lazy('inventory:resource_detail', kwargs={
-            'pk':self.kwargs['resource'],
+            'pk': self.kwargs['resource'],
         })
 
     def get_initial(self):
         person = models.Person.objects.get(pk=self.kwargs['person'])
         return {
             'first_name': person.user.first_name,
-            'last_name':  person.user.last_name,
-            'email':  person.user.email,
-            'position_eng':  person.position_eng,
-            'position_fre':  person.position_fre,
-            'phone':  person.phone,
+            'last_name': person.user.last_name,
+            'email': person.user.email,
+            'position_eng': person.position_eng,
+            'position_fre': person.position_fre,
+            'phone': person.phone,
             'language': person.language,
             'organization': person.organization.id,
         }
@@ -428,7 +454,7 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 
         old_person = models.Person.objects.get(pk=self.kwargs['person'])
 
-        #step 0: retreive data from form
+        # step 0: retreive data from form
         first_name = form.cleaned_data['first_name']
         last_name = form.cleaned_data['last_name']
         email = form.cleaned_data['email']
@@ -461,9 +487,9 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= resource
+        context['resource'] = resource
         person = models.Person.objects.get(user_id=self.kwargs['person'])
-        context['person']= person
+        context['person'] = person
         return context
 
 
@@ -473,66 +499,81 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 class ResourceKeywordFilterView(FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
-    queryset = models.Keyword.objects.annotate(search_term=Concat('text_value_eng', Value(' '),'details', output_field=TextField())).filter(~Q(keyword_domain_id = 8) & ~Q(keyword_domain_id = 6) & ~Q(keyword_domain_id = 7) & Q(is_taxonomic = False)  ).order_by('text_value_eng')
+    queryset = models.Keyword.objects.annotate(
+        search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
+        ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).order_by(
+        'text_value_eng')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
         my_resource = models.Resource.objects.get(id=resource)
-        context['resource']= my_resource
-        context['keyword_type']= "Keyword"
+        context['resource'] = my_resource
+        context['keyword_type'] = "Keyword"
         return context
+
 
 class ResourceTopicCategoryFilterView(FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
-    queryset = models.Keyword.objects.annotate(search_term=Concat('text_value_eng', Value(' '),'details', output_field=TextField())).filter(keyword_domain_id__exact=8).order_by('text_value_eng')
+    queryset = models.Keyword.objects.annotate(
+        search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
+        keyword_domain_id__exact=8).order_by('text_value_eng')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
         my_resource = models.Resource.objects.get(id=resource)
-        context['resource']= my_resource
-        context['keyword_type']= "Topic Category"
+        context['resource'] = my_resource
+        context['keyword_type'] = "Topic Category"
         return context
+
 
 class ResourceCoreSubjectFilterView(FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
-    queryset = models.Keyword.objects.annotate(search_term=Concat('text_value_eng', Value(' '),'details', output_field=TextField())).filter(keyword_domain_id__exact=6).order_by('text_value_eng')
+    queryset = models.Keyword.objects.annotate(
+        search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
+        keyword_domain_id__exact=6).order_by('text_value_eng')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
         my_resource = models.Resource.objects.get(id=resource)
-        context['resource']= my_resource
-        context['keyword_type']= "Core Subject"
+        context['resource'] = my_resource
+        context['keyword_type'] = "Core Subject"
         return context
+
 
 class ResourceSpeciesFilterView(FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
-    queryset = models.Keyword.objects.annotate(search_term=Concat('text_value_eng', Value(' '),'details', output_field=TextField())).filter(is_taxonomic=True).order_by('text_value_eng')
+    queryset = models.Keyword.objects.annotate(
+        search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
+        is_taxonomic=True).order_by('text_value_eng')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
         my_resource = models.Resource.objects.get(id=resource)
-        context['resource']= my_resource
-        context['keyword_type']= "Taxonomic Keyword"
+        context['resource'] = my_resource
+        context['keyword_type'] = "Taxonomic Keyword"
         return context
+
 
 class ResourceLocationFilterView(FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
-    queryset = models.Keyword.objects.annotate(search_term=Concat('text_value_eng', Value(' '),'details', output_field=TextField())).filter(keyword_domain_id__exact=7).order_by('text_value_eng')
+    queryset = models.Keyword.objects.annotate(
+        search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
+        keyword_domain_id__exact=7).order_by('text_value_eng')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
         my_resource = models.Resource.objects.get(id=resource)
-        context['resource']= my_resource
-        context['keyword_type']= "DFO Area"
+        context['resource'] = my_resource
+        context['keyword_type'] = "DFO Area"
         return context
 
 
@@ -547,15 +588,16 @@ def resource_keyword_add(request, resource, keyword, keyword_type):
         messages.success(request, "'{}' has been added as a keyword.".format(my_keyword.text_value_eng))
 
     if keyword_type == "topic-category":
-        return HttpResponseRedirect(reverse('inventory:resource_topic_category_filter', kwargs={'resource':resource}))
+        return HttpResponseRedirect(reverse('inventory:resource_topic_category_filter', kwargs={'resource': resource}))
     elif keyword_type == "core-subject":
-        return HttpResponseRedirect(reverse('inventory:resource_core_subject_filter', kwargs={'resource':resource}))
+        return HttpResponseRedirect(reverse('inventory:resource_core_subject_filter', kwargs={'resource': resource}))
     elif keyword_type == "taxonomic-keyword":
-        return HttpResponseRedirect(reverse('inventory:resource_species_filter', kwargs={'resource':resource}))
+        return HttpResponseRedirect(reverse('inventory:resource_species_filter', kwargs={'resource': resource}))
     elif keyword_type == "keyword":
-        return HttpResponseRedirect(reverse('inventory:resource_keyword_filter', kwargs={'resource':resource}))
+        return HttpResponseRedirect(reverse('inventory:resource_keyword_filter', kwargs={'resource': resource}))
     elif keyword_type == "dfo-area":
-        return HttpResponseRedirect(reverse('inventory:resource_location_filter', kwargs={'resource':resource}))
+        return HttpResponseRedirect(reverse('inventory:resource_location_filter', kwargs={'resource': resource}))
+
 
 def resource_keyword_delete(request, resource, keyword):
     my_keyword = models.Keyword.objects.get(pk=keyword)
@@ -564,7 +606,7 @@ def resource_keyword_delete(request, resource, keyword):
     my_resource.keywords.remove(keyword)
     messages.success(request, "'{}' has been removed.".format(my_keyword.text_value_eng))
 
-    return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk':resource}))
+    return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
 
 
 # KEYWORD #
@@ -576,8 +618,9 @@ class KeywordDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= my_resource
+        context['resource'] = my_resource
         return context
+
 
 class KeywordUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Keyword
@@ -586,14 +629,15 @@ class KeywordUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= my_resource
+        context['resource'] = my_resource
         return context
 
     def get_success_url(self):
         return reverse_lazy('inventory:keyword_detail', kwargs={
-            'resource':self.kwargs['resource'],
-            'pk':self.kwargs['pk'],
+            'resource': self.kwargs['resource'],
+            'pk': self.kwargs['pk'],
         })
+
 
 class KeywordCreateView(LoginRequiredMixin, CreateView):
     model = models.Keyword
@@ -602,20 +646,21 @@ class KeywordCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= my_resource
+        context['resource'] = my_resource
         return context
 
     def form_valid(self, form):
         self.object = form.save()
         my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).keywords.add(self.object.id)
         messages.success(self.request, "'{}' has been added as a keyword.".format(self.object.text_value_eng))
-        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk':self.kwargs['resource']}))
+        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': self.kwargs['resource']}))
+
 
 def keyword_delete(request, resource, keyword):
     my_keyword = models.Keyword.objects.get(pk=keyword)
     my_keyword.delete()
     messages.success(request, "'{}' has been removed from the database.".format(my_keyword.text_value_eng))
-    return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk':resource}))
+    return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
 
 
 # RESOURCE CITATION #
@@ -624,14 +669,17 @@ def keyword_delete(request, resource, keyword):
 class ResourceCitationFilterView(FilterView):
     filterset_class = filters.CitationFilter
     template_name = "inventory/resource_citation_filter.html"
-    queryset = models.Citation.objects.annotate(search_term=Concat('title_eng', Value(' '),'title_fre', Value(' '),'pub_number',Value(' '),'year',Value(' '),'series', output_field=TextField())).order_by('title_eng')
+    queryset = models.Citation.objects.annotate(
+        search_term=Concat('title_eng', Value(' '), 'title_fre', Value(' '), 'pub_number', Value(' '), 'year',
+                           Value(' '), 'series', output_field=TextField())).order_by('title_eng')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
         my_resource = models.Resource.objects.get(id=resource)
-        context['resource']= my_resource
+        context['resource'] = my_resource
         return context
+
 
 def resource_citation_add(request, resource, citation):
     my_citation = models.Citation.objects.get(pk=citation)
@@ -643,7 +691,8 @@ def resource_citation_add(request, resource, citation):
         my_resource.citations.add(citation)
         messages.success(request, "'{}' has been added as a citation.".format(my_citation.title))
 
-    return HttpResponseRedirect(reverse('inventory:resource_citation_filter', kwargs={'resource':resource}))
+    return HttpResponseRedirect(reverse('inventory:resource_citation_filter', kwargs={'resource': resource}))
+
 
 def resource_citation_delete(request, resource, citation):
     my_citation = models.Citation.objects.get(pk=citation)
@@ -652,7 +701,7 @@ def resource_citation_delete(request, resource, citation):
     my_resource.citations.remove(citation)
     messages.success(request, "'{}' has been removed.".format(my_citation.title))
 
-    return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk':resource}))
+    return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
 
 
 # CITATION #
@@ -664,8 +713,9 @@ class CitationDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= my_resource
+        context['resource'] = my_resource
         return context
+
 
 class CitationUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Citation
@@ -674,14 +724,15 @@ class CitationUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= my_resource
+        context['resource'] = my_resource
         return context
 
     def get_success_url(self):
         return reverse_lazy('inventory:citation_detail', kwargs={
-            'resource':self.kwargs['resource'],
-            'pk':self.kwargs['pk'],
+            'resource': self.kwargs['resource'],
+            'pk': self.kwargs['pk'],
         })
+
 
 class CitationCreateView(LoginRequiredMixin, CreateView):
     model = models.Citation
@@ -690,20 +741,21 @@ class CitationCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= my_resource
+        context['resource'] = my_resource
         return context
 
     def form_valid(self, form):
         self.object = form.save()
         my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).citations.add(self.object.id)
         messages.success(self.request, "'{}' has been added as a citation.".format(self.object.title))
-        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk':self.kwargs['resource']}))
+        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': self.kwargs['resource']}))
+
 
 def citation_delete(request, resource, citation):
     my_citation = models.Citation.objects.get(pk=citation)
     my_citation.delete()
     messages.success(request, "'{}' has been removed from the database.".format(my_citation.title))
-    return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk':resource}))
+    return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
 
 
 # PUBLICATION #
@@ -729,9 +781,10 @@ class VerifyReadinessTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource']= my_resource
-        context['verification_list']= xml_export.verify(my_resource)
+        context['resource'] = my_resource
+        context['verification_list'] = xml_export.verify(my_resource)
         return context
+
 
 def export_resource_xml(request, resource, publish):
     # grab resource instance
@@ -778,21 +831,21 @@ class DataManagementHomeTemplateView(TemplateView):
         return context
 
 
-
 class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
     login_url = '/accounts/login_required/'
     template_name = 'inventory/dm_custodian_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = models.ResourcePerson.objects.filter(role=1).order_by("person__user__last_name","person__user__first_name" )
+        queryset = models.ResourcePerson.objects.filter(role=1).order_by("person__user__last_name",
+                                                                         "person__user__first_name")
 
         # retain only the unique items, and keep them in order according to keys (cannot use a set for this reason)
         custodian_dict = OrderedDict()
         for item in queryset:
             custodian_dict[item.person.user_id] = item
 
-        #convert the dict back into a list
+        # convert the dict back into a list
         custodian_list = []
         for item in custodian_dict:
             custodian_list.append(custodian_dict[item])
@@ -803,6 +856,7 @@ class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
         context['now'] = timezone.now()
 
         return context
+
 
 class DataManagementCustodianDetailView(LoginRequiredMixin, DetailView):
     login_url = '/accounts/login_required/'
@@ -827,15 +881,16 @@ def send_certification_request(request, person):
     email = emails.CertificationRequestEmail(my_person)
     # send the email object
     if settings.MY_ENVR != 'dev':
-        send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list, fail_silently=False,)
+        send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                  recipient_list=email.to_list, fail_silently=False, )
     else:
         print('not sending email since in dev mode')
-        print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
-
+        print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
+                                                              email.message))
 
     my_person.user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
-    return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk':my_person.user_id}))
+    return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
 
 
 class PublishedResourcesListView(LoginRequiredMixin, ListView):
@@ -853,13 +908,16 @@ class FlaggedListView(LoginRequiredMixin, ListView):
             queryset = models.Resource.objects.filter(flagged_4_deletion=True)
         return queryset
 
+
 class CertificationListView(LoginRequiredMixin, ListView):
     template_name = "inventory/dm_certification_list.html"
     queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
 
+
 class ModificationListView(LoginRequiredMixin, ListView):
     template_name = "inventory/dm_modification_list.html"
     queryset = models.Resource.objects.all().order_by("-date_last_modified")[:50]
+
 
 class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
     template_name = 'inventory/dm_custodian_form.html'
@@ -867,18 +925,18 @@ class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
 
     def get_success_url(self):
         return reverse_lazy('inventory:dm_custodian_detail', kwargs={
-            'pk':self.kwargs['person'],
+            'pk': self.kwargs['person'],
         })
 
     def get_initial(self):
         person = models.Person.objects.get(pk=self.kwargs['person'])
         return {
             'first_name': person.user.first_name,
-            'last_name':  person.user.last_name,
-            'email':  person.user.email,
-            'position_eng':  person.position_eng,
-            'position_fre':  person.position_fre,
-            'phone':  person.phone,
+            'last_name': person.user.last_name,
+            'email': person.user.email,
+            'position_eng': person.position_eng,
+            'position_fre': person.position_fre,
+            'phone': person.phone,
             'language': person.language,
             'organization': person.organization.id,
         }
@@ -886,7 +944,7 @@ class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         old_person = models.Person.objects.get(pk=self.kwargs['person'])
 
-        #step 0: retreive data from form
+        # step 0: retreive data from form
         first_name = form.cleaned_data['first_name']
         last_name = form.cleaned_data['last_name']
         email = form.cleaned_data['email']
@@ -919,16 +977,16 @@ class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         person = models.Person.objects.get(user_id=self.kwargs['person'])
-        context['person']= person
+        context['person'] = person
         return context
-
 
 
 ## SECTIONS
 
 class SectionListView(LoginRequiredMixin, ListView):
     template_name = "inventory/dm_section_list.html"
-    queryset = models.Section.objects.all().order_by("branch","division","section")
+    queryset = models.Section.objects.all().order_by("branch", "division", "section")
+
 
 class SectionDetailView(LoginRequiredMixin, DetailView):
     template_name = "inventory/dm_section_detail.html"
@@ -937,7 +995,7 @@ class SectionDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.object.unit_head:
-            email = emails.SectionReportEmail(self.object.unit_head,  self.object)
+            email = emails.SectionReportEmail(self.object.unit_head, self.object)
             context['email'] = email
         context['now'] = timezone.now()
         return context
@@ -951,15 +1009,16 @@ def send_section_report(request, section):
     email = emails.SectionReportEmail(my_person, my_section)
     # send the email object
     if settings.MY_ENVR != 'dev':
-        send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+        send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                  recipient_list=email.to_list, fail_silently=False, )
     else:
         print('not sending email since in dev mode')
-        print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
+        print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
+                                                              email.message))
 
-
-    models.Correspondence.objects.create(custodian = my_person.user,  subject = "Section head report")
+    models.Correspondence.objects.create(custodian=my_person.user, subject="Section head report")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
-    return HttpResponseRedirect(reverse('inventory:dm_section_detail', kwargs={'pk':section}))
+    return HttpResponseRedirect(reverse('inventory:dm_section_detail', kwargs={'pk': section}))
 
 
 class SectionUpdateView(LoginRequiredMixin, UpdateView):
@@ -976,21 +1035,23 @@ class SectionUpdateView(LoginRequiredMixin, UpdateView):
         for u in User.objects.filter(groups__name='inventory_section_head'):
             my_group.user_set.remove(u)
 
-        #re-add section head users to group
+        # re-add section head users to group
         for s in models.Section.objects.all():
             if s.unit_head:
                 my_group.user_set.add(s.unit_head.user)
 
-        #make sure admin users have access to the view
-        for u in User.objects.filter(is_superuser = True):
+        # make sure admin users have access to the view
+        for u in User.objects.filter(is_superuser=True):
             my_group.user_set.add(u)
 
         return super().form_valid(form)
+
 
 class SectionDeleteView(LoginRequiredMixin, DeleteView):
     template_name = "inventory/dm_section_confirm_delete.html"
     model = models.Section
     success_url = reverse_lazy("inventory:dm_section_list")
+
 
 class SectionCreateView(LoginRequiredMixin, CreateView):
     template_name = "inventory/dm_section_form.html"
@@ -1006,36 +1067,36 @@ class SectionCreateView(LoginRequiredMixin, CreateView):
         for u in User.objects.filter(groups__name='inventory_section_head'):
             my_group.user_set.remove(u)
 
-        #re-add section head users to group
+        # re-add section head users to group
         for s in models.Section.objects.all():
             if s.unit_head:
                 my_group.user_set.add(s.unit_head.user)
 
-        #make sure admin users have access to the view
-        for u in User.objects.filter(is_superuser = True):
+        # make sure admin users have access to the view
+        for u in User.objects.filter(is_superuser=True):
             my_group.user_set.add(u)
 
         return super().form_valid(form)
+
 
 class MySectionDetailView(LoginRequiredMixin, TemplateView):
     template_name = "inventory/my_section_detail.html"
     model = models.Section
     login_url = '/accounts/login_required/'
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         # grab the user
         user_id = self.request.user.id
-        my_section = models.Section.objects.filter(unit_head_id = user_id).first()
+        my_section = models.Section.objects.filter(unit_head_id=user_id).first()
 
         if my_section:
             resource_list = my_section.resources.all().order_by("title_eng")
             context['resource_list'] = resource_list
 
             ## NOTE if there is ever a need to have a person with two sections under them, this view will have to be modified so that a list of sections is returned to the user.
-            #Would simply have to remove the first() function from my_section
+            # Would simply have to remove the first() function from my_section
 
             context['object'] = my_section
             context['now'] = timezone.now()
@@ -1044,27 +1105,29 @@ class MySectionDetailView(LoginRequiredMixin, TemplateView):
             certified_within_6_months = 0
             for r in my_section.resources.all():
                 try:
-                    days_elapsed = (timezone.now()-r.certification_history.order_by("-certification_date").first().certification_date).days
+                    days_elapsed = (timezone.now() - r.certification_history.order_by(
+                        "-certification_date").first().certification_date).days
                 except Exception as e:
                     print(e)
                 else:
-                    if days_elapsed < 183: # six months
-                        certified_within_6_months = certified_within_6_months +1
-                        certified_within_year = certified_within_year +1
+                    if days_elapsed < 183:  # six months
+                        certified_within_6_months = certified_within_6_months + 1
+                        certified_within_year = certified_within_year + 1
                     elif days_elapsed < 365:
-                        certified_within_year = certified_within_year +1
+                        certified_within_year = certified_within_year + 1
 
             context['certified_within_6_months'] = certified_within_6_months
             context['certified_within_year'] = certified_within_year
 
             published_on_fgp = 0
             for r in my_section.resources.all():
-                if r.fgp_publication_date: # six months
-                    published_on_fgp = published_on_fgp +1
+                if r.fgp_publication_date:  # six months
+                    published_on_fgp = published_on_fgp + 1
 
             context['published_on_fgp'] = published_on_fgp
 
         return context
+
 
 # RESOURCE CERTIFICATION #
 ##########################
@@ -1077,7 +1140,6 @@ class ResourceCertificationCreateView(LoginRequiredMixin, CreateView):
     login_url = '/accounts/login_required/'
     success_message = "Certification successful!"
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_resource = models.Resource.objects.get(pk=self.kwargs['resource'])
@@ -1087,21 +1149,19 @@ class ResourceCertificationCreateView(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         return {
-        'certifying_user': self.request.user,
-        'resource': self.kwargs['resource'],
-        'certification_date': timezone.now(),
+            'certifying_user': self.request.user,
+            'resource': self.kwargs['resource'],
+            'certification_date': timezone.now(),
         }
 
     def get_success_url(self):
         return reverse('inventory:resource_detail', kwargs={
-            'pk':self.kwargs['resource'],
+            'pk': self.kwargs['resource'],
         })
 
     def form_valid(self, form):
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
-
-
 
 
 class ResourceCertificationDeleteView(LoginRequiredMixin, DeleteView):
@@ -1112,7 +1172,7 @@ class ResourceCertificationDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse('inventory:resource_detail', kwargs={
-            'pk':self.object.resource.id,
+            'pk': self.object.resource.id,
         })
 
     def delete(self, request, *args, **kwargs):
@@ -1130,7 +1190,7 @@ class FileCreateView(CreateView):
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk":object.resource.id}))
+        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
 
     def get_context_data(self, **kwargs):
         # get context
@@ -1163,7 +1223,7 @@ class FileUpdateView(UpdateView):
     form_class = forms.FileForm
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk":self.object.resource.id})
+        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
     def get_context_data(self, **kwargs):
         # get context
@@ -1171,9 +1231,10 @@ class FileUpdateView(UpdateView):
         context["editable"] = True
         return context
 
+
 class FileDeleteView(DeleteView):
     template_name = "inventory/file_confirm_delete.html"
     model = models.File
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk":self.object.resource.id})
+        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
