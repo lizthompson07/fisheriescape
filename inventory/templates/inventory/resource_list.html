@@ -5,92 +5,92 @@
 {% block content %}
 
 
-<div class="container">
+    <div class="indent-med">
 
-  <p>
-    <h1>Data Resource Inventory </h1>
-    TOTAL: {{object_list.count}}
-  </p>
+        <p>
+        <h1>Data Resource Inventory </h1>
+        TOTAL: {{ object_list.count }}
+        </p>
 
-  <form class="form" action="." method="get">
-    <div class="row">
+        <form class="form" action="." method="get">
+            <div class="row">
 
-    {% for field in filter.form %}
-      <div class="col">
-        {%bootstrap_field field%}
-      </div>
-    {% endfor %}
-    <div class="col" style="vertical-align: bottom;">
-      <br>
-      <div class="btn-group">
-        <input type="submit" value="Filter" class="btn btn btn-warning">
-        <a href="." class="btn btn btn-secondary">Clear</a>
-      </div>
+                {% for field in filter.form %}
+                    {% if field.name == "status" or field.name == 'person' or field.name == 'section' %}
+                        <div class="col-2">
+                    {% else %}
+                        <div class="col">
+                    {% endif %}
+
+                    {% bootstrap_field field %}
+                    </div>
+                {% endfor %}
+                <div class="col" style="vertical-align: bottom;">
+                    <br>
+                    <div class="btn-group">
+                        <input type="submit" value="Filter" class="btn btn btn-warning">
+                        <a href="." class="btn btn btn-secondary">Clear</a>
+                    </div>
+
+                </div>
+                </div>
+                <div>
+                    <p>
+                        <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary">New Resource</a>
+                    </p>
+                </div>
+
+        </form>
+
+        <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+                {# <th scope="col">Id</th> #}
+                <th scope="col">Title</th>
+                <th scope="col">Status</th>
+                <th scope="col">Section</th>
+                <th scope="col">Previous time certified</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in filter.qs %}
+                <tr>
+                    {# <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
+                    <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{ obj.title_eng }}</a></td>
+
+                    {% if obj.status.id == 3 %}
+                        <td class="good">
+
+                            {% elif obj.status.id == 1 %}
+                        <td class="bad">
+                            {% else %}
+                        <td>
+
+                    {% endif %}
+                    {{ obj.status }}
+                    </td>
+
+
+                    <td>{{ obj.section.section }}</td>
+
+                    <td>
+                        {% if obj.certification_history.count > 0 %}
+                            {{ obj.certification_history.first.certification_date|naturaltime }}
+                        {% else %}
+                            <span class="red-font"><b>Never</b></span>
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+            {% endfor %}
+            <br>
+
+            </tbody>
+        </table>
+
 
     </div>
-  </div >
-  <div>
-    <p>
-      <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary">New Resource</a>
-    </p>
-  </div>
-
-  </form>
-
-  <table class="table table-hover table-sm">
-    <thead>
-      <tr>
-        {# <th scope="col">Id</th> #}
-        <th scope="col" width="500px">Title</th>
-        <th scope="col">Status</th>
-        <th scope="col">Section</th>
-        <th scope="col">Previous time certified</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for obj in filter.qs  %}
-        <tr>
-          {# <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
-          <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.title_eng}}</a></td>
-
-          {% if obj.status.id == 3 %}
-          <td class="good">
-
-          {% elif obj.status.id == 1 %}
-          <td class="bad">
-          {% else %}
-          <td>
-
-          {% endif %}
-            {{obj.status}}
-          </td>
-
-
-          <td>{{obj.section.section}}</td>
-
-          <td>
-            {% if obj.certification_history.count > 0 %}
-            {{obj.certification_history.first.certification_date|naturaltime}}
-            {% else %}
-            <span class="red-font"><b>Never</b></span>
-            {% endif %}
-
-          </td>
-
-
-
-
-
-
-
-        </tr>
-      {% endfor %}
-      <br>
-
-      </tbody>
-    </table>
-
-
-  </div>
 
 {% endblock content %}
