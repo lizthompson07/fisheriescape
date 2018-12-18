@@ -7,29 +7,20 @@ import django_filters
 class ResourceFilter(django_filters.FilterSet):
     # generate a list of people from inventory.people
     person_list = []
-    for p in models.Person.objects.all():
-        person_list.append(p.user_id)
 
+    person_list = [p.user_id for p in models.Person.objects.all()]
     PEOPLE_CHOICES = []
     for u in User.objects.all().order_by("last_name","first_name"):
         if u.id in person_list:
             PEOPLE_CHOICES.append((u.id,"{}, {}".format(u.last_name,u.first_name)))
 
+    STATUS_CHOICES = [(s.id, str(s)) for s in models.Status.objects.all()]
+    SECTION_CHOICES = [(s.id, str(s)) for s in models.Section.objects.all()]
+
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget= forms.TextInput())
+    section = django_filters.ChoiceFilter(field_name="section", label = "Section", lookup_expr='exact', choices=SECTION_CHOICES)
     person = django_filters.ChoiceFilter(field_name="people", label = "Person", lookup_expr='exact', choices=PEOPLE_CHOICES)
-
-    class Meta:
-        model = models.Resource
-        fields = {
-            'title_eng':['icontains'],
-            'status':['exact'],
-            'section':['exact'],
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.filters["title_eng__icontains"].label = "Title (English)"
-
-        self.filters["status"].widget= forms.Select(attrs={'style':"width: 10em"})
+    status = django_filters.ChoiceFilter(field_name="status", label = "Status", lookup_expr='exact', choices=STATUS_CHOICES)
 
 
 class PersonFilter(django_filters.FilterSet):
