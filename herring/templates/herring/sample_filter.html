@@ -59,7 +59,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for sample in object_list  %}
+      {% for sample in filter.qs  %}
         <tr>
           <td><a href="{% url 'herring:sample_detail' sample.id %}">{{sample.id}}</a></td>
           <td>{{sample.get_type_display}}</td>

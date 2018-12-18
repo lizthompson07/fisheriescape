@@ -44,7 +44,7 @@
 
          <h3>Select a person to insert:</h3>
          <div class="scroll-med">
-           {% for person in object_list.all %}
+           {% for person in filter.qs %}
            <p class="indent">
 
              <a class="btn btn-sm btn-dark" href="{% url 'inventory:resource_person_add' resource.id person.user_id  %}"> <i class="material-icons">add</i></a> &nbsp;
