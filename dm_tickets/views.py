@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView
@@ -28,7 +29,7 @@ class CloserTemplateView(TemplateView):
 ##########
 
 class TicketListView(FilterView):
-    # model = models.Ticket
+    queryset = models.Ticket.objects.all()
     filterset_class = filters.TicketFilter
     template_name = "dm_tickets/ticket_list.html"
 

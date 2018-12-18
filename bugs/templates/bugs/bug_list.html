@@ -42,7 +42,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for bug in object_list  %}
+      {% for bug in filter.qs  %}
         <tr>
           <td>{{bug.get_application_display}}</td>
           <td><a href="{% url 'bugs:bug_detail' bug.id %}">{{bug.subject}}</a></td>

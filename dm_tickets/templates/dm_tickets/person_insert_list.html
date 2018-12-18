@@ -33,7 +33,7 @@
    </form>
    <div class="container">
 
-     {% for person in object_list.all %}
+     {% for person in filter.qs %}
      <p>
        <a href="{% url 'tickets:add_person' ticket person.id %}"><i class="material-icons">add</i></a>
        {{person.first_name}} {{person.last_name}}

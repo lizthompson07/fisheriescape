@@ -1,6 +1,7 @@
 import django_filters
 from . import models
 
+
 class TicketFilter(django_filters.FilterSet):
     class Meta:
         model = models.Ticket
@@ -9,9 +10,10 @@ class TicketFilter(django_filters.FilterSet):
             'title': ['icontains'],
             'status': ['exact'],
             'section': ['exact'],
-            'people':['exact'],
-            'tags':['exact']
+            'people': ['exact'],
+            'tags': ['exact']
         }
+
 
 class PersonFilter(django_filters.FilterSet):
     class Meta:
@@ -21,6 +23,7 @@ class PersonFilter(django_filters.FilterSet):
             'last_name': ['icontains'],
 
         }
+
 
 class TagFilter(django_filters.FilterSet):
     class Meta:
