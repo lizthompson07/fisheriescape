@@ -56,6 +56,7 @@ urlpatterns = [
     path('reports/species-richness/', views.report_species_richness, name="species_richness"),
     path('reports/species-richness/site/<int:site>/', views.report_species_richness, name="species_richness"),
     path('reports/annual-watershed-report/site/<int:site>/year/<int:year>', views.AnnualWatershedReportTemplateView.as_view(), name="watershed_report"),
+    path('reports/annual-watershed-spreadsheet/site/<int:site>/year/<int:year>', views.annual_watershed_spreadsheet, name="watershed_csv"),
 
 
 

@@ -125,6 +125,13 @@
                 $(".site_div").removeClass("gone");
                 $(".year_div").removeClass("gone")
             }
+            // annual csv
+            else if (reportChoice == 4) {
+                $("#id_site").prop('required', true);
+                $("#id_year").prop('required', true);
+                $(".site_div").removeClass("gone");
+                $(".year_div").removeClass("gone")
+            }
         }
 
         $(document).ready(function () {

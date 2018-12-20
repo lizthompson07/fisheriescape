@@ -1,4 +1,6 @@
 import csv
+import os
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -6,7 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import Count, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -18,6 +20,7 @@ from . import forms
 from . import filters
 from . import reports
 from lib.functions.nz import nz
+from django.utils.encoding import smart_str
 
 
 class CloserTemplateView(TemplateView):
@@ -598,6 +601,11 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
             year = int(form.cleaned_data["year"])
             return HttpResponseRedirect(reverse("camp:watershed_report", kwargs={"site": site, "year": year}))
 
+        elif report == 4:
+            site = int(form.cleaned_data["site"])
+            year = int(form.cleaned_data["year"])
+            return HttpResponseRedirect(reverse("camp:watershed_csv", kwargs={"site": site, "year": year}))
+
 
 def report_species_count(request, species_list):
     reports.generate_species_count_report(species_list)
@@ -613,12 +621,10 @@ def report_species_richness(request, site=None):
     return render(request, "camp/report_display.html")
 
 
-# from wkhtmltopdf.views import PDFTemplateView
-
 class AnnualWatershedReportTemplateView(PDFTemplateView):
     template_name = 'camp/report_watershed_display.html'
 
-    def get_filename(self):
+    def get_pdf_filename(self):
         site = models.Site.objects.get(pk=self.kwargs['site']).site
         return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
 
@@ -627,6 +633,19 @@ class AnnualWatershedReportTemplateView(PDFTemplateView):
         site = models.Site.objects.get(pk=self.kwargs['site']).site
         return super().get_context_data(
             pagesize="A4 landscape",
-            title="{} Annual Report {}".format(site, self.kwargs['year']),
+            title="Annual Report for {}_{}".format(site, self.kwargs['year']),
             **kwargs
         )
+
+
+def annual_watershed_spreadsheet(request, site, year):
+    my_site = models.Site.objects.get(pk=site)
+    file_url = reports.generate_annual_watershed_spreadsheet(my_site, year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
+            return response
+    raise Http404
+
