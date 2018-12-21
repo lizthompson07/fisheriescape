@@ -1,0 +1,29 @@
+{% extends "easy_pdf/base.html" %}
+{% load static %}
+{% block content %}
+    <div id="content">
+        {##}
+        {##}
+        <div class="main">
+            <img src="{% static "/img/camp/temp/pie_chart.png" %}" class="rounded">
+
+            <div>
+                <pdf:nextpage/>
+            </div>
+
+            <img src="{% static "/img/camp/temp/species_richness.png" %}" class="rounded">
+
+            <div>
+                <pdf:nextpage/>
+            </div>
+
+            <img src="{% static "/img/camp/temp/do.png" %}" class="rounded">
+
+            <div>
+                <pdf:nextpage/>
+            </div>
+
+            <img src="{% static "/img/camp/temp/green_crab.png" %}" class="rounded">
+        </div>
+    </div>
+{% endblock %}

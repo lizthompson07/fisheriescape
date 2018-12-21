@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'lib',
     'snowcrab',
     'meq',
+    'diets',
 ]
 
 MIDDLEWARE = [
