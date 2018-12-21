@@ -1,0 +1,46 @@
+{% extends "camp/camp_base.html" %}
+{% load static %}
+{% block content %}
+
+
+<div class="container">
+
+  <h1 class="big-header">CAMP Samples </h1>
+  <p>TOTAL: {{object_list.count}}</p>
+  <p>
+  </p>
+
+  <a href="{% url 'camp:sample_search' %}" class="btn btn-sm btn-warning">Back to Search</a>
+  <br>
+  <table class="table table-hover table-sm">
+    <thead>
+      <tr>
+        <th scope="col">Sample #</th>
+        <th scope="col">Nutrient Sample ID</th>
+        <th scope="col">Site</th>
+        <th scope="col">Station</th>
+        <th scope="col">Sample Date</th>
+        <th scope="col">Number of spp.</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sample in object_list  %}
+        <tr>
+          <td><a href="{% url 'camp:sample_detail' sample.id %}">{{sample.id}}</a></td>
+          <td>{{sample.nutrient_sample_id}}</td>
+          <td>{{sample.station.site}}</td>
+          <td>{{sample.station}}</td>
+          <td>{{sample.start_date|date:'F d, Y'}}</td>
+          <td>{{sample.sample_spp.count}}</td>
+
+        </tr>
+      {% endfor %}
+      <br>
+
+      </tbody>
+    </table>
+
+
+  </div>
+
+{% endblock content %}

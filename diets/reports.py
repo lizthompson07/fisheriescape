@@ -669,7 +669,6 @@ def generate_annual_watershed_spreadsheet(site, year):
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'center'})
     total_format = workbook.add_format({'bg_color': '#D6D1C0', "align": 'center'})
     normal_format = workbook.add_format({"align": 'center'})
-    bold_format = workbook.add_format({"align": 'center', 'bold': True})
 
     # write dataframe to xlsx
     for i in range(0, my_df.shape[0]):
@@ -684,16 +683,6 @@ def generate_annual_watershed_spreadsheet(site, year):
                 worksheet1.write(i, j, my_val, total_format)
             else:
                 worksheet1.write(i, j, my_val, normal_format)
-
-    # add the total at bottom right
-    total_sum = 0
-    count = 0
-    for j in my_df[my_df.shape[1] - 1]:
-        if count > 1:
-            total_sum = total_sum + j
-        count += 1
-    worksheet1.write(my_df.shape[0], my_df.shape[1] - 2, "TOTAL", bold_format )
-    worksheet1.write(my_df.shape[0], my_df.shape[1] - 1, total_sum, bold_format)
 
     # adjust the width of the columns based on the max string length in each col
     col_max = [max([len(str(s)) for s in my_df[j].values]) for j in my_df.columns]
@@ -802,6 +791,16 @@ def generate_annual_watershed_spreadsheet(site, year):
         "Date",
         "Month",
         "Year",
+        "Time start",
+        "Time finish",
+        "Water Sample #",
+        "Rain 24h Y / N",
+        "Stage of tide",
+        "Samplers name",
+        "Water temp",
+        "Salinity",
+        "Dissolved Oxygen",
+        "Water turbidity",
     ]
 
     header_fre = [
@@ -811,6 +810,16 @@ def generate_annual_watershed_spreadsheet(site, year):
         "(dj/mm/ya)",
         "Mois",
         "Année",
+        "Heure début",
+        "Heure fin",
+        "# échantillon d'eau",
+        "Pluie 24h O / N",
+        "Stade de marée",
+        "Nom échantillonneurs",
+        "Temp eau",
+        "Salinité",
+        "Oxygène dissout",
+        "Turbidité de l'eau",
     ]
 
     # insert species headers 2 from the last item in header_eng / fre
@@ -829,6 +838,16 @@ def generate_annual_watershed_spreadsheet(site, year):
             s.start_date.strftime("%d/%m/%Y"),
             s.start_date.month,
             s.start_date.year,
+            s.start_date.strftime("%H:%M"),
+            s.end_date.strftime("%H:%M"),
+            s.nutrient_sample_id,
+            yesno(s.rain_past_24_hours),
+            "{} - {}".format(s.get_tide_state_display(), s.get_tide_direction_display(), ),
+            s.samplers,
+            s.h2o_temperature_c,
+            s.salinity,
+            s.dissolved_o2,
+            s.get_water_turbidity_display(),
         ]
 
         # now get species data
