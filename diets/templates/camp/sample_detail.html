@@ -1,0 +1,118 @@
+{% extends "camp/camp_base.html" %}
+{% load static %}
+{% load nz %}
+{% load verbose_field_display %}
+
+{% block header %}
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 400px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 300px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+    </style>
+{% endblock header %}
+
+
+{% block content %}
+    <div class="nav-map">
+        <br>
+        <a href="{% url 'camp:sample_search' %}">Search</a> >
+        Sample {{ object.id }}
+    </div>
+
+    <div class="container">
+
+        <br>
+        <h1>Sample {{ object.id }} @ {{ object.station }}</h1>
+        <p>
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'camp:sample_edit' sample.id %}">Edit</a>
+            <a class="btn btn-danger disabled" href="{% url 'camp:sample_delete' sample.id %}">Delete</a>
+
+            <a href={% url 'camp:species_obs_search' object.id %} class="btn btn-success">Add Species</a>
+
+
+        </div>
+        <br><br>
+        <div class="row">
+            <div class="col">
+                {% for field in field_list %}
+                    {% verbose_field_display object field None True %}
+                {% endfor %}
+            </div>
+            <div class="col">
+                <h3>Station Map:</h3>
+                {% if object.station.latitude_n and object.station.longitude_w %}
+                    <div id="map"></div>
+                {% else %}
+                    <br>
+                    <em>
+                        The {{ object.station.station_name }} is missing coordinates. The station details can be updated
+                        <a href="{% url 'camp:station_edit' object.station.id %}" target="_blank">here</a>.
+                    </em>
+                    <br>
+                {% endif %}
+                <br>
+                {% include "camp/_species_list.html" %}
+
+            </div>
+
+        </div>
+
+        <script>
+
+            // Initialize and add the map
+            function initMap() {
+                // The location of Uluru
+                var uluru = {lat: {{object.station.latitude_n}}, lng: {{object.station.longitude_w}}};
+                // The map, centered at Uluru
+                var map = new google.maps.Map(
+                    document.getElementById('map'), {zoom: 10, center: uluru});
+                // The marker, positioned at Uluru
+                var marker = new google.maps.Marker({position: uluru, map: map});
+            }
+        </script>
+        <!--Load the API from the specified URL
+        * The async attribute allows the browser to render the page while the API loads
+        * The key parameter will contain your own API key (which is not needed for this tutorial)
+        * The callback parameter executes the initMap() function
+        -->
+        <script async defer
+                src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
+        </script>
+
+
+        <script type="application/javascript">
+            $(".delete-me").click(function () {
+                var objectId = $(this)[0].getAttribute("val");
+
+                var userInput = "";
+                while (userInput !== "n" && userInput !== "y") {
+                    userInput = prompt("Are you sure you want to delete this species from the sample? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+
+                }
+                if (userInput === "y") {
+                    $("#secrect-delete-btn-" + objectId)[0].click();
+                }
+            })
+        </script>
+
+
+    </div>
+
+
+
+
+
+{% endblock content %}

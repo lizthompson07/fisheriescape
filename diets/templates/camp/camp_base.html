@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% block bug_create %}{% url 'bugs:bug_create' 7 %}{% endblock bug_create %}
+{% block bug_list_4_app %}
+  <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 7 %}">CAMP Bugs</a>
+{% endblock bug_list_4_app %}
+
+{% block title %}CAMP{% endblock title %}
+
+{% block body %}
+  {% block content %}{% endblock content %}
+{% endblock body %}
+
+{% block left_all %}
+  <li class="nav-item"><a class="nav-link" href="{% url 'camp:index' %}">CAMP Home</a></li>
+{% endblock left_all %}
+
+{% block left_unauth %}
+
+{% endblock left_unauth %}
+
+{% block left_auth %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'camp:site_list' %}">Sites</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'camp:species_list' %}">Species</a></li>
+
+    {# Samples #}
+    <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Samples
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="{% url 'camp:sample_new' %}">New</a>
+      <a class="dropdown-item" href="{% url 'camp:sample_search' %}">Search</a>
+      {# <a class="dropdown-item" href="#">New Sea Sample</a> #}
+    </div>
+    </li>
+
+    <li class="nav-item under-dev"><a class="nav-link" href="#">Data Extraction Tool</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'camp:report_search'  %}">Reports</a></li>
+
+{% endblock left_auth %}
+{% block left_admin %}
+{% endblock left_admin %}
