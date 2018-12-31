@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 
 class Vessel(models.Model):
@@ -34,23 +35,25 @@ class Cruise(models.Model):
 
 
 class Species(models.Model):
-    common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
-    common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
+    common_name_eng = models.CharField(max_length=255, blank=True, null=True)
+    common_name_fre = models.CharField(max_length=255, blank=True, null=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
-    code = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    abbrev = models.CharField(max_length=255, blank=True, null=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
-    sav = models.BooleanField(default=False, verbose_name="Submerged aquatic vegetation (SAV)")
-    notes = models.TextField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return self.common_name_eng
+        return "{} - {}".format(self.id, self.common_name_eng)
 
     class Meta:
-        ordering = ['common_name_eng']
+        ordering = ['id']
 
     def get_absolute_url(self):
-        return reverse("camp:species_detail", kwargs={"pk": self.id})
+        return reverse('diets:species_detail', kwargs={'pk': self.id})
+
+    def save(self, *args, **kwargs):
+        self.last_modified_date = timezone.now()
+        return super().save(*args, **kwargs)
 
 
 class Predator(models.Model):
@@ -81,8 +84,8 @@ class Predator(models.Model):
 
 
 class Prey(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING,)
-    predator = models.ForeignKey(Predator, on_delete=models.DO_NOTHING,)
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, )
+    predator = models.ForeignKey(Predator, on_delete=models.DO_NOTHING, )
     digestion_level = models.IntegerField(blank=True, null=True)
     somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="somatic weight (g)")
     somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="somatic length (mm)")
