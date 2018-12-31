@@ -495,6 +495,7 @@ def generate_sub_do(site, target_file):
         })
 
         p.segment("years", "do_max", "years", "do_min", color=colors[i], source=source)
+        p.dash(x="years", y="do_max", size=25)
         p.line("years", "do_avg", legend=legend_title, line_width=1, line_color=colors[i], source=source)
         p.circle("years", "do_avg", legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3,
                  source=source)
