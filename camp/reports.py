@@ -309,13 +309,13 @@ def generate_sub_pie_chart(site, year, target_file):
     data['legend_label'] = ["{} - {:.1%}".format(data['species'][i], data['percentage'][i]) for i in range(0, len(x))]
 
     site_name = str(models.Site.objects.get(pk=site))
+    title_fre = "Les 13 espèces les plus communes et rares observées à {}, en {}".format(site_name, year)
     title_eng = "13 Most Common and Rare Species Observed in {} for {}".format(site_name, year)
-    title_fre = "/ Les 13 espèces les plus communes et rares observées à {}, en {}".format(site_name, year)
 
     p = figure(plot_height=HEIGHT, plot_width=WIDTH, toolbar_location=None,
                x_range=(-0.5, 1.0), )
-    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     p.wedge(x=0, y=0, radius=0.4,
             start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
@@ -341,8 +341,8 @@ def generate_sub_pie_chart(site, year, target_file):
 def generate_sub_species_richness(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
+    title_fre = "Abondance d’espèces par année à {}".format(site_name)
     title_eng = "Species Richness by Year at {}".format(site_name)
-    title_fre = "/ Abondance d’espèces par année à {}".format(site_name)
 
     p = figure(
         x_axis_label='Year / année',
@@ -353,8 +353,8 @@ def generate_sub_species_richness(site, target_file):
 
     )
     ticker = SingleIntervalTicker(interval=1)
-    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     p.title.text_font_size = TITLE_FONT_SIZE
     p.grid.grid_line_alpha = 1
@@ -439,7 +439,7 @@ def generate_sub_do(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
     title_eng = "Dissolved Oxygen Levels per Year (Average) at {}".format(site_name)
-    title_fre = "/ Niveaux d’oxygène dissous par année (moyenne) à {}".format(site_name)
+    title_fre = "Niveaux d’oxygène dissous par année (moyenne) à {}".format(site_name)
     p = figure(
         x_axis_label='Year / année',
         y_axis_label='Dissolved oxygen / oxygène dissous (mg/l)',
@@ -448,8 +448,8 @@ def generate_sub_do(site, target_file):
         toolbar_location=None,
     )
     ticker = SingleIntervalTicker(interval=1)
-    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     p.grid.grid_line_alpha = 1
     p.background_fill_color = "white"
@@ -508,7 +508,8 @@ def generate_sub_do(site, target_file):
 def generate_sub_green_crab(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Green Crab Abundance per Year at {} / Abondance du Crab vert, par année à {}".format(site_name, site_name)
+    title_eng = "Green Crab Abundance per Year at {}".format(site_name)
+    title_fre = "Abondance du Crab vert, par année à {}".format(site_name)
 
     color = palettes.BuGn[5][2]
 
@@ -533,12 +534,12 @@ def generate_sub_green_crab(site, target_file):
         toolbar_location=None,
         plot_width=WIDTH,
         plot_height=HEIGHT,
-        title=title,
         x_axis_label='Year / année',
         y_axis_label='Abundance / Abondance',
     )
     p.vbar(x='years', top='counts', width=0.9, source=source, line_color='white', fill_color=color)
-    p.title.text_font_size = TITLE_FONT_SIZE
+    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     labels = LabelSet(x='years', y='counts', text='counts', level='glyph',
                       x_offset=-10, y_offset=5, source=source, render_mode='canvas')
