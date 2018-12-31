@@ -7,7 +7,7 @@ from django.template.defaultfilters import yesno
 from math import pi
 
 from bokeh.io import show, export_png, export_svgs
-from bokeh.models import SingleIntervalTicker, ColumnDataSource, HoverTool, LabelSet, Label
+from bokeh.models import SingleIntervalTicker, ColumnDataSource, HoverTool, LabelSet, Label, Title
 from bokeh.plotting import figure, output_file, save
 from bokeh import palettes
 from bokeh.transform import cumsum
@@ -38,15 +38,18 @@ def generate_species_count_report(species_list):
     output_file(target_file)
 
     # create a new plot
+    title_eng = "Count of Species Observations by Year"
 
     p = figure(
-        title="Count of Species Observations by Year",
         tools="pan,box_zoom,wheel_zoom,reset,save",
         x_axis_label='Year',
         y_axis_label='Count',
         plot_width=1200, plot_height=600,
 
     )
+
+    p.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
+
 
     # determine number of species
     # print(species_list)
@@ -56,7 +59,9 @@ def generate_species_count_report(species_list):
     i = 0
 
     # generate color palette
-    if len(my_list) <= 9:
+    if len(my_list) <= 2:
+        colors = palettes.Set1[3][:len(my_list)]
+    elif len(my_list) <= 9:
         colors = palettes.Set1[len(my_list)]
     else:
         colors = palettes.Category20[len(my_list)]
@@ -119,7 +124,9 @@ def generate_species_richness_report(site=None):
         stations = models.Station.objects.filter(site_id=site).order_by("name")
 
         # generate color palette
-        if len(stations) <= 9:
+        if len(stations) <= 2:
+            colors = palettes.Set1[3][:len(stations)]
+        elif len(stations) <= 9:
             colors = palettes.Set1[len(stations)]
         else:
             colors = palettes.Category20[len(stations)]
@@ -302,15 +309,14 @@ def generate_sub_pie_chart(site, year, target_file):
     data['legend_label'] = ["{} - {:.1%}".format(data['species'][i], data['percentage'][i]) for i in range(0, len(x))]
 
     site_name = str(models.Site.objects.get(pk=site))
-    title = "13 Most Common and Rare Species Observed in {} for {} / Les 13 espèces les plus communes et rares observées à {}, en {}".format(site_name, year, site_name, year)
+    title_eng = "13 Most Common and Rare Species Observed in {} for {}".format(site_name, year)
+    title_fre = "/ Les 13 espèces les plus communes et rares observées à {}, en {}".format(site_name, year)
 
-    # hover = HoverTool(tooltips=[("Species", "@species"),
-    #                             ("percentage", "@percentage{%0.2f}")
-    #                             ])
-
-    p = figure(plot_height=HEIGHT, plot_width=WIDTH, title=title, toolbar_location=None,
+    p = figure(plot_height=HEIGHT, plot_width=WIDTH, toolbar_location=None,
                x_range=(-0.5, 1.0), )
-    p.title.text_font_size = TITLE_FONT_SIZE
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+
     p.wedge(x=0, y=0, radius=0.4,
             start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
             line_color="white", fill_color='color', legend='legend_label', source=data)
@@ -335,10 +341,10 @@ def generate_sub_pie_chart(site, year, target_file):
 def generate_sub_species_richness(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Species Richness by Year at {} /\n Abondance d’espèces par année à {}".format(site_name, site_name)
+    title_eng = "Species Richness by Year at {}".format(site_name)
+    title_fre = "/ Abondance d’espèces par année à {}".format(site_name)
 
     p = figure(
-        title=title,
         x_axis_label='Year / année',
         y_axis_label="Species count / nombre d'espèces",
         plot_width=WIDTH, plot_height=HEIGHT,
@@ -347,6 +353,9 @@ def generate_sub_species_richness(site, target_file):
 
     )
     ticker = SingleIntervalTicker(interval=1)
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+
     p.title.text_font_size = TITLE_FONT_SIZE
     p.grid.grid_line_alpha = 1
     p.background_fill_color = "white"
@@ -429,10 +438,9 @@ def generate_sub_species_richness(site, target_file):
 def generate_sub_do(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Dissolved Oxygen Levels per Year (Average) at {} /\n Niveaux d’oxygène dissous par année (moyenne) à {}".format(site_name, site_name)
-
+    title_eng = "Dissolved Oxygen Levels per Year (Average) at {}".format(site_name)
+    title_fre = "/ Niveaux d’oxygène dissous par année (moyenne) à {}".format(site_name)
     p = figure(
-        title=title,
         x_axis_label='Year / année',
         y_axis_label='Dissolved oxygen / oxygène dissous (mg/l)',
         plot_width=WIDTH, plot_height=HEIGHT,
@@ -440,7 +448,8 @@ def generate_sub_do(site, target_file):
         toolbar_location=None,
     )
     ticker = SingleIntervalTicker(interval=1)
-    p.title.text_font_size = TITLE_FONT_SIZE
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
 
     p.grid.grid_line_alpha = 1
     p.background_fill_color = "white"
@@ -499,7 +508,7 @@ def generate_sub_do(site, target_file):
 def generate_sub_green_crab(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Green Crab Abundance per Year at {} / \nAbondance du Crab vert, par année à {}".format(site_name, site_name)
+    title = "Green Crab Abundance per Year at {} / Abondance du Crab vert, par année à {}".format(site_name, site_name)
 
     color = palettes.BuGn[5][2]
 
@@ -700,7 +709,7 @@ def generate_annual_watershed_spreadsheet(site, year):
         if count > 1:
             total_sum = total_sum + j
         count += 1
-    worksheet1.write(my_df.shape[0], my_df.shape[1] - 2, "TOTAL", bold_format )
+    worksheet1.write(my_df.shape[0], my_df.shape[1] - 2, "TOTAL", bold_format)
     worksheet1.write(my_df.shape[0], my_df.shape[1] - 1, total_sum, bold_format)
 
     # adjust the width of the columns based on the max string length in each col
