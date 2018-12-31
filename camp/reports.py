@@ -335,7 +335,7 @@ def generate_sub_pie_chart(site, year, target_file):
 def generate_sub_species_richness(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Species Richness by Year at {} / Abondance d’espèces par année à {}".format(site_name, site_name)
+    title = "Species Richness by Year at {} /\n Abondance d’espèces par année à {}".format(site_name, site_name)
 
     p = figure(
         title=title,
@@ -429,7 +429,7 @@ def generate_sub_species_richness(site, target_file):
 def generate_sub_do(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Dissolved Oxygen Levels per Year (Average) at {} / Niveaux d’oxygène dissous par année (moyenne) à {}".format(site_name, site_name)
+    title = "Dissolved Oxygen Levels per Year (Average) at {} /\n Niveaux d’oxygène dissous par année (moyenne) à {}".format(site_name, site_name)
 
     p = figure(
         title=title,
@@ -499,7 +499,7 @@ def generate_sub_do(site, target_file):
 def generate_sub_green_crab(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Green Crab Abundance per Year at {} / Abondance du Crab vert, par année à {}".format(site_name, site_name)
+    title = "Green Crab Abundance per Year at {} / \nAbondance du Crab vert, par année à {}".format(site_name, site_name)
 
     color = palettes.BuGn[5][2]
 
@@ -519,7 +519,15 @@ def generate_sub_green_crab(site, target_file):
         'years': years,
         'counts': counts,
     })
-    p = figure(x_range=years, toolbar_location=None, plot_width=WIDTH, plot_height=HEIGHT, title=title)
+    p = figure(
+        x_range=years,
+        toolbar_location=None,
+        plot_width=WIDTH,
+        plot_height=HEIGHT,
+        title=title,
+        x_axis_label='Year / année',
+        y_axis_label='Abundance / Abondance',
+    )
     p.vbar(x='years', top='counts', width=0.9, source=source, line_color='white', fill_color=color)
     p.title.text_font_size = TITLE_FONT_SIZE
 
@@ -543,9 +551,9 @@ def generate_annual_watershed_spreadsheet(site, year):
                                                                                               "station__station_number")
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
-    worksheet1 = workbook.add_worksheet(name="Fauna / Faune")
-    worksheet2 = workbook.add_worksheet(name="Sediment / Sédiment")
-    worksheet3 = workbook.add_worksheet(name="Vegetation / Végétation")
+    worksheet1 = workbook.add_worksheet(name="Fauna - Faune")
+    worksheet2 = workbook.add_worksheet(name="Sediment - Sédiment")
+    worksheet3 = workbook.add_worksheet(name="Vegetation - Végétation")
 
     # spreadsheet: Fauna #
     ######################
