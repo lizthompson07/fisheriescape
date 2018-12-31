@@ -302,7 +302,7 @@ def generate_sub_pie_chart(site, year, target_file):
     data['legend_label'] = ["{} - {:.1%}".format(data['species'][i], data['percentage'][i]) for i in range(0, len(x))]
 
     site_name = str(models.Site.objects.get(pk=site))
-    title = "13 Most Common and Rare Species Observed in {} for {}".format(site_name, year)
+    title = "13 Most Common and Rare Species Observed in {} for {} / Les 13 espèces les plus communes et rares observées à {}, en {}".format(site_name, year, site_name, year)
 
     # hover = HoverTool(tooltips=[("Species", "@species"),
     #                             ("percentage", "@percentage{%0.2f}")
@@ -320,7 +320,7 @@ def generate_sub_pie_chart(site, year, target_file):
         dsum=Sum('total_non_sav'))
     total_abundance = total_mod[0]["dsum"]
     citation = Label(x=0.45, y=-0.7,
-                     text='Total abundance = {:,}'.format(total_abundance), render_mode='css',
+                     text='Total abundance / abondance totale = {:,}'.format(total_abundance), render_mode='css',
                      border_line_color='black', border_line_alpha=1.0,
                      background_fill_color='white', background_fill_alpha=1.0)
     p.add_layout(citation)
@@ -335,12 +335,12 @@ def generate_sub_pie_chart(site, year, target_file):
 def generate_sub_species_richness(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Species Richness by Year at {}".format(site_name)
+    title = "Species Richness by Year at {} / Abondance d’espèces par année à {}".format(site_name, site_name)
 
     p = figure(
         title=title,
-        x_axis_label='Year',
-        y_axis_label='Species count',
+        x_axis_label='Year / année',
+        y_axis_label="Species count / nombre d'espèces",
         plot_width=WIDTH, plot_height=HEIGHT,
         x_axis_type="linear",
         toolbar_location=None,
@@ -412,7 +412,7 @@ def generate_sub_species_richness(site, target_file):
         years.append(y)
         counts.append(len(species_set))
 
-    legend_title = "Entire site"
+    legend_title = "Entire site / ensemble du site"
 
     source = ColumnDataSource(data={
         'year': years,
@@ -429,12 +429,12 @@ def generate_sub_species_richness(site, target_file):
 def generate_sub_do(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Dissolved Oxygen by Year at {}".format(site_name)
+    title = "Dissolved Oxygen Levels per Year (Average) at {} / Niveaux d’oxygène dissous par année (moyenne) à {}".format(site_name, site_name)
 
     p = figure(
         title=title,
-        x_axis_label='Year',
-        y_axis_label='Dissolved oxygen (mg/l)',
+        x_axis_label='Year / année',
+        y_axis_label='Dissolved oxygen / oxygène dissous (mg/l)',
         plot_width=WIDTH, plot_height=HEIGHT,
         x_axis_type="linear",
         toolbar_location=None,
@@ -499,7 +499,7 @@ def generate_sub_do(site, target_file):
 def generate_sub_green_crab(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title = "Annual Number of Green Crabs Caught in the {} Watershed".format(site_name)
+    title = "Green Crab Abundance per Year at {} / Abondance du Crab vert, par année à {}".format(site_name, site_name)
 
     color = palettes.BuGn[5][2]
 
@@ -543,9 +543,9 @@ def generate_annual_watershed_spreadsheet(site, year):
                                                                                               "station__station_number")
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
-    worksheet1 = workbook.add_worksheet(name="Fauna")
-    worksheet2 = workbook.add_worksheet(name="Sediment")
-    worksheet3 = workbook.add_worksheet(name="Vegetation")
+    worksheet1 = workbook.add_worksheet(name="Fauna / Faune")
+    worksheet2 = workbook.add_worksheet(name="Sediment / Sédiment")
+    worksheet3 = workbook.add_worksheet(name="Vegetation / Végétation")
 
     # spreadsheet: Fauna #
     ######################
