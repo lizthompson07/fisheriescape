@@ -33,16 +33,18 @@ class Bug(models.Model):
     ACCOUNTS = 6
     CAMP = 7
     SNOWCRAB = 8
+    DIETS = 9
 
     APP_CHOICES = (
         (GENERAL,'General'),
         (ACCOUNTS,'Accounts'),
         (GRAIS,'grAIS'),
         (INVENTORY,'Data Inventory'),
-        (HERMORRHAGE,'HerMorrhage'),
+        (HERMORRHAGE,'HERMorrhage'),
         (RDMTS,'Ticketing System'),
         (CAMP, 'CAMP'),
         (SNOWCRAB, 'Snow Crab'),
+        (DIETS, 'Diets'),
     )
 
     APP_DICT = {
