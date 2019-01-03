@@ -15,65 +15,36 @@ urlpatterns = [
 
     # PREDATORS #
     #############
-    path('predators/', views.PredatorListView.as_view(), name="predator_list"),
+    path('predators/search/', views.PredatorSearchFormView.as_view(), name="predator_search"),
+    path('predators/cruise=<str:cruise>/species=<str:species>/',
+         views.PredatorListView.as_view(), name="predator_list"),
+    # path('predators/', views.PredatorListView.as_view(), name="predator_list"),
     path('predator/new/', views.PredatorCreateView.as_view(), name="predator_new"),
     path('predator/<int:pk>/view/', views.PredatorDetailView.as_view(), name="predator_detail"),
     path('predator/<int:pk>/edit/', views.PredatorUpdateView.as_view(), name="predator_edit"),
     path('predator/<int:pk>/delete/', views.PredatorDeleteView.as_view(), name="predator_delete"),
 
-    # SPECIES OBSERVATIONS #
-    ########################
-    path('predator/<int:predator>/species/insert/', views.PreyInsertView.as_view() , name="prey_search"),
-    path('predator/<int:predator>/species/<int:species>/add/', views.PreyCreateView.as_view(), name ="prey_new" ),
-    path('prey/<int:pk>/edit/', views.PreyUpdateView.as_view(), name ="prey_edit" ),
-    path('prey/<int:pk>/delete/return-to-<str:backto>/', views.prey_delete, name ="prey_delete" ),
+    # PREY #
+    ########
+    path('predator/<int:predator>/species/insert/', views.PreyInsertView.as_view(), name="prey_search"),
+    path('predator/<int:predator>/species/<int:species>/add/', views.PreyCreateView.as_view(), name="prey_new"),
+    path('prey/<int:pk>/edit/', views.PreyUpdateView.as_view(), name="prey_edit"),
+    path('prey/<int:pk>/delete/return-to-<str:backto>/', views.prey_delete, name="prey_delete"),
 
+    # CRUISES #
+    ###########
+    path('cruises/', views.CruiseListView.as_view(), name ="cruise_list" ),
+    path('cruise/new/', views.CruiseCreateView.as_view(), name ="cruise_new" ),
+    path('cruise/<int:pk>/view/', views.CruiseDetailView.as_view(), name ="cruise_detail" ),
+    path('cruise/<int:pk>/edit/', views.CruiseUpdateView.as_view(), name ="cruise_edit" ),
+    path('cruise/<int:pk>/delete/', views.CruiseDeleteView.as_view(), name ="cruise_delete" ),
 
-    # path('search/', views.SearchFormView.as_view(), name ="sample_search" ),
-    # # path('dataflow/', views.DataFlowTemplateView.as_view(), name ="dataflow" ),
-    #
-    # # SAMPLE #
-    # ##########
-    # # path('samples/', views.SampleFilterView.as_view(), name ="sample_list" ),
-    # path('sample-list/year=<str:year>/month=<str:month>/site=<str:site>/stn=<str:station>/species=<str:species>/', views.SampleListView.as_view(), name ="sample_list" ),
-    # path('sample/new/', views.SampleCreateView.as_view(), name ="sample_new" ),
-    # path('sample/<int:pk>/view/', views.SampleDetailView.as_view(), name ="sample_detail" ),
-    # path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name ="sample_edit" ),
-    # path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name ="sample_delete" ),
-    #
-    # # SITE #
-    # ########
-    # path('sites/', views.SiteListView.as_view(), name ="site_list" ),
-    # path('site/new/', views.SiteCreateView.as_view(), name ="site_new" ),
-    # path('site/<int:pk>/view/', views.SiteDetailView.as_view(), name ="site_detail" ),
-    # path('site/<int:pk>/edit/', views.SiteUpdateView.as_view(), name ="site_edit" ),
-    # path('site/<int:pk>/delete/', views.SiteDeleteView.as_view(), name ="site_delete" ),
-    #
-    # # STATION #
-    # ###########
-    # path('site/<int:site>/new-station/', views.StationCreateView.as_view(), name ="station_new" ),
-    # path('new-station/', views.NoSiteStationCreateView.as_view(), name ="station_new" ),
-    # path('station/<int:pk>/view/', views.StationDetailView.as_view(), name ="station_detail" ),
-    # path('station/<int:pk>/edit/', views.StationUpdateView.as_view(), name ="station_edit" ),
-    # path('station/<int:pk>/delete/', views.StationDeleteView.as_view(), name ="station_delete" ),
-    #
-
-    #
-    # # SPECIES OBSERVATIONS #
-    # ########################
-    # path('sample/<int:sample>/species/insert/', views.SpeciesObservationInsertView.as_view() , name="species_obs_search"),
-    # path('sample/<int:sample>/species/<int:species>/add/', views.SpeciesObservationCreateView.as_view(), name ="species_obs_new" ),
-    # path('species-observation/<int:pk>/edit/', views.SpeciesObservationUpdateView.as_view(), name ="species_obs_edit" ),
-    # path('species-observation/<int:pk>/delete/return-to-<str:backto>/', views.species_observation_delete, name ="species_obs_delete" ),
-    #
-    # # Reports #
-    # ###########
-    # path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    # path('reports/<str:species_list>/species-count/', views.report_species_count, name="species_report"),
-    # path('reports/species-richness/', views.report_species_richness, name="species_richness"),
-    # path('reports/species-richness/site/<int:site>/', views.report_species_richness, name="species_richness"),
-    # path('reports/annual-watershed-report/site/<int:site>/year/<int:year>', views.AnnualWatershedReportTemplateView.as_view(), name="watershed_report"),
-    # path('reports/annual-watershed-spreadsheet/site/<int:site>/year/<int:year>', views.annual_watershed_spreadsheet, name="watershed_csv"),
+    # DIGESTION LEVELS #
+    ####################
+    path('digestion-levels/', views.DigestionListView.as_view(), name ="digestion_list" ),
+    path('digestion-level/new/', views.DigestionCreateView.as_view(), name ="digestion_new" ),
+    path('digestion-level/<int:pk>/edit/', views.DigestionUpdateView.as_view(), name ="digestion_edit" ),
+    path('digestion-level/<int:pk>/delete/', views.DigestionDeleteView.as_view(), name ="digestion_delete" ),
 
 ]
 

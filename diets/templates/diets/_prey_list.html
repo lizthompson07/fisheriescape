@@ -13,7 +13,7 @@
     <tbody>
     {% for obj in predator.prey_items.all %}
             <tr>
-                <td>{{ obj.species }}</td>
+                <td>{{ obj.species.common_name_eng }}</td>
                 <td>{{ obj.digestion_level }}</td>
                 <td>{{ obj.comments|nz:"" }}</td>
                 <td>

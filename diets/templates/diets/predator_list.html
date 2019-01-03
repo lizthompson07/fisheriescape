@@ -7,33 +7,15 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Predators</li>
+            <li class="breadcrumb-item"><a href="{% url 'diets:predator_search' %}">Predator Search</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Results</li>
         </ol>
     </nav>
 
     <div class="container">
 
         <h1 class="big-header">Predators</h1>
-        <p>TOTAL: {{ filter.qs.count }}</p>
-
-
-        <form class="form" action="." method="get">
-            <div class="row">
-                {% for field in filter.form %}
-                    <div class="col-3">
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    </div>
-                {% endfor %}
-                <div class="col-3">
-                    <br>
-                    <input type="submit" value="Filter" class="btn btn btn-warning">
-                    <a href="{% url 'diets:predator_new' %}" class="btn btn-success">New Predator</a><br>
-                </div>
-
-            </div>
-
-
-        </form>
+        <p>TOTAL: {{ object_list.count }}</p>
 
 
         <table class="table table-hover table-sm">
@@ -47,10 +29,10 @@
             </tr>
             </thead>
             <tbody>
-            {% for object in filter.qs %}
+            {% for object in object_list %}
                 <tr>
                     <td>{{ object.id }}</td>
-                    <td><a href="{% url 'diets:predator_detail' object.id %}">{{ object.species }} (<em>{{ object.species.scientific_name }}</em>)</a></td>
+                    <td><a href="{% url 'diets:predator_detail' object.id %}">{{ object.species.common_name_eng }} (<em>{{ object.species.scientific_name }}</em>)</a></td>
                     <td>{{ object.cruise }}</td>
                     <td>{{ object.processing_date|date:"F d, Y" }}</td>
                     <td>{{ object.prey_items.count }}</td>

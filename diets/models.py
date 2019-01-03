@@ -46,7 +46,10 @@ class Species(models.Model):
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
 
     def __str__(self):
-        return "{}".format(self.common_name_eng)
+        if self.common_name_eng:
+            return "{}-{}".format(self.id, self.common_name_eng)
+        else:
+            return "{}-{}".format(self.id, self.scientific_name)
 
     class Meta:
         ordering = ['id']
