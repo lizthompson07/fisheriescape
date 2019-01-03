@@ -28,6 +28,9 @@ class Cruise(models.Model):
     season = models.IntegerField(null=True, blank=True)
     vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="missions", blank=True, null=True)
 
+    def __str__(self):
+        return "{}".format(self.cruise_number)
+
     def save(self, *args, **kwargs):
         if self.start_date:
             self.season = self.start_date.year
@@ -43,7 +46,7 @@ class Species(models.Model):
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
 
     def __str__(self):
-        return "{} - {}".format(self.id, self.common_name_eng)
+        return "{}".format(self.common_name_eng)
 
     class Meta:
         ordering = ['id']
@@ -57,39 +60,45 @@ class Species(models.Model):
 
 
 class Predator(models.Model):
-    sequence_number = models.IntegerField(blank=True, null=True)
-    fish_number = models.IntegerField(blank=True, null=True)
-    species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING)
-    processing_date = models.DateTimeField(verbose_name="processing date (yyyy-mm-dd)", blank=True, null=True)
-    sampler = models.CharField(max_length=500, blank=True, null=True)
     cruise = models.ForeignKey(Cruise, related_name='predators', on_delete=models.DO_NOTHING, blank=True, null=True)
     set = models.IntegerField(blank=True, null=True)
     stratum = models.IntegerField(blank=True, null=True)
-    collection_date = models.DateTimeField(verbose_name="collection date (yyyy-mm-dd)", blank=True, null=True)
-    collection_year = models.IntegerField(blank=True, null=True)
-    collection_month = models.IntegerField(blank=True, null=True)
-    collection_day = models.IntegerField(blank=True, null=True)
+    species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING)
+    fish_number = models.IntegerField(blank=True, null=True)
+    processing_date = models.DateTimeField(verbose_name="processing date (dd-mm-yyyy)", blank=True, null=True)
+    sampler = models.CharField(max_length=500, blank=True, null=True)
     somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="somatic length (mm)")
     somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="somatic weight (g)")
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
     comments = models.TextField(blank=True, null=True)
     old_seq_num = models.IntegerField(blank=True, null=True)
-    prey_items = models.ManyToManyField(Species, through="Prey")
+
+    # prey_items = models.ManyToManyField(Species, through="Prey")
 
     class Meta:
-        ordering = ['cruise', 'species']
+        ordering = ['-processing_date', 'species']
 
     def __str__(self):
-        return "{}".format(self.species)
+        return " Predator {}".format(self.id)
+
+
+class DigestionLevel(models.Model):
+    level = models.CharField(max_length=150)
+    interpretation = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return "{}".format(self.level)
 
 
 class Prey(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, )
-    predator = models.ForeignKey(Predator, on_delete=models.DO_NOTHING, )
-    digestion_level = models.IntegerField(blank=True, null=True)
+    predator = models.ForeignKey(Predator, on_delete=models.DO_NOTHING, related_name="prey_items")
+    digestion_level = models.ForeignKey(DigestionLevel, on_delete=models.DO_NOTHING, blank=True, null=True)
     somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="somatic weight (g)")
     somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="somatic length (mm)")
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
-
-    class Meta:
-        unique_together = [["species", "predator"], ]
+    sensor_used = models.BooleanField(default=False)
+    comments = models.TextField(blank=True, null=True)
