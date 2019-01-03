@@ -15,7 +15,7 @@
             <tr>
                 <td>{{ obj.species.common_name_eng }}</td>
                 <td>{{ obj.digestion_level }}</td>
-                <td>{{ obj.comments|nz:"" }}</td>
+                <td>{{ obj.comments|nz:"n/a" }}</td>
                 <td>
                     <a href="#"
                        onclick="return popitup('{% url 'diets:prey_edit' obj.id %}','popoutWindow')">
