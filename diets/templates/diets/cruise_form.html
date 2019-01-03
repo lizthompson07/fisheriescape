@@ -1,4 +1,4 @@
-{% extends "camp/camp_base.html" %}
+{% extends "diets/diets_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
@@ -8,12 +8,12 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'diets:predator_search' %}">Predator Search</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'diets:cruise_list' %}">Species List</a></li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'diets:predator_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'diets:cruise_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
             {% else %}
-                <li class="breadcrumb-item active" aria-current="page">New Predator</li>
+                <li class="breadcrumb-item active" aria-current="page">New Cruise</li>
             {% endif %}
         </ol>
     </nav>
@@ -23,7 +23,7 @@
         {% if object.id %}
             <h1>{{ object }}</h1>
         {% else %}
-            New Predator
+            New Cruise
         {% endif %}
 
         <br><br>
@@ -31,16 +31,7 @@
         <form method="post" class="form">
             {% csrf_token %}
 
-            {% for field in form %}
-                {% if field.name == "cruise" %}
-                    {% bootstrap_field field placeholder="" %}
-                    <a href="#" class="under-dev">(add new cruise)</a><br><br> {# should produce a popout window... #}
-                {% else %}
-                    {% bootstrap_field field placeholder="" %}
-
-                {% endif %}
-            {% endfor %}
-
+            {% bootstrap_form form %}
 
             {% buttons %}
                 {% if object.id %}
@@ -50,9 +41,9 @@
                 {% endif %}
 
                 {% if object.id %}
-                    <a class="btn btn-secondary" href="{% url 'diets:predator_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'diets:cruise_detail' object.id %}">Cancel</a>
                 {% else %}
-                    <a class="btn btn-secondary" href="{% url 'diets:predator_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'diets:cruise_list' %}">Cancel</a>
                 {% endif %}
 
             {% endbuttons %}
