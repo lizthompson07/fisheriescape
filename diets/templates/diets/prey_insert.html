@@ -8,8 +8,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'diets:predator_list' %}">Predators</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'diets:predator_detail' predator.id %}">{{predator}}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'diets:predator_search' %}">Predator Search</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'diets:predator_detail' predator.id %}">{{ predator }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Add Prey</li>
         </ol>
     </nav>
@@ -19,7 +19,7 @@
 
         <div class="row">
 
-            <div class="col" style="font-size: .9em">
+            <div class="col-4" style="font-size: .9em">
 
                 <label for="user_input">What prey species would you like to add? (enter any part of name)</label>
                 <input type="text" id="user_input" class="form-control"></input>
@@ -35,8 +35,9 @@
 
 
             </div>
-
-            <div class="col">
+            <div class="col-2">
+            </div>
+            <div class="col-5">
 
 
                 {% include "diets/_prey_list.html" %}
@@ -84,7 +85,7 @@
 
         $("#user_input").keyup(function (e) {
             $("#species-list").html("")
-            if ( (this.value.length >=2 && this.value.match(/^\d+$/)) || this.value.length >=3 ) {
+            if ((this.value.length >= 2 && this.value.match(/^\d+$/)) || this.value.length >= 3) {
                 for (var i = 0; i < speciesList.length; i++) {
                     // console.log(123);
                     var re = new RegExp(this.value, 'gi');
