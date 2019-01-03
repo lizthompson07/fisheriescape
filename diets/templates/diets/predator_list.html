@@ -1,0 +1,66 @@
+{% extends "diets/diets_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Predators</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1 class="big-header">Predators</h1>
+        <p>TOTAL: {{ filter.qs.count }}</p>
+
+
+        <form class="form" action="." method="get">
+            <div class="row">
+                {% for field in filter.form %}
+                    <div class="col-3">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+                {% endfor %}
+                <div class="col-3">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn btn-warning">
+                    <a href="{% url 'diets:predator_new' %}" class="btn btn-success">New Predator</a><br>
+                </div>
+
+            </div>
+
+
+        </form>
+
+
+        <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Species</th>
+                <th scope="col">Cruise</th>
+                <th scope="col">Processing date</th>
+                <th scope="col">Prey items</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in filter.qs %}
+                <tr>
+                    <td>{{ object.id }}</td>
+                    <td><a href="{% url 'diets:predator_detail' object.id %}">{{ object.species }} (<em>{{ object.species.scientific_name }}</em>)</a></td>
+                    <td>{{ object.cruise }}</td>
+                    <td>{{ object.processing_date|date:"F d, Y" }}</td>
+                    <td>{{ object.prey_items.count }}</td>
+                </tr>
+            {% endfor %}
+            <br>
+            </tbody>
+        </table>
+
+
+    </div>
+
+{% endblock content %}
