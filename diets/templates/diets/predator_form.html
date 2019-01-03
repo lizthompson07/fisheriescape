@@ -34,7 +34,7 @@
             {% for field in form %}
                 {% if field.name == "cruise" %}
                     {% bootstrap_field field placeholder="" %}
-                    <a href="#" class="under-dev">(add new cruise)</a><br><br> {# should produce a popout window... #}
+                    <a href="{% url 'diets:cruise_new'  %}" target="_blank">(add new cruise)</a><br><br> {# should produce a popout window... #}
                 {% else %}
                     {% bootstrap_field field placeholder="" %}
 
@@ -52,7 +52,7 @@
                 {% if object.id %}
                     <a class="btn btn-secondary" href="{% url 'diets:predator_detail' object.id %}">Cancel</a>
                 {% else %}
-                    <a class="btn btn-secondary" href="{% url 'diets:predator_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'diets:predator_search' %}">Cancel</a>
                 {% endif %}
 
             {% endbuttons %}

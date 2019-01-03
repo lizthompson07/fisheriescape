@@ -63,26 +63,27 @@ class Species(models.Model):
 
 
 class Predator(models.Model):
-    cruise = models.ForeignKey(Cruise, related_name='predators', on_delete=models.DO_NOTHING, blank=True, null=True)
+    species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING)
+    processing_date = models.DateTimeField(verbose_name="processing date (dd-mm-yyyy)", default=timezone.now)
+    cruise = models.ForeignKey(Cruise, related_name='predators', on_delete=models.DO_NOTHING)
     set = models.IntegerField(blank=True, null=True)
     stratum = models.IntegerField(blank=True, null=True)
-    species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING)
     fish_number = models.IntegerField(blank=True, null=True)
-    processing_date = models.DateTimeField(verbose_name="processing date (dd-mm-yyyy)", blank=True, null=True)
     sampler = models.CharField(max_length=500, blank=True, null=True)
-    somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="somatic length (mm)")
-    somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="somatic weight (g)")
+    somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="body length (mm)")
+    somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="body weight (g)")
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
     comments = models.TextField(blank=True, null=True)
     old_seq_num = models.IntegerField(blank=True, null=True)
-
-    # prey_items = models.ManyToManyField(Species, through="Prey")
 
     class Meta:
         ordering = ['-processing_date', 'species']
 
     def __str__(self):
         return " Predator {}".format(self.id)
+
+    def get_absolute_url(self):
+        return reverse('diets:predator_detail', kwargs={'pk': self.id})
 
 
 class DigestionLevel(models.Model):
@@ -93,15 +94,15 @@ class DigestionLevel(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return "{}".format(self.level)
+        return "{}-{}".format(self.id, self.level)
 
 
 class Prey(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, )
     predator = models.ForeignKey(Predator, on_delete=models.DO_NOTHING, related_name="prey_items")
     digestion_level = models.ForeignKey(DigestionLevel, on_delete=models.DO_NOTHING, blank=True, null=True)
-    somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="somatic weight (g)")
-    somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="somatic length (mm)")
+    somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="body weight (g)")
+    somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="body length (mm)")
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
     sensor_used = models.BooleanField(default=False)
     comments = models.TextField(blank=True, null=True)

@@ -1,6 +1,12 @@
 {% load nz %}
 {% load static %}
 
+<style>
+    table,td{
+        font-size: small;
+    }
+</style>
+
 <div class="">
     <h3>Prey Items:</h3>
 </div>
@@ -8,6 +14,8 @@
     <tr>
         <th>Species</th>
         <th>Digestion Level</th>
+        <th>Body Weight (g)</th>
+        <th>Body Length (mm)</th>
         <th>Comments</th>
     </tr>
     <tbody>
@@ -15,6 +23,8 @@
             <tr>
                 <td>{{ obj.species.common_name_eng }}</td>
                 <td>{{ obj.digestion_level }}</td>
+                <td>{{ obj.somatic_wt_g }}</td>
+                <td>{{ obj.somatic_length_mm }}</td>
                 <td>{{ obj.comments|nz:"n/a" }}</td>
                 <td>
                     <a href="#"

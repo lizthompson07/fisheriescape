@@ -187,7 +187,7 @@ class PredatorCreateView(LoginRequiredMixin, CreateView):
 class PredatorDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Predator
     permission_required = "__all__"
-    success_url = reverse_lazy('diets:predator_list')
+    success_url = reverse_lazy('diets:predator_search')
     success_message = 'The predator was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -318,6 +318,7 @@ class CruiseCreateView(LoginRequiredMixin, CreateView):
     model = models.Cruise
     login_url = '/accounts/login_required/'
     form_class = forms.CruiseForm
+    success_url = reverse_lazy('diets:cruise_list')
 
 
 class CruiseDeleteView(LoginRequiredMixin, DeleteView):
