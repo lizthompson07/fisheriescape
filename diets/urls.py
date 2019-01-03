@@ -1,18 +1,33 @@
 from django.urls import path
 from . import views
 
-
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name ="close_me" ),
-    path('', views.index, name ="index" ),
+    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
+    path('', views.index, name="index"),
 
     # SPECIES #
     ###########
-    path('species/', views.SpeciesListView.as_view(), name ="species_list" ),
-    path('species/new/', views.SpeciesCreateView.as_view(), name ="species_new" ),
-    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name ="species_detail" ),
-    path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name ="species_edit" ),
-    path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name ="species_delete" ),
+    path('species/', views.SpeciesListView.as_view(), name="species_list"),
+    path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
+    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
+    path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
+    path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+
+    # PREDATORS #
+    #############
+    path('predators/', views.PredatorListView.as_view(), name="predator_list"),
+    path('predator/new/', views.PredatorCreateView.as_view(), name="predator_new"),
+    path('predator/<int:pk>/view/', views.PredatorDetailView.as_view(), name="predator_detail"),
+    path('predator/<int:pk>/edit/', views.PredatorUpdateView.as_view(), name="predator_edit"),
+    path('predator/<int:pk>/delete/', views.PredatorDeleteView.as_view(), name="predator_delete"),
+
+    # SPECIES OBSERVATIONS #
+    ########################
+    path('predator/<int:predator>/species/insert/', views.PreyInsertView.as_view() , name="prey_search"),
+    path('predator/<int:predator>/species/<int:species>/add/', views.PreyCreateView.as_view(), name ="prey_new" ),
+    path('prey/<int:pk>/edit/', views.PreyUpdateView.as_view(), name ="prey_edit" ),
+    path('prey/<int:pk>/delete/return-to-<str:backto>/', views.prey_delete, name ="prey_delete" ),
+
 
     # path('search/', views.SearchFormView.as_view(), name ="sample_search" ),
     # # path('dataflow/', views.DataFlowTemplateView.as_view(), name ="dataflow" ),
@@ -60,9 +75,6 @@ urlpatterns = [
     # path('reports/annual-watershed-report/site/<int:site>/year/<int:year>', views.AnnualWatershedReportTemplateView.as_view(), name="watershed_report"),
     # path('reports/annual-watershed-spreadsheet/site/<int:site>/year/<int:year>', views.annual_watershed_spreadsheet, name="watershed_csv"),
 
-
-
 ]
 
 app_name = 'diets'
-

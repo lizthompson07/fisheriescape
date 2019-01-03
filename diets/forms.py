@@ -7,7 +7,24 @@ class SpeciesForm(forms.ModelForm):
         model = models.Species
         fields = "__all__"
 
+class PredatorForm(forms.ModelForm):
+    class Meta:
+        model = models.Predator
+        exclude = ["old_seq_num",]
+        widgets = {
+            "processing_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
+class PreyForm(forms.ModelForm):
+    class Meta:
+        model = models.Prey
+        fields = "__all__"
+        widgets = {
+            'species': forms.HiddenInput(),
+            'predator': forms.HiddenInput(),
+            'comments': forms.Textarea(attrs={"rows": "3"}),
+        }
+#
 #
 # class SiteForm(forms.ModelForm):
 #     class Meta:
