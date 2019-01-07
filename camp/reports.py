@@ -1,8 +1,8 @@
-import csv
 import statistics
-
 import pandas
+import unicodecsv as csv
 import xlsxwriter as xlsxwriter
+from django.http import HttpResponse
 from django.template.defaultfilters import yesno
 from math import pi
 
@@ -892,3 +892,81 @@ def generate_annual_watershed_spreadsheet(site, year):
 
     workbook.close()
     return target_url
+
+
+def generate_fgp_export():
+    # figure out the filename
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="fgp_dataset_for_camp.csv"'
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+    # write the header
+    writer.writerow([
+        "year / année",
+        "month / mois",
+        "province",
+        "site",
+        "station",
+        "latitude (n)",
+        "longitude (w)",
+        "start date / date de début",
+        "end date / date de fin",
+        "ammonia / ammoniac",
+        "dissolved oxygen / oxygène dissous",
+        "nitrates",
+        "nitrite",
+        "phosphate",
+        "salinity / salinité",
+        "silicate",
+        "water temperature / température de l'eau (C)",
+        "gravel / gravier (%)",
+        "mud / boue (%)",
+        "rock / roche (%)",
+        "sand / sable (%)",
+        "species name (English) / nom de l'espèce (anglais)",
+        "species name (French) / nom de l'espèce (français)",
+        "scientific name / nom scientifique",
+        "ITIS TSN ID",
+        "submerged aquatic vegetation (SAV) / végétation aquatique submergée (VAS)",
+        "SAV level observed / VAS niveau observé",
+        "adults / adultes",
+        "young of the year / jeune de l'année",
+        "total number of individuals observed / total nombre d'individus observés",
+    ])
+
+    for obs in models.SpeciesObservation.objects.all():
+        writer.writerow(
+            [
+                obs.sample.year,
+                obs.sample.month,
+                "{} - {}".format(obs.sample.station.site.province.province_eng, obs.sample.station.site.province.province_fre),
+                obs.sample.station.site.site,
+                obs.sample.station.name,
+                obs.sample.station.latitude_n,
+                obs.sample.station.longitude_w,
+                obs.sample.start_date,
+                obs.sample.end_date,
+                obs.sample.ammonia,
+                obs.sample.dissolved_o2,
+                obs.sample.nitrates,
+                obs.sample.nitrite,
+                obs.sample.phosphate,
+                obs.sample.salinity,
+                obs.sample.silicate,
+                obs.sample.h2o_temperature_c,
+                obs.sample.percent_gravel,
+                obs.sample.percent_mud,
+                obs.sample.percent_rock,
+                obs.sample.percent_sand,
+                obs.species.common_name_eng,
+                obs.species.common_name_fre,
+                obs.species.scientific_name,
+                obs.species.tsn,
+                obs.species.sav,
+                obs.adults,
+                obs.yoy,
+                obs.total_non_sav,
+                obs.total_sav,
+            ])
+    return response
+

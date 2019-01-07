@@ -5,69 +5,70 @@
 {% block content %}
 
 
-<div class="nav-map">
-<br>
-  {% if object.id %}
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    <a href="{% url 'inventory:keyword_detail' resource.id object.id %}">{{object.text_value_eng}}</a> >
-    Edit
-  </p>
-  {% else %}
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    <a href="{% url 'inventory:resource_keyword_filter' resource.id %}">{{object.text_value_eng}}</a> >
-    New
-  </p>
-  {% endif %}
-</div>
-<div class="container">
 
-{% load static %}
-{# Load js file to allow for popout window #}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a
+                        href="{% url 'inventory:keyword_detail' resource.id object.id %}">{{ object.text_value_eng }}</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_keyword_filter' resource.id %}">{{ object.text_value_eng }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">New</li>
+            {% endif %}
+        </ol>
+    </nav>
 
-{% if person %}
+    <div class="container">
 
-{% else %}
-  <h1>New Keyword</h1>
-{% endif %}
+        {% load static %}
+        {# Load js file to allow for popout window #}
 
-<form method="post" class="form">
-    {% csrf_token %}
+        {% if person %}
 
-    {% bootstrap_form form %}
+        {% else %}
+            <h1>New Keyword</h1>
+        {% endif %}
 
-    <p>
-      <button type="submit" class="btn btn-primary">Submit</button>
-      {% if object.id %}
-        <a class="btn btn-secondary" href="{% url 'inventory:keyword_detail' resource.id object.id %}">Cancel</a>
-      {% else %}
-        <a class="btn btn-secondary" href="{% url 'inventory:resource_keyword_filter' resource.id %}">Cancel</a>
-      {% endif %}
-    </p>
-</form>
+        <form method="post" class="form">
+            {% csrf_token %}
 
-<script type="text/javascript">
-  // js script to add date to notes field
-  $("#insertDate").click(function() {
+            {% bootstrap_form form %}
 
-    var today = new Date();
-    var strDate = today.toDateString()
-    var strInjection = ""
+            <p>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                {% if object.id %}
+                    <a class="btn btn-secondary" href="{% url 'inventory:keyword_detail' resource.id object.id %}">Cancel</a>
+                {% else %}
+                    <a class="btn btn-secondary"
+                       href="{% url 'inventory:resource_keyword_filter' resource.id %}">Cancel</a>
+                {% endif %}
+            </p>
+        </form>
 
-    if ($("#id_notes").val()==="") {
-      strInjection = strDate + ": ";
-    }else {
-      strInjection =  "\n\n" + strDate + ": ";
-    }
+        <script type="text/javascript">
+            // js script to add date to notes field
+            $("#insertDate").click(function () {
 
-    $("#id_notes").val($("#id_notes").val() + strInjection)
+                var today = new Date();
+                var strDate = today.toDateString()
+                var strInjection = ""
 
-  })
+                if ($("#id_notes").val() === "") {
+                    strInjection = strDate + ": ";
+                } else {
+                    strInjection = "\n\n" + strDate + ": ";
+                }
 
-</script>
-</div>
+                $("#id_notes").val($("#id_notes").val() + strInjection)
+
+            })
+
+        </script>
+    </div>
 
 {% endblock content %}

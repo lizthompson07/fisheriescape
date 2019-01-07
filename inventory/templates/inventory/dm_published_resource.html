@@ -4,74 +4,71 @@
 {% load bootstrap4 %}
 {% block content %}
 
-<div class="nav-map">
-  <br>
-  <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
-  Published Resources
-</div>
-
-<div class="container">
-
-  <p>
-    <h1>Publihsed Data Resources </h1>
-    TOTAL: {{object_list.count}}
-  </p>
-
-  {% if object_list.count > 0  %}
-
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        {# <th scope="col">Id</th> #}
-        <th scope="col">Title</th>
-        <th scope="col">Status</th>
-        <th scope="col">Section</th>
-        <th scope="col">FGP Publication Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for obj in object_list  %}
-        <tr>
-          {# <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
-          <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.title_eng}}</a></td>
-
-          {% if obj.status.id == 3 %}
-          <td class="good">
-
-          {% elif obj.status.id == 1 %}
-          <td class="bad">
-          {% else %}
-          <td>
-
-          {% endif %}
-            {{obj.status}}
-          </td>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Published Resources</li>
+        </ol>
+    </nav>
 
 
-          <td>{{obj.section.section}}</td>
+    <div class="container">
 
-          <td>
-            {{obj.fgp_publication_date}}
+        <p>
+        <h1>Publihsed Data Resources </h1>
+        TOTAL: {{ object_list.count }}
+        </p>
 
-          </td>
+        {% if object_list.count > 0 %}
+
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    {# <th scope="col">Id</th> #}
+                    <th scope="col">Title</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Section</th>
+                    <th scope="col">FGP Publication Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in object_list %}
+                    <tr>
+                        {# <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
+                        <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{ obj.title_eng }}</a></td>
+
+                        {% if obj.status.id == 3 %}
+                            <td class="good">
+
+                                {% elif obj.status.id == 1 %}
+                            <td class="bad">
+                                {% else %}
+                            <td>
+
+                        {% endif %}
+                        {{ obj.status }}
+                        </td>
 
 
+                        <td>{{ obj.section.section }}</td>
+
+                        <td>
+                            {{ obj.fgp_publication_date }}
+
+                        </td>
 
 
+                    </tr>
+                {% endfor %}
+                <br>
+
+                </tbody>
+            </table>
+        {% else %}
+            <em>There are no data resources that have been published to FGP</em>
+        {% endif %}
 
 
-
-        </tr>
-      {% endfor %}
-      <br>
-
-      </tbody>
-    </table>
-    {% else %}
-    <em>There are no data resources that have been published to FGP</em>
-    {% endif %}
-
-
-  </div>
+    </div>
 
 {% endblock content %}

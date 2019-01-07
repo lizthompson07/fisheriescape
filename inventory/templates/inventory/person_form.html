@@ -3,52 +3,50 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div class="nav-map">
-<br>
-  {% if person %}
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    Edit {{person.full_name}}
-  </p>
-  {% else %}
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    <a href="{% url 'inventory:resource_person_filter' resource.id %}">Insert Person</a> >
-    Add New Person to Database
-    New
-  </p>
-  {% endif %}
-</div>
-<div class="container">
 
-{% load static %}
-{# Load js file to allow for popout window #}
-{% if person %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
+            {% if person %}
+                <li class="breadcrumb-item active" aria-current="page">Edit {{ person.full_name }}</li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_person_filter' resource.id %}">Insert
+                    Person</a></li>
+                <li class="breadcrumb-item active" aria-current="page">New</li>
+            {% endif %}
+        </ol>
+    </nav>
 
-{% else %}
-  <h1>New Person</h1>
-{% endif %}
+    <div class="container">
 
-<form method="post" class="form">
-    {% csrf_token %}
+        {% load static %}
+        {# Load js file to allow for popout window #}
+        {% if person %}
 
-    {# {% bootstrap_form form %} #}
-    {% for field in form  %}
-        {% bootstrap_field field%}
-    {% endfor %}
+        {% else %}
+            <h1>New Person</h1>
+        {% endif %}
 
-    <p>
-      <button type="submit" class="btn btn-primary">Submit</button>
-      {% if person %}
-        <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' resource.id %}">Cancel</a>
-      {% else %}
-        <a class="btn btn-secondary" href="{% url 'inventory:resource_list' %}">Cancel</a>
-      {% endif %}
-    </p>
-</form>
+        <form method="post" class="form">
+            {% csrf_token %}
 
-</div>
+            {# {% bootstrap_form form %} #}
+            {% for field in form %}
+                {% bootstrap_field field %}
+            {% endfor %}
+
+            <p>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                {% if person %}
+                    <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' resource.id %}">Cancel</a>
+                {% else %}
+                    <a class="btn btn-secondary" href="{% url 'inventory:resource_list' %}">Cancel</a>
+                {% endif %}
+            </p>
+        </form>
+
+    </div>
 
 {% endblock content %}

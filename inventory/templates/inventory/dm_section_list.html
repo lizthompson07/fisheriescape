@@ -4,56 +4,60 @@
 {% load bootstrap4 %}
 {% block content %}
 
-<div class="nav-map">
-  <br>
-  <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
-  Section List
-</div>
-<div class="container">
 
-  <a href="{% url "inventory:dm_section_new"  %}" class="float-right btn btn-primary">New Section</a>
-  <p>
-    <h1>
-      Section List
-    </h1>
-    TOTAL: {{object_list.count}}
-  </p>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Section List</li>
+        </ol>
+    </nav>
 
-  {% if object_list.count > 0  %}
+    <div class="container">
 
-  <table class="table table-hover table-sm">
-    <thead>
-      <tr>
-        {# <th scope="col">Id</th> #}
-        <th scope="col">Section</th>
-        <th scope="col">Division</th>
-        <th scope="col">Branch</th>
-        <th scope="col">Unit Head</th>
-        <th scope="col">Manager</th>
-        <th scope="col">Resource Count</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for obj in object_list  %}
-        <tr>
-          <td><a href="{% url 'inventory:dm_section_detail' obj.id %}">{{obj.section}}</a></td>
-          <td>{{obj.division}}</td>
-          <td>{{obj.branch}}</td>
-          <td>{{obj.unit_head}}</td>
-          <td>{{obj.manager}}</td>
-          <td>{{obj.resources.count}}</td>
+        <a href="{% url "inventory:dm_section_new" %}" class="float-right btn btn-primary">New Section</a>
+        <p>
+        <h1>
+            Section List
+        </h1>
+        TOTAL: {{ object_list.count }}
+        </p>
 
-        </tr>
-      {% endfor %}
-      <br>
+        {% if object_list.count > 0 %}
 
-      </tbody>
-    </table>
-    {% else %}
-    <em>There are no data resources that have been published to FGP</em>
-    {% endif %}
+            <table class="table table-hover table-sm">
+                <thead>
+                <tr>
+                    {# <th scope="col">Id</th> #}
+                    <th scope="col">Section</th>
+                    <th scope="col">Division</th>
+                    <th scope="col">Branch</th>
+                    <th scope="col">Unit Head</th>
+                    <th scope="col">Manager</th>
+                    <th scope="col">Resource Count</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'inventory:dm_section_detail' obj.id %}">{{ obj.section }}</a></td>
+                        <td>{{ obj.division }}</td>
+                        <td>{{ obj.branch }}</td>
+                        <td>{{ obj.unit_head }}</td>
+                        <td>{{ obj.manager }}</td>
+                        <td>{{ obj.resources.count }}</td>
+
+                    </tr>
+                {% endfor %}
+                <br>
+
+                </tbody>
+            </table>
+        {% else %}
+            <em>There are no data resources that have been published to FGP</em>
+        {% endif %}
 
 
-  </div>
+    </div>
 
 {% endblock content %}

@@ -1,4 +1,4 @@
-import csv
+import unicodecsv as csv
 import os
 
 from django.conf import settings
@@ -604,7 +604,10 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
         elif report == 4:
             site = int(form.cleaned_data["site"])
             year = int(form.cleaned_data["year"])
-            return HttpResponseRedirect(reverse("camp:watershed_csv", kwargs={"site": site, "year": year}))
+            return HttpResponseRedirect(reverse("camp:watershed_xlsx", kwargs={"site": site, "year": year}))
+
+        elif report == 5:
+            return HttpResponseRedirect(reverse("camp:watershed_csv"))
 
 
 def report_species_count(request, species_list):
@@ -648,4 +651,10 @@ def annual_watershed_spreadsheet(request, site, year):
             response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
             return response
     raise Http404
+
+
+def fgp_export(request):
+
+    response = reports.generate_fgp_export()
+    return response
 
