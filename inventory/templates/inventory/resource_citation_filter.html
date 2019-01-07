@@ -3,76 +3,76 @@
 {% load bootstrap4 %}
 
 {% block content %}
-{% if temp_msg %}
-  {% bootstrap_alert temp_msg alert_type='success' %}
-{% endif %}
+    {% if temp_msg %}
+        {% bootstrap_alert temp_msg alert_type='success' %}
+    {% endif %}
 
-<div class="nav-map">
-<br>
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    Insert Citation
-  </p>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Insert Citation</li>
+        </ol>
+    </nav>
 
-</div>
-
-<div class="container">
-  <h1>Select a Citation to Insert:</h1><br>
+    <div class="container">
+        <h1>Select a Citation to Insert:</h1><br>
 
         <form action="." method="get">
-          <div class="row">
+            <div class="row">
 
-          {% for field in filter.form  %}
-          <div class="col">
-            {% bootstrap_field field %}
-          </div>
+                {% for field in filter.form %}
+                    <div class="col">
+                        {% bootstrap_field field %}
+                    </div>
 
-          {% endfor %}
-          <div class="col">
-            <br>  <p>
-              <input type="submit" value="Filter" class="btn btn-warning" />
-              <a class="btn btn-info" href=".">Clear</a>
-            </p>
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <p>
+                        <input type="submit" value="Filter" class="btn btn-warning"/>
+                        <a class="btn btn-info" href=".">Clear</a>
+                    </p>
 
-          </div>
-          </div>
-         </form>
-    {# </div> #}
-    {# <div class="col"> #}
+                </div>
+            </div>
+        </form>
+        {# </div> #}
+        {# <div class="col"> #}
 
         <div class="scroll-lg">
-          {% for obj in filter.qs %}
-            <div class="row">
-              <div class="col-1">
-                <a class="btn btn-sm btn-dark indent" href="{% url "inventory:resource_citation_add" resource.id obj.id %}"> <i class="material-icons">add</i></a>
-              </div>
-              <div class="col-11">
-                {{obj.citation_br|safe}}
-                (<a href="{% url 'inventory:citation_detail' resource.id obj.id %}">view</a>)<hr>
+            {% for obj in filter.qs %}
+                <div class="row">
+                    <div class="col-1">
+                        <a class="btn btn-sm btn-dark indent"
+                           href="{% url "inventory:resource_citation_add" resource.id obj.id %}"> <i
+                                class="material-icons">add</i></a>
+                    </div>
+                    <div class="col-11">
+                        {{ obj.citation_br|safe }}
+                        (<a href="{% url 'inventory:citation_detail' resource.id obj.id %}">view</a>)
+                        <hr>
 
-              </div>
-            </div>
-
-
-          {% endfor %}
-
-
-      </div>
-      <br>
-      <a class="btn btn-sm btn-success" href="{% url 'inventory:citation_new' resource.id %}">Add New Keyword</a>
+                    </div>
+                </div>
 
 
-    {# </div> #}
+            {% endfor %}
 
 
-  {# </div> #}
+        </div>
+        <br>
+        <a class="btn btn-sm btn-success" href="{% url 'inventory:citation_new' resource.id %}">Add New Keyword</a>
 
 
+        {# </div> #}
 
 
+        {# </div> #}
 
-       </div>
+
+    </div>
 
 
 {% endblock content %}

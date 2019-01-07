@@ -3,227 +3,226 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div class="nav-map">
-<br>
-  {% if object.id %}
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-    <a href="{% url 'inventory:resource_detail' object.id %}">{{object.truncated_title}}</a> >
-    {% if readonly %}Review{% else %}Edit{% endif %}
 
-  </p>
-  {% else %}
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All resources</a> >
-    New
-  </p>
-  {% endif %}
-</div>
-<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a
+                        href="{% url 'inventory:resource_detail' object.id %}">{{ object.truncated_title }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{% if readonly %}Review{% else %}
+                    Edit{% endif %}</li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">New</li>
+            {% endif %}
+        </ol>
+    </nav>
 
-{% load static %}
-{# Load js file to allow for popout window #}
-{% if object.id %}
-  <h1>{{object}}</h1><br>
-{% else %}
-  <h1>New Resource</h1>
-{% endif %}
+    <div class="container">
 
-<style media="screen">
-  label{
-    font-weight: bold;
-  }
-</style>
+        {% load static %}
+        {# Load js file to allow for popout window #}
+        {% if object.id %}
+            <h1>{{ object }}</h1><br>
+        {% else %}
+            <h1>New Resource</h1>
+        {% endif %}
 
-<form method="post" class="form">
-    {% csrf_token %}
-    {% include "inventory/_resource_form_btn_group.html" %}
+        <style media="screen">
+            label {
+                font-weight: bold;
+            }
+        </style>
 
-<br><br>
-  <fieldset {% if readonly %}disabled{% endif %}>
+        <form method="post" class="form">
+            {% csrf_token %}
+            {% include "inventory/_resource_form_btn_group.html" %}
 
-    {% for field in form  %}
+            <br><br>
+            <fieldset {% if readonly %}disabled{% endif %}>
 
-      {% if field.name == 'title_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'title_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                {% for field in form %}
 
-      {% elif field.name == 'purpose_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'purpose_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% if field.name == 'title_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'title_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
-      {% elif field.name == 'descr_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'descr_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% elif field.name == 'purpose_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'purpose_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
-      {% elif field.name == 'physical_sample_descr_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'physical_sample_descr_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% elif field.name == 'descr_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'descr_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
-      {% elif field.name == 'sampling_method_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'sampling_method_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% elif field.name == 'physical_sample_descr_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'physical_sample_descr_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
-      {% elif field.name == 'resource_constraint_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'resource_constraint_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% elif field.name == 'sampling_method_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'sampling_method_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
-      {% elif field.name == 'qc_process_descr_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'qc_process_descr_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% elif field.name == 'resource_constraint_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'resource_constraint_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
-
-      {% elif field.name == 'security_use_limitation_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'security_use_limitation_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
-
-      {% elif field.name == 'geo_descr_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'geo_descr_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
-
-      {% elif field.name == 'parameters_collected_eng' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'parameters_collected_fre' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
-
-      {% elif field.name == 'time_start_day' %}
-        <div class="row">
-          <div class="col-2">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'time_start_month' %}
-          <div class="col-2">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'time_start_year' %}
-          <div class="col-2">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% elif field.name == 'qc_process_descr_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'qc_process_descr_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
 
-      {% elif field.name == 'time_end_day' %}
-        <div class="row">
-          <div class="col-2">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'time_end_month' %}
-          <div class="col-2">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'time_end_year' %}
-          <div class="col-2">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% elif field.name == 'security_use_limitation_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'security_use_limitation_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
+
+                    {% elif field.name == 'geo_descr_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'geo_descr_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
+
+                    {% elif field.name == 'parameters_collected_eng' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'parameters_collected_fre' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
+
+                    {% elif field.name == 'time_start_day' %}
+                        <div class="row">
+                            <div class="col-2">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'time_start_month' %}
+                            <div class="col-2">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'time_start_year' %}
+                            <div class="col-2">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
 
-      {% elif field.name == 'west_bounding' %}
-        <div class="row">
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'south_bounding' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'east_bounding' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-      {% elif field.name == 'north_bounding' %}
-          <div class="col">
-            {% bootstrap_field field placeholder="" %}
-          </div>
-        </div>
+                    {% elif field.name == 'time_end_day' %}
+                        <div class="row">
+                            <div class="col-2">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'time_end_month' %}
+                            <div class="col-2">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'time_end_year' %}
+                            <div class="col-2">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
+
+
+                    {% elif field.name == 'west_bounding' %}
+                        <div class="row">
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'south_bounding' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'east_bounding' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                            {% elif field.name == 'north_bounding' %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
 
 
 
-      {% else %}
-      <div class="row">
-        <div class="col-8">
-          {% bootstrap_field field placeholder=""%}
-        </div>
-      </div>
-      {% endif %}
-    {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <div class="col-8">
+                                {% bootstrap_field field placeholder="" %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
 
-  </fieldset>
+            </fieldset>
 
-  {% include "inventory/_resource_form_btn_group.html" %}
+            {% include "inventory/_resource_form_btn_group.html" %}
 
-</form>
+        </form>
 
-</div>
+    </div>
 
 
 {% endblock content %}

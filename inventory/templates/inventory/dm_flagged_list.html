@@ -4,75 +4,72 @@
 {% load bootstrap4 %}
 {% block content %}
 
-<div class="nav-map">
-  <br>
-  <a href="{% url 'inventory:dm_home' %}">Data Management Home</a> >
-  {% if view.kwargs.flag_type == "deletion" %} Flagged for Deletion {%elif view.kwargs.flag_type == "publication"%} Flagged for Publication{% endif %}
-</div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% if view.kwargs.flag_type == "deletion" %} Flagged
+                for
+                Deletion {% elif view.kwargs.flag_type == "publication" %} Flagged for Publication{% endif %}</li>
+        </ol>
+    </nav>
 
-<div class="container">
+    <div class="container">
 
-  <p>
-    <h1>
-      {% if view.kwargs.flag_type == "deletion" %}
-      Flagged for Deletion
-      {%elif view.kwargs.flag_type == "publication"%}
-      Flagged for Publication
-      {% endif %}
-    </h1>
-    TOTAL: {{object_list.count}}
-  </p>
+        <p>
+        <h1>
+            {% if view.kwargs.flag_type == "deletion" %}
+                Flagged for Deletion
+            {% elif view.kwargs.flag_type == "publication" %}
+                Flagged for Publication
+            {% endif %}
+        </h1>
+        TOTAL: {{ object_list.count }}
+        </p>
 
-  {% if object_list.count > 0  %}
+        {% if object_list.count > 0 %}
 
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        {# <th scope="col">Id</th> #}
-        <th scope="col">Title</th>
-        <th scope="col">Status</th>
-        <th scope="col">Section</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for obj in object_list  %}
-        <tr>
-          {# <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
-          <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.title_eng}}</a></td>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    {# <th scope="col">Id</th> #}
+                    <th scope="col">Title</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Section</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in object_list %}
+                    <tr>
+                        {# <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
+                        <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{ obj.title_eng }}</a></td>
 
-          {% if obj.status.id == 3 %}
-          <td class="good">
+                        {% if obj.status.id == 3 %}
+                            <td class="good">
 
-          {% elif obj.status.id == 1 %}
-          <td class="bad">
-          {% else %}
-          <td>
+                                {% elif obj.status.id == 1 %}
+                            <td class="bad">
+                                {% else %}
+                            <td>
 
-          {% endif %}
-            {{obj.status}}
-          </td>
-
-
-          <td>{{obj.section.section}}</td>
-
-        
+                        {% endif %}
+                        {{ obj.status }}
+                        </td>
 
 
+                        <td>{{ obj.section.section }}</td>
 
 
+                    </tr>
+                {% endfor %}
+                <br>
+
+                </tbody>
+            </table>
+        {% else %}
+            <em>There are no data resources that have been published to FGP</em>
+        {% endif %}
 
 
-        </tr>
-      {% endfor %}
-      <br>
-
-      </tbody>
-    </table>
-    {% else %}
-    <em>There are no data resources that have been published to FGP</em>
-    {% endif %}
-
-
-  </div>
+    </div>
 
 {% endblock content %}

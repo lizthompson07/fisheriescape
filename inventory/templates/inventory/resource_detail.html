@@ -3,191 +3,220 @@
 {% load verbose_names %}
 
 {% block content %}
-  <style media="screen">
-    body{
-      {% if object.flagged_4_deletion %}
-      background-color: pink;
-      {%elif object.fgp_publication_date %}
-      background-color: lightgreen;
-      {%elif object.flagged_4_publication %}
-      background-color: wheat;
-      {% endif %}
-    }
-  </style>
+    <style media="screen">
+        body {
+        {% if object.flagged_4_deletion %}
+            background-color: pink;
+        {%elif object.fgp_publication_date %}
+            background-color: lightgreen;
+        {%elif object.flagged_4_publication %}
+            background-color: wheat;
+        {% endif %}
+        }
+    </style>
+
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object.truncated_title }}</li>
+        </ol>
+    </nav>
+
+
+    <div class="indent-med">
+
+        <div class="text-center">
+            <h1>{{ object.title_eng }}</h1>
+            <p>
+
+            <div class="btn-group">
+                <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
+                <a class="btn btn-success" href="{% url 'inventory:resource_full_detail' object.id %}">Review Full
+                    Record</a>
+                <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify Record</a>
 
 
 
-<div class="nav-map">
-  <br>
-  <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-  {{object.truncated_title}}
-</div>
-<div class="indent-med">
 
-<div class="text-center">
-  <h1>{{object.title_eng}}</h1>
-  <p>
+                {% if object.flagged_4_deletion %}
+                    <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Unflag for
+                        Deletion</a>
+                {% else %}
+                    <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Flag for
+                        Deletion</a>
+                {% endif %}
 
-    <div class="btn-group">
-      <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
-      <a class="btn btn-success" href="{% url 'inventory:resource_full_detail' object.id %}">Review Full Record</a>
-      <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify Record</a>
-
-
-
-
-      {% if object.flagged_4_deletion %}
-      <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Unflag for Deletion</a>
-      {% else %}
-      <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Flag for Deletion</a>
-      {% endif %}
-
-      {% if object.flagged_4_publication %}
-      <a class="btn btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Unflag for Open Data</a>
-      {% else %}
-      <a class="btn btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Flag for Open Data</a>
-      {% endif %}
+                {% if object.flagged_4_publication %}
+                    <a class="btn btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Unflag for
+                        Open Data</a>
+                {% else %}
+                    <a class="btn btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Flag for
+                        Open Data</a>
+                {% endif %}
 
 
-      <div class="dropdown">
-        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Export XML
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#" onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')">Verify Completedness</a>
-          <a href="#" class="dropdown-item" data-toggle="modal" data-target="#hnap"> HNAP </a>
+                <div class="dropdown">
+                    <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Export XML
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#"
+                           onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')">Verify
+                            Completedness</a>
+                        <a href="#" class="dropdown-item" data-toggle="modal" data-target="#hnap"> HNAP </a>
 
+                    </div>
+                </div>
+            </div>
+
+            {% if user.is_superuser %}
+                <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
+            {% endif %}
         </div>
-      </div>
-    </div>
 
-    {% if user.is_superuser %}
-    <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
-    {% endif %}
-  </div>
-
-  {#<!-- HNAP MODAL -->#}
-            <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        {#<!-- HNAP MODAL -->#}
+        <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
 
-                  <div class="modal-body">
-                      {% if verified %}
-                      <p>
-                        <h1>Are you going to publish this record to FGP?</h1>
-                      </p>
-                      <p>
-                        <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3><br><br>
-                      </p>
+                    <div class="modal-body">
+                        {% if verified %}
+                            <p>
+                            <h1>Are you going to publish this record to FGP?</h1>
+                            </p>
+                            <p>
+                            <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3>
+                            <br><br>
+                            </p>
 
-                    {% else %}
-                      <p>
-                        <h1>Just a heads up: this record did not pass the verification test</h1>
-                      </p>
-                      <p>
-                        <h3>Click <a onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')" href="#">HERE</a> to see what still needs to be addressed.</h3><br><br>
-                      </p>
+                        {% else %}
+                            <p>
+                            <h1>Just a heads up: this record did not pass the verification test</h1>
+                            </p>
+                            <p>
+                            <h3>Click <a
+                                    onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')"
+                                    href="#">HERE</a> to see what still needs to be addressed.</h3><br><br>
+                            </p>
 
-                    {% endif %}
-                  </div>
-                  <div class="modal-footer">
-                      {% if verified %}
-                        <a class="btn btn-lg btn-warning closeBtn" href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
-                        <a class="btn btn-lg btn-primary closeBtn" href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
-                        <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole Thing</button>
-                    {% else %}
-                        <a class="btn btn-lg btn-warning closeBtn" href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
-                          <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind</button>
-                    {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        {% if verified %}
+                            <a class="btn btn-lg btn-warning closeBtn"
+                               href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
+                            <a class="btn btn-lg btn-primary closeBtn"
+                               href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
+                            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole
+                                Thing
+                            </button>
+                        {% else %}
+                            <a class="btn btn-lg btn-warning closeBtn"
+                               href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
+                            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind
+                            </button>
+                        {% endif %}
 
-                  </div>
+                    </div>
                 </div>
-              </div>
+            </div>
+        </div>
+
+
+        </p>
+
+        <br>
+
+        <div class="row ">
+            <div class="col-4">
+                {# Basic details #}
+                <h2>Basic Details</h2>
+                {% include "inventory/_resource_detail_basic.html" %}
             </div>
 
+            <div class="col-4">
+                {# <a href="{% url 'inventory:resource_full_detail' object.id %}"> #}
+                {# <h2>Review Full Record</h2> #}
+                {# </a> #}
+                {# <br> #}
 
-</p>
+                <h2 class="neighbours">People</h2>
+                <a class="btn btn-sm btn-outline-primary neighbours"
+                   href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a>
 
-<br>
+                {% include "inventory/_resource_detail_people.html" %}
+                <br>
 
-  <div class="row ">
-    <div class="col-4">
-      {# Basic details #}
-      <h2>Basic Details</h2>
-      {% include "inventory/_resource_detail_basic.html" %}
-    </div>
+                <h2 class="neighbours">Files</h2>
+                <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:file_create' object.id %}">Add
+                    File</a>
+                {% include "inventory/_resource_detail_files.html" %}
+                <br>
 
-    <div class="col-4">
-        {# <a href="{% url 'inventory:resource_full_detail' object.id %}"> #}
-          {# <h2>Review Full Record</h2> #}
-        {# </a> #}
-        {# <br> #}
+                <h2>Certification History</h2>
+                {% include "inventory/_resource_detail_certification_history.html" %}
+                <br>
 
-        <h2 class="neighbours">People</h2>
-          <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a>
-
-        {% include "inventory/_resource_detail_people.html" %}
-        <br>
-
-        <h2 class="neighbours">Files</h2>
-        <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:file_create' object.id %}">Add File</a>
-        {% include "inventory/_resource_detail_files.html" %}
-        <br>
-
-        <h2>Certification History</h2>
-        {% include "inventory/_resource_detail_certification_history.html" %}
-        <br>
-
-    </div>
-
-    <div class="col-4">
-          <h2 class="neighbours">Keywords etc.</h2>
-          <div class="dropdown neighbours">
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Add Keyword
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" href="{% url 'inventory:resource_topic_category_filter' object.id %}">Topic Category ({{kcount_tc}})</a>
-              <a class="dropdown-item" href="{% url 'inventory:resource_core_subject_filter' object.id %}">Core Subject ({{kcount_cst}})</a>
-              <a class="dropdown-item" href="{% url 'inventory:resource_species_filter' object.id %}">Taxonomic Keyword ({{kcount_tax}})</a>
-              <a class="dropdown-item" href="{% url 'inventory:resource_location_filter' object.id %}">DFO Area ({{kcount_loc}})</a>
-              <a class="dropdown-item" href="{% url 'inventory:resource_keyword_filter' object.id %}">Other Keyword ({{kcount_other}})</a>
             </div>
-          </div>
-          <br>
 
-        {% include "inventory/_resource_detail_keywords.html" %}
+            <div class="col-4">
+                <h2 class="neighbours">Keywords etc.</h2>
+                <div class="dropdown neighbours">
+                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add Keyword
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="{% url 'inventory:resource_topic_category_filter' object.id %}">Topic
+                            Category ({{ kcount_tc }})</a>
+                        <a class="dropdown-item" href="{% url 'inventory:resource_core_subject_filter' object.id %}">Core
+                            Subject ({{ kcount_cst }})</a>
+                        <a class="dropdown-item" href="{% url 'inventory:resource_species_filter' object.id %}">Taxonomic
+                            Keyword ({{ kcount_tax }})</a>
+                        <a class="dropdown-item" href="{% url 'inventory:resource_location_filter' object.id %}">DFO
+                            Area ({{ kcount_loc }})</a>
+                        <a class="dropdown-item" href="{% url 'inventory:resource_keyword_filter' object.id %}">Other
+                            Keyword ({{ kcount_other }})</a>
+                    </div>
+                </div>
+                <br>
 
-        <br><br>
-        <h2 class="neighbours">Citations</h2>
-        <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:resource_citation_filter' object.id %}">Add Citation</a>
-        <br>
+                {% include "inventory/_resource_detail_keywords.html" %}
 
-        {% include "inventory/_resource_detail_citations.html" %}
+                <br><br>
+                <h2 class="neighbours">Citations</h2>
+                <a class="btn btn-sm btn-outline-primary neighbours"
+                   href="{% url 'inventory:resource_citation_filter' object.id %}">Add Citation</a>
+                <br>
 
-        <br><br>
-        <h2>Related Records</h2>
-        {% include "inventory/_resource_detail_related.html" %}
+                {% include "inventory/_resource_detail_citations.html" %}
+
+                <br><br>
+                <h2>Related Records</h2>
+                {% include "inventory/_resource_detail_related.html" %}
 
 
-      </div>
+            </div>
+        </div>
     </div>
-  </div>
 
 
 
 
 
-<script type="text/javascript">
-  $(".collapse-btn").click(function () {
-    if ($(this).text() == "Expand") {
-      $(this).text("Collapse")
-    }
-    else {
-      $(this).text("Expand")
-    }
-  })
-</script>
+    <script type="text/javascript">
+        $(".collapse-btn").click(function () {
+            if ($(this).text() == "Expand") {
+                $(this).text("Collapse")
+            }
+            else {
+                $(this).text("Expand")
+            }
+        })
+    </script>
 
 
 

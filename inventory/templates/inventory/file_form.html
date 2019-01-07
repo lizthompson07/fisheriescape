@@ -3,55 +3,56 @@
 
 
 {% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_detail' object.resource.id %}">{{ object.resource.truncated_title }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit File</li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Add a File...</li>
+            {% endif %}
+        </ol>
+    </nav>
 
-<div class="nav-map">
-  <br>
-  {% if object.id %}
-  <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-  <a href="{% url 'inventory:resource_detail' object.resource.id %}">{{object.resource.truncated_title}}</a> >
-  Edit File
-  {% else %}
-  <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-  <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-  Add a File...
-  {% endif %}
+    <br><br>
 
-</div>
-<br><br>
+    <div class="container">
+        {% if object.id %}
+            <h1>{{ object.caption }}</h1>
+        {% else %}
+            <h1>New File</h1>
+        {% endif %}
 
-  <div class="container">
-    {% if object.id %}
-    <h1>{{object.caption}}</h1>
-    {% else %}
-    <h1>New File</h1>
-    {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="btn-group">
 
-      <form  method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="btn-group">
+                {% if editable %}
+                    <input type="submit" class="btn btn-primary" value="Submit">
+                {% else %}
+                    <a href="{% url "inventory:file_edit" object.id %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url "inventory:file_delete" object.id %}" class="btn btn-danger">Delete</a>
 
-          {% if editable %}
-          <input type="submit" class="btn btn-primary" value="Submit">
-          {% else %}
-          <a href="{% url "inventory:file_edit" object.id %}" class="btn btn-warning">Edit</a>
-          <a href="{% url "inventory:file_delete" object.id %}" class="btn btn-danger">Delete</a>
+                {% endif %}
+                {% if object.id %}
+                    <a href="{% url "inventory:resource_detail" object.resource.id %}"
+                       class="btn btn-secondary">Back</a>
+                {% else %}
+                    <a href="{% url "inventory:resource_detail" view.kwargs.resource %}"
+                       class="btn btn-secondary">Back</a>
+                {% endif %}
+            </div>
+            <br><br>
 
-          {% endif %}
-          {% if object.id %}
-          <a href="{% url "inventory:resource_detail" object.resource.id %}" class="btn btn-secondary">Back</a>
-          {% else %}
-          <a href="{% url "inventory:resource_detail" view.kwargs.resource %}" class="btn btn-secondary">Back</a>
-          {% endif %}
-        </div>
-        <br><br>
+            <fieldset {% if not editable %}disabled   {% endif %}>
+                {% bootstrap_form form %}
+            </fieldset>
 
-        <fieldset {% if not editable %}disabled   {% endif %}>
-        {%bootstrap_form form%}
-        </fieldset>
+        </form>
+        <br>
 
-      </form>
-    <br>
-
-  </div>
+    </div>
 
 {% endblock content %}
