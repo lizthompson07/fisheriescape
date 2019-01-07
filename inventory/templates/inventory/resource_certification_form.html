@@ -1,76 +1,78 @@
 {% extends "inventory/inventory_base.html" %}
 {% load bootstrap4 %}
 {% block content %}
-{% load verbose_names %}
+    {% load verbose_names %}
 
-<div class="nav-map">
-<br>
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-    <a href="{% url 'inventory:resource_detail' resource.id %}">{{resource.truncated_title}}</a> >
-    Certify
-  </p>
-</div>
-<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Certify</li>
+        </ol>
+    </nav>
 
-{% load static %}
-{# Load js file to allow for popout window #}
-<br>
-  <h1>Record Certification</h1><br>
-  <h2>Do you wish to certify the following record? </h2>
-  <br>
+    <div class="container">
 
-  <p><b>
-    {%get_verbose_field_name resource "title_eng"%}:
-  </b>  {{resource.title_eng}}
-  </p>
+        {% load static %}
+        {# Load js file to allow for popout window #}
+        <br>
+        <h1>Record Certification</h1><br>
+        <h2>Do you wish to certify the following record? </h2>
+        <br>
 
-  <p><b>
-    {%get_verbose_field_name resource "resource_type"%}:
-  </b>  {{resource.resource_type}}
-  </p>
+        <p><b>
+            {% get_verbose_field_name resource "title_eng" %}:
+        </b> {{ resource.title_eng }}
+        </p>
 
-  <p><b>
-    {%get_verbose_field_name resource "section"%}:
-  </b>  {{resource.section}} ({{resource.section.division}})
-  </p>
+        <p><b>
+            {% get_verbose_field_name resource "resource_type" %}:
+        </b> {{ resource.resource_type }}
+        </p>
 
-  <p><b>
-    {%get_verbose_field_name resource "status"%}:
-  </b>  {{resource.status}}
-  </p>
+        <p><b>
+            {% get_verbose_field_name resource "section" %}:
+        </b> {{ resource.section }} ({{ resource.section.division }})
+        </p>
 
-  <p><b>
-    Time period (dd/mm/yy):
-  </b>
-  From: {{resource.time_start_day|default_if_none:"--"}}/{{resource.time_start_month|default_if_none:"--"}}/{{resource.time_start_year|default_if_none:"--"}}  &nbsp;&nbsp; To:
-  {{resource.time_end_day|default_if_none:"--"}}/{{resource.time_end_month|default_if_none:"--"}}/{{resource.time_end_year|default_if_none:"--"}}
-  </p>
+        <p><b>
+            {% get_verbose_field_name resource "status" %}:
+        </b> {{ resource.status }}
+        </p>
 
-  <p><b>
-    Last certified:
-  </b>
-  {{resource.certification_history.last.certification_date|date:"F d, Y"}}
-  </p>
+        <p><b>
+            Time period (dd/mm/yy):
+        </b>
+            From: {{ resource.time_start_day|default_if_none:"--" }}/{{ resource.time_start_month|default_if_none:"--" }}/{{ resource.time_start_year|default_if_none:"--" }}
+            &nbsp;&nbsp; To:
+            {{ resource.time_end_day|default_if_none:"--" }}/{{ resource.time_end_month|default_if_none:"--" }}/{{ resource.time_end_year|default_if_none:"--" }}
+        </p>
 
-<br>
+        <p><b>
+            Last certified:
+        </b>
+            {{ resource.certification_history.last.certification_date|date:"F d, Y" }}
+        </p>
 
-<h2>By clicking yes, you are confirming that all the information in the above record is accurate and up-to-date.</h2><br>
+        <br>
 
-
-<form  method="post">
-  {% for field in form  %}
-    {% csrf_token %}
-    {% bootstrap_field field show_label=False %}
-
-  {% endfor %}
-
-  <input class="btn btn-lg btn-primary" type="submit" value="Yes!">
-  <a href="{% url 'inventory:resource_detail' resource.id %}" class="btn btn-lg btn-secondary">No, Forget It</a>
-</form>
+        <h2>By clicking yes, you are confirming that all the information in the above record is accurate and
+            up-to-date.</h2><br>
 
 
+        <form method="post">
+            {% for field in form %}
+                {% csrf_token %}
+                {% bootstrap_field field show_label=False %}
 
-</div>
+            {% endfor %}
+
+            <input class="btn btn-lg btn-primary" type="submit" value="Yes!">
+            <a href="{% url 'inventory:resource_detail' resource.id %}" class="btn btn-lg btn-secondary">No, Forget
+                It</a>
+        </form>
+
+
+    </div>
 
 {% endblock content %}

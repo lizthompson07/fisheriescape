@@ -3,43 +3,44 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div class="nav-map">
-<br>
-  <p>
-    <a href="{% url 'inventory:resource_list' %}">All Resources</a> >
-    <a href="{% url 'inventory:resource_detail' object.id %}">{{object.truncated_title}}</a> >
-    Delete
-  </p>
 
-</div>
-<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'inventory:resource_detail' object.id %}">{{ object.truncated_title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Delete</li>
+        </ol>
+    </nav>
 
-{% load static %}
-{# Load js file to allow for popout window #}
-<h1>Are you sure you want to delete data resource {{object}}?</h1>
-  <p>(This action is permanent.)</p>
-  <br>
-    <p><b>
-      Status:
-    </b><br>
-    {{object.status}}
-    </p>
+    <div class="container">
 
-    <p><b>
-      Title:
-    </b><br>
-    {{object.title_eng}}
-    </p>
+        {% load static %}
+        {# Load js file to allow for popout window #}
+        <h1>Are you sure you want to delete data resource {{ object }}?</h1>
+        <p>(This action is permanent.)</p>
+        <br>
+        <p><b>
+            Status:
+        </b><br>
+            {{ object.status }}
+        </p>
+
+        <p><b>
+            Title:
+        </b><br>
+            {{ object.title_eng }}
+        </p>
 
 
-<form method="post" class="form">
-    {% csrf_token %}
+        <form method="post" class="form">
+            {% csrf_token %}
 
-    <p>
-      <button type="submit" class="btn btn-lg btn-danger">Delete</button>
-      <a class="btn btn-lg btn-secondary" href="{% url 'inventory:resource_detail' object.id %}">Cancel</a>
-    </p>
-</form>
-</div>
+            <p>
+                <button type="submit" class="btn btn-lg btn-danger">Delete</button>
+                <a class="btn btn-lg btn-secondary" href="{% url 'inventory:resource_detail' object.id %}">Cancel</a>
+            </p>
+        </form>
+    </div>
 
 {% endblock content %}
