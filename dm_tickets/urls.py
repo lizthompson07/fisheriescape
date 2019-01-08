@@ -22,8 +22,6 @@ urlpatterns = [
     #########
     path('<int:ticket>/send-resolved-notification/', views.send_resolved_email, name ="send_resolved_email" ),
 
-
-
     # Tags #
     ########
     path('tag/<pk>/view/', views.TagDetailView.as_view() , name="tag_detail"),
@@ -56,6 +54,11 @@ urlpatterns = [
     # path('request_type/<pk>/edit/', views.RequestTypeUpdateView.as_view() , name="request_type_edit"),
     # path('request_type/new/', views.RequestTypeCreateView.as_view() , name="request_type_create"),
 
+    # Reports #
+    ###########
+    path('reports/finance/', views.FinanceReportListView.as_view(), name="finance_report"),
+    path('reports/finance-spreadsheet/', views.finance_spreadsheet, name="finance_spreadsheet"),
 
+    # path('reports/<str:species_list>/species-count/', views.report_species_count, name="species_report"),
 
 ]
