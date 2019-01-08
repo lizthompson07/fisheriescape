@@ -3,11 +3,11 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
-from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView
+from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView, ListView
 from django_filters.views import FilterView
 
 from shutil import copyfile
@@ -17,6 +17,7 @@ import os
 from . import models
 from . import forms
 from . import filters
+from . import reports
 from . import emails
 
 
@@ -372,8 +373,6 @@ class PersonCreateView(CreateView):
             return HttpResponseRedirect(reverse_lazy('tickets:add_person', kwargs={'ticket':ticket, 'person':self.object.id}))
 
 
-
-
 class PersonListView(FilterView):
     filterset_class = filters.PersonFilter
     template_name = "dm_tickets/person_insert_list.html"
@@ -390,3 +389,24 @@ def add_person_to_ticket(request, ticket, person):
     return HttpResponseRedirect(reverse('tickets:person_insert', kwargs={'ticket':ticket}))
 
 
+# REPORTS #
+###########
+
+class FinanceReportListView(ListView):
+    template_name = "dm_tickets/finance_report.html"
+    queryset = models.Ticket.objects.filter(financial_follow_up_needed=True).filter(sd_ref_number__isnull=False).order_by("-date_opened")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["now"]= timezone.now()
+        return context
+
+def finance_spreadsheet(request):
+    file_url = reports.generate_finance_spreadsheet()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="data management report for finance.xlsx"'
+            return response
+    raise Http404

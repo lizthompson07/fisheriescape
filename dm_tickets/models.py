@@ -38,6 +38,7 @@ class Section(models.Model):
 
 class RequestType(models.Model):
     request_type = models.CharField(max_length=255)
+    financial_follow_up_needed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.request_type
@@ -108,7 +109,8 @@ class Ticket(models.Model):
     sd_primary_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sd_tickets_persons", null=True, blank=True, verbose_name="Service desk primary contact")
     sd_description = models.TextField(null=True, blank=True, verbose_name="Service desk ticket description")
     sd_date_logged = models.DateTimeField(null=True, blank=True, verbose_name="Service desk date logged")
-
+    financial_follow_up_needed = models.BooleanField(default=False)
+    estimated_cost = models.FloatField(blank=True, null=True)
 
     def save(self,*args,**kwargs):
         if self.notes:
