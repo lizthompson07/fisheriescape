@@ -21,7 +21,7 @@ def generate_finance_spreadsheet():
     worksheet1 = workbook.add_worksheet(name="DM Tickets")
 
     header_format = workbook.add_format(
-        {'bold': True, 'bg_color': '#8C96A0', "align": 'center'})
+        {'bold': True, 'bg_color': '#8C96A0'})
 
     header_eng = [
         "Fiscal Year",
