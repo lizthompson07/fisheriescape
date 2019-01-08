@@ -37,8 +37,7 @@ class Province(models.Model):
 
 class Station(models.Model):
     station_name = models.CharField(max_length=255, blank=True, null=True)
-    province = models.ForeignKey('Province', on_delete=models.DO_NOTHING, related_name='stations', blank=True,
-                                 null=True)
+    province = models.ForeignKey('Province', on_delete=models.DO_NOTHING, related_name='stations')
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
     depth = models.FloatField(blank=True, null=True)
@@ -46,13 +45,13 @@ class Station(models.Model):
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.station_name)
+        return "{}, {}".format(self.station_name, self.province.abbrev)
 
     def get_absolute_url(self):
         return reverse('grais:station_detail', kwargs={'pk': self.id})
 
     class Meta:
-        ordering = ['province', 'station_name']
+        ordering = ['station_name']
 
 
 class Species(models.Model):
@@ -103,6 +102,9 @@ class Sample(models.Model):
     season = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        ordering = ['-date_deployed']
 
     def save(self, *args, **kwargs):
         self.season = self.date_deployed.year
