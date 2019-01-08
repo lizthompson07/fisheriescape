@@ -62,3 +62,4 @@ WeasyPrint==43
 webencodings==0.5.1
 xhtml2pdf==0.2.3
 xlsxwriter==1.1.2
+unicodecsv==0.14.1

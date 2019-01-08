@@ -85,11 +85,11 @@ class LineCreateForm(forms.ModelForm):
 
     class Meta:
         model = models.Line
-        fields = "__all__"
+        exclude = ["species",]
         labels={
             'collector':"DFO collector tag #",
-            'latitude_n':"Latitude (N)",
-            'longitude_w':"Longitude (W)",
+            'latitude_n':"Latitude (N) e.g., 46.0123",
+            'longitude_w':"Longitude (W) e.g., -64.0789",
         }
         widgets = {
             'latitude_n':forms.NumberInput(attrs={'placeholder':'decimal degrees'}),
