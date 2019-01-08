@@ -117,11 +117,12 @@ class Ticket(models.Model):
             self.notes_html = markdown.markdown(self.notes)
 
         self.date_modified = timezone.now()
-        if self.date_closed:
-            self.status = '2'
+
+        # if status is resolved or canceled, add a date closed timestamp
+        if self.status is '2' or self.status is '7':
+            self.date_closed = timezone.now()
         else:
-            if self.status == None:
-                self.status = '5'
+            self.date_closed = None
 
         super().save(*args,**kwargs)
 
