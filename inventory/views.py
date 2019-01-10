@@ -1238,3 +1238,96 @@ class FileDeleteView(DeleteView):
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
+
+
+
+# DATA RESOURCE #
+#################
+
+class DataResourceCreateView(CreateView):
+    template_name = "inventory/data_resource_form.html"
+    model = models.DataResource
+    form_class = forms.DataResourceForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
+        context["resource"] = resource
+        return context
+
+    def get_initial(self):
+        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
+        return {'resource': resource}
+
+
+class DataResourceUpdateView(UpdateView):
+    template_name = "inventory/data_resource_form.html"
+    model = models.DataResource
+    form_class = forms.DataResourceForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class DataResourceDeleteView(DeleteView):
+    template_name = "inventory/data_resource_confirm_delete.html"
+    model = models.DataResource
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
+
+
+# WEB SERVICES #
+################
+
+class WebServiceCreateView(CreateView):
+    template_name = "inventory/data_resource_form.html"
+    model = models.WebService
+    form_class = forms.WebServiceForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
+        context["resource"] = resource
+        return context
+
+    def get_initial(self):
+        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
+        return {'resource': resource}
+
+
+class WebServiceUpdateView(UpdateView):
+    template_name = "inventory/data_resource_form.html"
+    model = models.WebService
+    form_class = forms.WebServiceForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class WebServiceDeleteView(DeleteView):
+    template_name = "inventory/data_resource_confirm_delete.html"
+    model = models.WebService
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})

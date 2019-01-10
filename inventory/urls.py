@@ -112,4 +112,17 @@ urlpatterns = [
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 
+    # DATA RESOURCE #
+    #################
+    path('resource/<int:resource>/data-resource/new/', views.DataResourceCreateView.as_view(), name='data_resource_create'),
+    path('data-resource/<int:pk>/edit/', views.DataResourceUpdateView.as_view(), name='data_resource_edit'),
+    path('data-resource/<int:pk>/delete/', views.DataResourceDeleteView.as_view(), name='data_resource_delete'),
+
+    # WEB SERVICES #
+    #################
+    path('resource/<int:resource>/web-service/new/', views.WebServiceCreateView.as_view(),
+         name='web_service_create'),
+    path('web-service/<int:pk>/edit/', views.WebServiceUpdateView.as_view(), name='web_service_edit'),
+    path('web-service/<int:pk>/delete/', views.WebServiceDeleteView.as_view(), name='web_service_delete'),
+
 ]
