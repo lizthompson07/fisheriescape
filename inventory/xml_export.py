@@ -843,6 +843,33 @@ def construct(my_resource):
         if person.role.id == 4:
             distributorContact.append(ci_responsible_party(person))
 
+    # for each data resource
+    for data_resource in my_resource.data_resources.all():
+        transferOptions = SubElement(MD_Distribution, 'gmd:transferOptions')
+        MD_DigitalTransferOptions = SubElement(transferOptions, 'gmd:MD_DigitalTransferOptions')
+        onLine = SubElement(MD_DigitalTransferOptions, 'gmd:onLine')
+        CI_OnlineResource = SubElement(onLine, 'gmd:CI_OnlineResource')
+        linkage = SubElement(CI_OnlineResource, 'gmd:linkage')
+        URL = SubElement(linkage, 'gmd:URL').text = data_resource.url
+        charstring(CI_OnlineResource, 'gmd:protocol', data_resource.protocol)
+        charstring(CI_OnlineResource, 'gmd:name', data_resource.name_eng, data_resource.name_fre)
+        charstring(CI_OnlineResource, 'gmd:description', data_resource.content_type.english_value, data_resource.content_type.french_value)
+
+    # for each web service
+    for web_service in my_resource.web_services.all():
+        transferOptions = SubElement(MD_Distribution, 'gmd:transferOptions')
+        MD_DigitalTransferOptions = SubElement(transferOptions, 'gmd:MD_DigitalTransferOptions')
+        onLine = SubElement(MD_DigitalTransferOptions, 'gmd:onLine', attrib={
+            'xlink:role': web_service.service_language,
+            })
+        CI_OnlineResource = SubElement(onLine, 'gmd:CI_OnlineResource')
+        linkage = SubElement(CI_OnlineResource, 'gmd:linkage')
+        URL = SubElement(linkage, 'gmd:URL').text = web_service.url
+        charstring(CI_OnlineResource, 'gmd:protocol', web_service.protocol)
+        charstring(CI_OnlineResource, 'gmd:name', web_service.name_eng, web_service.name_fre)
+        charstring(CI_OnlineResource, 'gmd:description', web_service.content_type.english_value,
+                   web_service.content_type.french_value)
+
     my_xml = prettify(root)
     # my_xml = ""
 

@@ -150,15 +150,26 @@
                 {% include "inventory/_resource_detail_people.html" %}
                 <br>
 
-                <h2 class="neighbours">Files</h2>
+                <h2 class="neighbours">Storage Files</h2>
                 <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:file_create' object.id %}">Add
                     File</a>
                 {% include "inventory/_resource_detail_files.html" %}
                 <br>
 
-                <h2>Certification History</h2>
-                {% include "inventory/_resource_detail_certification_history.html" %}
+                <h2 class="neighbours">Data Resources</h2>
+                <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:data_resource_create' object.id %}">Add
+                    Data Resource</a>
+                {% include "inventory/_resource_detail_data_resources.html" %}
                 <br>
+
+                <h2 class="neighbours">Web Services</h2>
+                <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:web_service_create' object.id %}">Add
+                    Web Service</a>
+                {% include "inventory/_resource_detail_web_services.html" %}
+                <br>
+
+
+
 
             </div>
 
@@ -198,6 +209,10 @@
                 <h2>Related Records</h2>
                 {% include "inventory/_resource_detail_related.html" %}
 
+                <br><br>
+                <h2>Certification History</h2>
+                {% include "inventory/_resource_detail_certification_history.html" %}
+                <br>
 
             </div>
         </div>

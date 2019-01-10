@@ -169,6 +169,24 @@ class FileForm(forms.ModelForm):
             # 'end_date':forms.DateInput(attrs={'type': 'date'}),
         }
 
+class DataResourceForm(forms.ModelForm):
+    class Meta:
+        model = models.DataResource
+        fields = "__all__"
+        widgets = {
+            'resource':forms.HiddenInput(),
+        }
+
+class WebServiceForm(forms.ModelForm):
+    class Meta:
+        model = models.WebService
+        fields = "__all__"
+        widgets = {
+            'resource':forms.HiddenInput(),
+        }
+
+
+
 class ResourceFlagging(forms.ModelForm):
     class Meta:
         model = models.Resource

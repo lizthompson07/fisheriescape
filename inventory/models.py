@@ -401,6 +401,56 @@ class Resource(models.Model):
         super().save(*args, **kwargs)
 
 
+class ContentType(models.Model):
+    title = models.CharField(max_length=255, verbose_name="Name (English)")
+    english_value = models.CharField(max_length=255, verbose_name="Name (French)")
+    french_value = models.CharField(max_length=255)
+
+    def __str__(self):
+        return "{}".format(self.title)
+
+
+class DataResource(models.Model):
+    # choices for protocol
+    HTTP = "HTTP"
+    HTTPS = "HTTPS"
+    FTP = "FTP"
+    PROTOCOL_CHOICES = [
+        (HTTP, HTTP),
+        (HTTPS, HTTPS),
+        (FTP, FTP),
+    ]
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="data_resources")
+    url = models.URLField()
+    name_eng = models.CharField(max_length=255, verbose_name="Name (English)")
+    name_fre = models.CharField(max_length=255, verbose_name="Name (French)")
+    protocol = models.CharField(max_length=255, choices=PROTOCOL_CHOICES )
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{}".format(self.name_eng)
+
+
+class WebService(models.Model):
+    # choices for service_language
+    ENG = "urn:xml:lang:eng-CAN"
+    FRA = "urn:xml:lang:fra-CAN"
+    SERVICE_LANGUAGE_CHOICES = [
+        (ENG, "English"),
+        (FRA, "French"),
+    ]
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="web_services")
+    protocol = models.CharField(max_length=255, default="ESRI REST: Map Service")
+    service_language = models.CharField(max_length=255, choices=SERVICE_LANGUAGE_CHOICES)
+    url = models.URLField()
+    name_eng = models.CharField(max_length=255, verbose_name="Name (English)")
+    name_fre = models.CharField(max_length=255, verbose_name="Name (French)")
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{}".format(self.name_eng)
+
+
 class ResourcePerson(models.Model):
     resource = models.ForeignKey(Resource, on_delete=models.DO_NOTHING, related_name="resource_people")
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="resource_people")
