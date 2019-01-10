@@ -41,12 +41,6 @@ def generate_finance_spreadsheet():
     worksheet1.write_row(0, 0, header_eng, header_format)
     i = 1
     for ticket in tickets:
-        if ticket.date_opened.month >= 4:
-            fiscal_year = "{}-{}".format(ticket.date_opened.year - 1, ticket.date_opened.year)
-        elif timezone.now().year > ticket.date_opened.year:
-            fiscal_year = "{}-{}".format(ticket.date_opened.year - 2, ticket.date_opened.year - 1)
-        else:
-            fiscal_year = "{}-{}".format(ticket.date_opened.year, ticket.date_opened.year + 1)
 
         if ticket.date_opened:
             date_opened = ticket.date_opened.strftime('%Y-%m-%d')
@@ -59,7 +53,7 @@ def generate_finance_spreadsheet():
             date_closed = None
 
         row_data = [
-            fiscal_year,
+            ticket.fiscal_year,
             ticket.id,
             ticket.sd_ref_number,
             ticket.section.section_name,
