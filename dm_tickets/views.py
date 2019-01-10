@@ -392,7 +392,8 @@ def add_person_to_ticket(request, ticket, person):
 # REPORTS #
 ###########
 
-class FinanceReportListView(ListView):
+class FinanceReportListView(FilterView):
+    filterset_class = filters.FiscalFilter
     template_name = "dm_tickets/finance_report.html"
     queryset = models.Ticket.objects.filter(financial_follow_up_needed=True).filter(sd_ref_number__isnull=False).order_by("-date_opened")
 

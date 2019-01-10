@@ -2,11 +2,8 @@ from .import models
 
 
 def resave_all_tickets(tickets = models.Ticket.objects.all()):
-
     for t in tickets:
-        if t.notes:
-            my_ticket = models.Ticket.objects.get(id=t.id)
-            my_ticket.save()
+       t.save()
 
 def resave_all_tickets2(tickets = models.Ticket.objects.all()):
 

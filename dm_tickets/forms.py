@@ -2,19 +2,19 @@ from django import forms
 from django.core import validators
 from . import models
 
+
 class TagForm(forms.ModelForm):
     class Meta:
         model = models.Tag
         fields = ("__all__")
-        labels={
-            'tag':"Tag Name",
+        labels = {
+            'tag': "Tag Name",
         }
-
 
 
 class TicketForm(forms.ModelForm):
     primary_contact_email = forms.EmailField()
-    generic_file_to_load = forms.CharField(required = False, widget = forms.HiddenInput())
+    generic_file_to_load = forms.CharField(required=False, widget=forms.HiddenInput())
 
     field_order = [
         'title',
@@ -30,14 +30,13 @@ class TicketForm(forms.ModelForm):
 
     class Meta:
         model = models.Ticket
-        exclude = ['notes_html','people','tags', "resolved_email_date", 'notes',"date_opened","date_modified","date_closed",]
+        exclude = ['notes_html', 'people', 'tags', "resolved_email_date", 'notes', "date_opened", "date_modified",
+                   "date_closed", "fiscal_year"]
         widgets = {
-            'date_closed':forms.DateInput(attrs={'type': 'date'}),
+            'date_closed': forms.DateInput(attrs={'type': 'date'}),
             'sd_date_logged': forms.DateInput(attrs={'type': 'date'}),
-            'description':forms.Textarea(attrs={'rows': '5'}),
+            'description': forms.Textarea(attrs={'rows': '5'}),
         }
-
-
 
 
 class TicketNoteForm(forms.ModelForm):
@@ -45,7 +44,7 @@ class TicketNoteForm(forms.ModelForm):
         model = models.Ticket
         fields = ("notes", "date_modified")
         widgets = {
-            'date_modified':forms.HiddenInput(),
+            'date_modified': forms.HiddenInput(),
         }
 
 
@@ -54,21 +53,21 @@ class FileForm(forms.ModelForm):
         model = models.File
         fields = "__all__"
         widgets = {
-            'ticket':forms.HiddenInput(),
+            'ticket': forms.HiddenInput(),
         }
 
 
 class FilterForm(forms.Form):
-    SECTION_CHOICES=[]
+    SECTION_CHOICES = []
 
     for section in models.Section.objects.all():
-        SECTION_CHOICES.append(tuple((section.id,section.section_name)))
+        SECTION_CHOICES.append(tuple((section.id, section.section_name)))
 
-    initial = tuple(('----','----'))
+    initial = tuple(('----', '----'))
 
-    SECTION_CHOICES.insert(0,initial)
+    SECTION_CHOICES.insert(0, initial)
     status_choices = list(models.Ticket.STATUS_CHOICES)
-    status_choices.insert(0,initial)
+    status_choices.insert(0, initial)
 
     section = forms.ChoiceField(choices=SECTION_CHOICES, initial=initial)
     ticket_status = forms.ChoiceField(choices=status_choices, initial=initial)
