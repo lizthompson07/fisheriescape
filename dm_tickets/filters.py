@@ -1,4 +1,6 @@
 import django_filters
+from django.utils import timezone
+
 from . import models
 
 
@@ -31,3 +33,8 @@ class TagFilter(django_filters.FilterSet):
         fields = {
             'tag': ['icontains'],
         }
+
+
+class FiscalFilter(django_filters.FilterSet):
+    FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in range(timezone.now().year-2, timezone.now().year+1)]
+    fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=FY_CHOICES)
