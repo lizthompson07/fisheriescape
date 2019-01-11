@@ -12,7 +12,9 @@
         {% for item in object.data_resources.all %}
 
             <li>
-                {{ item.name_eng }}
+                <a href="{{ item.url }}" target="_blank">
+                    {{ item.content_type }}
+                </a>
                 <a href="{% url 'inventory:data_resource_edit' item.id %}">
                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
                          title="Edit">
