@@ -7,16 +7,6 @@
 {% load static %}
 
 {% block content %}
-    {# <div class="nav-map"> #}
-    {# <br> #}
-    {# <p> #}
-    {# <a href="{% url 'herring:sample_list' %}">All Samples</a> > #}
-    {# <a id="home" href="{% url 'herring:port_sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> > #}
-    {# Fish {{object.id}} #}
-    {# </p> #}
-    {# </div> #}
-
-    {# <embed src="{% static "/sounds/success.wav" %}" autostart="false" width="0" height="0" id="sound1" enablejavascript="true"> #}
 
     <style media="screen">
         .indent-med {
@@ -31,7 +21,8 @@
     <div class="indent-med">
 
         <h1>
-            Fish #{{ object.fish_number }}
+            Fish #{{ object.fish_number }}<br> {% if object.sample.sample_date.month > 7 %} <span class="red-font" style="font-weight: bolder; font-size: 50px">FALL FISH</span> {% else %} <span class="green-font">SPRING FISH</span> {% endif %}
+
         </h1>
 
         <br>
