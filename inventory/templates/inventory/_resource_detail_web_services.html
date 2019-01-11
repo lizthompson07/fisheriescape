@@ -12,7 +12,9 @@
         {% for item in object.web_services.all %}
 
             <li>
-                {{ item.name_eng }}
+                <a href="{{ item.url }}" target="_blank">
+                    {{ item.content_type }} ({{ item.get_service_language_display }})
+                </a>
                 <a href="{% url 'inventory:web_service_edit' item.id %}">
                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
                          title="Edit">
