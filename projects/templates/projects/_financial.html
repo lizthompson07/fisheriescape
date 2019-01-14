@@ -16,13 +16,13 @@
         <th>Total Cost</th>
     </tr>
     <tbody>
-    {% for obj in object.staff_members.all %}
         <tr>
             <td>Salary</td>
-
+            <td>${{ salary_total|floatformat:2 }}</td>
         </tr>
         <tr>
             <td>O & M</td>
+            <td>${{ om_total|floatformat:2 }}</td>
 
         </tr>
 
@@ -31,7 +31,6 @@
 
         </tr>
 
-    {% endfor %}
 
     </tbody>
 </table>

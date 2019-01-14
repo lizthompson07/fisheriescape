@@ -15,6 +15,9 @@
     <div class="container">
         <h1>{{ user.first_name }}'s Project List:</h1>
 
+        <h3>You are currently being planned for {{ weeks_total }} week{{ weeks_total|pluralize }}</h3>
+        <br>
+
         <a href="{% url 'projects:project_new'  %}" class="btn btn btn-primary float-right">New Project</a>
         <br> <br>
          <table class="table table-hover table-sm">
@@ -23,6 +26,7 @@
             <th scope="col">Status</th>
             <th scope="col">Section</th>
             <th scope="col">Role</th>
+            <th scope="col">No. weeks</th>
             <th scope="col">Submitted</th>
             </tr>
             </thead>
@@ -38,7 +42,8 @@
                     <td>{{ obj.project.division }}</td>
                     <td>{{ obj.project.section }}</td>
                     <td>{{ obj.employee_type }}</td>
-                    
+                    <td>{{ obj.duration_weeks }}</td>
+
                     {% if obj.project.submitted %}
                         <td class="good">
                         {% else %}
