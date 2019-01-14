@@ -15,6 +15,8 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 ###
 from accounts import models as accounts_models
 from collections import OrderedDict
+
+from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
@@ -35,6 +37,18 @@ class MyProjectListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return models.Staff.objects.filter(user=self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        projects = models.Staff.objects.filter(user=self.request.user)
+
+        weeks_total = 0
+        for obj in projects:
+            weeks_total += nz(obj.duration_weeks, 0)
+
+        context["weeks_total"] = weeks_total
+
+        return context
+
 class ProjectListView(LoginRequiredMixin, ListView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
@@ -47,6 +61,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        project = self.object
         context["field_list"] = [
             'project_title',
             'division',
@@ -75,6 +90,18 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             'date_last_modified',
             'last_modified_by',
         ]
+
+        salary_total = 0
+        om_total = 0
+        for staff in project.staff_members.all():
+            if staff.employee_type.cost_type is 1:
+                salary_total += nz(staff.cost, 0)
+            elif staff.employee_type.cost_type is 2:
+                om_total += nz(staff.cost, 0)
+
+        context["salary_total"] = salary_total
+        context["om_total"] = om_total
+
         return context
 
 
@@ -149,7 +176,6 @@ def staff_delete(request, pk):
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
-
 # COLLABORATOR #
 ################
 
@@ -157,7 +183,7 @@ class CollaboratorCreateView(LoginRequiredMixin, CreateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
     login_url = '/accounts/login_required/'
-    form_class = forms.StaffForm
+    form_class = forms.CollaboratorForm
 
     def get_initial(self):
         project = models.Project.objects.get(pk=self.kwargs['project'])
@@ -179,7 +205,7 @@ class CollaboratorCreateView(LoginRequiredMixin, CreateView):
 class CollaboratorUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
-    form_class = forms.StaffForm
+    form_class = forms.CollaboratorForm
 
     def form_valid(self, form):
         object = form.save()
@@ -191,8 +217,6 @@ def collaborator_delete(request, pk):
     object.delete()
     messages.success(request, "The collaborator has been successfully deleted from {}.".format(object.project))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
-
-
 
 # class MyResourceListView(LoginRequiredMixin, TemplateView):
 #     login_url = '/accounts/login_required/'
