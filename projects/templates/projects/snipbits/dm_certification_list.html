@@ -1,0 +1,47 @@
+{% extends "inventory/inventory_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load bootstrap4 %}
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">50 Most recent certifications</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <p>
+        <h1>
+            50 Most Recent Certifications
+        </h1>
+        </p>
+
+        <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+                {# <th scope="col">Id</th> #}
+                <th scope="col">Date</th>
+                <th scope="col">User</th>
+                <th scope="col">Resource</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in object_list %}
+                <tr>
+                    <td>{{ obj.certification_date }}</td>
+                    <td>{{ obj.certifying_user.first_name }} {{ obj.certifying_user.last_name }}</td>
+                    <td><a href="{% url 'inventory:resource_detail' obj.resource.id %}">{{ obj.resource.title_eng }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            <br>
+
+            </tbody>
+        </table>
+    </div>
+
+{% endblock content %}

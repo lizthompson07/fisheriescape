@@ -1,0 +1,47 @@
+{% extends "projects/projects_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load timedelta %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">My Projects</li>
+            {#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
+        </ol>
+    </nav>
+
+    <div class="container">
+        <h1>{{ user.first_name }}'s Project List:</h1>
+
+        <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">New Project</a>
+        <br> <br>
+        <table class="table table-hover table-sm">
+            <thead>
+            <th scope="col">Title</th>
+            <th scope="col">Status</th>
+            <th scope="col">Section</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for obj in object_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'projects:project_detail' obj.id %}">
+                            {{ obj.project_title }}
+                        </a>
+                    </td>
+                    <td>{{ obj.division }}</td>
+                    <td>{{ obj.section }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <b>
+            TOTAL: {{ object_list.count }}
+        </b>
+    </div>
+
+{% endblock content %}

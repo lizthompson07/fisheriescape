@@ -1,0 +1,37 @@
+{% load static %}
+
+<style>
+    table, td {
+        font-size: small;
+    }
+</style>
+
+<div class="">
+    <h3>Financial Summary:</h3>
+</div>
+
+<table class="table table-bordered table-sm">
+    <tr>
+        <th>Category</th>
+        <th>Total Cost</th>
+    </tr>
+    <tbody>
+    {% for obj in object.staff_members.all %}
+        <tr>
+            <td>Salary</td>
+
+        </tr>
+        <tr>
+            <td>O & M</td>
+
+        </tr>
+
+        <tr>
+            <td>G & C</td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+</table>
