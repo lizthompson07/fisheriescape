@@ -6,12 +6,12 @@
     }
 </style>
 
-<div class="">
+<div class="neighbours">
     <h3>Project staff:</h3>
-    <a class="btn btn-success" href="#"
-       onclick="return popitup('{% url 'projects:staff_new' object.id %}','popoutWindow')">Add Staff</a>
-    <br><br>
-
+</div>
+<div class="neighbours">
+   <a class="btn btn-sm btn-primary" href="#"
+       onclick="return popitup('{% url 'projects:staff_new' object.id %}','popoutWindow')">Add</a>
 </div>
 
 <table class="table table-bordered table-sm">
@@ -43,7 +43,7 @@
             {% endif %}
             {{ obj.employee_type }}
             {% if  obj.employee_type is 4 %}
-            ({{ obj.student_program }}
+                ({{ obj.student_program }}
             {% endif %}
             </td>
 
@@ -101,8 +101,9 @@
             </td>
         </tr>
     {% endfor %}
-    <tr style="font-weight: bold;">
-        <td>Count: <span style="margin-left: 15px">{{ object.staff_members.count }}</span></td>
-    </tr>
+{#    <tr style="font-weight: bold;">#}
+{#        <td>Count: <span style="margin-left: 15px">{{ object.staff_members.count }}</span></td>#}
+{#    </tr>#}
     </tbody>
 </table>
+<br>
