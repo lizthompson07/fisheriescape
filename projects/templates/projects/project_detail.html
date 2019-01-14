@@ -6,68 +6,73 @@
 
 {% block content %}
 
-    <style>
-        .label {
-            font-weight: bold;
-        }
-    </style>
+<style>
+    .label {
+        font-weight: bold;
+    }
+</style>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">My Projects</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Project Detail</li>
-        </ol>
-    </nav>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">My Projects</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Project Detail</li>
+    </ol>
+</nav>
 
-    <div class="container">
-
-
-        <h1>{{ object }} -
-            {% if object.submitted %}
-                SUBMITTED
-            {% else %}
-                <span class="red-font">DRAFT VERSION</span>
-            {% endif %}
-        </h1>
+<div class="container">
 
 
-        <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'projects:project_edit' object.id %}">Edit</a>
-            {% if object.submitted %}
-                <a class="btn btn-danger" href="{% url 'projects:project_delete' object.id %}">Delete</a>
-                <a class="btn btn-primary" href="#">Unsubmit Project</a>
-
-            {% else %}
-                <a class="btn btn-danger disabled" href="{% url 'projects:project_delete' object.id %}">Delete</a>
-                <a class="btn btn-primary" href="#">SUBMIT PROJECT</a>
-            {% endif %}
-        </div>
-
-        <br><br>
-
-        <div class="row">
-            <div class="col-4">
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-            </div>
-            <div class="col-8">
-
-                {% include "projects/_staff.html" %}
-                {% include "projects/_collaborators.html" %}
-                {% include "projects/_financial.html" %}
+    <h1>{{ object }} -
+        {% if object.submitted %}
+            SUBMITTED
+        {% else %}
+            <span class="red-font">DRAFT VERSION</span>
+        {% endif %}
+    </h1>
 
 
+    <div class="btn-group">
+        <a class="btn btn-danger " href="{% url 'projects:project_delete' object.id %}">Delete</a>
+    </div>
 
-            </div>
-
-        </div>
+    <div class="btn-group">
+        <a class="btn btn-warning" href="{% url 'projects:project_edit' object.id %}">Edit Project Details</a>
     </div>
 
 
+    <div class="btn-group">
+        {% if object.submitted %}
+            <a class="btn btn-success" href="#">Unsubmit Project</a>
+        {% else %}
+            <a class="btn btn-success" href="#">SUBMIT PROJECT</a>
+        {% endif %}
+    </div>
 
+
+    <br><br>
+
+    <div class="row">
+        <div class="col-4">
+            {% for field in field_list %}
+                {% verbose_field_display object field %}
+            {% endfor %}
+        </div>
+        <div class="col-8">
+
+            {% include "projects/_staff.html" %}
+            {% include "projects/_collaborators.html" %}
+            {% include "projects/_agreements.html" %}
+            {% include "projects/_om_costs.html" %}
+            {% include "projects/_financial.html" %}
+
+
+        </div>
 
     </div>
+</div>
+
+
+</div>
 
 
 {% endblock content %}

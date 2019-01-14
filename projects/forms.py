@@ -68,3 +68,18 @@ class CollaboratorForm(forms.ModelForm):
             'project': forms.HiddenInput(),
         }
 
+class AgreementForm(forms.ModelForm):
+    class Meta:
+        model = models.CollaborativeAgreement
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+        }
+
+class OMCostForm(forms.ModelForm):
+    class Meta:
+        model = models.OMCost
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+        }
