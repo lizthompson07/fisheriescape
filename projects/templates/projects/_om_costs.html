@@ -7,32 +7,33 @@
 </style>
 
 <div class="neighbours">
-    <h3>Partners:</h3>
+    <h3>O&M Costs:</h3>
 </div>
 <div class="neighbours">
     <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:collab_new' object.id %}','popoutWindow')">Add</a>
+       onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">Add</a>
 </div>
 
 
 <table class="table table-bordered table-sm">
     <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Critical to project?</th>
-
+        <th>Category</th>
+        <th>Category Type</th>
+        <th>Budget Requested</th>
+        <th>Description</th>
 
     </tr>
     <tbody>
-    {% for obj in object.collaborators.all %}
+    {% for obj in object.om_costs.all %}
         <tr>
-            <td>{{ obj.name }}</td>
-            <td>{{ obj.get_type_display }}</td>
-            <td>{{ obj.critical|yesno}}</td>
+            <td>{{ obj.om_category.name }}</td>
+            <td>{{ obj.om_category.get_group_display }}</td>
+            <td>{{ obj.budget_requested }}</td>
+            <td>{{ obj.description }}</td>
 
             <td>
                 <a href="#"
-                   onclick="return popitup('{% url 'projects:collab_edit' obj.id %}','popoutWindow')">
+                   onclick="return popitup('{% url 'projects:om_edit' obj.id %}','popoutWindow')">
                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
                          title="Edit">
                 </a>
@@ -43,12 +44,12 @@
                          title="Delete">
                 </a>
                 <a id="secrect-delete-btn-{{ obj.id }}"
-                   href="{% url 'projects:collab_delete' obj.id %}" class="hidden"></a>
+                   href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
             </td>
         </tr>
     {% endfor %}
 {#    <tr style="font-weight: bold;">#}
-{#        <td>Count: <span style="margin-left: 15px">{{ object.collaborators.count }}</span></td>#}
+{#        <td>Count: <span style="margin-left: 15px">{{ object.agreements.count }}</span></td>#}
 {#    </tr>#}
     </tbody>
 </table>
