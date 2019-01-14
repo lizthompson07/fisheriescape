@@ -137,7 +137,7 @@ class EmployeeType(models.Model):
     cost_type = models.IntegerField(choices=COST_TYPE_CHOICES)
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.get_cost_type_display())
+        return "{}".format(self.name)
 
 
 class Level(models.Model):
@@ -145,6 +145,9 @@ class Level(models.Model):
 
     def __str__(self):
         return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
 
 
 class Staff(models.Model):
@@ -173,7 +176,8 @@ class Staff(models.Model):
         else:
             return "{}".format(self.name)
 
-
+    class Meta:
+        ordering = ['employee_type','level' ]
 
 class Collaborator(models.Model):
     # TYPE_CHOICES

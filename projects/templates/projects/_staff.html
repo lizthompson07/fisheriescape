@@ -19,9 +19,9 @@
         <th>Name</th>
         <th>Employee type</th>
         <th>Level</th>
-        <th>Student Program</th>
         <th>Duration (weeks)</th>
         <th>Overtime hours</th>
+        <th>Cost Category</th>
         <th>Cost</th>
     </tr>
     <tbody>
@@ -42,6 +42,9 @@
                 <td class="bad">
             {% endif %}
             {{ obj.employee_type }}
+            {% if  obj.employee_type is 4 %}
+            ({{ obj.student_program }}
+            {% endif %}
             </td>
 
             {% if obj.level %}
@@ -50,14 +53,6 @@
                 <td class="bad">
             {% endif %}
             {{ obj.level }}
-            </td>
-
-            {% if obj.student_program %}
-                <td>
-                    {% else %}
-                <td class="bad">
-            {% endif %}
-            {{ obj.student_program }}
             </td>
 
 
@@ -78,6 +73,7 @@
             {{ obj.overtime_hours }}
             </td>
 
+            <td>{{ obj.employee_type.get_cost_type_display }}</td>
 
             {% if obj.cost %}
                 <td>

@@ -60,7 +60,7 @@ class StaffForm(forms.ModelForm):
         self.fields['user'].queryset = User.objects.all().order_by("last_name", "first_name")
         self.fields['user'].choices = USER_CHOICES
 
-class StaffForm(forms.ModelForm):
+class CollaboratorForm(forms.ModelForm):
     class Meta:
         model = models.Collaborator
         fields = "__all__"
