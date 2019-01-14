@@ -1,0 +1,21 @@
+<br>
+{% if object.files.count == 0 %}
+<ul>
+  <em>No files have been added to this data resource.</em>
+
+</ul>
+<br>
+
+{% else %}
+  <ul>
+    {% for item in object.files.all %}
+
+      <li>
+        <a href="{% url "inventory:file_detail" item.id %}">{{item.caption}}</a> (uploaded on: {{item.date_created|date:"F d Y"}})
+        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="delete file">
+          <a href="{% url 'inventory:file_delete' item.id %}" class="red-font">&times;</a>
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

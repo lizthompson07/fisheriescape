@@ -1,0 +1,62 @@
+{% extends "inventory/inventory_base.html" %}
+{% load static %}
+{% load timedelta %}
+{% load humanize %}
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Custodian List</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <p>
+        <h1>Data Custodian List</h1>
+        TOTAL: {{ custodian_count }}
+        </p>
+
+
+        <table class="table table-hover">
+            <thead>
+            <th scope="col">#</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Date of last email</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in custodian_list %}
+                <tr>
+                    <td><a href="{% url 'inventory:dm_custodian_detail' obj.person.user_id %}">{{ forloop.counter }}</a>
+                    </td>
+                    <td>{{ obj.person.user.last_name }}</td>
+                    <td>{{ obj.person.user.first_name }}</td>
+
+                    {% if obj.person.user.correspondences.count %}
+                        {% if now|timedelta:obj.person.user.correspondences.first.date < 90 %}
+                            <td class="good">
+                                {% else %}
+                            <td class="bad">
+                        {% endif %}
+                    {{ obj.person.user.correspondences.first.date|naturaltime }}
+
+                    {% else %}
+                        <td><span class="red-font">Never</span>
+                    {% endif %}
+                    </td>
+
+                </tr>
+            {% endfor %}
+            <br>
+
+            </tbody>
+        </table>
+
+        {{ id_list }}
+    </div>
+
+{% endblock content %}

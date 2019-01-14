@@ -1,0 +1,61 @@
+{% extends "inventory/inventory_base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"> <a href="{% url 'inventory:citation_detail' resource.id object.id %}">{{ object.title }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_keyword_filter' resource.id %}">{{ object.text_value_eng }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">New</li>
+            {% endif %}
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        {% load static %}
+        {# Load js file to allow for popout window #}
+
+        {% if object %}
+            <h1>Edit</h1>
+
+        {% else %}
+            <h1>New Keyword</h1>
+        {% endif %}
+
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            {% for field in form %}
+                {% if field.name == "publication" %}
+                    {% bootstrap_field field %}
+                    <a onclick="return popitup('{% url 'inventory:publication_new' %}','popItOut')" href="#">Add new
+                        publication to list</a><br><br>
+                {% else %}
+                    {% bootstrap_field field %}
+                {% endif %}
+
+
+            {% endfor %}
+
+
+            <p>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                {% if object.id %}
+                    <a class="btn btn-secondary" href="{% url 'inventory:citation_detail' resource.id object.id %}">Cancel</a>
+                {% else %}
+                    <a class="btn btn-secondary" href="{% url 'inventory:resource_citation_filter' resource.id %}">Cancel</a>
+                {% endif %}
+            </p>
+        </form>
+
+    </div>
+
+{% endblock content %}
