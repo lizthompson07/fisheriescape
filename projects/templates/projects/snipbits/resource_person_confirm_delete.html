@@ -1,0 +1,47 @@
+{% extends "inventory/inventory_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+    {% if temp_msg %}
+        {% bootstrap_alert temp_msg alert_type='success' %}
+    {% endif %}
+
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'inventory:resource_detail' object.resource.id %}">{{ object.resource.truncated_title }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Remove {{ object.person.full_name }}
+                as {{ object.role }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>Are you sure you want to remove <em>{{ object.person.full_name }}</em> as "{{ object.role }}"?</h1>
+        <br>
+        <p><b>
+            UUID:
+        </b>
+            {{ object.resource.file_identifier }}
+        </p>
+        <p><b>
+            Resource Title:
+        </b>
+            {{ object.resource.title_eng }}
+        </p>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            <p>
+                <button type="submit" class="btn btn-lg btn-danger">Yes, I am sure</button>
+                <a class="btn btn-lg btn-secondary" href="{% url 'inventory:resource_detail' object.resource.id %}">Cancel</a>
+            </p>
+        </form>
+    </div>
+
+{% endblock content %}

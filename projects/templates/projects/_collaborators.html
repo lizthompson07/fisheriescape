@@ -1,0 +1,53 @@
+{% load static %}
+
+<style>
+    table, td {
+        font-size: small;
+    }
+</style>
+
+<div class="">
+    <h3>Collaborators and Partners:</h3>
+    <a class="btn btn-success" href="#"
+       onclick="return popitup('{% url 'projects:collab_new' object.id %}','popoutWindow')">Add Collaborator</a>
+    <br><br>
+
+</div>
+
+<table class="table table-bordered table-sm">
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Critical</th>
+
+
+    </tr>
+    <tbody>
+    {% for obj in object.collaborators.all %}
+        <tr>
+            <td>{{ obj.name }}</td>
+            <td>{{ obj.get_type_display }}</td>
+            <td>{{ obj.critical|yesno}}</td>
+
+            <td>
+                <a href="#"
+                   onclick="return popitup('{% url 'projects:collab_edit' obj.id %}','popoutWindow')">
+                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
+                         title="Edit">
+                </a>
+            </td>
+            <td>
+                <a class="delete-me" href="#" val="{{ obj.id }}">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                         title="Delete">
+                </a>
+                <a id="secrect-delete-btn-{{ obj.id }}"
+                   href="{% url 'projects:collab_delete' obj.id %}" class="hidden"></a>
+            </td>
+        </tr>
+    {% endfor %}
+    <tr style="font-weight: bold;">
+        <td>Count: <span style="margin-left: 15px">{{ object.collaborators.count }}</span></td>
+    </tr>
+    </tbody>
+</table>

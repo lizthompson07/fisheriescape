@@ -1,0 +1,50 @@
+{% load verbose_names %}
+
+<p><b>
+  UUID:
+</b><br>
+{{object.uuid}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object "title_eng"%}:
+</b><br>
+{{object.title_eng}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object "resource_type"%}:
+</b><br>
+{{object.resource_type}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object "section"%}:
+</b><br>
+{{object.section}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object "status"%}:
+</b><br>
+{{object.status}}
+</p>
+
+<p><b>
+  Time period (yyyy-mm-dd):
+</b><br>
+From: {{object.time_start_year|default_if_none:"--"}}-{{object.time_start_month|default_if_none:"--"}}-{{object.time_start_day|default_if_none:"--"}}  &nbsp;&nbsp;
+To: {{object.time_end_year|default_if_none:"--"}}-{{object.time_end_month|default_if_none:"--"}}-{{object.time_end_day|default_if_none:"--"}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object "storage_envr_notes"%}:
+</b><br>
+{{object.storage_envr_notes}}
+</p>
+
+<p><b>
+  {%get_verbose_field_name object "notes"%}:
+</b><br>
+{{object.notes}}
+</p>
