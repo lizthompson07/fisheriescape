@@ -1,0 +1,66 @@
+{% extends "projects/projects_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load timedelta %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">My Section</li>
+            {#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
+        </ol>
+    </nav>
+
+    <div class="container">
+        {% if object_list.count %}
+
+
+
+        <h1>Projects Listed under {{ user.first_name }}'s Section{{ object_list|pluralize }}:</h1>
+
+        <br>
+
+        <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">New Project</a>
+        <br> <br>
+        <table class="table table-hover table-sm">
+            <thead>
+            <th scope="col">Title</th>
+            <th scope="col">Status</th>
+            <th scope="col">Section</th>
+            <th scope="col">Submitted</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for section in object_list %}
+                {% for obj in section.projects.all %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'projects:project_detail' obj.id %}">
+                                {{ obj.project_title }}
+                            </a>
+                        </td>
+                        <td>{{ obj.division }}</td>
+                        <td>{{ obj.section }}</td>
+                        {% if obj.submitted %}
+                            <td class="good">
+                                {% else %}
+                            <td class="bad">
+                        {% endif %}
+
+                        {{ obj.submitted|yesno }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+            <p>You do not have any sections assigned to you. If there should be, please contact <a href="mailto:david.fishman@dfo-mpo.gc.ca">david.fishman@dfo-mpo.gc.ca</a></p>
+
+            {% endif %}
+
+{% endblock content %}

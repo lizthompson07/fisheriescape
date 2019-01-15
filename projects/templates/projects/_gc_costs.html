@@ -1,51 +1,54 @@
 {% load static %}
-
+{% load humanize %}
+{% load nz %}
 <style>
     table, td {
         font-size: small;
     }
 </style>
 
+
 <div class="neighbours">
-    <h3>Collaborative Agreements:</h3>
+    <h3>G&C Requests:</h3>
 </div>
 <div class="neighbours" style="float: right">
     <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:agreement_new' object.id %}','popoutWindow')">Add Agreement</a>
+       onclick="return popitup('{% url 'projects:gc_new' object.id %}','popoutWindow')">Add G&C</a>
 </div>
 
-{% if object.agreements.count == 0 %}
-    <br><em>No Collaborative Agreements</em><br>
+{% if object.gc_costs.count == 0 %}
+    <br><em>No G&C Requests</em><br>
 {% else %}
 
     <table class="table table-bordered table-sm">
         <tr>
-            <th>Partner Organization</th>
-            <th>Project Lead</th>
-            <th>Agreement Title</th>
+            <th>Recipient Organization</th>
+            <th>G&C Program</th>
+            <th>Budget Requested</th>
+
 
         </tr>
         <tbody>
-        {% for obj in object.agreements.all %}
+        {% for obj in object.gc_costs.all %}
             <tr>
-                <td>{{ obj.partner_organization }}</td>
-                <td>{{ obj.project_lead }}</td>
-                <td>{{ obj.agreement_title }}</td>
+                <td>{{ obj.recipient_org }}</td>
+                <td>{{ obj.gc_program }}</td>
+                <td>${{ obj.budget_requested|floatformat:2|intcomma }}</td>
 
                 <td>
                     <a href="#"
-                       onclick="return popitup('{% url 'projects:agreement_edit' obj.id %}','popoutWindow')">
+                       onclick="return popitup('{% url 'projects:om_edit' obj.id %}','popoutWindow')">
                         <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
                              title="Edit">
                     </a>
                 </td>
                 <td>
-                    <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
+                    <a class="gc-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                              title="Delete">
                     </a>
-                    <a id="agreement-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'projects:agreement_delete' obj.id %}" class="hidden"></a>
+                    <a id="gc-secrect-delete-btn-{{ obj.id }}"
+                       href="{% url 'projects:gc_delete' obj.id %}" class="hidden"></a>
                 </td>
             </tr>
         {% endfor %}

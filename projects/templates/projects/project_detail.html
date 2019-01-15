@@ -6,73 +6,160 @@
 
 {% block content %}
 
-<style>
-    .label {
-        font-weight: bold;
-    }
-</style>
+    <style>
+        .label {
+            font-weight: bold;
+        }
+    </style>
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">My Projects</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Project Detail</li>
-    </ol>
-</nav>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">My Projects</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
 
-<div class="container">
-
-
-    <h1>{{ object }} -
-        {% if object.submitted %}
-            SUBMITTED
-        {% else %}
-            <span class="red-font">DRAFT VERSION</span>
-        {% endif %}
-    </h1>
+    <div class="container">
 
 
-    <div class="btn-group">
-        <a class="btn btn-danger " href="{% url 'projects:project_delete' object.id %}">Delete</a>
-    </div>
-
-    <div class="btn-group">
-        <a class="btn btn-warning" href="{% url 'projects:project_edit' object.id %}">Edit Project Details</a>
-    </div>
-
-
-    <div class="btn-group">
-        {% if object.submitted %}
-            <a class="btn btn-success" href="#">Unsubmit Project</a>
-        {% else %}
-            <a class="btn btn-success" href="#">SUBMIT PROJECT</a>
-        {% endif %}
-    </div>
+        <h1>{{ object }} -
+            {% if object.submitted %}
+                SUBMITTED
+            {% else %}
+                <span class="red-font">DRAFT VERSION</span>
+            {% endif %}
+        </h1>
 
 
-    <br><br>
-
-    <div class="row">
-        <div class="col-4">
-            {% for field in field_list %}
-                {% verbose_field_display object field %}
-            {% endfor %}
-        </div>
-        <div class="col-8">
-
-            {% include "projects/_staff.html" %}
-            {% include "projects/_collaborators.html" %}
-            {% include "projects/_agreements.html" %}
-            {% include "projects/_om_costs.html" %}
-            {% include "projects/_financial.html" %}
-
-
+        <div class="btn-group">
+            <a class="btn btn-danger " href="{% url 'projects:project_delete' object.id %}">Delete</a>
         </div>
 
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'projects:project_edit' object.id %}">Edit Project Details</a>
+        </div>
+
+
+        <div class="btn-group">
+            {% if object.submitted %}
+                <a class="btn btn-success" href="#">Unsubmit Project</a>
+            {% else %}
+                <a class="btn btn-success" href="#">SUBMIT PROJECT</a>
+            {% endif %}
+        </div>
+
+
+        <br><br>
+
+        <div class="row">
+            <div class="col-4">
+                <h3>Project Summary:</h3>
+
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+                {% include "projects/_financial.html" %}
+
+            </div>
+            <div class="col-8">
+
+                {% include "projects/_staff.html" %}
+                {% include "projects/_collaborators.html" %}
+                {% include "projects/_agreements.html" %}
+                {% include "projects/_om_costs.html" %}
+                {% include "projects/_capital_costs.html" %}
+                {% include "projects/_gc_costs.html" %}
+
+
+            </div>
+
+
+        </div>
     </div>
-</div>
 
 
-</div>
+    </div>
+
+
+
+    <script type="application/javascript">
+
+
+        $(".staff-delete-me").click(function () {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            while (userInput !== "n" && userInput !== "y") {
+                userInput = prompt("Are you sure you want to delete this staff member from the project? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+            }
+            if (userInput === "y") {
+                $("#staff-secrect-delete-btn-" + objectId)[0].click();
+            }
+        })
+
+        $(".collab-delete-me").click(function () {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            while (userInput !== "n" && userInput !== "y") {
+                userInput = prompt("Are you sure you want to delete this collaborator from the project? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+            }
+            if (userInput === "y") {
+                $("#collab-secrect-delete-btn-" + objectId)[0].click();
+            }
+        })
+
+        $(".agreement-delete-me").click(function () {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            while (userInput !== "n" && userInput !== "y") {
+                userInput = prompt("Are you sure you want to delete this agreement from the project? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+            }
+            if (userInput === "y") {
+                $("#agreement-secrect-delete-btn-" + objectId)[0].click();
+            }
+        })
+
+        $(".om-delete-me").click(function () {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            while (userInput !== "n" && userInput !== "y") {
+                userInput = prompt("Are you sure you want to delete this o&m request from the project? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+            }
+            if (userInput === "y") {
+                $("#om-secrect-delete-btn-" + objectId)[0].click();
+            }
+        })
+
+        $(".capital-delete-me").click(function () {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            while (userInput !== "n" && userInput !== "y") {
+                userInput = prompt("Are you sure you want to delete this capital request from the project? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+            }
+            if (userInput === "y") {
+                $("#capital-secrect-delete-btn-" + objectId)[0].click();
+            }
+        })
+
+        $(".gc-delete-me").click(function () {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            while (userInput !== "n" && userInput !== "y") {
+                userInput = prompt("Are you sure you want to delete this g&c request from the project? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+            }
+            if (userInput === "y") {
+                $("#gc-secrect-delete-btn-" + objectId)[0].click();
+            }
+        })
+
+
+    </script>
 
 
 {% endblock content %}
