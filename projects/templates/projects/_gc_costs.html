@@ -33,7 +33,7 @@
             <tr>
                 <td>{{ obj.recipient_org }}</td>
                 <td>{{ obj.gc_program }}</td>
-                <td>${{ obj.budget_requested|floatformat:2|intcomma }}</td>
+                <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
 
                 <td>
                     <a href="#"
