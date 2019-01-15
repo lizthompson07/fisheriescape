@@ -95,10 +95,11 @@ class MySectionListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ProjectListView(LoginRequiredMixin, ListView):
+class ProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
     model = models.Project
+    filterset_class = filters.ProjectFilter
 
 
 class ProjectDetailView(LoginRequiredMixin, DetailView):
