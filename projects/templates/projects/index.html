@@ -17,7 +17,8 @@
                         <a href="{% url 'accounts:login' %}?next={% url 'projects:index' %}">signed in</a>
                         to use this application.</p>
 
-                    <p>If you do not have an account, you can create one.</p>
+                    <p>If you do not have an account, you can create one <a href="{% url 'accounts:signup' %}">here</a>.
+                    </p>
                 {% endif %}
             </div>
 
@@ -25,7 +26,15 @@
 
         {% if user.is_authenticated %}
             <div align="center">
-                <h4>View your <a href="{% url 'projects:my_project_list' %}">list of projects</a> or you can click <a href="{% url 'projects:project_new' %}">HERE</a> to create a new one.</h4>
+                <h4>
+                    Click
+                    <a href="{% url 'projects:project_new' %}">HERE</a> to create a new project.
+                    <br><br>
+                    To view or edit an existing project, go to <a href="{% url 'projects:my_project_list' %}">Your
+                    Projects</a>.
+                    <br><br>
+                    For a list of all project in the branch, go to <a href="{% url 'projects:project_list' %}">All Projects</a>.
+                </h4>
             </div>
         {% endif %}
 
