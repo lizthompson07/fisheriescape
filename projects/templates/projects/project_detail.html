@@ -35,8 +35,8 @@
             {% if can_delete %}
                 <a class="btn btn-danger " href="{% url 'projects:project_delete' object.id %}">Delete</a>
             {% endif %}
-            <a class="btn btn-warning" href="{% url 'projects:project_edit' object.id %}">Edit Project Details</a>
-            <a class="btn btn-dark" href="{% url 'projects:project_print' object.id %}">View/Print Project</a>
+            <a class="btn btn-warning" href="{% url 'projects:project_edit' object.id %}">Add/Edit Project Details</a>
+            <a class="btn btn-dark" href="{% url 'projects:project_print' object.id %}">Export PDF</a>
         </div>
 
 

@@ -33,7 +33,7 @@
             <tr>
                 <td>{{ obj.get_category_display }}</td>
                 <td>{{ obj.description|nz:"" }}</td>
-                <td>${{ obj.budget_requested|floatformat:2|intcomma }}</td>
+                <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
 
                 <td>
                     <a href="#"

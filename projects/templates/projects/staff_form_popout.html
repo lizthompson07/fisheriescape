@@ -2,6 +2,14 @@
 
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
+<style>
+    .gone {
+        visibility: hidden;
+        width: 0%;
+        height: 0px;
+        padding: 0px;
+    }
+</style>
 
 {% block content %}
 
@@ -82,11 +90,22 @@
             }
 
             // if employee type is fte, disable cost field
-            if ($("#id_employee_type").val() == "1") {
+            if ($("#id_employee_type").val() == "1" || $("#id_employee_type").val() == "6") {
                 $("#id_cost").val("")
                 $("#id_cost").prop("disabled", true)
+                {#$("#id_cost").addClass("gone")#}
+
+                $("#id_level").val("")
+                $("#id_level").prop("disabled", true)
+                {#$("#id_level").addClass("gone")#}
+
+
             } else {
                 $("#id_cost").prop("disabled", false)
+                $("#id_level").prop("disabled", false)
+                {#$("#id_cost").removeClass("gone")#}
+
+
             }
 
         }
