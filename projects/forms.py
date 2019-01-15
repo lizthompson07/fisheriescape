@@ -27,7 +27,7 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = models.Project
         exclude = [
-            'date_last_modified',
+            'last_modified_by',
             'submitted',
         ]
         widgets = {
@@ -39,6 +39,17 @@ class ProjectForm(forms.ModelForm):
             "notes": forms.Textarea(attrs={"rows": 5}),
         }
 
+class ProjectSubmitForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'last_modified_by',
+            'submitted',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'submitted': forms.HiddenInput(),
+        }
 
 class StaffForm(forms.ModelForm):
     class Meta:

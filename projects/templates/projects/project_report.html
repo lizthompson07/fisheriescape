@@ -1,0 +1,272 @@
+{% load verbose_field_display %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load nz %}
+
+{% bootstrap_css %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    table, td {
+        font-size: small;
+    }
+</style>
+
+
+<hr>
+<h3>Project Detail:</h3>
+
+{% for field in field_list %}
+    {% verbose_field_display object field %}
+{% endfor %}
+
+{# STAFF #}
+<h3>Project Staff:</h3>
+
+{% if object.staff_members.count == 0 %}
+    <br><em>No Staff Members</em><br>
+{% else %}
+    <table class="table-bordered">
+        <tr>
+            <th>Name</th>
+            <th>Employee type</th>
+            <th>Level</th>
+            <th>Duration (weeks)</th>
+            <th>Overtime hours</th>
+            <th>Cost Category</th>
+            <th>Cost</th>
+        </tr>
+        <tbody>
+        {% for obj in object.staff_members.all %}
+            <tr>
+
+                <td>
+                    {% if obj.user.id %}
+                        {{ obj.user.first_name }} {{ obj.user.last_name }}
+                    {% else %}
+                        {{ obj.name }}
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ obj.employee_type }}
+                    {% if  obj.employee_type is 4 %}
+                        ({{ obj.student_program }}
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ obj.level }}
+                </td>
+
+
+                <td>
+                    {{ obj.duration_weeks }}
+                </td>
+
+
+                <td>
+                    {{ obj.overtime_hours }}
+                </td>
+
+                <td>{{ obj.employee_type.get_cost_type_display }}</td>
+
+                <td>
+                    {{ obj.cost|floatformat:2|intcomma }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+
+{# Collaborators #}
+<h3>Collaborators & Partners:</h3>
+{% if object.collaborators.count == 0 %}
+    <em>No Collaborators or Partners </em><br>
+{% else %}
+
+    <table class="table-bordered">
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Critical to project?</th>
+            <th>Notes?</th>
+
+
+        </tr>
+        <tbody>
+        {% for obj in object.collaborators.all %}
+            <tr>
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.get_type_display }}</td>
+                <td>{{ obj.critical|yesno }}</td>
+                <td>{{ obj.notes }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+
+
+{# Agreements #}
+    <h3>Collaborative Agreements:</h3>
+
+{% if object.agreements.count == 0 %}
+    <em>No Collaborative Agreements</em><br>
+{% else %}
+
+    <table class="table table-bordered table-sm">
+        <tr>
+            <th>Partner Organization</th>
+            <th>Project Lead</th>
+            <th>Agreement Title</th>
+            <th>New or Existing</th>
+            <th>Notes</th>
+        </tr>
+        <tbody>
+        {% for obj in object.agreements.all %}
+            <tr>
+                <td>{{ obj.partner_organization }}</td>
+                <td>{{ obj.project_lead }}</td>
+                <td>{{ obj.agreement_title }}</td>
+                <td>{{ obj.new_or_existing }}</td>
+                <td>{{ obj.notes }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+
+{# OM COSTS #}
+    <h3>O&M Requests:</h3>
+
+{% if object.om_costs.count == 0 %}
+    <em>No O&M Requests</em><br>
+{% else %}
+
+    <table class="table table-bordered table-sm">
+        <tr>
+            <th>Category Type</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Budget Requested</th>
+        </tr>
+        <tbody>
+        {% for obj in object.om_costs.all %}
+            <tr>
+                <td>{{ obj.om_category.get_group_display }}</td>
+                <td>{{ obj.om_category.name }}</td>
+                <td>{{ obj.description }}</td>
+                <td>${{ obj.budget_requested|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+
+
+{# Capital COSTS #}
+    <h3>Capital Requests:</h3>
+
+{% if object.capital_costs.count == 0 %}
+    <em>No Capital Requests</em><br>
+{% else %}
+
+    <table class="table table-bordered table-sm">
+        <tr>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Budget Requested</th>
+        </tr>
+        <tbody>
+        {% for obj in object.capital_costs.all %}
+            <tr>
+                <td>{{ obj.get_category_display }}</td>
+                <td>{{ obj.description|nz:"" }}</td>
+                <td>${{ obj.budget_requested|floatformat:2|intcomma }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+
+{# GC COSTS#}
+    <h3>G&C Requests:</h3>
+
+{% if object.gc_costs.count == 0 %}
+<em>No G&C Requests</em><br>
+{% else %}
+
+    <table class="table table-bordered table-sm">
+        <tr>
+            <th>Recipient Organization</th>
+            <th>Project Lead</th>
+            <th>Proposed Title</th>
+            <th>G&C Program</th>
+            <th>Budget Requested</th>
+        </tr>
+        <tbody>
+        {% for obj in object.gc_costs.all %}
+            <tr>
+                <td>{{ obj.recipient_org }}</td>
+                <td>{{ obj.project_lead }}</td>
+                <td>{{ obj.proposed_title }}</td>
+                <td>{{ obj.gc_program }}</td>
+                <td>${{ obj.budget_requested|floatformat:2|intcomma }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+
+{# FINANCIAL SUMMARY #}
+
+{% load static %}
+{% load humanize %}
+<style>
+    table, td {
+        font-size: small;
+    }
+</style>
+
+<div class="">
+    <h3>Financial Summary:</h3>
+</div>
+
+<table class="table table-bordered table-sm">
+    <tr>
+        <th>Category</th>
+        <th>Total Cost</th>
+    </tr>
+    <tbody>
+    <tr>
+        <td>Salary (excluding full time employees)</td>
+        <td>${{ salary_total|floatformat:2|intcomma }}</td>
+    </tr>
+    <tr>
+        <td>O & M</td>
+        <td>${{ om_total|floatformat:2|intcomma }}</td>
+    </tr>
+    <tr>
+        <td>Capital</td>
+        <td>${{ capital_total|floatformat:2|intcomma }}</td>
+    </tr>
+    <tr>
+        <td>G & C</td>
+        <td>${{ gc_total|floatformat:2|intcomma }}</td>
+    </tr>
+
+
+    </tbody>
+</table>
+{#{% include "projects/_financial.html" %}#}

@@ -44,12 +44,14 @@
 
                     <a href="
 
+
                             {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
                         <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
                     </a>
                 </td>
                 <td>
                     <a href="
+
 
                             {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
                         Regional Data Inventory
@@ -127,7 +129,19 @@
                 </td>
                 <td class="good"> Active</td>
             </tr>
-
+            <tr>
+                <td>
+                    <a href="{% url 'projects:index' %}" class="">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'projects:index' %}" class="">
+                        Project Planning
+                    </a>
+                </td>
+                <td class="concern"> Beta</td>
+            </tr>
             <tr>
                 <td>
                     <a href="{% url 'crab:index' %}">
@@ -169,19 +183,7 @@
                 </td>
                 <td class="concern"> Development</td>
             </tr>
-            <tr>
-                <td>
-                    <a href="{% url 'projects:my_project_list'  %}" class="">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'projects:my_project_list'  %}" class="">
-                        Gulf Science Project Planning
-                    </a>
-                </td>
-                <td class="concern"> Development</td>
-            </tr>
+
             </tbody>
         </table>
 

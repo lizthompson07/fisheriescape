@@ -1,0 +1,54 @@
+{% extends "projects/projects_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">My Projects</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'projects:project_detail' object.id %}">{{ object }}</a>
+            </li>
+            {% if object.submitted %}
+                <li class="breadcrumb-item active" aria-current="page">Unsubmit</li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">Submit</li>
+            {% endif %}
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>
+            {% if object.submitted %}
+                Are you sure you want to unsubmit the this project?
+            {% else %}
+                Are you sure you want to submit the following project?
+            {% endif %}
+        </h1>
+        <br><br>
+
+        {% if not object.submitted %}
+            {% include "projects/project_report.html" %}
+        {% endif %}
+
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            {% for field in form %}
+                {% bootstrap_field field placeholder="" %}
+            {% endfor %}
+
+
+
+
+            {% buttons %}
+                <button type="submit" class="btn btn-success">OK</button>
+                <a class="btn btn-secondary" href="{% url 'projects:project_detail' object.id %}">Cancel</a>
+            {% endbuttons %}
+        </form>
+
+    </div>
+
+{% endblock content %}
