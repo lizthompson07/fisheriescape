@@ -13,6 +13,8 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
+from easy_pdf.views import PDFTemplateView
+
 from accounts import models as accounts_models
 from collections import OrderedDict
 
@@ -164,14 +166,15 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ProjectPrintDetailView(LoginRequiredMixin, DetailView):
+class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
     model = models.Project
     login_url = '/accounts/login_required/'
     template_name = "projects/project_report.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        project = self.object
+        project = models.Project.objects.get(pk=self.kwargs["pk"])
+        context["object"] = project
         context["field_list"] = project_field_list
 
         salary_total = 0
@@ -206,6 +209,18 @@ class ProjectPrintDetailView(LoginRequiredMixin, DetailView):
         context["capital_total"] = capital_total
         return context
 
+        # def get_pdf_filename(self):
+        #     site = models.Site.objects.get(pk=self.kwargs['site']).site
+        #     return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
+        #
+        # def get_context_data(self, **kwargs):
+        #     reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
+        #     site = models.Site.objects.get(pk=self.kwargs['site']).site
+        #     return super().get_context_data(
+        #         pagesize="A4 landscape",
+        #         title="Annual Report for {}_{}".format(site, self.kwargs['year']),
+        #         **kwargs
+        #     )
 
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Project
