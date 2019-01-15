@@ -1,0 +1,38 @@
+{% extends "projects/projects_base.html" %}
+{% block content %}
+
+    <div class="container">
+        <br>
+        <div class="container">
+            <div class="jumbotron">
+                <h1 class="three-em">Project Planning 2019-2020</h1>
+                <hr>
+                <h3>Gulf Science Project Planning Application</h3>
+                {% if user.is_authenticated %}
+                    <br>
+                    <p>Welcome back, {{ user.first_name }}!</p>
+                {% else %}
+                    <br>
+                    <p>You must be
+                        <a href="{% url 'accounts:login' %}?next={% url 'projects:index' %}">signed in</a>
+                        to use this application.</p>
+
+                    <p>If you do not have an account, you can create one.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+        {% if user.is_authenticated %}
+            <div align="center">
+                <h4>View your <a href="{% url 'projects:my_project_list' %}">list of projects</a> or you can click <a href="{% url 'projects:project_new' %}">HERE</a> to create a new one.</h4>
+            </div>
+        {% endif %}
+
+
+    </div>
+
+
+    </div>
+
+{% endblock content %}
