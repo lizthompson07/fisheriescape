@@ -6,6 +6,7 @@ app_name = 'projects'
 
 urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
+    path('', views.IndexTemplateView.as_view(), name="index"),
 
     # PROJECTS #
     ############
@@ -14,8 +15,10 @@ urlpatterns = [
     path('projects/', views.ProjectListView.as_view(), name="project_list"),
     path('projects/new/', views.ProjectCreateView.as_view(), name="project_new"),
     path('projects/<int:pk>/view', views.ProjectDetailView.as_view(), name="project_detail"),
+    path('projects/<int:pk>/print', views.ProjectPrintDetailView.as_view(), name="project_print"),
     path('projects/<int:pk>/edit', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('projects/<int:pk>/delete', views.ProjectDeleteView.as_view(), name="project_delete"),
+    path('projects/<int:pk>/submit', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
 
     # STAFF #
     #########

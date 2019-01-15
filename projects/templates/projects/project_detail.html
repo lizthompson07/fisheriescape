@@ -32,19 +32,19 @@
 
 
         <div class="btn-group">
-            <a class="btn btn-danger " href="{% url 'projects:project_delete' object.id %}">Delete</a>
-        </div>
-
-        <div class="btn-group">
+            {% if can_delete %}
+                <a class="btn btn-danger " href="{% url 'projects:project_delete' object.id %}">Delete</a>
+            {% endif %}
             <a class="btn btn-warning" href="{% url 'projects:project_edit' object.id %}">Edit Project Details</a>
+            <a class="btn btn-dark" href="{% url 'projects:project_print' object.id %}">View/Print Project</a>
         </div>
 
 
         <div class="btn-group">
             {% if object.submitted %}
-                <a class="btn btn-success" href="#">Unsubmit Project</a>
+                <a class="btn btn-secondary" href="{% url 'projects:project_submit' object.id %}">Unsubmit Project</a>
             {% else %}
-                <a class="btn btn-success" href="#">SUBMIT PROJECT</a>
+                <a class="btn btn-success" href="{% url 'projects:project_submit' object.id %}">SUBMIT PROJECT</a>
             {% endif %}
         </div>
 

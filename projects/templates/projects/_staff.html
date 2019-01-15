@@ -51,11 +51,7 @@
                 {% endif %}
                 </td>
 
-                {% if obj.level %}
                     <td>
-                        {% else %}
-                    <td class="bad">
-                {% endif %}
                 {{ obj.level }}
                 </td>
 
@@ -69,21 +65,13 @@
                 </td>
 
 
-                {% if obj.overtime_hours %}
                     <td>
-                        {% else %}
-                    <td class="bad">
-                {% endif %}
                 {{ obj.overtime_hours }}
                 </td>
 
                 <td>{{ obj.employee_type.get_cost_type_display }}</td>
 
-                {% if obj.cost %}
                     <td>
-                        {% else %}
-                    <td class="bad">
-                {% endif %}
                 {{ obj.cost|floatformat:2|intcomma }}
                 </td>
 
