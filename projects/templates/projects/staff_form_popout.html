@@ -48,6 +48,7 @@
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
             checkUser()
+            checkEmployeeType()
         });
 
         $("#id_user").change(function () {
@@ -56,6 +57,10 @@
 
         $("#id_name").change(function () {
             checkUser()
+        });
+
+        $("#id_employee_type").change(function () {
+            checkEmployeeType()
         });
 
         function checkUser() {
@@ -67,6 +72,24 @@
             }
         }
 
+        function checkEmployeeType() {
+            // if employee type is not student, disable student program field
+            if ($("#id_employee_type").val() != "4") {
+                $("#id_student_program").val("")
+                $("#id_student_program").prop("disabled", true)
+            } else {
+                $("#id_student_program").prop("disabled", false)
+            }
+
+            // if employee type is fte, disable cost field
+            if ($("#id_employee_type").val() == "1") {
+                $("#id_cost").val("")
+                $("#id_cost").prop("disabled", true)
+            } else {
+                $("#id_cost").prop("disabled", false)
+            }
+
+        }
 
     </script>
 

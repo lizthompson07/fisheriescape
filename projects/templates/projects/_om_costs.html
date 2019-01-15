@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load nz %}
 <style>
     table, td {
         font-size: small;
@@ -7,50 +7,56 @@
 </style>
 
 <div class="neighbours">
-    <h3>O&M Costs:</h3>
+    <h3>O&M Requests:</h3>
 </div>
-<div class="neighbours">
+<div class="neighbours" style="float: right">
     <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">Add</a>
+       onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">Add O&M</a>
 </div>
 
 
-<table class="table table-bordered table-sm">
-    <tr>
-        <th>Category</th>
-        <th>Category Type</th>
-        <th>Budget Requested</th>
-        <th>Description</th>
 
-    </tr>
-    <tbody>
-    {% for obj in object.om_costs.all %}
+{% if object.om_costs.count == 0 %}
+    <br><em>No O&M Requests</em><br>
+{% else %}
+
+    <table class="table table-bordered table-sm">
         <tr>
-            <td>{{ obj.om_category.name }}</td>
-            <td>{{ obj.om_category.get_group_display }}</td>
-            <td>{{ obj.budget_requested }}</td>
-            <td>{{ obj.description }}</td>
+            <th>Category Type</th>
+            <th>Category</th>
+            <th>Budget Requested</th>
+            <th>Description provided</th>
 
-            <td>
-                <a href="#"
-                   onclick="return popitup('{% url 'projects:om_edit' obj.id %}','popoutWindow')">
-                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                         title="Edit">
-                </a>
-            </td>
-            <td>
-                <a class="delete-me" href="#" val="{{ obj.id }}">
-                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                         title="Delete">
-                </a>
-                <a id="secrect-delete-btn-{{ obj.id }}"
-                   href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
-            </td>
         </tr>
-    {% endfor %}
-{#    <tr style="font-weight: bold;">#}
-{#        <td>Count: <span style="margin-left: 15px">{{ object.agreements.count }}</span></td>#}
-{#    </tr>#}
-    </tbody>
-</table>
+        <tbody>
+        {% for obj in object.om_costs.all %}
+            <tr>
+                <td>{{ obj.om_category.get_group_display }}</td>
+                <td>{{ obj.om_category.name }}</td>
+                <td>${{ obj.budget_requested|floatformat:2 }}</td>
+                <td>{{ obj.description|yesno:"yes,," }}</td>
+
+                <td>
+                    <a href="#"
+                       onclick="return popitup('{% url 'projects:om_edit' obj.id %}','popoutWindow')">
+                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
+                             title="Edit">
+                    </a>
+                </td>
+                <td>
+                    <a class="om-delete-me" href="#" val="{{ obj.id }}">
+                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                             title="Delete">
+                    </a>
+                    <a id="om-secrect-delete-btn-{{ obj.id }}"
+                       href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
+                </td>
+            </tr>
+        {% endfor %}
+        {#    <tr style="font-weight: bold;">#}
+        {#        <td>Count: <span style="margin-left: 15px">{{ object.agreements.count }}</span></td>#}
+        {#    </tr>#}
+        </tbody>
+    </table>
+{% endif %}
 <br>

@@ -50,6 +50,17 @@ class MyProjectListView(LoginRequiredMixin, ListView):
         return context
 
 
+class MySectionListView(LoginRequiredMixin, ListView):
+    login_url = '/accounts/login_required/'
+    template_name = 'projects/my_section_list.html'
+
+    def get_queryset(self):
+        return models.Section.objects.filter(section_head=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
 class ProjectListView(LoginRequiredMixin, ListView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
@@ -69,31 +80,35 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             'section',
             'program',
             'budget_code',
-            'status',
-            'approved',
-            'start_date',
-            'end_date',
-            'description',
-            'priorities',
-            'deliverables',
-            'data_collection',
-            'data_sharing',
-            'data_storage',
-            'metadata_url',
-            'regional_dm',
-            'regional_dm_needs',
-            'sectional_dm',
-            'sectional_dm_needs',
-            'vehicle_needs',
-            'it_needs',
-            'chemical_needs',
-            'ship_needs',
+            # 'status',
+            # 'approved',
+            # 'start_date',
+            # 'end_date',
+            # 'description',
+            # 'priorities',
+            # 'deliverables',
+            # 'data_collection',
+            # 'data_sharing',
+            # 'data_storage',
+            # 'metadata_url',
+            # 'regional_dm',
+            # 'regional_dm_needs',
+            # 'sectional_dm',
+            # 'sectional_dm_needs',
+            # 'vehicle_needs',
+            # 'it_needs',
+            # 'chemical_needs',
+            # 'ship_needs',
             'date_last_modified',
             'last_modified_by',
         ]
 
         salary_total = 0
         om_total = 0
+        gc_total = 0
+        capital_total = 0
+
+        # first calc for staff
         for staff in project.staff_members.all():
             # exclude full time employees
             if staff.employee_type.id != 1:
@@ -102,8 +117,24 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
                 elif staff.employee_type.cost_type is 2:
                     om_total += nz(staff.cost, 0)
 
+        # O&M costs
+        for cost in project.om_costs.all():
+            om_total += nz(cost.budget_requested, 0)
+
+        # Capital costs
+        for cost in project.capital_costs.all():
+            capital_total += nz(cost.budget_requested, 0)
+
+        # g&c costs
+        for cost in project.gc_costs.all():
+            gc_total += nz(cost.budget_requested, 0)
+
+
         context["salary_total"] = salary_total
         context["om_total"] = om_total
+        context["gc_total"] = gc_total
+        context["capital_total"] = capital_total
+
 
         return context
 
@@ -122,6 +153,11 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         object = form.save()
         models.Staff.objects.create(project=object, employee_type_id=1, user_id=self.request.user.id)
+
+        for obj in models.OMCategory.objects.all():
+            new_item = models.OMCost.objects.create(project=object, om_category=obj)
+            new_item.save()
+
         return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.id}))
 
 
@@ -175,7 +211,7 @@ class StaffUpdateView(LoginRequiredMixin, UpdateView):
 def staff_delete(request, pk):
     object = models.Staff.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The staff member has been successfully deleted from {}.".format(object.project))
+    messages.success(request, "The staff member has been successfully deleted from project.")
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
@@ -218,7 +254,7 @@ class CollaboratorUpdateView(LoginRequiredMixin, UpdateView):
 def collaborator_delete(request, pk):
     object = models.Collaborator.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The collaborator has been successfully deleted from {}.".format(object.project))
+    messages.success(request, "The collaborator has been successfully deleted from project.")
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
@@ -271,7 +307,7 @@ def agreement_delete(request, pk):
 
 class OMCostCreateView(LoginRequiredMixin, CreateView):
     model = models.OMCost
-    template_name = 'projects/om_form_popout.html'
+    template_name = 'projects/cost_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.OMCostForm
 
@@ -285,6 +321,7 @@ class OMCostCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
+        context['cost_type'] = "O&M"
         return context
 
     def form_valid(self, form):
@@ -294,16 +331,117 @@ class OMCostCreateView(LoginRequiredMixin, CreateView):
 
 class OMCostUpdateView(LoginRequiredMixin, UpdateView):
     model = models.OMCost
-    template_name = 'projects/om_form_popout.html'
+    template_name = 'projects/cost_form_popout.html'
     form_class = forms.OMCostForm
 
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse('projects:close_me'))
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cost_type'] = "O&M"
+        return context
 
 def om_cost_delete(request, pk):
     object = models.OMCost.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The agreement has been successfully deleted.")
+    messages.success(request, "The cost has been successfully deleted.")
+    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
+
+# CAPITAL COSTS #
+#################
+
+class CapitalCostCreateView(LoginRequiredMixin, CreateView):
+    model = models.CapitalCost
+    template_name = 'projects/cost_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.CapitalCostForm
+
+    def get_initial(self):
+        project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': project,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = models.Project.objects.get(id=self.kwargs['project'])
+        context['project'] = project
+        context['cost_type'] = "Capital"
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+
+class CapitalCostUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.CapitalCost
+    template_name = 'projects/cost_form_popout.html'
+    form_class = forms.CapitalCostForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cost_type'] = "Capital"
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+
+def capital_cost_delete(request, pk):
+    object = models.CapitalCost.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, "The cost has been successfully deleted.")
+    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
+
+# GC COSTS #
+############
+
+class GCCostCreateView(LoginRequiredMixin, CreateView):
+    model = models.GCCost
+    template_name = 'projects/cost_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.GCCostForm
+
+    def get_initial(self):
+        project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': project,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = models.Project.objects.get(id=self.kwargs['project'])
+        context['project'] = project
+        context['cost_type'] = "G&C"
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+
+class GCCostUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.GCCost
+    template_name = 'projects/cost_form_popout.html'
+    form_class = forms.GCCostForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cost_type'] = "G&C"
+        return context
+
+def gc_cost_delete(request, pk):
+    object = models.GCCost.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, "The cost has been successfully deleted.")
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))

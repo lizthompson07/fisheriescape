@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load humanize %}
 <style>
     table, td {
         font-size: small;
@@ -7,103 +7,108 @@
 </style>
 
 <div class="neighbours">
-    <h3>Project staff:</h3>
+    <h3>Project Staff:</h3>
 </div>
-<div class="neighbours">
-   <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:staff_new' object.id %}','popoutWindow')">Add</a>
+<div class="neighbours" style="float: right">
+    <a class="btn btn-sm btn-primary" href="#"
+       onclick="return popitup('{% url 'projects:staff_new' object.id %}','popoutWindow')">Add Staff</a>
 </div>
 
-<table class="table table-bordered table-sm">
-    <tr>
-        <th>Name</th>
-        <th>Employee type</th>
-        <th>Level</th>
-        <th>Duration (weeks)</th>
-        <th>Overtime hours</th>
-        <th>Cost Category</th>
-        <th>Cost</th>
-    </tr>
-    <tbody>
-    {% for obj in object.staff_members.all %}
+{% if object.staff_members.count == 0 %}
+    <br><em>No Staff Members</em><br>
+{% else %}
+
+    <table class="table table-bordered table-sm">
         <tr>
-
-            <td>
-                {% if obj.user.id %}
-                    {{ obj.user.first_name }} {{ obj.user.last_name }}
-                {% else %}
-                    {{ obj.name }}
-                {% endif %}
-            </td>
-
-            {% if obj.employee_type %}
-                <td>
-                    {% else %}
-                <td class="bad">
-            {% endif %}
-            {{ obj.employee_type }}
-            {% if  obj.employee_type is 4 %}
-                ({{ obj.student_program }}
-            {% endif %}
-            </td>
-
-            {% if obj.level %}
-                <td>
-                    {% else %}
-                <td class="bad">
-            {% endif %}
-            {{ obj.level }}
-            </td>
-
-
-            {% if obj.duration_weeks %}
-                <td>
-                    {% else %}
-                <td class="bad">
-            {% endif %}
-            {{ obj.duration_weeks }}
-            </td>
-
-
-            {% if obj.overtime_hours %}
-                <td>
-                    {% else %}
-                <td class="bad">
-            {% endif %}
-            {{ obj.overtime_hours }}
-            </td>
-
-            <td>{{ obj.employee_type.get_cost_type_display }}</td>
-
-            {% if obj.cost %}
-                <td>
-                    {% else %}
-                <td class="bad">
-            {% endif %}
-            {{ obj.cost }}
-            </td>
-
-
-            <td>
-                <a href="#"
-                   onclick="return popitup('{% url 'projects:staff_edit' obj.id %}','popoutWindow')">
-                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                         title="Edit">
-                </a>
-            </td>
-            <td>
-                <a class="delete-me" href="#" val="{{ obj.id }}">
-                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                         title="Delete">
-                </a>
-                <a id="secrect-delete-btn-{{ obj.id }}"
-                   href="{% url 'projects:staff_delete' obj.id %}" class="hidden"></a>
-            </td>
+            <th>Name</th>
+            <th>Employee type</th>
+            <th>Level</th>
+            <th>Duration (weeks)</th>
+            <th>Overtime hours</th>
+            <th>Cost Category</th>
+            <th>Cost</th>
         </tr>
-    {% endfor %}
-{#    <tr style="font-weight: bold;">#}
-{#        <td>Count: <span style="margin-left: 15px">{{ object.staff_members.count }}</span></td>#}
-{#    </tr>#}
-    </tbody>
-</table>
+        <tbody>
+        {% for obj in object.staff_members.all %}
+            <tr>
+
+                <td>
+                    {% if obj.user.id %}
+                        {{ obj.user.first_name }} {{ obj.user.last_name }}
+                    {% else %}
+                        {{ obj.name }}
+                    {% endif %}
+                </td>
+
+                {% if obj.employee_type %}
+                    <td>
+                        {% else %}
+                    <td class="bad">
+                {% endif %}
+                {{ obj.employee_type }}
+                {% if  obj.employee_type is 4 %}
+                    ({{ obj.student_program }}
+                {% endif %}
+                </td>
+
+                {% if obj.level %}
+                    <td>
+                        {% else %}
+                    <td class="bad">
+                {% endif %}
+                {{ obj.level }}
+                </td>
+
+
+                {% if obj.duration_weeks %}
+                    <td>
+                        {% else %}
+                    <td class="bad">
+                {% endif %}
+                {{ obj.duration_weeks }}
+                </td>
+
+
+                {% if obj.overtime_hours %}
+                    <td>
+                        {% else %}
+                    <td class="bad">
+                {% endif %}
+                {{ obj.overtime_hours }}
+                </td>
+
+                <td>{{ obj.employee_type.get_cost_type_display }}</td>
+
+                {% if obj.cost %}
+                    <td>
+                        {% else %}
+                    <td class="bad">
+                {% endif %}
+                {{ obj.cost|floatformat:2|intcomma }}
+                </td>
+
+
+                <td>
+                    <a href="#"
+                       onclick="return popitup('{% url 'projects:staff_edit' obj.id %}','popoutWindow')">
+                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
+                             title="Edit">
+                    </a>
+                </td>
+                <td>
+                    <a class="staff-delete-me" href="#" val="{{ obj.id }}">
+                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                             title="Delete">
+                    </a>
+                    <a id="staff-secrect-delete-btn-{{ obj.id }}"
+                       href="{% url 'projects:staff_delete' obj.id %}" class="hidden"></a>
+                </td>
+            </tr>
+        {% endfor %}
+        {#    <tr style="font-weight: bold;">#}
+        {#        <td>Count: <span style="margin-left: 15px">{{ object.staff_members.count }}</span></td>#}
+        {#    </tr>#}
+        </tbody>
+    </table>
+{% endif %}
 <br>
