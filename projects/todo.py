@@ -1,6 +1,9 @@
-# TODO: on person form, the student dropdown should be disabled unless type = student
-# TODO: delete the project attributes
-# TODO: summary table
-# TODO: when create a new project, it should load with a whack load of categories.
 # TODO: remove ablity to add students and post-doc from staff..? Or we can just leave it.
-# TODO: when there is nothing in a sub table, it should say nothing! and not show an empty table
+# TODO: filter for projects
+# TODO: report for employee by FTE
+# TODO: my section
+# TODO: staff form: disable cost field when FTE
+# TODO: not sure what to do with overtime hours
+# TODO: you should only be able to delete a project if a) you are superuser or b) it is one of your projects
+# TODO: when you click submit project, should take you to a review page
+# TODO: there should be a print report option

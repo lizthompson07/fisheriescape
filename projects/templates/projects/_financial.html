@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load humanize %}
 <style>
     table, td {
         font-size: small;
@@ -16,20 +16,22 @@
         <th>Total Cost</th>
     </tr>
     <tbody>
-        <tr>
-            <td>Salary (excluding full time employees) </td>
-            <td>${{ salary_total|floatformat:2 }}</td>
-        </tr>
-        <tr>
-            <td>O & M</td>
-            <td>${{ om_total|floatformat:2 }}</td>
-
-        </tr>
-
-        <tr>
-            <td>G & C</td>
-
-        </tr>
+    <tr>
+        <td>Salary (excluding full time employees)</td>
+        <td>${{ salary_total|floatformat:2|intcomma }}</td>
+    </tr>
+    <tr>
+        <td>O & M</td>
+        <td>${{ om_total|floatformat:2|intcomma }}</td>
+    </tr>
+    <tr>
+        <td>Capital</td>
+        <td>${{ capital_total|floatformat:2|intcomma }}</td>
+    </tr>
+    <tr>
+        <td>G & C</td>
+        <td>${{ gc_total|floatformat:2|intcomma }}</td>
+    </tr>
 
 
     </tbody>

@@ -83,3 +83,19 @@ class OMCostForm(forms.ModelForm):
         widgets = {
             'project': forms.HiddenInput(),
         }
+
+class CapitalCostForm(forms.ModelForm):
+    class Meta:
+        model = models.CapitalCost
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+        }
+
+class GCCostForm(forms.ModelForm):
+    class Meta:
+        model = models.GCCost
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+        }

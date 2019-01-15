@@ -41,6 +41,7 @@ class Division(models.Model):
 
 class Section(models.Model):
     name = models.CharField(max_length=255)
+    section_head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return "{}".format(self.name)
@@ -75,7 +76,7 @@ class Project(models.Model):
     # basic
     project_title = models.TextField(verbose_name="Project title")
     division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects")
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True)
     budget_code = models.ForeignKey(BudgetCode, on_delete=models.DO_NOTHING, related_name="is_section_head_on_projects",
                                     blank=True, null=True)
@@ -170,7 +171,7 @@ class Staff(models.Model):
         (COOP, "Co-op"),
     ]
 
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="staff_members")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="staff_members")
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name="User")
     name = models.CharField(max_length=255, verbose_name="Person name (leave blank if user is selected)", blank=True,
                             null=True)
@@ -200,7 +201,7 @@ class Collaborator(models.Model):
         (PAR, "Partner"),
     ]
 
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="collaborators")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators")
     name = models.CharField(max_length=255, verbose_name="Name", blank=True,
                             null=True)
     type = models.IntegerField(choices=TYPE_CHOICES)
@@ -223,7 +224,7 @@ class CollaborativeAgreement(models.Model):
         (EXIST, "Existing"),
     ]
 
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="agreements")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="agreements")
     partner_organization = models.CharField(max_length=255, blank=True, null=True)
     project_lead = models.CharField(max_length=255, blank=True, null=True)
     agreement_title = models.CharField(max_length=255, verbose_name="Title of the agreement", blank=True, null=True)
@@ -262,10 +263,11 @@ class OMCategory(models.Model):
 
 
 class OMCost(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="om_costs")
-    om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs")
-    budget_requested = models.FloatField(default=0)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="om_costs")
+    om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs",
+                                    verbose_name="category")
     description = models.TextField(blank=True, null=True)
+    budget_requested = models.FloatField(default=0)
 
     def __str__(self):
         return "{}".format(self.om_category)
@@ -287,10 +289,10 @@ class CapitalCost(models.Model):
         (OTH, "Other"),
     )
 
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="capital_costs")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="capital_costs")
     category = models.IntegerField(choices=CATEGORY_CHOICES)
-    budget_requested = models.FloatField(default=0)
     description = models.TextField(blank=True, null=True)
+    budget_requested = models.FloatField(default=0)
 
     def __str__(self):
         return "{}".format(self.get_category_display())
@@ -300,7 +302,7 @@ class CapitalCost(models.Model):
 
 
 class GCCost(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="gc_costs")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="gc_costs")
     recipient_org = models.CharField(max_length=255, blank=True, null=True, verbose_name="Recipient organization")
     project_lead = models.CharField(max_length=255, blank=True, null=True)
     proposed_title = models.CharField(max_length=255, blank=True, null=True, verbose_name="Proposed title of agreement")
