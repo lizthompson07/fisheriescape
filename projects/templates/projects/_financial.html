@@ -18,19 +18,19 @@
     <tbody>
     <tr>
         <td>Salary (excluding full time employees)</td>
-        <td>${{ salary_total|floatformat:2|intcomma }}</td>
+        <td>{{ salary_total|floatformat:0|intcomma }}</td>
     </tr>
     <tr>
         <td>O & M</td>
-        <td>${{ om_total|floatformat:2|intcomma }}</td>
+        <td>{{ om_total|floatformat:0|intcomma }}</td>
     </tr>
     <tr>
         <td>Capital</td>
-        <td>${{ capital_total|floatformat:2|intcomma }}</td>
+        <td>{{ capital_total|floatformat:0|intcomma }}</td>
     </tr>
     <tr>
         <td>G & C</td>
-        <td>${{ gc_total|floatformat:2|intcomma }}</td>
+        <td>{{ gc_total|floatformat:0|intcomma }}</td>
     </tr>
 
 

@@ -168,7 +168,7 @@ class Staff(models.Model):
     COOP = 1
     STUDENT_PROGRAM_CHOICES = [
         (FSWEP, "FSWEP"),
-        (COOP, "Co-op"),
+        (COOP, "Coop"),
     ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="staff_members")

@@ -1,5 +1,7 @@
 {% load static %}
 {% load nz %}
+{% load humanize %}
+
 <style>
     table, td {
         font-size: small;
@@ -33,7 +35,7 @@
             <tr>
                 <td>{{ obj.om_category.get_group_display }}</td>
                 <td>{{ obj.om_category.name }}</td>
-                <td>${{ obj.budget_requested|floatformat:2 }}</td>
+                <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
                 <td>{{ obj.description|yesno:"yes,," }}</td>
 
                 <td>

@@ -129,7 +129,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         # first calc for staff
         for staff in project.staff_members.all():
             # exclude full time employees
-            if staff.employee_type.id != 1:
+            if staff.employee_type.id != 1 or staff.employee_type.id != 6:
                 if staff.employee_type.cost_type is 1:
                     salary_total += nz(staff.cost, 0)
                 elif staff.employee_type.cost_type is 2:
@@ -157,10 +157,12 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             can_delete = True
         else:
             for staff in project.staff_members.filter(employee_type_id=1):
-                if staff.user.id is self.request.user.id:
-                    print(123)
-                    can_delete = True
-                    break
+                try:
+                    if staff.user.id is self.request.user.id:
+                        can_delete = True
+                        break
+                except:
+                    print("staff has no user id")
 
         context["can_delete"] = can_delete
         return context
@@ -185,7 +187,7 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         # first calc for staff
         for staff in project.staff_members.all():
             # exclude full time employees
-            if staff.employee_type.id != 1:
+            if staff.employee_type.id != 1 or staff.employee_type.id != 6:
                 if staff.employee_type.cost_type is 1:
                     salary_total += nz(staff.cost, 0)
                 elif staff.employee_type.cost_type is 2:
@@ -261,7 +263,7 @@ class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
         # first calc for staff
         for staff in project.staff_members.all():
             # exclude full time employees
-            if staff.employee_type.id != 1:
+            if staff.employee_type.id != 1 or staff.employee_type.id != 6:
                 if staff.employee_type.cost_type is 1:
                     salary_total += nz(staff.cost, 0)
                 elif staff.employee_type.cost_type is 2:
