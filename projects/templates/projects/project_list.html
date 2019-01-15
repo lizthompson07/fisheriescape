@@ -4,10 +4,20 @@
 {% load timedelta %}
 
 {% block content %}
+    {% load bootstrap4 %}
+
+    <style>
+        form,input{
+            font-size: small;
+        }
+        table,td{
+            font-size: 14px;
+        }
+    </style>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">My Projects</li>
+            <li class="breadcrumb-item active" aria-current="page">All Projects</li>
             {#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
         </ol>
     </nav>
@@ -15,10 +25,28 @@
     <div class="container">
         <h1>All Projects:</h1>
 
-        <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">New Project</a>
-        <br> <br>
+        <form class="form" action="." method="get" >
+            <div class="row">
+
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-warning">
+                    <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">New Project</a>
+                </div>
+            </div>
+        </form>
+
+        <br>
         <table class="table table-hover table-sm">
             <thead>
+            <th scope="col">Fiscal Year</th>
             <th scope="col">Title</th>
             <th scope="col">Status</th>
             <th scope="col">Section</th>
@@ -27,8 +55,10 @@
             </thead>
             <tbody>
 
-            {% for obj in object_list %}
+            {% for obj in filter.qs %}
                 <tr>
+                    <td>{{ obj.fiscal_year }}</td>
+
                     <td>
                         <a href="{% url 'projects:project_detail' obj.id %}">
                             {{ obj.project_title }}
