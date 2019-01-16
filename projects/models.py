@@ -32,9 +32,10 @@ class BudgetCode(models.Model):
 
 class Division(models.Model):
     name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{}".format(getattr(self, str(_("name"))))
 
     class Meta:
         ordering = ['name', ]
@@ -42,10 +43,12 @@ class Division(models.Model):
 
 class Section(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name"))
-    section_head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("section head"))
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    section_head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                     verbose_name=_("section head"))
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{}".format(getattr(self, str(_("name"))))
 
     class Meta:
         ordering = ['name', ]
@@ -53,9 +56,10 @@ class Section(models.Model):
 
 class Program(models.Model):
     name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{}".format(getattr(self, str(_("name"))))
 
     class Meta:
         ordering = ['name', ]
@@ -63,9 +67,10 @@ class Program(models.Model):
 
 class Status(models.Model):
     name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{}".format(getattr(self, str(_("name"))))
 
     class Meta:
         ordering = ['name', ]
@@ -77,7 +82,8 @@ class Project(models.Model):
     # basic
     project_title = models.TextField(verbose_name=_("Project title"))
     division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects", verbose_name=_("section"))
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
+                                verbose_name=_("section"))
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("program"))
     budget_code = models.ForeignKey(BudgetCode, on_delete=models.DO_NOTHING, related_name="is_section_head_on_projects",
                                     blank=True, null=True, verbose_name=_("budget code"))
@@ -96,9 +102,11 @@ class Project(models.Model):
     # data
     data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected?"))
     data_sharing = models.TextField(blank=True, null=True,
-                                    verbose_name=_("Which of these data will be share-worthy and what is the plan to share / disseminate?"))
+                                    verbose_name=_(
+                                        "Which of these data will be share-worthy and what is the plan to share / disseminate?"))
     data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data Storage / Archiving Plan"))
-    metadata_url = models.URLField(blank=True, null=True, verbose_name=_("please provide link to metadata, if available"))
+    metadata_url = models.URLField(blank=True, null=True,
+                                   verbose_name=_("please provide link to metadata, if available"))
 
     # needs
     regional_dm = models.NullBooleanField(
@@ -110,18 +118,22 @@ class Project(models.Model):
     sectional_dm_needs = models.TextField(blank=True, null=True,
                                           verbose_name=_("If yes, please describe"))
     vehicle_needs = models.TextField(blank=True, null=True,
-                                     verbose_name=_("Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
+                                     verbose_name=_(
+                                         "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
     it_needs = models.TextField(blank=True, null=True, verbose_name=_("IT Requirements (software, licenses, hardware)"))
     chemical_needs = models.TextField(blank=True, null=True,
-                                      verbose_name=_("Please provide details regarding chemical needs and the plan for storage and disposal."))
+                                      verbose_name=_(
+                                          "Please provide details regarding chemical needs and the plan for storage and disposal."))
     ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, Charter) Requirements"))
 
     # admin
     feedback = models.TextField(blank=True, null=True,
                                 verbose_name=_("Do you have any feedback you would like to submit about this process?"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
+                                              verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("last modified by"))
 
     class Meta:
         ordering = ['id', ]
@@ -147,10 +159,11 @@ class EmployeeType(models.Model):
     ]
 
     name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
     cost_type = models.IntegerField(choices=COST_TYPE_CHOICES)
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{}".format(getattr(self, str(_("name"))))
 
 
 class Level(models.Model):
@@ -172,13 +185,15 @@ class Staff(models.Model):
         (COOP, "Coop"),
     ]
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="staff_members", verbose_name=_("project"))
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="staff_members",
+                                verbose_name=_("project"))
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True,
                             null=True)
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.DO_NOTHING, verbose_name=_("employee type"))
     level = models.ForeignKey(Level, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("level"))
-    student_program = models.IntegerField(choices=STUDENT_PROGRAM_CHOICES, blank=True, null=True, verbose_name=_("student program"))
+    student_program = models.IntegerField(choices=STUDENT_PROGRAM_CHOICES, blank=True, null=True,
+                                          verbose_name=_("student program"))
     duration_weeks = models.FloatField(default=0, blank=True, null=True, verbose_name=_("duration in weeks"))
     overtime_hours = models.FloatField(default=0, blank=True, null=True, verbose_name=_("overtime in hours"))
     cost = models.FloatField(blank=True, null=True, verbose_name=_("cost"))
@@ -202,8 +217,9 @@ class Collaborator(models.Model):
         (PAR, _("Partner")),
     ]
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project"))
-    name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True )
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators",
+                                verbose_name=_("project"))
+    name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)
     type = models.IntegerField(choices=TYPE_CHOICES, verbose_name=_("type"))
     critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
@@ -225,7 +241,8 @@ class CollaborativeAgreement(models.Model):
     ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="agreements", verbose_name=_("project"))
-    partner_organization = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("partner organization"))
+    partner_organization = models.CharField(max_length=255, blank=True, null=True,
+                                            verbose_name=_("partner organization"))
     project_lead = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("project lead"))
     agreement_title = models.CharField(max_length=255, verbose_name=_("Title of the agreement"), blank=True, null=True)
     new_or_existing = models.IntegerField(choices=NEW_OR_EXISTING_CHOICES, verbose_name=_("new or existing"))
@@ -253,13 +270,14 @@ class OMCategory(models.Model):
         (OTH, _("Contracts, Leases, Services")),
     )
     name = models.CharField(max_length=255, blank=True, null=True)
+    nom = models.CharField(max_length=255, blank=True, null=True)
     group = models.IntegerField(choices=GROUP_CHOICES)
 
     class Meta:
         ordering = ['group', 'name']
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.get_group_display())
+        return "{} ({})".format(getattr(self, str(_("name"))), self.get_group_display())
 
 
 class OMCost(models.Model):
@@ -289,7 +307,8 @@ class CapitalCost(models.Model):
         (OTH, _("Other")),
     )
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="capital_costs", verbose_name=_("project"))
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="capital_costs",
+                                verbose_name=_("project"))
     category = models.IntegerField(choices=CATEGORY_CHOICES, verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     budget_requested = models.FloatField(default=0, verbose_name=_("budget requested"))
@@ -305,7 +324,8 @@ class GCCost(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="gc_costs", verbose_name=_("project"))
     recipient_org = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Recipient organization"))
     project_lead = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("project lead"))
-    proposed_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Proposed title of agreement"))
+    proposed_title = models.CharField(max_length=255, blank=True, null=True,
+                                      verbose_name=_("Proposed title of agreement"))
     gc_program = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name of G&C program"))
     budget_requested = models.FloatField(default=0, verbose_name=_("budget requested"))
 
