@@ -10,6 +10,7 @@ import django_filters
 class ProjectFilter(django_filters.FilterSet):
     FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in
                   range(timezone.now().year - 2, timezone.now().year + 1)]
+    # SECTION_CHOICES = [(None, "----"),]
     DIVISION_CHOICES = [(d.id, str(d)) for d in models.Division.objects.all()]
     SECTION_CHOICES = [(s.id, str(s)) for s in models.Section.objects.all()]
 
