@@ -1,0 +1,984 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-01-16 13:14-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\glf_sci_site\settings.py:196
+msgid "English"
+msgstr "anglais"
+
+#: .\glf_sci_site\settings.py:197
+msgid "French"
+msgstr "français"
+
+#: .\projects\models.py:24 .\projects\models.py:44
+msgid "name"
+msgstr "nom"
+
+#: .\projects\models.py:45
+msgid "section head"
+msgstr "chef de section"
+
+#: .\projects\models.py:75
+msgid "fiscal year"
+msgstr "année fiscale"
+
+#: .\projects\models.py:78
+msgid "Project title"
+msgstr "titre du projet"
+
+#: .\projects\models.py:80
+msgid "section"
+msgstr "section"
+
+#: .\projects\models.py:81
+msgid "program"
+msgstr "Programme"
+
+#: .\projects\models.py:83
+msgid "budget code"
+msgstr "Code budgétaire"
+
+#: .\projects\models.py:85
+msgid "project status"
+msgstr "L'état du projet"
+
+#: .\projects\models.py:86
+msgid "Has this project already been approved?"
+msgstr "Ce projet a-t-il déjà été approuvé?"
+
+#: .\projects\models.py:87
+msgid "Start Date"
+msgstr "Date de début"
+
+#: .\projects\models.py:88
+msgid "End Date"
+msgstr "Date de fin"
+
+#: .\projects\models.py:91
+msgid "Project Objective & Description"
+msgstr "Objectif du projet et description"
+
+#: .\projects\models.py:92
+msgid "Project-specific priorities in 2019/2020"
+msgstr "Priorités spécifiques aux projets en 2019-2020"
+
+#: .\projects\models.py:94
+msgid "Project Deliverables in 2019 / 2020 (bulleted form)"
+msgstr "Livrables du projet en 2019/2020 (sous forme de puce)"
+
+#: .\projects\models.py:97
+msgid "What type of data will be collected?"
+msgstr "Quel type de données sera collecté?"
+
+#: .\projects\models.py:99
+msgid ""
+"Which of these data will be share-worthy and what is the plan to share / "
+"disseminate?"
+msgstr ""
+"Lesquelles de ces données seront partageables et quel est le plan de "
+"partage / diffusion?"
+
+#: .\projects\models.py:100
+msgid "Data Storage / Archiving Plan"
+msgstr "Plan de stockage / archivage des données"
+
+#: .\projects\models.py:101
+msgid "please provide link to metadata, if available"
+msgstr "Veuillez fournir un lien vers les métadonnées, le cas échéant"
+
+#: .\projects\models.py:105
+msgid "Does the program require assistance of the branch data manager?"
+msgstr ""
+"Le programme nécessite-t-il l'assistance du gestionnaire de données de la "
+"succursale?"
+
+#: .\projects\models.py:107 .\projects\models.py:111
+msgid "If yes, please describe"
+msgstr "Si oui, veuillez décrire"
+
+#: .\projects\models.py:109
+msgid "Does the program require assistance of the section's data manager?"
+msgstr ""
+"Le programme a-t-il besoin de l'aide du gestionnaire de données de la "
+"section?"
+
+#: .\projects\models.py:113
+msgid ""
+"Describe need for vehicle (type of vehicle, number of weeks, time-frame)"
+msgstr ""
+
+#: .\projects\models.py:114
+msgid "IT Requirements (software, licenses, hardware)"
+msgstr ""
+
+#: .\projects\models.py:116
+msgid ""
+"Please provide details regarding chemical needs and the plan for storage and "
+"disposal."
+msgstr ""
+"Décrivez le besoin de véhicule (type de véhicule, nombre de semaines, "
+"calendrier)"
+
+#: .\projects\models.py:117
+msgid "Ship (Coast Guard, Charter) Requirements"
+msgstr "Navires (garde côtière, charter)"
+
+#: .\projects\models.py:121
+msgid "Do you have any feedback you would like to submit about this process?"
+msgstr "Avez-vous des commentaires à formuler sur ce processus?"
+
+#: .\projects\models.py:122
+msgid "Submit project for review"
+msgstr "Soumettre le projet"
+
+#: .\projects\models.py:123
+msgid "date last modified"
+msgstr "Date de dernière modification"
+
+#: .\projects\models.py:124
+msgid "last modified by"
+msgstr "Dernière modification par"
+
+#: .\projects\models.py:145
+msgid "Salary"
+msgstr "Salaire"
+
+#: .\projects\models.py:146 .\projects\views.py:490
+msgid "O&M"
+msgstr "F & E"
+
+#: .\projects\models.py:175 .\projects\models.py:205 .\projects\models.py:227
+#: .\projects\models.py:266 .\projects\models.py:292 .\projects\models.py:305
+msgid "project"
+msgstr "projet"
+
+#: .\projects\models.py:176
+msgid "User"
+msgstr "Utilisateur"
+
+#: .\projects\models.py:177
+msgid "Person name (leave blank if user is selected)"
+msgstr "Nom de la personne (laisser vide si l'utilisateur est sélectionné)"
+
+#: .\projects\models.py:179
+msgid "employee type"
+msgstr "Type d'employé"
+
+#: .\projects\models.py:180
+msgid "level"
+msgstr "niveau"
+
+#: .\projects\models.py:181
+msgid "student program"
+msgstr "Programme d'étudiant"
+
+#: .\projects\models.py:182
+msgid "duration in weeks"
+msgstr "Durée en semaines"
+
+#: .\projects\models.py:183
+msgid "overtime in hours"
+msgstr "Heures supplémentaires"
+
+#: .\projects\models.py:184
+msgid "cost"
+msgstr "Coût"
+
+#: .\projects\models.py:201
+msgid "Collaborator"
+msgstr "Collaborateur "
+
+#: .\projects\models.py:202
+msgid "Partner"
+msgstr "Partenaire"
+
+#: .\projects\models.py:206
+#: .\projects\templates\projects\_collaborators.html:30
+#: .\projects\templates\projects\_staff.html:32
+#: .\projects\templates\projects\project_report.html:40
+#: .\projects\templates\projects\project_report.html:119
+msgid "Name"
+msgstr "Nom"
+
+#: .\projects\models.py:207
+msgid "type"
+msgstr "type"
+
+#: .\projects\models.py:208
+msgid "Critical to project delivery"
+msgstr "Critique à la livraison du projet"
+
+#: .\projects\models.py:209 .\projects\models.py:232
+msgid "notes"
+msgstr "remarques"
+
+#: .\projects\models.py:228
+msgid "partner organization"
+msgstr "Organisation partenaire"
+
+#: .\projects\models.py:229 .\projects\models.py:307
+msgid "project lead"
+msgstr "Chef de projet"
+
+#: .\projects\models.py:230
+msgid "Title of the agreement"
+msgstr "Titre de l'accord"
+
+#: .\projects\models.py:231
+msgid "new or existing"
+msgstr "Nouveau ou existant"
+
+#: .\projects\models.py:249
+msgid "Travel"
+msgstr "Voyage"
+
+#: .\projects\models.py:250
+msgid "Equipment Purchase"
+msgstr "Achat d'équipement"
+
+#: .\projects\models.py:251
+msgid "Material and Supplies"
+msgstr "Matériel et fournitures"
+
+#: .\projects\models.py:252
+msgid "Human Resources"
+msgstr "Ressources humaines"
+
+#: .\projects\models.py:253
+msgid "Contracts, Leases, Services"
+msgstr "Contrats, baux, services"
+
+#: .\projects\models.py:268 .\projects\models.py:293
+msgid "category"
+msgstr "catégorie"
+
+#: .\projects\models.py:269 .\projects\models.py:294
+msgid "description"
+msgstr "description"
+
+#: .\projects\models.py:270 .\projects\models.py:295 .\projects\models.py:310
+msgid "budget requested"
+msgstr "Budget demandé"
+
+#: .\projects\models.py:286
+msgid "IM / IT - computers, hardware"
+msgstr "GI / TI - ordinateurs, matériel"
+
+#: .\projects\models.py:287
+msgid "Lab Equipment"
+msgstr "Équipement de laboratoire"
+
+#: .\projects\models.py:288
+msgid "Field Equipment"
+msgstr "Équipement de terrain"
+
+#: .\projects\models.py:289
+msgid "Other"
+msgstr "Autre"
+
+#: .\projects\models.py:306
+msgid "Recipient organization"
+msgstr "Organisation destinataire"
+
+#: .\projects\models.py:308
+msgid "Proposed title of agreement"
+msgstr "Titre de l'accord proposé"
+
+#: .\projects\models.py:309
+msgid "Name of G&C program"
+msgstr "Nom du programme de S & C"
+
+#: .\projects\templates\projects\_agreements.html:11
+#: .\projects\templates\projects\project_report.html:150
+msgid "Collaborative Agreements:"
+msgstr "Ententes de collaboration"
+
+#: .\projects\templates\projects\_agreements.html:17
+msgid "Add Agreement"
+msgstr "Ajouter un accord"
+
+#: .\projects\templates\projects\_agreements.html:23
+#: .\projects\templates\projects\project_report.html:155
+msgid "No Collaborative Agreements"
+msgstr "Aucun accord de collaboration"
+
+#: .\projects\templates\projects\_agreements.html:30
+#: .\projects\templates\projects\project_report.html:162
+msgid "Partner Organization"
+msgstr "Organisation partenaire"
+
+#: .\projects\templates\projects\_agreements.html:33
+#: .\projects\templates\projects\project_report.html:165
+#: .\projects\templates\projects\project_report.html:286
+msgid "Project Lead"
+msgstr "Chef de projet"
+
+#: .\projects\templates\projects\_agreements.html:36
+#: .\projects\templates\projects\project_report.html:168
+msgid "Agreement Title"
+msgstr "Titre de l'accord"
+
+#: .\projects\templates\projects\_capital_costs.html:13
+#: .\projects\templates\projects\project_report.html:235
+msgid "Capital Requests:"
+msgstr "Demandes de capital:"
+
+#: .\projects\templates\projects\_capital_costs.html:19
+msgid "Add Capital"
+msgstr "Ajouter du capital"
+
+#: .\projects\templates\projects\_capital_costs.html:26
+#: .\projects\templates\projects\project_report.html:240
+msgid "No Capital Requests"
+msgstr "Aucune demande de capital"
+
+#: .\projects\templates\projects\_capital_costs.html:34
+#: .\projects\templates\projects\_financial.html:19
+#: .\projects\templates\projects\_om_costs.html:37
+#: .\projects\templates\projects\project_report.html:209
+#: .\projects\templates\projects\project_report.html:247
+#: .\projects\templates\projects\project_report.html:332
+msgid "Category"
+msgstr "Catégorie"
+
+#: .\projects\templates\projects\_capital_costs.html:37
+#: .\projects\templates\projects\project_report.html:212
+#: .\projects\templates\projects\project_report.html:250
+msgid "Description"
+msgstr "Description"
+
+#: .\projects\templates\projects\_capital_costs.html:40
+#: .\projects\templates\projects\_gc_costs.html:39
+#: .\projects\templates\projects\_om_costs.html:40
+#: .\projects\templates\projects\project_report.html:215
+#: .\projects\templates\projects\project_report.html:253
+#: .\projects\templates\projects\project_report.html:295
+msgid "Budget Requested"
+msgstr "Budget demandé"
+
+#: .\projects\templates\projects\_collaborators.html:11
+#: .\projects\templates\projects\project_report.html:108
+msgid "Collaborators & Partners:"
+msgstr "Collaborateurs et partenaires:"
+
+#: .\projects\templates\projects\_collaborators.html:17
+msgid "Add Collaborator"
+msgstr "Ajout d'un collaborateur"
+
+#: .\projects\templates\projects\_collaborators.html:23
+#: .\projects\templates\projects\project_report.html:112
+msgid "No Collaborators or Partners"
+msgstr "Aucun collaborateur ou partenaire"
+
+#: .\projects\templates\projects\_collaborators.html:33
+#: .\projects\templates\projects\project_report.html:122
+msgid "Type"
+msgstr "Type"
+
+#: .\projects\templates\projects\_collaborators.html:36
+#: .\projects\templates\projects\project_report.html:125
+msgid "Critical to project?"
+msgstr "Critique au projet?"
+
+#: .\projects\templates\projects\_financial.html:12
+#: .\projects\templates\projects\project_report.html:325
+msgid "Financial Summary:"
+msgstr "Résumé financier:"
+
+#: .\projects\templates\projects\_financial.html:22
+#: .\projects\templates\projects\project_report.html:335
+msgid "Total Cost"
+msgstr "Coût total"
+
+#: .\projects\templates\projects\_financial.html:28
+#: .\projects\templates\projects\project_report.html:341
+msgid "Salary (excluding full time employees)"
+msgstr "Salaire (excluant les employés à temps plein)"
+
+#: .\projects\templates\projects\_financial.html:34
+#: .\projects\templates\projects\project_report.html:347
+msgid "O & M"
+msgstr "F & E"
+
+#: .\projects\templates\projects\_financial.html:40
+#: .\projects\templates\projects\project_report.html:353
+msgid "Capital"
+msgstr "Capital"
+
+#: .\projects\templates\projects\_financial.html:46
+#: .\projects\templates\projects\project_report.html:359
+msgid "G & C"
+msgstr "S & C"
+
+#: .\projects\templates\projects\_gc_costs.html:14
+#: .\projects\templates\projects\project_report.html:271
+msgid "G&C Requests:"
+msgstr "Demandes de S & C:"
+
+#: .\projects\templates\projects\_gc_costs.html:20
+msgid "Add G&C"
+msgstr "Ajouter S & C"
+
+#: .\projects\templates\projects\_gc_costs.html:26
+#: .\projects\templates\projects\project_report.html:276
+msgid "No G&C Requests"
+msgstr "Aucune demande de S et C"
+
+#: .\projects\templates\projects\_gc_costs.html:33
+#: .\projects\templates\projects\project_report.html:283
+msgid "Recipient Organization"
+msgstr "Organisation destinataire"
+
+#: .\projects\templates\projects\_gc_costs.html:36
+#: .\projects\templates\projects\project_report.html:292
+msgid "G&C Program"
+msgstr "Programme de S & C"
+
+#: .\projects\templates\projects\_om_costs.html:13
+#: .\projects\templates\projects\project_report.html:194
+msgid "O&M Requests:"
+msgstr "Demandes de F & E:"
+
+#: .\projects\templates\projects\_om_costs.html:19
+msgid "Add O&M"
+msgstr "Ajouter F & E:"
+
+#: .\projects\templates\projects\_om_costs.html:27
+#: .\projects\templates\projects\project_report.html:199
+msgid "No O&M Requests"
+msgstr "Aucune demande de F & E"
+
+#: .\projects\templates\projects\_om_costs.html:34
+#: .\projects\templates\projects\project_report.html:206
+msgid "Category Type"
+msgstr "Type de catégorie"
+
+#: .\projects\templates\projects\_om_costs.html:43
+msgid "Description provided"
+msgstr "Description fournie"
+
+#: .\projects\templates\projects\_staff.html:13
+#: .\projects\templates\projects\project_report.html:31
+msgid "Project Staff:"
+msgstr "Personnel du projet:"
+
+#: .\projects\templates\projects\_staff.html:19
+msgid "Add Staff"
+msgstr "Ajouté personnel"
+
+#: .\projects\templates\projects\_staff.html:25
+msgid "No Staff Members"
+msgstr "Aucune demande de personnel"
+
+#: .\projects\templates\projects\_staff.html:35
+#: .\projects\templates\projects\project_report.html:43
+msgid "Employee type"
+msgstr "Type d'employé"
+
+#: .\projects\templates\projects\_staff.html:38
+#: .\projects\templates\projects\project_report.html:46
+msgid "Level"
+msgstr "Niveau"
+
+#: .\projects\templates\projects\_staff.html:41
+#: .\projects\templates\projects\project_report.html:49
+msgid "Duration (weeks)"
+msgstr "Durée en semaines"
+
+#: .\projects\templates\projects\_staff.html:44
+#: .\projects\templates\projects\project_report.html:52
+msgid "Overtime hours"
+msgstr "Heures supplémentaires"
+
+#: .\projects\templates\projects\_staff.html:47
+#: .\projects\templates\projects\project_report.html:55
+msgid "Cost Category"
+msgstr "Catégorie de coût"
+
+#: .\projects\templates\projects\_staff.html:50
+#: .\projects\templates\projects\project_report.html:58
+msgid "Cost"
+msgstr "Coût"
+
+#: .\projects\templates\projects\agreement_form_popout.html:28
+#: .\projects\templates\projects\collaborator_form_popout.html:28
+msgid "Editing:"
+msgstr "Modification:"
+
+#: .\projects\templates\projects\agreement_form_popout.html:31
+msgid "Adding Collaborative Agreement"
+msgstr "Ajout d'un accord de collaboration"
+
+#: .\projects\templates\projects\agreement_form_popout.html:45
+#: .\projects\templates\projects\collaborator_form_popout.html:45
+#: .\projects\templates\projects\cost_form_popout.html:48
+#: .\projects\templates\projects\project_submit_form.html:22
+#: .\projects\templates\projects\staff_form_popout.html:52
+msgid "Submit"
+msgstr "Soumettre"
+
+#: .\projects\templates\projects\agreement_form_popout.html:48
+#: .\projects\templates\projects\collaborator_form_popout.html:48
+#: .\projects\templates\projects\cost_form_popout.html:51
+#: .\projects\templates\projects\staff_form_popout.html:55
+msgid "Close"
+msgstr "Fermé"
+
+#: .\projects\templates\projects\collaborator_form_popout.html:31
+msgid "Adding Collaborator"
+msgstr "Ajout d'un collaborateur"
+
+#: .\projects\templates\projects\cost_form_popout.html:28
+#, python-format
+msgid ""
+"\n"
+"                    Editing %(ct)s Request: %(o)s\n"
+"                "
+msgstr ""
+"\n"
+"                    Modification de demande %(ct)s : %(o)s\n"
+"                "
+
+#: .\projects\templates\projects\cost_form_popout.html:32
+#, python-format
+msgid ""
+"\n"
+"                    Adding %(ct)s Request\n"
+"                "
+msgstr ""
+"\n"
+"                    Ajouter une demande %(ct)s\n"
+"                "
+
+#: .\projects\templates\projects\index.html:11
+msgid "Project Planning 2019-2020"
+msgstr "Planification de projets 2019-2020"
+
+#: .\projects\templates\projects\index.html:15
+msgid "Gulf Science Project Planning Application"
+msgstr "Application de planification de projet scientifique du Golfe"
+
+#: .\projects\templates\projects\index.html:30
+#, python-format
+msgid ""
+"\n"
+"                            You must be <a href=\"%(sign_in_url)s?next="
+"%(next_url)s\">signed in</a> to use this\n"
+"                            application.\n"
+"                        "
+msgstr ""
+"\n"
+"                            vous devez être <a href=\"%(sign_in_url)s?next="
+"%(next_url)s\">connecté</a> pour utiliser cette\n"
+"                            application.\n"
+"                        "
+
+#: .\projects\templates\projects\index.html:35
+#, python-format
+msgid ""
+"\n"
+"                            If you do not have an account, you can create "
+"one <a href=\"%(sign_up_url)s\">here</a>.\n"
+"                        "
+msgstr ""
+"\n"
+"                            Si vous n'avez pas de compte, vous pouvez en "
+"créer<a href=\"%(sign_up_url)s\">ici</a>.\n"
+"                        "
+
+#: .\projects\templates\projects\index.html:53
+#, python-format
+msgid ""
+"\n"
+"                        Click\n"
+"                        <a href=\"%(new_proj_url)s\">HERE</a> to create a "
+"new project.\n"
+"                        <br><br>\n"
+"                        To view or edit an existing project, go to <a href="
+"\"%(my_proj_url)s\">Your\n"
+"                        Projects</a>.\n"
+"                        <br><br>\n"
+"                        For a list of all project in the branch, go to <a "
+"href=\"%(all_proj_url)s\">All\n"
+"                        Projects</a>.\n"
+"                    "
+msgstr ""
+"\n"
+"                        Cliquez\n"
+"                        <a href=\"%(new_proj_url)s\">ICI</a> pour créer un "
+"nouveau projet.\n"
+"                        <br><br>\n"
+"                        Pour afficher ou modifier un projet existant, allez "
+"dans <a href=\"%(my_proj_url)s\">Vos\n"
+"                        projets</a>.\n"
+"                        <br><br>\n"
+"                        Pour obtenir une liste de tous les projets de la "
+"branche, allez dans <a href=\"%(all_proj_url)s\">Tous les projets\n"
+"                        </a>.\n"
+"                    "
+
+#: .\projects\templates\projects\my_project_list.html:12
+#: .\projects\templates\projects\project_confirm_delete.html:11
+#: .\projects\templates\projects\project_detail.html:19
+#: .\projects\templates\projects\project_form.html:11
+#: .\projects\templates\projects\project_submit_form.html:12
+#: .\projects\templates\projects\projects_base.html:32
+msgid "My Projects"
+msgstr "Mes projets"
+
+#: .\projects\templates\projects\my_project_list.html:20
+#, python-format
+msgid ""
+"\n"
+"                %(name)s's Project List:\n"
+"            "
+msgstr ""
+"\n"
+"                Liste de projets de %(name)s:\n"
+"            "
+
+#: .\projects\templates\projects\my_project_list.html:27
+#, python-format
+msgid ""
+"\n"
+"                You are currently being planned for %(wt)s week%(plur)s\n"
+"            "
+msgstr ""
+"\n"
+"                Vous êtes actuellement prévu pour %(wt)s semaine%(plur)s\n"
+"            "
+
+#: .\projects\templates\projects\my_project_list.html:34
+#: .\projects\templates\projects\my_section_list.html:28
+#: .\projects\templates\projects\project_form.html:21
+#: .\projects\templates\projects\project_form.html:32
+#: .\projects\templates\projects\project_list.html:47
+msgid "New Project"
+msgstr "Nouveau projet"
+
+#: .\projects\templates\projects\my_project_list.html:40
+#: .\projects\templates\projects\my_section_list.html:34
+#: .\projects\templates\projects\project_list.html:60
+msgid "Title"
+msgstr "Titre"
+
+#: .\projects\templates\projects\my_project_list.html:43
+#: .\projects\templates\projects\my_section_list.html:37
+#: .\projects\templates\projects\project_list.html:63 .\templates\index.html:47
+msgid "Status"
+msgstr "Statut"
+
+#: .\projects\templates\projects\my_project_list.html:46
+#: .\projects\templates\projects\my_section_list.html:40
+#: .\projects\templates\projects\project_list.html:66
+msgid "Section"
+msgstr "Section"
+
+#: .\projects\templates\projects\my_project_list.html:49
+msgid "Role"
+msgstr "Rôle"
+
+#: .\projects\templates\projects\my_project_list.html:52
+msgid "No. weeks"
+msgstr "No. de semaines"
+
+#: .\projects\templates\projects\my_project_list.html:55
+#: .\projects\templates\projects\my_section_list.html:43
+#: .\projects\templates\projects\project_list.html:69
+msgid "Submitted"
+msgstr "Soumis"
+
+#: .\projects\templates\projects\my_project_list.html:79
+#: .\projects\templates\projects\my_section_list.html:65
+msgid "yes,no"
+msgstr "oui,non"
+
+#: .\projects\templates\projects\my_section_list.html:11
+#: .\projects\templates\projects\projects_base.html:35
+msgid "My Section"
+msgstr "Ma section"
+
+#: .\projects\templates\projects\my_section_list.html:20
+#, python-format
+msgid ""
+"\n"
+"                    Projects Listed under %(name)s's Section%(plur)s:\n"
+"                "
+msgstr ""
+"\n"
+"                    Projets listé dans la/les section%(plur)s de %(name)s:\n"
+"                "
+
+#: .\projects\templates\projects\my_section_list.html:76
+msgid ""
+"\n"
+"                    There are no sections assigned to you. If there should "
+"be, please contact <a\n"
+"                        href=\"mailto:david.fishman@dfo-mpo.gc.ca\">david."
+"fishman@dfo-mpo.gc.ca</a>\n"
+"                "
+msgstr ""
+"\n"
+"                    Il n'y a pas de sections assignées à vous. S'il y en a, "
+"veuillez contacter <a\n"
+"                        href=\"mailto:david.fishman@dfo-mpo.gc.ca\">david."
+"fishman@dfo-mpo.gc.ca</a>\n"
+"                "
+
+#: .\projects\templates\projects\project_confirm_delete.html:14
+msgid "Project Detail"
+msgstr "Détails du projet"
+
+#: .\projects\templates\projects\project_confirm_delete.html:17
+msgid "Delete Project"
+msgstr "Supprimer le projet"
+
+#: .\projects\templates\projects\project_confirm_delete.html:25
+#, python-format
+msgid ""
+"\n"
+"                Are you sure you want to delete the project entitled: <em>"
+"%(o)s</em> from the database?\n"
+"            "
+msgstr ""
+"\n"
+"                Êtes-vous sûr de vouloir supprimer le projet suivant : <em>"
+"%(o)s</em>\n"
+"            "
+
+#: .\projects\templates\projects\project_confirm_delete.html:37
+#: .\projects\templates\projects\project_detail.html:42
+msgid "Delete"
+msgstr "Supprimer"
+
+#: .\projects\templates\projects\project_confirm_delete.html:40
+#: .\projects\templates\projects\project_form.html:64
+#: .\projects\templates\projects\project_form.html:68
+#: .\projects\templates\projects\project_submit_form.html:50
+#: .\projects\templates\projects\project_submit_form.html:66
+msgid "Cancel"
+msgstr "Annuler"
+
+#: .\projects\templates\projects\project_detail.html:30
+msgid "SUBMITTED"
+msgstr "SOUMIS"
+
+#: .\projects\templates\projects\project_detail.html:33
+msgid "DRAFT VERSION"
+msgstr "ÉBAUCHE"
+
+#: .\projects\templates\projects\project_detail.html:46
+msgid "Add/Edit Project Details"
+msgstr "Ajouter / Modifier les détails du projet"
+
+#: .\projects\templates\projects\project_detail.html:49
+msgid "Export PDF"
+msgstr "Exporter le PDF"
+
+#: .\projects\templates\projects\project_detail.html:57
+msgid "Unsubmit Project"
+msgstr "Annuler la soumission"
+
+#: .\projects\templates\projects\project_detail.html:61
+msgid "SUBMIT PROJECT"
+msgstr "SOUMETTRE LE PROJET"
+
+#: .\projects\templates\projects\project_detail.html:72
+msgid "Project Summary:"
+msgstr "Résumé du projet:"
+
+#: .\projects\templates\projects\project_detail.html:111
+msgid "Are you sure you want to delete this staff member from the project?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce membre du personnel du projet?"
+
+#: .\projects\templates\projects\project_form.html:17
+msgid "Edit"
+msgstr "Modifier"
+
+#: .\projects\templates\projects\project_form.html:54
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: .\projects\templates\projects\project_form.html:58
+msgid "Add"
+msgstr "Ajouter"
+
+#: .\projects\templates\projects\project_list.html:22
+#: .\projects\templates\projects\projects_base.html:38
+msgid "All Projects"
+msgstr "Tous les projets"
+
+#: .\projects\templates\projects\project_list.html:30
+msgid "All Projects:"
+msgstr "Tous les projets:"
+
+#: .\projects\templates\projects\project_list.html:57
+msgid "Fiscal Year"
+msgstr "Année fiscale"
+
+#: .\projects\templates\projects\project_report.html:22
+msgid "Project Detail:"
+msgstr "Détails du projet:"
+
+#: .\projects\templates\projects\project_report.html:128
+#: .\projects\templates\projects\project_report.html:174
+msgid "Notes"
+msgstr "Remarques"
+
+#: .\projects\templates\projects\project_report.html:171
+msgid "New or Existing"
+msgstr "Nouveau ou existant"
+
+#: .\projects\templates\projects\project_report.html:289
+msgid "Proposed Title"
+msgstr "Titre proposé"
+
+#: .\projects\templates\projects\project_submit_form.html:18
+msgid "Unsubmit"
+msgstr "Annuler la soumission"
+
+#: .\projects\templates\projects\project_submit_form.html:32
+msgid "Are you sure you want to unsubmit the this project?"
+msgstr "Êtes-vous sûr de vouloir annuler la soumission de ce projet?"
+
+#: .\projects\templates\projects\project_submit_form.html:34
+msgid "Are you sure you want to submit the following project?"
+msgstr "Êtes-vous sûr de vouloir soumettre le projet"
+
+#: .\projects\templates\projects\project_submit_form.html:47
+#: .\projects\templates\projects\project_submit_form.html:63
+msgid "OK"
+msgstr "D'accord"
+
+#: .\projects\templates\projects\projects_base.html:9
+msgid "View bugs for this app"
+msgstr "Voir les bugs pour cette application"
+
+#: .\projects\templates\projects\projects_base.html:17
+msgid "Project Planning"
+msgstr "Planification de projets (Science)"
+
+#: .\projects\templates\projects\projects_base.html:29
+msgid "Home"
+msgstr "Accueil"
+
+#: .\projects\templates\projects\staff_form_popout.html:36
+msgid "Editing Staff Member:"
+msgstr "Modification au personnel:"
+
+#: .\projects\templates\projects\staff_form_popout.html:38
+msgid "Adding Staff Member"
+msgstr "Ajouter de personnel"
+
+#: .\templates\_language_form.html:18
+msgid "go"
+msgstr "aller"
+
+#: .\templates\base.html:33
+msgid "DM Home"
+msgstr "Accueil GD"
+
+#: .\templates\base.html:63
+msgid "Bugs"
+msgstr "Bogues"
+
+#: .\templates\base.html:68
+msgid "New Report"
+msgstr "Nouveau rapport"
+
+#: .\templates\base.html:72
+msgid "All Bugs"
+msgstr "Tous les bugs"
+
+#: .\templates\base.html:77
+msgid "Logout"
+msgstr "Déconnecter"
+
+#: .\templates\base.html:85
+msgid "Sign In"
+msgstr "Connecter"
+
+#: .\templates\index.html:7
+msgid "Data Management Home"
+msgstr "Gestion de données"
+
+#: .\templates\index.html:17
+msgid "DFO Science"
+msgstr "Science du MPO"
+
+#: .\templates\index.html:21
+msgid "Gulf Region Data Management"
+msgstr "Gestion des données de la Région du Golfe"
+
+#: .\templates\index.html:29
+#, python-format
+msgid ""
+"\n"
+"                        Welcome back, %(name)s! Please select an application "
+"below.\n"
+"                    "
+msgstr ""
+"\n"
+"                        Bienvenue, %(name)s! Veuillez sélectionner une "
+"application ci-dessous.\n"
+"                    "
+
+#: .\templates\index.html:33
+msgid "Welcome! Please select an application below."
+msgstr "Bienvenue! Veuillez sélectionner une application ci-dessous."
+
+#: .\templates\index.html:44
+msgid "Application Name"
+msgstr "Nom de l'application"
+
+#: .\templates\index.html:62
+msgid "Regional Data Inventory"
+msgstr "Inventaire régional des données"
+
+#: .\templates\index.html:76
+msgid "Data Management Ticketing System"
+msgstr "Système de billetterie de gestion de données"
+
+#: .\templates\index.html:90
+msgid "grAIS: Gulf Region Aquatic Invasive Species"
+msgstr "grAIS: Espèces aquatiques envahissantes"
+
+#: .\templates\index.html:118
+msgid "Gulf Region Oceanographic Archive"
+msgstr "Archives océanographiques de la région du Golfe"
+
+#: .\templates\index.html:132
+msgid "Community Aquatic Monitoring Program (CAMP) db"
+msgstr "Programme de surveillance de la communauté aquatique (PSCA)"
+
+#: .\templates\index.html:145
+msgid "Science Project Planning"
+msgstr "Planification de projets (Science)"
+
+#: .\templates\index.html:158
+msgid "Gulf Region Snow Crab db"
+msgstr "base de données de Crabe des neiges"
+
+#: .\templates\index.html:172
+msgid "Marine Diets db"
+msgstr "Marine Diets db"
+
+#: .\templates\index.html:186
+msgid "Marine Environmental Quality (MEQ) db"
+msgstr "Qualité de l'environnement marin (QEM)"

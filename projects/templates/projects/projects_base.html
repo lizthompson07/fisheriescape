@@ -1,40 +1,53 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 {% load bootstrap4 %}
 {% block bug_create %}{% url 'bugs:bug_create' 10 %}{% endblock bug_create %}
 
 {% block bug_list_4_app %}
-  <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 10 %}">Inventory Bugs</a>
+    <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 10 %}">
+        {% trans "View bugs for this app" %}
+    </a>
 {% endblock bug_list_4_app %}
 
 
 
 
-{% block title %}Project Planning{% endblock title %}
+{% block title %}
+    {% trans "Project Planning" %}
+{% endblock title %}
 
 {% block body %}
-  {% block content %}{% endblock content %}
+    {% block content %}{% endblock content %}
 {% endblock body %}
 
 {% block left_unauth %}
 {% endblock left_unauth %}
 
 {% block left_auth %}
-  <li class="nav-item"><a class="nav-link" href="{% url 'projects:index' %}"> Home </a></li>
-  <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_project_list' %}"> My Projects </a></li>
-  <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_section_list' %}"> My Section </a></li>
-  <li class="nav-item"><a class="nav-link" href="{% url 'projects:project_list' %}"> All Projects </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'projects:index' %}">
+        {% trans "Home" %}
+    </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_project_list' %}">
+        {% trans "My Projects" %}
+    </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_section_list' %}">
+        {% trans "My Section" %}
+    </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'projects:project_list' %}">
+        {% trans "All Projects" %}
+    </a></li>
 
-{#  {% for group in user.groups.all %}#}
-{#    {% if group.name == "inventory_section_head"   %}#}
-{#      <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a></li>#}
-{#    {% endif %}#}
-{##}
-{#  {% endfor %}#}
+    {#  {% for group in user.groups.all %}#}
+    {#    {% if group.name == "inventory_section_head"   %}#}
+    {#      <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a></li>#}
+    {#    {% endif %}#}
+    {##}
+    {#  {% endfor %}#}
 
 
 
 {% endblock left_auth %}
 {% block left_admin %}
-{#  <li class="nav-item"><a class="nav-link" href="{% url 'inventory:dm_home' %}"> DM Admin </a></li>#}
+    {#  <li class="nav-item"><a class="nav-link" href="{% url 'inventory:dm_home' %}"> DM Admin </a></li>#}
 {% endblock left_admin %}
