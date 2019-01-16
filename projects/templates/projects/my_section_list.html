@@ -2,65 +2,83 @@
 {% load static %}
 {% load humanize %}
 {% load timedelta %}
-
+{% load i18n %}
 {% block content %}
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">My Section</li>
-            {#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "My Section" %}
+            </li>
         </ol>
     </nav>
 
     <div class="container">
         {% if object_list.count %}
 
+            <h1>
+                {% blocktrans with name=user.first_name plur=object_list|pluralize %}
+                    Projects Listed under {{ name }}'s Section{{ plur }}:
+                {% endblocktrans %}
+            </h1>
 
+            <br>
 
-        <h1>Projects Listed under {{ user.first_name }}'s Section{{ object_list|pluralize }}:</h1>
+            <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">
+                {% trans "New Project" %}
+            </a>
+            <br> <br>
+            <table class="table table-hover table-sm">
+                <thead>
+                <th scope="col">
+                    {% trans "Title" %}
+                </th>
+                <th scope="col">
+                    {% trans "Status" %}
+                </th>
+                <th scope="col">
+                    {% trans "Section" %}
+                </th>
+                <th scope="col">
+                    {% trans "Submitted" %}
+                </th>
+                </tr>
+                </thead>
+                <tbody>
 
-        <br>
+                {% for section in object_list %}
+                    {% for obj in section.projects.all %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'projects:project_detail' obj.id %}">
+                                    {{ obj.project_title }}
+                                </a>
+                            </td>
+                            <td>{{ obj.division }}</td>
+                            <td>{{ obj.section }}</td>
+                            {% if obj.submitted %}
+                                <td class="good">
+                                    {% else %}
+                                <td class="bad">
+                            {% endif %}
 
-        <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">New Project</a>
-        <br> <br>
-        <table class="table table-hover table-sm">
-            <thead>
-            <th scope="col">Title</th>
-            <th scope="col">Status</th>
-            <th scope="col">Section</th>
-            <th scope="col">Submitted</th>
-            </tr>
-            </thead>
-            <tbody>
-
-            {% for section in object_list %}
-                {% for obj in section.projects.all %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'projects:project_detail' obj.id %}">
-                                {{ obj.project_title }}
-                            </a>
-                        </td>
-                        <td>{{ obj.division }}</td>
-                        <td>{{ obj.section }}</td>
-                        {% if obj.submitted %}
-                            <td class="good">
-                                {% else %}
-                            <td class="bad">
-                        {% endif %}
-
-                        {{ obj.submitted|yesno }}
-                        </td>
-                    </tr>
+                            {{ obj.submitted|yesno:_("yes,no") }}
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+            </div>
 
-{% else %}
-            <p>There are no sections assigned to you. If there should be, please contact <a href="mailto:david.fishman@dfo-mpo.gc.ca">david.fishman@dfo-mpo.gc.ca</a></p>
+        {% else %}
+            <p>
+                {% blocktrans  %}
+                    There are no sections assigned to you. If there should be, please contact <a
+                        href="mailto:david.fishman@dfo-mpo.gc.ca">david.fishman@dfo-mpo.gc.ca</a>
+                {% endblocktrans  %}
+            </p>
 
-            {% endif %}
+        {% endif %}
 
 {% endblock content %}

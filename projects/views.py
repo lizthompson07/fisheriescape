@@ -5,6 +5,7 @@ from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
+from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
@@ -486,7 +487,7 @@ class OMCostUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cost_type'] = "O&M"
+        context['cost_type'] = _("O&M")
         return context
 
 

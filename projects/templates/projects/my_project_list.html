@@ -2,32 +2,59 @@
 {% load static %}
 {% load humanize %}
 {% load timedelta %}
+{% load i18n %}
 
 {% block content %}
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">My Projects</li>
-{#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "My Projects" %}
+            </li>
+            {#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
         </ol>
     </nav>
 
     <div class="container">
-        <h1>{{ user.first_name }}'s Project List:</h1>
+    {{ get_current_language }}
+        <h1>
+            {% blocktrans with name=user.first_name %}
+                {{ name }}'s Project List:
+            {% endblocktrans %}
 
-        <h3>You are currently being planned for {{ weeks_total }} week{{ weeks_total|pluralize }}</h3>
+        </h1>
+
+        <h3>
+            {% blocktrans with wt=weeks_total|floatformat:1 plur=weeks_total|pluralize %}
+                You are currently being planned for {{ wt }} week{{ plur }}
+            {% endblocktrans %}
+        </h3>
         <br>
 
-        <a href="{% url 'projects:project_new'  %}" class="btn btn btn-primary float-right">New Project</a>
+        <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">
+            {% trans "New Project" %}
+        </a>
         <br> <br>
-         <table class="table table-hover table-sm">
+        <table class="table table-hover table-sm">
             <thead>
-            <th scope="col">Title</th>
-            <th scope="col">Status</th>
-            <th scope="col">Section</th>
-            <th scope="col">Role</th>
-            <th scope="col">No. weeks</th>
-            <th scope="col">Submitted</th>
+            <th scope="col">
+                {% trans "Title" %}
+            </th>
+            <th scope="col">
+                {% trans "Status" %}
+            </th>
+            <th scope="col">
+                {% trans "Section" %}
+            </th>
+            <th scope="col">
+                {% trans "Role" %}
+            </th>
+            <th scope="col">
+                {% trans "No. weeks" %}
+            </th>
+            <th scope="col">
+                {% trans "Submitted" %}
+            </th>
             </tr>
             </thead>
             <tbody>
@@ -46,12 +73,11 @@
 
                     {% if obj.project.submitted %}
                         <td class="good">
-                        {% else %}
-                                                <td class="bad">
+                            {% else %}
+                        <td class="bad">
 
                     {% endif %}
-                    
-                        {{ obj.project.submitted|yesno}}
+                    {{ obj.project.submitted|yesno:_("yes,no") }}
                     </td>
                 </tr>
             {% endfor %}

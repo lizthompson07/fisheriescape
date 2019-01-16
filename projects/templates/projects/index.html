@@ -1,23 +1,41 @@
 {% extends "projects/projects_base.html" %}
+{% load i18n %}
+
 {% block content %}
 
     <div class="container">
         <br>
         <div class="container">
             <div class="jumbotron">
-                <h1 class="three-em">Project Planning 2019-2020</h1>
+                <h1 class="three-em">
+                    {% trans "Project Planning 2019-2020" %}
+                </h1>
                 <hr>
-                <h3>Gulf Science Project Planning Application</h3>
+                <h3>
+                    {% trans "Gulf Science Project Planning Application" %}
+                </h3>
                 {% if user.is_authenticated %}
                     <br>
                     <p></p>
                 {% else %}
                     <br>
-                    <p>You must be
-                        <a href="{% url 'accounts:login' %}?next={% url 'projects:index' %}">signed in</a>
-                        to use this application.</p>
 
-                    <p>If you do not have an account, you can create one <a href="{% url 'accounts:signup' %}">here</a>.
+                    {% url 'accounts:login' as sign_in_url %}
+                    {% url 'fish:index' as next_url %}
+                    {% url 'accounts:signup' as sign_up_url %}
+
+
+
+                    <p>
+                        {% blocktrans %}
+                            You must be <a href="{{ sign_in_url }}?next={{ next_url }}">signed in</a> to use this
+                            application.
+                        {% endblocktrans %}
+                    <p>
+                        {% blocktrans %}
+                            If you do not have an account, you can create one <a href="{{ sign_up_url }}">here</a>.
+                        {% endblocktrans %}
+
                     </p>
                 {% endif %}
             </div>
@@ -26,20 +44,27 @@
 
         {% if user.is_authenticated %}
             <div align="center">
+                {% url 'projects:project_new' as new_proj_url %}
+                {% url 'projects:my_project_list' as my_proj_url %}
+                {% url 'projects:project_list' as all_proj_url %}
+
+
                 <h4>
-                    Click
-                    <a href="{% url 'projects:project_new' %}">HERE</a> to create a new project.
-                    <br><br>
-                    To view or edit an existing project, go to <a href="{% url 'projects:my_project_list' %}">Your
-                    Projects</a>.
-                    <br><br>
-                    For a list of all project in the branch, go to <a href="{% url 'projects:project_list' %}">All Projects</a>.
+                    {% blocktrans %}
+                        Click
+                        <a href="{{ new_proj_url }}">HERE</a> to create a new project.
+                        <br><br>
+                        To view or edit an existing project, go to <a href="{{ my_proj_url }}">Your
+                        Projects</a>.
+                        <br><br>
+                        For a list of all project in the branch, go to <a href="{{ all_proj_url }}">All
+                        Projects</a>.
+                    {% endblocktrans %}
+
                 </h4>
             </div>
         {% endif %}
 
-
-    </div>
 
 
     </div>

@@ -2,6 +2,7 @@
 {% load static %}
 {% load humanize %}
 {% load timedelta %}
+{% load i18n %}
 
 {% block content %}
     {% load bootstrap4 %}
@@ -17,13 +18,17 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">All Projects</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "All Projects" %}
+            </li>
             {#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
         </ol>
     </nav>
 
     <div class="container">
-        <h1>All Projects:</h1>
+        <h1>
+            {% trans "All Projects:" %}
+        </h1>
 
         <form class="form" action="." method="get" >
             <div class="row">
@@ -38,7 +43,9 @@
                 <div class="col">
                     <br>
                     <input type="submit" value="Filter" class="btn btn-warning">
-                    <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">New Project</a>
+                    <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">
+                        {% trans "New Project" %}
+                    </a>
                 </div>
             </div>
         </form>
@@ -46,11 +53,21 @@
         <br>
         <table class="table table-hover table-sm">
             <thead>
-            <th scope="col">Fiscal Year</th>
-            <th scope="col">Title</th>
-            <th scope="col">Status</th>
-            <th scope="col">Section</th>
-            <th scope="col">Submitted</th>
+            <th scope="col">
+                {% trans "Fiscal Year" %}
+            </th>
+            <th scope="col">
+                {% trans "Title" %}
+            </th>
+            <th scope="col">
+                {% trans "Status" %}
+            </th>
+            <th scope="col">
+                {% trans "Section" %}
+            </th>
+            <th scope="col">
+                {% trans "Submitted" %}
+            </th>
             </tr>
             </thead>
             <tbody>
