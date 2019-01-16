@@ -2,6 +2,8 @@
 {% load nz %}
 {% load humanize %}
 {% load i18n %}
+{% get_current_language as LANG %}
+
 <style>
     table, td {
         font-size: small;
@@ -48,7 +50,13 @@
         {% for obj in object.om_costs.all %}
             <tr>
                 <td>{{ obj.om_category.get_group_display }}</td>
-                <td>{{ obj.om_category.name }}</td>
+
+                {% if LANG == "fr" %}
+                    <td>{{ obj.om_category.nom }}</td>
+                {% else %}
+                    <td>{{ obj.om_category.name }}</td>
+                {% endif %}
+
                 <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
                 <td>{{ obj.description|yesno:"yes,," }}</td>
 

@@ -11,8 +11,19 @@
         font-weight: bold;
     }
 
-    table, td {
+    table, td, th {
         font-size: small;
+        border: 1px solid black;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    td, th {
+        padding-top: 1px;
+    }
+    th {
+        background-color: lightgray;
+        color: black;
     }
 </style>
 
@@ -34,7 +45,7 @@
 {% if object.staff_members.count == 0 %}
     <br><em>No Staff Members</em><br>
 {% else %}
-    <table class="table-bordered">
+    <table>
         <tr>
             <th>
                 {% trans "Name" %}
@@ -113,7 +124,7 @@
     </em><br>
 {% else %}
 
-    <table class="table-bordered">
+    <table>
         <tr>
             <th>
                 {% trans "Name" %}
@@ -156,7 +167,7 @@
     </em><br>
 {% else %}
 
-    <table class="table table-bordered table-sm">
+    <table>
         <tr>
             <th>
                 {% trans "Partner Organization" %}
@@ -200,7 +211,7 @@
     </em><br>
 {% else %}
 
-    <table class="table table-bordered table-sm">
+    <table>
         <tr>
             <th>
                 {% trans "Category Type" %}
@@ -241,7 +252,7 @@
     </em><br>
 {% else %}
 
-    <table class="table table-bordered table-sm">
+    <table>
         <tr>
             <th>
                 {% trans "Category" %}
@@ -326,7 +337,7 @@
     </h3>
 </div>
 
-<table class="table table-bordered table-sm">
+<table>
     <tr>
         <th>
             {% trans "Category" %}
