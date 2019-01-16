@@ -313,7 +313,7 @@ class ProjectDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Project
     permission_required = "__all__"
     success_url = reverse_lazy('projects:my_project_list')
-    success_message = 'The project was successfully deleted!'
+    success_message = _('The project was successfully deleted!')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -359,7 +359,7 @@ class StaffUpdateView(LoginRequiredMixin, UpdateView):
 def staff_delete(request, pk):
     object = models.Staff.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The staff member has been successfully deleted from project.")
+    messages.success(request, _("The staff member has been successfully deleted from project."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
@@ -402,7 +402,7 @@ class CollaboratorUpdateView(LoginRequiredMixin, UpdateView):
 def collaborator_delete(request, pk):
     object = models.Collaborator.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The collaborator has been successfully deleted from project.")
+    messages.success(request, _("The collaborator has been successfully deleted from project."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
@@ -445,7 +445,7 @@ class AgreementUpdateView(LoginRequiredMixin, UpdateView):
 def agreement_delete(request, pk):
     object = models.CollaborativeAgreement.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The agreement has been successfully deleted.")
+    messages.success(request, _("The agreement has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
@@ -494,7 +494,7 @@ class OMCostUpdateView(LoginRequiredMixin, UpdateView):
 def om_cost_delete(request, pk):
     object = models.OMCost.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The cost has been successfully deleted.")
+    messages.success(request, _("The cost has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
@@ -543,7 +543,7 @@ class CapitalCostUpdateView(LoginRequiredMixin, UpdateView):
 def capital_cost_delete(request, pk):
     object = models.CapitalCost.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The cost has been successfully deleted.")
+    messages.success(request, _("The cost has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
@@ -592,5 +592,5 @@ class GCCostUpdateView(LoginRequiredMixin, UpdateView):
 def gc_cost_delete(request, pk):
     object = models.GCCost.objects.get(pk=pk)
     object.delete()
-    messages.success(request, "The cost has been successfully deleted.")
+    messages.success(request, _("The cost has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
