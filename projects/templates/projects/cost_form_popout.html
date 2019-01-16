@@ -1,4 +1,5 @@
 {% load bootstrap4 %}
+{% load i18n %}
 
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
@@ -24,9 +25,13 @@
     <div class="container">
         <h3>
             {% if object %}
-                Editing {{ cost_type }} Request: {{ object }}
+                {% blocktrans with ct=cost_type o=object %}
+                    Editing {{ ct }} Request: {{ o }}
+                {% endblocktrans %}
             {% else %}
-                Adding {{ cost_type }} Request
+                {% blocktrans with ct=cost_type %}
+                    Adding {{ ct }} Request
+                {% endblocktrans %}
             {% endif %}
         </h3>
         <br>
@@ -39,36 +44,40 @@
             {% endfor %}
 
             {% buttons %}
-                <button type="submit" class="btn btn-success" onclick="refreshParent()">Submit</button>
-                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">Close</a>
+                <button type="submit" class="btn btn-success" onclick="refreshParent()">
+                    {% trans "Submit" %}
+                </button>
+                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                    {% trans "Close" %}
+                </a>
             {% endbuttons %}
         </form>
     </div>
-{#    <script type="application/javascript">#}
-{#        $(document).ready(function () {#}
-{#            // Stuff to do as soon as the DOM is ready#}
-{#            checkUser()#}
-{#        });#}
-{##}
-{#        $("#id_user").change(function () {#}
-{#            checkUser()#}
-{#        });#}
-{##}
-{#        $("#id_name").change(function () {#}
-{#            checkUser()#}
-{#        });#}
-{##}
-{#        function checkUser() {#}
-{#            if ($("#id_user").val() != "") {#}
-{#                $("#id_name").prop("disabled", true)#}
-{#            } else {#}
-{#                $("#id_name").prop("disabled", false)#}
-{##}
-{#            }#}
-{#        }#}
-{##}
-{##}
-{#    </script>#}
+    {#    <script type="application/javascript">#}
+    {#        $(document).ready(function () {#}
+    {#            // Stuff to do as soon as the DOM is ready#}
+    {#            checkUser()#}
+    {#        });#}
+    {##}
+    {#        $("#id_user").change(function () {#}
+    {#            checkUser()#}
+    {#        });#}
+    {##}
+    {#        $("#id_name").change(function () {#}
+    {#            checkUser()#}
+    {#        });#}
+    {##}
+    {#        function checkUser() {#}
+    {#            if ($("#id_user").val() != "") {#}
+    {#                $("#id_name").prop("disabled", true)#}
+    {#            } else {#}
+    {#                $("#id_name").prop("disabled", false)#}
+    {##}
+    {#            }#}
+    {#        }#}
+    {##}
+    {##}
+    {#    </script>#}
 
 
 {% endblock content %}

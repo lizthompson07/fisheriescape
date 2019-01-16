@@ -1,7 +1,7 @@
 {% load static %}
 {% load nz %}
 {% load humanize %}
-
+{% load i18n %}
 <style>
     table, td {
         font-size: small;
@@ -9,25 +9,39 @@
 </style>
 
 <div class="neighbours">
-    <h3>O&M Requests:</h3>
+    <h3>
+        {% trans "O&M Requests:" %}
+    </h3>
 </div>
 <div class="neighbours" style="float: right">
     <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">Add O&M</a>
+       onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
+        {% trans "Add O&M" %}
+    </a>
 </div>
 
 
 
 {% if object.om_costs.count == 0 %}
-    <br><em>No O&M Requests</em><br>
+    <br><em>
+    {% trans "No O&M Requests" %}
+</em><br>
 {% else %}
 
     <table class="table table-bordered table-sm">
         <tr>
-            <th>Category Type</th>
-            <th>Category</th>
-            <th>Budget Requested</th>
-            <th>Description provided</th>
+            <th>
+                {% trans "Category Type" %}
+            </th>
+            <th>
+                {% trans "Category" %}
+            </th>
+            <th>
+                {% trans "Budget Requested" %}
+            </th>
+            <th>
+                {% trans "Description provided" %}
+            </th>
 
         </tr>
         <tbody>

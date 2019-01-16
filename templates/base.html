@@ -1,9 +1,11 @@
 {% load static %}
 {% load bootstrap4 %}
+{% load i18n %}
+
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
+<head>
     <meta charset="utf-8">
 
     {#  DJANGO-BOOTSTRAP4 #}
@@ -23,66 +25,83 @@
 
     <title>{% block title %}{% endblock title %}</title>
     {% block header %}{% endblock header %}
-  </head>
+</head>
 
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand bigbrand" href="{% url 'index' %}"> DM Home </a>
-      <div class="collapse navbar-collapse">
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand bigbrand" href="{% url 'index' %}">
+        {% trans 'DM Home' %}
+    </a>
+    <div class="collapse navbar-collapse">
         <ul class="navbar-nav justify-content-left">
-          {% block left_all %}{% endblock left_all %}
+            {% block left_all %}{% endblock left_all %}
 
-          {% if user.is_authenticated %}
-          {% block left_auth %}{% endblock left_auth %}
-            {% if user.is_superuser %}
-            <li class="nav-item"><a class="nav-link" href="/admin"> Site Admin </a></li>
-            {% block left_admin %}{% endblock left_admin %}
+            {% if user.is_authenticated %}
+                {% block left_auth %}{% endblock left_auth %}
+                {% if user.is_superuser %}
+                    <li class="nav-item"><a class="nav-link" href="/admin"> Site Admin </a></li>
+                    {% block left_admin %}{% endblock left_admin %}
+                {% endif %}
+            {% else %}
+                {% block left_unauth %}{% endblock left_unauth %}
             {% endif %}
-          {% else %}
-          {% block left_unauth %}{% endblock left_unauth %}
-          {% endif %}
         </ul>
-      </div>
+    </div>
 
-      {# Everything on the right hand side #}
-      <div class="collapse navbar-collapse justify-content-end headerfont2">
+    {# Everything on the right hand side #}
+    <div class="collapse navbar-collapse justify-content-end headerfont2">
         <ul class="navbar-nav justify-content-end">
-          {% block right_all %}{% endblock right_all %}
+            {% block right_all %}{% endblock right_all %}
 
-          {%  if user.is_authenticated %}
-          {% block right_auth %}{% endblock right_auth %}
+            {% if user.is_authenticated %}
+                {% block right_auth %}{% endblock right_auth %}
 
-            {# Bugs #}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Bugs
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#" onclick="return popitup('{% block bug_create %}{% endblock bug_create %}','popWindow')">New Report</a>
-                {% block bug_list_4_app %}{% endblock bug_list_4_app %}
+                {# Bugs #}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% trans 'Bugs' %}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#"
+                           onclick="return popitup('{% block bug_create %}{% endblock bug_create %}','popWindow')">
+                            {% trans 'New Report' %}
+                        </a>
+                        {% block bug_list_4_app %}{% endblock bug_list_4_app %}
 
-                <a class="dropdown-item" href="{% url 'bugs:bug_list' %}">All Bugs</a>
-              </div>
-            </li>
+                        <a class="dropdown-item" href="{% url 'bugs:bug_list' %}">{% trans 'All Bugs' %}</a>
+                    </div>
+                </li>
 
-            <li class="nav-item wide-left"><a class="btn btn-dark " href="{% url 'accounts:logout' %}"> Logout </a></li>
+                <li class="nav-item wide-left"><a class="btn btn-dark "
+                                                  href="{% url 'accounts:logout' %}">  {% trans 'Logout' %}  </a>
 
-          {% else %}
-            {% block right_unauth %}{% endblock right_unauth %}
-            <li class="nav-item"><a class="btn btn-dark" href=" {% url 'accounts:login' %} ">Sign In</a></li>
-          {% endif %}
+                </li>
+
+            {% else %}
+                {% block right_unauth %}{% endblock right_unauth %}
+                <li class="nav-item">
+                    <a class="btn btn-dark" href="{% url 'accounts:login' %}">
+                        {% trans 'Sign In' %}
+                    </a>
+
+                </li>
+            {% endif %}
+
+            {% include "_language_form.html" %}
+
         </ul>
-      </div>
-    </nav>
-    {# Display django.contrib.messages as Bootstrap alerts #}
-    {% bootstrap_messages %}
+    </div>
+</nav>
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
 
-    {% block body %}{% endblock body%}
+{% block body %}{% endblock body %}
 
-    <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/insertNote.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/speak.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/underDevelopment.js" %}"></script>
+<script type=" text/javascript" src="{% static "js/popItOut.js" %}"></script>
+<script type="text/javascript" src="{% static "js/insertNote.js" %}"></script>
+<script type="text/javascript" src="{% static "js/speak.js" %}"></script>
+<script type="text/javascript" src="{% static "js/underDevelopment.js" %}"></script>
 
-  </body>
+</body>
 </html>

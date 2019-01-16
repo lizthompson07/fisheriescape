@@ -1,5 +1,6 @@
 {% load static %}
 {% load humanize %}
+{% load i18n %}
 <style>
     table, td {
         font-size: small;
@@ -7,29 +8,43 @@
 </style>
 
 <div class="">
-    <h3>Financial Summary:</h3>
+    <h3>
+        {% trans "Financial Summary:" %}
+    </h3>
 </div>
 
 <table class="table table-bordered table-sm">
     <tr>
-        <th>Category</th>
-        <th>Total Cost</th>
+        <th>
+            {% trans "Category" %}
+        </th>
+        <th>
+            {% trans "Total Cost" %}
+        </th>
     </tr>
     <tbody>
     <tr>
-        <td>Salary (excluding full time employees)</td>
+        <td>
+            {% trans "Salary (excluding full time employees)" %}
+        </td>
         <td>{{ salary_total|floatformat:0|intcomma }}</td>
     </tr>
     <tr>
-        <td>O & M</td>
+        <td>
+            {% trans "O & M" %}
+        </td>
         <td>{{ om_total|floatformat:0|intcomma }}</td>
     </tr>
     <tr>
-        <td>Capital</td>
+        <td>
+            {% trans "Capital" %}
+        </td>
         <td>{{ capital_total|floatformat:0|intcomma }}</td>
     </tr>
     <tr>
-        <td>G & C</td>
+        <td>
+            {% trans "G & C" %}
+        </td>
         <td>{{ gc_total|floatformat:0|intcomma }}</td>
     </tr>
 

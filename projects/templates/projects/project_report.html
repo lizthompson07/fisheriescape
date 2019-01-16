@@ -2,6 +2,7 @@
 {% load bootstrap4 %}
 {% load humanize %}
 {% load nz %}
+{% load i18n %}
 
 {% bootstrap_css %}
 
@@ -17,27 +18,45 @@
 
 
 <hr>
-<h3>Project Detail:</h3>
+<h3>
+    {% trans "Project Detail:" %}
+</h3>
 
 {% for field in field_list %}
     {% verbose_field_display object field %}
 {% endfor %}
 
 {# STAFF #}
-<h3>Project Staff:</h3>
+<h3>
+    {% trans "Project Staff:" %}
+</h3>
 
 {% if object.staff_members.count == 0 %}
     <br><em>No Staff Members</em><br>
 {% else %}
     <table class="table-bordered">
         <tr>
-            <th>Name</th>
-            <th>Employee type</th>
-            <th>Level</th>
-            <th>Duration (weeks)</th>
-            <th>Overtime hours</th>
-            <th>Cost Category</th>
-            <th>Cost</th>
+            <th>
+                {% trans "Name" %}
+            </th>
+            <th>
+                {% trans "Employee type" %}
+            </th>
+            <th>
+                {% trans "Level" %}
+            </th>
+            <th>
+                {% trans "Duration (weeks)" %}
+            </th>
+            <th>
+                {% trans "Overtime hours" %}
+            </th>
+            <th>
+                {% trans "Cost Category" %}
+            </th>
+            <th>
+                {% trans "Cost" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.staff_members.all %}
@@ -85,17 +104,29 @@
 <br>
 
 {# Collaborators #}
-<h3>Collaborators & Partners:</h3>
+<h3>
+    {% trans "Collaborators & Partners:" %}
+</h3>
 {% if object.collaborators.count == 0 %}
-    <em>No Collaborators or Partners </em><br>
+    <em>
+        {% trans "No Collaborators or Partners" %}
+    </em><br>
 {% else %}
 
     <table class="table-bordered">
         <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Critical to project?</th>
-            <th>Notes?</th>
+            <th>
+                {% trans "Name" %}
+            </th>
+            <th>
+                {% trans "Type" %}
+            </th>
+            <th>
+                {% trans "Critical to project?" %}
+            </th>
+            <th>
+                {% trans "Notes" %}
+            </th>
 
 
         </tr>
@@ -115,19 +146,33 @@
 
 
 {# Agreements #}
-    <h3>Collaborative Agreements:</h3>
+<h3>
+    {% trans "Collaborative Agreements:" %}
+</h3>
 
 {% if object.agreements.count == 0 %}
-    <em>No Collaborative Agreements</em><br>
+    <em>
+        {% trans "No Collaborative Agreements" %}
+    </em><br>
 {% else %}
 
     <table class="table table-bordered table-sm">
         <tr>
-            <th>Partner Organization</th>
-            <th>Project Lead</th>
-            <th>Agreement Title</th>
-            <th>New or Existing</th>
-            <th>Notes</th>
+            <th>
+                {% trans "Partner Organization" %}
+            </th>
+            <th>
+                {% trans "Project Lead" %}
+            </th>
+            <th>
+                {% trans "Agreement Title" %}
+            </th>
+            <th>
+                {% trans "New or Existing" %}
+            </th>
+            <th>
+                {% trans "Notes" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.agreements.all %}
@@ -145,18 +190,30 @@
 <br>
 
 {# OM COSTS #}
-    <h3>O&M Requests:</h3>
+<h3>
+    {% trans "O&M Requests:" %}
+</h3>
 
 {% if object.om_costs.count == 0 %}
-    <em>No O&M Requests</em><br>
+    <em>
+        {% trans "No O&M Requests" %}
+    </em><br>
 {% else %}
 
     <table class="table table-bordered table-sm">
         <tr>
-            <th>Category Type</th>
-            <th>Category</th>
-            <th>Description</th>
-            <th>Budget Requested</th>
+            <th>
+                {% trans "Category Type" %}
+            </th>
+            <th>
+                {% trans "Category" %}
+            </th>
+            <th>
+                {% trans "Description" %}
+            </th>
+            <th>
+                {% trans "Budget Requested" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.om_costs.all %}
@@ -174,17 +231,27 @@
 
 
 {# Capital COSTS #}
-    <h3>Capital Requests:</h3>
+<h3>
+    {% trans "Capital Requests:" %}
+</h3>
 
 {% if object.capital_costs.count == 0 %}
-    <em>No Capital Requests</em><br>
+    <em>
+        {% trans "No Capital Requests" %}
+    </em><br>
 {% else %}
 
     <table class="table table-bordered table-sm">
         <tr>
-            <th>Category</th>
-            <th>Description</th>
-            <th>Budget Requested</th>
+            <th>
+                {% trans "Category" %}
+            </th>
+            <th>
+                {% trans "Description" %}
+            </th>
+            <th>
+                {% trans "Budget Requested" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.capital_costs.all %}
@@ -200,19 +267,33 @@
 <br>
 
 {# GC COSTS#}
-    <h3>G&C Requests:</h3>
+<h3>
+    {% trans "G&C Requests:" %}
+</h3>
 
 {% if object.gc_costs.count == 0 %}
-<em>No G&C Requests</em><br>
+    <em>
+        {% trans "No G&C Requests" %}
+    </em><br>
 {% else %}
 
     <table class="table table-bordered table-sm">
         <tr>
-            <th>Recipient Organization</th>
-            <th>Project Lead</th>
-            <th>Proposed Title</th>
-            <th>G&C Program</th>
-            <th>Budget Requested</th>
+            <th>
+                {% trans "Recipient Organization" %}
+            </th>
+            <th>
+                {% trans "Project Lead" %}
+            </th>
+            <th>
+                {% trans "Proposed Title" %}
+            </th>
+            <th>
+                {% trans "G&C Program" %}
+            </th>
+            <th>
+                {% trans "Budget Requested" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.gc_costs.all %}
@@ -240,29 +321,43 @@
 </style>
 
 <div class="">
-    <h3>Financial Summary:</h3>
+    <h3>
+        {% trans "Financial Summary:" %}
+    </h3>
 </div>
 
 <table class="table table-bordered table-sm">
     <tr>
-        <th>Category</th>
-        <th>Total Cost</th>
+        <th>
+            {% trans "Category" %}
+        </th>
+        <th>
+            {% trans "Total Cost" %}
+        </th>
     </tr>
     <tbody>
     <tr>
-        <td>Salary (excluding full time employees)</td>
+        <td>
+            {% trans "Salary (excluding full time employees)" %}
+        </td>
         <td>${{ salary_total|floatformat:2|intcomma }}</td>
     </tr>
     <tr>
-        <td>O & M</td>
+        <td>
+            {% trans "O & M" %}
+        </td>
         <td>${{ om_total|floatformat:2|intcomma }}</td>
     </tr>
     <tr>
-        <td>Capital</td>
+        <td>
+            {% trans "Capital" %}
+        </td>
         <td>${{ capital_total|floatformat:2|intcomma }}</td>
     </tr>
     <tr>
-        <td>G & C</td>
+        <td>
+            {% trans "G & C" %}
+        </td>
         <td>${{ gc_total|floatformat:2|intcomma }}</td>
     </tr>
 

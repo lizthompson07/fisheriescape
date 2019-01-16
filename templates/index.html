@@ -1,8 +1,11 @@
 {% extends "accounts/accounts_base.html" %}
 {% load static %}
+{% load i18n %}
 {% block bug_create %}{% url 'bugs:bug_create' 1 %}{% endblock bug_create %}
 
-{% block title %}Data Management Home{% endblock title %}
+{% block title %}
+    {% trans 'Data Management Home' %}
+{% endblock title %}
 
 {% block body %}
     <br>
@@ -11,11 +14,11 @@
         <div class="jumbotron">
             <h1 class="text-center">
     <span class="two-em">
-      DFO Science
+      {% trans 'DFO Science' %}
     </span>
                 <br>
                 <span class="roboto">
-      Gulf Region Data Management
+                    {% trans 'Gulf Region Data Management' %}
     </span>
             </h1>
             <br>
@@ -23,9 +26,11 @@
             <br>
             <h3 class="text-center">
                 {% if user.is_authenticated %}
-                    Welcome back, {{ user.first_name }}! Please select an application below.
+                    {% blocktrans with name=user.first_name %}
+                        Welcome back, {{ name }}! Please select an application below.
+                    {% endblocktrans  %}
                 {% else %}
-                    Welcome! Please select an application below.
+                    {% trans 'Welcome! Please select an application below.' %}
                 {% endif %}
             </h3>
         </div>
@@ -35,26 +40,26 @@
         <table class="table  table-sm table-striped" style="margin-left: auto; margin-right: auto;">
             <thead>
             <th></th>
-            <th>Application Name</th>
-            <th>Status</th>
+            <th>
+                {% trans 'Application Name' %}
+            </th>
+            <th>
+                {% trans 'Status' %}
+            </th>
             </thead>
             <tbody>
             <tr>
                 <td>
 
                     <a href="
-
-
                             {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
                         <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
                     </a>
                 </td>
                 <td>
                     <a href="
-
-
                             {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
-                        Regional Data Inventory
+                        {% trans 'Regional Data Inventory' %}
                     </a>
                 </td>
                 <td class="good"> Active</td>
@@ -68,7 +73,7 @@
                 </td>
                 <td>
                     <a href="{% url 'tickets:list' %}">
-                        Data Management Ticketing System
+                        {% trans 'Data Management Ticketing System' %}
                     </a>
                 </td>
                 <td class="good"> Active</td>
@@ -82,7 +87,7 @@
                 </td>
                 <td>
                     <a href="{% url 'grais:index' %}">
-                        grAIS: Gulf Region Aquatic Invasive Species
+                        {% trans 'grAIS: Gulf Region Aquatic Invasive Species' %}
                     </a>
                 </td>
                 <td class="good"> Active</td>
@@ -110,7 +115,7 @@
                 </td>
                 <td>
                     <a href="{% url 'oceanography:index' %}">
-                        Gulf Region Oceanographic Archive
+                        {% trans 'Gulf Region Oceanographic Archive' %}
                     </a>
                 </td>
                 <td class="good"> Active</td>
@@ -124,7 +129,7 @@
                 </td>
                 <td>
                     <a href="{% url 'camp:index' %}">
-                        Community Aquatic Monitoring Program (CAMP) db
+                        {% trans 'Community Aquatic Monitoring Program (CAMP) db' %}
                     </a>
                 </td>
                 <td class="good"> Active</td>
@@ -137,7 +142,7 @@
                 </td>
                 <td>
                     <a href="{% url 'projects:index' %}" class="">
-                        Project Planning
+                        {% trans 'Science Project Planning' %}
                     </a>
                 </td>
                 <td class="concern"> Beta</td>
@@ -150,7 +155,7 @@
                 </td>
                 <td>
                     <a href="{% url 'crab:index' %}">
-                        Gulf Region Snow Crab db
+                        {% trans 'Gulf Region Snow Crab db' %}
                     </a>
                 </td>
                 <td class="good"> Active</td>
@@ -164,7 +169,7 @@
                 </td>
                 <td>
                     <a href="{% url 'diets:index' %}">
-                        Marine Diets db
+                        {% trans 'Marine Diets db' %}
                     </a>
                 </td>
                 <td class="concern"> Development</td>
@@ -178,7 +183,7 @@
                 </td>
                 <td>
                     <a href="#" class="under-dev">
-                        Marine Environmental Quality (MEQ) db
+                        {% trans 'Marine Environmental Quality (MEQ) db' %}
                     </a>
                 </td>
                 <td class="concern"> Development</td>

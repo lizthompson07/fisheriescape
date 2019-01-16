@@ -1,19 +1,25 @@
 {% extends "projects/projects_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
-
+{% load i18n %}
 {% block content %}
 
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">My Projects</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">
+                {% trans "My Projects" %}
+            </a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'projects:project_detail' object.id %}">{{ object }}</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% trans "Edit" %}
+                </li>
             {% else %}
-                <li class="breadcrumb-item active" aria-current="page">New Project</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% trans "New Project" %}
+                </li>
             {% endif %}
         </ol>
     </nav>
@@ -23,7 +29,7 @@
             {% if object.id %}
                 {{ object }}
             {% else %}
-                New Project
+                {% trans "New Project" %}
             {% endif %}
         </h1>
         <br><br>
@@ -44,15 +50,23 @@
 
             {% buttons %}
                 {% if object.id %}
-                    <button type="submit" class="btn btn-success">Update</button>
+                    <button type="submit" class="btn btn-success">
+                        {% trans "Update" %}
+                    </button>
                 {% else %}
-                    <button type="submit" class="btn btn-success">Add</button>
+                    <button type="submit" class="btn btn-success">
+                        {% trans "Add" %}
+                    </button>
                 {% endif %}
 
                 {% if object.id %}
-                    <a class="btn btn-secondary" href="{% url 'projects:project_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'projects:project_detail' object.id %}">
+                        {% trans "Cancel" %}
+                    </a>
                 {% else %}
-                    <a class="btn btn-secondary" href="{% url 'projects:my_project_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'projects:my_project_list' %}">
+                        {% trans "Cancel" %}
+                    </a>
                 {% endif %}
 
             {% endbuttons %}
