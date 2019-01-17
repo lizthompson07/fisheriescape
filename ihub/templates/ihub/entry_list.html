@@ -1,0 +1,100 @@
+{% extends "ihub/ihub_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load timedelta %}
+{% load i18n %}
+
+{% block content %}
+    {% load bootstrap4 %}
+
+    <style>
+        form, input {
+            font-size: small;
+        }
+
+        table, td {
+            font-size: 14px;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "All Entries" %}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="container">
+        <h1>
+            {% trans "All Entries:" %}
+        </h1>
+
+        <form class="form" action="." method="get">
+            <div class="row">
+
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-warning">
+                    <a href="{% url 'ihub:entry_new' %}" class="btn btn btn-primary float-right">
+                        {% trans "New Entry" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <br>
+        <table class="table table-hover table-sm">
+            <thead>
+            <th scope="col">
+                {% trans "Title" %}
+            </th>
+            <th scope="col">
+                {% trans "Type" %}
+            </th>
+            <th scope="col">
+                {% trans "Organization" %}
+            </th>
+            <th scope="col">
+                {% trans "DFO Sector" %}
+            </th>
+            <th scope="col">
+                {% trans "Date Created" %}
+            </th>
+            <th scope="col">
+                {% trans "Created By" %}
+            </th>
+
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for obj in filter.qs %}
+                <tr>
+                    <td>
+                        <a href="{% url 'ihub:entry_detail' obj.id %}">
+                            {{ obj.title }}
+                        </a>
+                    </td>
+                    <td>{{ obj.entry_type }}</td>
+                    <td>{{ obj.organization }}</td>
+                    <td>{{ obj.sector }}</td>
+                    <td>{{ obj.date_created|date:"F m, Y"}}</td>
+                    <td>{{ obj.created_by.first_name}} {{ obj.created_by.last_name}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <b>
+            TOTAL: {{ object_list.count }}
+        </b>
+    </div>
+
+{% endblock content %}

@@ -1,0 +1,82 @@
+{% load static %}
+{% load nz %}
+{% load humanize %}
+{% load i18n %}
+{% get_current_language as LANG %}
+
+<style>
+    table, td {
+        font-size: small;
+    }
+</style>
+
+<div class="neighbours">
+    <h3>
+        {% trans "Actions, Next Steps or Comments:" %}
+    </h3>
+</div>
+<div class="neighbours" style="float: right">
+    <a class="btn btn-sm btn-primary" href="#"
+       onclick="return popitup('{% url 'ihub:note_new' object.id %}','popoutWindow')">
+        {% trans "Add" %}
+    </a>
+</div>
+
+
+
+{% if object.notes.count == 0 %}
+    <br><em>
+    {% trans "No Actions, next steps or comments have been added to this entry..." %}
+</em><br>
+{% else %}
+
+
+
+    <table class="table table-bordered table-sm">
+        <tr>
+            <th>
+                {% trans "Type" %}
+            </th>
+            <th>
+                {% trans "Date" %}
+            </th>
+            <th>
+                {% trans "Author" %}
+            </th>
+            <th>
+                {% trans "Note" %}
+            </th>
+            <th>
+                {% trans "Status" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.notes.all %}
+            <tr>
+                <td>{{ obj.get_type_display }}</td>
+                <td>{{ obj.date|date:"F d, Y" }}</td>
+                <td>{{ obj.author.first_name }} {{ obj.author.last_name }}</td>
+                <td>{{ obj.note }}</td>
+                <td>{{ obj.status }}</td>
+
+                <td>
+                    <a href="#"
+                       onclick="return popitup('{% url 'ihub:note_edit' obj.id %}','popoutWindow')">
+                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
+                             title="Edit">
+                    </a>
+                </td>
+                <td>
+                    <a class="delete-me" href="#" val="{{ obj.id }}">
+                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                             title="Delete">
+                    </a>
+                    <a id="secrect-delete-btn-{{ obj.id }}"
+                       href="{% url 'ihub:note_delete' obj.id %}" class="hidden"></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>

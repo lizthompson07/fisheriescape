@@ -155,6 +155,7 @@ class LabSampleForm(forms.ModelForm):
 
 class OtolithForm(forms.ModelForm):
     last_fish = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    add_one = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     where_to = forms.CharField(widget=forms.HiddenInput(), required = False)
 
     class Meta:

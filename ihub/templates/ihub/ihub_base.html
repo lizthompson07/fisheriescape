@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load bootstrap4 %}
+{% block bug_create %}{% url 'bugs:bug_create' 11 %}{% endblock bug_create %}
+
+{% block bug_list_4_app %}
+    <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 11 %}">
+        {% trans "View bugs for this app" %}
+    </a>
+{% endblock bug_list_4_app %}
+
+
+
+
+{% block title %}
+    {% trans "iHub" %}
+{% endblock title %}
+
+{% block body %}
+    {% block content %}{% endblock content %}
+{% endblock body %}
+
+{% block left_unauth %}
+{% endblock left_unauth %}
+
+{% block left_all %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:index' %}">
+        {% trans "Home" %}
+    </a></li>
+
+{% endblock left_all %}
+
+{% block left_auth %}
+
+    <li class="nav-item"><a class="nav-link under-dev" href="#">
+        {% trans "Organizations" %}
+    </a></li>
+    <li class="nav-item"><a class="nav-link" href="#">
+        {% trans "New Entry" %}
+    </a></li>
+
+    {#  {% for group in user.groups.all %}#}
+    {#    {% if group.name == "inventory_section_head"   %}#}
+    {#      <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a></li>#}
+    {#    {% endif %}#}
+    {##}
+    {#  {% endfor %}#}
+
+
+
+{% endblock left_auth %}
+{% block left_admin %}
+{% endblock left_admin %}

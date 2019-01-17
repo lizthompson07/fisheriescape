@@ -35,6 +35,7 @@ class Bug(models.Model):
     SNOWCRAB = 8
     DIETS = 9
     PROJECTS = 10
+    IHUB = 11
 
     APP_CHOICES = (
         (GENERAL,'General'),
@@ -47,7 +48,7 @@ class Bug(models.Model):
         (SNOWCRAB, 'Snow Crab'),
         (DIETS, 'Diets'),
         (PROJECTS, 'Project Planning'),
-
+        (IHUB, 'Indigenous Hub'),
     )
 
     APP_DICT = {
