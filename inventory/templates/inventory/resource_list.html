@@ -22,8 +22,8 @@
                         <div class="col">
                     {% endif %}
 
-                    {% bootstrap_field field %}
-                    </div>
+                {% bootstrap_field field %}
+                </div>
                 {% endfor %}
                 <div class="col" style="vertical-align: bottom;">
                     <br>
@@ -46,6 +46,7 @@
             <thead>
             <tr>
                 {# <th scope="col">Id</th> #}
+                <th scope="col">Region</th>
                 <th scope="col" width="1200px">Title</th>
                 <th scope="col">Status</th>
                 <th scope="col">Section</th>
@@ -55,7 +56,7 @@
             <tbody>
             {% for obj in filter.qs %}
                 <tr>
-                    {# <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{obj.id}}</a></td> #}
+                    <td>{{ obj.section.get_region_display }}</td>
                     <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{ obj.title_eng }}</a></td>
 
                     {% if obj.status.id == 3 %}
