@@ -17,9 +17,12 @@ class ResourceFilter(django_filters.FilterSet):
 
     STATUS_CHOICES = [(s.id, str(s)) for s in models.Status.objects.all()]
     SECTION_CHOICES = [(s.id, str(s)) for s in models.Section.objects.all()]
+    # SECTION_CHOICES = [(None, "str(s)"),]
 
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains',
                                             widget=forms.TextInput())
+    region = django_filters.ChoiceFilter(field_name="section__region", label="Region", lookup_expr='exact',
+                                          choices=models.Section.REGION_CHOICES)
     section = django_filters.ChoiceFilter(field_name="section", label="Section", lookup_expr='exact',
                                           choices=SECTION_CHOICES)
     person = django_filters.ChoiceFilter(field_name="people", label="Person", lookup_expr='exact',

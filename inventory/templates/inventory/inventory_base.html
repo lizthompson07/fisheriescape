@@ -4,7 +4,7 @@
 {% block bug_create %}{% url 'bugs:bug_create' 3 %}{% endblock bug_create %}
 
 {% block bug_list_4_app %}
-  <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 3 %}">Inventory Bugs</a>
+    <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 3 %}">Inventory Bugs</a>
 {% endblock bug_list_4_app %}
 
 
@@ -13,27 +13,32 @@
 {% block title %}Data Inventory{% endblock title %}
 
 {% block body %}
-  {% block content %}{% endblock content %}
+    {% block content %}{% endblock content %}
 {% endblock body %}
 
 {% block left_unauth %}
-  <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}"> Inventory </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}"> Inventory </a></li>
 {% endblock left_unauth %}
 
 {% block left_auth %}
-  <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}"> Full Inventory </a></li>
-  <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_resource_list' %}"> My Items </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}"> Full Inventory </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_resource_list' %}"> My Items </a></li>
 
-  {% for group in user.groups.all %}
-    {% if group.name == "inventory_section_head"   %}
-      <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a></li>
-    {% endif %}
+    {% for group in user.groups.all %}
+        {% if group.name == "inventory_section_head" %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a>
+            </li>
+        {% endif %}
 
-  {% endfor %}
+    {% endfor %}
 
-
+    {% for group in user.groups.all %}
+        {% if group.name == "inventory_dm" %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'inventory:dm_home' %}"> DM Admin </a></li>
+        {% endif %}
+    {% endfor %}
 
 {% endblock left_auth %}
+
 {% block left_admin %}
-  <li class="nav-item"><a class="nav-link" href="{% url 'inventory:dm_home' %}"> DM Admin </a></li>
 {% endblock left_admin %}

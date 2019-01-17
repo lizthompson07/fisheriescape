@@ -87,10 +87,26 @@ class Person(models.Model):
 
 
 class Section(models.Model):
+    # choices for region
+    GULF=1
+    MAR=2
+    QC=3
+    CA=4
+    PAC=5
+    NL=6
+    REGION_CHOICES = (
+        (GULF, "Gulf"),
+        (MAR, "Maritime"),
+        (QC, "Quebec"),
+        (CA, "Central & Arctic"),
+        (PAC, "Pacific"),
+        (NL, "Newfoundland and Labrador"),
+    )
     section = models.CharField(max_length=255)
     abbrev = models.CharField(max_length=25, blank=True, null=True)
     division = models.CharField(max_length=255, blank=True, null=True)
     branch = models.CharField(max_length=255, blank=True, null=True)
+    region = models.IntegerField(choices=REGION_CHOICES)
     unit_head = models.ForeignKey(Person, on_delete=models.DO_NOTHING, blank=True, null=True,
                                   related_name="section_heads")
     manager = models.ForeignKey(Person, on_delete=models.DO_NOTHING, blank=True, null=True,
