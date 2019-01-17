@@ -8,7 +8,7 @@
 
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
     <script>
-        window.resizeTo(width = 700, height = 1200);
+        window.resizeTo(width = 700, height = 700);
 
         window.onunload = refreshParent;
 
@@ -16,20 +16,15 @@
             window.opener.location.reload();
         }
 
-        {#$(document).ready(function () {#}
-        {#    // Stuff to do as soon as the DOM is ready#}
-        {#    $("#id_digestion_level")[0].focus()#}
-        {#})
-        ;
-        #}
+
     </script>
 
     <div class="container">
         <h3>
             {% if object %}
-                {% trans "Editing Note:" %}
+                {% trans "Editing the Note:" %}
             {% else %}
-                {% trans "Adding Note:" %}
+                {% trans "Adding a Note:" %}
             {% endif %}
         </h3>
 
