@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'meq',
     'diets',
     'projects',
+    'ihub',
 ]
 
 MIDDLEWARE = [

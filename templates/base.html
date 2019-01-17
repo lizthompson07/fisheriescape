@@ -42,6 +42,10 @@
                     <li class="nav-item"><a class="nav-link" href="/admin"> Site Admin </a></li>
                     {% block left_admin %}{% endblock left_admin %}
                 {% endif %}
+                {% if user.is_staff %}
+                    {% block left_staff %}{% endblock left_staff %}
+                {% endif %}
+
             {% else %}
                 {% block left_unauth %}{% endblock left_unauth %}
             {% endif %}
