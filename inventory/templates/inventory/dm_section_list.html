@@ -29,6 +29,7 @@
                 <thead>
                 <tr>
                     {# <th scope="col">Id</th> #}
+                    <th scope="col">Region</th>
                     <th scope="col">Section</th>
                     <th scope="col">Division</th>
                     <th scope="col">Branch</th>
@@ -40,13 +41,13 @@
                 <tbody>
                 {% for obj in object_list %}
                     <tr>
+                        <td>{{ obj.get_region_display }}</td>
                         <td><a href="{% url 'inventory:dm_section_detail' obj.id %}">{{ obj.section }}</a></td>
                         <td>{{ obj.division }}</td>
                         <td>{{ obj.branch }}</td>
                         <td>{{ obj.unit_head }}</td>
                         <td>{{ obj.manager }}</td>
                         <td>{{ obj.resources.count }}</td>
-
                     </tr>
                 {% endfor %}
                 <br>
