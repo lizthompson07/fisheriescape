@@ -1,0 +1,143 @@
+{% extends "ihub/ihub_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_field_display %}
+{% load nz %}
+{% load i18n %}
+
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+             <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:entry_list' %}">
+                {% trans "All Entries" %}
+            </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+
+        <h1>
+            {{ object }}
+        </h1>
+
+
+        <div class="btn-group">
+            {% if can_delete %}
+                <a class="btn btn-danger " href="{% url 'ihub:entry_delete' object.id %}">
+                    {% trans "Delete" %}
+                </a>
+            {% endif %}
+            <a class="btn btn-warning" href="{% url 'ihub:entry_edit' object.id %}">
+                {% trans "Edit" %}
+            </a>
+
+        </div>
+
+
+        <br><br>
+
+        <div class="row">
+            <div class="col-4">
+                <h3>
+                    {% trans "Entry Detail:" %}
+                </h3>
+
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+
+            </div>
+            <div class="col-8">
+                {% include "ihub/_notes.html" %}
+            </div>
+
+        </div>
+    </div>
+
+
+    </div>
+
+
+
+    <script type="application/javascript">
+
+
+        {#$(".staff-delete-me").click(function () {#}
+        {#    var objectId = $(this)[0].getAttribute("val");#}
+        {##}
+        {#    var userInput = "";#}
+        {#    userInput = confirm("{% trans "Are you sure you want to delete this staff member from the project?" %}");#}
+        {##}
+        {#    if (userInput === true) {#}
+        {#        $("#staff-secrect-delete-btn-" + objectId)[0].click();#}
+        {#    }#}
+        {#})#}
+        {##}
+        {#$(".collab-delete-me").click(function () {#}
+        {#    var objectId = $(this)[0].getAttribute("val");#}
+        {##}
+        {#    var userInput = "";#}
+        {#    userInput = confirm("{% trans "Are you sure you want to delete this collaborator from the project?" %}");#}
+        {#    if (userInput === true) {#}
+        {#        $("#collab-secrect-delete-btn-" + objectId)[0].click();#}
+        {#    }#}
+        {#})#}
+        {##}
+        {#$(".agreement-delete-me").click(function () {#}
+        {#    var objectId = $(this)[0].getAttribute("val");#}
+        {##}
+        {#    var userInput = "";#}
+        {#    userInput = confirm("{% trans "Are you sure you want to delete this agreement from the project?" %}");#}
+        {#    if (userInput === true) {#}
+        {#        $("#agreement-secrect-delete-btn-" + objectId)[0].click();#}
+        {#    }#}
+        {#})#}
+        {##}
+        {#$(".om-delete-me").click(function () {#}
+        {#    var objectId = $(this)[0].getAttribute("val");#}
+        {##}
+        {#    var userInput = "";#}
+        {#    userInput = confirm("{% trans "Are you sure you want to delete this o&m request from the project?" %}");#}
+        {#    if (userInput === true) {#}
+        {#        $("#om-secrect-delete-btn-" + objectId)[0].click();#}
+        {#    }#}
+        {#})#}
+        {##}
+        {#$(".capital-delete-me").click(function () {#}
+        {#    var objectId = $(this)[0].getAttribute("val");#}
+        {##}
+        {#    var userInput = "";#}
+        {#    userInput = confirm("{% trans "Are you sure you want to delete this capital request from the project?" %}");#}
+        {#    if (userInput === true) {#}
+        {#        $("#capital-secrect-delete-btn-" + objectId)[0].click();#}
+        {#    }#}
+        {#})#}
+        {##}
+        {#$(".gc-delete-me").click(function () {#}
+        {#    var objectId = $(this)[0].getAttribute("val");#}
+        {##}
+        {#    var userInput = "";#}
+        {#    userInput = confirm("{% trans "Are you sure you want to delete this G&C request from the project?" %}");#}
+        {#    if (userInput === true) {#}
+        {#        $("#gc-secrect-delete-btn-" + objectId)[0].click();#}
+        {#    }#}
+        {#})#}
+
+
+    </script>
+
+
+{% endblock content %}
