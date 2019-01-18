@@ -324,6 +324,16 @@ function overwrite(control) {
           }
         }
       }
+      else if (userResponse === "u") {
+        // 'EXAMPLE:  u
+        if (overwrite($("#id_sex"))) {
+          strSex = userResponse.toLowerCase().replace("sex","").trim()
+          if (strSex=='u') {
+            $("#id_sex").val(9);
+            inputAccepted = true;
+          }
+        }
+      }
       else if (userResponse.match(/parasites/gi)) {
         // 'EXAMPLE:  Parasites Y
         if (overwrite($("#id_parasite"))) {
