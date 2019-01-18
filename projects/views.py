@@ -211,14 +211,19 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Project
     login_url = '/accounts/login_required/'
     form_class = forms.ProjectForm
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user}
+        return {
+            'last_modified_by': self.request.user,
+            'start_date': "{}-{:02d}-{:02d}".format(self.object.start_date.year, self.object.start_date.month,
+                                            self.object.start_date.day),
+            'end_date': "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
+                                                    self.object.end_date.day)
+        }
 
 
 class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
@@ -583,7 +588,6 @@ def gc_cost_delete(request, pk):
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
-
 # REPORTS #
 ###########
 
@@ -641,5 +645,3 @@ def master_spreadsheet(request, site, year):
             response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
             return response
     raise Http404
-
-

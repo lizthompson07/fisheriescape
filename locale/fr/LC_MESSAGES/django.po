@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-18 12:12-0400\n"
+"POT-Creation-Date: 2019-01-18 14:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,7 +84,7 @@ msgstr "name_fre"
 #: .\ihub\models.py:35 .\ihub\models.py:63 .\ihub\models.py:74
 #: .\ihub\models.py:85 .\ihub\models.py:96 .\ihub\models.py:107
 #: .\projects\models.py:24 .\projects\models.py:38 .\projects\models.py:45
-#: .\projects\models.py:51 .\projects\models.py:62 .\projects\models.py:73
+#: .\projects\models.py:52 .\projects\models.py:63 .\projects\models.py:74
 #: .\projects\models.py:166 .\projects\models.py:280
 msgid "name"
 msgstr "nom"
@@ -183,7 +183,7 @@ msgstr "Remarque"
 #: .\ihub\templates\ihub\_notes.html:50
 #: .\projects\templates\projects\my_project_list.html:44
 #: .\projects\templates\projects\my_section_list.html:37
-#: .\projects\templates\projects\project_list.html:63 .\templates\index.html:47
+#: .\templates\index.html:47
 msgid "Status"
 msgstr "Statut"
 
@@ -435,21 +435,21 @@ msgstr "L'entrée a été supprimé avec succès!"
 msgid "The note has been successfully deleted from the entry."
 msgstr "La note a été supprimé avec succès."
 
-#: .\projects\models.py:48
+#: .\projects\models.py:49
 msgid "section head"
 msgstr "chef de section"
 
-#: .\projects\models.py:80
+#: .\projects\models.py:81
 msgid "fiscal year"
 msgstr "année fiscale"
 
-#: .\projects\models.py:83
+#: .\projects\models.py:84
 msgid "Project title"
 msgstr "titre du projet"
 
 #: .\projects\models.py:86
-msgid "section"
-msgstr "section"
+msgid "section (Division)"
+msgstr "section (Division)"
 
 #: .\projects\models.py:87
 msgid "program"
@@ -480,8 +480,10 @@ msgid "Project Objective & Description"
 msgstr "Objectif du projet et description"
 
 #: .\projects\models.py:98
-msgid "Project-specific priorities in 2019/2020"
-msgstr "Priorités spécifiques aux projets en 2019-2020"
+msgid ""
+"Project-specific priorities in 2019/2020 (e.g., what will be the project "
+"emphasis in this fiscal year?)"
+msgstr "Priorités spécifiques au projet en 2019-2020 (par exemple, sur quoi le projet mettra-t-il l'accent au cours de cet exercice?)"
 
 #: .\projects\models.py:100
 msgid "Project Deliverables in 2019 / 2020 (bulleted form)"
@@ -558,7 +560,7 @@ msgstr "Soumettre le projet"
 msgid "Salary"
 msgstr "Salaire"
 
-#: .\projects\models.py:158 .\projects\views.py:490
+#: .\projects\models.py:158 .\projects\views.py:477
 msgid "O&M"
 msgstr "F & E"
 
@@ -1038,7 +1040,6 @@ msgstr "Nouveau projet"
 
 #: .\projects\templates\projects\my_project_list.html:47
 #: .\projects\templates\projects\my_section_list.html:40
-#: .\projects\templates\projects\project_list.html:66
 msgid "Section"
 msgstr "Section"
 
@@ -1052,7 +1053,7 @@ msgstr "No. de semaines"
 
 #: .\projects\templates\projects\my_project_list.html:56
 #: .\projects\templates\projects\my_section_list.html:43
-#: .\projects\templates\projects\project_list.html:69
+#: .\projects\templates\projects\project_list.html:67
 msgid "Submitted"
 msgstr "Soumis"
 
@@ -1158,6 +1159,10 @@ msgstr "Tous les projets:"
 msgid "Fiscal Year"
 msgstr "Année fiscale"
 
+#: .\projects\templates\projects\project_list.html:63
+msgid "Section (Division)"
+msgstr ""
+
 #: .\projects\templates\projects\project_report.html:33
 msgid "Project Detail:"
 msgstr "Détails du projet:"
@@ -1204,23 +1209,23 @@ msgstr "Modification au personnel:"
 msgid "Adding Staff Member"
 msgstr "Ajouter de personnel"
 
-#: .\projects\views.py:316
+#: .\projects\views.py:303
 msgid "The project was successfully deleted!"
 msgstr "Le projet a été supprimé avec succès!"
 
-#: .\projects\views.py:362
+#: .\projects\views.py:349
 msgid "The staff member has been successfully deleted from project."
 msgstr "Le membre du personnel a été supprimé du projet avec succès."
 
-#: .\projects\views.py:405
+#: .\projects\views.py:392
 msgid "The collaborator has been successfully deleted from project."
 msgstr "Le collaborateur a été supprimé du projet avec succès."
 
-#: .\projects\views.py:448
+#: .\projects\views.py:435
 msgid "The agreement has been successfully deleted."
 msgstr "L'accord a été supprimé avec succès."
 
-#: .\projects\views.py:497 .\projects\views.py:546 .\projects\views.py:595
+#: .\projects\views.py:484 .\projects\views.py:533 .\projects\views.py:582
 msgid "The cost has been successfully deleted."
 msgstr "Le coût a été supprimé avec succès."
 
@@ -1312,6 +1317,12 @@ msgstr "Marine Diets db"
 #: .\templates\index.html:199
 msgid "Marine Environmental Quality (MEQ) db"
 msgstr "Qualité de l'environnement marin (QEM)"
+
+#~ msgid "section"
+#~ msgstr "section"
+
+#~ msgid "Project-specific priorities in 2019/2020"
+#~ msgstr "Priorités spécifiques aux projets en 2019-2020"
 
 #~ msgid "go"
 #~ msgstr "aller"
