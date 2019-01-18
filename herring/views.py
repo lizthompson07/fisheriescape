@@ -586,24 +586,13 @@ class OtolithUpdateView(LoginRequiredMixin, UpdateView):
         # if the fish is a spring fish, there should be a +1 added to the annulus_count.
         # However, if there is already a value present, we cannot add 1
 
-        # if annulus_count is blank or is not equal to -99, then see that 1 is added to whatever user scores it to be
-        if not self.object.annulus_count or self.object.annulus_count == -99:
-            add_one = 1
-        else:
-            add_one = 0
-
         return {
             'last_modified_by': self.request.user,
             'otolith_sampler': self.request.user,
-            'add_one': add_one,
         }
 
     def form_valid(self, form):
         object = form.save()
-
-        if form.cleaned_data["add_one"] == 1:
-            object.annulus_count += 1
-            object.save()
 
         if form.cleaned_data["where_to"] == "home":
             return HttpResponseRedirect(reverse("herring:sample_detail", kwargs={'pk': object.sample.id, }))
