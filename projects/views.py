@@ -27,7 +27,6 @@ from . import reports
 
 project_field_list = [
     'project_title',
-    'division',
     'section',
     'program',
     'budget_code',
@@ -114,7 +113,6 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         project = self.object
         context["field_list"] = [
             'project_title',
-            'division',
             'section',
             'program',
             'budget_code',
@@ -212,18 +210,7 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         context["capital_total"] = capital_total
         return context
 
-        # def get_pdf_filename(self):
-        #     site = models.Site.objects.get(pk=self.kwargs['site']).site
-        #     return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
-        #
-        # def get_context_data(self, **kwargs):
-        #     reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
-        #     site = models.Site.objects.get(pk=self.kwargs['site']).site
-        #     return super().get_context_data(
-        #         pagesize="A4 landscape",
-        #         title="Annual Report for {}_{}".format(site, self.kwargs['year']),
-        #         **kwargs
-        #     )
+
 
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Project

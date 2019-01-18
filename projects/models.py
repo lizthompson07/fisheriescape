@@ -44,11 +44,12 @@ class Division(models.Model):
 class Section(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name"))
     nom = models.CharField(max_length=255, blank=True, null=True)
+    division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True)
     section_head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                      verbose_name=_("section head"))
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        return "{} ({})".format(getattr(self, str(_("name"))), self.division)
 
     class Meta:
         ordering = ['name', ]
@@ -81,21 +82,20 @@ class Project(models.Model):
 
     # basic
     project_title = models.TextField(verbose_name=_("Project title"))
-    division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
-                                verbose_name=_("section"))
+                                verbose_name=_("section (Division)"))
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("program"))
     budget_code = models.ForeignKey(BudgetCode, on_delete=models.DO_NOTHING, related_name="is_section_head_on_projects",
                                     blank=True, null=True, verbose_name=_("budget code"))
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"))
-    approved = models.BooleanField(default=False, verbose_name=_("Has this project already been approved?"))
+    approved = models.NullBooleanField(default=False, verbose_name=_("Has this project already been approved?"))
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start Date"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End Date"))
 
     # details
     description = models.TextField(blank=True, null=True, verbose_name=_("Project Objective & Description"))
-    priorities = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities in 2019/2020"))
+    priorities = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities in 2019/2020 (e.g., what will be the project emphasis in this fiscal year?)"))
     deliverables = models.TextField(blank=True, null=True,
                                     verbose_name=_("Project Deliverables in 2019 / 2020 (bulleted form)"))
 

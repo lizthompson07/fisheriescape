@@ -60,11 +60,9 @@
                 {% trans "Title" %}
             </th>
             <th scope="col">
-                {% trans "Status" %}
+                {% trans "Section (Division)" %}
             </th>
-            <th scope="col">
-                {% trans "Section" %}
-            </th>
+
             <th scope="col">
                 {% trans "Submitted" %}
             </th>
@@ -81,7 +79,6 @@
                             {{ obj.project_title }}
                         </a>
                     </td>
-                    <td>{{ obj.division }}</td>
                     <td>{{ obj.section }}</td>
                     <td>{{ obj.submitted|yesno }}</td>
                 </tr>

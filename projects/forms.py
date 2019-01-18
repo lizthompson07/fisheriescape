@@ -10,7 +10,6 @@ class NewProjectForm(forms.ModelForm):
         fields = [
             'fiscal_year',
             'project_title',
-            'division',
             'section',
         ]
         widgets = {
