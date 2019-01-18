@@ -5,6 +5,12 @@
 {% load i18n %}
 {% block content %}
 
+    <style>
+        table, td {
+            font-size: 14px;
+        }
+    </style>
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page">
@@ -34,10 +40,10 @@
                     {% trans "Title" %}
                 </th>
                 <th scope="col">
-                    {% trans "Status" %}
+                    {% trans "Section" %}
                 </th>
                 <th scope="col">
-                    {% trans "Section" %}
+                    {% trans "Lead(s)" %}
                 </th>
                 <th scope="col">
                     {% trans "Submitted" %}
@@ -54,8 +60,22 @@
                                     {{ obj.project_title }}
                                 </a>
                             </td>
-                            <td>{{ obj.division }}</td>
                             <td>{{ obj.section }}</td>
+                            <td>
+                                {% for staff in obj.staff_members.all %}
+                                    {% if staff.employee_type_id == 1 %}
+                                        {% if staff.user_id %}
+                                            {{ staff.user.first_name }} {{ staff.user.last_name }}
+                                        {% else %}
+                                            {{ staff.name }}
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if obj.staff_members.count > 1 %} ; {% endif %}
+                                {% endfor %}
+                            </td>
+
+
+
                             {% if obj.submitted %}
                                 <td class="good">
                                     {% else %}
@@ -73,10 +93,10 @@
 
         {% else %}
             <p>
-                {% blocktrans  %}
+                {% blocktrans %}
                     There are no sections assigned to you. If there should be, please contact <a
                         href="mailto:david.fishman@dfo-mpo.gc.ca">david.fishman@dfo-mpo.gc.ca</a>
-                {% endblocktrans  %}
+                {% endblocktrans %}
             </p>
 
         {% endif %}
