@@ -56,4 +56,9 @@ urlpatterns = [
     path('gc-cost/<int:pk>/edit/', views.GCCostUpdateView.as_view(), name="gc_edit"),
     path('gc-cost/<int:pk>/delete/', views.gc_cost_delete, name="gc_delete"),
 
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('reports/master-spreadsheet/year/<int:year>', views.master_spreadsheet, name="report_master"),
+
 ]
