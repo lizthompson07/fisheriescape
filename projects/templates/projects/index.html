@@ -38,6 +38,19 @@
 
                     </p>
                 {% endif %}
+                <br>
+                <div style="text-align: center">
+                    <h4>
+                        {% trans "Please use <u>Microsoft Edge</u> or <u>Google Chrome</u> to view this page." %}
+                        <br><br><b>
+                        <span class="highlight">
+                            {% trans "DO NOT USE Internet Explorer." %}
+                        </span>
+                    </b>
+
+                    </h4>
+                </div>
+
             </div>
 
         </div>
@@ -59,12 +72,15 @@
                         <br><br>
                         For a list of all project in the branch, go to <a href="{{ all_proj_url }}">All
                         Projects</a>.
+
                     {% endblocktrans %}
+
+                    <br><br>
+
 
                 </h4>
             </div>
         {% endif %}
-
 
 
     </div>

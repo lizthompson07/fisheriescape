@@ -92,7 +92,7 @@
 
         function goToNextTest(current_test) {
             if (current_test == 1) {
-                audio.play(); // this will also submit the form for some reason.
+                audio.play();
                 $("#prompt1").unbind();
                 $("#prompt1").val("");
                 $("#prompt1").attr("id", "prompt2");
@@ -101,7 +101,7 @@
                 initialPrompt2()
             }
             if (current_test == 2) {
-                audio.play(); // this will also submit the form for some reason.
+                audio.play();
                 $("#prompt2").unbind();
                 $("#prompt2").val("");
                 $("#prompt2").attr("id", "prompt3");
