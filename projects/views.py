@@ -217,13 +217,23 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.ProjectForm
 
     def get_initial(self):
-        return {
+        my_dict = {
             'last_modified_by': self.request.user,
-            'start_date': "{}-{:02d}-{:02d}".format(self.object.start_date.year, self.object.start_date.month,
-                                            self.object.start_date.day),
-            'end_date': "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
-                                                    self.object.end_date.day)
         }
+
+        try:
+            my_dict["start_date"] = "{}-{:02d}-{:02d}".format(self.object.start_date.year, self.object.start_date.month,
+                                                              self.object.start_date.day)
+        except:
+            print("no start date...")
+
+        try:
+            my_dict["end_date"] = "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
+                                                  self.object.end_date.day)
+        except:
+            print("no start date...")
+
+        return my_dict
 
 
 class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
