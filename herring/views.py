@@ -611,8 +611,6 @@ class OtolithUpdateView(LoginRequiredMixin, UpdateView):
 
 # SHARED #
 ##########
-
-
 def move_record(request, sample, type, direction, current_id):
     # shared vars
     message_start = "You are at the start of the recordset."
