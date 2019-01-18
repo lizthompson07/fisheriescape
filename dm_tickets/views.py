@@ -105,7 +105,7 @@ def send_resolved_email(request, ticket):
 
 def mark_ticket_resolved(request, ticket):
     my_ticket = models.Ticket.objects.get(pk=ticket)
-    my_ticket.date_closed = timezone.now()
+    my_ticket.status = '2'
     my_ticket.save()
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk':ticket}))
 
