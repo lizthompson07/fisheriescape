@@ -1,60 +1,67 @@
 {% extends "accounts/accounts_base.html" %}
 {% load bootstrap4 %}
+{% load i18n %}
 
 {% block content %}
-{% if message %}
-<h3>{% bootstrap_alert message alert_type='danger' %}</h3>
-{% endif %}
-  <div class="container">
-    <div class="jumbotron">
-
-      <h1 class="big-header">Sign In </h1>
-      <hr>
-
-
-    {% if user.is_authenticated %}
-
-    {% else %}
-    <h5>
-      {# If you do not have an account and would like one, you may request one by clicking <a href="{% url 'accounts:account_request' %}">HERE</a>. #}
-      If you do not have an account you can register for one <a href="{% url 'accounts:signup' %}">HERE</a>.
-
-    </h5>
-    <br>
+    {% if message %}
+        <h3>{% bootstrap_alert message alert_type='danger' %}</h3>
     {% endif %}
-    <hr>
+    <div class="container">
+        <div class="jumbotron">
 
-    {% if user.is_authenticated %}
-    {# do not show the form #}
-    {% else %}
-    <form action="{% url 'accounts:login' %}" method="POST" class='form'>
-      {% csrf_token %}
-      {% bootstrap_form_errors form %}
+            <h1 class="big-header">
+                {% trans "Sign In" %}
+            </h1>
+            <hr>
 
-      {% for field in form  %}
-        {% if field.name == 'username' %}
-          <p>Username / Email address
-            (<a href="{% url 'password_reset' %}">forgot password?</a>)
-          </p>
-          {% bootstrap_field field show_label=False%}
-        {% else %}
-          {% bootstrap_field field %}
-        {% endif %}
 
-      {% endfor %}
-      <br>
-      {% buttons %}
-      <button type="submit" class="btn btn-primary">
-        Sign In
-      </button>
-      {% endbuttons %}
-      {# <input type="submit" class="btn btn-primary" value="Login"> #}
-      <input type="hidden" name="next" value="{{next}}">
-    </form>
+            {% if user.is_authenticated %}
 
-    {% endif %}
+            {% else %}
+                <h5>
+                    {% url 'accounts:signup' as sign_up_url %}
+                    {% blocktrans %}
+                        If you do not have an account, you can create one <a href="{{ sign_up_url }}">here</a>.
+                    {% endblocktrans %}
+                </h5>
+                <br>
+            {% endif %}
+            <hr>
 
+            {% if user.is_authenticated %}
+                {# do not show the form #}
+            {% else %}
+                <form action="{% url 'accounts:login' %}" method="POST" class='form'>
+                    {% csrf_token %}
+                    {% bootstrap_form_errors form %}
+
+                    {% for field in form %}
+                        {% if field.name == 'username' %}
+                            <p>
+                                {% trans "Email address" %}
+                                (<a href="{% url 'password_reset' %}">
+                                {% trans "forgot password?" %}
+                            </a>)
+                            </p>
+                            {% bootstrap_field field show_label=False placeholder="" %}
+                        {% else %}
+                            {% bootstrap_field field %}
+                        {% endif %}
+
+                    {% endfor %}
+                    <br>
+                    {% buttons %}
+                        <button type="submit" class="btn btn-primary">
+                            {% trans "Sign In" %}
+                        </button>
+                    {% endbuttons %}
+                    {# <input type="submit" class="btn btn-primary" value="Login"> #}
+                    <input type="hidden" name="next" value="{{ next }}">
+                </form>
+
+            {% endif %}
+
+        </div>
     </div>
-  </div>
 
 {% endblock %}
