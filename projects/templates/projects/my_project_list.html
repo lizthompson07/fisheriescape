@@ -26,7 +26,7 @@
 
         <h3>
             {% blocktrans with wt=weeks_total|floatformat:1 plur=weeks_total|pluralize %}
-                You are currently being planned for {{ wt }} week{{ plur }}
+                You are currently being planned for a total of <span class="highlight"> {{ wt }} week{{ plur }} </span>
             {% endblocktrans %}
         </h3>
         <br>

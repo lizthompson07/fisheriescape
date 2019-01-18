@@ -4,6 +4,8 @@ from django.contrib.auth.forms import UserCreationForm, SetPasswordForm, Authent
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.utils.translation import gettext as _
+
 
 # from django.contrib.auth.forms import UserCreationForm
 
@@ -24,7 +26,7 @@ class AccountRequestForm(forms.Form):
 
 
 class SignupForm(UserCreationForm):
-    email = forms.EmailField(max_length=200, help_text='Required - a verification email will be sent to you once this form is submitted')
+    email = forms.EmailField(max_length=200, help_text=_('Required - a verification email will be sent to you once this form is submitted'))
 
     class Meta:
         model = User
@@ -38,7 +40,7 @@ class SignupForm(UserCreationForm):
             # raise forms.ValidationError(_(mark_safe('An account already exists for this email address. <a href="#" class="email_error">Log in instead?</a>')))
 
         if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
-            raise forms.ValidationError("Only DFO employees can register for an account. Please enter an email ending with '@DFO-MPO.GC.CA'")
+            raise forms.ValidationError(_("Only DFO employees can register for an account. Please enter an email ending with '@DFO-MPO.GC.CA'"))
 
         # Always return a value to use as the new cleaned data, even if
         # this method didn't change it.
