@@ -161,7 +161,7 @@ def note_delete(request, pk):
     object = models.EntryNote.objects.get(pk=pk)
     object.delete()
     messages.success(request, _("The note has been successfully deleted from the entry."))
-    return HttpResponseRedirect(reverse_lazy("ihub:entry_detail", kwargs={"pk": object.project.id}))
+    return HttpResponseRedirect(reverse_lazy("ihub:entry_detail", kwargs={"pk": object.entry.id}))
 
 
 # # COLLABORATOR #
