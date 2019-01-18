@@ -16,8 +16,8 @@ class ProjectFilter(django_filters.FilterSet):
 
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=FY_CHOICES)
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
-    division = django_filters.ChoiceFilter(field_name='division', lookup_expr='exact', choices=DIVISION_CHOICES)
-    section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', choices=SECTION_CHOICES)
+    division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label="Division", choices=DIVISION_CHOICES)
+    section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label="Section", choices=SECTION_CHOICES)
 
     # class Meta:
     #     model = models.Project
