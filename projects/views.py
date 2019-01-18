@@ -23,7 +23,7 @@ from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
-from . import emails
+from . import reports
 
 project_field_list = [
     'project_title',
@@ -594,3 +594,65 @@ def gc_cost_delete(request, pk):
     object.delete()
     messages.success(request, _("The cost has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(LoginRequiredMixin, FormView):
+    template_name = 'camp/report_search.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.ReportSearchForm
+
+    def get_initial(self):
+        # default the year to the year of the latest samples
+        return {"year": models.Sample.objects.all().order_by("-start_date").first().start_date.year}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
+        report = int(form.cleaned_data["report"])
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species_list": species_list}))
+        elif report == 2:
+            try:
+                site = int(form.cleaned_data["site"])
+            except:
+                site = None
+                print("no site provided")
+
+            if site:
+                return HttpResponseRedirect(reverse("camp:species_richness", kwargs={"site": site}))
+            else:
+                return HttpResponseRedirect(reverse("camp:species_richness"))
+        elif report == 3:
+            site = int(form.cleaned_data["site"])
+            year = int(form.cleaned_data["year"])
+            return HttpResponseRedirect(reverse("camp:watershed_report", kwargs={"site": site, "year": year}))
+
+        elif report == 4:
+            site = int(form.cleaned_data["site"])
+            year = int(form.cleaned_data["year"])
+            return HttpResponseRedirect(reverse("camp:watershed_xlsx", kwargs={"site": site, "year": year}))
+
+        elif report == 5:
+            return HttpResponseRedirect(reverse("camp:watershed_csv"))
+
+
+def master_spreadsheet(request, site, year):
+    my_site = models.Site.objects.get(pk=site)
+    file_url = reports.generate_annual_watershed_spreadsheet(my_site, year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
+            return response
+    raise Http404
+
+
