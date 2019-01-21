@@ -5,6 +5,8 @@
 {% load i18n %}
 
 {% block content %}
+    {% get_current_language as LANG %}
+
     <style>
         table, td {
             font-size: 14px;
@@ -21,12 +23,11 @@
     </nav>
 
     <div class="container">
-    {{ get_current_language }}
+        {{ get_current_language }}
         <h1>
             {% blocktrans with name=user.first_name %}
                 {{ name }}'s Project List:
             {% endblocktrans %}
-
         </h1>
 
         <h3>
@@ -42,14 +43,17 @@
         <br> <br>
         <table class="table table-hover table-sm">
             <thead>
-            <th scope="col">
-                {% trans "Title" %}
+            <th scope="col" style="width: 100px;">
+                {% trans "Fiscal Year" %}
             </th>
             <th scope="col">
-                {% trans "Status" %}
+                {% trans "Division" %}
             </th>
             <th scope="col">
                 {% trans "Section" %}
+            </th>
+            <th scope="col" style="width: 500px;">
+                {% trans "Title" %}
             </th>
             <th scope="col">
                 {% trans "Role" %}
@@ -60,19 +64,25 @@
             <th scope="col">
                 {% trans "Submitted" %}
             </th>
-            </tr>
             </thead>
+
             <tbody>
 
             {% for obj in object_list %}
                 <tr>
+                    <td>{{ obj.project.fiscal_year }}</td>
+                    {% if LANG == "fr" %}
+                        <td>{{ obj.project.section.division.nom }}</td>
+                        <td>{{ obj.project.section.nom }}</td>
+                    {% else %}
+                        <td>{{ obj.project.section.division.name }}</td>
+                        <td>{{ obj.project.section.name }}</td>
+                    {% endif %}
                     <td>
                         <a href="{% url 'projects:project_detail' obj.project.id %}">
                             {{ obj.project.project_title }}
                         </a>
                     </td>
-                    <td>{{ obj.project.division }}</td>
-                    <td>{{ obj.project.section }}</td>
                     <td>{{ obj.employee_type }}</td>
                     <td>{{ obj.duration_weeks }}</td>
 

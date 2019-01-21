@@ -95,7 +95,8 @@ class Project(models.Model):
 
     # details
     description = models.TextField(blank=True, null=True, verbose_name=_("Project Objective & Description"))
-    priorities = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities in 2019/2020 (e.g., what will be the project emphasis in this fiscal year?)"))
+    priorities = models.TextField(blank=True, null=True, verbose_name=_(
+        "Project-specific priorities in 2019/2020 (e.g., what will be the project emphasis in this fiscal year?)"))
     deliverables = models.TextField(blank=True, null=True,
                                     verbose_name=_("Project Deliverables in 2019 / 2020 (bulleted form)"))
 
@@ -136,7 +137,7 @@ class Project(models.Model):
                                          verbose_name=_("last modified by"))
 
     class Meta:
-        ordering = ['id', ]
+        ordering = ['-fiscal_year', 'section__division', 'section', 'project_title']
 
     def __str__(self):
         return "{}".format(self.project_title)
