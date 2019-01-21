@@ -5,13 +5,15 @@
 {% load i18n %}
 
 {% block content %}
+{% get_current_language as LANG %}
     {% load bootstrap4 %}
 
     <style>
-        form,input{
+        form, input {
             font-size: small;
         }
-        table,td{
+
+        table, td {
             font-size: 14px;
         }
     </style>
@@ -25,12 +27,12 @@
         </ol>
     </nav>
 
-    <div class="container">
+    <div class="indent-med">
         <h1>
             {% trans "All Projects:" %}
         </h1>
 
-        <form class="form" action="." method="get" >
+        <form class="form" action="." method="get">
             <div class="row">
 
                 {% for field in filter.form %}
@@ -42,8 +44,8 @@
                 {% endfor %}
                 <div class="col">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn-warning">
-                    <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">
+                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                    <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary btn-sm float-right">
                         {% trans "New Project" %}
                     </a>
                 </div>
@@ -53,20 +55,22 @@
         <br>
         <table class="table table-hover table-sm">
             <thead>
-            <th scope="col">
+            <th scope="col" style="width: 120px;">
                 {% trans "Fiscal Year" %}
             </th>
             <th scope="col">
-                {% trans "Title" %}
+                {% trans "Division" %}
             </th>
             <th scope="col">
-                {% trans "Section (Division)" %}
+                {% trans "Section" %}
+            </th>
+            <th scope="col">
+                {% trans "Title" %}
             </th>
 
             <th scope="col">
                 {% trans "Submitted" %}
             </th>
-            </tr>
             </thead>
             <tbody>
 
@@ -74,13 +78,19 @@
                 <tr>
                     <td>{{ obj.fiscal_year }}</td>
 
+                    {% if LANG == "fr" %}
+                        <td>{{ obj.section.division.nom }}</td>
+                        <td>{{ obj.section.nom }}</td>
+                    {% else %}
+                        <td>{{ obj.section.division.name }}</td>
+                        <td>{{ obj.section.name }}</td>
+                    {% endif %}
                     <td>
                         <a href="{% url 'projects:project_detail' obj.id %}">
                             {{ obj.project_title }}
                         </a>
                     </td>
-                    <td>{{ obj.section }}</td>
-                    <td>{{ obj.submitted|yesno }}</td>
+                    <td>{{ obj.submitted|yesno:_("yes,no") }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -91,3 +101,4 @@
     </div>
 
 {% endblock content %}
+
