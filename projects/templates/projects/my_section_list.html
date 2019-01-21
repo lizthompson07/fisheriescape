@@ -4,6 +4,7 @@
 {% load timedelta %}
 {% load i18n %}
 {% block content %}
+    {% get_current_language as LANG %}
 
     <style>
         table, td {
@@ -19,7 +20,7 @@
         </ol>
     </nav>
 
-    <div class="container">
+    <div class="indent-med">
         {% if object_list.count %}
 
             <h1>
@@ -35,32 +36,45 @@
             </a>
             <br> <br>
             <table class="table table-hover table-sm">
-                <thead>
-                <th scope="col">
-                    {% trans "Title" %}
-                </th>
-                <th scope="col">
-                    {% trans "Section" %}
-                </th>
-                <th scope="col">
-                    {% trans "Lead(s)" %}
-                </th>
-                <th scope="col">
-                    {% trans "Submitted" %}
-                </th>
+                <tr>
+                    <th scope="col" style="width: 120px;">
+                        {% trans "Fiscal Year" %}
+                    </th>
+                    <th scope="col">
+                        {% trans "Division" %}
+                    </th>
+                    <th scope="col">
+                        {% trans "Section" %}
+                    </th>
+                    <th scope="col">
+                        {% trans "Title" %}
+                    </th>
+                    <th scope="col">
+                        {% trans "Lead(s)" %}
+                    </th>
+                    <th scope="col">
+                        {% trans "Submitted" %}
+                    </th>
                 </tr>
-                </thead>
                 <tbody>
 
                 {% for section in object_list %}
                     {% for obj in section.projects.all %}
                         <tr>
+                            <td>{{ obj.fiscal_year }}</td>
+
+                            {% if LANG == "fr" %}
+                                <td>{{ obj.section.division.nom }}</td>
+                                <td>{{ obj.section.nom }}</td>
+                            {% else %}
+                                <td>{{ obj.section.division.name }}</td>
+                                <td>{{ obj.section.name }}</td>
+                            {% endif %}
                             <td>
                                 <a href="{% url 'projects:project_detail' obj.id %}">
                                     {{ obj.project_title }}
                                 </a>
                             </td>
-                            <td>{{ obj.section }}</td>
                             <td>
                                 {% for staff in obj.staff_members.all %}
                                     {% if staff.employee_type_id == 1 %}
@@ -74,8 +88,6 @@
                                 {% endfor %}
                             </td>
 
-
-
                             {% if obj.submitted %}
                                 <td class="good">
                                     {% else %}
@@ -84,6 +96,8 @@
 
                             {{ obj.submitted|yesno:_("yes,no") }}
                             </td>
+
+
                         </tr>
                     {% endfor %}
                 {% endfor %}
