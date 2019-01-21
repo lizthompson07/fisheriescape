@@ -86,7 +86,7 @@
                     <td>{{ obj.entry_type }}</td>
                     <td>{{ obj.organization }}</td>
                     <td>{{ obj.sector }}</td>
-                    <td>{{ obj.date_created|date:"F m, Y"}}</td>
+                    <td>{{ obj.date_created|date:"F d, Y"}}</td>
                     <td>{{ obj.created_by.first_name}} {{ obj.created_by.last_name}}</td>
                 </tr>
             {% endfor %}
