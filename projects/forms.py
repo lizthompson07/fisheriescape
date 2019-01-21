@@ -1,5 +1,7 @@
 from django import forms
 from django.core import validators
+from django.utils import timezone
+
 from . import models
 from django.contrib.auth.models import User
 
@@ -112,25 +114,12 @@ class GCCostForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    pass
-    # SPECIES_CHOICES = ((None, "---"),)
-    # for obj in models.Species.objects.all().order_by("common_name_eng"):
-    #     SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
-    #
-    # SITE_CHOICES = ((None, "All Stations"),)
-    # for obj in models.Site.objects.all():
-    #     SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
-    #
-    # REPORT_CHOICES = (
-    #     (None, "---"),
-    #     (1, "Species counts by year"),
-    #     (2, "Species richness by year"),
-    #     (3, "Annual watershed report (PDF)"),
-    #     (4, "Annual watershed spreadsheet (XLSX)"),
-    #     (5, "Dataset export for FGP (CSV)"),
-    # )
-    #
-    # report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    # species = forms.MultipleChoiceField(required=False, choices=SPECIES_CHOICES)
-    # year = forms.CharField(required=False, widget=forms.NumberInput())
-    # site = forms.ChoiceField(required=False, choices=SITE_CHOICES)
+    FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in
+                  range(timezone.now().year - 2, timezone.now().year + 1)]
+
+    REPORT_CHOICES = (
+        (1, "Regional Project Planning Summary"),
+    )
+
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)

@@ -59,6 +59,6 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/master-spreadsheet/year/<int:year>', views.master_spreadsheet, name="report_master"),
+    path('reports/master-spreadsheet/fiscal-year/<str:fiscal_year>', views.master_spreadsheet, name="report_master"),
 
 ]

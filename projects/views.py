@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -7,7 +9,7 @@ from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.template import Context, loader
 from django.urls import reverse_lazy, reverse
@@ -19,6 +21,7 @@ from easy_pdf.views import PDFTemplateView
 from accounts import models as accounts_models
 from collections import OrderedDict
 
+from lib.functions.fiscal_year import fiscal_year
 from lib.functions.nz import nz
 from . import models
 from . import forms
@@ -608,50 +611,27 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
 
     def get_initial(self):
         # default the year to the year of the latest samples
-        return {"year": models.Sample.objects.all().order_by("-start_date").first().start_date.year}
+        return {"fiscal_year": fiscal_year()}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
     def form_valid(self, form):
-        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
+        fiscal_year = str(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
 
         if report == 1:
-            return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species_list": species_list}))
-        elif report == 2:
-            try:
-                site = int(form.cleaned_data["site"])
-            except:
-                site = None
-                print("no site provided")
-
-            if site:
-                return HttpResponseRedirect(reverse("camp:species_richness", kwargs={"site": site}))
-            else:
-                return HttpResponseRedirect(reverse("camp:species_richness"))
-        elif report == 3:
-            site = int(form.cleaned_data["site"])
-            year = int(form.cleaned_data["year"])
-            return HttpResponseRedirect(reverse("camp:watershed_report", kwargs={"site": site, "year": year}))
-
-        elif report == 4:
-            site = int(form.cleaned_data["site"])
-            year = int(form.cleaned_data["year"])
-            return HttpResponseRedirect(reverse("camp:watershed_xlsx", kwargs={"site": site, "year": year}))
-
-        elif report == 5:
-            return HttpResponseRedirect(reverse("camp:watershed_csv"))
+            return HttpResponseRedirect(reverse("projects:report_master", kwargs={'fiscal_year': fiscal_year}))
 
 
-def master_spreadsheet(request, site, year):
-    my_site = models.Site.objects.get(pk=site)
-    file_url = reports.generate_annual_watershed_spreadsheet(my_site, year)
+def master_spreadsheet(request, fiscal_year):
+    # my_site = models.Site.objects.get(pk=site)
+    file_url = reports.generate_master_spreadsheet(fiscal_year)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
+            response['Content-Disposition'] = 'inline; filename="Science project planning MASTER LIST {}.xlsx"'.format(fiscal_year)
             return response
     raise Http404
