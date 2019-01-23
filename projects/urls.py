@@ -25,6 +25,7 @@ urlpatterns = [
     path('project/<int:project>/staff/new/', views.StaffCreateView.as_view(), name="staff_new"),
     path('staff/<int:pk>/edit/', views.StaffUpdateView.as_view(), name="staff_edit"),
     path('staff/<int:pk>/delete/', views.staff_delete, name="staff_delete"),
+    path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
 
     # Collaborator #
     ################

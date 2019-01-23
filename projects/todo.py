@@ -6,4 +6,3 @@
 # TODO: reviewed field?
 # TODO: create visio diagram
 # TODO: full time employees should be on the list of users... so it should grey out the field
-# TODO: french URL patterns? 

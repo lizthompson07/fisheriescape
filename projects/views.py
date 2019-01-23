@@ -238,7 +238,7 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
         try:
             my_dict["end_date"] = "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
-                                                  self.object.end_date.day)
+                                                            self.object.end_date.day)
         except:
             print("no start date...")
 
@@ -372,6 +372,29 @@ def staff_delete(request, pk):
     object.delete()
     messages.success(request, _("The staff member has been successfully deleted from project."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
+
+class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
+    login_url = '/accounts/login_required/'
+    template_name = 'projects/overtime_calculator_popout.html'
+    form_class = forms.OTForm
+    model = models.Staff
+
+    def get_initial(self):
+        return {
+            # 'weekdays': 0,
+            # 'saturdays': 0,
+            # 'sundays': 0,
+            # 'stat_holidays': 0,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy('projects:staff_edit', kwargs={"pk": object.id}))
 
 
 # COLLABORATOR #
@@ -638,6 +661,7 @@ def master_spreadsheet(request, fiscal_year, user=None):
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="Science project planning MASTER LIST {}.xlsx"'.format(fiscal_year)
+            response['Content-Disposition'] = 'inline; filename="Science project planning MASTER LIST {}.xlsx"'.format(
+                fiscal_year)
             return response
     raise Http404
