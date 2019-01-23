@@ -1,8 +1,9 @@
 {% load bootstrap4 %}
 {% load i18n %}
-
+{% load static %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
+<script type=" text/javascript" src="{% static "js/popItOut.js" %}"></script>
 <style>
     .gone {
         visibility: hidden;
@@ -16,7 +17,7 @@
 
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
     <script>
-        window.resizeTo(width = 700, height = 900);
+        window.resizeTo(width = 800, height = 900);
 
         window.onunload = refreshParent;
 
@@ -39,12 +40,39 @@
             {% endif %}
         </h3>
         <br>
-
         <form method="post" class="form">
             {% csrf_token %}
 
             {% for field in form %}
-                {% bootstrap_field field placeholder="" size="small" %}
+                {% if field.name == "overtime_hours" %}
+                    <div class="row">
+                        <div class="col-3">
+                            {% bootstrap_field field placeholder="" size="small" %}
+                        </div>
+                        <div class="col-6">
+                            {% for field in form %}
+                                {% if field.name == "overtime_description" %}
+                                    {% bootstrap_field field placeholder="" size="small" %}
+                                {% endif %}
+                            {% endfor %}
+
+                        </div>
+                        <div class="col-3">
+                            <p style="text-align: center; font-size: large; font-weight: bold;">
+                                <a href="#" id="ot_calc">
+                                    <img src="{% static "/img/calculator.png" %}" alt="" style="width:85%"
+                                         data-toggle="tooltip" title="{% trans "OT Calculator" %}">
+                                    {#                                    {% trans "OT Calculator" %}<br>#}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                {% elif field.name == "overtime_description" %}
+                    {#                    do nothing #}
+                {% else %}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                {% endif %}
             {% endfor %}
 
             {% buttons %}
@@ -60,8 +88,18 @@
     <script type="application/javascript">
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            checkUser()
-            checkEmployeeType()
+            checkUser();
+            checkEmployeeType();
+        });
+
+        $("#ot_calc").click(function () {
+            var userInput = true;
+            //if ($("#id_overtime_hours").val() != "") {
+              //  userInput = confirm("Are you sure?")
+            //}
+            if (userInput) {
+                popitup('{% url 'projects:ot_calc' object.id %}', 'popoutWindow')
+            }
         });
 
         $("#id_user").change(function () {
