@@ -197,6 +197,7 @@ class Staff(models.Model):
                                           verbose_name=_("student program"))
     duration_weeks = models.FloatField(default=0, blank=True, null=True, verbose_name=_("duration in weeks"))
     overtime_hours = models.FloatField(default=0, blank=True, null=True, verbose_name=_("overtime in hours"))
+    overtime_description = models.TextField(blank=True, null=True, verbose_name=_("overtime description"))
     cost = models.FloatField(blank=True, null=True, verbose_name=_("cost"))
 
     def __str__(self):

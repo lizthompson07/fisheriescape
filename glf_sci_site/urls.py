@@ -51,7 +51,7 @@ urlpatterns += i18n_patterns(
     path('reset/<str:uidb64>/<str:token>/', acc_views.UserPasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
     # path('reset/done/', acc_views.IndexView.as_view(), name='password_reset_complete'),
-    prefix_default_language=False)
+    prefix_default_language=True)
 
 if settings.MY_ENVR == "dev":
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
