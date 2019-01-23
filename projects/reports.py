@@ -362,9 +362,9 @@ def generate_master_spreadsheet(fiscal_year, user=None):
     # spreadsheet: OM List #
     ########################
     if not user:
-        om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year)
+        om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year).filter(budget_requested__gt=0)
     else:
-        om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
+        om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year).filter(budget_requested__gt=0).filter(project__section__section_head__id=user)
 
     header = [
         "Project Id",
