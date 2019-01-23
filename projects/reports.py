@@ -85,6 +85,7 @@ def generate_master_spreadsheet(fiscal_year, user=None):
         verbose_field_name(project_list.first(), 'ship_needs'),
         'Total FTE (weeks)',
         'Total Salary (in excess of FTE)',
+        'Total OT (hours)',
         'Total O&M',
         'Total Capital',
         'Total G&Cs',
@@ -101,6 +102,7 @@ def generate_master_spreadsheet(fiscal_year, user=None):
 
         fte_total = 0
         salary_total = 0
+        ot_total = 0
         om_total = 0
         gc_total = 0
         capital_total = 0
@@ -119,6 +121,8 @@ def generate_master_spreadsheet(fiscal_year, user=None):
             # include only FTEs
             if staff.employee_type.id == 1 or staff.employee_type.id == 6:
                 fte_total += nz(staff.duration_weeks, 0)
+
+            ot_total += nz(staff.overtime_hours, 0)
 
         # O&M costs
         for cost in p.om_costs.all():
@@ -185,6 +189,7 @@ def generate_master_spreadsheet(fiscal_year, user=None):
             p.ship_needs,
             fte_total,
             salary_total,
+            ot_total,
             om_total,
             capital_total,
             gc_total,
