@@ -6,20 +6,16 @@
     }
 </style>
 
-<div class="neighbours">
     <h3>
         {% trans "Collaborators & Partners:" %}
     </h3>
-</div>
-<div class="neighbours" style="float: right">
     <a class="btn btn-sm btn-primary" href="#"
        onclick="return popitup('{% url 'projects:collab_new' object.id %}','popoutWindow')">
         {% trans "Add Collaborator" %}
-    </a>
-</div>
+    </a><br><br>
 
 {% if object.collaborators.count == 0 %}
-    <br><em>
+    <em>
     {% trans "No Collaborators or Partners" %}
 </em><br>
 {% else %}

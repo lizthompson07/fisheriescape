@@ -118,6 +118,9 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             'project_title',
             'section',
             'program',
+            'description',
+            'priorities',
+            'deliverables',
             'budget_code',
             'date_last_modified',
             'last_modified_by',
@@ -132,8 +135,10 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         for staff in project.staff_members.all():
             # exclude full time employees
             if staff.employee_type.id != 1 or staff.employee_type.id != 6:
+                # if salary
                 if staff.employee_type.cost_type is 1:
                     salary_total += nz(staff.cost, 0)
+                # if o&M
                 elif staff.employee_type.cost_type is 2:
                     om_total += nz(staff.cost, 0)
 
@@ -605,13 +610,13 @@ def gc_cost_delete(request, pk):
 ###########
 
 class ReportSearchFormView(LoginRequiredMixin, FormView):
-    template_name = 'camp/report_search.html'
+    template_name = 'projects/report_search.html'
     login_url = '/accounts/login_required/'
     form_class = forms.ReportSearchForm
 
     def get_initial(self):
         # default the year to the year of the latest samples
-        return {"fiscal_year": fiscal_year()}
+        return {"fiscal_year": fiscal_year(next=True)}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

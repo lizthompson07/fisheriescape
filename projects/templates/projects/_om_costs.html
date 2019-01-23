@@ -10,24 +10,20 @@
     }
 </style>
 
-<div class="neighbours">
-    <h3>
-        {% trans "O&M Requests:" %}
-    </h3>
-</div>
-<div class="neighbours" style="float: right">
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
-        {% trans "Add O&M" %}
-    </a>
-</div>
-
+<h3>
+    {% trans "O&M Requests:" %}
+</h3>
+<a class="btn btn-sm btn-primary" href="#"
+   onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
+    {% trans "Add O&M" %}
+</a>
+<br><br>
 
 
 {% if object.om_costs.count == 0 %}
-    <br><em>
-    {% trans "No O&M Requests" %}
-</em><br>
+    <em>
+        {% trans "No O&M Requests" %}
+    </em><br>
 {% else %}
 
     <table class="table table-bordered table-sm">
