@@ -152,8 +152,14 @@
             if (reportChoice != 4) {
                 $(this).addClass("hidden");
                 $(".loader").removeClass("hidden");
+                window.setTimeout(closeLoader, 5000)
             }
         })
+
+        function closeLoader() {
+            $("form").removeClass("hidden");
+            $(".loader").addClass("hidden");
+        }
     </script>
 
 {% endblock content %}
