@@ -2,3 +2,6 @@
 # TODO: not sure what to do with overtime hours
 # TODO: index page... with instructions
 # TODO: add new users...
+# TODO: DO We want to add management feedback fields? Questions/comments from other users?
+# TODO: reviewed field?
+# TODO: create visio diagram
