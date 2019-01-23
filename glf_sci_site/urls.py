@@ -15,6 +15,7 @@ Including another URLconf
 """
 
 from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
@@ -22,10 +23,13 @@ from . import views as views
 from django.contrib.auth import views as auth_views
 from accounts import views as acc_views
 
-
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
+
+]
+
+urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
     path('inventory/', include('inventory.urls')),
@@ -44,9 +48,10 @@ urlpatterns = [
     ########################################################
 
     path('password-reset/', acc_views.UserPassWordResetView.as_view(), name='password_reset'),
-    path('reset/<str:uidb64>/<str:token>/', acc_views.UserPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/<str:uidb64>/<str:token>/', acc_views.UserPasswordResetConfirmView.as_view(),
+         name='password_reset_confirm'),
     # path('reset/done/', acc_views.IndexView.as_view(), name='password_reset_complete'),
-]
+    prefix_default_language=False)
 
 if settings.MY_ENVR == "dev":
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
