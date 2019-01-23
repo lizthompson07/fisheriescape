@@ -97,6 +97,7 @@ class MySectionListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['next_fiscal_year'] = fiscal_year(next=True)
         return context
 
 
@@ -630,9 +631,9 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("projects:report_master", kwargs={'fiscal_year': fiscal_year}))
 
 
-def master_spreadsheet(request, fiscal_year):
+def master_spreadsheet(request, fiscal_year, user=None):
     # my_site = models.Site.objects.get(pk=site)
-    file_url = reports.generate_master_spreadsheet(fiscal_year)
+    file_url = reports.generate_master_spreadsheet(fiscal_year, user)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:

@@ -20,6 +20,8 @@
         </ol>
     </nav>
 
+    {% url 'projects:report_sh' next_fiscal_year request.user.id as report_url %}
+
     <div class="indent-med">
         {% if object_list.count %}
 
@@ -30,6 +32,12 @@
             </h1>
 
             <br>
+
+            <h3>
+                {% blocktrans with fy=next_fiscal_year %}
+                      You can download a spreadsheet with all {{ fy }} projects <a href="{{ report_url }}">here</a>
+                {% endblocktrans %}
+            </h3>
 
             <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary float-right">
                 {% trans "New Project" %}
