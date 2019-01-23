@@ -6,20 +6,16 @@
     }
 </style>
 
-<div class="neighbours">
     <h3>
         {% trans "Collaborative Agreements:" %}
     </h3>
-</div>
-<div class="neighbours" style="float: right">
     <a class="btn btn-sm btn-primary" href="#"
        onclick="return popitup('{% url 'projects:agreement_new' object.id %}','popoutWindow')">
         {% trans "Add Agreement" %}
     </a>
-</div>
-
+<br><br>
 {% if object.agreements.count == 0 %}
-    <br><em>
+    <em>
     {% trans "No Collaborative Agreements" %}
 </em><br>
 {% else %}

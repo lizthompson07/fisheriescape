@@ -9,20 +9,16 @@
 </style>
 
 
-<div class="neighbours">
     <h3>
         {% trans "G&C Requests:" %}
     </h3>
-</div>
-<div class="neighbours" style="float: right">
     <a class="btn btn-sm btn-primary" href="#"
        onclick="return popitup('{% url 'projects:gc_new' object.id %}','popoutWindow')">
         {% trans "Add G&C" %}
     </a>
-</div>
-
+<br><br>
 {% if object.gc_costs.count == 0 %}
-    <br><em>
+    <em>
     {% trans "No G&C Requests" %}
 </em><br>
 {% else %}

@@ -8,23 +8,19 @@
     }
 </style>
 
-<div class="neighbours">
-    <h3>
-        {% trans "Capital Requests:" %}
-    </h3>
-</div>
-<div class="neighbours" style="float: right">
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:capital_new' object.id %}','popoutWindow')">
-        {% trans "Add Capital" %}
-    </a>
-</div>
-
+<h3>
+    {% trans "Capital Requests:" %}
+</h3>
+<a class="btn btn-sm btn-primary" href="#"
+   onclick="return popitup('{% url 'projects:capital_new' object.id %}','popoutWindow')">
+    {% trans "Add Capital" %}
+</a>
+<br><br>
 
 {% if object.capital_costs.count == 0 %}
-    <br><em>
-    {% trans "No Capital Requests" %}
-</em><br>
+    <em>
+        {% trans "No Capital Requests" %}
+    </em><br>
 {% else %}
 
 

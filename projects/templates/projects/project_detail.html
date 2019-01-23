@@ -37,64 +37,56 @@
 
 
         <div class="btn-group">
-            {% if can_delete %}
-                <a class="btn btn-danger " href="{% url 'projects:project_delete' object.id %}">
-                    {% trans "Delete" %}
-                </a>
-            {% endif %}
-            <a class="btn btn-warning" href="{% url 'projects:project_edit' object.id %}">
-                {% trans "Add/Edit Project Details" %}
-            </a>
-            <a class="btn btn-dark" href="{% url 'projects:project_print' object.id %}">
-                {% trans "Export PDF" %}
-            </a>
-        </div>
-
-
-        <div class="btn-group">
             {% if object.submitted %}
-                <a class="btn btn-secondary" href="{% url 'projects:project_submit' object.id %}">
+                <a class="btn btn-secondary btn-sm" href="{% url 'projects:project_submit' object.id %}">
                     {% trans "Unsubmit Project" %}
                 </a>
             {% else %}
-                <a class="btn btn-success" href="{% url 'projects:project_submit' object.id %}">
+                <a class="btn btn-success btn-sm" href="{% url 'projects:project_submit' object.id %}">
                     {% trans "SUBMIT PROJECT" %}
                 </a>
             {% endif %}
+
+            {% if can_delete %}
+                <a class="btn btn-danger btn-sm" href="{% url 'projects:project_delete' object.id %}">
+                    {% trans "Delete" %}
+                </a>
+            <a class="btn btn-dark btn-sm" href="{% url 'projects:project_print' object.id %}">
+                {% trans "Export PDF" %}
+            </a>
+            {% endif %}
+
         </div>
 
+
+        <br><br><br>
+
+        <h3>
+            {% trans "Project Summary:" %}
+        </h3>
+
+        <div class="btn-group">
+            <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
+                {% trans "Add/Edit Project Details" %}
+            </a>
+        </div>
 
         <br><br>
-
-        <div class="row">
-            <div class="col-4">
-                <h3>
-                    {% trans "Project Summary:" %}
-                </h3>
-
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-                <br>
-                {% include "projects/_financial.html" %}
-
-            </div>
-            <div class="col-8">
-
-                {% include "projects/_staff.html" %}
-                {% include "projects/_collaborators.html" %}
-                {% include "projects/_agreements.html" %}
-                {% include "projects/_om_costs.html" %}
-                {% include "projects/_capital_costs.html" %}
-                {% include "projects/_gc_costs.html" %}
+        {% for field in field_list %}
+            {% verbose_field_display object field %}
+        {% endfor %}
+        ...
+        <br>
 
 
-            </div>
+        {% include "projects/_staff.html" %}
+        {% include "projects/_collaborators.html" %}
+        {% include "projects/_agreements.html" %}
+        {% include "projects/_om_costs.html" %}
+        {% include "projects/_capital_costs.html" %}
+        {% include "projects/_gc_costs.html" %}
 
-
-        </div>
-    </div>
-
+        {% include "projects/_financial.html" %}
 
     </div>
 
