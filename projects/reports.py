@@ -23,7 +23,7 @@ import os
 import pandas as pd
 
 
-def generate_master_spreadsheet(fiscal_year):
+def generate_master_spreadsheet(fiscal_year, user=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
     target_file = "temp_export.xlsx"
@@ -52,7 +52,10 @@ def generate_master_spreadsheet(fiscal_year):
     #############################
 
     # get a project list for the year
-    project_list = models.Project.objects.filter(fiscal_year=fiscal_year)
+    if not user:
+        project_list = models.Project.objects.filter(fiscal_year=fiscal_year)
+    else:
+        project_list = models.Project.objects.filter(fiscal_year=fiscal_year).filter(section__section_head__id=user)
     print(project_list.count())
     header = [
         "Project ID",
@@ -210,9 +213,15 @@ def generate_master_spreadsheet(fiscal_year):
     #########################
 
     # create a queryset, showing all users and their total hours for FTE
-    staff_list = models.Staff.objects.filter(project__fiscal_year=fiscal_year).filter(employee_type=1).values(
-        'user__last_name', 'user__first_name',
-    ).order_by('user__last_name', 'user__first_name', ).distinct().annotate(sum_of_weeks=Sum('duration_weeks'))
+
+    if not user:
+        staff_list = models.Staff.objects.filter(project__fiscal_year=fiscal_year).filter(employee_type=1).values(
+            'user__last_name', 'user__first_name',
+        ).order_by('user__last_name', 'user__first_name', ).distinct().annotate(sum_of_weeks=Sum('duration_weeks'))
+    else:
+        staff_list = models.Staff.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user).filter(employee_type=1).values(
+            'user__last_name', 'user__first_name',
+        ).order_by('user__last_name', 'user__first_name', ).distinct().annotate(sum_of_weeks=Sum('duration_weeks'))
 
     header = [
         'Employee Name',
@@ -253,9 +262,11 @@ def generate_master_spreadsheet(fiscal_year):
 
     # spreadsheet: collaborator List #
     ##################################
+    if not user:
+        collaborator_list = models.Collaborator.objects.filter(project__fiscal_year=fiscal_year)
+    else:
+        collaborator_list = models.Collaborator.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
 
-    # create a queryset, showing all users and their total hours for FTE
-    collaborator_list = models.Collaborator.objects.filter(project__fiscal_year=fiscal_year)
 
     header = [
         "Project Id",
@@ -301,8 +312,10 @@ def generate_master_spreadsheet(fiscal_year):
     # spreadsheet: agreement List #
     ##################################
 
-    # create a queryset, showing all users and their total hours for FTE
-    agreement_list = models.CollaborativeAgreement.objects.filter(project__fiscal_year=fiscal_year)
+    if not user:
+        agreement_list = models.CollaborativeAgreement.objects.filter(project__fiscal_year=fiscal_year)
+    else:
+        agreement_list = models.CollaborativeAgreement.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
 
     header = [
         "Project Id",
@@ -348,9 +361,10 @@ def generate_master_spreadsheet(fiscal_year):
 
     # spreadsheet: OM List #
     ########################
-
-    # create a queryset, showing all users and their total hours for FTE
-    om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year)
+    if not user:
+        om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year)
+    else:
+        om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
 
     header = [
         "Project Id",
@@ -394,9 +408,10 @@ def generate_master_spreadsheet(fiscal_year):
 
     # spreadsheet: Capital List #
     #############################
-
-    # create a queryset, showing all users and their total hours for FTE
-    capital_list = models.CapitalCost.objects.filter(project__fiscal_year=fiscal_year)
+    if not user:
+        capital_list = models.CapitalCost.objects.filter(project__fiscal_year=fiscal_year)
+    else:
+        capital_list = models.CapitalCost.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
 
     header = [
         "Project Id",
@@ -440,9 +455,10 @@ def generate_master_spreadsheet(fiscal_year):
 
     # spreadsheet: GC List #
     ########################
-
-    # create a queryset, showing all users and their total hours for FTE
-    gc_list = models.GCCost.objects.filter(project__fiscal_year=fiscal_year)
+    if not user:
+        gc_list = models.GCCost.objects.filter(project__fiscal_year=fiscal_year)
+    else:
+        gc_list = models.GCCost.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
 
     header = [
         "Project Id",
