@@ -132,16 +132,16 @@ class ReportSearchForm(forms.Form):
 
 
 class OTForm(forms.ModelForm):
-    weekdays = forms.CharField(required=True, label=_(
-        "Total number of weekday hours to be worked beyond 7.5 hours standard working day"), widget=forms.NumberInput())
-    saturdays = forms.CharField(required=True, label=_(
-        "Total number of hours to be worked on Saturdays (enter all hours to be worked)"), widget=forms.NumberInput())
-    sundays = forms.CharField(required=True,
-                              label=_("Total number of hours to be worked on Sundays (enter all hours to be worked)"),
-                              widget=forms.NumberInput())
-    stat_holidays = forms.CharField(required=True, label=_(
-        "Total number of hours to be worked on statutory holidays (enter all hours to be worked)"),
-                                    widget=forms.NumberInput())
+    # weekdays = forms.CharField(required=True, label=_(
+    #     "Total number of weekday hours to be worked beyond 7.5 hours standard working day"), widget=forms.NumberInput())
+    # saturdays = forms.CharField(required=True, label=_(
+    #     "Total number of hours to be worked on Saturdays (enter all hours to be worked)"), widget=forms.NumberInput())
+    # sundays = forms.CharField(required=True,
+    #                           label=_("Total number of hours to be worked on Sundays (enter all hours to be worked)"),
+    #                           widget=forms.NumberInput())
+    # stat_holidays = forms.CharField(required=True, label=_(
+    #     "Total number of hours to be worked on statutory holidays (enter all hours to be worked)"),
+    #                                 widget=forms.NumberInput())
 
     class Meta:
         model = models.Staff
