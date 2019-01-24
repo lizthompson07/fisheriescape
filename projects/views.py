@@ -344,7 +344,7 @@ class StaffCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         object = form.save()
         if form.cleaned_data["save_then_go_OT"] == "1":
-            return HttpResponseRedirect(reverse_lazy('projects:staff_edit', kwargs={"pk": object.id}))
+            return HttpResponseRedirect(reverse_lazy('projects:ot_calc', kwargs={"pk": object.id}))
         else:
             return HttpResponseRedirect(reverse('projects:close_me'))
 
