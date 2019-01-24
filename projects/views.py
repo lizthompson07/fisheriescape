@@ -1,26 +1,14 @@
+import datetime
 import os
-
-from django.conf import settings
+import pandas as pd
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.models import User, Group
-from django.core.mail import send_mail
-from django.db.models import Value, TextField, Q
-from django.db.models.functions import Concat
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render
-from django.template import Context, loader
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
-###
 from easy_pdf.views import PDFTemplateView
-
-from accounts import models as accounts_models
-from collections import OrderedDict
-
 from lib.functions.fiscal_year import fiscal_year
 from lib.functions.nz import nz
 from . import models
@@ -390,6 +378,39 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # create a pandas date_range object for upcoming fiscal year
+        target_year = pd.datetime.today().year
+        start = "{}-04-01".format(target_year)
+        end = "{}-03-31".format(target_year + 1)
+        datelist = pd.date_range(start=start, end=end).tolist()
+        context['datelist'] = datelist
+
+        # send in the upcoming fiscal year string
+        context["next_fiscal_year"] = fiscal_year(next=True)
+
+        # send in a list of stat holidays from: https://www.tpsgc-pwgsc.gc.ca/remuneration-compensation/services-paye-pay-services/paye-centre-pay/feries-holidays-eng.html
+        stat_holiday_list = [
+            # Good Friday
+            datetime.datetime.strptime("April 19, 2019", "%B %d, %Y"),
+            # Easter Monday
+            datetime.datetime.strptime("April 22, 2019", "%B %d, %Y"),
+            # Victoria Day
+            datetime.datetime.strptime("May 20, 2019", "%B %d, %Y"),
+            # Canada Day
+            datetime.datetime.strptime("July 1, 2019", "%B %d, %Y"),
+            # Labour Day
+            datetime.datetime.strptime("September 2, 2019", "%B %d, %Y"),
+            # Thanksgiving Day
+            datetime.datetime.strptime("October 14, 2019", "%B %d, %Y"),
+            # Remembrance Day
+            datetime.datetime.strptime("November 11, 2019", "%B %d, %Y"),
+            # Christmas Day
+            datetime.datetime.strptime("December 25, 2019", "%B %d, %Y"),
+            # Boxing Day
+            datetime.datetime.strptime("December 26, 2019", "%B %d, %Y"),
+        ]
+        context["stat_holiday_list"] = stat_holiday_list
         return context
 
     def form_valid(self, form):
