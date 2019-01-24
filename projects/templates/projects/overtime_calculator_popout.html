@@ -26,20 +26,22 @@
         <p>
         <ul>
             <li>
-                Enter overtime hours worked for each day in the {{ next_fiscal_year }} fiscal year
+                {% blocktrans with next_fiscal_year as year %}
+                    Enter overtime hours worked for each day in the {{ year }} fiscal year
+                {% endblocktrans  %}
             </li>
             <li>
-                Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes
+                {% trans "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes" %}
             </li>
             <li>
-                For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard working day</b>
+                {% trans "For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard working day</b>" %}
             </li>
 
             <li>
-                For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to be worked
+                {% trans "For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to be worked" %}
             </li>
             <li>
-                When you are done, submit the form
+                {% trans "When you are done, submit the form" %}
             </li>
         </ul>
 
