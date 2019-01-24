@@ -17,7 +17,7 @@
 
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
     <script>
-        window.resizeTo(width = 800, height = 900);
+        window.resizeTo(width = 800, height = 950);
 
         window.onunload = refreshParent;
 
@@ -30,11 +30,13 @@
             $("#id_digestion_level")[0].focus()
         });
     </script>
+    {% url 'projects:user_new' as user_url %}
 
     <div class="container">
         <h3>
             {% if object %}
                 {% trans "Editing Staff Member:" %} {{ object }}
+
             {% else %}
                 {% trans "Adding Staff Member" %}
             {% endif %}
@@ -70,6 +72,31 @@
 
                 {% elif field.name == "overtime_description" %}
                     {#                    do nothing #}
+                {% elif field.name == "name" %}
+                    {#                    do nothing #}
+                {% elif field.name == "user" %}
+                    <div class="row">
+                        <div class="col-4">
+                            {% bootstrap_field field size="small" %}
+                        </div>
+                        <div class="col-1">
+                            {% trans "OR" %}
+                        </div>
+                        <div class="col">
+                            {% for field in form %}
+                                {% if field.name == "name" %}
+                                    {% bootstrap_field field placeholder="" size="small" %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                    <p>
+                        {% blocktrans %}
+                            (User not in list?
+                            <a href="#" id="new-user">Click here to add a new one.)</a>
+                        {% endblocktrans %}
+                    </p><br>
                 {% else %}
                     {% bootstrap_field field placeholder="" size="small" %}
                 {% endif %}
@@ -85,45 +112,35 @@
             {% endbuttons %}
         </form>
     </div>
+
+
     <script type="application/javascript">
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            checkUser();
-            checkEmployeeType();
+            checkFields();
+        });
+
+        $("#new-user").click(function () {
+            popitup('{{ user_url }}', 'popoutWindow1')
         });
 
         $("#ot_calc").click(function () {
-            var userInput = true;
-            //if ($("#id_overtime_hours").val() != "") {
-              //  userInput = confirm("Are you sure?")
-            //}
-            if (userInput) {
+            {% if object %}
                 popitup('{% url 'projects:ot_calc' object.id %}', 'popoutWindow')
-            }
+            {% else %}
+                $("#id_save_then_go_OT").val("1")
+                $("form").submit()
+            {% endif %}
+
         });
 
-        $("#id_user").change(function () {
-            checkUser()
+
+        $("form").change(function () {
+            checkFields()
         });
 
-        $("#id_name").change(function () {
-            checkUser()
-        });
 
-        $("#id_employee_type").change(function () {
-            checkEmployeeType()
-        });
-
-        function checkUser() {
-            if ($("#id_user").val() != "") {
-                $("#id_name").prop("disabled", true)
-            } else {
-                $("#id_name").prop("disabled", false)
-
-            }
-        }
-
-        function checkEmployeeType() {
+        function checkFields() {
             // if employee type is not student, disable student program field
             if ($("#id_employee_type").val() != "4") {
                 $("#id_student_program").val("")
@@ -131,28 +148,38 @@
             } else {
                 $("#id_student_program").prop("disabled", false)
             }
-
-            // if employee type is fte, disable cost field
+            // if employee type is fte, disable "cost" field and the "name" field
             if ($("#id_employee_type").val() == "1" || $("#id_employee_type").val() == "6") {
                 $("#id_cost").val("")
                 $("#id_cost").prop("disabled", true)
-                {#$("#id_cost").addClass("gone")#}
 
                 $("#id_level").val("")
                 $("#id_level").prop("disabled", true)
-                {#$("#id_level").addClass("gone")#}
+
+                $("#id_name").val("")
+                $("#id_name").prop("disabled", true)
 
 
             } else {
                 $("#id_cost").prop("disabled", false)
                 $("#id_level").prop("disabled", false)
-                {#$("#id_cost").removeClass("gone")#}
-
-
+                checkUser()
             }
+
 
         }
 
+
+        function checkUser() {
+
+            // if there is a user given, disable and clean the "name" field
+            if ($("#id_user").val() != "") {
+                $("#id_name").val("")
+                $("#id_name").prop("disabled", true)
+            } else {
+                $("#id_name").prop("disabled", false)
+            }
+        }
     </script>
 
 

@@ -55,12 +55,13 @@ class ProjectSubmitForm(forms.ModelForm):
 
 
 class StaffForm(forms.ModelForm):
+    save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
     class Meta:
         model = models.Staff
         fields = "__all__"
         widgets = {
             'project': forms.HiddenInput(),
-            'overtime_description': forms.Textarea(attrs={"rows": 4}),
+            'overtime_description': forms.Textarea(attrs={"rows": 5}),
             # 'user': forms.Select(choices=USER_CHOICES),
         }
 
@@ -132,17 +133,6 @@ class ReportSearchForm(forms.Form):
 
 
 class OTForm(forms.ModelForm):
-    # weekdays = forms.CharField(required=True, label=_(
-    #     "Total number of weekday hours to be worked beyond 7.5 hours standard working day"), widget=forms.NumberInput())
-    # saturdays = forms.CharField(required=True, label=_(
-    #     "Total number of hours to be worked on Saturdays (enter all hours to be worked)"), widget=forms.NumberInput())
-    # sundays = forms.CharField(required=True,
-    #                           label=_("Total number of hours to be worked on Sundays (enter all hours to be worked)"),
-    #                           widget=forms.NumberInput())
-    # stat_holidays = forms.CharField(required=True, label=_(
-    #     "Total number of hours to be worked on statutory holidays (enter all hours to be worked)"),
-    #                                 widget=forms.NumberInput())
-
     class Meta:
         model = models.Staff
         fields = ["overtime_hours", "overtime_description"]
@@ -150,3 +140,35 @@ class OTForm(forms.ModelForm):
             'overtime_hours': forms.HiddenInput(),
             'overtime_description': forms.HiddenInput(),
         }
+
+
+class UserCreateForm(forms.Form):
+    first_name = forms.CharField(label=_("First name"))
+    last_name = forms.CharField(label=_("Last name"))
+    email1 = forms.EmailField(label=_("Email"))
+    email2 = forms.EmailField(label=_("Confirm email address"))
+
+    def clean_email1(self):
+        new_email = self.cleaned_data['email1']
+        # check to make sure is not a duplicate
+        if User.objects.filter(email__iexact=new_email).count() > 0:
+            raise forms.ValidationError("This email address already exists in the database.")
+        # check to make sure is a DFO email
+        if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
+            raise forms.ValidationError(_("The email address provided must be a DFO email address.'"))
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return new_email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        first_email = cleaned_data.get("email1")
+        second_email = cleaned_data.get("email2")
+
+        if first_email and second_email:
+            # Only do something if both fields are valid so far.
+
+            # verify the two emails are the same
+            if first_email.lower() != second_email.lower():
+                raise forms.ValidationError(_("Please make sure the two email addresses provided match.'"))
