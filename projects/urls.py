@@ -27,6 +27,10 @@ urlpatterns = [
     path('staff/<int:pk>/delete/', views.staff_delete, name="staff_delete"),
     path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
 
+    # USER #
+    ########
+    path('user/new/', views.UserCreateView.as_view(), name="user_new"),
+
     # Collaborator #
     ################
     path('project/<int:project>/collaborator/new/', views.CollaboratorCreateView.as_view(), name="collab_new"),

@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -342,7 +343,10 @@ class StaffCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse('projects:close_me'))
+        if form.cleaned_data["save_then_go_OT"] == "1":
+            return HttpResponseRedirect(reverse_lazy('projects:staff_edit', kwargs={"pk": object.id}))
+        else:
+            return HttpResponseRedirect(reverse('projects:close_me'))
 
 
 class StaffUpdateView(LoginRequiredMixin, UpdateView):
@@ -686,3 +690,37 @@ def master_spreadsheet(request, fiscal_year, user=None):
                 fiscal_year)
             return response
     raise Http404
+
+
+
+# USER #
+########
+
+# this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
+class UserCreateView(LoginRequiredMixin, FormView):
+    form_class = forms.UserCreateForm
+    template_name = 'projects/user_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('projects:close_me')
+
+    def form_valid(self, form):
+        # retrieve data from form
+        first_name = form.cleaned_data['first_name']
+        last_name = form.cleaned_data['last_name']
+        email = form.cleaned_data['email1']
+
+        # create a new user
+        User.objects.create(
+            username=email,
+            first_name=first_name,
+            last_name=last_name,
+            password="Welcome1",
+            is_active=0,
+            email=email,
+        )
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
