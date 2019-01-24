@@ -155,7 +155,7 @@ class UserCreateForm(forms.Form):
             raise forms.ValidationError("This email address already exists in the database.")
         # check to make sure is a DFO email
         if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
-            raise forms.ValidationError(_("The email address provided must be a DFO email address.'"))
+            raise forms.ValidationError(_("The email address provided must be a DFO email address."))
 
         # Always return a value to use as the new cleaned data, even if
         # this method didn't change it.
@@ -171,4 +171,4 @@ class UserCreateForm(forms.Form):
 
             # verify the two emails are the same
             if first_email.lower() != second_email.lower():
-                raise forms.ValidationError(_("Please make sure the two email addresses provided match.'"))
+                raise forms.ValidationError(_("Please make sure the two email addresses provided match."))
