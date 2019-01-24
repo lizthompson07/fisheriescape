@@ -21,6 +21,7 @@
     td, th {
         padding-top: 1px;
     }
+
     th {
         background-color: lightgray;
         color: black;
@@ -63,6 +64,9 @@
                 {% trans "Overtime hours" %}
             </th>
             <th>
+                {% trans "Overtime description" %}
+            </th>
+            <th>
                 {% trans "Cost Category" %}
             </th>
             <th>
@@ -101,7 +105,9 @@
                 <td>
                     {{ obj.overtime_hours }}
                 </td>
-
+                <td>
+                    {{ obj.overtime_description }}
+                </td>
                 <td>{{ obj.employee_type.get_cost_type_display }}</td>
 
                 <td>
