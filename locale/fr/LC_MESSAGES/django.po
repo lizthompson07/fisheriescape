@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-24 09:39-0400\n"
+"POT-Creation-Date: 2019-01-24 10:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -169,7 +169,7 @@ msgid "Type"
 msgstr "Type"
 
 #: .\ihub\templates\ihub\_notes.html:41
-#: .\projects\templates\projects\overtime_calculator_popout.html:52
+#: .\projects\templates\projects\overtime_calculator_popout.html:54
 msgid "Date"
 msgstr "Date"
 
@@ -451,7 +451,8 @@ msgstr "Courriel"
 
 #: .\projects\forms.py:158
 msgid "The email address provided must be a DFO email address."
-msgstr "Le courriel électronique fournie doit être une adresse électronique du MPO."
+msgstr ""
+"Le courriel électronique fournie doit être une adresse électronique du MPO."
 
 #: .\projects\forms.py:174
 msgid "Please make sure the two email addresses provided match."
@@ -934,7 +935,7 @@ msgid "Duration (weeks)"
 msgstr "Durée en semaines"
 
 #: .\projects\templates\projects\_staff.html:40
-#: .\projects\templates\projects\overtime_calculator_popout.html:58
+#: .\projects\templates\projects\overtime_calculator_popout.html:60
 #: .\projects\templates\projects\project_report.html:64
 msgid "Overtime hours"
 msgstr "Heures supplémentaires"
@@ -1122,6 +1123,7 @@ msgstr ""
 "                "
 
 #: .\projects\templates\projects\my_section_list.html:37
+#, python-format
 msgid ""
 "\n"
 "                      You can download a spreadsheet with all %(fy)s "
@@ -1129,8 +1131,8 @@ msgid ""
 "                "
 msgstr ""
 "\n"
-"                            Vous pouvez télécharger une feuille de calcul avec tous les projets "
-" %(fy)s <a href=\"%(report_url)s\">ici</a>.\n"
+"                            Vous pouvez télécharger une feuille de calcul "
+"avec tous les projets  %(fy)s <a href=\"%(report_url)s\">ici</a>.\n"
 "                        "
 
 #: .\projects\templates\projects\my_section_list.html:61
@@ -1154,17 +1156,17 @@ msgstr ""
 "                "
 
 #: .\projects\templates\projects\overtime_calculator_popout OLD.html:39
-#: .\projects\templates\projects\overtime_calculator_popout.html:100
+#: .\projects\templates\projects\overtime_calculator_popout.html:102
 msgid "Extra Hours to be Worked:"
 msgstr "Heures supplémentaires à travailler"
 
 #: .\projects\templates\projects\overtime_calculator_popout OLD.html:47
-#: .\projects\templates\projects\overtime_calculator_popout.html:116
+#: .\projects\templates\projects\overtime_calculator_popout.html:118
 msgid "Calculated Overtime Hours:"
 msgstr "Heures supplémentaires calculées"
 
 #: .\projects\templates\projects\overtime_calculator_popout OLD.html:56
-#: .\projects\templates\projects\overtime_calculator_popout.html:108
+#: .\projects\templates\projects\overtime_calculator_popout.html:110
 msgid "OT Description:"
 msgstr "Description d'heures supplémentaires:"
 
@@ -1172,11 +1174,43 @@ msgstr "Description d'heures supplémentaires:"
 msgid "Overtime Calculator"
 msgstr "Calculatrice d'heures supplémentaires"
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:55
+#: .\projects\templates\projects\overtime_calculator_popout.html:29
+msgid ""
+"\n"
+"                    Enter overtime hours worked for each day in the %(year)s "
+"fiscal year\n"
+"                "
+msgstr ""
+"\n"
+"                    Entrez les heures supplémentaires travaillées pour "
+"chaque jour de l'exercice %(year)s\n"
+"                "
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:34
+msgid "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes"
+msgstr "Utilisez <b> tab </b> et <b> shift + tab </b> pour parcourir les champs."
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:37
+msgid ""
+"For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard "
+"working day</b>"
+msgstr "Du lundi au vendredi, insérez les heures à travailler <b> au-delà de 7,5 heures par jour ouvrable standard </b>"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:41
+msgid ""
+"For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to "
+"be worked"
+msgstr "Pour le samedi, le dimanche et les jours fériés (zone rouge), entrez toutes les heures à travailler"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:44
+msgid "When you are done, submit the form"
+msgstr "Lorsque vous avez terminé, envoyez le formulaire"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:57
 msgid "Weekday"
 msgstr "Jour de la semaine"
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:83
+#: .\projects\templates\projects\overtime_calculator_popout.html:85
 msgid "hours"
 msgstr "heures"
 
@@ -1309,10 +1343,9 @@ msgid ""
 msgstr ""
 "\n"
 "                            (Utilisateur non dans la liste?\n"
-"                            <a href=\"#\" id=\"new-user\">Cliquez ici pour en "
-"ajouter un nouveau.)</a>\n"
+"                            <a href=\"#\" id=\"new-user\">Cliquez ici pour "
+"en ajouter un nouveau.)</a>\n"
 "                        "
-
 
 #: .\projects\views.py:316
 msgid "The project was successfully deleted!"
