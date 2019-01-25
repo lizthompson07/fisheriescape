@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-24 10:05-0400\n"
+"POT-Creation-Date: 2019-01-25 09:18-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1175,6 +1175,7 @@ msgid "Overtime Calculator"
 msgstr "Calculatrice d'heures supplémentaires"
 
 #: .\projects\templates\projects\overtime_calculator_popout.html:29
+#, python-format
 msgid ""
 "\n"
 "                    Enter overtime hours worked for each day in the %(year)s "
@@ -1188,19 +1189,24 @@ msgstr ""
 
 #: .\projects\templates\projects\overtime_calculator_popout.html:34
 msgid "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes"
-msgstr "Utilisez <b> tab </b> et <b> shift + tab </b> pour parcourir les champs."
+msgstr ""
+"Utilisez <b> tab </b> et <b> shift + tab </b> pour parcourir les champs."
 
 #: .\projects\templates\projects\overtime_calculator_popout.html:37
 msgid ""
 "For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard "
 "working day</b>"
-msgstr "Du lundi au vendredi, insérez les heures à travailler <b> au-delà de 7,5 heures par jour ouvrable standard </b>"
+msgstr ""
+"Du lundi au vendredi, insérez les heures à travailler <b> au-delà de 7,5 "
+"heures par jour ouvrable standard </b>"
 
 #: .\projects\templates\projects\overtime_calculator_popout.html:41
 msgid ""
 "For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to "
 "be worked"
-msgstr "Pour le samedi, le dimanche et les jours fériés (zone rouge), entrez toutes les heures à travailler"
+msgstr ""
+"Pour le samedi, le dimanche et les jours fériés (zone rouge), entrez toutes "
+"les heures à travailler"
 
 #: .\projects\templates\projects\overtime_calculator_popout.html:44
 msgid "When you are done, submit the form"
@@ -1328,6 +1334,10 @@ msgstr "Ajouter de personnel"
 #: .\projects\templates\projects\staff_form_popout.html:66
 msgid "OT Calculator"
 msgstr "Calculatrice d'heures supplémentaires"
+
+#: .\projects\templates\projects\staff_form_popout.html:67
+msgid "(Open OT Calculator)"
+msgstr "(Ouvrir la calculatrice d'heures supplémentaires)"
 
 #: .\projects\templates\projects\staff_form_popout.html:83
 msgid "OR"
