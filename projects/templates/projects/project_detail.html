@@ -51,9 +51,9 @@
                 <a class="btn btn-danger btn-sm" href="{% url 'projects:project_delete' object.id %}">
                     {% trans "Delete" %}
                 </a>
-            <a class="btn btn-dark btn-sm" href="{% url 'projects:project_print' object.id %}">
-                {% trans "Export PDF" %}
-            </a>
+                <a class="btn btn-dark btn-sm" href="{% url 'projects:project_print' object.id %}">
+                    {% trans "Export PDF" %}
+                </a>
             {% endif %}
 
         </div>
@@ -72,9 +72,19 @@
         </div>
 
         <br><br>
-        {% for field in field_list %}
-            {% verbose_field_display object field %}
-        {% endfor %}
+        <div class="row">
+            <div class="col">
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+            </div>
+            <div class="col">
+                {% for field in field_list_1 %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+            </div>
+        </div>
+
 
         <br>
 

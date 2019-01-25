@@ -36,7 +36,11 @@ GOOGLE_API_KEY = google_api_key.GOOGLE_API_KEY
 SECRET_KEY = '***REMOVED***'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
+if MY_ENVR == "dev":
+    DEBUG = True
+else:
+    DEBUG = False
 
 ALLOWED_HOSTS = ['glfscidm001', '127.0.0.1', 'glf-sci-dm']
 
