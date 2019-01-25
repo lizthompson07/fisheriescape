@@ -60,11 +60,11 @@
 
                         </div>
                         <div class="col-3">
-                            <p style="text-align: center; font-size: large; font-weight: bold;">
+                            <p style="text-align: center;">
                                 <a href="#" id="ot_calc">
-                                    <img src="{% static "/img/calculator.png" %}" alt="" style="width:85%"
+                                    <img src="{% static "/img/calculator.png" %}" alt="" style="width:75%"
                                          data-toggle="tooltip" title="{% trans "OT Calculator" %}">
-                                    {#                                    {% trans "OT Calculator" %}<br>#}
+                                                                        {% trans "(Open OT Calculator)" %}<br>
                                 </a>
                             </p>
                         </div>
@@ -171,7 +171,6 @@
 
 
         function checkUser() {
-
             // if there is a user given, disable and clean the "name" field
             if ($("#id_user").val() != "") {
                 $("#id_name").val("")
