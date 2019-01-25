@@ -108,12 +108,15 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             'project_title',
             'section',
             'program',
-            'description',
-            'priorities',
-            'deliverables',
             'budget_code',
             'date_last_modified',
             'last_modified_by',
+        ]
+
+        context["field_list_1"] = [
+            'description',
+            'priorities',
+            'deliverables',
         ]
 
         salary_total = 0
@@ -314,6 +317,7 @@ class ProjectDeleteView(LoginRequiredMixin, DeleteView):
     permission_required = "__all__"
     success_url = reverse_lazy('projects:my_project_list')
     success_message = _('The project was successfully deleted!')
+    login_url = '/accounts/login_required/'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -353,6 +357,7 @@ class StaffUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Staff
     template_name = 'projects/staff_form_popout.html'
     form_class = forms.StaffForm
+    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -452,6 +457,7 @@ class CollaboratorUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
     form_class = forms.CollaboratorForm
+    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -495,6 +501,7 @@ class AgreementUpdateView(LoginRequiredMixin, UpdateView):
     model = models.CollaborativeAgreement
     template_name = 'projects/agreement_form_popout.html'
     form_class = forms.AgreementForm
+    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -539,6 +546,7 @@ class OMCostUpdateView(LoginRequiredMixin, UpdateView):
     model = models.OMCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.OMCostForm
+    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -588,6 +596,7 @@ class CapitalCostUpdateView(LoginRequiredMixin, UpdateView):
     model = models.CapitalCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.CapitalCostForm
+    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -637,6 +646,7 @@ class GCCostUpdateView(LoginRequiredMixin, UpdateView):
     model = models.GCCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.GCCostForm
+    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -692,7 +702,6 @@ def master_spreadsheet(request, fiscal_year, user=None):
     raise Http404
 
 
-
 # USER #
 ########
 
@@ -700,6 +709,7 @@ def master_spreadsheet(request, fiscal_year, user=None):
 class UserCreateView(LoginRequiredMixin, FormView):
     form_class = forms.UserCreateForm
     template_name = 'projects/user_form.html'
+    login_url = '/accounts/login_required/'
 
     def get_success_url(self):
         return reverse_lazy('projects:close_me')
