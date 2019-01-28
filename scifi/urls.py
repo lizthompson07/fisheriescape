@@ -35,6 +35,14 @@ urlpatterns = [
     path('responsibility-centre/<int:pk>/edit/', views.ResponsibilityCentreUpdateView.as_view(), name="rc_edit"),
     path('responsibility-centre/<int:pk>/delete/', views.ResponsibilityCentreDeleteView.as_view(), name="rc_delete"),
 
+    # TRANSACTION #
+    ###############
+    path('transactions/', views.TransactionListView.as_view(), name="trans_list"),
+    path('transaction/new/', views.TransactionCreateView.as_view(), name="trans_new"),
+    path('transaction/<int:pk>/view/', views.TransactionDetailView.as_view(), name="trans_detail"),
+    path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="trans_edit"),
+    path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="trans_delete"),
+
     # # # Entry #
     # # #########
     # path('entries/', views.EntryListView.as_view(), name="entry_list"),

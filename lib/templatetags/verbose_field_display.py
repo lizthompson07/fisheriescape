@@ -44,8 +44,12 @@ def verbose_field_display(instance, field_name, format=None, DisplayTime=False):
         field_value = getattr(instance, field_name)
 
     # TODO: create other formats for displaying block
-    if format:
-        html_block = ""
+    if format == "currency":
+        try:
+            html_block = '<p><span class="label">{}:</span><br>${:,.2f}</p>'.format(verbose_name, int(field_value))
+        except:
+            print("cannot coerce formatting to field value")
+            html_block = '<p><span class="label">{}:</span><br>{}</p>'.format(verbose_name, field_value)
 
     # go to the default format
     else:

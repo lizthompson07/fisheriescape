@@ -23,3 +23,9 @@ class AllotmentCodeForm(forms.ModelForm):
     class Meta:
         model = models.AllotmentCode
         fields = "__all__"
+
+
+class TransactionForm(forms.ModelForm):
+    class Meta:
+        model = models.Transaction
+        fields = "__all__"

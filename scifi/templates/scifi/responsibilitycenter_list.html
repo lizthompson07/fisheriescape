@@ -7,23 +7,24 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Business Lines</li>
+            <li class="breadcrumb-item active" aria-current="page">Responsibility Centers</li>
         </ol>
     </nav>
 
     <div class="container">
 
-        <h1 class="big-header">Business Lines </h1>
+        <h1 class="big-header">Responsibility Centers </h1>
         <p>TOTAL: {{ object_list.count }}</p>
-        <a href="{% url 'scifi:business_new' %}" class="btn btn-success">New</a><br>
+        <a href="{% url 'scifi:rc_new' %}" class="btn btn-success">New</a><br>
 
         <div class="row">
-            <div class="col-6">
+            <div class="col-10">
                 <table class="table table-hover table-sm">
                     <thead>
                     <tr>
                         <th scope="col">Code</th>
-                        <th scope="col">Description</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Manager</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -31,14 +32,15 @@
                         <tr>
                             <td>{{ object.code }}</td>
                             <td>{{ object.name }}</td>
+                            <td>{{ object.responsible_manager.first_name }} {{ object.responsible_manager.last_name }}</td>
                             <td>
-                                <a href="{% url 'scifi:business_edit' object.id %}">
+                                <a href="{% url 'scifi:rc_edit' object.id %}">
                                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
                                          title="Edit">
                                 </a>
                             </td>
                             <td>
-                                <a class="delete-me" href="{% url 'scifi:business_delete' object.id %}">
+                                <a class="delete-me" href="{% url 'scifi:rc_delete' object.id %}">
                                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                          title="Delete">
                                 </a>
