@@ -31,7 +31,8 @@ class CloserTemplateView(TemplateView):
     template_name = 'scifi/close_me.html'
 
 
-class IndexTemplateView(TemplateView):
+class IndexTemplateView(LoginRequiredMixin, TemplateView):
+    login_url = '/accounts/login_required/'
     template_name = 'scifi/index.html'
 
 
