@@ -7,38 +7,55 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Business Lines</li>
+            <li class="breadcrumb-item active" aria-current="page">Line Objects</li>
         </ol>
     </nav>
 
     <div class="container">
 
-        <h1 class="big-header">Business Lines </h1>
+        <h1 class="big-header">Line Objects </h1>
         <p>TOTAL: {{ object_list.count }}</p>
-        <a href="{% url 'scifi:business_new' %}" class="btn btn-success">New</a><br>
+
+        <form class="form" action="." method="get">
+            <div class="row">
+                {% for field in filter.form %}
+                    <div class="col-5">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+                {% endfor %}
+                <div class="col-3">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn btn-warning">
+                    <a href="{% url 'scifi:lo_new' %}" class="btn btn-success">New</a><br>
+                </div>
+            </div>
+        </form>
+
 
         <div class="row">
-            <div class="col-6">
+            <div class="col-12">
                 <table class="table table-hover table-sm">
                     <thead>
                     <tr>
                         <th scope="col">Code</th>
+                        <th scope="col">Name</th>
                         <th scope="col">Description</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for object in object_list %}
+                    {% for object in filter.qs %}
                         <tr>
                             <td>{{ object.code }}</td>
-                            <td>{{ object.name }}</td>
+                            <td>{{ object.name_eng }}</td>
+                            <td>{{ object.description_eng }}</td>
                             <td>
-                                <a href="{% url 'scifi:business_edit' object.id %}">
+                                <a href="{% url 'scifi:lo_edit' object.id %}">
                                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
                                          title="Edit">
                                 </a>
                             </td>
                             <td>
-                                <a class="delete-me" href="{% url 'scifi:business_delete' object.id %}">
+                                <a class="delete-me" href="{% url 'scifi:lo_delete' object.id %}">
                                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                          title="Delete">
                                 </a>

@@ -41,9 +41,21 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="{% url 'scifi:allotment_list'  %}">Allotment Codes</a>
-            <a class="dropdown-item" href="#">Business Lines</a>
-            <a class="dropdown-item" href="#">Line Objects</a>
-            <a class="dropdown-item" href="#">Responsibility Centres</a>
+            <a class="dropdown-item" href="{% url 'scifi:business_list'  %}">Business Lines</a>
+            <a class="dropdown-item" href="{% url 'scifi:lo_list'  %}">Line Objects</a>
+            <a class="dropdown-item" href="{% url 'scifi:rc_list'  %}">Responsibility Centres</a>
+        </div>
+    </li>
+
+       {# Transactions #}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            Transactions
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'scifi:trans_list'  %}">List</a>
+            <a class="dropdown-item" href="{% url 'scifi:trans_new'  %}">New</a>
         </div>
     </li>
 
