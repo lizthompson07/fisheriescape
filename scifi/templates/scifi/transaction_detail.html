@@ -1,0 +1,59 @@
+{% extends "scifi/scifi_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_field_display %}
+{% load i18n %}
+
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+    </style>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'scifi:trans_list' %}">Transactions</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Transaction Detail</li>
+        </ol>
+    </nav>
+
+
+    <div class="container">
+
+        <h1>Transaction Detail</h1>
+
+
+        <div class="btn-group">
+            <a class="btn btn-danger " href="{% url 'scifi:trans_delete' object.id %}">
+                {% trans "Delete" %}
+            </a>
+            <a class="btn btn-warning" href="{% url 'scifi:trans_edit' object.id %}">
+                {% trans "Edit" %}
+            </a>
+
+        </div>
+
+
+        <br><br>
+
+        <div class="row">
+            <div class="col">
+                {% for field in field_list %}
+                    {% if field == "obligation_cost" or field == "invoice_cost" %}
+                        {% verbose_field_display object field format="currency" %}
+                    {% else %}
+                        {% verbose_field_display object field %}
+                    {% endif %}
+                {% endfor %}
+                <br>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+{% endblock content %}

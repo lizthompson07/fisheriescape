@@ -19,6 +19,7 @@ from easy_pdf.views import PDFTemplateView
 from accounts import models as accounts_models
 from collections import OrderedDict
 
+from lib.functions.fiscal_year import fiscal_year
 from lib.functions.nz import nz
 from . import models
 from . import forms
@@ -101,9 +102,13 @@ class BusinessLineDeleteView(LoginRequiredMixin, DeleteView):
 # LINE OBJECT #
 ###############
 
-class LineObjectListView(LoginRequiredMixin, ListView):
+class LineObjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
+    template_name = 'scifi/lineobject_list.html'
+    filterset_class = filters.LineObjectFilter
     model = models.LineObject
+    queryset = models.LineObject.objects.annotate(
+        search_term=Concat('code', 'name_eng', 'description_eng', output_field=TextField()))
 
 
 class LineObjectUpdateView(LoginRequiredMixin, UpdateView):
@@ -156,6 +161,78 @@ class ResponsibilityCentreDeleteView(LoginRequiredMixin, DeleteView):
     model = models.ResponsibilityCenter
     success_url = reverse_lazy('scifi:rc_list')
     success_message = 'The RC was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# TRANSACTION #
+###############
+
+class TransactionListView(LoginRequiredMixin, FilterView):
+    login_url = '/accounts/login_required/'
+    template_name = 'scifi/transaction_list.html'
+    filterset_class = filters.TransactionFilter
+    # queryset = models.Transaction.objects.annotate(
+    #     search_term=Concat('supplier_description', 'allotment_code__code', 'business_line__code', 'project__code', 'project__name', 'project__responsibility_center__code', output_field=TextField()))
+    model = models.Transaction
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {
+                "fiscal_year": fiscal_year(),
+             }
+        return kwargs
+
+
+class TransactionDetailView(LoginRequiredMixin, DetailView):
+    model = models.Transaction
+    login_url = '/accounts/login_required/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'transaction_type',
+            'supplier_description',
+            'project',
+            'allotment_code',
+            'business_line',
+            'line_object',
+            'requisition_date',
+            'invoice_date',
+            'obligation_cost',
+            'invoice_cost',
+            'in_mrs',
+            'reference_number',
+            'amount_paid_in_mrs',
+            'mrs_notes',
+            'procurement_hub_contact',
+            'comment',
+            'fiscal_year',
+        ]
+        return context
+
+
+class TransactionUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Transaction
+    login_url = '/accounts/login_required/'
+    form_class = forms.TransactionForm
+    success_url = reverse_lazy('scifi:rc_list')
+
+
+class TransactionCreateView(LoginRequiredMixin, CreateView):
+    model = models.Transaction
+    login_url = '/accounts/login_required/'
+    form_class = forms.TransactionForm
+    success_url = reverse_lazy('scifi:rc_list')
+
+
+class TransactionDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.Transaction
+    success_url = reverse_lazy('scifi:trans_list')
+    success_message = 'The transaction was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

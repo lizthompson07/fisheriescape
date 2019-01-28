@@ -1,0 +1,72 @@
+{% extends "scifi/scifi_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load nz %}
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Transactions</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1 class="big-header">Transactions </h1>
+        <p>TOTAL: {{ object_list.count }}</p>
+
+
+
+        <form class="form" action="." method="get">
+            <div class="row">
+                {% for field in filter.form %}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+                {% endfor %}
+                <div class="col-2">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn btn-warning">
+                    <a href="{% url 'scifi:trans_new' %}" class="btn btn-success">New</a><br>
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row">
+            <div class="col-12">
+                <table class="table table-hover table-sm">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 100px">Fiscal Year</th>
+                        <th scope="col">Project Code</th>
+                        <th scope="col">Supplier Description</th>
+                        <th scope="col">Reference Number</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for object in filter.qs %}
+                        <tr>
+                            <td>{{ object.fiscal_year }}</td>
+                            <td>{{ object.project.code }}</td>
+                            <td>
+                                <a href="{% url 'scifi:trans_detail' object.id %}">
+                                {{ object.supplier_description }}
+                                </a>
+                            </td>
+                            <td>{{ object.reference_number|nz:"" }}</td>
+
+                        </tr>
+                    {% endfor %}
+                    <br>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock content %}

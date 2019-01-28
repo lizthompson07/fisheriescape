@@ -6,49 +6,53 @@ from django.utils.translation import gettext_lazy as _
 
 from lib.functions.fiscal_year import fiscal_year
 
+YES_NO_CHOICES = (
+    (True, "Yes"),
+    (False, "No"),
+)
 
 class AllotmentCode(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.TextField(blank=True, null=True)
+    code = models.CharField(max_length=50, unique=True)
+    name = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{} ({})".format(self.code, self.name)
 
     class Meta:
-        ordering = ['name',]
+        ordering = ['code',]
 
 class BusinessLine(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.TextField(blank=True, null=True)
+    code = models.CharField(max_length=50, unique=True)
+    name = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{} ({})".format(self.code, self.name)
 
     class Meta:
-        ordering = ['name',]
+        ordering = ['code',]
 
 class LineObject(models.Model):
-    code = models.CharField(max_length=50)
+    code = models.CharField(max_length=50, unique=True)
     name_eng = models.CharField(max_length=1000)
     description_eng = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.name_eng)
+        return "{} ({})".format(self.code, self.name_eng)
 
     class Meta:
         ordering = ['code',]
 
 class ResponsibilityCenter(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.TextField(blank=True, null=True)
+    code = models.CharField(max_length=50, unique=True)
+    name = models.TextField(blank=True, null=True)
     responsible_manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                             related_name="rcs")
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{} ({})".format(self.code, self.name)
 
     class Meta:
-        ordering = ['description',]
+        ordering = ['code',]
 
 
 class Project(models.Model):
@@ -89,12 +93,13 @@ class Transaction(models.Model):
     line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       related_name='transactions')
     requisition_date = models.DateTimeField(blank=True, null=True)
+    obligation_cost = models.FloatField(blank=True, null=True)
     invoice_date = models.DateTimeField(blank=True, null=True)
-    estimated_cost = models.FloatField(blank=True, null=True)
-    final_cost = models.FloatField(blank=True, null=True)
-    not_in_mrs = models.BooleanField(default=False)
+    invoice_cost = models.FloatField(blank=True, null=True)
+    in_mrs = models.BooleanField(default=True, verbose_name="In MRS", choices=YES_NO_CHOICES)
     reference_number = models.CharField(max_length=50, blank=True, null=True)
-    mrs_notes = models.FloatField(blank=True, null=True)
+    amount_paid_in_mrs = models.FloatField(blank=True, null=True, verbose_name="amount paid in MRS")
+    mrs_notes = models.CharField(blank=True, null=True, max_length=100, verbose_name="MRS notes")
     procurement_hub_contact = models.CharField(max_length=500, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
     fiscal_year = models.CharField(blank=True, null=True, max_length=25)
@@ -105,4 +110,6 @@ class Transaction(models.Model):
     def save(self, *args, **kwargs):
         if self.invoice_date:
             self.fiscal_year = fiscal_year(date=self.invoice_date)
+        elif self.requisition_date:
+            self.fiscal_year = fiscal_year(date=self.requisition_date)
         super().save(*args, **kwargs)
