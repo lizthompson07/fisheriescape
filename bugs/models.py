@@ -36,6 +36,7 @@ class Bug(models.Model):
     DIETS = 9
     PROJECTS = 10
     IHUB = 11
+    SCIFI = 12
 
     APP_CHOICES = (
         (GENERAL,'General'),
@@ -49,6 +50,7 @@ class Bug(models.Model):
         (DIETS, 'Diets'),
         (PROJECTS, 'Project Planning'),
         (IHUB, 'Indigenous Hub'),
+        (SCIFI, 'SciFi'),
     )
 
     APP_DICT = {

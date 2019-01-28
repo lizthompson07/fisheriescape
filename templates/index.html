@@ -28,7 +28,7 @@
                 {% if user.is_authenticated %}
                     {% blocktrans with name=user.first_name %}
                         Welcome back, {{ name }}! Please select an application below.
-                    {% endblocktrans  %}
+                    {% endblocktrans %}
                 {% else %}
                     {% trans 'Welcome! Please select an application below.' %}
                 {% endif %}
@@ -52,12 +52,14 @@
                 <td>
 
                     <a href="
+                            
                             {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
                         <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
                     </a>
                 </td>
                 <td>
                     <a href="
+                            
                             {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
                         {% trans 'Regional Data Inventory' %}
                     </a>
@@ -147,7 +149,7 @@
                 </td>
                 <td class="concern"> Beta</td>
             </tr>
-             <tr>
+            <tr>
                 <td>
                     <a href="{% url 'ihub:index' %}" class="">
                         <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
@@ -197,6 +199,19 @@
                 <td>
                     <a href="#" class="under-dev">
                         {% trans 'Marine Environmental Quality (MEQ) db' %}
+                    </a>
+                </td>
+                <td class="concern"> Development</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'scifi:index'  %}" class="">
+                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'scifi:index'  %}" class="">
+                        {% trans 'SciFi' %}
                     </a>
                 </td>
                 <td class="concern"> Development</td>
