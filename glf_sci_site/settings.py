@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'diets',
     'projects',
     'ihub',
+    'scifi',
 ]
 
 MIDDLEWARE = [

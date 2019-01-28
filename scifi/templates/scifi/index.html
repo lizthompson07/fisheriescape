@@ -1,0 +1,43 @@
+{% extends "scifi/scifi_base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+    <div class="container">
+        <br>
+        <div class="container">
+            <div class="jumbotron">
+                <h1 class="three-em">
+                    {% trans "Welcome to SciFi" %}
+                </h1>
+                <hr>
+                <h3>
+                    The Gulf Region Science Finance Tool
+                </h3>
+                {% if user.is_authenticated %}
+
+                {% else %}
+
+                {% endif %}
+            </div>
+
+        </div>
+
+        {% if user.is_authenticated %}
+            <div align="center">
+                <h3>
+                    What would you like to do:
+                </h3>
+                <ul>
+                    Search Transactions
+                </ul>
+                <ul>
+                    Search Transactions
+                </ul>
+            </div>
+        {% endif %}
+
+
+    </div>
+
+{% endblock content %}

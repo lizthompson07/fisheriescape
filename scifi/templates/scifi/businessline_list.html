@@ -1,0 +1,56 @@
+{% extends "scifi/scifi_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Allotment Codes</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1 class="big-header">Allotment Codes </h1>
+        <p>TOTAL: {{ object_list.count }}</p>
+        <a href="{% url 'scifi:allotment_new' %}" class="btn btn-success">New</a><br>
+
+
+        <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td>{{ object.name }}</td>
+                    <td>{{ object.description }}</td>
+                    <td>
+                        <a href="{% url 'scifi:allotment_edit' object.id  %}">
+                            <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
+                                 title="Edit">
+                        </a>
+                    </td>
+                    <td>
+                        <a class="delete-me" href="{% url 'scifi:allotment_delete' object.id %}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete">
+                        </a>
+
+                    </td>
+
+                </tr>
+            {% endfor %}
+            <br>
+            </tbody>
+        </table>
+
+
+    </div>
+
+{% endblock content %}
