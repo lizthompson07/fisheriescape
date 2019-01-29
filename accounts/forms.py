@@ -69,6 +69,7 @@ class RequestAccessForm(forms.Form):
     first_name = forms.CharField(label='First name', max_length=100)
     last_name = forms.CharField(label='Last name', max_length=100)
     email = forms.EmailField(label='Email address')
+    user_id = forms.CharField(widget=forms.HiddenInput())
     application = forms.ChoiceField(label='Requesting access to which app', choices=APPLICATION_CHOICES)
     optional_comment = forms.CharField(required=False)
 
