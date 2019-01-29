@@ -245,6 +245,7 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
+            'user_id': user.id,
         }
 
     def form_valid(self, form):
@@ -253,6 +254,7 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
             "first_name": form.cleaned_data["first_name"],
             "last_name": form.cleaned_data["last_name"],
             "email": form.cleaned_data["email"],
+            "user_id": form.cleaned_data["user_id"],
             "application": form.cleaned_data["application"],
             "optional_comment": form.cleaned_data["optional_comment"],
         }
