@@ -2,7 +2,7 @@ import csv
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import TextField
 from django.db.models.functions import Concat
@@ -16,26 +16,45 @@ from . import models
 from . import forms
 from . import filters
 
-class IndexView(GroupRequiredMixin,TemplateView):
-    template_name = 'grais/index.html'
-    group_required = [u"grais_access",]
+
+def not_in_grais_group(user):
+    if user:
+        return user.groups.filter(name='grais_access').count() != 0
+
+class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
 
-class DataFlowTemplateView(TemplateView):
+    def test_func(self):
+        return not_in_grais_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+
+
+class IndexView(GraisAccessRequiredMixin, TemplateView):
+    template_name = 'grais/index.html'
+
+
+class DataFlowTemplateView(GraisAccessRequiredMixin, TemplateView):
     template_name = 'grais/dataflow.html'
 
 
 # SAMPLE #
 ##########
-class CloserTemplateView(TemplateView):
+class CloserTemplateView(GraisAccessRequiredMixin, TemplateView):
     template_name = 'grais/close_me.html'
 
 
-class SampleListView(LoginRequiredMixin, FilterView):
+class SampleListView(GraisAccessRequiredMixin, FilterView):
     filterset_class = filters.SampleFilter
     template_name = "grais/sample_list.html"
-    login_url = '/accounts/login_required/'
+
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -43,9 +62,9 @@ class SampleListView(LoginRequiredMixin, FilterView):
     #         kwargs["data"] = {"SeasonExact": timezone.now().year-2 }
     #     return kwargs
 
-class SampleDetailView(LoginRequiredMixin, DetailView):
+class SampleDetailView(GraisAccessRequiredMixin, DetailView):
     model = models.Sample
-    login_url = '/accounts/login_required/'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -61,23 +80,23 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
         context["sampler_field_list"] = sampler_field_list
         return context
 
-class SampleUpdateView(LoginRequiredMixin, UpdateView):
+class SampleUpdateView(GraisAccessRequiredMixin, UpdateView):
     model = models.Sample
     form_class = forms.SampleForm
-    login_url = '/accounts/login_required/'
+
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-class SampleCreateView(LoginRequiredMixin, CreateView):
+class SampleCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.Sample
     form_class = forms.SampleForm
-    login_url = '/accounts/login_required/'
+
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-class SampleDeleteView(LoginRequiredMixin, DeleteView):
+class SampleDeleteView(GraisAccessRequiredMixin, DeleteView):
     model = models.Sample
     success_url = reverse_lazy('grais:sample_list')
     success_message = 'The sample was successfully deleted!'
@@ -90,15 +109,13 @@ class SampleDeleteView(LoginRequiredMixin, DeleteView):
 # SAMPLE NOTE #
 ##############
 
-class SampleNoteUpdateView(LoginRequiredMixin, UpdateView):
+class SampleNoteUpdateView(GraisAccessRequiredMixin, UpdateView):
     model = models.SampleNote
-    login_url = '/accounts/login_required/'
     form_class = forms.SampleNoteForm
 
 
-class SampleNoteCreateView(LoginRequiredMixin, CreateView):
+class SampleNoteCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.SampleNote
-    login_url = '/accounts/login_required/'
     form_class = forms.SampleNoteForm
 
     def get_context_data(self, **kwargs):
@@ -124,32 +141,28 @@ def sample_note_delete(request, pk):
 # STATION #
 ###########
 
-class StationListView(LoginRequiredMixin, FilterView):
+class StationListView(GraisAccessRequiredMixin, FilterView):
     filterset_class = filters.StationFilter
     template_name = "grais/station_list.html"
-    login_url = '/accounts/login_required/'
 
-class StationUpdateView(LoginRequiredMixin,  UpdateView):
+class StationUpdateView(GraisAccessRequiredMixin,  UpdateView):
     # permission_required = "__all__"
     raise_exception = True
-    login_url = '/accounts/login_required/'
     model = models.Station
     form_class = forms.StationForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-class StationCreateView(LoginRequiredMixin, CreateView):
+class StationCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.Station
-    login_url = '/accounts/login_required/'
     form_class = forms.StationForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-class StationDetailView(LoginRequiredMixin, UpdateView):
+class StationDetailView(GraisAccessRequiredMixin, UpdateView):
     model = models.Station
-    login_url = '/accounts/login_required/'
     fields =('__all__')
     template_name = 'grais/station_detail.html'
 
@@ -158,7 +171,7 @@ class StationDetailView(LoginRequiredMixin, UpdateView):
         context['google_api_key'] = settings.GOOGLE_API_KEY
         return context
 
-class StationDeleteView(LoginRequiredMixin, DeleteView):
+class StationDeleteView(GraisAccessRequiredMixin, DeleteView):
     model = models.Station
     success_url = reverse_lazy('grais:station_list')
     success_message = 'The station was successfully deleted!'
@@ -171,24 +184,21 @@ class StationDeleteView(LoginRequiredMixin, DeleteView):
 # PERSON #
 ##########
 
-class PersonUpdateView(LoginRequiredMixin, UpdateView):
+class PersonUpdateView(GraisAccessRequiredMixin, UpdateView):
     model = models.Sampler
-    login_url = '/accounts/login_required/'
     fields =('__all__')
     template_name = 'grais/person_form_popout.html'
     success_url = reverse_lazy("grais:close_me")
 
-class PersonCreateView(LoginRequiredMixin, CreateView):
+class PersonCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.Sampler
-    login_url = '/accounts/login_required/'
     fields =('__all__')
     template_name = 'grais/person_form_popout.html'
     success_url = reverse_lazy("grais:close_me")
 
 
-class PersonDetailView(LoginRequiredMixin, UpdateView):
+class PersonDetailView(GraisAccessRequiredMixin, UpdateView):
     model = models.Sampler
-    login_url = '/accounts/login_required/'
     template_name = 'grais/person_detail_popout.html'
     fields =('__all__')
 
@@ -196,10 +206,9 @@ class PersonDetailView(LoginRequiredMixin, UpdateView):
 # PROBE DATA #
 ##############
 
-class ProbeMeasurementCreateView(LoginRequiredMixin, CreateView):
+class ProbeMeasurementCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
-    login_url = '/accounts/login_required/'
     template_name = 'grais/probe_measurement_form.html'
 
     def get_initial(self):
@@ -210,23 +219,21 @@ class ProbeMeasurementCreateView(LoginRequiredMixin, CreateView):
             }
 
 
-class ProbeMeasurementDetailView(LoginRequiredMixin, UpdateView):
+class ProbeMeasurementDetailView(GraisAccessRequiredMixin, UpdateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
-    login_url = '/accounts/login_required/'
     template_name = 'grais/probe_measurement_detail.html'
 
-class ProbeMeasurementUpdateView(LoginRequiredMixin, UpdateView):
+class ProbeMeasurementUpdateView(GraisAccessRequiredMixin, UpdateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
-    login_url = '/accounts/login_required/'
     template_name = 'grais/probe_measurement_form.html'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class ProbeMeasurementDeleteView(LoginRequiredMixin, DeleteView):
+class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, DeleteView):
 
     model = models.ProbeMeasurement
     template_name = "grais/probe_measurement_confirm_delete.html"
@@ -243,10 +250,9 @@ class ProbeMeasurementDeleteView(LoginRequiredMixin, DeleteView):
 # LINES #
 #########
 
-class LineCreateView(LoginRequiredMixin, CreateView):
+class LineCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.Line
     form_class = forms.LineCreateForm
-    login_url = '/accounts/login_required/'
     template_name = 'grais/line_form.html'
 
     def get_initial(self):
@@ -275,7 +281,6 @@ class LineCreateView(LoginRequiredMixin, CreateView):
 
 class LineDetailView(LoginRequiredMixin, DetailView):
     model = models.Line
-    login_url = '/accounts/login_required/'
     template_name = 'grais/line_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -286,7 +291,6 @@ class LineDetailView(LoginRequiredMixin, DetailView):
 class LineUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Line
     form_class = forms.LineForm
-    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -310,17 +314,15 @@ class LineDeleteView(LoginRequiredMixin, DeleteView):
 # SPECIES #
 ###########
 
-class SpeciesListView(LoginRequiredMixin, FilterView):
+class SpeciesListView(GraisAccessRequiredMixin, FilterView):
     template_name = "grais/species_list.html"
     filterset_class = filters.SpeciesFilter
-    login_url = '/accounts/login_required/'
     queryset = models.Species.objects.annotate(
         search_term=Concat('common_name', 'scientific_name', 'abbrev', output_field=TextField()))
 
-class SpeciesDetailView(LoginRequiredMixin, DetailView):
+class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
     model = models.Species
     fields = "__all__"
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super(SpeciesDetailView, self).get_context_data(**kwargs)
@@ -334,25 +336,22 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
         ]
         return context
 
-class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
+class SpeciesUpdateView(GraisAccessRequiredMixin, UpdateView):
     model = models.Species
-    login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-class SpeciesCreateView(LoginRequiredMixin, CreateView):
+class SpeciesCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.Species
-    login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-class SpeciesCreatePopoutView(LoginRequiredMixin, CreateView):
+class SpeciesCreatePopoutView(GraisAccessRequiredMixin, CreateView):
     model = models.Species
-    login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
     template_name = 'grais/species_form_popout.html'
 
@@ -365,7 +364,7 @@ class SpeciesCreatePopoutView(LoginRequiredMixin, CreateView):
 
         return HttpResponseRedirect(reverse('grais:close_me'))
 
-class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
+class SpeciesDeleteView(PermissionRequiredMixin, GraisAccessRequiredMixin, DeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('grais:species_list')
@@ -378,10 +377,9 @@ class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView)
 # SURFACES #
 ############
 
-class SurfaceDetailView(LoginRequiredMixin, UpdateView):
+class SurfaceDetailView(GraisAccessRequiredMixin, UpdateView):
     model = models.Surface
     form_class = forms.SurfaceImageForm
-    login_url = '/accounts/login_required/'
     template_name = 'grais/surface_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -395,18 +393,16 @@ class SurfaceDetailView(LoginRequiredMixin, UpdateView):
         context['total_coverage']= total_coverage
         return context
 
-class SurfaceUpdateView(LoginRequiredMixin, UpdateView):
+class SurfaceUpdateView(GraisAccessRequiredMixin, UpdateView):
     model = models.Surface
     form_class = forms.SurfaceForm
-    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-class SurfaceCreateView(LoginRequiredMixin, CreateView):
+class SurfaceCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.Surface
     form_class = forms.SurfaceForm
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -420,7 +416,7 @@ class SurfaceCreateView(LoginRequiredMixin, CreateView):
             'last_modified_by': self.request.user
         }
 
-class SurfaceDeleteView(LoginRequiredMixin, DeleteView):
+class SurfaceDeleteView(GraisAccessRequiredMixin, DeleteView):
 
     model = models.Surface
     template_name = "grais/surface_confirm_delete.html"
@@ -481,9 +477,8 @@ class SpeciesObservationInsertView(TemplateView):
         return context
 
 
-class SpeciesObservationCreatePopoutView(LoginRequiredMixin,CreateView):
+class SpeciesObservationCreatePopoutView(GraisAccessRequiredMixin,CreateView):
     template_name ='grais/species_obs_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.SurfaceSpeciesForm
 
     def get_form_class(self):
@@ -529,7 +524,7 @@ class SpeciesObservationCreatePopoutView(LoginRequiredMixin,CreateView):
         self.object = form.save()
         return HttpResponseRedirect(reverse('grais:close_me'))
 
-class SpeciesObservationUpdatePopoutView(LoginRequiredMixin,UpdateView):
+class SpeciesObservationUpdatePopoutView(GraisAccessRequiredMixin,UpdateView):
     template_name ='grais/species_obs_form_popout.html'
 
     def get_form_class(self):
@@ -603,10 +598,9 @@ class SurfacaeSpeciesInsertView(TemplateView):
         return context
 
 
-class SurfaceSpeciesCreatePopoutView(LoginRequiredMixin,CreateView):
+class SurfaceSpeciesCreatePopoutView(GraisAccessRequiredMixin,CreateView):
     model = models.SurfaceSpecies
     template_name ='grais/surface_species_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.SurfaceSpeciesForm
 
     def get_initial(self):
@@ -630,7 +624,7 @@ class SurfaceSpeciesCreatePopoutView(LoginRequiredMixin,CreateView):
         self.object = form.save()
         return HttpResponseRedirect(reverse('grais:close_me'))
 
-class SurfaceSpeciesUpdatePopoutView(LoginRequiredMixin,UpdateView):
+class SurfaceSpeciesUpdatePopoutView(GraisAccessRequiredMixin,UpdateView):
     model = models.SurfaceSpecies
     template_name ='grais/surface_species_form_popout.html'
     form_class = forms.SurfaceSpeciesForm
@@ -673,14 +667,12 @@ def export_csv_1(request):
 # INCIDENTAL REPORT #
 #####################
 
-class ReportListView(LoginRequiredMixin, FilterView):
+class ReportListView(GraisAccessRequiredMixin, FilterView):
     filterset_class = filters.ReportFilter
     template_name = "grais/report_list.html"
-    login_url = '/accounts/login_required/'
 
 
-class ReportUpdateView(LoginRequiredMixin,  UpdateView):
-    login_url = '/accounts/login_required/'
+class ReportUpdateView(GraisAccessRequiredMixin,  UpdateView):
     model = models.IncidentalReport
     form_class = forms.ReportForm
     template_name = "grais/report_form.html"
@@ -689,9 +681,8 @@ class ReportUpdateView(LoginRequiredMixin,  UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class ReportCreateView(LoginRequiredMixin, CreateView):
+class ReportCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.IncidentalReport
-    login_url = '/accounts/login_required/'
     form_class = forms.ReportForm
     template_name = "grais/report_form.html"
 
@@ -699,9 +690,9 @@ class ReportCreateView(LoginRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-class ReportDetailView(LoginRequiredMixin, DetailView):
+class ReportDetailView(GraisAccessRequiredMixin, DetailView):
     model = models.IncidentalReport
-    login_url = '/accounts/login_required/'
+
     template_name = "grais/report_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -735,7 +726,7 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ReportDeleteView(LoginRequiredMixin, DeleteView):
+class ReportDeleteView(GraisAccessRequiredMixin, DeleteView):
     model = models.IncidentalReport
     success_url = reverse_lazy('grais:report_list')
     success_message = 'The report was successfully deleted!'
