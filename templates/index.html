@@ -241,6 +241,12 @@
 
     </div>
 
+<script type="application/javascript">
+    $(".request-access-button").click(function () {
+        popitup("{% url 'accounts:request_access' %}","popOutWindow")
+    })
 
+</script>
+    
 
 {% endblock body %}

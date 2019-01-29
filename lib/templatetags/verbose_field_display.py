@@ -1,6 +1,9 @@
 from django import template
+from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString
+
 register = template.Library()
+
 
 @register.simple_tag
 def verbose_field_display(instance, field_name, format=None, DisplayTime=False):
@@ -19,11 +22,12 @@ def verbose_field_display(instance, field_name, format=None, DisplayTime=False):
     verbose_name = "".join(str_list)
 
     # first check if there is a value :
-    if getattr(instance, field_name):
+    if getattr(instance, field_name) is not None:
 
         # check to see if there are choices
-        if len(field_instance.choices) > 0 :
+        if len(field_instance.choices) > 0:
             field_value = getattr(instance, "get_{}_display".format(field_name))()
+
 
 
         # check to see if it is a datefield
@@ -38,10 +42,14 @@ def verbose_field_display(instance, field_name, format=None, DisplayTime=False):
         elif str(getattr(instance, field_name)).startswith("http"):
             field_value = '<a href="{url}">{url}</a>'.format(url=getattr(instance, field_name))
 
+        # check to see if it is a BooleanField
+        elif field_instance.get_internal_type() == 'BooleanField' or field_instance.get_internal_type() == 'NullBooleanField':
+            field_value = yesno(getattr(instance, field_name), "Yes,No,Unknown")
+
         else:
             field_value = getattr(instance, field_name)
     else:
-        field_value = getattr(instance, field_name)
+        field_value = "n/a"
 
     # TODO: create other formats for displaying block
     if format == "currency":
@@ -56,5 +64,3 @@ def verbose_field_display(instance, field_name, format=None, DisplayTime=False):
         html_block = '<p><span class="label">{}:</span><br>{}</p>'.format(verbose_name, field_value)
 
     return SafeString(html_block)
-
-

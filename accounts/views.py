@@ -1,3 +1,4 @@
+from braces.views import LoginRequiredMixin
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, update_session_auth_hash, login
@@ -12,7 +13,9 @@ from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import TemplateView, UpdateView, CreateView  # ,ListView, DetailView, CreateView, DeleteView
+from django.utils.safestring import mark_safe
+from django.views.generic import TemplateView, UpdateView, CreateView, \
+    FormView  # ,ListView, DetailView, CreateView, DeleteView
 
 from .tokens import account_activation_token
 from . import forms
@@ -26,21 +29,14 @@ class IndexView(TemplateView):
     template_name = 'accounts/index.html'
 
 
-# class DataFlowTemplateView(TemplateView):
-#     template_name = 'landing/dataflow.html'
+def access_denied(request):
+    a_tag = mark_safe('<a href="#" class="request-access-button">this</a>')
+    denied_message = "Sorry, you are not authorized to view this page. You can request access using {} form.".format(
+        a_tag)
+    print(mark_safe(denied_message))
+    messages.error(request, mark_safe(denied_message))
 
-class DeniedAccessTemplateView(TemplateView):
-    template_name = 'index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        messages.error(self.request,
-                       "Sorry, you are not authorized to view this page. Please contact the site administrator to request access.")
-        return context
-
-
-# class DataFlowTemplateView(TemplateView):
-#     template_name = 'landing/dataflow.html'
+    return HttpResponseRedirect(reverse("index"))
 
 
 class UserLoginView(LoginView):
@@ -236,3 +232,39 @@ class UserLoginRequiredView(LoginView):
     def get_context_data(self, **kwargs):
         messages.error(self.request, "You must be logged in to access this page")
         return super(UserLoginRequiredView, self).get_context_data(**kwargs)
+
+
+class RequestAccessFormView(LoginRequiredMixin, FormView):
+    login_url = 'accounts/login_required'
+    template_name = "accounts/request_access_form_popout.html"
+    form_class = forms.RequestAccessForm
+
+    def get_initial(self):
+        user = self.request.user
+        return {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+        }
+
+    def form_valid(self, form):
+
+        context = {
+            "first_name": form.cleaned_data["first_name"],
+            "last_name": form.cleaned_data["last_name"],
+            "email": form.cleaned_data["email"],
+            "application": form.cleaned_data["application"],
+            "optional_comment": form.cleaned_data["optional_comment"],
+        }
+        email = emails.RequestAccessEmail(context)
+        # send the email object
+        if settings.MY_ENVR != 'dev':
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
+        else:
+            print('not sending email since in dev mode')
+            print(email.subject)
+            print(email.message)
+        messages.success(self.request,
+                         message="your request has been sent to the site administrator")
+        return HttpResponseRedirect(reverse('bugs:close_me'))
