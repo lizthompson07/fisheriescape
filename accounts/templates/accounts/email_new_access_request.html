@@ -13,7 +13,12 @@
 
     <tr>
         <td><b>Comment:</b></td>
-        <td>{{ comment }}</td>
+        <td>{{ optional_comment }}</td>
     </tr>
+
+    {% autoescape off %}
+        Click <a href="/admin/auth/user/{{ user_id }}/change/">here</a> to go to the Admin menu for this user.
+    {% endautoescape %}
+
 
 </table>
