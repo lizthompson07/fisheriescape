@@ -113,3 +113,6 @@ class Transaction(models.Model):
         elif self.requisition_date:
             self.fiscal_year = fiscal_year(date=self.requisition_date)
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('scifi:trans_detail', kwargs={'pk': self.id})

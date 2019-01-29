@@ -24,8 +24,17 @@ class AllotmentCodeForm(forms.ModelForm):
         model = models.AllotmentCode
         fields = "__all__"
 
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = models.AllotmentCode
+        fields = "__all__"
+
 
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = models.Transaction
-        fields = "__all__"
+        exclude = ["fiscal_year", ]
+        widgets = {
+            "requisition_date": forms.DateInput(attrs={"type":"date"}),
+            "invoice_date": forms.DateInput(attrs={"type":"date"})
+        }
