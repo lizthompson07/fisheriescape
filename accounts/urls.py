@@ -8,7 +8,7 @@ urlpatterns = [
 
     path('login/', views.UserLoginView.as_view(), name='login'),
 
-    path('denied/', views.DeniedAccessTemplateView.as_view(), name='denied_access'),
+    path('denied/', views.access_denied, name='denied_access'),
 
     path('signup/', views.signup, name='signup'),
     path('activate/<str:uidb64>/<str:token>', views.activate, name='activate'),
@@ -18,7 +18,8 @@ urlpatterns = [
     path('users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='account'),
     path('users/change-password/', views.change_password, name='change_password'),
     path('account-request/', views.account_request, name='account_request'),
-    path('login_required/', views.UserLoginRequiredView.as_view())
+    path('login_required/', views.UserLoginRequiredView.as_view()),
+    path('request-access/', views.RequestAccessFormView.as_view(), name='request_access')
 
     ### NOTE: Password reset views are mapped in the glf_sci_site urls.py file. Views are still in the Accounts app views.py
 

@@ -58,6 +58,7 @@ class Organization(models.Model):
 class EntryType(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
+    color = models.CharField(max_length=25, blank=True, null=True)
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -69,6 +70,7 @@ class EntryType(models.Model):
 class Status(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
+    color = models.CharField(max_length=25, blank=True, null=True)
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -114,9 +116,9 @@ class Entry(models.Model):
     # basic
     title = models.CharField(max_length=1000, blank=True, null=True)
     organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True)
+    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"))
     sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, blank=True, null=True)
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True)
-    subject = models.CharField(max_length=1000, blank=True, null=True)
     initial_date = models.DateTimeField(blank=True, null=True, verbose_name=_("initial date"))
     leads = models.CharField(max_length=1000, blank=True, null=True)
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -170,7 +172,7 @@ class EntryNote(models.Model):
     date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     note = models.TextField()
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"))
+    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"))
 
     def __str__(self):
         return str(self.id)

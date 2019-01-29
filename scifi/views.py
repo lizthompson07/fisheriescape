@@ -1,26 +1,13 @@
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.models import User, Group
-from django.core.mail import send_mail
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
-from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
-from django.template import Context, loader
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
-from easy_pdf.views import PDFTemplateView
-
-from accounts import models as accounts_models
-from collections import OrderedDict
-
 from lib.functions.fiscal_year import fiscal_year
-from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
@@ -31,34 +18,46 @@ class CloserTemplateView(TemplateView):
     template_name = 'scifi/close_me.html'
 
 
-class IndexTemplateView(LoginRequiredMixin, TemplateView):
-    login_url = '/accounts/login_required/'
-    template_name = 'scifi/index.html'
+def not_in_scifi_group(user):
+    if user:
+        return user.groups.filter(name='scifi_access').count() != 0
 
+class SciFiAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return not_in_scifi_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
+    template_name = 'scifi/index.html'
 
 # ALLOTMENT CODE #
 ##################
 
-class AllotmentCodeListView(LoginRequiredMixin, ListView):
-    login_url = '/accounts/login_required/'
+class AllotmentCodeListView(SciFiAccessRequiredMixin, ListView):
     model = models.AllotmentCode
 
 
-class AllotmentCodeUpdateView(LoginRequiredMixin, UpdateView):
+class AllotmentCodeUpdateView(SciFiAccessRequiredMixin, UpdateView):
     model = models.AllotmentCode
-    login_url = '/accounts/login_required/'
     form_class = forms.AllotmentCodeForm
     success_url = reverse_lazy('scifi:allotment_list')
 
 
-class AllotmentCodeCreateView(LoginRequiredMixin, CreateView):
+class AllotmentCodeCreateView(SciFiAccessRequiredMixin, CreateView):
     model = models.AllotmentCode
-    login_url = '/accounts/login_required/'
     form_class = forms.AllotmentCodeForm
     success_url = reverse_lazy('scifi:digestion_list')
 
 
-class AllotmentCodeDeleteView(LoginRequiredMixin, DeleteView):
+class AllotmentCodeDeleteView(SciFiAccessRequiredMixin, DeleteView):
     model = models.AllotmentCode
     success_url = reverse_lazy('scifi:digestion_list')
     success_message = 'The allotment code was successfully deleted!'
@@ -71,26 +70,23 @@ class AllotmentCodeDeleteView(LoginRequiredMixin, DeleteView):
 # BUSINESS LINE #
 #################
 
-class BusinessLineListView(LoginRequiredMixin, ListView):
-    login_url = '/accounts/login_required/'
+class BusinessLineListView(SciFiAccessRequiredMixin, ListView):
     model = models.BusinessLine
 
 
-class BusinessLineUpdateView(LoginRequiredMixin, UpdateView):
+class BusinessLineUpdateView(SciFiAccessRequiredMixin, UpdateView):
     model = models.BusinessLine
-    login_url = '/accounts/login_required/'
     form_class = forms.BusinessLineForm
     success_url = reverse_lazy('scifi:business_list')
 
 
-class BusinessLineCreateView(LoginRequiredMixin, CreateView):
+class BusinessLineCreateView(SciFiAccessRequiredMixin, CreateView):
     model = models.BusinessLine
-    login_url = '/accounts/login_required/'
     form_class = forms.BusinessLineForm
     success_url = reverse_lazy('scifi:business_list')
 
 
-class BusinessLineDeleteView(LoginRequiredMixin, DeleteView):
+class BusinessLineDeleteView(SciFiAccessRequiredMixin, DeleteView):
     model = models.BusinessLine
     success_url = reverse_lazy('scifi:business_list')
     success_message = 'The business line was successfully deleted!'
@@ -103,8 +99,7 @@ class BusinessLineDeleteView(LoginRequiredMixin, DeleteView):
 # LINE OBJECT #
 ###############
 
-class LineObjectListView(LoginRequiredMixin, FilterView):
-    login_url = '/accounts/login_required/'
+class LineObjectListView(SciFiAccessRequiredMixin, FilterView):
     template_name = 'scifi/lineobject_list.html'
     filterset_class = filters.LineObjectFilter
     model = models.LineObject
@@ -112,21 +107,19 @@ class LineObjectListView(LoginRequiredMixin, FilterView):
         search_term=Concat('code', 'name_eng', 'description_eng', output_field=TextField()))
 
 
-class LineObjectUpdateView(LoginRequiredMixin, UpdateView):
+class LineObjectUpdateView(SciFiAccessRequiredMixin, UpdateView):
     model = models.LineObject
-    login_url = '/accounts/login_required/'
     form_class = forms.LineObjectForm
     success_url = reverse_lazy('scifi:lo_list')
 
 
-class LineObjectCreateView(LoginRequiredMixin, CreateView):
+class LineObjectCreateView(SciFiAccessRequiredMixin, CreateView):
     model = models.LineObject
-    login_url = '/accounts/login_required/'
     form_class = forms.LineObjectForm
     success_url = reverse_lazy('scifi:lo_list')
 
 
-class LineObjectDeleteView(LoginRequiredMixin, DeleteView):
+class LineObjectDeleteView(SciFiAccessRequiredMixin, DeleteView):
     model = models.LineObject
     success_url = reverse_lazy('scifi:lo_list')
     success_message = 'The line object was successfully deleted!'
@@ -139,26 +132,23 @@ class LineObjectDeleteView(LoginRequiredMixin, DeleteView):
 # RC #
 ######
 
-class ResponsibilityCentreListView(LoginRequiredMixin, ListView):
-    login_url = '/accounts/login_required/'
+class ResponsibilityCentreListView(SciFiAccessRequiredMixin, ListView):
     model = models.ResponsibilityCenter
 
 
-class ResponsibilityCentreUpdateView(LoginRequiredMixin, UpdateView):
+class ResponsibilityCentreUpdateView(SciFiAccessRequiredMixin, UpdateView):
     model = models.ResponsibilityCenter
-    login_url = '/accounts/login_required/'
     form_class = forms.ResponsibilityCentreForm
     success_url = reverse_lazy('scifi:rc_list')
 
 
-class ResponsibilityCentreCreateView(LoginRequiredMixin, CreateView):
+class ResponsibilityCentreCreateView(SciFiAccessRequiredMixin, CreateView):
     model = models.ResponsibilityCenter
-    login_url = '/accounts/login_required/'
     form_class = forms.ResponsibilityCentreForm
     success_url = reverse_lazy('scifi:rc_list')
 
 
-class ResponsibilityCentreDeleteView(LoginRequiredMixin, DeleteView):
+class ResponsibilityCentreDeleteView(SciFiAccessRequiredMixin, DeleteView):
     model = models.ResponsibilityCenter
     success_url = reverse_lazy('scifi:rc_list')
     success_message = 'The RC was successfully deleted!'
@@ -171,8 +161,7 @@ class ResponsibilityCentreDeleteView(LoginRequiredMixin, DeleteView):
 # TRANSACTION #
 ###############
 
-class TransactionListView(LoginRequiredMixin, FilterView):
-    login_url = '/accounts/login_required/'
+class TransactionListView(SciFiAccessRequiredMixin, FilterView):
     template_name = 'scifi/transaction_list.html'
     filterset_class = filters.TransactionFilter
     # queryset = models.Transaction.objects.annotate(
@@ -188,9 +177,8 @@ class TransactionListView(LoginRequiredMixin, FilterView):
         return kwargs
 
 
-class TransactionDetailView(LoginRequiredMixin, DetailView):
+class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
     model = models.Transaction
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -216,21 +204,19 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class TransactionUpdateView(LoginRequiredMixin, UpdateView):
+class TransactionUpdateView(SciFiAccessRequiredMixin, UpdateView):
     model = models.Transaction
-    login_url = '/accounts/login_required/'
     form_class = forms.TransactionForm
     success_url = reverse_lazy('scifi:rc_list')
 
 
-class TransactionCreateView(LoginRequiredMixin, CreateView):
+class TransactionCreateView(SciFiAccessRequiredMixin, CreateView):
     model = models.Transaction
-    login_url = '/accounts/login_required/'
     form_class = forms.TransactionForm
     success_url = reverse_lazy('scifi:rc_list')
 
 
-class TransactionDeleteView(LoginRequiredMixin, DeleteView):
+class TransactionDeleteView(SciFiAccessRequiredMixin, DeleteView):
     model = models.Transaction
     success_url = reverse_lazy('scifi:trans_list')
     success_message = 'The transaction was successfully deleted!'

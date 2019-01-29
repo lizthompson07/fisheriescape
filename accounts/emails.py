@@ -5,16 +5,15 @@ app_name = settings.WEB_APP_NAME # should be a single word with one space
 from_email='DoNotReply@{}.com'.format(app_name)
 admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
-class AccountRequestEmail:
+class RequestAccessEmail:
 
-    def __init__(self, object):
-        self.subject = 'grAIS: A new account is being requested'
-        self.message = self.load_html_template(object)
+    def __init__(self, context):
+        self.subject = '*** Application Access Request - Gulf Science Data Management ***'
+        self.message = self.load_html_template(context)
         self.from_email = from_email
-        self.to_list = [admin_email,]
+        self.to_list = [admin_email, ]
 
-    def load_html_template(self,object):
-        t = loader.get_template('registration/email_account_request.html')
-        context ={ 'object': object }
+    def load_html_template(self, context):
+        t = loader.get_template('accounts/email_new_access_request.html')
         rendered = t.render(context)
         return rendered

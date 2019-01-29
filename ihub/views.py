@@ -1,25 +1,13 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
-from django.db.models import Value, TextField, Q
-from django.db.models.functions import Concat
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
-from django.template import Context, loader
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
-from easy_pdf.views import PDFTemplateView
-
-from accounts import models as accounts_models
-from collections import OrderedDict
-
-from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
@@ -30,32 +18,47 @@ from . import emails
 class CloserTemplateView(TemplateView):
     template_name = 'ihub/close_me.html'
 
+def not_in_ihub_group(user):
+    if user:
+        return user.groups.filter(name='ihub_access').count() != 0
 
-class IndexTemplateView(TemplateView):
+class iHubAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return not_in_ihub_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class IndexTemplateView(iHubAccessRequiredMixin, TemplateView):
     template_name = 'ihub/index.html'
 
 
 # ENTRY #
 #########
 
-class EntryListView(LoginRequiredMixin, FilterView):
-    login_url = '/accounts/login_required/'
+class EntryListView(iHubAccessRequiredMixin, FilterView):
     template_name = "ihub/entry_list.html"
     model = models.Entry
     filterset_class = filters.EntryFilter
 
 
-class EntryDetailView(LoginRequiredMixin, DetailView):
+class EntryDetailView(iHubAccessRequiredMixin, DetailView):
     model = models.Entry
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'title',
+            'organization',
+            'status',
             'sector',
             'entry_type',
-            'subject',
             'initial_date',
             'leads',
             'region',
@@ -74,18 +77,16 @@ class EntryDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class EntryUpdateView(LoginRequiredMixin, UpdateView):
+class EntryUpdateView(iHubAccessRequiredMixin, UpdateView):
     model = models.Entry
-    login_url = '/accounts/login_required/'
     form_class = forms.EntryForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class EntryCreateView(LoginRequiredMixin, CreateView):
+class EntryCreateView(iHubAccessRequiredMixin, CreateView):
     model = models.Entry
-    login_url = '/accounts/login_required/'
     form_class = forms.EntryCreateForm
 
     def form_valid(self, form):
@@ -109,9 +110,8 @@ class EntryCreateView(LoginRequiredMixin, CreateView):
         }
 
 
-class EntryDeleteView(LoginRequiredMixin, DeleteView):
+class EntryDeleteView(iHubAccessRequiredMixin, DeleteView):
     model = models.Entry
-    permission_required = "__all__"
     success_url = reverse_lazy('ihub:entry_list')
     success_message = _('The entry was successfully deleted!')
 
@@ -123,10 +123,9 @@ class EntryDeleteView(LoginRequiredMixin, DeleteView):
 # NOTES #
 #########
 
-class NoteCreateView(LoginRequiredMixin, CreateView):
+class NoteCreateView(iHubAccessRequiredMixin, CreateView):
     model = models.EntryNote
     template_name = 'ihub/note_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.NoteForm
 
     def get_initial(self):
@@ -147,7 +146,7 @@ class NoteCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
-class NoteUpdateView(LoginRequiredMixin, UpdateView):
+class NoteUpdateView(iHubAccessRequiredMixin, UpdateView):
     model = models.EntryNote
     template_name = 'ihub/note_form_popout.html'
     form_class = forms.NoteForm
@@ -163,235 +162,3 @@ def note_delete(request, pk):
     messages.success(request, _("The note has been successfully deleted from the entry."))
     return HttpResponseRedirect(reverse_lazy("ihub:entry_detail", kwargs={"pk": object.entry.id}))
 
-
-# # COLLABORATOR #
-# ################
-#
-# class CollaboratorCreateView(LoginRequiredMixin, CreateView):
-#     model = models.Collaborator
-#     template_name = 'projects/collaborator_form_popout.html'
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.CollaboratorForm
-#
-#     def get_initial(self):
-#         project = models.Project.objects.get(pk=self.kwargs['project'])
-#         return {
-#             'project': project,
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         project = models.Project.objects.get(id=self.kwargs['project'])
-#         context['project'] = project
-#         return context
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#
-# class CollaboratorUpdateView(LoginRequiredMixin, UpdateView):
-#     model = models.Collaborator
-#     template_name = 'projects/collaborator_form_popout.html'
-#     form_class = forms.CollaboratorForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#
-# def collaborator_delete(request, pk):
-#     object = models.Collaborator.objects.get(pk=pk)
-#     object.delete()
-#     messages.success(request, _("The collaborator has been successfully deleted from project."))
-#     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
-#
-#
-# # AGREEMENTS #
-# ##############
-#
-# class AgreementCreateView(LoginRequiredMixin, CreateView):
-#     model = models.CollaborativeAgreement
-#     template_name = 'projects/agreement_form_popout.html'
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.AgreementForm
-#
-#     def get_initial(self):
-#         project = models.Project.objects.get(pk=self.kwargs['project'])
-#         return {
-#             'project': project,
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         project = models.Project.objects.get(id=self.kwargs['project'])
-#         context['project'] = project
-#         return context
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#
-# class AgreementUpdateView(LoginRequiredMixin, UpdateView):
-#     model = models.CollaborativeAgreement
-#     template_name = 'projects/agreement_form_popout.html'
-#     form_class = forms.AgreementForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#
-# def agreement_delete(request, pk):
-#     object = models.CollaborativeAgreement.objects.get(pk=pk)
-#     object.delete()
-#     messages.success(request, _("The agreement has been successfully deleted."))
-#     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
-#
-#
-# # OM COSTS #
-# ############
-#
-# class OMCostCreateView(LoginRequiredMixin, CreateView):
-#     model = models.OMCost
-#     template_name = 'projects/cost_form_popout.html'
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.OMCostForm
-#
-#     def get_initial(self):
-#         project = models.Project.objects.get(pk=self.kwargs['project'])
-#         return {
-#             'project': project,
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         project = models.Project.objects.get(id=self.kwargs['project'])
-#         context['project'] = project
-#         context['cost_type'] = "O&M"
-#         return context
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#
-# class OMCostUpdateView(LoginRequiredMixin, UpdateView):
-#     model = models.OMCost
-#     template_name = 'projects/cost_form_popout.html'
-#     form_class = forms.OMCostForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['cost_type'] = _("O&M")
-#         return context
-#
-#
-# def om_cost_delete(request, pk):
-#     object = models.OMCost.objects.get(pk=pk)
-#     object.delete()
-#     messages.success(request, _("The cost has been successfully deleted."))
-#     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
-#
-#
-# # CAPITAL COSTS #
-# #################
-#
-# class CapitalCostCreateView(LoginRequiredMixin, CreateView):
-#     model = models.CapitalCost
-#     template_name = 'projects/cost_form_popout.html'
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.CapitalCostForm
-#
-#     def get_initial(self):
-#         project = models.Project.objects.get(pk=self.kwargs['project'])
-#         return {
-#             'project': project,
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         project = models.Project.objects.get(id=self.kwargs['project'])
-#         context['project'] = project
-#         context['cost_type'] = "Capital"
-#         return context
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#
-# class CapitalCostUpdateView(LoginRequiredMixin, UpdateView):
-#     model = models.CapitalCost
-#     template_name = 'projects/cost_form_popout.html'
-#     form_class = forms.CapitalCostForm
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['cost_type'] = "Capital"
-#         return context
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#
-# def capital_cost_delete(request, pk):
-#     object = models.CapitalCost.objects.get(pk=pk)
-#     object.delete()
-#     messages.success(request, _("The cost has been successfully deleted."))
-#     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
-#
-#
-# # GC COSTS #
-# ############
-#
-# class GCCostCreateView(LoginRequiredMixin, CreateView):
-#     model = models.GCCost
-#     template_name = 'projects/cost_form_popout.html'
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.GCCostForm
-#
-#     def get_initial(self):
-#         project = models.Project.objects.get(pk=self.kwargs['project'])
-#         return {
-#             'project': project,
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         project = models.Project.objects.get(id=self.kwargs['project'])
-#         context['project'] = project
-#         context['cost_type'] = "G&C"
-#         return context
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#
-# class GCCostUpdateView(LoginRequiredMixin, UpdateView):
-#     model = models.GCCost
-#     template_name = 'projects/cost_form_popout.html'
-#     form_class = forms.GCCostForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['cost_type'] = "G&C"
-#         return context
-#
-#
-# def gc_cost_delete(request, pk):
-#     object = models.GCCost.objects.get(pk=pk)
-#     object.delete()
-#     messages.success(request, _("The cost has been successfully deleted."))
-#     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))

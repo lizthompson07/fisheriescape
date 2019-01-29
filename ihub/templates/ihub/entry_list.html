@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load timedelta %}
 {% load i18n %}
+{% load nz %}
 
 {% block content %}
     {% load bootstrap4 %}
@@ -14,7 +15,10 @@
 
         table, td {
             font-size: 14px;
+
         }
+
+
     </style>
 
     <nav aria-label="breadcrumb">
@@ -42,8 +46,8 @@
                 {% endfor %}
                 <div class="col">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn-warning">
-                    <a href="{% url 'ihub:entry_new' %}" class="btn btn btn-primary float-right">
+                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                    <a href="{% url 'ihub:entry_new' %}" class="btn btn btn-primary btn-sm float-right">
                         {% trans "New Entry" %}
                     </a>
                 </div>
@@ -71,6 +75,9 @@
             <th scope="col">
                 {% trans "Created By" %}
             </th>
+            <th scope="col">
+                {% trans "Status" %}
+            </th>
 
             </tr>
             </thead>
@@ -83,11 +90,12 @@
                             {{ obj.title }}
                         </a>
                     </td>
-                    <td>{{ obj.entry_type }}</td>
+                    <td style="background-color: {{ obj.entry_type.color }}">{{ obj.entry_type }}</td>
                     <td>{{ obj.organization }}</td>
                     <td>{{ obj.sector }}</td>
                     <td>{{ obj.date_created|date:"F d, Y"}}</td>
                     <td>{{ obj.created_by.first_name}} {{ obj.created_by.last_name}}</td>
+                    <td style="background-color: {{ obj.status.color }}">{{ obj.status }}</td>
                 </tr>
             {% endfor %}
             </tbody>
