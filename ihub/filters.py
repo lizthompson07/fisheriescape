@@ -22,6 +22,7 @@ class EntryFilter(django_filters.FilterSet):
     class Meta:
         model = models.Entry
         fields = {
+            'status': ['exact'],
             'title': ['icontains'],
             'sector': ['exact'],
             'organization': ['exact'],

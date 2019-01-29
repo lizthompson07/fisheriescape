@@ -98,7 +98,9 @@
     </div>
 </nav>
 {# Display django.contrib.messages as Bootstrap alerts #}
-{% bootstrap_messages size='small' %}
+{% autoescape off %}
+    {% bootstrap_messages size='small' %}
+{% endautoescape %}
 
 {% block body %}{% endblock body %}
 
