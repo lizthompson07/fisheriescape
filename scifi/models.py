@@ -116,3 +116,6 @@ class Transaction(models.Model):
 
     def get_absolute_url(self):
         return reverse('scifi:trans_detail', kwargs={'pk': self.id})
+
+    class Meta:
+        ordering = ["-requisition_date", ]

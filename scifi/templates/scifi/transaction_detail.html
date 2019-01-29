@@ -56,7 +56,7 @@
                         {% verbose_field_display object field url=my_url %}
 
                     {% elif field == "project" %}
-                        {% url 'scifi:lo_detail' object.allotment_code.id as my_url %}
+                        {% url 'scifi:project_detail' object.project.id as my_url %}
                         {% verbose_field_display object field url=my_url %}
 
 
