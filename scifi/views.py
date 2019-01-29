@@ -22,6 +22,12 @@ def not_in_scifi_group(user):
     if user:
         return user.groups.filter(name='scifi_access').count() != 0
 
+
+def not_in_scifi_admin_group(user):
+    if user:
+        return user.groups.filter(name='scifi_admin').count() != 0
+
+
 class SciFiAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
@@ -33,6 +39,20 @@ class SciFiAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
+
+
+class SciFiAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return not_in_scifi_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
 
 
 class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
@@ -67,6 +87,18 @@ class AllotmentCodeDeleteView(SciFiAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class AllotmentCodeDetailView(SciFiAccessRequiredMixin, DetailView):
+    model = models.AllotmentCode
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'code',
+            'name',
+        ]
+        return context
+
+
 # BUSINESS LINE #
 #################
 
@@ -95,6 +127,17 @@ class BusinessLineDeleteView(SciFiAccessRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+class BusinessLineDetailView(SciFiAccessRequiredMixin, DetailView):
+    model = models.BusinessLine
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'code',
+            'name',
+        ]
+        return context
 
 # LINE OBJECT #
 ###############
@@ -129,6 +172,18 @@ class LineObjectDeleteView(SciFiAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class LineObjectDetailView(SciFiAccessRequiredMixin, DetailView):
+    model = models.LineObject
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'code',
+            'name_eng',
+            'description_eng',
+        ]
+        return context
+
 # RC #
 ######
 
@@ -158,6 +213,83 @@ class ResponsibilityCentreDeleteView(SciFiAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class ResponsibilityCentreDetailView(SciFiAccessRequiredMixin, DetailView):
+    model = models.ResponsibilityCenter
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'code',
+            'name',
+            'responsible_manager',
+        ]
+        return context
+
+
+# PROJECT #
+###########
+
+class ProjectListView(SciFiAccessRequiredMixin, FilterView):
+    filterset_class = filters.LineObjectFilter
+    template_name = 'scifi/project_list.html'
+    queryset = models.Project.objects.annotate(
+        search_term=Concat('code', 'name', 'description', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'name',
+            'code',
+            'description',
+            'project_lead',
+            'responsibility_center',
+            'default_allotment_code',
+            'default_business_line',
+            'default_line_object',
+        ]
+        return context
+
+
+class ProjectUpdateView(SciFiAccessRequiredMixin, UpdateView):
+    model = models.Project
+    form_class = forms.ProjectForm
+    success_url = reverse_lazy('scifi:project_list')
+
+
+class ProjectCreateView(SciFiAccessRequiredMixin, CreateView):
+    model = models.Project
+    form_class = forms.ProjectForm
+    success_url = reverse_lazy('scifi:project_list')
+
+
+class ProjectDeleteView(SciFiAccessRequiredMixin, DeleteView):
+    model = models.Project
+    success_url = reverse_lazy('scifi:project_list')
+    success_message = 'The project was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class ProjectDetailView(SciFiAccessRequiredMixin, DetailView):
+    model = models.ResponsibilityCenter
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'name',
+            'code',
+            'description',
+            'project_lead',
+            'responsibility_center',
+            'default_allotment_code',
+            'default_business_line',
+            'default_line_object',
+        ]
+        return context
+
+
 # TRANSACTION #
 ###############
 
@@ -167,6 +299,29 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
     # queryset = models.Transaction.objects.annotate(
     #     search_term=Concat('supplier_description', 'allotment_code__code', 'business_line__code', 'project__code', 'project__name', 'project__responsibility_center__code', output_field=TextField()))
     model = models.Transaction
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'fiscal_year',
+            'transaction_type',
+            'supplier_description',
+            'project.code',
+            'allotment_code.code',
+            'business_line.code',
+            'line_object.code',
+            'requisition_date',
+            'invoice_date',
+            'obligation_cost',
+            'invoice_cost',
+            'in_mrs',
+            'reference_number',
+            'amount_paid_in_mrs',
+            'mrs_notes',
+            'procurement_hub_contact',
+            'comment',
+        ]
+        return context
 
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
@@ -207,13 +362,11 @@ class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
 class TransactionUpdateView(SciFiAccessRequiredMixin, UpdateView):
     model = models.Transaction
     form_class = forms.TransactionForm
-    success_url = reverse_lazy('scifi:rc_list')
 
 
 class TransactionCreateView(SciFiAccessRequiredMixin, CreateView):
     model = models.Transaction
     form_class = forms.TransactionForm
-    success_url = reverse_lazy('scifi:rc_list')
 
 
 class TransactionDeleteView(SciFiAccessRequiredMixin, DeleteView):

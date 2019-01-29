@@ -34,6 +34,11 @@ class LineObjectFilter(django_filters.FilterSet):
                                             lookup_expr='icontains', widget=forms.TextInput())
 
 
+class ProjectFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search project (code, name...)",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+
+
 class TransactionFilter(django_filters.FilterSet):
     FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in
                   range(timezone.now().year - 2, timezone.now().year + 1)]
