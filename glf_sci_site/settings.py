@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'bootstrap4',
+    'el_pagination',
     'easy_pdf',
     'accounts',
     'dm_tickets',

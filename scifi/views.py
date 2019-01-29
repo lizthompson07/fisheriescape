@@ -296,24 +296,23 @@ class ProjectDetailView(SciFiAccessRequiredMixin, DetailView):
 class TransactionListView(SciFiAccessRequiredMixin, FilterView):
     template_name = 'scifi/transaction_list.html'
     filterset_class = filters.TransactionFilter
-    # queryset = models.Transaction.objects.annotate(
-    #     search_term=Concat('supplier_description', 'allotment_code__code', 'business_line__code', 'project__code', 'project__name', 'project__responsibility_center__code', output_field=TextField()))
     model = models.Transaction
+    # paginate_by = 15
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'fiscal_year',
             'transaction_type',
+            'requisition_date',
+            'obligation_cost',
             'supplier_description',
             'project.code',
+            'invoice_date',
+            'invoice_cost',
             'allotment_code.code',
             'business_line.code',
             'line_object.code',
-            'requisition_date',
-            'invoice_date',
-            'obligation_cost',
-            'invoice_cost',
             'in_mrs',
             'reference_number',
             'amount_paid_in_mrs',
@@ -321,6 +320,7 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
             'procurement_hub_contact',
             'comment',
         ]
+        context["my_object"] = self.model.objects.first()
         return context
 
     def get_filterset_kwargs(self, filterset_class):
