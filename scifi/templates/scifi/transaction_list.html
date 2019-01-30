@@ -72,7 +72,23 @@
                                         {% get_field_value object field %}
                                     {% endif %}
                                 </td>
+
                             {% endfor %}
+                            <td>
+
+                                <a href="{% url 'scifi:trans_edit' object.id %}">
+                                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
+                                         title="Edit">
+                                </a>
+                                <a class="delete-me" href="{% url 'scifi:trans_delete' object.id %}">
+                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                         title="Delete">
+                                </a>
+                                <a class="under-dev" href="#">
+                                    <img src="{% static "/img/iconfinder_copy_172587.svg" %}" data-toggle="tooltip"
+                                         title="Duplicate" style="width: 100%">
+                                </a>
+                            </td>
                         </tr>
                     {% endfor %}
 

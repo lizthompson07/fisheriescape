@@ -55,4 +55,11 @@ urlpatterns = [
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="trans_edit"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="trans_delete"),
 
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('report/account-summary/fiscal/<str:fiscal_year>/rc/<int:rc>/', views.AccountSummaryTemplateView.as_view(), name="report_rc"),
+    path('reports/master-spreadsheet/fiscal-year/<str:fiscal_year>/', views.master_spreadsheet, name="report_master"),
+
+
 ]

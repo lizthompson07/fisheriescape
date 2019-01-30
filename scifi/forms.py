@@ -1,5 +1,8 @@
 from django import forms
+from django.utils import timezone
+
 from . import models
+
 
 class ResponsibilityCentreForm(forms.ModelForm):
     class Meta:
@@ -24,6 +27,7 @@ class AllotmentCodeForm(forms.ModelForm):
         model = models.AllotmentCode
         fields = "__all__"
 
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = models.AllotmentCode
@@ -35,6 +39,24 @@ class TransactionForm(forms.ModelForm):
         model = models.Transaction
         exclude = ["fiscal_year", ]
         widgets = {
-            "requisition_date": forms.DateInput(attrs={"type":"date"}),
-            "invoice_date": forms.DateInput(attrs={"type":"date"})
+            "created_by": forms.HiddenInput(),
+            "requisition_date": forms.DateInput(attrs={"type": "date"}),
+            "invoice_date": forms.DateInput(attrs={"type": "date"})
         }
+
+
+class ReportSearchForm(forms.Form):
+    FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in
+                  range(timezone.now().year - 2, timezone.now().year + 1)]
+    RC_CHOICES = [(obj.id, obj) for obj in models.ResponsibilityCenter.objects.all()]
+    RC_CHOICES.insert(0, (None, "------"))
+
+    REPORT_CHOICES = [
+        (1, "Account Summary"),
+        (2, "Project Summary"),
+    ]
+    REPORT_CHOICES.insert(0, (None, "------"))
+
+    fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    rc = forms.ChoiceField(required=True, choices=RC_CHOICES, label="Responsibility centre")

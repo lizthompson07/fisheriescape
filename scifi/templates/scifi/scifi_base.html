@@ -33,54 +33,48 @@
 
 {% block left_auth %}
 
-      {# Settings #}
+    {# Settings #}
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
            aria-haspopup="true" aria-expanded="false">
             Settings
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="{% url 'scifi:allotment_list'  %}">Allotment Codes</a>
-            <a class="dropdown-item" href="{% url 'scifi:business_list'  %}">Business Lines</a>
-            <a class="dropdown-item" href="{% url 'scifi:lo_list'  %}">Line Objects</a>
-            <a class="dropdown-item" href="{% url 'scifi:rc_list'  %}">Responsibility Centres</a>
-            <a class="dropdown-item" href="{% url 'scifi:project_list'  %}">Projects</a>
+            <a class="dropdown-item" href="{% url 'scifi:allotment_list' %}">Allotment Codes</a>
+            <a class="dropdown-item" href="{% url 'scifi:business_list' %}">Business Lines</a>
+            <a class="dropdown-item" href="{% url 'scifi:lo_list' %}">Line Objects</a>
+            <a class="dropdown-item" href="{% url 'scifi:rc_list' %}">Responsibility Centres</a>
+            <a class="dropdown-item" href="{% url 'scifi:project_list' %}">Projects</a>
         </div>
     </li>
 
-       {# Transactions #}
+    {# Transactions #}
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
            aria-haspopup="true" aria-expanded="false">
             Transactions
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="{% url 'scifi:trans_list'  %}">List</a>
-            <a class="dropdown-item" href="{% url 'scifi:trans_new'  %}">New</a>
+            <a class="dropdown-item" href="{% url 'scifi:trans_list' %}">Search</a>
+            <a class="dropdown-item" href="{% url 'scifi:trans_new' %}">New</a>
         </div>
     </li>
 
-       {# Reports #}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-            Reports
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'scifi:report_search'  %}">
+            {% trans "Reports" %}
         </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="#">RC Open Balance</a>
-            <a class="dropdown-item" href="#">Detail by Project</a>
-            <a class="dropdown-item" href="#">Summary by RC</a>
-        </div>
     </li>
 
 
-{#    #}
-{#    <li class="nav-item"><a class="nav-link under-dev" href="#">#}
-{#        {% trans "Organizations" %}#}
-{#    </a></li>#}
-{#    <li class="nav-item"><a class="nav-link" href="#">#}
-{#        {% trans "New Entry" %}#}
-{#    </a></li>#}
+    {#    #}
+    {#    <li class="nav-item"><a class="nav-link under-dev" href="#">#}
+    {#        {% trans "Organizations" %}#}
+    {#    </a></li>#}
+    {#    <li class="nav-item"><a class="nav-link" href="#">#}
+    {#        {% trans "New Entry" %}#}
+    {#    </a></li>#}
 
     {#  {% for group in user.groups.all %}#}
     {#    {% if group.name == "inventory_section_head"   %}#}

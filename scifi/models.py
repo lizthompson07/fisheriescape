@@ -72,11 +72,11 @@ class Project(models.Model):
 
 class Transaction(models.Model):
     # Choices for tranaction_type
-    ALLOCATION = 1
-    ADJUSTMENT = 2
+    EXPENDITURE = 1
+    INCOME = 2
     TYPE_CHOICES = (
-        (ALLOCATION, 'Allocation'),
-        (ADJUSTMENT, 'Adjustment'),
+        (EXPENDITURE, 'Expenditure'),
+        (INCOME, 'Income'),
     )
 
     transaction_type = models.IntegerField(default=1, choices=TYPE_CHOICES)
@@ -103,6 +103,7 @@ class Transaction(models.Model):
     procurement_hub_contact = models.CharField(max_length=500, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
     fiscal_year = models.CharField(blank=True, null=True, max_length=25)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return "{}".format(self.supplier_description)
