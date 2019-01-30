@@ -5,4 +5,4 @@ register = template.Library()
 
 @register.filter
 def divide(value, arg):
-    return value/arg
+    return float(value)/float(arg)

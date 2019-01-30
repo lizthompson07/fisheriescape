@@ -37,7 +37,7 @@ class ProjectForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = models.Transaction
-        exclude = ["fiscal_year", ]
+        exclude = ["fiscal_year", "outstanding_obligation"]
         widgets = {
             "created_by": forms.HiddenInput(),
             "requisition_date": forms.DateInput(attrs={"type": "date"}),

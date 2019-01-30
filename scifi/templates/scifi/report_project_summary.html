@@ -1,0 +1,143 @@
+{% extends "scifi/scifi_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load lookup %}
+{% load i18n %}
+{% load humanize %}
+{% load subtract %}
+{% load add %}
+{% block content %}
+
+    <style>
+        table, td, th {
+            font-size: small;
+        }
+
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'scifi:report_search' %}">Report Search</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'scifi:report_rc' fiscal_year rc.id %}">Account Summary
+                for {{ rc.code }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ project }} Transactions {{ fiscal_year }}</li>
+        </ol>
+    </nav>
+
+    <div class="indent-med">
+        <h1>{{ project }} - FY {{ fiscal_year }}</h1>
+
+        <h3>Summary:</h3>
+        <table class="table table-sm table-hover table-bordered" style="width: 30%;">
+            <tbody>
+            <tr>
+                <th>Total allocations</th>
+                <td>$ {{ my_dict|lookup:"allocations"|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <th>Total adjustments</th>
+                <td>$ {{ my_dict|lookup:"adjustments"|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <th>Total outstanding obligations</th>
+                <td>$ {{ my_dict|lookup:"obligations"|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <th>Total expenditures</th>
+                <td>$ {{ my_dict|lookup:"expenditures"|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <th>Total unofficial free balance</th>
+                {% with my_dict|lookup:"allocations" as allocations %}
+                    {% with my_dict|lookup:"adjustments" as adjustments %}
+                        {% with my_dict|lookup:"expenditures" as expenditures %}
+                            {% with my_dict|lookup:"obligations" as obligations %}
+                                {% add allocations adjustments as income %}
+                                {% add obligations expenditures as outgoing %}
+                                {% with income|subtract:outgoing as balance %}
+                                    {% if balance > 0 %}
+                                        <td class="good">
+                                            {% elif balance < 0 %}
+                                        <td class="bad">
+                                            {% else %}
+                                        <td>
+                                    {% endif %}
+                                $ {{ balance|floatformat:2|intcomma }}
+                                </td>
+                                {% endwith %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endwith %}
+                {% endwith %}
+            </tr>
+            </tbody>
+        </table>
+
+        <br>
+        <table class="table table-sm table-hover table-bordered" style="width: 85%">
+            <thead>
+            <tr>
+                {% for field in field_list %}
+                    {% if field == "fiscal_year" or field == "invoice_date" %}
+                        <th scope="col" style="width: 100px;">{% get_verbose_label my_object field %}</th>
+                    {% elif field == "project.code" %}
+                        <th>Project code</th>
+                    {% else %}
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr>
+
+                    {% for field in field_list %}
+                        <td>
+
+                            {% if field == "outstanding_obligation" %}
+                                {% get_field_value object field as val %}
+                                {% if val == 0 %}
+                                    ${{ val|floatformat:2|intcomma }}
+                                {% elif val < 0 %}
+                                    <span class="concern"
+                                          style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                {% else %}
+                                    <span class="highlight"
+                                          style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                {% endif %}
+                            {% elif field == "obligation_cost" or field == "invoice_cost" %}
+                                {% get_field_value object field as val %}
+                                {% if object.transaction_type == 1 %}
+                                    <span class="red-font"
+                                          style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                {% elif object.transaction_type == 2 %}
+                                    <span class="blue-font"
+                                          style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                {% else %}
+                                    <span class="green-font"
+                                          style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                {% endif %}
+
+                            {% elif field == "amount_paid_in_mrs" %}
+                                {% get_field_value object field format="currency" %}
+                            {% else %}
+                                {% get_field_value object field %}
+                            {% endif %}
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+            {% endfor %}
+
+            <br>
+            </tbody>
+        </table>
+
+    </div>
+
+
+{% endblock content %}
