@@ -27,68 +27,68 @@
 
     <div class="indent-med">
 
-        <h1 class="big-header">Transactions </h1>
+        <h1>Transactions </h1>
 
-
-        <form class="form" action="." method="get">
-            <div class="row">
-                {% for field in filter.form %}
-                    <div class="col">
-                        {% bootstrap_field field placeholder="" size="small" %}
+        <div class="row">
+            <div class="col=10">
+                <form class="form" action="." method="get">
+                    <div class="row">
+                        {% for field in filter.form %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" size="small" %}
+                            </div>
+                        {% endfor %}
+                        <div class="col-2">
+                            <br>
+                            <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                            <a href="." class="btn btn-sm btn-info">Clear</a>
+                        </div>
                     </div>
-                {% endfor %}
-                <div class="col-2">
-                    <br>
-                    <input type="submit" value="Filter" class="btn btn btn-warning">
-                    <a href="{% url 'scifi:trans_new' %}" class="btn btn-success">New</a><br>
-                </div>
+                </form>
             </div>
-        </form>
-
-
+        </div>
         <div class="row">
             <div class="col-12">
                 Total transactions = {{ object_list.count }}<br><br>
-                {% paginate filter.qs as filter_list %}
+                {% paginate 40 filter.qs as filter_list %}
                 {% show_pages %} (ordered by requisition date)
+                <div class="float-right" style="padding-bottom: 10px">
+                    <a href="{% url 'scifi:trans_new' %}" class="btn btn-sm btn-primary">New Transaction</a>
+                </div>
                 <table class="table table-sm table-hover table-bordered">
                     <thead>
                     <tr>
+                        <th></th>
                         {% for field in field_list %}
-                            <th scope="col" style="width: 100px">{% get_verbose_label my_object field %}</th>
+                            {% if field == "fiscal_year" or field == "invoice_date" %}
+                                <th scope="col" style="width: 80px;" >{% get_verbose_label my_object field %}</th>
+                            {% elif field == "project.code" %}
+                                <th>Project code</th>
+                            {% else %}
+                                <th scope="col" >{% get_verbose_label my_object field %}</th>
+                            {% endif %}
                         {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
                     {% for object in filter_list %}
                         <tr>
+                            <td>
+                                <a href="{% url 'scifi:trans_detail' object.id %}">
+                                    (view)
+                                </a>
+                            </td>
                             {% for field in field_list %}
                                 <td>
                                     {% if field == "obligation_cost" or field == "invoice_cost" or field == "amount_paid_in_mrs" %}
                                         {% get_field_value object field format="currency" %}
-                                    {% elif field == "supplier_description" %}
-                                        <a href="{% url 'scifi:trans_detail' object.id %}">{% get_field_value object field format="currency" %}</a>
                                     {% else %}
                                         {% get_field_value object field %}
                                     {% endif %}
                                 </td>
 
                             {% endfor %}
-                            <td>
 
-                                <a href="{% url 'scifi:trans_edit' object.id %}">
-                                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                                         title="Edit">
-                                </a>
-                                <a class="delete-me" href="{% url 'scifi:trans_delete' object.id %}">
-                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                         title="Delete">
-                                </a>
-                                <a class="under-dev" href="#">
-                                    <img src="{% static "/img/iconfinder_copy_172587.svg" %}" data-toggle="tooltip"
-                                         title="Duplicate" style="width: 100%">
-                                </a>
-                            </td>
                         </tr>
                     {% endfor %}
 

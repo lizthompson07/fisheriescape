@@ -47,7 +47,7 @@ def get_field_value(instance, field_name, format=None, display_time=False):
         try:
             field_value = getattr(getattr(instance, field_name), arg)
         except:
-            field_value = "n/a"
+            field_value = ""
 
     else:
         field_instance = instance._meta.get_field(field_name)

@@ -309,13 +309,13 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'fiscal_year',
+            'creation_date',
             'transaction_type',
-            'requisition_date',
             'obligation_cost',
+            'invoice_cost',
+            'invoice_date',
             'supplier_description',
             'project.code',
-            'invoice_date',
-            'invoice_cost',
             'allotment_code.code',
             'business_line.code',
             'line_object.code',
@@ -344,23 +344,24 @@ class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'fiscal_year',
+            'creation_date',
             'transaction_type',
+            'obligation_cost',
+            'invoice_cost',
+            'invoice_date',
             'supplier_description',
             'project',
             'allotment_code',
             'business_line',
             'line_object',
-            'requisition_date',
-            'invoice_date',
-            'obligation_cost',
-            'invoice_cost',
             'in_mrs',
             'reference_number',
             'amount_paid_in_mrs',
             'mrs_notes',
             'procurement_hub_contact',
             'comment',
-            'fiscal_year',
+            'created_by',
         ]
         return context
 
