@@ -30,7 +30,7 @@ class AllotmentCodeForm(forms.ModelForm):
 
 class ProjectForm(forms.ModelForm):
     class Meta:
-        model = models.AllotmentCode
+        model = models.Project
         fields = "__all__"
 
 

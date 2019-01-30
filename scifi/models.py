@@ -52,7 +52,7 @@ class ResponsibilityCenter(models.Model):
         return "{} ({})".format(self.code, self.name)
 
     class Meta:
-        ordering = ['code',]
+        ordering = ['code', ]
 
 
 class Project(models.Model):
@@ -72,37 +72,35 @@ class Project(models.Model):
 
 class Transaction(models.Model):
     # Choices for tranaction_type
-    EXPENDITURE = 1
-    INCOME = 2
+    EXP= 1
+    ADJ = 2
+    INIT = 3
     TYPE_CHOICES = (
-        (EXPENDITURE, 'Expenditure'),
-        (INCOME, 'Income'),
+        (EXP, 'Expenditure'),
+        (ADJ, 'Adjustment'),
+        (INIT, 'Initial allocation'),
     )
 
+    fiscal_year = models.CharField(blank=True, null=True, max_length=25)
+    creation_date = models.DateTimeField(blank=True, null=True)
     transaction_type = models.IntegerField(default=1, choices=TYPE_CHOICES)
+    obligation_cost = models.FloatField(blank=True, null=True)
+    invoice_cost = models.FloatField(blank=True, null=True)
+    invoice_date = models.DateTimeField(blank=True, null=True)
     supplier_description = models.CharField(max_length=1000, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions")
-
-    # should be defaulted once a project is selected
     allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
                                        related_name='transactions')
-    # should be defaulted once a project is selected
     business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       related_name='transactions')
-    # should be defaulted once a project is selected
     line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       related_name='transactions')
-    requisition_date = models.DateTimeField(blank=True, null=True)
-    obligation_cost = models.FloatField(blank=True, null=True)
-    invoice_date = models.DateTimeField(blank=True, null=True)
-    invoice_cost = models.FloatField(blank=True, null=True)
     in_mrs = models.BooleanField(default=True, verbose_name="In MRS", choices=YES_NO_CHOICES)
     reference_number = models.CharField(max_length=50, blank=True, null=True)
     amount_paid_in_mrs = models.FloatField(blank=True, null=True, verbose_name="amount paid in MRS")
     mrs_notes = models.CharField(blank=True, null=True, max_length=100, verbose_name="MRS notes")
     procurement_hub_contact = models.CharField(max_length=500, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
-    fiscal_year = models.CharField(blank=True, null=True, max_length=25)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
@@ -111,12 +109,12 @@ class Transaction(models.Model):
     def save(self, *args, **kwargs):
         if self.invoice_date:
             self.fiscal_year = fiscal_year(date=self.invoice_date)
-        elif self.requisition_date:
-            self.fiscal_year = fiscal_year(date=self.requisition_date)
+        elif self.creation_date:
+            self.fiscal_year = fiscal_year(date=self.creation_date)
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('scifi:trans_detail', kwargs={'pk': self.id})
 
     class Meta:
-        ordering = ["-requisition_date", ]
+        ordering = ["creation_date", ]
