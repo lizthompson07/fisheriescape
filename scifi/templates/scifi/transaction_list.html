@@ -4,6 +4,7 @@
 {% load nz %}
 {% load verbose_names %}
 {% load el_pagination_tags %}
+{% load humanize %}
 {% block content %}
 
 
@@ -51,7 +52,7 @@
             <div class="col-12">
                 Total transactions = {{ object_list.count }}<br><br>
                 {% paginate 40 filter.qs as filter_list %}
-                {% show_pages %} (ordered by requisition date)
+                {% show_pages %} <b><em>(ordered by creation date)</em></b>
                 <div class="float-right" style="padding-bottom: 10px">
                     <a href="{% url 'scifi:trans_new' %}" class="btn btn-sm btn-primary">New Transaction</a>
                 </div>
@@ -61,11 +62,11 @@
                         <th></th>
                         {% for field in field_list %}
                             {% if field == "fiscal_year" or field == "invoice_date" %}
-                                <th scope="col" style="width: 80px;" >{% get_verbose_label my_object field %}</th>
+                                <th scope="col" style="width: 80px;">{% get_verbose_label my_object field %}</th>
                             {% elif field == "project.code" %}
                                 <th>Project code</th>
                             {% else %}
-                                <th scope="col" >{% get_verbose_label my_object field %}</th>
+                                <th scope="col">{% get_verbose_label my_object field %}</th>
                             {% endif %}
                         {% endfor %}
                     </tr>
@@ -80,15 +81,39 @@
                             </td>
                             {% for field in field_list %}
                                 <td>
-                                    {% if field == "obligation_cost" or field == "invoice_cost" or field == "amount_paid_in_mrs" %}
+                                    {% if field == "outstanding_obligation" %}
+                                        {% get_field_value object field as val %}
+                                        {% if val == 0 %}
+                                            ${{ val|floatformat:2|intcomma }}
+                                        {% elif val < 0 %}
+                                            <span class="concern"
+                                                  style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                        {% else %}
+                                            <span class="highlight"
+                                                  style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                        {% endif %}
+                                    {% elif field == "obligation_cost" or field == "invoice_cost" %}
+                                        {% get_field_value object field as val %}
+                                        {% if object.transaction_type == 1 %}
+                                            <span class="red-font"
+                                                  style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                        {% elif object.transaction_type == 2 %}
+                                            <span class="blue-font"
+                                                  style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                        {% else %}
+                                            <span class="green-font"
+                                                  style="font-weight: bold">${{ val|floatformat:2|intcomma }}</span>
+                                        {% endif %}
+
+
+                                    {% elif field == "amount_paid_in_mrs" %}
                                         {% get_field_value object field format="currency" %}
                                     {% else %}
                                         {% get_field_value object field %}
                                     {% endif %}
+
                                 </td>
-
                             {% endfor %}
-
                         </tr>
                     {% endfor %}
 

@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from lib.functions.fiscal_year import fiscal_year
+from lib.functions.nz import nz
 
 YES_NO_CHOICES = (
     (True, "Yes"),
@@ -69,10 +70,12 @@ class Project(models.Model):
     def __str__(self):
         return "{}".format(self.name)
 
+    class Meta:
+        ordering = ['code', ]
 
 class Transaction(models.Model):
     # Choices for tranaction_type
-    EXP= 1
+    EXP = 1
     ADJ = 2
     INIT = 3
     TYPE_CHOICES = (
@@ -85,6 +88,7 @@ class Transaction(models.Model):
     creation_date = models.DateTimeField(blank=True, null=True)
     transaction_type = models.IntegerField(default=1, choices=TYPE_CHOICES)
     obligation_cost = models.FloatField(blank=True, null=True)
+    outstanding_obligation = models.FloatField(blank=True, null=True)
     invoice_cost = models.FloatField(blank=True, null=True)
     invoice_date = models.DateTimeField(blank=True, null=True)
     supplier_description = models.CharField(max_length=1000, blank=True, null=True)
@@ -111,6 +115,11 @@ class Transaction(models.Model):
             self.fiscal_year = fiscal_year(date=self.invoice_date)
         elif self.creation_date:
             self.fiscal_year = fiscal_year(date=self.creation_date)
+
+        if self.obligation_cost:
+            self.outstanding_obligation = self.obligation_cost - nz(self.invoice_cost, 0)
+        else:
+            self.outstanding_obligation = 0
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
