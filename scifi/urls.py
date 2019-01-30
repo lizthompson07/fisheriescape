@@ -59,6 +59,7 @@ urlpatterns = [
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     path('report/account-summary/fiscal/<str:fiscal_year>/rc/<int:rc>/', views.AccountSummaryTemplateView.as_view(), name="report_rc"),
+    path('report/project-summary/fiscal/<str:fiscal_year>/rc/<int:rc>/project/<int:project>/', views.ProjectSummaryListView.as_view(), name="report_project"),
     path('reports/master-spreadsheet/fiscal-year/<str:fiscal_year>/', views.master_spreadsheet, name="report_master"),
 
 
