@@ -50,3 +50,4 @@ class TransactionFilter(django_filters.FilterSet):
     project_code = django_filters.CharFilter(field_name='project__code', lookup_expr='icontains', label="Project code")
     responsibility_center = django_filters.ChoiceFilter(field_name='project__responsibility_center',
                                                         lookup_expr='exact', choices=RC_CHOICES, label="Responsibility center")
+    ref_num = django_filters.CharFilter(field_name='reference_number', lookup_expr='icontains', label="Ref. num.")
