@@ -403,7 +403,7 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
         # default the year to the year of the latest samples
         return {
             "fiscal_year": fiscal_year(),
-            "report": 1,
+            # "report": 1,
         }
 
     def get_context_data(self, **kwargs):
@@ -420,6 +420,13 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
 
         if report == 1:
             return HttpResponseRedirect(reverse("scifi:report_branch", kwargs={'fiscal_year': fiscal_year}))
+        elif report == 2:
+            return HttpResponseRedirect(reverse("scifi:report_rc", kwargs={'fiscal_year': fiscal_year, "rc": rc}))
+        # elif report == 3:
+        #     return HttpResponseRedirect(reverse("scifi:report_branch", kwargs={'fiscal_year': fiscal_year}))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("scifi:report_search"))
 
 
 class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
@@ -430,8 +437,10 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         fiscal_year = self.kwargs['fiscal_year']
         context["fiscal_year"] = fiscal_year
 
-        rc_list = [models.ResponsibilityCenter.objects.get(pk=rc["project__responsibility_center"]) for rc in models.Transaction.objects.filter(fiscal_year=fiscal_year).values(
-                        "project__responsibility_center").order_by("project__responsibility_center").distinct() if rc["project__responsibility_center"] is not None]
+        rc_list = [models.ResponsibilityCenter.objects.get(pk=rc["project__responsibility_center"]) for rc in
+                   models.Transaction.objects.filter(fiscal_year=fiscal_year).values(
+                       "project__responsibility_center").order_by("project__responsibility_center").distinct() if
+                   rc["project__responsibility_center"] is not None]
 
         context["rc_list"] = rc_list
 
@@ -448,7 +457,8 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             # rc allocation
             try:
                 rc_allocations = \
-                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(fiscal_year=fiscal_year).filter(
+                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(
+                        fiscal_year=fiscal_year).filter(
                         transaction_type=3).values(
                         "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
             except TypeError:
@@ -461,7 +471,8 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             # rc adjustments
             try:
                 rc_adjustments = \
-                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(fiscal_year=fiscal_year).filter(
+                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(
+                        fiscal_year=fiscal_year).filter(
                         transaction_type=2).values(
                         "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
             except TypeError:
@@ -474,7 +485,8 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             # rc obligations
             try:
                 rc_obligations = \
-                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(fiscal_year=fiscal_year).filter(
+                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(
+                        fiscal_year=fiscal_year).filter(
                         transaction_type=1).values(
                         "project").order_by("project").distinct().annotate(dsum=Sum("outstanding_obligation")).first()[
                         "dsum"]
@@ -488,7 +500,8 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             # rc expenditures
             try:
                 rc_expenditures = \
-                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(fiscal_year=fiscal_year).filter(
+                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(
+                        fiscal_year=fiscal_year).filter(
                         transaction_type=1).values(
                         "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
             except TypeError:
@@ -507,9 +520,8 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         return context
 
 
-
 class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
-    template_name = 'scifi/report_account_summary.html'
+    template_name = 'scifi/report_rc_summary.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -595,18 +607,14 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
     template_name = 'scifi/report_project_summary.html'
 
     def get_queryset(self, **kwargs):
-        qs = models.Transaction.objects.filter(project__responsibility_center_id=self.kwargs["rc"]).filter(
-            project_id=self.kwargs["project"]).filter(fiscal_year=self.kwargs["fiscal_year"])
+        qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(fiscal_year=self.kwargs["fiscal_year"])
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Transaction.objects.first()
-        fiscal_year = self.kwargs['fiscal_year']
-        context["fiscal_year"] = fiscal_year
-
-        rc = models.ResponsibilityCenter.objects.get(pk=self.kwargs['rc'])
-        context["rc"] = rc
+        fy = self.kwargs['fiscal_year']
+        context["fiscal_year"] = fy
 
         project = models.Project.objects.get(pk=self.kwargs['project'])
         context["project"] = project
@@ -623,13 +631,13 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
 
         # will have to make a custom dictionary to send in
         my_dict = {}
-        qs = models.Transaction.objects.filter(project__responsibility_center_id=self.kwargs["rc"]).filter(
-            project_id=self.kwargs["project"]).filter(fiscal_year=self.kwargs["fiscal_year"])
+        qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(fiscal_year=fy)
 
         # allocations
         try:
             project_allocations = \
-                qs.filter(transaction_type=3).values("project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                qs.filter(transaction_type=3).values("project").order_by("project").distinct().annotate(
+                    dsum=Sum("invoice_cost")).first()["dsum"]
         except TypeError:
             project_allocations = 0
 
@@ -638,7 +646,8 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         # adjustments
         try:
             project_adjustments = \
-                qs.filter(transaction_type=2).values("project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                qs.filter(transaction_type=2).values("project").order_by("project").distinct().annotate(
+                    dsum=Sum("invoice_cost")).first()["dsum"]
         except TypeError:
             project_adjustments = 0
 
@@ -648,7 +657,8 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         try:
             project_obligations = \
                 qs.filter(
-                    transaction_type=1).values("project").order_by("project").distinct().annotate(dsum=Sum("outstanding_obligation")).first()["dsum"]
+                    transaction_type=1).values("project").order_by("project").distinct().annotate(
+                    dsum=Sum("outstanding_obligation")).first()["dsum"]
         except TypeError:
             project_obligations = 0
 
@@ -657,7 +667,8 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         #  expenditures
         try:
             project_expenditures = \
-                qs.filter(transaction_type=1).values("project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                qs.filter(transaction_type=1).values("project").order_by("project").distinct().annotate(
+                    dsum=Sum("invoice_cost")).first()["dsum"]
         except TypeError:
             project_expenditures = 0
 

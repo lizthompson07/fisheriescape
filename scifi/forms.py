@@ -50,14 +50,16 @@ class ReportSearchForm(forms.Form):
                   range(timezone.now().year - 2, timezone.now().year + 1)]
     RC_CHOICES = [(obj.id, obj) for obj in models.ResponsibilityCenter.objects.all()]
     RC_CHOICES.insert(0, (None, "------"))
-
+    PROJECT_CHOICES = [(obj.id, "{} - {}".format(obj.code, obj.name)) for obj in models.Project.objects.all()]
+    PROJECT_CHOICES.insert(0, (None, "------"))
     REPORT_CHOICES = [
         (1, "Branch Summary"),
-        (2, "Account Summary"),
+        (2, "RC Summary"),
         (3, "Project Summary"),
     ]
     REPORT_CHOICES.insert(0, (None, "------"))
 
-    fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)
     rc = forms.ChoiceField(required=False, choices=RC_CHOICES, label="Responsibility centre")
+    project = forms.ChoiceField(required=False, choices=PROJECT_CHOICES, label="Project")
