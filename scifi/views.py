@@ -374,6 +374,32 @@ class TransactionUpdateView(SciFiAccessRequiredMixin, UpdateView):
     model = models.Transaction
     form_class = forms.TransactionForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get lists
+        rc_list = ['<a href="#" class="rc_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.ResponsibilityCenter.objects.all()]
+        context['rc_list'] = rc_list
+
+        bl_list = ['<a href="#" class="bl_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.BusinessLine.objects.all()]
+        context['bl_list'] = bl_list
+
+        ac_list = ['<a href="#" class="ac_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.AllotmentCode.objects.all()]
+        context['ac_list'] = ac_list
+
+        lo_list = ['<a href="#" class="lo_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.LineObject.objects.all()]
+        context['lo_list'] = lo_list
+
+        project_list = ['<a href="#" class="project_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for
+                        obj in
+                        models.Project.objects.all()]
+        context['project_list'] = project_list
+
+        return context
 
 class TransactionCreateView(SciFiAccessRequiredMixin, CreateView):
     model = models.Transaction
@@ -382,6 +408,31 @@ class TransactionCreateView(SciFiAccessRequiredMixin, CreateView):
     def get_initial(self):
         return {'created_by': self.request.user}
 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get lists
+        rc_list = ['<a href="#" class="rc_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in models.ResponsibilityCenter.objects.all()]
+        context['rc_list'] = rc_list
+
+        bl_list = ['<a href="#" class="bl_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.BusinessLine.objects.all()]
+        context['bl_list'] = bl_list
+
+        ac_list = ['<a href="#" class="ac_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.AllotmentCode.objects.all()]
+        context['ac_list'] = ac_list
+
+        lo_list = ['<a href="#" class="lo_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.LineObject.objects.all()]
+        context['lo_list'] = lo_list
+
+        project_list = ['<a href="#" class="project_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.Project.objects.all()]
+        context['project_list'] = project_list
+
+        return context
 
 class TransactionDeleteView(SciFiAccessRequiredMixin, DeleteView):
     model = models.Transaction
