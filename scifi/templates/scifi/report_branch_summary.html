@@ -1,0 +1,129 @@
+{% extends "scifi/scifi_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load lookup %}
+{% load i18n %}
+{% load humanize %}
+{% load subtract %}
+{% load add %}
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+    </style>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'scifi:report_search' %}">Report Search</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Report: Account Summary</li>
+        </ol>
+    </nav>
+    <div class="indent-med">
+        <h1>Branch Summary - FY {{ fiscal_year }}</h1>
+        <br>
+        <h3>Summary:</h3>
+        <table class="table table-sm table-hover table-bordered" style="width: 30%;">
+            <tbody>
+            <tr>
+                <th>Total allocations</th>
+                <td>$ {{ my_dict|lookup:"total_allocations"|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <th>Total adjustments</th>
+                <td>$ {{ my_dict|lookup:"total_adjustments"|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <th>Total outstanding obligations</th>
+                <td>$ {{ my_dict|lookup:"total_obligations"|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <th>Total expenditures</th>
+                <td>$ {{ my_dict|lookup:"total_expenditures"|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <th>Total unofficial free balance</th>
+                {% with my_dict|lookup:"total_allocations" as allocations %}
+                    {% with my_dict|lookup:"total_adjustments" as adjustments %}
+                        {% with my_dict|lookup:"total_expenditures" as expenditures %}
+                            {% with my_dict|lookup:"total_obligations" as obligations %}
+                                {% add allocations adjustments as income %}
+                                {% add obligations expenditures as outgoing %}
+                                {% with income|subtract:outgoing as balance %}
+                                    {% if balance > 0 %}
+                                        <td class="good">
+                                            {% elif balance < 0 %}
+                                        <td class="bad">
+                                            {% else %}
+                                        <td>
+                                    {% endif %}
+                                $ {{ balance|floatformat:2|intcomma }}
+                                </td>
+                                {% endwith %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endwith %}
+                {% endwith %}
+            </tr>
+            </tbody>
+        </table>
+
+        <br>
+        <h3>Responsibility Centers:</h3>
+        <table class="table table-sm table-hover table-bordered" style="width: 75%;">
+            <thead>
+            <th>RC Code</th>
+            <th>RC Name</th>
+            <th>Allocations</th>
+            <th>Adjustments</th>
+            <th>Outstanding Obligations</th>
+            <th>Expenditures</th>
+            <th>Free Balance</th>
+            </thead>
+            <tbody>
+            {% for rc in rc_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'scifi:report_rc' fiscal_year rc.id %}">
+                            {{ rc.code }}
+                        </a>
+                    </td>
+                    <td>{{ rc.name }}</td>
+                    <td>$ {{ my_dict|lookup:rc.code|lookup:"allocations"|floatformat:2|intcomma }}</td>
+                    <td>$ {{ my_dict|lookup:rc.code|lookup:"adjustments"|floatformat:2|intcomma }}</td>
+                    <td>$ {{ my_dict|lookup:rc.code|lookup:"obligations"|floatformat:2|intcomma }}</td>
+                    <td>$ {{ my_dict|lookup:rc.code|lookup:"expenditures"|floatformat:2|intcomma }}</td>
+                    {% with my_dict|lookup:rc.code|lookup:"allocations" as allocations %}
+                        {% with my_dict|lookup:rc.code|lookup:"adjustments" as adjustments %}
+                            {% with my_dict|lookup:rc.code|lookup:"expenditures" as expenditures %}
+                                {% with my_dict|lookup:rc.code|lookup:"obligations" as obligations %}
+                                    {% add allocations adjustments as income %}
+                                    {% add obligations expenditures as outgoing %}
+                                    {% with income|subtract:outgoing as balance %}
+                                        {% if balance > 0 %}
+                                            <td class="good">
+                                                {% elif balance < 0 %}
+                                            <td class="bad">
+                                                {% else %}
+                                            <td>
+                                        {% endif %}
+                                    $ {{ balance|floatformat:2|intcomma }}
+                                    </td>
+                                    {% endwith %}
+                                {% endwith %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endwith %}
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+
+
+{% endblock content %}

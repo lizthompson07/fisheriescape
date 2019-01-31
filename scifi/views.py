@@ -401,7 +401,10 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
 
     def get_initial(self):
         # default the year to the year of the latest samples
-        return {"fiscal_year": fiscal_year()}
+        return {
+            "fiscal_year": fiscal_year(),
+            "report": 1,
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -410,10 +413,99 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
     def form_valid(self, form):
         fiscal_year = str(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
-        rc = int(form.cleaned_data["rc"])
+        try:
+            rc = int(form.cleaned_data["rc"])
+        except ValueError:
+            rc = None
 
         if report == 1:
-            return HttpResponseRedirect(reverse("scifi:report_rc", kwargs={'fiscal_year': fiscal_year, "rc": rc}))
+            return HttpResponseRedirect(reverse("scifi:report_branch", kwargs={'fiscal_year': fiscal_year}))
+
+
+class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
+    template_name = 'scifi/report_branch_summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fiscal_year = self.kwargs['fiscal_year']
+        context["fiscal_year"] = fiscal_year
+
+        rc_list = [models.ResponsibilityCenter.objects.get(pk=rc["project__responsibility_center"]) for rc in models.Transaction.objects.filter(fiscal_year=fiscal_year).values(
+                        "project__responsibility_center").order_by("project__responsibility_center").distinct() if rc["project__responsibility_center"] is not None]
+
+        context["rc_list"] = rc_list
+
+        # will have to make a custom dictionary to send in
+        my_dict = {}
+        total_obligations = 0
+        total_expenditures = 0
+        total_allocations = 0
+        total_adjustments = 0
+
+        for rc in rc_list:
+            my_dict[rc.code] = {}
+
+            # rc allocation
+            try:
+                rc_allocations = \
+                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(fiscal_year=fiscal_year).filter(
+                        transaction_type=3).values(
+                        "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+            except TypeError:
+                rc_allocations = 0
+
+            my_dict[rc.code]["allocations"] = rc_allocations
+            # total allocations
+            total_allocations += rc_allocations
+
+            # rc adjustments
+            try:
+                rc_adjustments = \
+                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(fiscal_year=fiscal_year).filter(
+                        transaction_type=2).values(
+                        "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+            except TypeError:
+                rc_adjustments = 0
+
+            my_dict[rc.code]["adjustments"] = rc_adjustments
+            # total allocations
+            total_adjustments += rc_adjustments
+
+            # rc obligations
+            try:
+                rc_obligations = \
+                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(fiscal_year=fiscal_year).filter(
+                        transaction_type=1).values(
+                        "project").order_by("project").distinct().annotate(dsum=Sum("outstanding_obligation")).first()[
+                        "dsum"]
+            except TypeError:
+                rc_obligations = 0
+
+            my_dict[rc.code]["obligations"] = rc_obligations
+            # total obligations
+            total_obligations += rc_obligations
+
+            # rc expenditures
+            try:
+                rc_expenditures = \
+                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(fiscal_year=fiscal_year).filter(
+                        transaction_type=1).values(
+                        "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+            except TypeError:
+                rc_expenditures = 0
+
+            my_dict[rc.code]["expenditures"] = rc_expenditures
+            # total expenditures
+            total_expenditures += rc_expenditures
+
+        my_dict["total_obligations"] = total_obligations
+        my_dict["total_expenditures"] = total_expenditures
+        my_dict["total_adjustments"] = total_adjustments
+        my_dict["total_allocations"] = total_allocations
+        context["my_dict"] = my_dict
+
+        return context
+
 
 
 class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
@@ -505,8 +597,6 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         qs = models.Transaction.objects.filter(project__responsibility_center_id=self.kwargs["rc"]).filter(
             project_id=self.kwargs["project"]).filter(fiscal_year=self.kwargs["fiscal_year"])
-        print(self.kwargs["project"])
-        print(fiscal_year)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -574,8 +664,6 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         my_dict["expenditures"] = project_expenditures
 
         context["my_dict"] = my_dict
-
-
 
         return context
 
