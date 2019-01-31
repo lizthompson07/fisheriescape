@@ -98,6 +98,7 @@ class AllotmentCodeDetailView(SciFiAccessRequiredMixin, DetailView):
         context["field_list"] = [
             'code',
             'name',
+            'allotment_category',
         ]
         return context
 
@@ -278,7 +279,7 @@ class ProjectDeleteView(SciFiAccessRequiredMixin, DeleteView):
 
 
 class ProjectDetailView(SciFiAccessRequiredMixin, DetailView):
-    model = models.ResponsibilityCenter
+    model = models.Project
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -311,7 +312,7 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
             'fiscal_year',
             'responsibility_center.code',
             'business_line.code',
-            'allotment_code.code',
+            'allotment_code',
             'line_object.code',
             'project.code',
             'transaction_type',
@@ -630,6 +631,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         context["field_list"] = [
             'fiscal_year',
             'creation_date',
+            'allotment_code.allotment_category',
             'transaction_type',
             'obligation_cost',
             'invoice_cost',

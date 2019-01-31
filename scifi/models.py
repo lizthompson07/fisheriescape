@@ -13,27 +13,34 @@ YES_NO_CHOICES = (
 )
 
 
+class AllotmentCategory(models.Model):
+    name = models.CharField(max_length=25)
+    color = models.CharField(max_length=25, blank=True, null=True)
+
+    def __str__(self):
+        return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
 class AllotmentCode(models.Model):
     # choices for category
     SAL = "salary"
     CAP = "capital"
     OM = "om"
     GC = "gc"
-    SUR = "surplus"
-    BB = "bbase"
-    OTHER = "other"
+    CBASE = "cbase"
     CATEGORY_CHOICES = (
         (SAL, "Salary"),
         (CAP, "Capital"),
         (OM, "O&M"),
-        (BB, "B-base"),
+        (CBASE, "Cbase"),
         (GC, "G&C"),
-        (SUR, "Surplus"),
-        (OTHER, "Other"),
     )
     code = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, null=True)
     category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, default="other")
+    allotment_category = models.ForeignKey(AllotmentCategory, on_delete=models.DO_NOTHING, related_name="allotment_codes", blank=True, null=True)
 
     def __str__(self):
         return "{} ({})".format(self.code, self.name)
