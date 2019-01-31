@@ -12,6 +12,7 @@ YES_NO_CHOICES = (
     (False, "No"),
 )
 
+
 class AllotmentCode(models.Model):
     code = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, null=True)
@@ -20,7 +21,8 @@ class AllotmentCode(models.Model):
         return "{} ({})".format(self.code, self.name)
 
     class Meta:
-        ordering = ['code',]
+        ordering = ['code', ]
+
 
 class BusinessLine(models.Model):
     code = models.CharField(max_length=50, unique=True)
@@ -30,7 +32,8 @@ class BusinessLine(models.Model):
         return "{} ({})".format(self.code, self.name)
 
     class Meta:
-        ordering = ['code',]
+        ordering = ['code', ]
+
 
 class LineObject(models.Model):
     code = models.CharField(max_length=50, unique=True)
@@ -41,7 +44,8 @@ class LineObject(models.Model):
         return "{} ({})".format(self.code, self.name_eng)
 
     class Meta:
-        ordering = ['code',]
+        ordering = ['code', ]
+
 
 class ResponsibilityCenter(models.Model):
     code = models.CharField(max_length=50, unique=True)
@@ -61,8 +65,9 @@ class Project(models.Model):
     code = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
     project_lead = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects")
-    responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                              related_name='projects')
+    default_responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
+                                                      null=True,
+                                                      related_name='projects')
     default_allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True)
     default_business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True)
     default_line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -73,15 +78,16 @@ class Project(models.Model):
     class Meta:
         ordering = ['code', ]
 
+
 class Transaction(models.Model):
     # Choices for tranaction_type
     EXP = 1
     ADJ = 2
-    INIT = 3
+    ALL = 3
     TYPE_CHOICES = (
         (EXP, 'Expenditure'),
         (ADJ, 'Adjustment'),
-        (INIT, 'Allocation'),
+        (ALL, 'Allocation'),
     )
 
     fiscal_year = models.CharField(blank=True, null=True, max_length=25)
@@ -92,13 +98,16 @@ class Transaction(models.Model):
     invoice_cost = models.FloatField(blank=True, null=True)
     invoice_date = models.DateTimeField(blank=True, null=True)
     supplier_description = models.CharField(max_length=1000, blank=True, null=True)
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions")
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                related_name="transactions")
+    responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                              related_name='transactions')
     allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
                                        related_name='transactions')
     business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       related_name='transactions')
     line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                      related_name='transactions')
+                                    related_name='transactions')
     in_mrs = models.BooleanField(default=True, verbose_name="In MRS", choices=YES_NO_CHOICES)
     reference_number = models.CharField(max_length=50, blank=True, null=True)
     amount_paid_in_mrs = models.FloatField(blank=True, null=True, verbose_name="amount paid in MRS")

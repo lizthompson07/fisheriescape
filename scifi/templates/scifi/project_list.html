@@ -1,6 +1,7 @@
 {% extends "scifi/scifi_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load el_pagination_tags %}
 {% load verbose_names %}
 
 {% block content %}
@@ -17,7 +18,7 @@
         <h1 class="big-header">Projects </h1>
         <p>TOTAL: {{ object_list.count }}</p>
 
-    <form class="form" action="." method="get">
+        <form class="form" action="." method="get">
             <div class="row">
                 {% for field in filter.form %}
                     <div class="col-5">
@@ -26,21 +27,21 @@
                 {% endfor %}
                 <div class="col-3">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn btn-warning">
-                    <a href="{% url 'scifi:project_new' %}" class="btn btn-success">New</a><br>
+                    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                    <a href="." class="btn btn-sm btn-info">Clear</a>
                 </div>
             </div>
         </form>
 
         <div class="row">
             <div class="col-10">
-                <table class="table table-sm table-hover table-bordered">
 
-                    <tbody>
-
-                    <br>
-                    </tbody>
-                </table>
+                Total projects = {{ filter.qs.count }}<br><br>
+                {% paginate 20 filter.qs as filter_list %}
+                {% show_pages %} <b><em>(ordered by creation date)</em></b>
+                <div class="float-right" style="padding-bottom: 10px">
+                    <a href="{% url 'scifi:project_new' %}" class="btn btn-sm btn-primary">New Project</a>
+                </div>
 
                 <table class="table table-hover table-sm">
                     <thead>
@@ -51,7 +52,9 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for object in filter.qs %}
+
+
+                    {% for object in filter_list %}
                         <tr>
                             {% for field in field_list %}
                                 <td>

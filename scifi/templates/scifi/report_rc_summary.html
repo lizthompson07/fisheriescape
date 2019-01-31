@@ -87,7 +87,7 @@
             {% for project in rc.projects.all %}
                 <tr>
                     <td>
-                        <a href="{% url 'scifi:report_project' fiscal_year rc.id project.id %}">
+                        <a href="{% url 'scifi:report_project' fiscal_year project.id %}">
                             {{ project.code }}
                         </a>
                     </td>
