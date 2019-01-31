@@ -18,12 +18,13 @@
         <a href="{% url 'scifi:allotment_new' %}" class="btn btn-success">New</a><br>
 
         <div class="row">
-            <div class="col-6">
+            <div class="col-8">
                 <table class="table table-hover table-sm">
                     <thead>
                     <tr>
                         <th scope="col">Code</th>
                         <th scope="col">Description</th>
+                        <th scope="col">Category</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -31,6 +32,7 @@
                         <tr>
                             <td>{{ object.code }}</td>
                             <td>{{ object.name }}</td>
+                            <td>{{ object.get_category_display }}</td>
                             <td>
                                 <a href="{% url 'scifi:allotment_edit' object.id %}">
                                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"

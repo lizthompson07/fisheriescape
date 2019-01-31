@@ -65,7 +65,7 @@ class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
 ##################
 
 class AllotmentCodeListView(SciFiAccessRequiredMixin, ListView):
-    model = models.AllotmentCode
+    queryset = models.AllotmentCode.objects.all().order_by("category", "code")
 
 
 class AllotmentCodeUpdateView(SciFiAccessRequiredMixin, UpdateView):
@@ -309,20 +309,20 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'fiscal_year',
-            'creation_date',
+            'responsibility_center.code',
+            'business_line.code',
+            'allotment_code.code',
+            'line_object.code',
+            'project.code',
             'transaction_type',
+            'supplier_description',
+            'creation_date',
             'obligation_cost',
             'invoice_cost',
             'outstanding_obligation',
-            'invoice_date',
-            'supplier_description',
-            'project.code',
-            'responsibility_center.code',
-            'allotment_code.code',
-            'business_line.code',
-            'line_object.code',
-            'in_mrs',
             'reference_number',
+            'invoice_date',
+            'in_mrs',
             'amount_paid_in_mrs',
             'mrs_notes',
             'procurement_hub_contact',
@@ -347,25 +347,24 @@ class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'fiscal_year',
-            'creation_date',
+            'responsibility_center',
+            'business_line',
+            'allotment_code',
+            'line_object',
+            'project',
             'transaction_type',
+            'supplier_description',
+            'creation_date',
             'obligation_cost',
             'invoice_cost',
             'outstanding_obligation',
-            'invoice_date',
-            'supplier_description',
-            'responsibility_center',
-            'project',
-            'allotment_code',
-            'business_line',
-            'line_object',
-            'in_mrs',
             'reference_number',
+            'invoice_date',
+            'in_mrs',
             'amount_paid_in_mrs',
             'mrs_notes',
             'procurement_hub_contact',
             'comment',
-            'created_by',
         ]
         return context
 
@@ -541,9 +540,10 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         total_adjustments = 0
 
         project_list = [models.Project.objects.get(pk=rc["project"]) for rc in
-                   models.Transaction.objects.filter(fiscal_year=fiscal_year).filter(responsibility_center=rc.id).values(
-                       "project").order_by("project").distinct() if
-                   rc["project"] is not None]
+                        models.Transaction.objects.filter(fiscal_year=fiscal_year).filter(
+                            responsibility_center=rc.id).values(
+                            "project").order_by("project").distinct() if
+                        rc["project"] is not None]
         context["project_list"] = project_list
         for p in project_list:
             my_dict[p.code] = {}
@@ -614,7 +614,8 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
     template_name = 'scifi/report_project_summary.html'
 
     def get_queryset(self, **kwargs):
-        qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(fiscal_year=self.kwargs["fiscal_year"])
+        qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+            fiscal_year=self.kwargs["fiscal_year"])
         return qs
 
     def get_context_data(self, **kwargs):
