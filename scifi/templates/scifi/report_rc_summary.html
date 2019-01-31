@@ -84,7 +84,7 @@
             <th>Free Balance</th>
             </thead>
             <tbody>
-            {% for project in rc.projects.all %}
+            {% for project in project_list %}
                 <tr>
                     <td>
                         <a href="{% url 'scifi:report_project' fiscal_year project.id %}">

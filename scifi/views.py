@@ -438,10 +438,10 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         fiscal_year = self.kwargs['fiscal_year']
         context["fiscal_year"] = fiscal_year
 
-        rc_list = [models.ResponsibilityCenter.objects.get(pk=rc["project__responsibility_center"]) for rc in
+        rc_list = [models.ResponsibilityCenter.objects.get(pk=rc["responsibility_center"]) for rc in
                    models.Transaction.objects.filter(fiscal_year=fiscal_year).values(
-                       "project__responsibility_center").order_by("project__responsibility_center").distinct() if
-                   rc["project__responsibility_center"] is not None]
+                       "responsibility_center").order_by("responsibility_center").distinct() if
+                   rc["responsibility_center"] is not None]
 
         context["rc_list"] = rc_list
 
@@ -458,7 +458,7 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             # rc allocation
             try:
                 rc_allocations = \
-                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(
+                    models.Transaction.objects.filter(responsibility_center_id=rc.id).filter(
                         fiscal_year=fiscal_year).filter(
                         transaction_type=3).values(
                         "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
@@ -472,7 +472,7 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             # rc adjustments
             try:
                 rc_adjustments = \
-                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(
+                    models.Transaction.objects.filter(responsibility_center_id=rc.id).filter(
                         fiscal_year=fiscal_year).filter(
                         transaction_type=2).values(
                         "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
@@ -486,7 +486,7 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             # rc obligations
             try:
                 rc_obligations = \
-                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(
+                    models.Transaction.objects.filter(responsibility_center_id=rc.id).filter(
                         fiscal_year=fiscal_year).filter(
                         transaction_type=1).values(
                         "project").order_by("project").distinct().annotate(dsum=Sum("outstanding_obligation")).first()[
@@ -501,7 +501,7 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             # rc expenditures
             try:
                 rc_expenditures = \
-                    models.Transaction.objects.filter(project__responsibility_center_id=rc.id).filter(
+                    models.Transaction.objects.filter(responsibility_center_id=rc.id).filter(
                         fiscal_year=fiscal_year).filter(
                         transaction_type=1).values(
                         "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
@@ -539,7 +539,12 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         total_allocations = 0
         total_adjustments = 0
 
-        for p in rc.projects.all():
+        project_list = [models.Project.objects.get(pk=rc["project"]) for rc in
+                   models.Transaction.objects.filter(fiscal_year=fiscal_year).filter(responsibility_center=rc.id).values(
+                       "project").order_by("project").distinct() if
+                   rc["project"] is not None]
+        context["project_list"] = project_list
+        for p in project_list:
             my_dict[p.code] = {}
 
             # project allocation
