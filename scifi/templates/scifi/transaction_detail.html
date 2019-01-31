@@ -24,13 +24,15 @@
 
         <h1>Transaction Detail</h1>
 
-
         <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'scifi:trans_edit' object.id %}">
+                {% trans "Edit" %}
+            </a>
             <a class="btn btn-danger " href="{% url 'scifi:trans_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
-            <a class="btn btn-warning" href="{% url 'scifi:trans_edit' object.id %}">
-                {% trans "Edit" %}
+            <a class="btn btn-success under-dev" href="#">
+                {% trans "Duplicate Record" %}
             </a>
 
         </div>
@@ -58,7 +60,6 @@
                     {% elif field == "project" %}
                         {% url 'scifi:project_detail' object.project.id as my_url %}
                         {% verbose_field_display object field url=my_url %}
-
 
                     {% else %}
                         {% verbose_field_display object field %}

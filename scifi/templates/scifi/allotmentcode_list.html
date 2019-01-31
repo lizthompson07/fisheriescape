@@ -32,7 +32,7 @@
                         <tr>
                             <td>{{ object.code }}</td>
                             <td>{{ object.name }}</td>
-                            <td>{{ object.get_category_display }}</td>
+                            <td style="background-color: {{ object.allotment_category.color }};">{{ object.allotment_category }}</td>
                             <td>
                                 <a href="{% url 'scifi:allotment_edit' object.id %}">
                                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
