@@ -64,7 +64,7 @@ class Project(models.Model):
     name = models.CharField(max_length=1000)
     code = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
-    project_lead = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects")
+    project_lead = models.CharField(max_length=500, blank=True, null=True)
     default_responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
                                                       null=True,
                                                       related_name='projects')
