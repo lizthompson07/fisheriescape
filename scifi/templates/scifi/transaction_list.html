@@ -65,6 +65,8 @@
                                 <th scope="col" style="width: 80px;">{% get_verbose_label my_object field %}</th>
                             {% elif field == "project.code" %}
                                 <th>Project code</th>
+                            {% elif field == "responsibility_center.code" %}
+                                <th>RC</th>
                             {% else %}
                                 <th scope="col">{% get_verbose_label my_object field %}</th>
                             {% endif %}

@@ -19,12 +19,16 @@ class AllotmentCode(models.Model):
     CAP = "capital"
     OM = "om"
     GC = "gc"
+    SUR = "surplus"
+    BB = "bbase"
     OTHER = "other"
     CATEGORY_CHOICES = (
         (SAL, "Salary"),
         (CAP, "Capital"),
         (OM, "O&M"),
+        (BB, "B-base"),
         (GC, "G&C"),
+        (SUR, "Surplus"),
         (OTHER, "Other"),
     )
     code = models.CharField(max_length=50, unique=True)
@@ -80,14 +84,13 @@ class Project(models.Model):
     description = models.TextField(blank=True, null=True)
     project_lead = models.CharField(max_length=500, blank=True, null=True)
     default_responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
-                                                      null=True,
-                                                      related_name='projects')
+                                                      null=True, related_name='projects')
     default_allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True)
     default_business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True)
     default_line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.name)
+        return "{} ({})".format(self.code, self.name)
 
     class Meta:
         ordering = ['code', ]
