@@ -247,10 +247,10 @@ class ProjectListView(SciFiAccessRequiredMixin, FilterView):
             'code',
             'description',
             'project_lead',
-            'responsibility_center',
-            'default_allotment_code',
-            'default_business_line',
-            'default_line_object',
+            'default_responsibility_center.code',
+            'default_allotment_code.code',
+            'default_business_line.code',
+            'default_line_object.code',
         ]
         return context
 
@@ -287,7 +287,7 @@ class ProjectDetailView(SciFiAccessRequiredMixin, DetailView):
             'code',
             'description',
             'project_lead',
-            'responsibility_center',
+            'default_responsibility_center',
             'default_allotment_code',
             'default_business_line',
             'default_line_object',
@@ -317,6 +317,7 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
             'invoice_date',
             'supplier_description',
             'project.code',
+            'responsibility_center.code',
             'allotment_code.code',
             'business_line.code',
             'line_object.code',
