@@ -81,7 +81,7 @@ class Transaction(models.Model):
     TYPE_CHOICES = (
         (EXP, 'Expenditure'),
         (ADJ, 'Adjustment'),
-        (INIT, 'Initial allocation'),
+        (INIT, 'Allocation'),
     )
 
     fiscal_year = models.CharField(blank=True, null=True, max_length=25)

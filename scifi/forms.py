@@ -52,11 +52,12 @@ class ReportSearchForm(forms.Form):
     RC_CHOICES.insert(0, (None, "------"))
 
     REPORT_CHOICES = [
-        (1, "Account Summary"),
-        (2, "Project Summary"),
+        (1, "Branch Summary"),
+        (2, "Account Summary"),
+        (3, "Project Summary"),
     ]
     REPORT_CHOICES.insert(0, (None, "------"))
 
     fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    rc = forms.ChoiceField(required=True, choices=RC_CHOICES, label="Responsibility centre")
+    rc = forms.ChoiceField(required=False, choices=RC_CHOICES, label="Responsibility centre")
