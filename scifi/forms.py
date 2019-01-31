@@ -40,7 +40,7 @@ class TransactionForm(forms.ModelForm):
         exclude = ["fiscal_year", "outstanding_obligation"]
         widgets = {
             "created_by": forms.HiddenInput(),
-            "requisition_date": forms.DateInput(attrs={"type": "date"}),
+            "creation_date": forms.DateInput(attrs={"type": "date"}),
             "invoice_date": forms.DateInput(attrs={"type": "date"}),
             # "responsibility_center": forms.NumberInput(),
         }
