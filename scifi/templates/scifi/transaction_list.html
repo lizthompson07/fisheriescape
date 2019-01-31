@@ -115,6 +115,8 @@
 
                             {% elif field == "amount_paid_in_mrs" %}
                                 {% get_field_value object field format="currency" %}
+                            {% elif field == "obligation_cost" %}
+                                {% get_field_value object field format="currency" %}
                             {% elif field == "allotment_code" %}
                                 {{ ac.code }} <br>({{ ac.allotment_category }})
                             {% else %}
