@@ -58,21 +58,24 @@
             {% csrf_token %}
             {% for field in form %}
 
-                {% if field.name == "species" %}
-                    <div class="species_div">
+                {% if field.name == "report" %}
+                    <div class="report_div">
                         {% bootstrap_field field %}
 
                     </div>
-                {% elif field.name == "site" %}
-                    <div class="site_div">
+                {% elif field.name == "fiscal_year" %}
+                    <div class="fiscal_div">
                         {% bootstrap_field field %}
 
                     </div>
-                {% elif field.name == "year" %}
-                    <div class="year_div">
+                {% elif field.name == "rc" %}
+                    <div class="rc_div">
                         {% bootstrap_field field %}
                     </div>
-
+                {% elif field.name == "project" %}
+                    <div class="project_div">
+                        {% bootstrap_field field %}
+                    </div>
                 {% else %}
                     {% bootstrap_field field %}
                 {% endif %}
@@ -92,45 +95,38 @@
     <script type="application/javascript">
 
         function hideAll() {
-            $(".species_div").addClass("gone");
-            $(".site_div").addClass("gone");
-            $(".year_div").addClass("gone");
+            $(".fiscal_div").addClass("gone");
+            $(".rc_div").addClass("gone");
+            $(".project_div").addClass("gone");
 
+            $("#id_fiscal_year").prop('required', true);
             $("#id_report").prop('required', true);
-            $("#id_species").prop('required', false);
-            $("#id_year").prop('required', false);
-            $("#id_site").prop('required', false);
-
+            $("#id_rc").prop('required', false);
+            $("#id_project").prop('required', false);
         }
 
         function configureForm() {
             var reportChoice = $("#id_report")[0].value;
-            // species count report
+            // branch report
             if (reportChoice == 1) {
-                $(".species_div").removeClass("gone");
-                $("#id_species").prop('required', true);
-                $("#id_species").multiSelect()
-
+                $(".fiscal_div").removeClass("gone");
+                $("#id_fiscal_year").prop('required', true);
             }
-            // species richness report
+            // rc report
             else if (reportChoice == 2) {
-                $("#id_site").prop('required', true);
-                $(".site_div").removeClass("gone")
+                $(".fiscal_div").removeClass("gone");
+                $("#id_fiscal_year").prop('required', true);
+                $(".rc_div").removeClass("gone");
+                $("#id_rc").prop('required', true);
             }
-            // annual pdf
+            // project report
             else if (reportChoice == 3) {
-                $("#id_site").prop('required', true);
-                $("#id_year").prop('required', true);
-                $(".site_div").removeClass("gone");
-                $(".year_div").removeClass("gone")
+                $(".fiscal_div").removeClass("gone");
+                $("#id_fiscal_year").prop('required', true);
+                $(".project_div").removeClass("gone");
+                $("#id_project").prop('required', true);
             }
-            // annual csv
-            else if (reportChoice == 4) {
-                $("#id_site").prop('required', true);
-                $("#id_year").prop('required', true);
-                $(".site_div").removeClass("gone");
-                $(".year_div").removeClass("gone")
-            }
+
         }
 
         $(document).ready(function () {

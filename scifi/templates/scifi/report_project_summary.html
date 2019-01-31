@@ -20,8 +20,6 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'scifi:report_search' %}">Report Search</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'scifi:report_rc' fiscal_year rc.id %}">Account Summary
-                for {{ rc.code }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ project }} Transactions {{ fiscal_year }}</li>
         </ol>
     </nav>
