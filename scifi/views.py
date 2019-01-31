@@ -354,6 +354,7 @@ class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
             'outstanding_obligation',
             'invoice_date',
             'supplier_description',
+            'responsibility_center',
             'project',
             'allotment_code',
             'business_line',

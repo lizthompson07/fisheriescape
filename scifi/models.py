@@ -14,8 +14,22 @@ YES_NO_CHOICES = (
 
 
 class AllotmentCode(models.Model):
+    # choices for category
+    SAL = "salary"
+    CAP = "capital"
+    OM = "om"
+    GC = "gc"
+    OTHER = "other"
+    CATEGORY_CHOICES = (
+        (SAL, "Salary"),
+        (CAP, "Capital"),
+        (OM, "O&M"),
+        (GC, "G&C"),
+        (OTHER, "Other"),
+    )
     code = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, null=True)
+    category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, default="other")
 
     def __str__(self):
         return "{} ({})".format(self.code, self.name)
@@ -91,25 +105,25 @@ class Transaction(models.Model):
     )
 
     fiscal_year = models.CharField(blank=True, null=True, max_length=25)
-    creation_date = models.DateTimeField(blank=True, null=True)
+    responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                              related_name='transactions')
+    business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                      related_name='transactions')
+    allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                       related_name='transactions')
+    line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                    related_name='transactions')
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                related_name="transactions")
     transaction_type = models.IntegerField(default=1, choices=TYPE_CHOICES)
+    supplier_description = models.CharField(max_length=1000, blank=True, null=True)
+    creation_date = models.DateTimeField(default=timezone.now)
     obligation_cost = models.FloatField(blank=True, null=True)
     outstanding_obligation = models.FloatField(blank=True, null=True)
     invoice_cost = models.FloatField(blank=True, null=True)
-    invoice_date = models.DateTimeField(blank=True, null=True)
-    supplier_description = models.CharField(max_length=1000, blank=True, null=True)
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                related_name="transactions")
-    responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                              related_name='transactions')
-    allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                       related_name='transactions')
-    business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                      related_name='transactions')
-    line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                    related_name='transactions')
-    in_mrs = models.BooleanField(default=True, verbose_name="In MRS", choices=YES_NO_CHOICES)
     reference_number = models.CharField(max_length=50, blank=True, null=True)
+    invoice_date = models.DateTimeField(blank=True, null=True)
+    in_mrs = models.BooleanField(default=True, verbose_name="In MRS", choices=YES_NO_CHOICES)
     amount_paid_in_mrs = models.FloatField(blank=True, null=True, verbose_name="amount paid in MRS")
     mrs_notes = models.CharField(blank=True, null=True, max_length=100, verbose_name="MRS notes")
     procurement_hub_contact = models.CharField(max_length=500, blank=True, null=True)
