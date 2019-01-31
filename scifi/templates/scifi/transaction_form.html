@@ -5,45 +5,54 @@
 {% block content %}
 
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'scifi:trans_list' %}">Transaction List</a></li>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'scifi:trans_list' %}">Transaction List</a></li>
+        {% if object %}
+            <li class="breadcrumb-item active" aria-current="page">Edit Transaction: {{ object }}</li>
+        {% else %}
+            <li class="breadcrumb-item active" aria-current="page">New Transaction</li>
+        {% endif %}
+    </ol>
+</nav>
+
+<div class="container">
+    <h1>
+        {% if object %}
+            {{ object }}
+        {% else %}
+            New Transaction
+        {% endif %}
+    </h1>
+
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="btn-group">
             {% if object %}
-                <li class="breadcrumb-item active" aria-current="page">Edit Transaction: {{ object }}</li>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a class="btn btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
             {% else %}
-                <li class="breadcrumb-item active" aria-current="page">New Transaction</li>
+                <button type="submit" class="btn btn-primary">Add</button>
+                <a class="btn btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
             {% endif %}
-        </ol>
-    </nav>
+        </div>
+        <br>    <br>
 
-    <div class="container">
-        <h1>
+        {% bootstrap_form form %}
+        <div class="btn-group">
             {% if object %}
-                {{ object }}
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a class="btn btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
             {% else %}
-                New Transaction
+                <button type="submit" class="btn btn-primary">Add</button>
+                <a class="btn btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
             {% endif %}
-        </h1>
-        <br><br>
+        </div>
 
-        <form method="post" class="form">
-            {% csrf_token %}
 
-            {% bootstrap_form form %}
+    </form>
 
-            {% buttons %}
-                {% if object %}
-                    <button type="submit" class="btn btn-success">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
-                {% else %}
-                    <button type="submit" class="btn btn-success">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
-                {% endif %}
-
-            {% endbuttons %}
-        </form>
-
-    </div>
+</div>
 
 {% endblock content %}
