@@ -510,6 +510,12 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
 
         return context
 
+  def form_valid(self, form):
+        object = form.save()
+        if form.cleaned_data["do_another"] == 1:
+            return HttpResponseRedirect(reverse_lazy('scifi:ctrans_new'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('scifi:index'))
 
 
 # REPORTS #
