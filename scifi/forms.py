@@ -35,6 +35,7 @@ class ProjectForm(forms.ModelForm):
 
 
 class TransactionForm(forms.ModelForm):
+    do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
     class Meta:
         model = models.Transaction
         exclude = ["fiscal_year", "outstanding_obligation"]
@@ -47,6 +48,7 @@ class TransactionForm(forms.ModelForm):
 
 
 class CustomTransactionForm(forms.ModelForm):
+    do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
     class Meta:
         model = models.Transaction
         fields = [

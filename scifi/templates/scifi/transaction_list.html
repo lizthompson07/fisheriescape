@@ -54,7 +54,8 @@
                 {% paginate 40 filter.qs as filter_list %}
                 {% show_pages %} <b><em>(ordered by creation date)</em></b>
                 <div class="float-right" style="padding-bottom: 10px">
-                    <a href="{% url 'scifi:trans_new' %}" class="btn btn-sm btn-primary">New Transaction</a>
+                    <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">New
+                        Transaction (Ctrl+A)</a>
                 </div>
                 <table class="table table-sm table-hover table-bordered">
                     <thead>
@@ -137,5 +138,17 @@
 
 
     </div>
+    <script type="application/javascript">
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            document.addEventListener("keydown", function (zEvent) {
+                if (zEvent.ctrlKey && zEvent.code === "KeyA") {
+                    zEvent.preventDefault();
+                    $("#new-trans")[0].click();
+                }
+            })
+        });
+
+    </script>
 
 {% endblock content %}

@@ -180,10 +180,10 @@
             <div class="btn-group">
                 {% if object %}
                     <button type="submit" class="btn btn-primary">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'scifi:index' object.id %}">Cancel</a>
                 {% else %}
                     <button type="submit" class="btn btn-primary">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'scifi:index' %}">Cancel</a>
                 {% endif %}
             </div>
 
