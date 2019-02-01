@@ -408,8 +408,10 @@ class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
     form_class = forms.TransactionForm
 
     def get_initial(self):
-        return {'created_by': self.request.user}
-
+        return {
+            'created_by': self.request.user,
+            'do_another': 1,
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -436,6 +438,14 @@ class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
 
         return context
 
+    def form_valid(self, form):
+        object = form.save()
+        if form.cleaned_data["do_another"] == 1:
+            return HttpResponseRedirect(reverse_lazy('scifi:trans_new'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('scifi:trans_list'))
+
+
 class TransactionDeleteView(SciFiAdminRequiredMixin, DeleteView):
     model = models.Transaction
     success_url = reverse_lazy('scifi:trans_list')
@@ -457,6 +467,7 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         return {
             'created_by': self.request.user,
             'transaction_type': 1,
+
         }
 
     def get_context_data(self, **kwargs):
