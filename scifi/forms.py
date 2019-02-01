@@ -46,6 +46,43 @@ class TransactionForm(forms.ModelForm):
         }
 
 
+class CustomTransactionForm(forms.ModelForm):
+    class Meta:
+        model = models.Transaction
+        fields = [
+            "project",
+            "responsibility_center",
+            "business_line",
+            "allotment_code",
+            "line_object",
+            "supplier_description",
+            "obligation_cost",
+            "reference_number",
+            "comment",
+
+            # hidden fields
+            "created_by",
+            "creation_date",
+            "transaction_type",
+            "in_mrs",
+        ]
+
+
+        labels = {
+            "supplier_description": "Expense description",
+            "obligation_cost": "Cost estimation",
+        }
+
+        widgets = {
+            "comment": forms.Textarea(attrs={"rows": 4}),
+
+            # hidden because they are given default values
+            "created_by": forms.HiddenInput(),
+            "creation_date": forms.HiddenInput(),
+            "transaction_type": forms.HiddenInput(),
+            "in_mrs": forms.HiddenInput(),
+        }
+
 class ReportSearchForm(forms.Form):
     FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in
                   range(timezone.now().year - 2, timezone.now().year + 1)]

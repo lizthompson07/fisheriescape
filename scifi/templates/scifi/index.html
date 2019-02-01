@@ -24,17 +24,16 @@
         </div>
 
         {% if user.is_authenticated %}
-{#            <div align="center">#}
-{#                <h3>#}
-{#                    What would you like to do:#}
-{#                </h3>#}
-{#                <ul>#}
-{#                    Search Transactions#}
-{#                </ul>#}
-{#                <ul>#}
-{#                    Search Transactions#}
-{#                </ul>#}
-{#            </div>#}
+            <br><br><br>
+            <h2>Quickstart Menu:</h2>
+            <ul>
+            <li>
+                <a href="{% url 'scifi:ctrans_new'  %}">Create a new expense</a>
+            </li>
+            <li>
+                <a href="{% url 'scifi:report_search'  %}">View account summary</a>
+            </li>
+            </ul>
         {% endif %}
 
 

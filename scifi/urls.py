@@ -54,6 +54,8 @@ urlpatterns = [
     path('transaction/<int:pk>/view/', views.TransactionDetailView.as_view(), name="trans_detail"),
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="trans_edit"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="trans_delete"),
+    # custom transaction
+    path('custom-transaction/new/', views.CustomTransactionCreateView.as_view(), name="ctrans_new"),
 
     # Reports #
     ###########
