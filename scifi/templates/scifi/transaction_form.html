@@ -28,16 +28,17 @@
 
         <form method="post" class="form" style="width: 85%;">
             {% csrf_token %}
-            <div class="btn-group">
-                {% if object %}
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
-                {% else %}
-                    <button type="submit" class="btn btn-primary">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
-                {% endif %}
-            </div>
-            <br> <br>
+            {#            <div class="btn-group">#}
+            {#                {% if object %}#}
+            {#                    <button type="submit" class="btn btn-primary">Submit</button>#}
+            {#                    <a class="btn btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>#}
+            {#                {% else %}#}
+            {#                    <button id="submit" type="submit" class="btn btn-success">Save and Next (Ctrl+A)</button>#}
+            {#                    <button id="submit_done" type="submit" class="btn btn-primary">Save and Done (Ctrl+S)</button>#}
+            {#                    <a class="btn btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>#}
+            {#                {% endif %}#}
+            {#            </div>#}
+            {#            <br> <br>#}
 
             {% for field in form %}
 
@@ -191,7 +192,8 @@
                     <button type="submit" class="btn btn-primary">Submit</button>
                     <a class="btn btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
                 {% else %}
-                    <button type="submit" class="btn btn-primary">Add</button>
+                    <button id="submit" type="submit" class="btn btn-success">Save and Next (Ctrl+A)</button>
+                    <button id="submit_done" type="submit" class="btn btn-primary">Save and Done (Ctrl+S)</button>
                     <a class="btn btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
                 {% endif %}
             </div>
@@ -200,7 +202,6 @@
         </form>
 
     </div>
-
 
 
     <script type="text/javascript">
@@ -212,9 +213,25 @@
         var loList = {{lo_list|safe}};
         var projectList = {{project_list|safe}};
 
+        $("#submit_done").click(function () {
+            // clear the do_another field
+            $("#id_do_another").val("")
+        })
 
         $(document).ready(function () {
             $("#rc_interpreter")[0].focus()
+
+
+            document.addEventListener("keydown", function (zEvent) {
+                if (zEvent.ctrlKey && zEvent.code === "KeyS") {
+                    zEvent.preventDefault()
+                    $("#submit_done")[0].click();
+                }
+                else if (zEvent.ctrlKey && zEvent.code === "KeyA") {
+                    zEvent.preventDefault()
+                    $("#submit")[0].click();
+                }
+            });
 
             {% if object.responsibility_center %}
                 $("#rc_interpreter_div").prop("hidden", true)
@@ -251,7 +268,7 @@
 
 
         $("input").keydown(function (event) {
-            if (event.key == "Enter" ) {
+            if (event.key == "Enter") {
                 event.preventDefault()
             }
         });
@@ -479,6 +496,9 @@
             $("#project_interpreter_div").prop("hidden", false)
             $("#project_interpreter")[0].focus()
         });
+
+
+
 
     </script>
 {% endblock content %}
