@@ -487,11 +487,11 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         # project dict for default coding
         project_dict = {}
         for project in models.Project.objects.all():
-            project_dict[project.code] = {}
-            project_dict[project.code]["rc"] = project.default_responsibility_center_id
-            project_dict[project.code]["bl"] = project.default_business_line_id
-            project_dict[project.code]["al"] = project.default_allotment_code_id
-            project_dict[project.code]["lo"] = project.default_line_object_id
+            project_dict[project.id] = {}
+            project_dict[project.id]["rc"] = project.default_responsibility_center_id
+            project_dict[project.id]["bl"] = project.default_business_line_id
+            project_dict[project.id]["al"] = project.default_allotment_code_id
+            project_dict[project.id]["lo"] = project.default_line_object_id
 
         project_json = json.dumps(project_dict)
         # send JSON file to template so that it can be used by js script

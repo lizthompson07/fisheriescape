@@ -206,7 +206,7 @@
 
 
         $(document).ready(function () {
-            $("#rc_interpreter")[0].focus()
+            $("#project_interpreter")[0].focus()
 
             {% if object.responsibility_center %}
                 $("#rc_interpreter_div").prop("hidden", true)
@@ -240,10 +240,53 @@
 
 
         });
-        
+
         // special func for project; once populated, enter the default coding for rc, bl, ac and lo
-        function setProjectDefaults() {
-          console.log("helloworld")
+        function setProjectDefaults(clear = false) {
+            projectId = $("#id_project").val()
+
+            // RC
+            if (projectObj[projectId]["rc"] != "") {
+                $("#id_responsibility_center").val(projectObj[projectId]["rc"])
+                $("#rc_interpreter_div").prop("hidden", true)
+                $("#rc_field_div").prop("hidden", false)
+            }
+            // BL
+            if (projectObj[projectId]["bl"] != null) {
+                $("#id_business_line").val(projectObj[projectId]["bl"])
+                $("#bl_interpreter_div").prop("hidden", true)
+                $("#bl_field_div").prop("hidden", false)
+            }
+            // AC
+            if (projectObj[projectId]["ac"] != null) {
+                $("#id_allotment_code").val(projectObj[projectId]["ac"])
+                $("#ac_interpreter_div").prop("hidden", true)
+                $("#ac_field_div").prop("hidden", false)
+            }
+            // LO
+            if (projectObj[projectId]["lo"] != null) {
+                $("#id_line_object").val(projectObj[projectId]["lo"])
+                $("#lo_interpreter_div").prop("hidden", true)
+                $("#lo_field_div").prop("hidden", false)
+            }
+
+            // Where to?
+            if ($("#id_responsibility_center").val() == "") {
+                $("#rc_interpreter")[0].focus()
+            }
+            else if ($("#id_business_line").val() == "") {
+                $("#bl_interpreter")[0].focus()
+            }
+            else if ($("#id_allotment_code").val() == "") {
+                $("#ac_interpreter")[0].focus()
+            }
+            else if ($("#id_line_object").val() == "") {
+                $("#lo_interpreter")[0].focus()
+            }
+            else {
+                $("#id_supplier_description")[0].focus()
+            }
+
         };
 
         $("input").keydown(function (event) {
@@ -340,7 +383,7 @@
         });
 
 
-         // AC
+        // AC
         $("#ac_interpreter").keyup(function (e) {
             $("#ac_list").html("")
             if (this.value.length >= 1) {
@@ -384,7 +427,7 @@
         });
 
 
-         // LO
+        // LO
         $("#lo_interpreter").keyup(function (e) {
             $("#lo_list").html("")
             if (this.value.length >= 3) {
@@ -428,7 +471,7 @@
         });
 
 
-         // PROJECT
+        // PROJECT
         $("#project_interpreter").keyup(function (e) {
             $("#project_list").html("")
             if (this.value.length >= 1) {

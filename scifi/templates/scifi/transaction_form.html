@@ -44,10 +44,10 @@
                 {% if field.name == "responsibility_center" %}
                     <div id="rc_interpreter_div">
                         <div class="form-group row" style="margin-bottom: 0px;">
-                            <label for="rcinterpreter" class="col-md-3 col-form-label">RC
+                            <label for="rc_interpreter" class="col-md-3 col-form-label">RC
                                 (any part...)</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control tab"
+                                <input type="text" class="form-control no-tab"
                                        id="rc_interpreter">
                             </div>
                         </div>
@@ -75,7 +75,7 @@
                             <label for="bl_interpreter" class="col-md-3 col-form-label">Business line
                                 (any part...)</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control tab"
+                                <input type="text" class="form-control no-tab"
                                        id="bl_interpreter">
                             </div>
                         </div>
@@ -103,7 +103,7 @@
                             <label for="ac_interpreter" class="col-md-3 col-form-label">Allotment code
                                 (any part...)</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control tab"
+                                <input type="text" class="form-control no-tab"
                                        id="ac_interpreter">
                             </div>
                         </div>
@@ -130,7 +130,7 @@
                             <label for="lo_interpreter" class="col-md-3 col-form-label">Line object
                                 (any part...)</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control tab"
+                                <input type="text" class="form-control no-tab"
                                        id="lo_interpreter">
                             </div>
                         </div>
@@ -157,7 +157,7 @@
                             <label for="project_interpreter" class="col-md-3 col-form-label">Project code
                                 (any part...)</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control tab"
+                                <input type="text" class="form-control no-tab"
                                        id="project_interpreter">
                             </div>
                         </div>
@@ -251,11 +251,16 @@
 
 
         $("input").keydown(function (event) {
-            if (event.key == "Enter") {
+            if (event.key == "Enter" ) {
                 event.preventDefault()
             }
         });
-
+        $(".no-tab").keydown(function (event) {
+            if (event.key == "Tab") {
+                console.log("123")
+                event.preventDefault()
+            }
+        });
 
         // RC
         $("#rc_interpreter").keyup(function (e) {
@@ -280,7 +285,7 @@
 
                 });
 
-                if (e.key == "Enter") {
+                if (e.key == "Tab" || e.key == "Enter") {
                     $(".rc_insert")[0].click()
                 }
 
@@ -323,7 +328,7 @@
 
                 });
 
-                if (e.key == "Enter") {
+                if (e.key == "Tab" || e.key == "Enter") {
                     $(".bl_insert")[0].click()
                 }
 
@@ -344,7 +349,7 @@
         });
 
 
-         // AC
+        // AC
         $("#ac_interpreter").keyup(function (e) {
             $("#ac_list").html("")
             if (this.value.length >= 1) {
@@ -367,7 +372,7 @@
 
                 });
 
-                if (e.key == "Enter") {
+                if (e.key == "Tab" || e.key == "Enter") {
                     $(".ac_insert")[0].click()
                 }
 
@@ -388,7 +393,7 @@
         });
 
 
-         // LO
+        // LO
         $("#lo_interpreter").keyup(function (e) {
             $("#lo_list").html("")
             if (this.value.length >= 3) {
@@ -411,7 +416,7 @@
 
                 });
 
-                if (e.key == "Enter") {
+                if (e.key == "Tab" || e.key == "Enter") {
                     $(".lo_insert")[0].click()
                 }
 
@@ -432,7 +437,7 @@
         });
 
 
-         // PROJECT
+        // PROJECT
         $("#project_interpreter").keyup(function (e) {
             $("#project_list").html("")
             if (this.value.length >= 1) {
@@ -455,7 +460,7 @@
 
                 });
 
-                if (e.key == "Enter") {
+                if (e.key == "Tab" || e.key == "Enter") {
                     $(".project_insert")[0].click()
                 }
 
