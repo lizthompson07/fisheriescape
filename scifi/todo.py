@@ -4,6 +4,8 @@
 # TODO: some trans do not have values in the mandatory fields... what do we do?
 # TODO: custom transaction form with email send to kim each time a new transaction is created.
   
+  # TODO: the form for trans and custom trans should be the same.., DRY
+  
 # mand:
 # -----
 # rc
