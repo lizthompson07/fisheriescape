@@ -71,7 +71,7 @@ class RequestAccessForm(forms.Form):
     email = forms.EmailField(label='Email address')
     user_id = forms.CharField(widget=forms.HiddenInput())
     application = forms.ChoiceField(label='Requesting access to which app', choices=APPLICATION_CHOICES)
-    optional_comment = forms.CharField(required=False)
+    optional_comment = forms.CharField(required=False, label="Details")
 
 # class SetUserPasswordForm(SetPasswordForm):
 
