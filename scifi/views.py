@@ -501,7 +501,7 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
             project_dict[project.id] = {}
             project_dict[project.id]["rc"] = project.default_responsibility_center_id
             project_dict[project.id]["bl"] = project.default_business_line_id
-            project_dict[project.id]["al"] = project.default_allotment_code_id
+            project_dict[project.id]["ac"] = project.default_allotment_code_id
             project_dict[project.id]["lo"] = project.default_line_object_id
 
         project_json = json.dumps(project_dict)
