@@ -33,10 +33,9 @@ def access_denied(request):
     a_tag = mark_safe('<a href="#" class="request-access-button">this</a>')
     denied_message = "Sorry, you are not authorized to view this page. You can request access using {} form.".format(
         a_tag)
-    print(mark_safe(denied_message))
     messages.error(request, mark_safe(denied_message))
-
-    return HttpResponseRedirect(reverse("index"))
+    # send user back to the page that they came from
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class UserLoginView(LoginView):

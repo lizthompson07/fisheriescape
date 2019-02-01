@@ -1,3 +1,5 @@
+import json
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.db.models import Value, TextField, Q, Sum
@@ -68,19 +70,19 @@ class AllotmentCodeListView(SciFiAccessRequiredMixin, ListView):
     queryset = models.AllotmentCode.objects.all().order_by("category", "code")
 
 
-class AllotmentCodeUpdateView(SciFiAccessRequiredMixin, UpdateView):
+class AllotmentCodeUpdateView(SciFiAdminRequiredMixin, UpdateView):
     model = models.AllotmentCode
     form_class = forms.AllotmentCodeForm
     success_url = reverse_lazy('scifi:allotment_list')
 
 
-class AllotmentCodeCreateView(SciFiAccessRequiredMixin, CreateView):
+class AllotmentCodeCreateView(SciFiAdminRequiredMixin, CreateView):
     model = models.AllotmentCode
     form_class = forms.AllotmentCodeForm
     success_url = reverse_lazy('scifi:digestion_list')
 
 
-class AllotmentCodeDeleteView(SciFiAccessRequiredMixin, DeleteView):
+class AllotmentCodeDeleteView(SciFiAdminRequiredMixin, DeleteView):
     model = models.AllotmentCode
     success_url = reverse_lazy('scifi:digestion_list')
     success_message = 'The allotment code was successfully deleted!'
@@ -110,19 +112,19 @@ class BusinessLineListView(SciFiAccessRequiredMixin, ListView):
     model = models.BusinessLine
 
 
-class BusinessLineUpdateView(SciFiAccessRequiredMixin, UpdateView):
+class BusinessLineUpdateView(SciFiAdminRequiredMixin, UpdateView):
     model = models.BusinessLine
     form_class = forms.BusinessLineForm
     success_url = reverse_lazy('scifi:business_list')
 
 
-class BusinessLineCreateView(SciFiAccessRequiredMixin, CreateView):
+class BusinessLineCreateView(SciFiAdminRequiredMixin, CreateView):
     model = models.BusinessLine
     form_class = forms.BusinessLineForm
     success_url = reverse_lazy('scifi:business_list')
 
 
-class BusinessLineDeleteView(SciFiAccessRequiredMixin, DeleteView):
+class BusinessLineDeleteView(SciFiAdminRequiredMixin, DeleteView):
     model = models.BusinessLine
     success_url = reverse_lazy('scifi:business_list')
     success_message = 'The business line was successfully deleted!'
@@ -155,19 +157,19 @@ class LineObjectListView(SciFiAccessRequiredMixin, FilterView):
         search_term=Concat('code', 'name_eng', 'description_eng', output_field=TextField()))
 
 
-class LineObjectUpdateView(SciFiAccessRequiredMixin, UpdateView):
+class LineObjectUpdateView(SciFiAdminRequiredMixin, UpdateView):
     model = models.LineObject
     form_class = forms.LineObjectForm
     success_url = reverse_lazy('scifi:lo_list')
 
 
-class LineObjectCreateView(SciFiAccessRequiredMixin, CreateView):
+class LineObjectCreateView(SciFiAdminRequiredMixin, CreateView):
     model = models.LineObject
     form_class = forms.LineObjectForm
     success_url = reverse_lazy('scifi:lo_list')
 
 
-class LineObjectDeleteView(SciFiAccessRequiredMixin, DeleteView):
+class LineObjectDeleteView(SciFiAdminRequiredMixin, DeleteView):
     model = models.LineObject
     success_url = reverse_lazy('scifi:lo_list')
     success_message = 'The line object was successfully deleted!'
@@ -177,7 +179,7 @@ class LineObjectDeleteView(SciFiAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class LineObjectDetailView(SciFiAccessRequiredMixin, DetailView):
+class LineObjectDetailView(SciFiAdminRequiredMixin, DetailView):
     model = models.LineObject
 
     def get_context_data(self, **kwargs):
@@ -197,19 +199,19 @@ class ResponsibilityCentreListView(SciFiAccessRequiredMixin, ListView):
     model = models.ResponsibilityCenter
 
 
-class ResponsibilityCentreUpdateView(SciFiAccessRequiredMixin, UpdateView):
+class ResponsibilityCentreUpdateView(SciFiAdminRequiredMixin, UpdateView):
     model = models.ResponsibilityCenter
     form_class = forms.ResponsibilityCentreForm
     success_url = reverse_lazy('scifi:rc_list')
 
 
-class ResponsibilityCentreCreateView(SciFiAccessRequiredMixin, CreateView):
+class ResponsibilityCentreCreateView(SciFiAdminRequiredMixin, CreateView):
     model = models.ResponsibilityCenter
     form_class = forms.ResponsibilityCentreForm
     success_url = reverse_lazy('scifi:rc_list')
 
 
-class ResponsibilityCentreDeleteView(SciFiAccessRequiredMixin, DeleteView):
+class ResponsibilityCentreDeleteView(SciFiAdminRequiredMixin, DeleteView):
     model = models.ResponsibilityCenter
     success_url = reverse_lazy('scifi:rc_list')
     success_message = 'The RC was successfully deleted!'
@@ -256,19 +258,19 @@ class ProjectListView(SciFiAccessRequiredMixin, FilterView):
         return context
 
 
-class ProjectUpdateView(SciFiAccessRequiredMixin, UpdateView):
+class ProjectUpdateView(SciFiAdminRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectForm
     success_url = reverse_lazy('scifi:project_list')
 
 
-class ProjectCreateView(SciFiAccessRequiredMixin, CreateView):
+class ProjectCreateView(SciFiAdminRequiredMixin, CreateView):
     model = models.Project
     form_class = forms.ProjectForm
     success_url = reverse_lazy('scifi:project_list')
 
 
-class ProjectDeleteView(SciFiAccessRequiredMixin, DeleteView):
+class ProjectDeleteView(SciFiAdminRequiredMixin, DeleteView):
     model = models.Project
     success_url = reverse_lazy('scifi:project_list')
     success_message = 'The project was successfully deleted!'
@@ -299,7 +301,7 @@ class ProjectDetailView(SciFiAccessRequiredMixin, DetailView):
 # TRANSACTION #
 ###############
 
-class TransactionListView(SciFiAccessRequiredMixin, FilterView):
+class TransactionListView(SciFiAdminRequiredMixin, FilterView):
     template_name = 'scifi/transaction_list.html'
     filterset_class = filters.TransactionFilter
     model = models.Transaction
@@ -341,7 +343,7 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
         return kwargs
 
 
-class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
+class TransactionDetailView(SciFiAdminRequiredMixin, DetailView):
     model = models.Transaction
 
     def get_context_data(self, **kwargs):
@@ -370,7 +372,7 @@ class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
         return context
 
 
-class TransactionUpdateView(SciFiAccessRequiredMixin, UpdateView):
+class TransactionUpdateView(SciFiAdminRequiredMixin, UpdateView):
     model = models.Transaction
     form_class = forms.TransactionForm
 
@@ -401,7 +403,7 @@ class TransactionUpdateView(SciFiAccessRequiredMixin, UpdateView):
 
         return context
 
-class TransactionCreateView(SciFiAccessRequiredMixin, CreateView):
+class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
     model = models.Transaction
     form_class = forms.TransactionForm
 
@@ -434,7 +436,7 @@ class TransactionCreateView(SciFiAccessRequiredMixin, CreateView):
 
         return context
 
-class TransactionDeleteView(SciFiAccessRequiredMixin, DeleteView):
+class TransactionDeleteView(SciFiAdminRequiredMixin, DeleteView):
     model = models.Transaction
     success_url = reverse_lazy('scifi:trans_list')
     success_message = 'The transaction was successfully deleted!'
@@ -442,6 +444,61 @@ class TransactionDeleteView(SciFiAccessRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+## CUSTOM TRANSACTIONS
+
+class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
+    model = models.Transaction
+    form_class = forms.CustomTransactionForm
+    template_name = "scifi/custom_transaction_form.html"
+
+    def get_initial(self):
+        return {
+            'created_by': self.request.user,
+            'transaction_type': 1,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get lists
+        rc_list = ['<a href="#" class="rc_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.ResponsibilityCenter.objects.all()]
+        context['rc_list'] = rc_list
+
+        bl_list = ['<a href="#" class="bl_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.BusinessLine.objects.all()]
+        context['bl_list'] = bl_list
+
+        ac_list = ['<a href="#" class="ac_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.AllotmentCode.objects.all()]
+        context['ac_list'] = ac_list
+
+        lo_list = ['<a href="#" class="lo_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                   models.LineObject.objects.all()]
+        context['lo_list'] = lo_list
+
+        project_list = ['<a href="#" class="project_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for
+                        obj in
+                        models.Project.objects.all()]
+        context['project_list'] = project_list
+
+        # project dict for default coding
+        project_dict = {}
+        for project in models.Project.objects.all():
+            project_dict[project.code] = {}
+            project_dict[project.code]["rc"] = project.default_responsibility_center_id
+            project_dict[project.code]["bl"] = project.default_business_line_id
+            project_dict[project.code]["al"] = project.default_allotment_code_id
+            project_dict[project.code]["lo"] = project.default_line_object_id
+
+        project_json = json.dumps(project_dict)
+        # send JSON file to template so that it can be used by js script
+        context['project_json'] = project_json
+
+        return context
+
 
 
 # REPORTS #
