@@ -3,12 +3,12 @@ from django.template import loader
 from_email = 'DoNotReply@GulfSciFi.com'
 admin_email = 'david.fishman@dfo-mpo.gc.ca'
 kim_email = 'Kimberly.Bertolin@dfo-mpo.gc.ca'
-yves_email = 'Kimberly.Bertolin@dfo-mpo.gc.ca'
+yves_email = 'Yves.Despres@dfo-mpo.gc.ca'
 
 
 class NewEntryEmail:
     def __init__(self, object):
-        self.subject = 'a new entry has been made in the iHub web app'
+        self.subject = 'A new expense has been entered into SciFi'
         self.message = self.load_html_template(object)
         self.from_email = from_email
         self.to_list = [kim_email, yves_email, admin_email]
