@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django_filters.views import FilterView
 from django.utils import timezone
 
+from lib.functions.fiscal_year import fiscal_year
 from . import models
 from . import forms
 from . import filters
@@ -668,14 +669,36 @@ def move_record(request, sample, type, direction, current_id):
             return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample': sample, "pk": target_id}))
 
 
-# PROGRESS REPORT #
-###################
+# REPORTS #
+###########
 
-class ProgressReportListView(HerringAccessRequired, ListView):
-    template_name = 'herring/progress_report_list.html'
 
-    def get_queryset(self):
-        return models.Sample.objects.order_by("-season").values('season').distinct()
+class ReportSearchFormView(HerringAccessRequired, FormView):
+    template_name = 'herring/report_search.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.ReportSearchForm
+
+    def get_initial(self):
+        # default the year to the year of the latest samples
+        return {
+            # "report": 1,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        year = int(form.cleaned_data["year"])
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("herring:progress_report_detail", kwargs={'year': year}))
+        elif report == 2:
+            return HttpResponseRedirect(reverse("herring:export_fish_detail", kwargs={'year': year}))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("herring:report_search"))
 
 
 class ProgressReportDetailView(HerringAccessRequired, ListView):
@@ -793,6 +816,130 @@ def export_progess_report(request, year):
                 sample.sampler,
                 sample.total_fish_preserved,
                 lab_processed_date,
+                otolith_processed_date,
+            ])
+
+    return response
+
+
+def export_fish_detail(request, year):
+    # create instance of mission:
+    qs = models.FishDetail.objects.filter(sample__season=year)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="herring_fish_detail_report_{}.csv"'.format(year)
+    writer = csv.writer(response)
+
+    # write the header information
+    # writer.writerow(['{} Fish Detail Export'.format(year), "", "", "", "", "",
+    #                  'Report generated on {}'.format(timezone.now().strftime('%Y-%m-%d %H:%M')), ])
+
+    # write the header for the bottle table
+    # writer.writerow(["", ])
+
+    writer.writerow([
+        'sample',
+        'season',
+        'sample_type',
+        'sample_date',
+        'sampler_ref_number',
+        'sampler',
+        'district',
+        'survey_id',
+        'latitude_n',
+        'longitude_w',
+        'fishing_area',
+        'gear',
+        'experimental_net_used',
+        'vessel_cfvn',
+        'mesh_size',
+        'sample_remarks',
+        'fish_uid',
+        'fish_number',
+        'fish_length',
+        'fish_weight',
+        'sex',
+        'maturity',
+        'gonad_weight',
+        'parasite',
+        'lab_sampler',
+        'otolith_sampler',
+        'lab_processed_date',
+        'annulus_count',
+        'otolith_season',
+        'otolith_image_remote_filepath',
+        'otolith_processed_date',
+    ])
+
+    for fish_detail in qs:
+        if fish_detail.sample.sampler:
+            sampler = "{} {}".format(fish_detail.sample.sampler.first_name, fish_detail.sample.sampler.last_name)
+        else:
+            sampler = None
+
+        if fish_detail.lab_sampler:
+            lab_sampler = "{} {}".format(fish_detail.lab_sampler.first_name, fish_detail.lab_sampler.last_name)
+        else:
+            lab_sampler = None
+
+        if fish_detail.otolith_sampler:
+            otolith_sampler = "{} {}".format(fish_detail.otolith_sampler.first_name, fish_detail.otolith_sampler.last_name)
+        else:
+            otolith_sampler = None
+
+        if fish_detail.sample.sample_date:
+            sample_date = fish_detail.sample.sample_date.strftime('%Y-%m-%d')
+        else:
+            sample_date = None
+
+        if fish_detail.lab_processed_date:
+            lab_processed_date = fish_detail.lab_processed_date.strftime('%Y-%m-%d')
+        else:
+            lab_processed_date = None
+
+        if fish_detail.otolith_processed_date:
+            otolith_processed_date = fish_detail.otolith_processed_date.strftime('%Y-%m-%d')
+        else:
+            otolith_processed_date = None
+
+        if fish_detail.sample.district:
+            district = "{}{}".format(fish_detail.sample.district.province_id, fish_detail.sample.district.district_id)
+        else:
+            district = None
+
+        writer.writerow(
+            [
+                fish_detail.sample.id,
+                fish_detail.sample.season,
+                fish_detail.sample.get_type_display(),
+                sample_date,
+                fish_detail.sample.sampler_ref_number,
+                sampler,
+                district,
+                fish_detail.sample.survey_id,
+                fish_detail.sample.latitude_n,
+                fish_detail.sample.longitude_w,
+                str(fish_detail.sample.fishing_area),
+                str(fish_detail.sample.gear),
+                fish_detail.sample.experimental_net_used,
+                fish_detail.sample.vessel_cfvn,
+                str(fish_detail.sample.mesh_size),
+                fish_detail.sample.remarks,
+                fish_detail.id,
+                fish_detail.fish_number,
+                fish_detail.fish_length,
+                fish_detail.fish_weight,
+                str(fish_detail.sex),
+                str(fish_detail.maturity),
+                fish_detail.gonad_weight,
+                fish_detail.parasite,
+                lab_sampler,
+                otolith_sampler,
+                lab_processed_date,
+                fish_detail.annulus_count,
+                fish_detail.otolith_season,
+                fish_detail.otolith_image_remote_filepath,
                 otolith_processed_date,
             ])
 
