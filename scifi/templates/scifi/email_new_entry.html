@@ -1,0 +1,43 @@
+<p>
+    A new entry in the SciFi web app has been logged with the following details:
+</p>
+<table>
+
+    <tr>
+        <td><b>Transaction type:</b></td>
+        <td>{{ object.get_transaction_type_display }}</td>
+    </tr>
+    <tr>
+        <td><b>Supplier description:</b></td>
+        <td>{{ object.supplier_description }}</td>
+    </tr>
+    <tr>
+        <td><b>Obligation cost:</b></td>
+        <td>{{ object.obligation_cost }}</td>
+    </tr>
+    <tr>
+        <td><b>Invoice cost:</b></td>
+        <td>{{ object.invoice_cost }}</td>
+    </tr>
+    <tr>
+        <td><b>Reference number:</b></td>
+        <td>{{ object.reference_number }}</td>
+    </tr>
+    <tr>
+        <td><b>Comment:</b></td>
+        <td>{{ object.comment }}</td>
+    </tr>
+    <tr>
+        <td><b>created_by:</b></td>
+        <td>{{ object.created_by.first_name }} {{ object.created_by.last_name }}</td>
+    </tr>
+</table>
+<p>
+    The full entry can be viewed <a href="http://glf-sci-dm{% url 'sci:trans_detail' object.id %}">HERE</a>.
+</p>
+
+<style media="screen">
+    table, td {
+        border: solid 1px black;
+    }
+</style>

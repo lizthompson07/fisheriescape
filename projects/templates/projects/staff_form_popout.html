@@ -64,7 +64,7 @@
                                 <a href="#" id="ot_calc">
                                     <img src="{% static "/img/calculator.png" %}" alt="" style="width:75%"
                                          data-toggle="tooltip" title="{% trans "OT Calculator" %}">
-                                                                        {% trans "(Open OT Calculator)" %}<br>
+                                    {% trans "(Open OT Calculator)" %}<br>
                                 </a>
                             </p>
                         </div>
@@ -148,7 +148,7 @@
             } else {
                 $("#id_student_program").prop("disabled", false)
             }
-            // if employee type is fte, disable "cost" field and the "name" field
+            // if employee type is fte, disable "cost" field and the "name" field and the "level" field
             if ($("#id_employee_type").val() == "1" || $("#id_employee_type").val() == "6") {
                 $("#id_cost").val("")
                 $("#id_cost").prop("disabled", true)
@@ -156,15 +156,15 @@
                 $("#id_level").val("")
                 $("#id_level").prop("disabled", true)
 
-                $("#id_name").val("")
-                $("#id_name").prop("disabled", true)
+                //$("#id_name").val("")
+                //$("#id_name").prop("disabled", true)
 
 
             } else {
                 $("#id_cost").prop("disabled", false)
                 $("#id_level").prop("disabled", false)
-                checkUser()
             }
+            checkUser()
 
 
         }
