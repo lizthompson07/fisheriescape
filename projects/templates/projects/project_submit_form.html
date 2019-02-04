@@ -42,14 +42,7 @@
 
         <form method="post" class="form">
             {% csrf_token %}
-            {% buttons %}
-                <button type="submit" class="btn btn-success">
-                    {% trans "OK" %}
-                </button>
-                <a class="btn btn-secondary" href="{% url 'projects:project_detail' object.id %}">
-                    {% trans "Cancel" %}
-                </a>
-            {% endbuttons %}
+
 
             {% for field in form %}
                 {% bootstrap_field field placeholder="" %}

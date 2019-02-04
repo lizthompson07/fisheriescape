@@ -43,7 +43,6 @@ class TransactionForm(forms.ModelForm):
             "created_by": forms.HiddenInput(),
             "creation_date": forms.DateInput(attrs={"type": "date"}),
             "invoice_date": forms.DateInput(attrs={"type": "date"}),
-            # "responsibility_center": forms.NumberInput(),
         }
 
 
