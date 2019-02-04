@@ -1,5 +1,7 @@
 from django import forms
 from django.core import validators
+from django.utils import timezone
+
 from . import models
 from django.utils.safestring import mark_safe
 
@@ -190,3 +192,18 @@ class OtolithForm(forms.ModelForm):
             "test_209_accepted":forms.TextInput(attrs=attr_dict_1),
             "test_311_accepted":forms.TextInput(attrs=attr_dict_1),
         }
+
+
+
+class ReportSearchForm(forms.Form):
+    YEAR_CHOICES = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
+    REPORT_CHOICES = [
+        (1, "Progress Report"),
+        (2, "Fish detail CSV export"),
+    ]
+    REPORT_CHOICES.insert(0, (None, "------"))
+
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
+    # rc = forms.ChoiceField(required=False, choices=RC_CHOICES, label="Responsibility centre")
+    # project = forms.ChoiceField(required=False, choices=PROJECT_CHOICES, label="Project")

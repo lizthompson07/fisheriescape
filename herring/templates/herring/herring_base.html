@@ -3,13 +3,13 @@
 {% load bootstrap4 %}
 {% block bug_create %}{% url 'bugs:bug_create' 4 %}{% endblock bug_create %}
 {% block bug_list_4_app %}
-  <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 4 %}">HERmorrhage Bugs</a>
+    <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 4 %}">HERmorrhage Bugs</a>
 {% endblock bug_list_4_app %}
 
 {% block title %}HERmorrhage{% endblock title %}
 
 {% block body %}
-  {% block content %}{% endblock content %}
+    {% block content %}{% endblock content %}
 {% endblock body %}
 
 {% block left_all %}
@@ -20,30 +20,23 @@
 
 {% block left_auth %}
 
-  {# Samples #}
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Samples
-    </a>
-    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="{% url 'herring:sample_new' %}">New</a>
-      <a class="dropdown-item" href="{% url 'herring:sample_list' %}">Search</a>
-      {# <a class="dropdown-item" href="#">New Sea Sample</a> #}
-    </div>
-  </li>
+    {# Samples #}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            Samples
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'herring:sample_new' %}">New</a>
+            <a class="dropdown-item" href="{% url 'herring:sample_list' %}">Search</a>
+            {# <a class="dropdown-item" href="#">New Sea Sample</a> #}
+        </div>
+    </li>
 
     {# Reports #}
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Reports
-    </a>
-    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="{% url 'herring:progress_report_list' %}">Annual progress report</a>
-      {# <a class="dropdown-item" href="#">New Sea Sample</a> #}
-    </div>
-  </li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'herring:report_search' %}">Reports</a></li>
+
 
 
 
