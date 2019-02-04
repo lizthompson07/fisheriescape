@@ -464,17 +464,17 @@ class TransactionDeleteView(SciFiAdminRequiredMixin, DeleteView):
 class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
     model = models.Transaction
     form_class = forms.CustomTransactionForm
-    template_name = "scifi/custom_transaction_form.html"
+    template_name = "scifi/transaction_form.html"
 
     def get_initial(self):
         return {
             'created_by': self.request.user,
             'transaction_type': 1,
-
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['custom_transaction'] = True
 
         # get lists
         rc_list = ['<a href="#" class="rc_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in

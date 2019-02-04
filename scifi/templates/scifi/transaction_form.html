@@ -9,24 +9,31 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'scifi:trans_list' %}">Transaction List</a></li>
-            {% if object %}
-                <li class="breadcrumb-item active" aria-current="page">Edit Transaction: {{ object }}</li>
+            {% if custom_transaction %}
+                <li class="breadcrumb-item active" aria-current="page">New Expense</li>
             {% else %}
-                <li class="breadcrumb-item active" aria-current="page">New Transaction</li>
+                {% if object %}
+                    <li class="breadcrumb-item active" aria-current="page">Edit Transaction: {{ object }}</li>
+                {% else %}
+                    <li class="breadcrumb-item active" aria-current="page">New Transaction</li>
+                {% endif %}
             {% endif %}
         </ol>
     </nav>
 
     <div class="container">
         <h1>
-            {% if object %}
-                {{ object }}
+            {% if custom_transaction %}
+                New Expense
             {% else %}
-                New Transaction
+                {% if object %}
+                    {{ object }}
+                {% else %}
+                    New Transaction
+                {% endif %}
             {% endif %}
         </h1>
 
-        {% bootstrap_form_errors form %}
         <form method="post" class="form" style="width: 85%;">
             {% csrf_token %}
 
@@ -51,7 +58,7 @@
                         </div>
                     </div>
 
-                    <div id="rc_field_div">
+                    <div id="rc_field_div" class="appear-on-error">
                         {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
                         <div class="form-group row" style="margin-top: 0px;">
                             <label for="clear_rc" class="col-md-3 col-form-label"></label>
@@ -79,7 +86,7 @@
                         </div>
                     </div>
 
-                    <div id="bl_field_div">
+                    <div id="bl_field_div" class="appear-on-error">
                         {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
                         <div class="form-group row" style="margin-top: 0px;">
                             <label for="clear_bl" class="col-md-3 col-form-label"></label>
@@ -107,7 +114,7 @@
                         </div>
                     </div>
 
-                    <div id="ac_field_div">
+                    <div id="ac_field_div" class="appear-on-error">
                         {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
                         <div class="form-group row" style="margin-top: 0px;">
                             <label for="clear_ac" class="col-md-3 col-form-label"></label>
@@ -134,7 +141,7 @@
                         </div>
                     </div>
 
-                    <div id="lo_field_div">
+                    <div id="lo_field_div" class="appear-on-error">
                         {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
                         <div class="form-group row" style="margin-top: 0px;">
                             <label for="clear_lo" class="col-md-3 col-form-label"></label>
@@ -161,7 +168,7 @@
                         </div>
                     </div>
 
-                    <div id="project_field_div">
+                    <div id="project_field_div" class="appear-on-error">
                         {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
                         <div class="form-group row" style="margin-top: 0px;">
                             <label for="clear_project" class="col-md-3 col-form-label"></label>
@@ -180,14 +187,20 @@
 
             <div class="btn-group">
                 {% if object %}
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
+                    <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+                    <a class="btn btn-sm btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
                 {% else %}
-                    <button id="submit" type="submit" class="btn btn-success">Save and Next (Ctrl+A)</button>
-                    <button id="submit_done" type="submit" class="btn btn-primary">Save and Done (Ctrl+S)</button>
-                    <a class="btn btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
+                    <button id="submit" type="submit" class="btn btn-sm btn-success">Save & Next (Ctrl+A)</button>
+                    <button id="submit_done" type="submit" class="btn btn-sm btn-primary">Save & Back (Ctrl+S)</button>
+                    {% if custom_transaction %}
+                        <a class="btn btn-secondary" href="{% url 'scifi:index' %}">Cancel</a>
+                    {% else %}
+                        <a class="btn btn-sm btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
+                    {% endif %}
                 {% endif %}
             </div>
+            <br>
+            <br>
 
 
         </form>
@@ -197,12 +210,15 @@
 
     <script type="text/javascript">
         window.name = "motherWindow";
-        var position = 0;
         var rcList = {{rc_list|safe}};
         var blList = {{bl_list|safe}};
         var acList = {{ac_list|safe}};
         var loList = {{lo_list|safe}};
         var projectList = {{project_list|safe}};
+
+        {% if custom_tranaction %}
+            var projectObj = {{project_json|safe}};
+        {% endif %}
 
         $("#submit_done").click(function () {
             // clear the do_another field
@@ -212,6 +228,11 @@
         $(document).ready(function () {
             $("#rc_interpreter")[0].focus()
 
+            // remove the required prop from hidden fields so that they show up on the form errors
+            $("#id_responsibility_center").prop("required", false)
+            $("#id_allotment_code").prop("required", false)
+            $("#id_business_line").prop("required", false)
+            $("#id_project").prop("required", false)
 
             document.addEventListener("keydown", function (zEvent) {
                 if (zEvent.ctrlKey && zEvent.code === "KeyS") {
@@ -254,6 +275,9 @@
                 $("#project_field_div").prop("hidden", true)
             {% endif %}
 
+            if ($(".invalid-feedback").length > 0) {
+                $(".appear-on-error").prop("hidden", false)
+            }
 
         });
 
