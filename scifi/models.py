@@ -39,7 +39,7 @@ class AllotmentCode(models.Model):
     )
     code = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, null=True)
-    category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, default="other")
+    # category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, default="other")
     allotment_category = models.ForeignKey(AllotmentCategory, on_delete=models.DO_NOTHING, related_name="allotment_codes", blank=True, null=True)
 
     def __str__(self):
@@ -115,16 +115,12 @@ class Transaction(models.Model):
     )
 
     fiscal_year = models.CharField(blank=True, null=True, max_length=25)
-    responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                              related_name='transactions')
-    business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                      related_name='transactions')
-    allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                       related_name='transactions')
+    responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, related_name='transactions')
+    business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, related_name='transactions')
+    allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, related_name='transactions')
     line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True,
                                     related_name='transactions')
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                related_name="transactions")
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="transactions")
     transaction_type = models.IntegerField(default=1, choices=TYPE_CHOICES)
     supplier_description = models.CharField(max_length=1000, blank=True, null=True)
     creation_date = models.DateTimeField(default=timezone.now)
