@@ -8,10 +8,10 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'scifi:trans_list' %}">Transaction List</a></li>
             {% if custom_transaction %}
                 <li class="breadcrumb-item active" aria-current="page">New Expense</li>
             {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'scifi:trans_list' %}">Transaction List</a></li>
                 {% if object %}
                     <li class="breadcrumb-item active" aria-current="page">Edit Transaction: {{ object }}</li>
                 {% else %}
@@ -216,7 +216,7 @@
         var loList = {{lo_list|safe}};
         var projectList = {{project_list|safe}};
 
-        {% if custom_tranaction %}
+        {% if custom_transaction %}
             var projectObj = {{project_json|safe}};
         {% endif %}
 
@@ -226,7 +226,11 @@
         })
 
         $(document).ready(function () {
-            $("#rc_interpreter")[0].focus()
+            {% if custom_transaction %}
+                $("#project_interpreter")[0].focus()
+            {% else %}
+                $("#rc_interpreter")[0].focus()
+            {% endif %}
 
             // remove the required prop from hidden fields so that they show up on the form errors
             $("#id_responsibility_center").prop("required", false)
@@ -279,6 +283,7 @@
                 $(".appear-on-error").prop("hidden", false)
             }
 
+
         });
 
 
@@ -287,9 +292,9 @@
                 event.preventDefault()
             }
         });
+
         $(".no-tab").keydown(function (event) {
             if (event.key == "Tab") {
-                console.log("123")
                 event.preventDefault()
             }
         });
@@ -444,7 +449,12 @@
                     $("#id_line_object").val(code)
 
                     // where to go next
-                    $("#project_interpreter")[0].focus()
+                    // will depend on which form we are in:
+                    {% if custom_transaction %}
+                        $("#id_supplier_description")[0].focus()
+                    {% else %}
+                        $("#project_interpreter")[0].focus()
+                    {% endif %}
 
                 });
 
@@ -487,8 +497,17 @@
                     code = this.getAttribute("code")
                     $("#id_project").val(code)
 
+                    {% if custom_transaction %}
+                        setProjectDefaults()
+                    {% endif %}
+
                     // where to go next
-                    $("#id_transaction_type")[0].focus()
+                 // will depend on which form we are in:
+                    {% if custom_transaction %}
+                        $("#rc_interpreter")[0].focus()
+                    {% else %}
+                        $("#id_transaction_type")[0].focus()
+                    {% endif %}
 
                 });
 
@@ -512,6 +531,53 @@
             $("#project_interpreter")[0].focus()
         });
 
+        // special func for project; once populated, enter the default coding for rc, bl, ac and lo
+        function setProjectDefaults(clear = false) {
+            projectId = $("#id_project").val()
+
+            // RC
+            if (projectObj[projectId]["rc"] != "") {
+                $("#id_responsibility_center").val(projectObj[projectId]["rc"])
+                $("#rc_interpreter_div").prop("hidden", true)
+                $("#rc_field_div").prop("hidden", false)
+            }
+            // BL
+            if (projectObj[projectId]["bl"] != null) {
+                $("#id_business_line").val(projectObj[projectId]["bl"])
+                $("#bl_interpreter_div").prop("hidden", true)
+                $("#bl_field_div").prop("hidden", false)
+            }
+            // AC
+            if (projectObj[projectId]["ac"] != null) {
+                $("#id_allotment_code").val(projectObj[projectId]["ac"])
+                $("#ac_interpreter_div").prop("hidden", true)
+                $("#ac_field_div").prop("hidden", false)
+            }
+            // LO
+            if (projectObj[projectId]["lo"] != null) {
+                $("#id_line_object").val(projectObj[projectId]["lo"])
+                $("#lo_interpreter_div").prop("hidden", true)
+                $("#lo_field_div").prop("hidden", false)
+            }
+
+            // Where to?
+            if ($("#id_responsibility_center").val() == "") {
+                $("#rc_interpreter")[0].focus()
+            }
+            else if ($("#id_business_line").val() == "") {
+                $("#bl_interpreter")[0].focus()
+            }
+            else if ($("#id_allotment_code").val() == "") {
+                $("#ac_interpreter")[0].focus()
+            }
+            else if ($("#id_line_object").val() == "") {
+                $("#lo_interpreter")[0].focus()
+            }
+            else {
+                $("#id_supplier_description")[0].focus()
+            }
+
+        };
 
     </script>
 {% endblock content %}
