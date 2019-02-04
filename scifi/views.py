@@ -528,8 +528,12 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
                       recipient_list=email.to_list, fail_silently=False, )
         else:
             print('not sending email since in dev mode')
+            print(email.from_email)
+            print(email.to_list)
+            print(email.subject)
+            print(email.message)
         messages.success(self.request,
-                         "The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!")
+                         "The entry has been submitted and an email has been sent to the branch finance manager!")
 
         if form.cleaned_data["do_another"] == 1:
             return HttpResponseRedirect(reverse_lazy('scifi:ctrans_new'))
