@@ -6,6 +6,8 @@
   
   # TODO: the form for trans and custom trans should be the same.., DRY
   
+  # TODO: if you want to skip an interpreter field, you cannot do it with tab
+  
 # mand:
 # -----
 # rc

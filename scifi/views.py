@@ -1,7 +1,9 @@
 import json
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q, Sum
 from django.db.models.functions import Concat
 from django_filters.views import FilterView
@@ -16,6 +18,7 @@ from . import models
 from . import forms
 from . import filters
 from . import reports
+from . import emails
 
 
 # Create your views here.
@@ -470,6 +473,7 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         return {
             'created_by': self.request.user,
             'transaction_type': 1,
+            'do_another': 1,
         }
 
     def get_context_data(self, **kwargs):
@@ -514,7 +518,19 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        object = form.save()
+        self.object = form.save()
+
+        # create a new email object
+        email = emails.NewEntryEmail(self.object)
+        # send the email object
+        if settings.MY_ENVR != 'dev':
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
+        else:
+            print('not sending email since in dev mode')
+        messages.success(self.request,
+                         "The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!")
+
         if form.cleaned_data["do_another"] == 1:
             return HttpResponseRedirect(reverse_lazy('scifi:ctrans_new'))
         else:

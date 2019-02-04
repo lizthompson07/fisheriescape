@@ -59,6 +59,9 @@ class StaffForm(forms.ModelForm):
     class Meta:
         model = models.Staff
         fields = "__all__"
+        labels = {
+            "user": _("DFO User"),
+        }
         widgets = {
             'project': forms.HiddenInput(),
             'overtime_description': forms.Textarea(attrs={"rows": 5}),
