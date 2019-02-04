@@ -225,6 +225,36 @@
             $("#id_do_another").val("")
         })
 
+        function moveNext(fromField) {
+            if (fromField == "rc") {
+                $("#bl_interpreter")[0].focus()
+            }
+            else if (fromField == "bl") {
+                $("#ac_interpreter")[0].focus()
+            }
+            else if (fromField == "ac") {
+                $("#lo_interpreter")[0].focus()
+            }
+            else if (fromField == "lo") {
+                // will depend on which form we are in:
+                {% if custom_transaction %}
+                    $("#id_supplier_description")[0].focus()
+                {% else %}
+                    $("#project_interpreter")[0].focus()
+                {% endif %}
+            }
+            else if (fromField == "project") {
+                // will depend on which form we are in:
+                {% if custom_transaction %}
+                    $("#rc_interpreter")[0].focus()
+                {% else %}
+                    $("#id_transaction_type")[0].focus()
+                {% endif %}
+            }
+
+        }
+
+
         $(document).ready(function () {
             {% if custom_transaction %}
                 $("#project_interpreter")[0].focus()
@@ -294,7 +324,7 @@
         });
 
         $(".no-tab").keydown(function (event) {
-            if (event.key == "Tab") {
+            if (event.key == "Tab" && $(this).val() != "") {
                 event.preventDefault()
             }
         });
@@ -316,12 +346,10 @@
                     $("#rc_interpreter_div").prop("hidden", true)
                     code = this.getAttribute("code")
                     $("#id_responsibility_center").val(code)
-
                     // where to go next
-                    $("#bl_interpreter")[0].focus()
+                    moveNext("rc")
 
                 });
-
                 if (e.key == "Tab" || e.key == "Enter") {
                     $(".rc_insert")[0].click()
                 }
@@ -361,7 +389,7 @@
                     $("#id_business_line").val(code)
 
                     // where to go next
-                    $("#ac_interpreter")[0].focus()
+                    moveNext("bl")
 
                 });
 
@@ -405,7 +433,7 @@
                     $("#id_allotment_code").val(code)
 
                     // where to go next
-                    $("#lo_interpreter")[0].focus()
+                    moveNext("ac")
 
                 });
 
@@ -449,12 +477,7 @@
                     $("#id_line_object").val(code)
 
                     // where to go next
-                    // will depend on which form we are in:
-                    {% if custom_transaction %}
-                        $("#id_supplier_description")[0].focus()
-                    {% else %}
-                        $("#project_interpreter")[0].focus()
-                    {% endif %}
+                    moveNext("lo")
 
                 });
 
@@ -502,12 +525,7 @@
                     {% endif %}
 
                     // where to go next
-                 // will depend on which form we are in:
-                    {% if custom_transaction %}
-                        $("#rc_interpreter")[0].focus()
-                    {% else %}
-                        $("#id_transaction_type")[0].focus()
-                    {% endif %}
+                    moveNext("project")
 
                 });
 
