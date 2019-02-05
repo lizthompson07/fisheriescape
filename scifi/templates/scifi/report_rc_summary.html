@@ -59,7 +59,7 @@
                 <th>Total adjustments</th>
                 {% for ac in ac_list %}
                     {% with "total_adjustments" as var %}
-                        {% if my_dict|lookup:var|lookup:ac.code > 0 %}
+                        {% if my_dict|lookup:var|lookup:ac.code != 0 %}
                             <td class="blue-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
                         {% else %}
                             <td></td>
