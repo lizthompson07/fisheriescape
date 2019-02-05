@@ -104,18 +104,18 @@ var qcFeedbackObject = {}
 
 
 function testImprobableAccepted(objectType) {
-    failedTests = []
-    blankTests = []
+    failedTests = [];
+    blankTests = [];
 
     if (objectType === "lab_sample") {
         // grab all test related to probability
-        testList = [204, 207, 302, 305, 308]
-        targetTest = 208
+        testList = [204, 207, 302, 305, 308];
+        targetTest = 208;
     }
     if (objectType === "otolith_sample") {
         // grab all test related to probability
-        testList = [209, 311]
-        targetTest = 211
+        testList = [209, 311];
+        targetTest = 211;
     }
 
     // first determine if there is an improbable observation, or if blank; also set formatting on the "accepted" column
