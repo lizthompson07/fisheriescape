@@ -1,17 +1,15 @@
-# TODO: when you select a project code from a new transaction.. it should default to the correct coding
- 
- 
-# TODO: some trans do not have values in the mandatory fields... what do we do?
-# TODO: custom transaction form with email send to kim each time a new transaction is created.
-  
-  # TODO: the form for trans and custom trans should be the same.., DRY
-  
-  # TODO: if you want to skip an interpreter field, you cannot do it with tab
-  
-# mand:
-# -----
-# rc
-# allot
-# bl
-# project
+# TODO: summary in reports to be broken down by allotment code
+
+# TODO: back to 1 rc per project
+ ## in order to do this, I think we need to adjust all the coding first and implement
+ ## only once there are no overlapping projects
+
+# TODO: project report should be sorted by type then date
+
+# todo:  reconciliation form --> must have project code filter with a toggle field for not in mrs (see veggiebase seasonality)
+    ## just build this into the main transaction form.. with a filter for Not in MRS
+
+# TODO: make excel exports
+
+
 
