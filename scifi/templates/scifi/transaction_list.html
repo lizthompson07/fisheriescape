@@ -52,8 +52,8 @@
         <div class="row">
             <div class="col-12">
                 Total transactions = {{ object_list.count }}<br><br>
-                {% paginate 3000 filter.qs as filter_list %}
-                {% show_pages %} <b><em>(ordered by creation date)</em></b>
+{#                {% paginate 3000 filter.qs as filter_list %}#}
+{#                {% show_pages %} <b><em>(ordered by creation date)</em></b>#}
                 <div class="float-right" style="padding-bottom: 10px">
                     <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">New
                         Transaction (Ctrl+A)</a>
@@ -62,7 +62,7 @@
                     <thead>
                     <tr>
                         <th></th>
-                        {% for field in field_list %}
+                        {% for field in filter.qs %}
                             {% if field == "fiscal_year" or field == "invoice_date" %}
                                 <th scope="col" style="width: 80px;">{% get_verbose_label my_object field %}</th>
                             {% elif field == "project.code" %}
