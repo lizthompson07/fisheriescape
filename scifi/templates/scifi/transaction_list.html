@@ -62,7 +62,7 @@
                     <thead>
                     <tr>
                         <th></th>
-                        {% for field in filter.qs %}
+                        {% for field in field_list %}
                             {% if field == "fiscal_year" or field == "invoice_date" %}
                                 <th scope="col" style="width: 80px;">{% get_verbose_label my_object field %}</th>
                             {% elif field == "project.code" %}
@@ -76,7 +76,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for object in filter_list %}
+                    {% for object in filter.qs %}
                         <tr>
                             <td style="font-size: x-small">
                                 <a href="{% url 'scifi:trans_detail' object.id %}">
