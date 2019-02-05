@@ -20,7 +20,6 @@ from . import forms
 from . import filters
 from . import reports
 from lib.functions.nz import nz
-from django.utils.encoding import smart_str
 
 
 class CloserTemplateView(TemplateView):
@@ -612,7 +611,8 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
 
 def report_species_count(request, species_list):
     reports.generate_species_count_report(species_list)
-    return render(request, "camp/report_display.html")
+    context = {"now": timezone.now()}
+    return render(request, "camp/report_display.html", context)
 
 
 def report_species_richness(request, site=None):
@@ -654,7 +654,5 @@ def annual_watershed_spreadsheet(request, site, year):
 
 
 def fgp_export(request):
-
     response = reports.generate_fgp_export()
     return response
-
