@@ -50,3 +50,4 @@ class TransactionFilter(django_filters.FilterSet):
     responsibility_center = django_filters.ChoiceFilter(field_name='responsibility_center',
                                                         lookup_expr='exact', choices=RC_CHOICES, label="Responsibility center")
     ref_num = django_filters.CharFilter(field_name='reference_number', lookup_expr='icontains', label="Ref. num.")
+    in_mrs = django_filters.BooleanFilter(field_name='in_mrs', lookup_expr='exact', label="In MRS?")
