@@ -52,7 +52,7 @@
         <div class="row">
             <div class="col-12">
                 Total transactions = {{ object_list.count }}<br><br>
-                {% paginate 40 filter.qs as filter_list %}
+                {% paginate 3000 filter.qs as filter_list %}
                 {% show_pages %} <b><em>(ordered by creation date)</em></b>
                 <div class="float-right" style="padding-bottom: 10px">
                     <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">New
