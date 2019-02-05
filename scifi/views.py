@@ -692,8 +692,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         ac_list = [models.AllotmentCode.objects.get(pk=t["allotment_code"]) for t in
                    models.Transaction.objects.filter(fiscal_year=fy).filter(
                        responsibility_center=rc.id).values(
-                       "allotment_code").order_by("allotment_code").distinct() if
-                   t["allotment_code"]]
+                       "allotment_code").order_by("allotment_code").distinct()]
         context["ac_list"] = ac_list
 
         # will have to make a custom dictionary to send in
