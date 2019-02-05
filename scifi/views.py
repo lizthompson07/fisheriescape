@@ -14,6 +14,7 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 import os
 
 from lib.functions.fiscal_year import fiscal_year
+from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
@@ -681,74 +682,96 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         rc = models.ResponsibilityCenter.objects.get(pk=self.kwargs['rc'])
         context["rc"] = rc
 
-        # will have to make a custom dictionary to send in
-        my_dict = {}
-        total_obligations = 0
-        total_expenditures = 0
-        total_allocations = 0
-        total_adjustments = 0
-
         project_list = [models.Project.objects.get(pk=rc["project"]) for rc in
                         models.Transaction.objects.filter(fiscal_year=fiscal_year).filter(
                             responsibility_center=rc.id).values(
                             "project").order_by("project").distinct() if
                         rc["project"] is not None]
         context["project_list"] = project_list
+
+        ac_list = [models.AllotmentCode.objects.get(pk=rc["allotment_code"]) for rc in
+                   models.Transaction.objects.filter(fiscal_year=fiscal_year).filter(
+                       responsibility_center=rc.id).values(
+                       "allotment_code").order_by("allotment_code").distinct() if
+                   rc["allotment_code"]]
+        context["ac_list"] = ac_list
+
+        # will have to make a custom dictionary to send in
+        my_dict = {}
+        total_obligations = {}
+        total_expenditures = {}
+        total_allocations = {}
+        total_adjustments = {}
+
+        for ac in ac_list:
+            total_obligations[ac.code] = 0
+            total_expenditures[ac.code] = 0
+            total_allocations[ac.code] = 0
+            total_adjustments[ac.code] = 0
+
         for p in project_list:
             my_dict[p.code] = {}
+            my_dict[p.code]["allocations"] = 0
+            my_dict[p.code]["adjustments"] = 0
+            my_dict[p.code]["obligations"] = 0
+            my_dict[p.code]["expenditures"] = 0
+            for ac in ac_list:
 
-            # project allocation
-            try:
-                project_allocations = \
-                    models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
-                        transaction_type=3).values(
-                        "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
-            except TypeError:
-                project_allocations = 0
+                # project allocation
+                try:
+                    project_allocations = \
+                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
+                            transaction_type=3).filter(allotment_code=ac).values("project").order_by(
+                            "project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                except TypeError:
+                    project_allocations = 0
 
-            my_dict[p.code]["allocations"] = project_allocations
-            # total allocations
-            total_allocations += project_allocations
+                my_dict[p.code]["allocations"] += project_allocations
 
-            # project adjustments
-            try:
-                project_adjustments = \
-                    models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
-                        transaction_type=2).values(
-                        "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
-            except TypeError:
-                project_adjustments = 0
+                # total allocations
+                ## must be done by allotment code
+                total_allocations[ac.code] += project_allocations
 
-            my_dict[p.code]["adjustments"] = project_adjustments
-            # total allocations
-            total_adjustments += project_adjustments
+                # project adjustments
+                try:
+                    project_adjustments = \
+                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
+                            transaction_type=2).filter(allotment_code=ac).values(
+                            "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                except TypeError:
+                    project_adjustments = 0
 
-            # project obligations
-            try:
-                project_obligations = \
-                    models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
-                        transaction_type=1).values(
-                        "project").order_by("project").distinct().annotate(dsum=Sum("outstanding_obligation")).first()[
-                        "dsum"]
-            except TypeError:
-                project_obligations = 0
+                my_dict[p.code]["adjustments"] += project_adjustments
+                # total allocations
+                total_adjustments[ac.code] += project_adjustments
 
-            my_dict[p.code]["obligations"] = project_obligations
-            # total obligations
-            total_obligations += project_obligations
+                # project obligations
+                try:
+                    project_obligations = \
+                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
+                            transaction_type=1).filter(allotment_code=ac).values(
+                            "project").order_by("project").distinct().annotate(
+                            dsum=Sum("outstanding_obligation")).first()[
+                            "dsum"]
+                except TypeError:
+                    project_obligations = 0
 
-            # project expenditures
-            try:
-                project_expenditures = \
-                    models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
-                        transaction_type=1).values(
-                        "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
-            except TypeError:
-                project_expenditures = 0
+                my_dict[p.code]["obligations"] += project_obligations
+                # total obligations
+                total_obligations[ac.code] += project_obligations
 
-            my_dict[p.code]["expenditures"] = project_expenditures
-            # total expenditures
-            total_expenditures += project_expenditures
+                # project expenditures
+                try:
+                    project_expenditures = \
+                        nz(models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
+                            transaction_type=1).filter(allotment_code=ac).values(
+                            "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"],0)
+                except TypeError:
+                    project_expenditures = 0
+
+                my_dict[p.code]["expenditures"] += project_expenditures
+                # total expenditures
+                total_expenditures[ac.code] += project_expenditures
 
         my_dict["total_obligations"] = total_obligations
         my_dict["total_expenditures"] = total_expenditures
