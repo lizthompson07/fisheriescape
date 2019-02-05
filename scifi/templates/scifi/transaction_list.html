@@ -3,7 +3,7 @@
 {% load bootstrap4 %}
 {% load nz %}
 {% load verbose_names %}
-{#{% load el_pagination_tags %}#}
+{% load el_pagination_tags %}
 {% load humanize %}
 {% block content %}
 
@@ -52,8 +52,8 @@
         <div class="row">
             <div class="col-12">
                 Total transactions = {{ object_list.count }}<br><br>
-{#                {% paginate 3000 filter.qs as filter_list %}#}
-{#                {% show_pages %} <b><em>(ordered by creation date)</em></b>#}
+                {% paginate 40 filter.qs as filter_list %}
+                {% show_pages %} <b><em>(ordered by creation date)</em></b>
                 <div class="float-right" style="padding-bottom: 10px">
                     <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">New
                         Transaction (Ctrl+A)</a>
@@ -76,8 +76,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for object in filter.qs %}
-                        <tr>
+                    {% for object in filter_list %}
+                        <tr id="trans{{ object.id }}">
                             <td style="font-size: x-small">
                                 <a href="{% url 'scifi:trans_detail' object.id %}">
                                     view
@@ -128,6 +128,16 @@
                                 {% get_field_value object field format="currency" %}
                             {% elif field == "allotment_code" %}
                                 {{ ac.code }} <br>({{ ac.allotment_category }})
+                            {% elif field == "in_mrs" %}
+                            {% get_field_value object field as val %}
+
+                                {% if request.META.QUERY_STRING %}
+                                    <a style="font-size: x-small" class="toggle_mrs btn btn-sm {% if val == "No" %}btn-warning{% else %}btn-outline-secondary{% endif %}" href="#" url="{% url 'scifi:toggle_mrs' object.id request.META.QUERY_STRING %}">
+                                {% else %}
+                                    <a style="font-size: x-small" class="toggle_mrs btn btn-sm {% if val == "No" %}btn-warning{% else %}btn-outline-secondary{% endif %}" href="#" url="{% url 'scifi:toggle_mrs' object.id %}">
+                                {% endif %}
+                                {{ val }}
+                            </a>
                             {% else %}
                                 {% get_field_value object field %}
                             {% endif %}
@@ -140,7 +150,7 @@
                     <br>
                     </tbody>
                 </table>
-{#                {% show_pages %}#}
+                {% show_pages %}
             </div>
         </div>
 
@@ -156,7 +166,15 @@
                 }
             })
         });
-
+        
+        $(".toggle_mrs").click(function () {
+          userInput = confirm("Do you want to toggle this field?")
+            if(userInput) {
+                window.location.href = ($(this).attr("url"))
+            }
+        })
+        
+        
     </script>
 
 {% endblock content %}

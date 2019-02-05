@@ -50,12 +50,16 @@ urlpatterns = [
     # TRANSACTION #
     ###############
     path('transactions/', views.TransactionListView.as_view(), name="trans_list"),
+    path('transactions/basic/', views.TransactionBasicListView.as_view(), name="btrans_list"),
     path('transaction/new/', views.TransactionCreateView.as_view(), name="trans_new"),
     path('transaction/<int:pk>/view/', views.TransactionDetailView.as_view(), name="trans_detail"),
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="trans_edit"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="trans_delete"),
     # custom transaction
     path('custom-transaction/new/', views.CustomTransactionCreateView.as_view(), name="ctrans_new"),
+    # reconciliation
+    path('transaction/<int:pk>/toggle-mrs/<str:query>', views.toggle_mrs, name="toggle_mrs"),
+    path('transaction/<int:pk>/toggle-mrs/', views.toggle_mrs, name="toggle_mrs"),
 
     # Reports #
     ###########
