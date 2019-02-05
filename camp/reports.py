@@ -4,6 +4,7 @@ import unicodecsv as csv
 import xlsxwriter as xlsxwriter
 from django.http import HttpResponse
 from django.template.defaultfilters import yesno
+from django.utils import timezone
 from math import pi
 
 from bokeh.io import show, export_png, export_svgs
@@ -26,6 +27,7 @@ def generate_species_count_report(species_list):
     # start assigning files and by cleaning the temp dir
     base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
+    target_file = os.path.join(target_dir, 'report_temp_{}.html'.format(timezone.now().strftime("%H%M%S")))
     target_file = os.path.join(target_dir, 'report_temp.html')
 
     try:
