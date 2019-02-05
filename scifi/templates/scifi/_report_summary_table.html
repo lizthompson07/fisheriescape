@@ -1,0 +1,104 @@
+{% load lookup %}
+{% load divide %}
+{% load add %}
+{% load subtract %}
+
+<table class="table table-sm table-hover table-bordered" style="width: auto;">
+    <thead>
+    <tr>
+        <th rowspan="2"></th>
+        <th colspan="{{ ac_list|length }}" style="text-align: center">Allotment Codes (thousands of dollars)
+        </th>
+    </tr>
+    <tr>
+        {% for ac in ac_list %}
+            <th style="background-color: {{ ac.allotment_category.color }};">{{ ac.code }}
+                ({{ ac.allotment_category }})
+            </th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th>Total allocations</th>
+        {% for ac in ac_list %}
+            {% with "total_allocations" as var %}
+                {% if my_dict|lookup:var|lookup:ac.code %}
+                    <td class="green-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+    </tr>
+    <tr>
+        <th>Total adjustments</th>
+        {% for ac in ac_list %}
+            {% with "total_adjustments" as var %}
+                {% if my_dict|lookup:var|lookup:ac.code != 0 %}
+                    <td class="blue-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+    </tr>
+    <tr>
+        <th>Total outstanding obligations</th>
+        {% for ac in ac_list %}
+            {% with "total_obligations" as var %}
+                {% if my_dict|lookup:var|lookup:ac.code %}
+                    <td class="red-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+    </tr>
+    <tr>
+        <th>Total expenditures</th>
+        {% for ac in ac_list %}
+            {% with "total_expenditures" as var %}
+                {% if my_dict|lookup:var|lookup:ac.code %}
+                    <td class="red-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+
+    </tr>
+    <tr style="background-color: lightgray">
+        <th>Total unofficial free balance</th>
+        {% for ac in ac_list %}
+            {% with my_dict|lookup:"total_allocations"|lookup:ac.code as allocations %}
+                {% with my_dict|lookup:"total_adjustments"|lookup:ac.code as adjustments %}
+                    {% with my_dict|lookup:"total_expenditures"|lookup:ac.code as expenditures %}
+                        {% with my_dict|lookup:"total_obligations"|lookup:ac.code as obligations %}
+                            {% add allocations adjustments as income %}
+                            {% add obligations expenditures as outgoing %}
+                            {% with income|subtract:outgoing as balance %}
+                                {% if balance > 0 %}
+                                    <td class="green-font">
+                                        {% elif balance < 0 %}
+                                    <td class="red-font">
+                                        {% else %}
+                                    <td>
+                                {% endif %}
+                            <b>{{ balance|divide:1000|floatformat:2 }}</b>
+                            </td>
+                            {% endwith %}
+                        {% endwith %}
+                    {% endwith %}
+                {% endwith %}
+            {% endwith %}
+
+
+
+
+        {% endfor %}
+
+
+    </tr>
+    </tbody>
+</table>

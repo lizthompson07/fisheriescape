@@ -7,7 +7,9 @@
 {% load humanize %}
 {% load subtract %}
 {% load add %}
+{% load divide %}
 {% block content %}
+    
 
     <style>
         table, td, th {
@@ -28,53 +30,11 @@
         <h1>{{ project }} - FY {{ fiscal_year }}</h1>
 
         <h3>Summary:</h3>
-        <table class="table table-sm table-hover table-bordered" style="width: 30%;">
-            <tbody>
-            <tr>
-                <th>Total allocations</th>
-                <td>$ {{ my_dict|lookup:"allocations"|floatformat:2|intcomma }}</td>
-            </tr>
-            <tr>
-                <th>Total adjustments</th>
-                <td>$ {{ my_dict|lookup:"adjustments"|floatformat:2|intcomma }}</td>
-            </tr>
-            <tr>
-                <th>Total outstanding obligations</th>
-                <td>$ {{ my_dict|lookup:"obligations"|floatformat:2|intcomma }}</td>
-            </tr>
-            <tr>
-                <th>Total expenditures</th>
-                <td>$ {{ my_dict|lookup:"expenditures"|floatformat:2|intcomma }}</td>
-            </tr>
-            <tr>
-                <th>Total unofficial free balance</th>
-                {% with my_dict|lookup:"allocations" as allocations %}
-                    {% with my_dict|lookup:"adjustments" as adjustments %}
-                        {% with my_dict|lookup:"expenditures" as expenditures %}
-                            {% with my_dict|lookup:"obligations" as obligations %}
-                                {% add allocations adjustments as income %}
-                                {% add obligations expenditures as outgoing %}
-                                {% with income|subtract:outgoing as balance %}
-                                    {% if balance > 0 %}
-                                        <td class="good">
-                                            {% elif balance < 0 %}
-                                        <td class="bad">
-                                            {% else %}
-                                        <td>
-                                    {% endif %}
-                                $ {{ balance|floatformat:2|intcomma }}
-                                </td>
-                                {% endwith %}
-                            {% endwith %}
-                        {% endwith %}
-                    {% endwith %}
-                {% endwith %}
-            </tr>
-            </tbody>
-        </table>
+        {% include "scifi/_report_summary_table.html" %}
+
 
         <br>
-        <table class="table table-sm table-hover table-bordered" style="width: 85%">
+        <table class="table table-sm table-hover table-bordered" style="width:auto;">
             <thead>
             <tr>
                 {% for field in field_list %}
@@ -82,7 +42,7 @@
                         <th scope="col" style="width: 100px;">{% get_verbose_label my_object field %}</th>
                     {% elif field == "project.code" %}
                         <th>Project code</th>
-                    {% elif field == "allotment_code.allotment_category" %}
+                    {% elif field == "allotment_code" %}
                         <th>Category</th>
                     {% else %}
                         <th scope="col">{% get_verbose_label my_object field %}</th>
@@ -95,9 +55,9 @@
                 <tr>
 
                     {% for field in field_list %}
-                        {% if field == "allotment_code.allotment_category" %}
-                            {% get_field_value object field as category %}
-                            <td style="background-color: {{ category.color }};">
+                        {% if field == "allotment_code" %}
+                            {% get_field_value object field as ac %}
+                            <td style="background-color: {{ ac.allotment_category.color }};">
                                 {% else %}
                             <td>
                         {% endif %}
@@ -129,8 +89,8 @@
                         {% get_field_value object field format="currency" %}
                     {% elif field == "obligation_cost" %}
                         {% get_field_value object field format="currency" %}
-                    {% elif field == "allotment_code.allotment_category" %}
-                        {{ category }}
+                    {% elif field == "allotment_code" %}
+                        {{ ac.allotment_category }} ({{ ac.code }})
                     {% else %}
                         {% get_field_value object field %}
                     {% endif %}

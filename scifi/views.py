@@ -676,24 +676,24 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        fiscal_year = self.kwargs['fiscal_year']
+        fy = self.kwargs['fiscal_year']
         context["fiscal_year"] = fiscal_year
 
         rc = models.ResponsibilityCenter.objects.get(pk=self.kwargs['rc'])
         context["rc"] = rc
 
         project_list = [models.Project.objects.get(pk=rc["project"]) for rc in
-                        models.Transaction.objects.filter(fiscal_year=fiscal_year).filter(
+                        models.Transaction.objects.filter(fiscal_year=fy).filter(
                             responsibility_center=rc.id).values(
                             "project").order_by("project").distinct() if
                         rc["project"] is not None]
         context["project_list"] = project_list
 
-        ac_list = [models.AllotmentCode.objects.get(pk=rc["allotment_code"]) for rc in
-                   models.Transaction.objects.filter(fiscal_year=fiscal_year).filter(
+        ac_list = [models.AllotmentCode.objects.get(pk=t["allotment_code"]) for t in
+                   models.Transaction.objects.filter(fiscal_year=fy).filter(
                        responsibility_center=rc.id).values(
                        "allotment_code").order_by("allotment_code").distinct() if
-                   rc["allotment_code"]]
+                   t["allotment_code"]]
         context["ac_list"] = ac_list
 
         # will have to make a custom dictionary to send in
@@ -732,7 +732,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project allocation
                 try:
                     project_allocations = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
+                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
                             transaction_type=3).filter(allotment_code=ac).values("project").order_by(
                             "project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
                 except TypeError:
@@ -747,7 +747,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project adjustments
                 try:
                     project_adjustments = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
+                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
                             transaction_type=2).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
                 except TypeError:
@@ -760,7 +760,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project obligations
                 try:
                     project_obligations = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
+                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
                             transaction_type=1).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(
                             dsum=Sum("outstanding_obligation")).first()[
@@ -775,7 +775,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project expenditures
                 try:
                     project_expenditures = \
-                        nz(models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
+                        nz(models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
                             transaction_type=1).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()[
                                "dsum"], 0)
@@ -800,7 +800,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
 
     def get_queryset(self, **kwargs):
         qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
-            fiscal_year=self.kwargs["fiscal_year"])
+            fiscal_year=self.kwargs["fiscal_year"]).order_by("-transaction_type", "creation_date")
         return qs
 
     def get_context_data(self, **kwargs):
@@ -815,7 +815,8 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         context["field_list"] = [
             'fiscal_year',
             'creation_date',
-            'allotment_code.allotment_category',
+            'responsibility_center.code',
+            'allotment_code',
             'transaction_type',
             'obligation_cost',
             'invoice_cost',
@@ -825,51 +826,70 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
 
         # will have to make a custom dictionary to send in
         my_dict = {}
+        my_dict["total_allocations"] = {}
+        my_dict["total_adjustments"] = {}
+        my_dict["total_obligations"] = {}
+        my_dict["total_expenditures"] = {}
+
         qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(fiscal_year=fy)
 
-        # allocations
-        try:
-            project_allocations = \
-                qs.filter(transaction_type=3).values("project").order_by("project").distinct().annotate(
-                    dsum=Sum("invoice_cost")).first()["dsum"]
-        except TypeError:
-            project_allocations = 0
+        ac_list = [models.AllotmentCode.objects.get(pk=t["allotment_code"]) for t in
+                   qs.values("allotment_code").order_by("allotment_code").distinct()]
+        context["ac_list"] = ac_list
 
-        my_dict["allocations"] = project_allocations
+        for ac in ac_list:
+            # project allocation
+            try:
+                project_allocations = \
+                    nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+                        fiscal_year=fy).filter(
+                        transaction_type=3).filter(allotment_code=ac).values("project").order_by(
+                        "project").distinct().aggregate(dsum=Sum("invoice_cost"))["dsum"], 0)
+            except TypeError:
+                project_allocations = 0
 
-        # adjustments
-        try:
-            project_adjustments = \
-                qs.filter(transaction_type=2).values("project").order_by("project").distinct().annotate(
-                    dsum=Sum("invoice_cost")).first()["dsum"]
-        except TypeError:
-            project_adjustments = 0
+            my_dict["total_allocations"][ac.code] = project_allocations
 
-        my_dict["adjustments"] = project_adjustments
+            # project adjustments
+            try:
+                project_adjustments = \
+                    models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+                        fiscal_year=fy).filter(
+                        transaction_type=2).filter(allotment_code=ac).values(
+                        "project").order_by("project").distinct().aggregate(dsum=Sum("invoice_cost"))["dsum"]
+            except TypeError:
+                project_adjustments = 0
 
-        # obligations
-        try:
-            project_obligations = \
-                qs.filter(
-                    transaction_type=1).values("project").order_by("project").distinct().annotate(
-                    dsum=Sum("outstanding_obligation")).first()["dsum"]
-        except TypeError:
-            project_obligations = 0
+            my_dict["total_adjustments"][ac.code] = project_adjustments
 
-        my_dict["obligations"] = project_obligations
+            # project obligations
+            try:
+                project_obligations = \
+                    models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+                        fiscal_year=fy).filter(
+                        transaction_type=1).filter(allotment_code=ac).values(
+                        "project").order_by("project").distinct().aggregate(
+                        dsum=Sum("outstanding_obligation"))[
+                        "dsum"]
+            except TypeError:
+                project_obligations = 0
 
-        #  expenditures
-        try:
-            project_expenditures = \
-                qs.filter(transaction_type=1).values("project").order_by("project").distinct().annotate(
-                    dsum=Sum("invoice_cost")).first()["dsum"]
-        except TypeError:
-            project_expenditures = 0
+            my_dict["total_obligations"][ac.code] = project_obligations
 
-        my_dict["expenditures"] = project_expenditures
+            # project expenditures
+            try:
+                project_expenditures = \
+                    nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+                        fiscal_year=fy).filter(
+                        transaction_type=1).filter(allotment_code=ac).values(
+                        "project").order_by("project").distinct().aggregate(dsum=Sum("invoice_cost"))[
+                           "dsum"], 0)
+            except TypeError:
+                project_expenditures = 0
+
+            my_dict["total_expenditures"][ac.code] = project_expenditures
 
         context["my_dict"] = my_dict
-
         return context
 
 

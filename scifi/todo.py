@@ -1,4 +1,3 @@
-# TODO: summary in reports to be broken down by allotment code
 
 # TODO: back to 1 rc per project
  ## in order to do this, I think we need to adjust all the coding first and implement
