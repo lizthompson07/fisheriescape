@@ -351,7 +351,7 @@ function overwrite(control) {
         }
 
       }
-      else if (userResponse.match(/Gonad/gi) || userResponse.match(/scale_2/gi)) {
+      else if (userResponse.match(/Gonad/gi) || userResponse.match(/scale_2/gi) || userResponse.match(/^[g][0-9]/gi)) {
         // 'EXAMPLE:  Enter Gonad wt 50.1 __OR__ Scale_2 50.0001 g
         if (overwrite($("#id_gonad_weight"))) {
           // reset accepted status
@@ -359,8 +359,12 @@ function overwrite(control) {
           // write to field
           if (userResponse.match(/Gonad/gi)) {
             $("#id_gonad_weight").val(userResponse.toLowerCase().replace("enter Gonad wt","").trim());
-          } else {
+          }
+          else if (userResponse.match(/scale_2/gi)) {
             $("#id_gonad_weight").val(userResponse.toLowerCase().replace("scale_2","").replace("g","").trim());
+          }
+          else {
+            $("#id_gonad_weight").val(userResponse.toLowerCase().replace("g","").trim());
           }
           inputAccepted = true;
         }
