@@ -347,6 +347,59 @@ class TransactionListView(SciFiAdminRequiredMixin, FilterView):
         return kwargs
 
 
+class TransactionBasicListView(SciFiAdminRequiredMixin, FilterView):
+    template_name = 'scifi/transaction_basic_list.html'
+    filterset_class = filters.TransactionFilter
+    model = models.Transaction
+
+    # paginate_by = 15
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'fiscal_year',
+            'responsibility_center.code',
+            'business_line.code',
+            'allotment_code.code',
+            'line_object.code',
+            'project.code',
+            'transaction_type',
+            'supplier_description',
+            'creation_date',
+            'obligation_cost',
+            'invoice_cost',
+            'outstanding_obligation',
+            'reference_number',
+            'invoice_date',
+            # 'in_mrs',
+            # 'amount_paid_in_mrs',
+            # 'mrs_notes',
+            # 'procurement_hub_contact',
+            # 'comment',
+        ]
+        context["my_object"] = self.model.objects.first()
+        return context
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {
+                "fiscal_year": fiscal_year(),
+            }
+        return kwargs
+
+def toggle_mrs(request, pk, query=None):
+    # get instance of transaction
+    my_t = models.Transaction.objects.get(pk=pk)
+
+    if my_t.in_mrs:
+        my_t.in_mrs = False
+    else:
+        my_t.in_mrs = True
+    my_t.save()
+
+    return HttpResponseRedirect(reverse("scifi:trans_list") + "?{}#trans{}".format(query, pk))
+
 class TransactionDetailView(SciFiAdminRequiredMixin, DetailView):
     model = models.Transaction
 

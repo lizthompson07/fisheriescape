@@ -1,0 +1,130 @@
+{% extends "scifi/scifi_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load nz %}
+{% load verbose_names %}
+{% load humanize %}
+{% block content %}
+
+
+
+    <style>
+        table, td, th {
+            font-size: small;
+        {#border: 1px solid black;#}
+        }
+
+        thead, th {
+            font-weight: bold;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Transactions (Basic)</li>
+        </ol>
+    </nav>
+
+    <div class="indent-med">
+
+        <h1>Transactions </h1>
+
+        <div class="row">
+            <div class="col=10">
+                <form class="form" action="." method="get">
+                    <div class="row">
+                        {% for field in filter.form %}
+                            <div class="col">
+                                {% bootstrap_field field placeholder="" size="small" %}
+                            </div>
+                        {% endfor %}
+                        <div class="col-2">
+                            <br>
+                            <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                            <a href="." class="btn btn-sm btn-info">Clear</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                Total transactions = {{ object_list.count }}<br><br>
+                <div class="float-right" style="padding-bottom: 10px">
+                    <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">New
+                        Transaction (Ctrl+A)</a>
+                </div>
+                <table class="table table-sm table-hover table-bordered sortable">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        {% for field in field_list %}
+                            {% if field == "fiscal_year" or field == "invoice_date" %}
+                                <th scope="col" style="width: 80px;">{% get_verbose_label my_object field %}</th>
+                            {% elif field == "project.code" %}
+                                <th>Project code</th>
+                            {% elif field == "responsibility_center.code" %}
+                                <th>RC</th>
+                            {% else %}
+                                <th scope="col">{% get_verbose_label my_object field %}</th>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for object in filter.qs %}
+                        <tr>
+                            {#                            <td style="font-size: x-small">#}
+                            {#                                <a href="{% url 'scifi:trans_detail' object.id %}">#}
+                            {#                                    view#}
+                            {#                                </a><br>#}
+                            {#                                <a href="{% url 'scifi:trans_edit' object.id %}">#}
+                            {#                                    edit#}
+                            {#                                </a><br>#}
+                            {#                                <a href="{% url 'scifi:trans_delete' object.id %}" class="red-font">#}
+                            {#                                    delete#}
+                            {#                                </a>#}
+                            {##}
+                            {#                            </td>#}
+                            {% for field in field_list %}
+
+                                <td>
+                                    {% if field == "outstanding_obligation" %}
+                                        {% get_field_value object field format="currency" %}
+                                    {% elif field == "invoice_cost" %}
+                                        {% get_field_value object field format="currency" %}
+                                    {% elif field == "amount_paid_in_mrs" %}
+                                        {% get_field_value object field format="currency" %}
+                                    {% elif field == "obligation_cost" %}
+                                        {% get_field_value object field format="currency" %}
+                                    {% else %}
+                                        {% get_field_value object field %}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+
+                    <br>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+    <script type="application/javascript">
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            document.addEventListener("keydown", function (zEvent) {
+                if (zEvent.ctrlKey && zEvent.code === "KeyA") {
+                    zEvent.preventDefault();
+                    $("#new-trans")[0].click();
+                }
+            })
+        });
+
+    </script>
+
+{% endblock content %}

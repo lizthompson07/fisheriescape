@@ -85,7 +85,7 @@ def get_field_value(instance, field_name, format=None, display_time=False):
         try:
             field_value = '${:,.2f}'.format(int(field_value))
         except:
-            print("cannot coerce formatting to field value")
+            pass
 
     return field_value
 
