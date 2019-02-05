@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from easy_pdf.views import PDFTemplateView
 from django_filters.views import FilterView
@@ -608,11 +609,10 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
         elif report == 5:
             return HttpResponseRedirect(reverse("camp:watershed_csv"))
 
-
+@cache_page(0)
 def report_species_count(request, species_list):
     reports.generate_species_count_report(species_list)
-    context = {"now": timezone.now()}
-    return render(request, "camp/report_display.html", context)
+    return render(request, "camp/report_display.html")
 
 
 def report_species_richness(request, site=None):
