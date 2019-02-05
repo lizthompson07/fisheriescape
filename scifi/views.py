@@ -715,6 +715,18 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
             my_dict[p.code]["adjustments"] = 0
             my_dict[p.code]["obligations"] = 0
             my_dict[p.code]["expenditures"] = 0
+            my_dict[p.code]["rcs"] = str(
+                [rc["responsibility_center__code"] for rc in models.Transaction.objects.filter(project=p).values(
+                    "responsibility_center__code").order_by("responsibility_center__code").distinct()]).replace("'",
+                                                                                                                "").replace(
+                "[", "").replace("]", "")
+            my_dict[p.code]["ac_cats"] = str([rc["allotment_code__allotment_category__name"] for rc in
+                                              models.Transaction.objects.filter(project=p).values(
+                                                  "allotment_code__allotment_category__name").order_by(
+                                                  "allotment_code").distinct()]).replace("'", "").replace("[",
+                                                                                                          "").replace(
+                "]", "")
+
             for ac in ac_list:
 
                 # project allocation
@@ -765,7 +777,8 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                     project_expenditures = \
                         nz(models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fiscal_year).filter(
                             transaction_type=1).filter(allotment_code=ac).values(
-                            "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"],0)
+                            "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()[
+                               "dsum"], 0)
                 except TypeError:
                     project_expenditures = 0
 

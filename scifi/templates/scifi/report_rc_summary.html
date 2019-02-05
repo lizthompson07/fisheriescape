@@ -133,6 +133,8 @@
             <thead>
             <th>Project Code</th>
             <th>Project Name</th>
+            <th>RCs</th>
+            <th>Allotment Categories</th>
             <th>Allocations</th>
             <th>Adjustments</th>
             <th>Outstanding Obligations</th>
@@ -148,6 +150,8 @@
                         </a>
                     </td>
                     <td>{{ project.name }}</td>
+                    <td>{{ my_dict|lookup:project.code|lookup:"rcs" }}</td>
+                    <td>{{ my_dict|lookup:project.code|lookup:"ac_cats" }}</td>
                     <td>$ {{ my_dict|lookup:project.code|lookup:"allocations"|floatformat:2|intcomma }}</td>
                     <td>$ {{ my_dict|lookup:project.code|lookup:"adjustments"|floatformat:2|intcomma }}</td>
                     <td>$ {{ my_dict|lookup:project.code|lookup:"obligations"|floatformat:2|intcomma }}</td>
