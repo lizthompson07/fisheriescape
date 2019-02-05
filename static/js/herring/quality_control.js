@@ -56,7 +56,7 @@ var rangeObject = {
             "comments": "range of historical data based on 344097 observations is  17-480mm",
         },
         "probable": {
-            "min": 150,
+            "min": 5,
             "max": 386,
             "comments": "based on 344097 observations of historical data; [mean +- 2 x SD] = [197.5884, 385.8797]; decision was made in meeting with herring group to allow very small measurements THEREFORE the above comment is moot for the lower bound. Arbitrariliy selected 150 mm as lower bound"
         },
@@ -68,7 +68,7 @@ var rangeObject = {
             "comments": "range of historical data based on 317149 observations is  1 g to  672 g",
         },
         "probable": {
-            "min": 29,
+            "min": 1,
             "max": 412,
             "comments": "based on 317149 observations of historical data; [mean +- 2 x SD] = [ 29.63415, 411.96259]",
         },
@@ -97,7 +97,7 @@ var rangeObject = {
             "comments": " on 22866 observations of historical data; [mean +- 2 x SD] = [0.9677301 9.1288325]",
         },
     },
-}
+};
 
 // initialize  blank qcFeedback object
 var qcFeedbackObject = {}
