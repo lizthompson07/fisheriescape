@@ -28,7 +28,7 @@ def generate_species_count_report(species_list):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
     target_file = os.path.join(target_dir, 'report_temp_{}.html'.format(timezone.now().strftime("%H%M%S")))
-    target_file = os.path.join(target_dir, 'report_temp.html')
+    # target_file = os.path.join(target_dir, 'report_temp.html')
 
     try:
         rmtree(target_dir)

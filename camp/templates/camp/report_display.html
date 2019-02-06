@@ -11,15 +11,8 @@
 {#    </div>#}
 
     <div class="" align="center" >
-        {% include "camp/temp/report_temp.html" %}
+        {% include report_path %}
     </div>
 
-    <script>
-        $("form").submit(function () {
-            $("#submit").val("Searching...")
-            $("#submit").addClass("disabled")
-        })
-
-    </script>
 
 {% endblock content %}
