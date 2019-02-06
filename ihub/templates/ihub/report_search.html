@@ -1,13 +1,17 @@
-{% extends "camp/camp_base.html" %}
+{% extends "ihub/ihub_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
-{% block title %}CAMP reports{% endblock title %}
+{% block title %}iHub reports{% endblock title %}
 
 {% block content %}
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        label {
+            font-weight: bold;
+        }
+
         .loader {
             border: 16px solid #f3f3f3;
             border-radius: 50%;
@@ -59,21 +63,16 @@
             {% csrf_token %}
             {% for field in form %}
 
-                {% if field.name == "species" %}
-                    <div class="species_div">
+                {% if field.name == "organizations" %}
+                    <div class="org_div">
                         {% bootstrap_field field %}
 
                     </div>
-                {% elif field.name == "site" %}
-                    <div class="site_div">
-                        {% bootstrap_field field %}
 
-                    </div>
-                {% elif field.name == "year" %}
+                {% elif field.name == "fiscal_year" %}
                     <div class="year_div">
                         {% bootstrap_field field %}
                     </div>
-
                 {% else %}
                     {% bootstrap_field field %}
                 {% endif %}
@@ -93,44 +92,21 @@
     <script type="application/javascript">
 
         function hideAll() {
-            $(".species_div").addClass("gone");
-            $(".site_div").addClass("gone");
+            $(".org_div").addClass("gone");
             $(".year_div").addClass("gone");
 
             $("#id_report").prop('required', true);
-            $("#id_species").prop('required', false);
-            $("#id_year").prop('required', false);
-            $("#id_site").prop('required', false);
-
+            $("#id_organizations").prop('required', false);
+            $("#id_fiscal_year").prop('required', false);
         }
 
         function configureForm() {
             var reportChoice = $("#id_report")[0].value;
             // species count report
             if (reportChoice == 1) {
-                $(".species_div").removeClass("gone");
-                $("#id_species").prop('required', true);
-                $("#id_species").multiSelect()
-
-            }
-            // species richness report
-            else if (reportChoice == 2) {
-                $("#id_site").prop('required', true);
-                $(".site_div").removeClass("gone")
-            }
-            // annual pdf
-            else if (reportChoice == 3) {
-                $("#id_site").prop('required', true);
-                $("#id_year").prop('required', true);
-                $(".site_div").removeClass("gone");
-                $(".year_div").removeClass("gone")
-            }
-            // annual csv
-            else if (reportChoice == 4) {
-                $("#id_site").prop('required', true);
-                $("#id_year").prop('required', true);
-                $(".site_div").removeClass("gone");
-                $(".year_div").removeClass("gone")
+                $(".org_div").removeClass("gone");
+                $(".year_div").removeClass("gone");
+                $("#id_organizations").multiSelect()
             }
         }
 
@@ -143,8 +119,7 @@
         $("#id_report").change(function () {
             hideAll()
             configureForm()
-            console.log("test")
-        })
+        });
 
         $("form").submit(function () {
             var reportChoice = $("#id_report")[0].value;
@@ -160,6 +135,9 @@
             $("form").removeClass("hidden");
             $(".loader").addClass("hidden");
         }
+
+
+
 
     </script>
 
