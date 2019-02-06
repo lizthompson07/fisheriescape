@@ -41,11 +41,11 @@ def generate_species_sample_spreadsheet(species_list=None):
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
     # Add a format. Light red fill with dark red text.
     red_format = workbook.add_format({'bg_color': '#FFC7CE',
-                                   'font_color': '#9C0006'})
+                                      'font_color': '#9C0006'})
 
     # Add a format. Green fill with dark green text.
     green_format = workbook.add_format({'bg_color': '#C6EFCE',
-                                   'font_color': '#006100'})
+                                        'font_color': '#006100'})
 
     # get a sample instance to create header
     my_sample = models.Sample.objects.first()
@@ -72,6 +72,7 @@ def generate_species_sample_spreadsheet(species_list=None):
         "observed at station?",
         "observed on line?",
         "observed on collector surface?",
+        "% surface coverage (sample average)?",
     ]
 
     # worksheets #
@@ -128,6 +129,22 @@ def generate_species_sample_spreadsheet(species_list=None):
             else:
                 on_surface = "no"
 
+            # calculate the % coverage
+            if on_surface:
+                # for each surface, determine the percent coverage and store in list
+                ## only look at plates
+                coverage_list = []
+                for surface in models.Surface.objects.filter(line__sample=sample).filter(surface_type="pl"):
+                    try:
+                        my_coverage = models.SurfaceSpecies.objects.get(surface=surface, species=species).percent_coverage
+                    except:
+                        my_coverage = 0
+                    coverage_list.append(my_coverage)
+                mean_coverage = statistics.mean(coverage_list)
+
+            else:
+                mean_coverage = "n/a"
+
             data_row = [
                 species.id,
                 species.common_name,
@@ -148,6 +165,7 @@ def generate_species_sample_spreadsheet(species_list=None):
                 at_station,
                 on_line,
                 on_surface,
+                mean_coverage,
             ]
 
             # adjust the width of the columns based on the max string length in each col
@@ -170,20 +188,22 @@ def generate_species_sample_spreadsheet(species_list=None):
             my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
         # set formatting for last three columns
-        my_ws.conditional_format(0, header.index("observed at station?"), i, header.index("observed on collector surface?"),
+        my_ws.conditional_format(0, header.index("observed at station?"), i,
+                                 header.index("observed on collector surface?"),
                                  {
                                      'type': 'cell',
                                      'criteria': 'equal to',
                                      'value': '"yes"',
                                      'format': green_format,
                                  })
-        my_ws.conditional_format(0, header.index("observed at station?"), i, header.index("observed on collector surface?"),
-                             {
-                                 'type': 'cell',
-                                 'criteria': 'equal to',
-                                 'value': '"no"',
-                                 'format': red_format,
-                             })
+        my_ws.conditional_format(0, header.index("observed at station?"), i,
+                                 header.index("observed on collector surface?"),
+                                 {
+                                     'type': 'cell',
+                                     'criteria': 'equal to',
+                                     'value': '"no"',
+                                     'format': red_format,
+                                 })
 
     workbook.close()
     return target_url
