@@ -3,46 +3,40 @@
 {% load humanize %}
 {% load bootstrap4 %}
 {% block content %}
+    {% load el_pagination_tags %}
 
 
     <div class="indent-med">
 
         <p>
         <h1>Data Resource Inventory </h1>
-        TOTAL: {{ object_list.count }}
+        TOTAL: {{ filter.qs.count }}
         </p>
 
-        <form class="form" action="." method="get">
+        <form class="form" action="." method="get" style="width: 75%; font-size: small">
             <div class="row">
-
                 {% for field in filter.form %}
-                    {% if field.name == "status" or field.name == 'person' or field.name == 'section' %}
-                        <div class="col-2">
-                    {% else %}
-                        <div class="col">
-                    {% endif %}
-
-                {% bootstrap_field field %}
-                </div>
+                    <div class="col">
+                        {% bootstrap_field field size="small" %}
+                    </div>
                 {% endfor %}
                 <div class="col" style="vertical-align: bottom;">
                     <br>
                     <div class="btn-group">
-                        <input type="submit" value="Filter" class="btn btn btn-warning">
-                        <a href="." class="btn btn btn-secondary">Clear</a>
+                        <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                        <a href="." class="btn btn-sm btn-secondary">Clear</a>
                     </div>
-
                 </div>
-                </div>
-                <div>
-                    <p>
-                        <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary">New Resource</a>
-                    </p>
-                </div>
-
+            </div>
+            <div class="row">
+            </div>
         </form>
+        <br>
+        {% paginate 40 filter.qs as filter_list %}
+        {% show_pages %}
+        <a href="{% url 'inventory:resource_new' %}" class="btn btn-sm btn-primary">New Resource</a>
 
-        <table class="table table-hover table-sm">
+        <table class="table table-hover table-sm sortable" style="width: auto;">
             <thead>
             <tr>
                 {# <th scope="col">Id</th> #}
@@ -54,7 +48,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for obj in filter.qs %}
+            {% for obj in filter_list %}
                 <tr>
                     <td>{{ obj.section.get_region_display }}</td>
                     <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{ obj.title_eng }}</a></td>
@@ -90,8 +84,10 @@
 
             </tbody>
         </table>
-
+        {% show_pages %}
 
     </div>
+
+
 
 {% endblock content %}
