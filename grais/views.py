@@ -1,4 +1,5 @@
 import csv
+import os
 
 from django.conf import settings
 from django.contrib import messages
@@ -6,15 +7,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.utils import timezone
 
-from braces.views import GroupRequiredMixin
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django.urls import reverse_lazy, reverse
 from django_filters.views import FilterView
 from . import models
 from . import forms
 from . import filters
+from . import reports
 
 
 def not_in_grais_group(user):
@@ -736,3 +738,96 @@ class ReportDeleteView(GraisAccessRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
+    template_name = 'camp/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    # def get_initial(self):
+    #     # default the year to the year of the latest samples
+    #     return {"year": models.Sample.objects.all().order_by("season").first().start_date.year}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        report = int(form.cleaned_data["report"])
+
+        if report == 1:
+           return HttpResponseRedirect(reverse("grais:spp_sample_xlsx", kwargs={"species_list": species_list}))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("grais:report_search"))
+
+
+def species_sample_spreadsheet_export(request, species_list):
+    file_url = reports.generate_species_sample_spreadsheet(species_list)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="grais export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+# def report_species_count(request, species_list):
+#     reports.generate_species_count_report(species_list)
+#     # find the name of the file
+#     base_dir = os.path.dirname(os.path.abspath(__file__))
+#     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
+#     for root, dirs, files in os.walk(target_dir):
+#         for file in files:
+#             if "report_temp" in file:
+#                 my_file = "camp/temp/{}".format(file)
+#
+#     return render(request, "camp/report_display.html", {"report_path": my_file})
+#
+#
+# def report_species_richness(request, site=None):
+#     if site:
+#         reports.generate_species_richness_report(site)
+#     else:
+#         reports.generate_species_richness_report()
+#
+#     return render(request, "camp/report_display.html")
+#
+#
+# class AnnualWatershedReportTemplateView(PDFTemplateView):
+#     template_name = 'camp/report_watershed_display.html'
+#
+#     def get_pdf_filename(self):
+#         site = models.Site.objects.get(pk=self.kwargs['site']).site
+#         return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
+#
+#     def get_context_data(self, **kwargs):
+#         reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
+#         site = models.Site.objects.get(pk=self.kwargs['site']).site
+#         return super().get_context_data(
+#             pagesize="A4 landscape",
+#             title="Annual Report for {}_{}".format(site, self.kwargs['year']),
+#             **kwargs
+#         )
+#
+#
+# def annual_watershed_spreadsheet(request, site, year):
+#     my_site = models.Site.objects.get(pk=site)
+#     file_url = reports.generate_annual_watershed_spreadsheet(my_site, year)
+#
+#     if os.path.exists(file_url):
+#         with open(file_url, 'rb') as fh:
+#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+#             response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
+#             return response
+#     raise Http404
+#
+#
+# def fgp_export(request):
+#
+#     response = reports.generate_fgp_export()
+#     return response
