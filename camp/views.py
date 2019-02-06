@@ -12,7 +12,6 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from easy_pdf.views import PDFTemplateView
 from django_filters.views import FilterView
@@ -21,6 +20,7 @@ from . import forms
 from . import filters
 from . import reports
 from lib.functions.nz import nz
+from django.utils.encoding import smart_str
 
 
 class CloserTemplateView(TemplateView):
@@ -609,10 +609,18 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
         elif report == 5:
             return HttpResponseRedirect(reverse("camp:watershed_csv"))
 
-@cache_page(0)
+
 def report_species_count(request, species_list):
     reports.generate_species_count_report(species_list)
-    return render(request, "camp/report_display.html")
+    # find the name of the file
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
+    for root, dirs, files in os.walk(target_dir):
+        for file in files:
+            if "report_temp" in file:
+                my_file = "camp/temp/{}".format(file)
+
+    return render(request, "camp/report_display.html", {"report_path": my_file})
 
 
 def report_species_richness(request, site=None):
@@ -654,5 +662,7 @@ def annual_watershed_spreadsheet(request, site, year):
 
 
 def fgp_export(request):
+
     response = reports.generate_fgp_export()
     return response
+
