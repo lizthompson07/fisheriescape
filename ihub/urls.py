@@ -7,6 +7,13 @@ urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    # ORGANIZATION #
+    ################
+    path('organizations/', views.OrganizationListView.as_view(), name="org_list"),
+    path('organization/new/', views.OrganizationCreateView.as_view(), name="org_new"),
+    path('organization/<int:pk>/edit/', views.OrganizationUpdateView.as_view(), name="org_edit"),
+    path('organization/<int:pk>/delete/', views.OrganizationDeleteView.as_view(), name="org_delete"),
+
     # # Entry #
     # #########
     path('entries/', views.EntryListView.as_view(), name="entry_list"),
@@ -20,6 +27,7 @@ urlpatterns = [
     path('entry/<int:entry>/note/new/', views.NoteCreateView.as_view(), name="note_new"),
     path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),
     path('note/<int:pk>/delete/', views.note_delete, name="note_delete"),
+
 
     # Reports #
     ###########

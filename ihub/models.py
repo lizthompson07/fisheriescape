@@ -19,8 +19,8 @@ class Province(models.Model):
         (CAN, 'Canada'),
         (US, 'United States'),
     )
-    name_eng = models.CharField(max_length=1000, blank=True, null=True)
-    name_fre = models.CharField(max_length=1000, blank=True, null=True)
+    name_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (EN)"))
+    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (FR)"))
     country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
     abbrev_eng = models.CharField(max_length=25, blank=True, null=True)
     abbrev_fre = models.CharField(max_length=25, blank=True, null=True)
@@ -41,9 +41,9 @@ class Grouping(models.Model):
 
 
 class Organization(models.Model):
-    name_eng = models.CharField(max_length=1000)
-    name_fre = models.CharField(max_length=1000, blank=True, null=True)
-    abbrev = models.CharField(max_length=30)
+    name_eng = models.CharField(max_length=1000, verbose_name=_("Name (EN)"))
+    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (FR)"))
+    abbrev = models.CharField(max_length=30, verbose_name=_("abbreviation"))
     address = models.TextField(blank=True, null=True)
     city = models.CharField(max_length=255, blank=True, null=True)
     postal_code = models.CharField(max_length=7, blank=True, null=True)

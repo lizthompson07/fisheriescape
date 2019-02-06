@@ -1,0 +1,81 @@
+{% extends "ihub/ihub_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Organizations</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1 class="big-header">Organizations </h1>
+        <p>TOTAL: {{ object_list.count }}</p>
+
+        <form class="form" action="." method="get">
+            <div class="row">
+                {% for field in filter.form %}
+                    <div class="col-5">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+                {% endfor %}
+                <div class="col-3">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn btn-warning">
+                    <a href="{% url 'ihub:org_new' %}" class="btn btn-success">New</a><br>
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row">
+            <div class="col-12">
+                <table class="table table-sm table-hover table-bordered sortable" style="width: auto">
+                    <thead>
+                    <tr>
+                        {% for field in field_list %}
+                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for object in filter.qs %}
+                        <tr>
+                            {% for field in field_list %}
+                                {% if field.name == "grouping" %}
+                                    {% get_field_value object field as val %}
+                                    <td>
+
+                                        {% for g in val %}
+                                        {% endfor %}
+
+                                    </td>
+                                {% else %}
+                                    <td>{% get_field_value object field %}</td>
+                                {% endif %}
+                            {% endfor %}
+                            <td>
+                                <a href="{% url 'ihub:org_edit' object.id %}">
+                                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
+                                         title="Edit">
+                                </a>
+                            </td>
+                            <td>
+                                <a class="delete-me" href="{% url 'ihub:org_delete' object.id %}">
+                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                         title="Delete">
+                                </a>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
