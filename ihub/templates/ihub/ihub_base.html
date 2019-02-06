@@ -36,10 +36,13 @@
     <li class="nav-item"><a class="nav-link under-dev" href="#">
         {% trans "Organizations" %}
     </a></li>
-    <li class="nav-item"><a class="nav-link" href="#">
+    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:entry_new'  %}">
         {% trans "New Entry" %}
     </a></li>
 
+    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:report_search'  %}">
+        {% trans "Reports" %}
+    </a></li>
     {#  {% for group in user.groups.all %}#}
     {#    {% if group.name == "inventory_section_head"   %}#}
     {#      <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a></li>#}

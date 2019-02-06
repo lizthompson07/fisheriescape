@@ -1,5 +1,7 @@
 from django import forms
 from django.core import validators
+from django.utils import timezone
+
 from . import models
 from django.contrib.auth.models import User
 
@@ -41,3 +43,20 @@ class NoteForm(forms.ModelForm):
             'author': forms.HiddenInput(),
         }
 
+
+class ReportSearchForm(forms.Form):
+    FY_CHOICES = [
+        ("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
+        models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
+    FY_CHOICES.insert(0, (None, "all years"))
+    ORG_CHOICES = [(obj.id, obj) for obj in models.Organization.objects.all()]
+
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "Capacity Report (Excel Spreadsheet)"),
+    )
+
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    fiscal_year = forms.ChoiceField(required=False, choices=FY_CHOICES, label='Fiscal year')
+    organizations = forms.MultipleChoiceField(required=False, choices=ORG_CHOICES,
+                                              label='Organizations (Leave blank for all)')

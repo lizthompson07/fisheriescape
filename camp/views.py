@@ -3,7 +3,7 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import Count, TextField
@@ -32,19 +32,28 @@ def not_in_camp_group(user):
         return user.groups.filter(name='camp_access').count() != 0
 
 
-#
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(not_in_camp_group, login_url='/accounts/denied/')
-def index(request):
-    return render(request, 'camp/index.html')
+class CampAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return not_in_camp_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class IndexTemplateView(CampAccessRequiredMixin, TemplateView):
+    template_name = 'camp/index.html'
 
 
 # SAMPLE #
 ##########
 
-class SearchFormView(LoginRequiredMixin, FormView):
+class SearchFormView(CampAccessRequiredMixin, FormView):
     template_name = 'camp/sample_search.html'
-    login_url = '/accounts/login_required/'
+
     form_class = forms.SearchForm
 
     # def get_initial(self):
@@ -92,9 +101,9 @@ class SearchFormView(LoginRequiredMixin, FormView):
 #     template_name = 'grais/close_me.html'
 
 
-class SampleListView(LoginRequiredMixin, ListView):
+class SampleListView(CampAccessRequiredMixin, ListView):
     template_name = "camp/sample_list.html"
-    login_url = '/accounts/login_required/'
+
 
     def get_queryset(self):
         year = nz(self.kwargs["year"])
@@ -117,10 +126,10 @@ class SampleListView(LoginRequiredMixin, ListView):
         return qs
 
 
-class SampleFilterView(LoginRequiredMixin, FilterView):
+class SampleFilterView(CampAccessRequiredMixin, FilterView):
     filterset_class = filters.SampleFilter
     template_name = "camp/sample_filter.html"
-    login_url = '/accounts/login_required/'
+
 
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
@@ -129,9 +138,9 @@ class SampleFilterView(LoginRequiredMixin, FilterView):
         return kwargs
 
 
-class SampleDetailView(LoginRequiredMixin, DetailView):
+class SampleDetailView(CampAccessRequiredMixin, DetailView):
     model = models.Sample
-    login_url = '/accounts/login_required/'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -188,10 +197,10 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class SampleUpdateView(LoginRequiredMixin, UpdateView):
+class SampleUpdateView(CampAccessRequiredMixin, UpdateView):
     model = models.Sample
     form_class = forms.SampleForm
-    login_url = '/accounts/login_required/'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -205,10 +214,10 @@ class SampleUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class SampleCreateView(LoginRequiredMixin, CreateView):
+class SampleCreateView(CampAccessRequiredMixin, CreateView):
     model = models.Sample
     form_class = forms.SampleCreateForm
-    login_url = '/accounts/login_required/'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -227,7 +236,7 @@ class SampleCreateView(LoginRequiredMixin, CreateView):
     #         return HttpResponseRedirect(reverse_lazy(""))
 
 
-class SampleDeleteView(LoginRequiredMixin, DeleteView):
+class SampleDeleteView(CampAccessRequiredMixin, DeleteView):
     model = models.Sample
     success_url = reverse_lazy('camp:sample_filter')
     success_message = 'The sample was successfully deleted!'
@@ -240,16 +249,16 @@ class SampleDeleteView(LoginRequiredMixin, DeleteView):
 # SITE #
 ########
 
-class SiteListView(LoginRequiredMixin, FilterView):
+class SiteListView(CampAccessRequiredMixin, FilterView):
     filterset_class = filters.SiteFilter
     template_name = "camp/site_list.html"
-    login_url = '/accounts/login_required/'
 
 
-class SiteUpdateView(LoginRequiredMixin, UpdateView):
+
+class SiteUpdateView(CampAccessRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
-    login_url = '/accounts/login_required/'
+
     model = models.Site
     form_class = forms.SiteForm
 
@@ -257,18 +266,18 @@ class SiteUpdateView(LoginRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class SiteCreateView(LoginRequiredMixin, CreateView):
+class SiteCreateView(CampAccessRequiredMixin, CreateView):
     model = models.Site
-    login_url = '/accounts/login_required/'
+
     form_class = forms.SiteForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class SiteDetailView(LoginRequiredMixin, DetailView):
+class SiteDetailView(CampAccessRequiredMixin, DetailView):
     model = models.Site
-    login_url = '/accounts/login_required/'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -293,7 +302,7 @@ class SiteDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class SiteDeleteView(LoginRequiredMixin, DeleteView):
+class SiteDeleteView(CampAccessRequiredMixin, DeleteView):
     model = models.Site
     success_url = reverse_lazy('camp:site_list')
     success_message = 'The site was successfully deleted!'
@@ -306,10 +315,10 @@ class SiteDeleteView(LoginRequiredMixin, DeleteView):
 # STATION #
 ###########
 
-class StationUpdateView(LoginRequiredMixin, UpdateView):
+class StationUpdateView(CampAccessRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
-    login_url = '/accounts/login_required/'
+
     model = models.Station
     form_class = forms.StationForm
 
@@ -317,9 +326,9 @@ class StationUpdateView(LoginRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class StationCreateView(LoginRequiredMixin, CreateView):
+class StationCreateView(CampAccessRequiredMixin, CreateView):
     model = models.Station
-    login_url = '/accounts/login_required/'
+
     form_class = forms.StationForm
 
     def get_initial(self):
@@ -332,16 +341,16 @@ class StationCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class NoSiteStationCreateView(LoginRequiredMixin, CreateView):
+class NoSiteStationCreateView(CampAccessRequiredMixin, CreateView):
     model = models.Station
-    login_url = '/accounts/login_required/'
+
     form_class = forms.NoSiteStationForm
     success_url = reverse_lazy("camp:close_me")
 
 
-class StationDetailView(LoginRequiredMixin, DetailView):
+class StationDetailView(CampAccessRequiredMixin, DetailView):
     model = models.Station
-    login_url = '/accounts/login_required/'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -360,7 +369,7 @@ class StationDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class StationDeleteView(LoginRequiredMixin, DeleteView):
+class StationDeleteView(CampAccessRequiredMixin, DeleteView):
     model = models.Station
     success_message = 'The station was successfully deleted!'
 
@@ -375,17 +384,17 @@ class StationDeleteView(LoginRequiredMixin, DeleteView):
 # SPECIES #
 ###########
 
-class SpeciesListView(LoginRequiredMixin, FilterView):
+class SpeciesListView(CampAccessRequiredMixin, FilterView):
     template_name = "camp/species_list.html"
     filterset_class = filters.SpeciesFilter
-    login_url = '/accounts/login_required/'
+
     queryset = models.Species.objects.annotate(
         search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
 
 
-class SpeciesDetailView(LoginRequiredMixin, DetailView):
+class SpeciesDetailView(CampAccessRequiredMixin, DetailView):
     model = models.Species
-    login_url = '/accounts/login_required/'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -434,25 +443,25 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
+class SpeciesUpdateView(CampAccessRequiredMixin, UpdateView):
     model = models.Species
-    login_url = '/accounts/login_required/'
+
     form_class = forms.SpeciesForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class SpeciesCreateView(LoginRequiredMixin, CreateView):
+class SpeciesCreateView(CampAccessRequiredMixin, CreateView):
     model = models.Species
-    login_url = '/accounts/login_required/'
+
     form_class = forms.SpeciesForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class SpeciesDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
+class SpeciesDeleteView(PermissionRequiredMixin, CampAccessRequiredMixin, DeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('camp:species_list')
@@ -503,10 +512,10 @@ class SpeciesObservationInsertView(TemplateView):
         return context
 
 
-class SpeciesObservationCreateView(LoginRequiredMixin, CreateView):
+class SpeciesObservationCreateView(CampAccessRequiredMixin, CreateView):
     model = models.SpeciesObservation
     template_name = 'camp/species_obs_form_popout.html'
-    login_url = '/accounts/login_required/'
+
 
     def get_form_class(self):
         species = models.Species.objects.get(pk=self.kwargs['species'])
@@ -536,7 +545,7 @@ class SpeciesObservationCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('camp:close_me'))
 
 
-class SpeciesObservationUpdateView(LoginRequiredMixin, UpdateView):
+class SpeciesObservationUpdateView(CampAccessRequiredMixin, UpdateView):
     model = models.SpeciesObservation
     template_name = 'camp/species_obs_form_popout.html'
 
@@ -566,9 +575,8 @@ def species_observation_delete(request, pk, backto):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(LoginRequiredMixin, FormView):
+class ReportSearchFormView(CampAccessRequiredMixin, FormView):
     template_name = 'camp/report_search.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.ReportSearchForm
 
     def get_initial(self):

@@ -1,27 +1,10 @@
-import statistics
-import pandas
-import unicodecsv as csv
 import xlsxwriter as xlsxwriter
-from django.http import HttpResponse
-from django.template.defaultfilters import yesno
-from math import pi
-
-from bokeh.io import show, export_png, export_svgs
-from bokeh.models import SingleIntervalTicker, ColumnDataSource, HoverTool, LabelSet, Label, Title
-from bokeh.plotting import figure, output_file, save
-from bokeh import palettes
-from bokeh.transform import cumsum
 from django.db.models import Sum, Q
-from shutil import rmtree
 from django.conf import settings
-
 from lib.functions.nz import nz
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
-import numpy as np
 import os
-import pandas as pd
-
 
 def generate_master_spreadsheet(fiscal_year, user=None):
     # figure out the filename

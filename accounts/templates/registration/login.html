@@ -64,4 +64,22 @@
         </div>
     </div>
 
+    <script type="application/javascript">
+        $("#id_username").change(function () {
+            username = $(this).val()
+            if (username.match(/dfo-mpo.gc.ca/gi)==null && username.match(/@/gi)==null) {
+                newUsername = username + "@dfo-mpo.gc.ca"
+                $(this).val(newUsername)
+            }
+
+            username = $(this).val()
+            // if the new username is not a dfo username, use red font
+            if (username.match(/@dfo-mpo.gc.ca/gi)==null) {
+                $(this).addClass("red-font")
+            } else {
+                $(this).removeClass("red-font")
+            }
+        })
+    </script>
+
 {% endblock %}
