@@ -60,3 +60,8 @@ class ReportSearchForm(forms.Form):
     fiscal_year = forms.ChoiceField(required=False, choices=FY_CHOICES, label='Fiscal year')
     organizations = forms.MultipleChoiceField(required=False, choices=ORG_CHOICES,
                                               label='Organizations (Leave blank for all)')
+
+class OrganizationForm(forms.ModelForm):
+    class Meta:
+        model = models.Organization
+        fields = "__all__"
