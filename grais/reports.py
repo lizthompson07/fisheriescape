@@ -77,7 +77,7 @@ def generate_species_sample_spreadsheet(species_list=None):
     # worksheets #
     ##############
     new_species_list = [models.Species.objects.get(pk=int(s)) for s in species_list.split(",")]
-    num_row = 0
+    i = 1
     my_ws = workbook.add_worksheet(name="Samples")
     for species in new_species_list:
 
@@ -103,7 +103,6 @@ def generate_species_sample_spreadsheet(species_list=None):
         # distill the list
         sample_set = set(sample_list)
 
-        i = 1
         for sample in sample_set:
             if sample.date_retrieved:
                 obs_year = sample.date_retrieved.year
@@ -166,20 +165,19 @@ def generate_species_sample_spreadsheet(species_list=None):
 
             my_ws.write_row(i, 0, data_row, normal_format)
             i += 1
-            num_row += 1
 
         for j in range(0, len(col_max)):
             my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
         # set formatting for last three columns
-        my_ws.conditional_format(0, header.index("observed at station?"), num_row, header.index("observed on collector surface?"),
+        my_ws.conditional_format(0, header.index("observed at station?"), i, header.index("observed on collector surface?"),
                                  {
                                      'type': 'cell',
                                      'criteria': 'equal to',
                                      'value': '"yes"',
                                      'format': green_format,
                                  })
-        my_ws.conditional_format(0, header.index("observed at station?"), num_row, header.index("observed on collector surface?"),
+        my_ws.conditional_format(0, header.index("observed at station?"), i, header.index("observed on collector surface?"),
                              {
                                  'type': 'cell',
                                  'criteria': 'equal to',
