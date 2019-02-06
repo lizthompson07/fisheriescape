@@ -6,6 +6,10 @@ from django.utils import timezone
 from . import models
 import django_filters
 
+class OrganizationFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search organizations (name, abbreviation, etc...)",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+
 
 class EntryFilter(django_filters.FilterSet):
     # FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in

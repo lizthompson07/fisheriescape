@@ -4,6 +4,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
+from django.db.models import TextField
+from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
@@ -42,6 +44,54 @@ class iHubAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class IndexTemplateView(iHubAccessRequiredMixin, TemplateView):
     template_name = 'ihub/index.html'
+
+
+# ORGANIZATION #
+################
+
+class OrganizationListView(iHubAccessRequiredMixin, FilterView):
+    template_name = 'ihub/organization_list.html'
+    filterset_class = filters.OrganizationFilter
+    model = models.Organization
+    queryset = models.Organization.objects.annotate(
+        search_term=Concat('name_eng', 'name_fre', 'abbrev', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Organization.objects.first()
+        context["field_list"] = [
+            'name_eng',
+            'name_fre',
+            'abbrev',
+            'address',
+            'city',
+            'postal_code',
+            'province.abbrev_eng',
+            # 'grouping',
+        ]
+        return context
+
+class OrganizationUpdateView(iHubAccessRequiredMixin, UpdateView):
+    model = models.Organization
+    form_class = forms.OrganizationForm
+    success_url = reverse_lazy('ihub:org_list')
+
+
+class OrganizationCreateView(iHubAccessRequiredMixin, CreateView):
+    model = models.Organization
+    form_class = forms.OrganizationForm
+    success_url = reverse_lazy('ihub:org_list')
+
+
+class OrganizationDeleteView(iHubAccessRequiredMixin, DeleteView):
+    model = models.Organization
+    success_url = reverse_lazy('ihub:org_list')
+    success_message = 'The organization was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
 
 
 # ENTRY #
