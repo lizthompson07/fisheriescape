@@ -56,9 +56,12 @@ urlpatterns = [
     # PROGRESS REPORT #
     ###################
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('progress-report/<int:year>/', views.ProgressReportDetailView.as_view(), name="progress_report_detail"),
+    path('progress-report/<int:year>/', views.ProgressReportListView.as_view(), name="progress_report_detail"),
     path('progress-report/<int:year>/export', views.export_progress_report, name="export_progress_report"),
     path('fish-detail/<int:year>/export', views.export_fish_detail, name="export_fish_detail"),
+    path('hlen/<int:year>/export', views.export_hlen, name="export_hlen"),
+    path('hlog/<int:year>/export', views.export_hlog, name="export_hlog"),
+    path('hdet/<int:year>/export', views.export_hdet, name="export_hdet"),
 
     # ADMIN #
     #########
