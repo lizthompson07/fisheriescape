@@ -6,23 +6,13 @@
 {% load divide %}
 {% block content %}
 
-<div class="nav-map">
-<br>
-  <p>
-    <a href="{% url 'herring:index' %}">Herring Home</a> >
-    Progress report list
-  </p>
-</div>
-
-
-
 <div class="indent-med">
 
 <p>
     <a href="{% url 'herring:export_progress_report' view.kwargs.year %}" class="btn btn-success btn-sm">Export Spreadsheet</a>
 </p>
-
-<table class="table table-bordered table-sm">
+(click on a header to sort)
+<table class="table table-bordered table-sm sortable">
     <thead>
       <tr>
         <th scope="col">Season</th>
@@ -57,7 +47,7 @@
             {% else %}
                 <td class="bad">
             {% endif %}
-                {{ sample.fish_details.last.lab_processed_date|date:"F d, Y" }}
+                {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
             </td>
 
             {% if sample.otolith_processing_complete %}
@@ -65,7 +55,7 @@
             {% else %}
                 <td class="bad">
             {% endif %}
-                {{ sample.fish_details.last.otolith_processed_date|date:"F d, Y" }}
+                {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
             </td>
 
 

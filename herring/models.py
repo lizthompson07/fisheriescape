@@ -5,8 +5,8 @@ from django.contrib import auth
 
 # Choices for YesNo
 YESNO_CHOICES = (
-    (1,"Yes"),
-    (0,"No"),
+    (1, "Yes"),
+    (0, "No"),
 )
 
 
@@ -22,7 +22,8 @@ class Sampler(models.Model):
             return "{}, {}".format(self.last_name, self.first_name)
 
     class Meta:
-        ordering = ['last_name','first_name']
+        ordering = ['last_name', 'first_name']
+
 
 class District(models.Model):
     # Choices for province
@@ -32,11 +33,11 @@ class District(models.Model):
     QC = 4
     NL = 5
     PROVINCE_CHOICES = (
-        (NS,'Nova Scotia'),
-        (NB,'New Brunswick'),
-        (PE,'Prince Edward Island'),
-        (QC,'Quebec'),
-        (NL,'Newfoundland'),
+        (NS, 'Nova Scotia'),
+        (NB, 'New Brunswick'),
+        (PE, 'Prince Edward Island'),
+        (QC, 'Quebec'),
+        (NL, 'Newfoundland'),
     )
 
     district_id = models.IntegerField()
@@ -44,10 +45,11 @@ class District(models.Model):
     locality_list = models.TextField()
 
     def __str__(self):
-        return "{}{} | {} | {}".format(self.province_id, self.district_id,self.get_province_id_display(),self.locality_list)
+        return "{}{} | {} | {}".format(self.province_id, self.district_id, self.get_province_id_display(),
+                                       self.locality_list)
 
     class Meta:
-        ordering = ['province_id','district_id' ]
+        ordering = ['province_id', 'district_id']
 
     @property
     def district_code(self):
@@ -61,7 +63,7 @@ class FishingArea(models.Model):
 
     def __str__(self):
         if self.herring_area_code:
-            return "{} (herring code = {})".format(self.nafo_area_code,self.herring_area_code)
+            return "{} (herring code = {})".format(self.nafo_area_code, self.herring_area_code)
         else:
             return self.nafo_area_code
 
@@ -81,6 +83,7 @@ class Gear(models.Model):
     class Meta:
         ordering = ['gear_code']
 
+
 class MeshSize(models.Model):
     size_mm = models.CharField(max_length=55, null=True, blank=True)
     size_inches = models.CharField(max_length=55, null=True, blank=True)
@@ -92,11 +95,13 @@ class MeshSize(models.Model):
     class Meta:
         ordering = ['size_mm']
 
+
 class LengthBin(models.Model):
     bin_length_cm = models.FloatField(primary_key=True)
 
     def __str__(self):
         return "{} cm".format(self.bin_length_cm)
+
 
 class Test(models.Model):
     # Choices for sampling_type
@@ -105,19 +110,20 @@ class Test(models.Model):
     OTOLITH = 'otolith_detail'
 
     SCOPE_CHOICES = (
-        (LAB,'lab detail'),
-        (POINT,'single measurement'),
-        (OTOLITH,'otolith detail'),
+        (LAB, 'lab detail'),
+        (POINT, 'single measurement'),
+        (OTOLITH, 'otolith detail'),
     )
     scope = models.CharField(max_length=25, choices=SCOPE_CHOICES)
     description = models.CharField(max_length=255)
-    notes = models.CharField(max_length=1000, null=True, blank=True )
+    notes = models.CharField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return str(self.id)
 
     class Meta:
         ordering = ['scope', 'id']
+
 
 class Sample(models.Model):
     # Choices for sample_type
@@ -133,11 +139,12 @@ class Sample(models.Model):
     sample_date = models.DateTimeField()
     sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number")
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
-    district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True )
+    district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     survey_id = models.CharField(max_length=50, null=True, blank=True)
     latitude_n = models.CharField(max_length=50, null=True, blank=True, verbose_name="Latitude (N)")
     longitude_w = models.CharField(max_length=50, null=True, blank=True, verbose_name="Longitude (W)")
-    fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
+    fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True,
+                                     blank=True)
     gear = models.ForeignKey(Gear, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     experimental_net_used = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
     vessel_cfvn = models.IntegerField(null=True, blank=True)
@@ -148,22 +155,24 @@ class Sample(models.Model):
     total_fish_preserved = models.IntegerField(null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
     old_id = models.IntegerField(null=True, blank=True)
-    season =  models.IntegerField(null=True, blank=True)
+    season = models.IntegerField(null=True, blank=True)
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
     lab_processing_complete = models.BooleanField(default=False)
     otolith_processing_complete = models.BooleanField(default=False)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_samples")
+    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                   related_name="created_by_samples")
     last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_samples")
+    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         related_name="last_modified_by_samples")
 
     class Meta:
         ordering = ['-sample_date']
 
     def get_absolute_url(self):
-        return reverse('herring:sample_detail', kwargs={'pk':self.id})
+        return reverse('herring:sample_detail', kwargs={'pk': self.id})
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         self.season = self.sample_date.year
         self.last_modified_date = timezone.now()
 
@@ -193,8 +202,7 @@ class Sample(models.Model):
             else:
                 self.otolith_processing_complete = False
 
-        return super().save(*args,**kwargs)
-
+        return super().save(*args, **kwargs)
 
 
 class Maturity(models.Model):
@@ -203,6 +211,7 @@ class Maturity(models.Model):
 
     def __str__(self):
         return self.maturity
+
 
 class Sex(models.Model):
     sex = models.CharField(max_length=255)
@@ -220,9 +229,11 @@ class OtolithSeason(models.Model):
     def __str__(self):
         return self.season
 
+
 def img_file_name(instance, filename):
     img_name = 'herring/sample_{}/fish_number_{}.jpg'.format(instance.sample.id, instance.fish_number)
     return img_name
+
 
 class FishDetail(models.Model):
     sample = models.ForeignKey(Sample, related_name="fish_details", on_delete=models.CASCADE)
@@ -230,39 +241,46 @@ class FishDetail(models.Model):
     fish_length = models.FloatField(null=True, blank=True)
     fish_weight = models.FloatField(null=True, blank=True)
     sex = models.ForeignKey(Sex, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
-    maturity = models.ForeignKey(Maturity, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
+    maturity = models.ForeignKey(Maturity, related_name="fish_details", on_delete=models.DO_NOTHING, null=True,
+                                 blank=True)
     gonad_weight = models.FloatField(null=True, blank=True)
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-    lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="lab_sampler_fish_details")
-    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="otolith_sampler_fish_details")
+    lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                    related_name="lab_sampler_fish_details")
+    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                        related_name="otolith_sampler_fish_details")
     lab_processed_date = models.DateTimeField(blank=True, null=True)
     annulus_count = models.IntegerField(null=True, blank=True)
-    otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
-    otolith_image_remote_filepath = models.CharField(max_length = 2000, blank=True, null=True)
+    otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING,
+                                       null=True, blank=True)
+    otolith_image_remote_filepath = models.CharField(max_length=2000, blank=True, null=True)
     otolith_processed_date = models.DateTimeField(blank=True, null=True)
 
-    test_204_accepted = models.CharField(max_length = 5, null=True, blank=True) # ligh_length:fish_weight
-    test_207_accepted = models.CharField(max_length = 5, null=True, blank=True) # gonad weight : somatic weight : maturity level
-    test_209_accepted = models.CharField(max_length = 5, null=True, blank=True) # number of annuli : fish length
-    test_302_accepted = models.CharField(max_length = 5, null=True, blank=True) # fish length within probable range
-    test_305_accepted = models.CharField(max_length = 5, null=True, blank=True) # somatic weight within probable range
-    test_308_accepted = models.CharField(max_length = 5, null=True, blank=True) # gonad weight within probable range
-    test_311_accepted = models.CharField(max_length = 5, null=True, blank=True) # annulus count within probable range
+    test_204_accepted = models.CharField(max_length=5, null=True, blank=True)  # ligh_length:fish_weight
+    test_207_accepted = models.CharField(max_length=5, null=True,
+                                         blank=True)  # gonad weight : somatic weight : maturity level
+    test_209_accepted = models.CharField(max_length=5, null=True, blank=True)  # number of annuli : fish length
+    test_302_accepted = models.CharField(max_length=5, null=True, blank=True)  # fish length within probable range
+    test_305_accepted = models.CharField(max_length=5, null=True, blank=True)  # somatic weight within probable range
+    test_308_accepted = models.CharField(max_length=5, null=True, blank=True)  # gonad weight within probable range
+    test_311_accepted = models.CharField(max_length=5, null=True, blank=True)  # annulus count within probable range
 
     remarks = models.TextField(null=True, blank=True)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_details")
+    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                   related_name="created_by_details")
     last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_details")
+    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         related_name="last_modified_by_details")
 
     class Meta:
         unique_together = (('sample', 'fish_number'),)
         ordering = ('sample', 'fish_number')
 
     def get_absolute_url(self):
-        return reverse('herring:fish_detail', kwargs={'sample':self.sample.id,'pk':self.id})
+        return reverse('herring:fish_detail', kwargs={'sample': self.sample.id, 'pk': self.id})
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         self.last_modified_date = timezone.now()
         if self.fish_length and self.fish_weight and self.sex and self.maturity and self.gonad_weight != None and self.lab_sampler:
             if self.lab_processed_date == None:
@@ -274,8 +292,7 @@ class FishDetail(models.Model):
                 self.otolith_processed_date = timezone.now()
         else:
             self.otolith_processed_date = None
-        super().save(*args,**kwargs)
-
+        super().save(*args, **kwargs)
 
 
 class LengthFrequency(models.Model):
@@ -286,4 +303,3 @@ class LengthFrequency(models.Model):
     class Meta:
         unique_together = (('sample', 'length_bin'),)
         ordering = ('sample', 'length_bin')
-

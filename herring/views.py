@@ -696,19 +696,25 @@ class ReportSearchFormView(HerringAccessRequired, FormView):
             return HttpResponseRedirect(reverse("herring:progress_report_detail", kwargs={'year': year}))
         elif report == 2:
             return HttpResponseRedirect(reverse("herring:export_fish_detail", kwargs={'year': year}))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("herring:export_hlen", kwargs={'year': year}))
+        elif report == 4:
+            return HttpResponseRedirect(reverse("herring:export_hlog", kwargs={'year': year}))
+        elif report == 5:
+            return HttpResponseRedirect(reverse("herring:export_hdet", kwargs={'year': year}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("herring:report_search"))
 
 
-class ProgressReportDetailView(HerringAccessRequired, ListView):
-    template_name = 'herring/progress_report_detail.html'
+class ProgressReportListView(HerringAccessRequired, ListView):
+    template_name = 'herring/report_progress_list.html'
 
     def get_queryset(self):
         return models.Sample.objects.filter(season=self.kwargs["year"])
 
     def get_context_data(self, **kwargs):
-        context = super(ProgressReportDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         qs = models.Sample.objects.filter(season=self.kwargs["year"])
 
@@ -773,6 +779,20 @@ def export_fish_detail(request, year):
     response = reports.generate_fish_detail_report(year)
     return response
 
+
+def export_hlog(request, year):
+    response = reports.generate_hlog(year)
+    return response
+
+
+def export_hlen(request, year):
+    response = reports.generate_hlen(year)
+    return response
+
+
+def export_hdet(request, year):
+    response = reports.generate_hdet(year)
+    return response
 
 
 # ADMIN #

@@ -13,7 +13,7 @@ class SampleFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         # self.filters['sampling_protocol'].label = 'Protocol'
         self.filters['id'].label = 'Sample #'
-        self.filters['SampleDate'].label = 'Sample collection date'
+        # self.filters['SampleDate'].label = 'Sample collection date'
         # self.filters['season'].label = 'Year'
         self.filters['sampler_ref_number'].label = "Sampler ref. no."
         self.filters['experimental_net_used'].label = "Experimental?"
@@ -27,4 +27,5 @@ class SampleFilter(django_filters.FilterSet):
             'experimental_net_used': ['exact'],
             'type': ['exact'],
             'sampler': ['exact'],
+            # 'sample_date': ['exact'],
         }
