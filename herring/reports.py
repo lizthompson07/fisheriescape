@@ -1,7 +1,13 @@
+import math
+
 import unicodecsv as csv
 from django.http import HttpResponse
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+from lib.functions.nz import nz
 from . import models
+import numpy as np
+
 
 def generate_progress_report(year):
     # create instance of mission:
@@ -60,7 +66,8 @@ def generate_progress_report(year):
 
     return response
 
-def generate_fish_detail_report(request, year):
+
+def generate_fish_detail_report(year):
     # create instance of mission:
     qs = models.FishDetail.objects.filter(sample__season=year)
 
@@ -122,7 +129,8 @@ def generate_fish_detail_report(request, year):
             lab_sampler = None
 
         if fish_detail.otolith_sampler:
-            otolith_sampler = "{} {}".format(fish_detail.otolith_sampler.first_name, fish_detail.otolith_sampler.last_name)
+            otolith_sampler = "{} {}".format(fish_detail.otolith_sampler.first_name,
+                                             fish_detail.otolith_sampler.last_name)
         else:
             otolith_sampler = None
 
@@ -179,6 +187,238 @@ def generate_fish_detail_report(request, year):
                 fish_detail.otolith_season,
                 fish_detail.otolith_image_remote_filepath,
                 otolith_processed_date,
+            ])
+
+    return response
+
+
+def generate_hlen(year):
+    # grab a list of samples for which there are length frequencies
+    sample_list = [s for s in models.Sample.objects.filter(season=year) if s.length_frequencies.count() > 0]
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="hermorrhage_hlen_{}.csv"'.format(year)
+    writer = csv.writer(response)
+
+    # these files have no headers so we jump straight into the date
+    # here is where things get tricky.. each row should consist of 10 columns of data + metadata (5 cols)
+    # lets define a few custom functions:
+
+    def round_down(num, divisor):
+        ''' round down to the nearest base '''
+        return num - (num % divisor)
+
+    def round_up(num, divisor):
+        ''' round down to the nearest base '''
+        return num - (num % divisor) + divisor
+
+    for sample in sample_list:
+
+        # get the length frequencies for the sample
+        lfs = sample.length_frequency_objects.all().order_by("length_bin__bin_length_cm")
+        # get the max and min bin lengths rounded up and down, respectively
+        min_length = round_down(lfs.first().length_bin.bin_length_cm, 5)
+        max_length = round_up(lfs.last().length_bin.bin_length_cm, 5)
+        my_array = np.arange(min_length, max_length, 0.5).reshape(
+            (-1, 10))  # the minus -1 allows numpy to find the appropriate number of rows
+
+        # now, for each row of this array, we will write a new column
+        for row in my_array:
+            length_list = []
+            for len in row:
+                try:
+                    # if length exists for that sample, send in the recorded count
+                    length_list.append(models.LengthFrequency.objects.get(sample=sample, length_bin=float(len)).count)
+                except ObjectDoesNotExist:
+                    # otherwise mark a zero value
+                    length_list.append(0)
+
+            writer.writerow(
+                [
+                    sample.id,
+                    sample.sample_date.day,
+                    sample.sample_date.month,
+                    sample.sample_date.year,
+                    int(row[0]),
+                    length_list[0],
+                    length_list[1],
+                    length_list[2],
+                    length_list[3],
+                    length_list[4],
+                    length_list[5],
+                    length_list[6],
+                    length_list[7],
+                    length_list[8],
+                    length_list[9],
+                ])
+
+    return response
+
+
+
+def generate_hlog(year):
+    # grab a list of all samples for the year
+    sample_list = [s for s in models.Sample.objects.filter(season=year).order_by("id")]
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="hermorrhage_hlog_{}.csv"'.format(year)
+    writer = csv.writer(response)
+
+    # these files have no headers so we jump straight into the date
+    # here is where things get tricky.. each row should consist of 10 columns of data + metadata (5 cols)
+    # lets define a few custom functions:
+
+    for sample in sample_list:
+        # sample
+        # day
+        # month
+        # year
+        # maps to PORT_NAME but will also contain survey ID from new database
+        # sampler name (text)
+        # sampler's ref number
+        # number measured??
+        # number kept
+        # NAFO code
+        # district id; maps to PORT_CODE in oracle db
+        # cfvn
+        # gear code (str)
+        # mesh size (float)
+        # lat
+        # long
+        # landed wt.
+        # number measured per ½ cm
+        # blank
+        # length frequency bins
+        # number processed
+        # date processed
+        # ager name
+        # comment
+        # blank
+        # maps to WHARF_CODE in oracle db
+        # blank
+
+        if sample.sampler:
+            # if there is a missing first or last name
+            if not sample.sampler.first_name or not sample.sampler.last_name:
+                sampler = "{}{}".format(nz(sample.sampler.first_name,""), nz(sample.sampler.last_name,""))
+            else:
+                sampler = "{}. {}".format(sample.sampler.first_name.upper()[:1], sample.sampler.last_name.upper())
+        else:
+            sampler = None
+
+        if sample.survey_id:
+            survey_id = sample.survey_id
+        else:
+            survey_id = None
+
+        if sample.fishing_area:
+            nafo_code = sample.fishing_area.nafo_area_code
+
+        else:
+            nafo_code = None
+
+        if sample.gear:
+            gear_code = sample.gear.gear_code
+            if sample.experimental_net_used:
+                gear_code = gear_code + "*"
+        else:
+            gear_code = None
+
+        if sample.mesh_size:
+            mesh_size = sample.mesh_size.size_inches_decimal
+        else:
+            mesh_size = None
+
+        if sample.type == 2: # sea sample
+            number_per_bin = 2
+        else: # port sample
+            number_per_bin = 1
+
+
+        writer.writerow(
+            [
+                sample.id,
+                sample.sample_date.day,
+                sample.sample_date.month,
+                sample.sample_date.year,
+                survey_id,
+                sampler,
+                sample.sampler_ref_number,
+                sample.total_fish_measured,
+                sample.total_fish_preserved,
+                nafo_code,
+                sample.district_id,
+                sample.vessel_cfvn,
+                gear_code,
+                mesh_size,
+                sample.latitude_n,
+                sample.longitude_w,
+                sample.catch_weight_lbs,
+                number_per_bin,
+                None,
+                0.5,
+                sample.total_fish_preserved,
+                None,
+                None,
+                sample.remarks,
+                None,
+                None,
+                None,
+            ])
+
+    return response
+
+
+
+def generate_hdet(year):
+    # grab a list of all fish details for the year, ordered by sample then fish number
+    fish_list = [f for f in models.FishDetail.objects.filter(sample__season=year).order_by("sample_id", "fish_number")]
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="hermorrhage_hdet_{}.csv"'.format(year)
+    writer = csv.writer(response)
+
+    # these files have no headers so we jump straight into the date
+    # here is where things get tricky.. each row should consist of 10 columns of data + metadata (5 cols)
+    # lets define a few custom functions:
+
+    for fish in fish_list:
+        # sample, day, month, year, fish_number,
+        # fishlength, fishweight, sex (M,F,I),
+        # maturity, gonadweight, otolith_season, annulus_count
+
+        if fish.sex:
+            sex = fish.sex.oracle_code
+        else:
+            sex = None
+
+        if fish.maturity:
+            maturity = fish.maturity.id
+        else:
+            maturity = None
+
+        if fish.otolith_season:
+            os = fish.otolith_season.oracle_code
+        else:
+            os = None
+
+        writer.writerow(
+            [
+                fish.sample.id,
+                fish.sample.sample_date.day,
+                fish.sample.sample_date.month,
+                fish.sample.sample_date.year,
+                fish.fish_number,
+                fish.fish_length,
+                fish.fish_weight,
+                sex,
+                maturity,
+                fish.gonad_weight,
+                os,
+                fish.annulus_count,
             ])
 
     return response

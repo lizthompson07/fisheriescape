@@ -199,7 +199,10 @@ class ReportSearchForm(forms.Form):
     YEAR_CHOICES = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
     REPORT_CHOICES = [
         (1, "Progress Report"),
-        (2, "Fish detail CSV export"),
+        (2, "Pretty fish detail export (csv)"),
+        (4, "Export hlog file (csv)"),
+        (3, "Export hlen file (csv)"),
+        (5, "Export hdet file (csv)"),
     ]
     REPORT_CHOICES.insert(0, (None, "------"))
 

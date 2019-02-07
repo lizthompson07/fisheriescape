@@ -92,4 +92,20 @@
     </div>
 
 
+    <script type="application/javascript">
+        $("form").submit(function () {
+            if($("#id_report").val() != 1) {
+                alert("This may take a few minutes. Please hang in there and don't double click ;)")
+            }
+            $(".loader").removeClass("hidden");
+            window.setTimeout(closeLoader, 10000)
+        });
+
+        function closeLoader() {
+            $("form").removeClass("hidden");
+            $(".loader").addClass("hidden");
+        }
+
+    </script>
+
 {% endblock content %}
