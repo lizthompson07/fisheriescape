@@ -296,8 +296,6 @@ function overwrite(control) {
       else if (userResponse.match(/ruler1/gi)) {
         // EXAMPLE:  Ruler1 279.2123
         if (overwrite($("#id_fish_length"))) {
-          // reset accepted status
-          markTestAccepted("id_test_302_accepted", null)
           // write to field
           $("#id_fish_length").val(userResponse.toLowerCase().replace("ruler1","").trim());
           inputAccepted = true;
@@ -354,8 +352,6 @@ function overwrite(control) {
       else if (userResponse.match(/Gonad/gi) || userResponse.match(/scale_2/gi) || userResponse.match(/^[g][0-9]/gi)) {
         // 'EXAMPLE:  Enter Gonad wt 50.1 __OR__ Scale_2 50.0001 g
         if (overwrite($("#id_gonad_weight"))) {
-          // reset accepted status
-          markTestAccepted("id_test_308_accepted", null)
           // write to field
           if (userResponse.match(/Gonad/gi)) {
             $("#id_gonad_weight").val(userResponse.toLowerCase().replace("enter Gonad wt","").trim());
@@ -372,8 +368,6 @@ function overwrite(control) {
       else if (userResponse.match(/fish wt/gi) || userResponse.match(/scale_1/gi)) {
         // 'EXAMPLE:  Scale_1 1000.000 g __OR__ Enter Fish wt 1000
         if (overwrite($("#id_fish_weight"))) {
-          // reset accepted status
-          markTestAccepted("id_test_305_accepted", null)
           // write to field
           if (userResponse.match(/fish wt/gi)) {
             $("#id_fish_weight").val(userResponse.toLowerCase().replace("fish wt","").trim());
