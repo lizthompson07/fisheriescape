@@ -25,11 +25,14 @@
 
 
 {% block content %}
-    <div class="nav-map">
-        <br>
-        <a href="{% url 'camp:sample_search' %}">Search</a> >
-        Sample {{ object.id }}
-    </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'camp:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'camp:sample_search' %}"> All samples </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
+        </ol>
+    </nav>
+
 
     <div class="container">
 

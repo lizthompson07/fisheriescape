@@ -2,13 +2,14 @@
 {% load static %}
 {% load verbose_names %}
 {% block content %}
-    <div class="nav-map">
-        <br>
-        <a href="{% url 'camp:report_search' %}"> Back </a>
-    </div>
-{#    <div style="text-align: center;">#}
-{#        <h1>{{ species }}: Species Count by Year</h1>#}
-{#    </div>#}
+
+        <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'camp:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'camp:report_search' %}"> Report Search </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> Report </li>
+        </ol>
+    </nav>
 
     <div class="" align="center" >
         {% include report_path %}

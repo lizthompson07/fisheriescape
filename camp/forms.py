@@ -162,7 +162,6 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "---"),
         (1, "Species counts by year"),
-        (2, "Species richness by year"),
         (3, "Annual watershed report (PDF)"),
         (4, "Annual watershed spreadsheet (XLSX)"),
         (5, "Dataset export for FGP (CSV)"),

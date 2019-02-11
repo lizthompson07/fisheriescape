@@ -7,6 +7,7 @@ class Province(models.Model):
     province_eng = models.CharField(max_length=255, blank=True, null=True)
     province_fre = models.CharField(max_length=255, blank=True, null=True)
     abbrev = models.CharField(max_length=10, blank=True, null=True)
+    abbrev_fre = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         return "{} ({})".format(self.province_eng, self.abbrev)

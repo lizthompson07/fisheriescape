@@ -85,165 +85,165 @@ def generate_species_count_report(species_list):
 
     save(p)
 
-
-def generate_species_richness_report(site=None):
-    # start assigning files and by cleaning the temp dir
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
-    target_file = os.path.join(target_dir, 'report_temp.html')
-
-    try:
-        rmtree(target_dir)
-    except:
-        print("no such dir.")
-    os.mkdir(target_dir)
-
-    # output to static HTML file
-    output_file(target_file)
-
-    # create a new plot
-    p = figure(
-        title="Count of Species Observations by Year",
-        tools="pan,box_zoom,wheel_zoom,reset,save,",
-        # tooltips="@stations",
-        x_axis_label='Year',
-        y_axis_label='Species count',
-        plot_width=1200, plot_height=800,
-        x_axis_type="linear"
-
-    )
-    ticker = SingleIntervalTicker(interval=1)
-
-    p.grid.grid_line_alpha = 1
-    p.background_fill_color = None
-    p.xaxis.minor_tick_line_color = None
-    p.xaxis.ticker = ticker
-    if site:
-        # reset title
-        p.title.text = "Count of Species Observations by Year - {}".format(models.Site.objects.get(pk=site))
-
-        # first we need a list of stations
-        stations = models.Station.objects.filter(site_id=site).order_by("name")
-
-        # generate color palette
-        if len(stations) <= 2:
-            colors = palettes.Set1[3][:len(stations)]
-        elif len(stations) <= 9:
-            colors = palettes.Set1[len(stations)]
-        else:
-            colors = palettes.Category20[len(stations)]
-
-        i = 0
-        for station in stations:
-            print(station)
-            qs_years = models.Sample.objects.filter(station=station).order_by("year").values(
-                'year',
-            ).distinct()
-
-            years = []
-            counts = []
-
-            for obj in qs_years:
-                y = obj['year']
-                annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station=station,
-                                                                      species__sav=False).values(
-                    'species_id',
-                ).distinct()
-                species_set = set([i["species_id"] for i in annual_obs])
-                years.append(y)
-                counts.append(len(species_set))
-
-            legend_title = str(station)
-
-            source = ColumnDataSource(data={
-                'year': years,
-                'count': counts,
-                'station': list(np.repeat(str(station), len(years)))
-            })
-
-            p.line("year", "count", legend=legend_title, line_width=1, line_color=colors[i], source=source)
-            # p.circle("year", "count", legend=legend_title, line_width=1, line_color=colors[i], source=source)
-            p.circle("year", "count", legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3,
-                     source=source)
-
-            p.add_tools(HoverTool(
-                tooltips=[
-                    ('year:', '@year'),
-                    ('station:', '@station'),  # use @{ } for field names with spaces
-                    ('count:', '@count'),
-                ],
-            ))
-            # increase the counter to move to next station
-            i += 1
-
-        # Show a line for entire site
-        qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values(
-            'year',
-        ).distinct()
-
-        years = []
-        counts = []
-
-        for obj in qs_years:
-            y = obj['year']
-            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
-                                                                  species__sav=False).values(
-                'species_id',
-            ).distinct()
-            species_set = set([i["species_id"] for i in annual_obs])
-            years.append(y)
-            counts.append(len(species_set))
-
-        legend_title = "Entire site"
-
-        source = ColumnDataSource(data={
-            'year': years,
-            'count': counts,
-            'station': list(np.repeat("all stations", len(years)))
-        })
-
-        p.line("year", "count", legend=legend_title, line_width=3, line_color='black', line_dash="4 4", source=source)
-        p.circle("year", "count", legend=legend_title, fill_color='black', line_color="black", size=8, source=source)
-
-        p.add_tools(HoverTool(
-            tooltips=[
-                ('year:', '@year'),
-                ('station:', '@station'),  # use @{ } for field names with spaces
-                ('count:', '@count'),
-            ],
-        ))
-
-        # p.line(years, counts, legend=legend_title, line_width=3, line_color='black', line_dash="4 4")
-        # p.circle(years, counts, legend=legend_title, fill_color='black', line_color='black', size=8)
-        # TODO: should we show the number of stations visited?
-
-    else:
-        qs_years = models.Sample.objects.all().order_by("year").values(
-            'year',
-        ).distinct()
-
-        years = []
-        counts = []
-
-        for obj in qs_years:
-            y = obj['year']
-            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, species__sav=False).values(
-                'species_id',
-            ).distinct()
-            species_set = set([i["species_id"] for i in annual_obs])
-            years.append(y)
-            print(years)
-            counts.append(len(species_set))
-            print(counts)
-        # my_sp = models.Species.objects.get(pk=sp_id)
-        legend_title = "All stations"
-        p.line(years, counts, legend=legend_title, line_width=3)
-        p.circle(years, counts, legend=legend_title, fill_color='white', size=8)
-        # TODO: should we show the number of stations visited?
-
-    save(p)
-
-
+#
+# def generate_species_richness_report(site=None):
+#     # start assigning files and by cleaning the temp dir
+#     base_dir = os.path.dirname(os.path.abspath(__file__))
+#     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
+#     target_file = os.path.join(target_dir, 'report_temp.html')
+#
+#     try:
+#         rmtree(target_dir)
+#     except:
+#         print("no such dir.")
+#     os.mkdir(target_dir)
+#
+#     # output to static HTML file
+#     output_file(target_file)
+#
+#     # create a new plot
+#     p = figure(
+#         title="Count of Species Observations by Year",
+#         tools="pan,box_zoom,wheel_zoom,reset,save,",
+#         # tooltips="@stations",
+#         x_axis_label='Year',
+#         y_axis_label='Species count',
+#         plot_width=1200, plot_height=800,
+#         x_axis_type="linear"
+#
+#     )
+#     ticker = SingleIntervalTicker(interval=1)
+#
+#     p.grid.grid_line_alpha = 1
+#     p.background_fill_color = None
+#     p.xaxis.minor_tick_line_color = None
+#     p.xaxis.ticker = ticker
+#     if site:
+#         # reset title
+#         p.title.text = "Count of Species Observations by Year - {}".format(models.Site.objects.get(pk=site))
+#
+#         # first we need a list of stations
+#         stations = models.Station.objects.filter(site_id=site).order_by("name")
+#
+#         # generate color palette
+#         if len(stations) <= 2:
+#             colors = palettes.Set1[3][:len(stations)]
+#         elif len(stations) <= 9:
+#             colors = palettes.Set1[len(stations)]
+#         else:
+#             colors = palettes.Category20[len(stations)]
+#
+#         i = 0
+#         for station in stations:
+#             print(station)
+#             qs_years = models.Sample.objects.filter(station=station).order_by("year").values(
+#                 'year',
+#             ).distinct()
+#
+#             years = []
+#             counts = []
+#
+#             for obj in qs_years:
+#                 y = obj['year']
+#                 annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station=station,
+#                                                                       species__sav=False).values(
+#                     'species_id',
+#                 ).distinct()
+#                 species_set = set([i["species_id"] for i in annual_obs])
+#                 years.append(y)
+#                 counts.append(len(species_set))
+#
+#             legend_title = str(station)
+#
+#             source = ColumnDataSource(data={
+#                 'year': years,
+#                 'count': counts,
+#                 'station': list(np.repeat(str(station), len(years)))
+#             })
+#
+#             p.line("year", "count", legend=legend_title, line_width=1, line_color=colors[i], source=source)
+#             # p.circle("year", "count", legend=legend_title, line_width=1, line_color=colors[i], source=source)
+#             p.circle("year", "count", legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3,
+#                      source=source)
+#
+#             p.add_tools(HoverTool(
+#                 tooltips=[
+#                     ('year:', '@year'),
+#                     ('station:', '@station'),  # use @{ } for field names with spaces
+#                     ('count:', '@count'),
+#                 ],
+#             ))
+#             # increase the counter to move to next station
+#             i += 1
+#
+#         # Show a line for entire site
+#         qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values(
+#             'year',
+#         ).distinct()
+#
+#         years = []
+#         counts = []
+#
+#         for obj in qs_years:
+#             y = obj['year']
+#             annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
+#                                                                   species__sav=False).values(
+#                 'species_id',
+#             ).distinct()
+#             species_set = set([i["species_id"] for i in annual_obs])
+#             years.append(y)
+#             counts.append(len(species_set))
+#
+#         legend_title = "Entire site"
+#
+#         source = ColumnDataSource(data={
+#             'year': years,
+#             'count': counts,
+#             'station': list(np.repeat("all stations", len(years)))
+#         })
+#
+#         p.line("year", "count", legend=legend_title, line_width=3, line_color='black', line_dash="4 4", source=source)
+#         p.circle("year", "count", legend=legend_title, fill_color='black', line_color="black", size=8, source=source)
+#
+#         p.add_tools(HoverTool(
+#             tooltips=[
+#                 ('year:', '@year'),
+#                 ('station:', '@station'),  # use @{ } for field names with spaces
+#                 ('count:', '@count'),
+#             ],
+#         ))
+#
+#         # p.line(years, counts, legend=legend_title, line_width=3, line_color='black', line_dash="4 4")
+#         # p.circle(years, counts, legend=legend_title, fill_color='black', line_color='black', size=8)
+#         # TODO: should we show the number of stations visited?
+#
+#     else:
+#         qs_years = models.Sample.objects.all().order_by("year").values(
+#             'year',
+#         ).distinct()
+#
+#         years = []
+#         counts = []
+#
+#         for obj in qs_years:
+#             y = obj['year']
+#             annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, species__sav=False).values(
+#                 'species_id',
+#             ).distinct()
+#             species_set = set([i["species_id"] for i in annual_obs])
+#             years.append(y)
+#             print(years)
+#             counts.append(len(species_set))
+#             print(counts)
+#         # my_sp = models.Species.objects.get(pk=sp_id)
+#         legend_title = "All stations"
+#         p.line(years, counts, legend=legend_title, line_width=3)
+#         p.circle(years, counts, legend=legend_title, fill_color='white', size=8)
+#         # TODO: should we show the number of stations visited?
+#
+#     save(p)
+#
+#
 WIDTH = 1200
 HEIGHT = 800
 TITLE_FONT_SIZE = '16pt'
@@ -280,7 +280,7 @@ def generate_sub_pie_chart(site, year, target_file):
     # create a dictionary of species codes by counts
     x = {}
     for s in species_list:
-        s_code = models.Species.objects.get(pk=s).code
+        s_code = "{} / {}".format(models.Species.objects.get(pk=s).common_name_eng, models.Species.objects.get(pk=s).common_name_fre)
         s_sum = models.SpeciesObservation.objects.filter(sample__station__site_id=site).filter(
             sample__year=year).filter(
             species_id=s).order_by("species").values('species').distinct().annotate(
@@ -293,7 +293,7 @@ def generate_sub_pie_chart(site, year, target_file):
     # now we need to add the 'other' category
     cum_mod = models.SpeciesObservation.objects.filter(sample__station__site_id=site).filter(sample__year=year)
     for s in species_list:
-        s_code = 'Other'
+        s_code = 'Other / autres'
         cum_mod = cum_mod.filter(~Q(species_id=s))
 
     cum_mod = cum_mod.order_by('sample__station__site_id').values('sample__station__site_id').distinct().annotate(
@@ -311,8 +311,15 @@ def generate_sub_pie_chart(site, year, target_file):
     data['legend_label'] = ["{} - {:.1%}".format(data['species'][i], data['percentage'][i]) for i in range(0, len(x))]
 
     site_name = str(models.Site.objects.get(pk=site))
-    title_fre = "Les 13 espèces les plus communes et rares observées à {}, en {}".format(site_name, year)
-    title_eng = "13 Most Common and Rare Species Observed in {} for {}".format(site_name, year)
+    site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
+    # if the year selected is 2018, there is a special case since there was only one sample take
+    # in order to make this very clear in the graph, the title should contain the name of the month at which the sample occurred, i.e. June
+    if year == 2018:
+        title_fre = "Espèces communes capturées à {}, durant l’échantillonnage du PSCA en juin {}".format(site_name_fre, year)
+        title_eng = "Most common species captured during CAMP sampling in {} in June {}".format(site_name, year)
+    else:
+        title_fre = "Espèces communes capturées à {}, durant l’échantillonnage du PSCA en {}".format(site_name_fre, year)
+        title_eng = "Most common species captured during CAMP sampling in {} in {}".format(site_name, year)
 
     p = figure(plot_height=HEIGHT, plot_width=WIDTH, toolbar_location=None,
                x_range=(-0.5, 1.0), )
