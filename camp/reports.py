@@ -465,9 +465,9 @@ def generate_sub_do(site, target_file):
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
     title_eng = "Mean and range of dissolved oxygen levels recorded at each CAMP sampling station in {}".format(site_name)
-    sub_title_eng = "Number of months sampled per year is indicated above error bars."
+    sub_title_eng = "Number of samples per year is indicated above error bars."
     title_fre = "Moyenne et intervalle des niveaux d’oxygène dissous mesurés à chaque station du PSCA à {}".format(site_name_fre)
-    sub_title_fre = "Le nombre de mois échantillonnés par année est indiqué au-dessus des barres d’erreur."
+    sub_title_fre = "Le nombre des échantillonnés par année est indiqué au-dessus des barres d’erreur."
 
     p = figure(
         x_axis_label='Year / année',
@@ -509,8 +509,7 @@ def generate_sub_do(site, target_file):
 
         for obj in qs_years:
             y = obj['year']
-            do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station=station)]
-            do_readings = list(filter(None, do_readings))
+            do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station=station) if obj.dissolved_o2 is not None]
             do_max.append(max(do_readings))
             do_min.append(min(do_readings))
             do_avg.append(statistics.mean(do_readings))
@@ -532,6 +531,42 @@ def generate_sub_do(site, target_file):
         p.circle("years", "do_avg", legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3,
                  source=source)
         i += 1
+
+    # redo the whole process at the site level for total number of samples
+    qs_years = models.Sample.objects.filter(station_site=site).order_by("year").values(
+        'year',
+    ).distinct()
+
+    years = []
+    do_max = []
+    do_min = []
+    do_avg = []
+    sample_counts = []
+
+    for obj in qs_years:
+        y = obj['year']
+        do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station_site=site) if obj.dissolved_o2 is not None]
+        do_max.append(max(do_readings))
+        do_min.append(min(do_readings))
+        do_avg.append(statistics.mean(do_readings))
+        years.append(y)
+        sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
+
+    source = ColumnDataSource(data={
+        'stations': list(np.repeat(str(station), len(years))),
+        'years': years,
+        'do_max': do_max,
+        'do_min': do_min,
+        'do_avg': do_avg,
+        'sample_count': sample_counts,
+    })
+
+    labels = LabelSet(x='year', y='do_max', text='sample_count', level='glyph',
+                      x_offset=-10, y_offset=5, source=source, render_mode='canvas')
+    p.add_layout(labels)
+
+    # add in the number of samples
+
 
     # show(p)
     p.legend.label_text_font_size = LEGEND_FONT_SIZE
