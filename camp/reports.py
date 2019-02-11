@@ -355,11 +355,11 @@ def generate_sub_species_richness(site, target_file):
 
     title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}.".format(
         site_name_fre)
-    sub_title_fre = "L’abondance d’espèces cumulative et le nombre de mois échantillonnés par année sont aussi indiqués."
+    sub_title_fre = "L’abondance d’espèces cumulative et le nombre des échantillonnés par année sont aussi indiqués."
 
     title_eng = "Species richness at each CAMP sampling station in {}.".format(
         site_name)
-    sub_title_eng = "Cumulative species richness and number of months sampled per year are also indicated."
+    sub_title_eng = "Cumulative species richness and number of samples per year are also indicated."
 
     p = figure(
         x_axis_label='Year / année',
@@ -454,7 +454,7 @@ def generate_sub_species_richness(site, target_file):
     p.line("year", "count", legend=legend_title, line_width=3, line_color='black', line_dash="4 4", source=source)
     p.circle("year", "count", legend=legend_title, fill_color='black', line_color="black", size=8, source=source)
     p.legend.label_text_font_size = LEGEND_FONT_SIZE
-
+    p.legend.location = "bottom_left"
     labels = LabelSet(x='year', y='count', text='sample_count', level='glyph',
                       x_offset=-10, y_offset=5, source=source, render_mode='canvas')
     p.add_layout(labels)
