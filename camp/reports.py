@@ -533,7 +533,7 @@ def generate_sub_do(site, target_file):
         i += 1
 
     # redo the whole process at the site level for total number of samples
-    qs_years = models.Sample.objects.filter(station_site=site).order_by("year").values(
+    qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values(
         'year',
     ).distinct()
 
@@ -545,7 +545,7 @@ def generate_sub_do(site, target_file):
 
     for obj in qs_years:
         y = obj['year']
-        do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station_site=site) if obj.dissolved_o2 is not None]
+        do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station__site_id=site) if obj.dissolved_o2 is not None]
         do_max.append(max(do_readings))
         do_min.append(min(do_readings))
         do_avg.append(statistics.mean(do_readings))
@@ -553,7 +553,6 @@ def generate_sub_do(site, target_file):
         sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
 
     source = ColumnDataSource(data={
-        'stations': list(np.repeat(str(station), len(years))),
         'years': years,
         'do_max': do_max,
         'do_min': do_min,
