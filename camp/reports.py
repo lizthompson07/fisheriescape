@@ -351,9 +351,9 @@ def generate_sub_species_richness(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
-    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}. L’abondance d’espèces cumulative et le nombre de mois échantillonnés par année sont aussi indiqués.".format(
+    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}. \nL’abondance d’espèces cumulative et le nombre de mois échantillonnés par année sont aussi indiqués.".format(
         site_name_fre)
-    title_eng = "Species richness at each CAMP sampling station in {}. Cumulative species richness and number of months sampled per year are also indicated.".format(
+    title_eng = "Species richness at each CAMP sampling station in {}. Cumulative species richness \nand number of months sampled per year are also indicated.".format(
         site_name)
 
     p = figure(
