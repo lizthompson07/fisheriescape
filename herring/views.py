@@ -473,8 +473,8 @@ class LabSampleUpdateView(HerringAccessRequired, UpdateView):
 
         # pass in the tests
         tests = models.Test.objects.filter(
-            Q(id=201) | Q(id=202) | Q(id=203) | Q(id=204) | Q(id=207) | Q(id=208) | Q(id=300) | Q(id=301) | Q(
-                id=302) | Q(id=303) | Q(id=304) | Q(id=305) | Q(id=306) | Q(id=307) | Q(id=308)).order_by("id")
+            Q(id=201) | Q(id=202) | Q(id=203) | Q(id=204) | Q(id=207) | Q(id=208) | Q(id=300) | Q(id=301) | Q(id=303) | Q(id=304) | Q(
+                id=306) | Q(id=307)).order_by("id")
         context['tests'] = tests
 
         # determine the progress of data entry
@@ -557,7 +557,7 @@ class OtolithUpdateView(HerringAccessRequired, UpdateView):
         context = super().get_context_data(**kwargs)
         # pass in the tests
         tests = models.Test.objects.filter(
-            Q(id=200) | Q(id=206) | Q(id=209) | Q(id=210) | Q(id=211) | Q(id=309) | Q(id=310) | Q(id=311)).order_by(
+            Q(id=200) | Q(id=206) | Q(id=209) | Q(id=210) | Q(id=211) | Q(id=309) | Q(id=310)).order_by(
             "id")
         context['tests'] = tests
 

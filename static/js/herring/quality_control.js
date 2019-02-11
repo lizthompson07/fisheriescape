@@ -109,12 +109,12 @@ function testImprobableAccepted(objectType) {
 
     if (objectType === "lab_sample") {
         // grab all test related to probability
-        testList = [204, 207, 302, 305, 308];
+        testList = [204, 207];
         targetTest = 208;
     }
     if (objectType === "otolith_sample") {
         // grab all test related to probability
-        testList = [209, 311];
+        testList = [209];
         targetTest = 211;
     }
 
@@ -215,16 +215,16 @@ function testDataPoints(fieldName) {
     var fieldVerboseName = fieldName.replace("_", " ")
 
     if (fieldName === "fish_length") {
-        test = [300, 301, 302]
+        test = [300, 301]
     }
     else if (fieldName === "fish_weight") {
-        test = [303, 304, 305]
+        test = [303, 304]
     }
     else if (fieldName === "gonad_weight") {
-        test = [306, 307, 308]
+        test = [306, 307]
     }
     else if (fieldName === "annulus_count") {
-        test = [309, 310, 311]
+        test = [309, 310]
     }
     else {
         // bad fieldName
@@ -237,14 +237,11 @@ function testDataPoints(fieldName) {
         if ($("#id_" + fieldName)[0].value === "") {
             markTest("display_test_" + test[0], false)
             markTest("display_test_" + test[1], null)
-            markTest("display_test_" + test[2], null)
         }
         // this is a special case where there is an unknown value
         else if ($("#id_" + fieldName)[0].value == -99) {
             markTest("display_test_" + test[0], true)
             markTest("display_test_" + test[1], true)
-            markTest("display_test_" + test[2], true)
-            markTestAccepted("id_test_" + test[2] + "_accepted", null)
         }
         else {
             // test 1 is passed
@@ -254,39 +251,10 @@ function testDataPoints(fieldName) {
             // check possible range
             if (fieldValue < rangeObject[fieldName].possible.min || fieldValue > rangeObject[fieldName].possible.max ) {
                 markTest("display_test_" + test[1], false)
-                markTest("display_test_" + test[2], null)
             }
             else {
                 // test 2 passed
                 markTest("display_test_" + test[1], true)
-
-                // check probable range
-                if (fieldValue < rangeObject[fieldName].probable.min || fieldValue > rangeObject[fieldName].probable.max) {
-                    markTest("display_test_" + test[2], false)
-                    // is the test already accepted?
-                    if ($("#id_test_" + test[2] + "_accepted").val() == "yes") {
-                        // do nothing
-                    } else {
-                        markTestAccepted("id_test_" + test[2] + "_accepted", false)
-                        // send some information
-                        var min = parseFloat(Math.round(rangeObject[fieldName].probable.min * 100) / 100).toFixed(1)
-                        var max = parseFloat(Math.round(rangeObject[fieldName].probable.max * 100) / 100).toFixed(1)
-                        var msg = `${fieldVerboseName} is outside of the probable range. \n\nA value was expected between ${min} and ${max}. \n\nAre you confident in your measurements? \n\n Press [y] for YES or [n] for NO.`
-                        var msgLite = `Improbable measurement for ${fieldVerboseName}`
-
-                        // write to the qcFeedbackObject
-                        qcFeedbackObject[test[2]] = {}
-                        qcFeedbackObject[test[2]].msg = msg
-                        qcFeedbackObject[test[2]].msgLite = msgLite
-                        qcFeedbackObject[test[2]].testId = test[2]
-
-                    }
-                }
-                else {
-                    // test 3 passed
-                    markTest("display_test_" + test[2], true)
-                    markTestAccepted("id_test_" + test[2] + "_accepted", null)
-                }
             }
         }
     }
@@ -379,7 +347,7 @@ function test232(otolithProcessingComplete) {
 
 function improbableMeasurementValidation(talkBack = true) {
     // JSON atributes to check
-    testList = [302, 305, 308, 204, 207, 311, 209]
+    testList = [204, 207, 209]
 
     for (var i = 0; i < testList.length; i++) {
         if (jQuery.isEmptyObject(qcFeedbackObject[testList[i]]) === false) {

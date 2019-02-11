@@ -256,7 +256,6 @@ def generate_hlen(year):
     return response
 
 
-
 def generate_hlog(year):
     # grab a list of all samples for the year
     sample_list = [s for s in models.Sample.objects.filter(season=year).order_by("id")]
@@ -302,7 +301,7 @@ def generate_hlog(year):
         if sample.sampler:
             # if there is a missing first or last name
             if not sample.sampler.first_name or not sample.sampler.last_name:
-                sampler = "{}{}".format(nz(sample.sampler.first_name,""), nz(sample.sampler.last_name,""))
+                sampler = "{}{}".format(nz(sample.sampler.first_name, ""), nz(sample.sampler.last_name, ""))
             else:
                 sampler = "{}. {}".format(sample.sampler.first_name.upper()[:1], sample.sampler.last_name.upper())
         else:
@@ -331,11 +330,10 @@ def generate_hlog(year):
         else:
             mesh_size = None
 
-        if sample.type == 2: # sea sample
+        if sample.type == 2:  # sea sample
             number_per_bin = 2
-        else: # port sample
+        else:  # port sample
             number_per_bin = 1
-
 
         writer.writerow(
             [
@@ -369,7 +367,6 @@ def generate_hlog(year):
             ])
 
     return response
-
 
 
 def generate_hdet(year):
