@@ -330,10 +330,11 @@ def generate_hlog(year):
         else:
             mesh_size = None
 
-        if sample.type == 2:  # sea sample
-            number_per_bin = 2
-        else:  # port sample
-            number_per_bin = 1
+        # based on a discussion with Francois Turcotte, we will try leaving this blank
+        # if sample.type == 2:  # sea sample
+        #     number_per_bin = 2
+        # else:  # port sample
+        number_per_bin = None
 
         writer.writerow(
             [
