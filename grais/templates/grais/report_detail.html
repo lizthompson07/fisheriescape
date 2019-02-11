@@ -4,121 +4,125 @@
 
 
 {% block header %}
-<style>
-       /* Set the size of the div element that contains the map */
-      #map {
-        height: 300px;  /* The height is 400 pixels */
-        width: 100%;  /* The width is the width of the web page */
-       }
-    .label{
-        font-weight: bold;
-    }
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 300px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
 
-</style>
+        .label {
+            font-weight: bold;
+        }
+
+    </style>
 {% endblock header %}
 
 
 {% block content %}
-<div class="nav-map">
-  <br>
-  <a href="{% url 'grais:report_list' %}">All reports</a> >
-  {{object}}
-</div>
-<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:report_list' %}"> All Reports </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
 
-  <br>
-  <h1>{{object}}</h1>
-  <p>
-    {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
-    <a class="btn btn-warning" href="{% url 'grais:report_edit' object.id %}">Edit</a>
-    <a class="btn btn-danger" href="{% url 'grais:report_delete' object.id %}">Delete</a>
-  </p>
+    <div class="container">
 
-  <br><br>
-<div class="row">
-  <div class="col">
-    {# Detail about the sample #}
+        <br>
+        <h1>{{ object }}</h1>
+        <p>
+            {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
+            <a class="btn btn-warning" href="{% url 'grais:report_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'grais:report_delete' object.id %}">Delete</a>
+        </p>
 
-    {% for field in field_list %}
-        {%verbose_field_display object field%}
-    {% endfor %}
+        <br><br>
+        <div class="row">
+            <div class="col">
+                {# Detail about the sample #}
+
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
 
 
-{##}
-{##}
-{##}
-{##}
-{#      <p>#}
-{#        <b>Latitude (N)</b><br>#}
-{#        {{object.latitude_n|floatformat:6}}#}
-{#      </p>#}
-{#      <p>#}
-{#        <b>Longitude (W)</b><br>#}
-{#        {{object.longitude_w|floatformat:6}}#}
-{#      </p>#}
-{#      <p>#}
-{#        <b>depth (m)</b><br>#}
-{#        {{object.depth}}#}
-{#      </p>#}
-{#      <p>#}
-{#        <b>Site description</b><br>#}
-{#        {{object.site_desc}}#}
-{#      </p>#}
-{#      <p>#}
-{#        <b>Last modified by:</b><br>#}
-{#        {% if object.last_modified_by %}#}
-{#          @{{object.last_modified_by}}#}
-{#        {% else %}#}
-{#          n/a#}
-{#        {% endif %}#}
-{#      </p>#}
+                {##}
+                {##}
+                {##}
+                {##}
+                {#      <p>#}
+                {#        <b>Latitude (N)</b><br>#}
+                {#        {{object.latitude_n|floatformat:6}}#}
+                {#      </p>#}
+                {#      <p>#}
+                {#        <b>Longitude (W)</b><br>#}
+                {#        {{object.longitude_w|floatformat:6}}#}
+                {#      </p>#}
+                {#      <p>#}
+                {#        <b>depth (m)</b><br>#}
+                {#        {{object.depth}}#}
+                {#      </p>#}
+                {#      <p>#}
+                {#        <b>Site description</b><br>#}
+                {#        {{object.site_desc}}#}
+                {#      </p>#}
+                {#      <p>#}
+                {#        <b>Last modified by:</b><br>#}
+                {#        {% if object.last_modified_by %}#}
+                {#          @{{object.last_modified_by}}#}
+                {#        {% else %}#}
+                {#          n/a#}
+                {#        {% endif %}#}
+                {#      </p>#}
 
-  </div>
+            </div>
 
-  <div class="col">
-      <div id="map"></div>
-</div>
-</div>
-{#  Samples  #}
-<br><br>
-<h4>
-  <b>Sample History:</b>
+            <div class="col">
+                <div id="map"></div>
+            </div>
+        </div>
+        {#  Samples  #}
+        <br><br>
+        <h4>
+            <b>Sample History:</b>
 
-</h4>
-<table class="table table-bordered ">
-  <thead class="full-table">
-    <th>Id</th>
-    <th>season</th>
-  </thead>
-  <tbody>
-    {% for sample in object.samples.all  %}
-    <tr>
-      <td><a href="{% url 'grais:sample_detail' sample.id %}">{{sample.id}}</a></td>
-      <td>{{sample.season}}</td>
-    </tr>
-    {% empty %}
-    {# <td>n/a</td> #}
-    {# empty #}
-    {% endfor %}
-  </tbody>
-</table>
-<p>
-  <b>TOTAL: {{object.probe_data.count}}</b>
-</p>
-</div>
+        </h4>
+        <table class="table table-bordered ">
+            <thead class="full-table">
+            <th>Id</th>
+            <th>season</th>
+            </thead>
+            <tbody>
+            {% for sample in object.samples.all %}
+                <tr>
+                    <td><a href="{% url 'grais:sample_detail' sample.id %}">{{ sample.id }}</a></td>
+                    <td>{{ sample.season }}</td>
+                </tr>
+            {% empty %}
+                {# <td>n/a</td> #}
+                {# empty #}
+            {% endfor %}
+            </tbody>
+        </table>
+        <p>
+            <b>TOTAL: {{ object.probe_data.count }}</b>
+        </p>
+    </div>
 
     <script>
 
-    // Initialize and add the map
-    function initMap() {
-      // The location of Uluru
-      var uluru = {lat: {{object.latitude_n}}, lng: {{object.longitude_w}}};
-      // The map, centered at Uluru
-      var map = new google.maps.Map(
-          document.getElementById('map'), {zoom: 10, center: uluru});
-      // The marker, positioned at Uluru
-      var marker = new google.maps.Marker({position: uluru, map: map});
-    }
+        // Initialize and add the map
+        function initMap() {
+            // The location of Uluru
+            var uluru = {lat: {{object.latitude_n}}, lng: {{object.longitude_w}}};
+            // The map, centered at Uluru
+            var map = new google.maps.Map(
+                document.getElementById('map'), {zoom: 10, center: uluru});
+            // The marker, positioned at Uluru
+            var marker = new google.maps.Marker({position: uluru, map: map});
+        }
     </script>
     <!--Load the API from the specified URL
     * The async attribute allows the browser to render the page while the API loads
@@ -126,7 +130,7 @@
     * The callback parameter executes the initMap() function
     -->
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initMap">
+            src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
     </script>
 
 

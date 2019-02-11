@@ -4,13 +4,15 @@
 
 {% block content %}
 
-<div class="nav-map">
-  <p><br>
-    <a href="{% url 'grais:station_list' %}">All Stations</a> >
-    <a href="{% url 'grais:station_detail' object.id %}">{{object.station_name}}</a> >
-    Delete
-  </p>
-</div>
+        <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:station_list' %}"> All Stations </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:station_detail' object.id %}"> {{object.sample}} </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> Delete</li>
+        </ol>
+    </nav>
+
 
 <div class="container">
 

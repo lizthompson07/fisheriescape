@@ -4,14 +4,17 @@
 
 {% block content %}
 
-    <div class="nav-map">
-        <p><br>
-            <a href="{% url 'grais:sample_list' %}">All samples</a> >
-            <a href="{% url 'grais:sample_detail' object.line.sample.id %}">{{ object.line.sample }}</a> >
-            <a href="{% url 'grais:line_detail' object.line.id %}">{{ object.line }}</a> >
-            {{ object }}
-        </p><br>
-    </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:sample_list' %}"> All samples </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:sample_detail' object.line.sample.id %}"> {{object.line.sample}} </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:line_detail' object.line.id %}"> {{object.line}} </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+
 
     <div class="container">
         <h1>{{ object }}</h1>
