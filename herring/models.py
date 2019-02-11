@@ -260,6 +260,8 @@ class FishDetail(models.Model):
     test_207_accepted = models.CharField(max_length=5, null=True,
                                          blank=True)  # gonad weight : somatic weight : maturity level
     test_209_accepted = models.CharField(max_length=5, null=True, blank=True)  # number of annuli : fish length
+
+    # these four fields are deprecated and should be deleted; be sure to delete corresponding tests in the Test table
     test_302_accepted = models.CharField(max_length=5, null=True, blank=True)  # fish length within probable range
     test_305_accepted = models.CharField(max_length=5, null=True, blank=True)  # somatic weight within probable range
     test_308_accepted = models.CharField(max_length=5, null=True, blank=True)  # gonad weight within probable range

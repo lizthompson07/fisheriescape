@@ -128,9 +128,9 @@ class LabSampleForm(forms.ModelForm):
           "last_modified_by",
           "test_204_accepted",
           "test_207_accepted",
-          "test_302_accepted",
-          "test_305_accepted",
-          "test_308_accepted",
+          # "test_302_accepted",
+          # "test_305_accepted",
+          # "test_308_accepted",
         ]
 
         attr_dict = {"class":"mandatory"}
@@ -149,9 +149,9 @@ class LabSampleForm(forms.ModelForm):
 
             "test_204_accepted":forms.TextInput(attrs=attr_dict_1),
             "test_207_accepted":forms.TextInput(attrs=attr_dict_1),
-            "test_302_accepted":forms.TextInput(attrs=attr_dict_1),
-            "test_305_accepted":forms.TextInput(attrs=attr_dict_1),
-            "test_308_accepted":forms.TextInput(attrs=attr_dict_1),
+            # "test_302_accepted":forms.TextInput(attrs=attr_dict_1),
+            # "test_305_accepted":forms.TextInput(attrs=attr_dict_1),
+            # "test_308_accepted":forms.TextInput(attrs=attr_dict_1),
         }
 
 
@@ -171,7 +171,7 @@ class OtolithForm(forms.ModelForm):
           "remarks",
           "last_modified_by",
           "test_209_accepted",
-          "test_311_accepted",
+          # "test_311_accepted",
         ]
         labels = {
             "otolith_image_remote_filepath":"Image filepath",
@@ -190,7 +190,7 @@ class OtolithForm(forms.ModelForm):
             "otolith_season":forms.Select(attrs=attr_dict),
 
             "test_209_accepted":forms.TextInput(attrs=attr_dict_1),
-            "test_311_accepted":forms.TextInput(attrs=attr_dict_1),
+            # "test_311_accepted":forms.TextInput(attrs=attr_dict_1),
         }
 
 
