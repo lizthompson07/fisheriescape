@@ -478,9 +478,9 @@ def generate_sub_do(site, target_file):
     )
     ticker = SingleIntervalTicker(interval=1)
     p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
-    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE-2), 'above')
+    p.add_layout(Title(text=title_fre, text_font_size="14pt"), 'above')
     p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
-    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE-2), 'above')
+    p.add_layout(Title(text=title_eng, text_font_size="14pt"), 'above')
 
     p.grid.grid_line_alpha = 1
     p.background_fill_color = "white"
