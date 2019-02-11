@@ -52,7 +52,6 @@ def generate_species_count_report(species_list):
 
     p.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
 
-
     # determine number of species
     # print(species_list)
     my_list = species_list.split(",")
@@ -84,6 +83,7 @@ def generate_species_count_report(species_list):
         i += 1
 
     save(p)
+
 
 #
 # def generate_species_richness_report(site=None):
@@ -350,8 +350,11 @@ def generate_sub_pie_chart(site, year, target_file):
 def generate_sub_species_richness(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title_fre = "Abondance d’espèces par année à {}".format(site_name)
-    title_eng = "Species Richness by Year at {}".format(site_name)
+    site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
+    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}. L’abondance d’espèces cumulative et le nombre de mois échantillonnés par année sont aussi indiqués.".format(
+        site_name_fre)
+    title_eng = "Species richness at each CAMP sampling station in {}. Cumulative species richness and number of months sampled per year are also indicated.".format(
+        site_name)
 
     p = figure(
         x_axis_label='Year / année',
@@ -419,6 +422,7 @@ def generate_sub_species_richness(site, target_file):
 
     years = []
     counts = []
+    sample_counts = []
 
     for obj in qs_years:
         y = obj['year']
@@ -429,26 +433,38 @@ def generate_sub_species_richness(site, target_file):
         species_set = set([i["species_id"] for i in annual_obs])
         years.append(y)
         counts.append(len(species_set))
+        sample_counts.append(models.Sample.objects.filter(sample__year=y, station__site_id=site).count())
 
     legend_title = "Entire site / ensemble du site"
 
     source = ColumnDataSource(data={
         'year': years,
         'count': counts,
-        'station': list(np.repeat("all stations", len(years)))
+        'station': list(np.repeat("all stations", len(years))),
+        'sample_count': sample_counts,
     })
 
     p.line("year", "count", legend=legend_title, line_width=3, line_color='black', line_dash="4 4", source=source)
     p.circle("year", "count", legend=legend_title, fill_color='black', line_color="black", size=8, source=source)
     p.legend.label_text_font_size = LEGEND_FONT_SIZE
+
+    labels = LabelSet(x='year', y='count', text='sample_count', level='glyph',
+                      x_offset=-10, y_offset=5, source=source, render_mode='canvas')
+    p.add_layout(labels)
+
+
     export_png(p, filename=target_file)
 
 
 def generate_sub_do(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title_eng = "Dissolved Oxygen Levels per Year (Average) at {}".format(site_name)
-    title_fre = "Niveaux d’oxygène dissous par année (moyenne) à {}".format(site_name)
+    site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
+
+    title_eng = "Mean and range of dissolved oxygen levels recorded at each CAMP sampling station in {}. Number of months sampled per year is indicated above error bars.".format(
+        site_name)
+    title_fre = "Moyenne et intervalle des niveaux d’oxygène dissous mesurés à chaque station du PSCA à {}. Le nombre de mois échantillonnés par année est indiqué au-dessus des barres d’erreur.".format(
+        site_name_fre)
     p = figure(
         x_axis_label='Year / année',
         y_axis_label='Dissolved oxygen / oxygène dissous (mg/l)',
@@ -519,8 +535,12 @@ def generate_sub_do(site, target_file):
 def generate_sub_green_crab(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
-    title_eng = "Green Crab Abundance per Year at {}".format(site_name)
-    title_fre = "Abondance du Crab vert, par année à {}".format(site_name)
+    site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
+
+    title_eng = "Green Crab abundance observed during CAMP sampling in {}. Number of months sampled per year is indicated above columns.".format(
+        site_name)
+    title_fre = "Abondance de crabes verts observée durant l’échantillonnage du PSCA à {}. Le nombre de mois échantillonnés par année est indiqué au-dessus des colonnes.".format(
+        site_name_fre)
 
     color = palettes.BuGn[5][2]
 
@@ -978,4 +998,3 @@ def generate_fgp_export():
                 obs.total_sav,
             ])
     return response
-

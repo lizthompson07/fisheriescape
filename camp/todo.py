@@ -8,14 +8,14 @@
 
 # TODO: pie chart
 ## for 2018, title should be modified to have "in June" at the end
-
-
-
-
 ## for legend, should have both eng and fre names... "eng / fre"
 
 # TODO: species richness
 ## titre update
+
+
+
+
 ## insert label on black line at each point indicating number of stations
 ## change name of black line in legend
 
