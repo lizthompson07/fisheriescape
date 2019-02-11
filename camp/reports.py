@@ -433,7 +433,7 @@ def generate_sub_species_richness(site, target_file):
         species_set = set([i["species_id"] for i in annual_obs])
         years.append(y)
         counts.append(len(species_set))
-        sample_counts.append(models.Sample.objects.filter(sample__year=y, station__site_id=site).count())
+        sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
 
     legend_title = "Entire site / ensemble du site"
 
