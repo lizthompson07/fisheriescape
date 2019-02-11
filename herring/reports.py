@@ -330,11 +330,14 @@ def generate_hlog(year):
         else:
             mesh_size = None
 
-        # based on a discussion with Francois Turcotte, we will try leaving this blank
-        # if sample.type == 2:  # sea sample
-        #     number_per_bin = 2
-        # else:  # port sample
-        number_per_bin = None
+        based on a discussion with Francois Turcotte, we will try leaving this blank
+        if sample.type == 2:  # sea sample
+            protocol = 8
+        else:  # port sample
+            if sample.experimental_net_used:  # sea sample
+                protocol = 2
+            else:
+                protocol = 1
 
         writer.writerow(
             [
@@ -355,7 +358,7 @@ def generate_hlog(year):
                 sample.latitude_n,
                 sample.longitude_w,
                 sample.catch_weight_lbs,
-                number_per_bin,
+                protocol,
                 None,
                 0.5,
                 sample.total_fish_preserved,
