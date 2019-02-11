@@ -330,7 +330,7 @@ def generate_hlog(year):
         else:
             mesh_size = None
 
-        based on a discussion with Francois Turcotte, we will try leaving this blank
+        # based on a discussion with Francois Turcotte, we will try leaving this blank
         if sample.type == 2:  # sea sample
             protocol = 8
         else:  # port sample
