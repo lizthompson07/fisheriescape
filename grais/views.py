@@ -23,9 +23,9 @@ def not_in_grais_group(user):
     if user:
         return user.groups.filter(name='grais_access').count() != 0
 
+
 class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
-
 
     def test_func(self):
         return not_in_grais_group(self.request.user)
@@ -35,8 +35,6 @@ class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
-
-
 
 
 class IndexView(GraisAccessRequiredMixin, TemplateView):
@@ -220,6 +218,10 @@ class ProbeMeasurementCreateView(GraisAccessRequiredMixin, CreateView):
             'last_modified_by': self.request.user,
             }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sample'] = models.Sample.objects.get(pk=self.kwargs["sample"])
+        return context
 
 class ProbeMeasurementDetailView(GraisAccessRequiredMixin, UpdateView):
     model = models.ProbeMeasurement
@@ -265,6 +267,11 @@ class LineCreateView(GraisAccessRequiredMixin, CreateView):
             'number_petris':3,
             'last_modified_by': self.request.user
             }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sample'] = models.Sample.objects.get(pk=self.kwargs["sample"])
+        return context
 
     def form_valid(self, form):
         self.object = form.save()
@@ -776,58 +783,3 @@ def species_sample_spreadsheet_export(request, species_list):
             return response
     raise Http404
 
-# def report_species_count(request, species_list):
-#     reports.generate_species_count_report(species_list)
-#     # find the name of the file
-#     base_dir = os.path.dirname(os.path.abspath(__file__))
-#     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
-#     for root, dirs, files in os.walk(target_dir):
-#         for file in files:
-#             if "report_temp" in file:
-#                 my_file = "camp/temp/{}".format(file)
-#
-#     return render(request, "camp/report_display.html", {"report_path": my_file})
-#
-#
-# def report_species_richness(request, site=None):
-#     if site:
-#         reports.generate_species_richness_report(site)
-#     else:
-#         reports.generate_species_richness_report()
-#
-#     return render(request, "camp/report_display.html")
-#
-#
-# class AnnualWatershedReportTemplateView(PDFTemplateView):
-#     template_name = 'camp/report_watershed_display.html'
-#
-#     def get_pdf_filename(self):
-#         site = models.Site.objects.get(pk=self.kwargs['site']).site
-#         return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
-#
-#     def get_context_data(self, **kwargs):
-#         reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
-#         site = models.Site.objects.get(pk=self.kwargs['site']).site
-#         return super().get_context_data(
-#             pagesize="A4 landscape",
-#             title="Annual Report for {}_{}".format(site, self.kwargs['year']),
-#             **kwargs
-#         )
-#
-#
-# def annual_watershed_spreadsheet(request, site, year):
-#     my_site = models.Site.objects.get(pk=site)
-#     file_url = reports.generate_annual_watershed_spreadsheet(my_site, year)
-#
-#     if os.path.exists(file_url):
-#         with open(file_url, 'rb') as fh:
-#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-#             response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
-#             return response
-#     raise Http404
-#
-#
-# def fgp_export(request):
-#
-#     response = reports.generate_fgp_export()
-#     return response

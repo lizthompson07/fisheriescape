@@ -4,26 +4,22 @@
 {% load bootstrap4 %}
 
 {% block content %}
-    {% if temp_msg %}
-        {% bootstrap_alert temp_msg alert_type='success' %}
-    {% endif %}
 
-    <div class="nav-map">
-        <p><br>
-
-            <a href="{% url 'grais:sample_list' %}">All samples</a> >
-
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:sample_list' %}"> All samples </a></li>
             {% if sample %}
-                <a href="{% url 'grais:sample_detail' sample.id %}"> {{ sample }}</a> >
+                <li class="breadcrumb-item"><a href="{% url 'grais:sample_detail' sample.id %}"> {{ sample }} </a></li>
             {% else %}
-                <a href="{% url 'grais:sample_detail' line.sample.id %}"> {{ line.sample }}</a> >
-                <a href="{% url 'grais:line_detail' line.id %}"> {{ line }}</a> >
+                <li class="breadcrumb-item"><a
+                        href="{% url 'grais:sample_detail' line.sample.id %}"> {{ line.sample }} </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'grais:line_detail' line.id %}"> {{ line }} </a></li>
+                <li class="breadcrumb-item active" aria-current="page">Insert Species</li>
             {% endif %}
-            Insert Species
 
-        </p><br>
-    </div>
-
+        </ol>
+    </nav>
 
 
     <div class="container">
@@ -80,7 +76,8 @@
                                          title="Delete">
                                 </a>
                                 <a id="secrect-delete-btn-{{ s.id }}"
-                                   href="{% url 'grais:spp_obs_delete' view.kwargs.type s.id "insert" %}" class="hidden"></a>
+                                   href="{% url 'grais:spp_obs_delete' view.kwargs.type s.id "insert" %}"
+                                   class="hidden"></a>
                             </td>
 
 
@@ -90,13 +87,12 @@
                         </tr>
                     {% empty %}
                         <tr>
-                        <td colspan="3">Nothing added yet.</td>
+                            <td colspan="3">Nothing added yet.</td>
                         </tr>
                     {% endfor %}
 
                     </tbody>
                 </table>
-
 
 
             </div>

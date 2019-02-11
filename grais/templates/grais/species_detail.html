@@ -10,11 +10,15 @@
         }
     </style>
 
-    <div class="nav-map">
-        <br>
-        <a href="{% url 'grais:species_list' %}">All Species</a> >
-        <em>{{ object.scientific_name }}</em>
-    </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:species_list' %}"> All Species </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object.scientific_name }}</li>
+        </ol>
+    </nav>
+
+
     <div class="container">
 
         <br>

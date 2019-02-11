@@ -170,9 +170,9 @@ class Line(models.Model):
 
     def __str__(self):
         if self.collector:
-            my_str = "Collector {}".format(self.collector)
+            my_str = "{} (collector #{})".format(self.id, self.collector)
         else:
-            my_str = "Line {} (missing collector number)".format(self.id)
+            my_str = "Surface {}".format(self.id)
 
         return my_str
 
@@ -293,7 +293,7 @@ class ProbeMeasurement(models.Model):
     weather_notes = models.CharField(max_length=1000, blank=True, null=True)
 
     def __str__(self):
-        return self.time_date
+        return "Probe measurement {}".format(self.id)
 
     def get_absolute_url(self):
         return reverse("grais:probe_measurement_detail", kwargs={"pk": self.id})
