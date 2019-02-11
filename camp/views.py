@@ -33,6 +33,7 @@ def not_in_camp_group(user):
 
 
 class CampAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
 
     def test_func(self):
         return not_in_camp_group(self.request.user)
