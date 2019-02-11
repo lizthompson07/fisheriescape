@@ -353,12 +353,9 @@ def generate_sub_species_richness(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}.".format(
-        site_name_fre)
+    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}.".format(site_name_fre)
     sub_title_fre = "L’abondance d’espèces cumulative et le nombre des échantillonnés par année sont aussi indiqués."
-
-    title_eng = "Species richness at each CAMP sampling station in {}.".format(
-        site_name)
+    title_eng = "Species richness at each CAMP sampling station in {}.".format(site_name)
     sub_title_eng = "Cumulative species richness and number of samples per year are also indicated."
 
     p = figure(
@@ -467,10 +464,11 @@ def generate_sub_do(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_eng = "Mean and range of dissolved oxygen levels recorded at each CAMP sampling station in {}. Number of months sampled per year is indicated above error bars.".format(
-        site_name)
-    title_fre = "Moyenne et intervalle des niveaux d’oxygène dissous mesurés à chaque station du PSCA à {}. Le nombre de mois échantillonnés par année est indiqué au-dessus des barres d’erreur.".format(
-        site_name_fre)
+    title_eng = "Mean and range of dissolved oxygen levels recorded at each CAMP sampling station in {}".format(site_name)
+    sub_title_eng = "Number of months sampled per year is indicated above error bars."
+    title_fre = "Moyenne et intervalle des niveaux d’oxygène dissous mesurés à chaque station du PSCA à {}".format(site_name_fre)
+    sub_title_fre = "Le nombre de mois échantillonnés par année est indiqué au-dessus des barres d’erreur."
+
     p = figure(
         x_axis_label='Year / année',
         y_axis_label='Dissolved oxygen / oxygène dissous (mg/l)',
@@ -479,8 +477,10 @@ def generate_sub_do(site, target_file):
         toolbar_location=None,
     )
     ticker = SingleIntervalTicker(interval=1)
-    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
-    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
+    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE-2), 'above')
+    p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE-2), 'above')
 
     p.grid.grid_line_alpha = 1
     p.background_fill_color = "white"
@@ -543,10 +543,10 @@ def generate_sub_green_crab(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_eng = "Green Crab abundance observed during CAMP sampling in {}. Number of months sampled per year is indicated above columns.".format(
-        site_name)
-    title_fre = "Abondance de crabes verts observée durant l’échantillonnage du PSCA à {}. Le nombre de mois échantillonnés par année est indiqué au-dessus des colonnes.".format(
-        site_name_fre)
+    title_eng = "Green Crab abundance observed during CAMP sampling in {}".format(site_name)
+    sub_title_eng = "Number of months sampled per year is indicated above columns.".format(site_name)
+    title_fre = "Abondance de crabes verts observée durant l’échantillonnage du PSCA à {}".format(site_name_fre)
+    sub_title_fre = "Le nombre de mois échantillonnés par année est indiqué au-dessus des colonnes.".format(site_name_fre)
 
     color = palettes.BuGn[5][2]
 
@@ -575,7 +575,10 @@ def generate_sub_green_crab(site, target_file):
         y_axis_label='Abundance / Abondance',
     )
     p.vbar(x='years', top='counts', width=0.9, source=source, line_color='white', fill_color=color)
+
+    p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
     p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     labels = LabelSet(x='years', y='counts', text='counts', level='glyph',
