@@ -244,7 +244,7 @@ def generate_species_count_report(species_list):
 #     save(p)
 #
 #
-WIDTH = 1200
+WIDTH = 1400
 HEIGHT = 800
 TITLE_FONT_SIZE = '16pt'
 LEGEND_FONT_SIZE = '12pt'
