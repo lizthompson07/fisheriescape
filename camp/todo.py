@@ -15,10 +15,6 @@
 ## insert label on black line at each point indicating number of stations
 ## change name of black line in legend
 
-
-
-
-
 # TODO: DO graph
 ## updated title
 ## insert label above each point indicating number of samples
@@ -27,6 +23,9 @@
 # TODO: GC graph
 ## new title
 ## insert label above each point indicating number of samples
+
+
+
 
 # TODO: Excel
 ## sort by station number

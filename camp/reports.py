@@ -560,15 +560,10 @@ def generate_sub_do(site, target_file):
         'sample_count': sample_counts,
     })
 
-    labels = LabelSet(x='year', y='do_max', text='sample_count', level='glyph',
+    p.legend.label_text_font_size = LEGEND_FONT_SIZE
+    labels = LabelSet(x='years', y='do_max', text='sample_count', level='glyph',
                       x_offset=-10, y_offset=5, source=source, render_mode='canvas')
     p.add_layout(labels)
-
-    # add in the number of samples
-
-
-    # show(p)
-    p.legend.label_text_font_size = LEGEND_FONT_SIZE
     export_png(p, filename=target_file)
 
 
@@ -578,14 +573,16 @@ def generate_sub_green_crab(site, target_file):
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
     title_eng = "Green Crab abundance observed during CAMP sampling in {}".format(site_name)
-    sub_title_eng = "Number of months sampled per year is indicated above columns.".format(site_name)
+    sub_title_eng = "Number of samples per year is indicated above columns.".format(site_name)
     title_fre = "Abondance de crabes verts observée durant l’échantillonnage du PSCA à {}".format(site_name_fre)
-    sub_title_fre = "Le nombre de mois échantillonnés par année est indiqué au-dessus des colonnes.".format(site_name_fre)
+    sub_title_fre = "Le nombre des échantillonnés par année est indiqué au-dessus des colonnes.".format(site_name_fre)
 
     color = palettes.BuGn[5][2]
 
     years = [obj["year"] for obj in models.Sample.objects.order_by("year").values('year').distinct()]
     counts = []
+    sample_counts = []
+
     for year in years:
         green_crab_sum = models.SpeciesObservation.objects.filter(sample__station__site_id=site).filter(
             sample__year=year).filter(species_id=18).order_by("species").values('species').distinct().annotate(
@@ -594,11 +591,14 @@ def generate_sub_green_crab(site, target_file):
             counts.append(green_crab_sum[0]["dsum"])
         except:
             counts.append(0)
+        sample_counts.append(models.Sample.objects.filter(year=year, station__site_id=site).count())
 
     years = [str(y) for y in years]
     source = ColumnDataSource(data={
         'years': years,
         'counts': counts,
+        'sample_count': sample_counts,
+
     })
     p = figure(
         x_range=years,
@@ -615,7 +615,7 @@ def generate_sub_green_crab(site, target_file):
     p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
     p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
-    labels = LabelSet(x='years', y='counts', text='counts', level='glyph',
+    labels = LabelSet(x='years', y='counts', text='sample_count', level='glyph',
                       x_offset=-10, y_offset=5, source=source, render_mode='canvas')
     p.add_layout(labels)
 
