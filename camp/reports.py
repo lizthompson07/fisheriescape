@@ -244,10 +244,10 @@ def generate_species_count_report(species_list):
 #     save(p)
 #
 #
-WIDTH = 1400
-HEIGHT = 900
+WIDTH = 1200
+HEIGHT = 800
 TITLE_FONT_SIZE = '16pt'
-LEGEND_FONT_SIZE = '12pt'
+LEGEND_FONT_SIZE = '10pt'
 
 
 def generate_annual_watershed_report(site, year):
