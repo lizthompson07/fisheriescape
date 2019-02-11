@@ -211,11 +211,11 @@ MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
-STATIC_ROOT = STATIC_DIR
+# STATIC_ROOT = STATIC_DIR
 
-# if MY_ENVR == "dev":
-#     STATICFILES_DIRS = [
-#         STATIC_DIR,
-#     ]
-# else:
-#     STATIC_ROOT = STATIC_DIR
+if MY_ENVR == "dev":
+    STATICFILES_DIRS = [
+        STATIC_DIR,
+    ]
+else:
+    STATIC_ROOT = STATIC_DIR
