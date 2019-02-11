@@ -247,6 +247,7 @@ def generate_species_count_report(species_list):
 WIDTH = 1200
 HEIGHT = 800
 TITLE_FONT_SIZE = '16pt'
+SUBTITLE_FONT_SIZE = '12pt'
 LEGEND_FONT_SIZE = '10pt'
 
 
@@ -351,10 +352,14 @@ def generate_sub_species_richness(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
-    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}. \nL’abondance d’espèces cumulative et le nombre de mois échantillonnés par année sont aussi indiqués.".format(
+
+    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}.".format(
         site_name_fre)
-    title_eng = "Species richness at each CAMP sampling station in {}. Cumulative species richness \nand number of months sampled per year are also indicated.".format(
+    sub_title_fre = "L’abondance d’espèces cumulative et le nombre de mois échantillonnés par année sont aussi indiqués."
+
+    title_eng = "Species richness at each CAMP sampling station in {}.".format(
         site_name)
+    sub_title_eng = "Cumulative species richness and number of months sampled per year are also indicated."
 
     p = figure(
         x_axis_label='Year / année',
@@ -366,9 +371,11 @@ def generate_sub_species_richness(site, target_file):
     )
     ticker = SingleIntervalTicker(interval=1)
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
     p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
 
-    p.title.text_font_size = TITLE_FONT_SIZE
+    # p.title.text_font_size = TITLE_FONT_SIZE
     p.grid.grid_line_alpha = 1
     p.background_fill_color = "white"
     p.xaxis.minor_tick_line_color = None
@@ -451,7 +458,6 @@ def generate_sub_species_richness(site, target_file):
     labels = LabelSet(x='year', y='count', text='sample_count', level='glyph',
                       x_offset=-10, y_offset=5, source=source, render_mode='canvas')
     p.add_layout(labels)
-
 
     export_png(p, filename=target_file)
 
