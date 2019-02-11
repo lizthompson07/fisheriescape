@@ -3,21 +3,26 @@
 {% load verbose_names %}
 {% block content %}
 
-<div class="nav-map">
-  <br>
-  <a href="{% url 'camp:species_list' %}">All Species</a> >
-  <em>{{object.common_name_eng}}</em>
-</div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'camp:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'camp:species_list' %}"> All Species </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
+        </ol>
+    </nav>
+
 
     <style type="text/css">
         #map {
-            height: 300px;  /* The height is 400 pixels */
-            width: 100%;  /* The width is the width of the web page */
+            height: 300px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
         }
-        .label{
+
+        .label {
             font-weight: bold;
         }
-        strong{
+
+        strong {
             font-weight: bold;
             font-size: 1.2em;
             margin-bottom: 1.2em;
@@ -26,85 +31,86 @@
 
     </style>
 
-<div class="container">
+    <div class="container">
 
-  <br>
-  <h1>{{object}}</h1>
-  <p>
-    <a class="btn btn-warning" href="{% url 'camp:species_edit' object.id %}">Edit</a>
-    {% if object.sample_spp.count == 0 %}
-      <a class="btn btn-danger" href="{% url 'camp:species_delete' object.id %}">Delete</a>
-    {% else %}
-      <a class="btn btn-danger disabled" href="{% url 'camp:species_delete' object.id %}">Delete</a>
-    {% endif %}
-    <a class="btn btn-success under-dev" href="#">Export data to csv</a>
+        <br>
+        <h1>{{ object }}</h1>
+        <p>
+            <a class="btn btn-warning" href="{% url 'camp:species_edit' object.id %}">Edit</a>
+            {% if object.sample_spp.count == 0 %}
+                <a class="btn btn-danger" href="{% url 'camp:species_delete' object.id %}">Delete</a>
+            {% else %}
+                <a class="btn btn-danger disabled" href="{% url 'camp:species_delete' object.id %}">Delete</a>
+            {% endif %}
+            <a class="btn btn-success under-dev" href="#">Export data to csv</a>
 
-  </p>
+        </p>
 
-  <br><br>
+        <br><br>
 
-  <div class="row">
-    <div class="col-3">
-      {% for field in field_list %}
-          {% verbose_field_display object field %}
-      {% endfor %}
-        <p><b>Number of occurences in the database:</b><br>{{ object.sample_spp.count }} sample{{ object.sample_spp.count | pluralize }}</p>
+        <div class="row">
+            <div class="col-3">
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <p><b>Number of occurences in the database:</b><br>{{ object.sample_spp.count }}
+                    sample{{ object.sample_spp.count | pluralize }}</p>
+            </div>
+            <div class="col-9">
+                <div id="map"></div>
+            </div>
+
+        </div>
+
+
     </div>
-    <div class="col-9"><div id="map"></div></div>
-
-  </div>
-
-
-
-
-</div>
 
     <script>
-      function initialize() {
-        var locations = {{ locations | safe }}
+        function initialize() {
+            var locations = {{ locations | safe }}
 
-        window.map = new google.maps.Map(document.getElementById('map'), {
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        });
+                window.map = new google.maps.Map(document.getElementById('map'), {
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                });
 
-        var infowindow = new google.maps.InfoWindow();
+            var infowindow = new google.maps.InfoWindow();
 
-        var bounds = new google.maps.LatLngBounds();
+            var bounds = new google.maps.LatLngBounds();
 
-        for (i = 0; i < locations.length; i++) {
-            marker = new google.maps.Marker({
-                position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-                map: map,
-                //icon: locations[i][3]
-            });
+            for (i = 0; i < locations.length; i++) {
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+                    map: map,
+                    //icon: locations[i][3]
+                });
 
-            bounds.extend(marker.position);
-            google.maps.event.addListener(marker, 'click', (function (marker, i) {
-                return function () {
-                    infowindow.setContent(
-                        '<div><strong>' + locations[i][0] + '</strong><br>' +
-                        'Has occurred here in ' + locations[i][3] + ' samples.<br>' +
-                        'Last seen here in ' + locations[i][4] + '.</div>'
-                    );
-                    infowindow.open(map, marker);
-                }
-            })(marker, i));
+                bounds.extend(marker.position);
+                google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                    return function () {
+                        infowindow.setContent(
+                            '<div><strong>' + locations[i][0] + '</strong><br>' +
+                            'Has occurred here in ' + locations[i][3] + ' samples.<br>' +
+                            'Last seen here in ' + locations[i][4] + '.</div>'
+                        );
+                        infowindow.open(map, marker);
+                    }
+                })(marker, i));
+            }
+
+            map.fitBounds(bounds);
+
         }
 
-        map.fitBounds(bounds);
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+        }
 
-      }
+        window.onload = loadScript;
 
-      function loadScript() {
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-        document.body.appendChild(script);
-      }
-
-      window.onload = loadScript;
-
-  </script>
+    </script>
 
 
 {% endblock content %}
