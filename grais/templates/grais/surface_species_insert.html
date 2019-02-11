@@ -4,21 +4,19 @@
 {% load bootstrap4 %}
 
 {% block content %}
-    {% if temp_msg %}
-        {% bootstrap_alert temp_msg alert_type='success' %}
-    {% endif %}
 
-    <div class="nav-map">
-        <p><br>
-            <a href="{% url 'grais:sample_list' %}">All samples</a> >
-            <a href="{% url 'grais:sample_detail' surface.line.sample.id %}"> {{ surface.line.sample }}</a> >
-            <a href="{% url 'grais:line_detail' surface.line.id %}"> {{ surface.line }}</a> >
-            <a href="{% url 'grais:surface_detail' surface.id %}"> {{ surface }}</a> >
-            Insert Species
-        </p><br>
-    </div>
-
-
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:sample_list' %}"> All samples </a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'grais:sample_detail' surface.line.sample.id %}"> {{ surface.line.sample }} </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:line_detail' surface.line.id %}"> {{ surface.line }} </a>
+            </li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:surface_detail' surface.id %}"> {{ surface }} </a></li>
+            <li class="breadcrumb-item active" aria-current="page">Insert Species</li>
+        </ol>
+    </nav>
 
     <div class="container">
         {#  <h1>Add Species to {{sample}}</h1>#}
