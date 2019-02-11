@@ -31,6 +31,7 @@ def not_in_ihub_group(user):
 
 
 class iHubAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
 
     def test_func(self):
         return not_in_ihub_group(self.request.user)
