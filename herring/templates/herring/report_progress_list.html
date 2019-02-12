@@ -6,129 +6,136 @@
 {% load divide %}
 {% block content %}
 
-<div class="indent-med">
+    <div class="indent-med">
 
-<p>
-    <a href="{% url 'herring:export_progress_report' view.kwargs.year %}" class="btn btn-success btn-sm">Export Spreadsheet</a>
-</p>
-(click on a header to sort)
-<table class="table table-bordered table-sm sortable">
-    <thead>
-      <tr>
-        <th scope="col">Season</th>
-        <th scope="col">Sample Id</th>
-        <th scope="col">Type</th>
-        <th scope="col">Sample Date</th>
-        <th scope="col" style="width: 150px;">Sampler's Reference No.</th>
-        <th scope="col">Sampler Name</th>
-{#        <th scope="col">Fish measured</th>#}
-        <th scope="col">Fish preserved</th>
-        <th scope="col" style="text-align: center;">Lab Processed</th>
-        <th scope="col" style="text-align: center;">Otoliths Processed</th>
-        {# <th scope="col">QC Issues</th> #}
+        <p>
+            <a href="{% url 'herring:export_progress_report' view.kwargs.year %}" class="btn btn-success btn-sm">Export Spreadsheet</a>
+        </p>
+        (click on a header to sort)
+        <table class="table table-bordered table-sm sortable">
+            <thead>
+            <tr>
+                <th scope="col">Season</th>
+                <th scope="col">Sample Id</th>
+                <th scope="col">Type</th>
+                <th scope="col">Sample date</th>
+                <th scope="col" style="width: 150px;">Sampler's reference no.</th>
+                <th scope="col">Sampler name</th>
+                <th scope="col">Length frequencies collected</th>
+                <th scope="col">Fish preserved</th>
+                <th scope="col" style="text-align: center;">Lab processed</th>
+                <th scope="col" style="text-align: center;">Otoliths processed</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sample in object_list %}
+                <tr>
+                    <td>{{ sample.season }}</td>
+                    <td>
+                        <a href="{% url 'herring:sample_detail' sample.id %}">
+                            {{ sample.id }}
+                        </a>
+                    </td>
+                    <td>{{ sample.get_type_display }}</td>
+                    <td>{{ sample.sample_date|date:'F d, Y' }}</td>
+                    <td>{{ sample.sampler_ref_number }}</td>
+                    <td>{{ sample.sampler }}</td>
 
+                    {% if sample.length_frequencies.count %}
+                        <td class="good">
+                            {% else %}
+                        <td class="bad">
+                    {% endif %}
+                    {{ sample.length_frequencies.count|yesno }}
+                    </td>
 
-      </tr>
-    </thead>
-    <tbody>
-      {% for sample in object_list  %}
-        <tr>
-          <td>{{sample.season}}</td>
-          <td>{{sample.id}}</td>
-          <td>{{sample.get_type_display}}</td>
-          <td>{{sample.sample_date|date:'F d, Y'}}</td>
-          <td>{{sample.sampler_ref_number}}</td>
-          <td>{{sample.sampler}}</td>
-{#          <td>{{sample.total_fish_measured}}</td>#}
-          <td>{{sample.total_fish_preserved}}</td>
+                    <td>{{ sample.total_fish_preserved }}</td>
+                    {% if sample.lab_processing_complete %}
+                        <td class="good">
+                            {% else %}
+                        <td class="bad">
+                    {% endif %}
+                    {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
+                    </td>
 
-            {% if sample.lab_processing_complete %}
-                <td class="good">
-            {% else %}
-                <td class="bad">
-            {% endif %}
-                {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
-            </td>
-
-            {% if sample.otolith_processing_complete %}
-                <td class="good">
-            {% else %}
-                <td class="bad">
-            {% endif %}
-                {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
-            </td>
-
-
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-    <br>
-<h4>Summary:</h4>
-<table class="table table-bordered" style="width: 500px;">
-    <thead>
-        <th></th>
-        <th colspan="2">Samples</th>
-        <th colspan="2">Fish Detail</th>
-    </thead>
-    <thead>
-        <th></th>
-        <th>Count</th>
-        <th>Percent</th>
-        <th>Count</th>
-        <th>Percent</th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Total</td>
-            <td>{{ sample_sum }}</td>
-            <td>--</td>
-
-            <td>{{ fish_sum }}</td>
-            <td>--</td>
-        </tr>
-
-        <tr>
-            <td>Lab complete</td>
-            <td>{{sample_sum_lab_complete}}</td>
-            <td>{{ sample_sum_lab_complete|divide:sample_sum|percentage:1 }}</td>
-            <td>{{fish_sum_lab_complete}} </td>
-            <td>{{ fish_sum_lab_complete|divide:fish_sum|percentage:1 }}</td>
-        </tr>
-
-        <tr>
-            <td>Lab remaining</td>
-            <td>{{sample_sum_lab_remaining}} </td>
-            <td>{{ sample_sum_lab_remaining|divide:sample_sum|percentage:1 }}</td>
-            <td>{{fish_sum_lab_remaining}} </td>
-            <td>{{ fish_sum_lab_remaining|divide:fish_sum|percentage:1 }}</td>
-        </tr>
-
-        <tr>
-            <td>Otolith complete</td>
-            <td>{{sample_sum_oto_complete}} </td>
-            <td>{{ sample_sum_oto_complete|divide:sample_sum|percentage:1 }}</td>
-            <td>{{fish_sum_oto_complete}}</td>
-            <td>{{ fish_sum_oto_complete|divide:fish_sum|percentage:1 }}</td>
-        </tr>
-
-        <tr>
-            <td>Otolith remaining</td>
-            <td>{{sample_sum_oto_remaining}}</td>
-            <td>{{ sample_sum_oto_remaining|divide:sample_sum|percentage:1 }}</td>
-            <td>{{fish_sum_oto_remaining}} </td>
-            <td>{{ fish_sum_oto_remaining|divide:fish_sum|percentage:1 }}</td>
-        </tr>
+                    {% if sample.otolith_processing_complete %}
+                        <td class="good">
+                            {% else %}
+                        <td class="bad">
+                    {% endif %}
+                    {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
+                    </td>
 
 
-    </tbody>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <br>
+        <h4>Summary:</h4>
+        <table class="table table-bordered" style="width: 500px;">
+            <thead>
+            <th></th>
+            <th colspan="2">Samples</th>
+            <th colspan="2">Fish Detail</th>
+            </thead>
+            <thead>
+            <th></th>
+            <th>Count</th>
+            <th>Percent</th>
+            <th>Count</th>
+            <th>Percent</th>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Total</td>
+                <td>{{ sample_sum }}</td>
+                <td>--</td>
+
+                <td>{{ fish_sum }}</td>
+                <td>--</td>
+            </tr>
+
+            <tr>
+                <td>Lab complete</td>
+                <td>{{ sample_sum_lab_complete }}</td>
+                <td>{{ sample_sum_lab_complete|divide:sample_sum|percentage:1 }}</td>
+                <td>{{ fish_sum_lab_complete }} </td>
+                <td>{{ fish_sum_lab_complete|divide:fish_sum|percentage:1 }}</td>
+            </tr>
+
+            <tr>
+                <td>Lab remaining</td>
+                <td>{{ sample_sum_lab_remaining }} </td>
+                <td>{{ sample_sum_lab_remaining|divide:sample_sum|percentage:1 }}</td>
+                <td>{{ fish_sum_lab_remaining }} </td>
+                <td>{{ fish_sum_lab_remaining|divide:fish_sum|percentage:1 }}</td>
+            </tr>
+
+            <tr>
+                <td>Otolith complete</td>
+                <td>{{ sample_sum_oto_complete }} </td>
+                <td>{{ sample_sum_oto_complete|divide:sample_sum|percentage:1 }}</td>
+                <td>{{ fish_sum_oto_complete }}</td>
+                <td>{{ fish_sum_oto_complete|divide:fish_sum|percentage:1 }}</td>
+            </tr>
+
+            <tr>
+                <td>Otolith remaining</td>
+                <td>{{ sample_sum_oto_remaining }}</td>
+                <td>{{ sample_sum_oto_remaining|divide:sample_sum|percentage:1 }}</td>
+                <td>{{ fish_sum_oto_remaining }} </td>
+                <td>{{ fish_sum_oto_remaining|divide:fish_sum|percentage:1 }}</td>
+            </tr>
 
 
+            </tbody>
 
-</table>
+
+        </table>
 
 
-</div>
+    </div>
 
 {% endblock content %}

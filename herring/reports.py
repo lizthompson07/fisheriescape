@@ -2,6 +2,7 @@ import math
 
 import unicodecsv as csv
 from django.http import HttpResponse
+from django.template.defaultfilters import yesno
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from lib.functions.nz import nz
@@ -32,6 +33,7 @@ def generate_progress_report(year):
         "Sample date",
         "Sampler's reference no.",
         "Sampler Name",
+        "Length frequencies collected",
         "Fish preserved",
         "Lab processing",
         "Otoliths processing",
@@ -59,6 +61,7 @@ def generate_progress_report(year):
                 sample.sample_date.strftime('%Y-%m-%d'),
                 sample.sampler_ref_number,
                 sample.sampler,
+                yesno(sample.length_frequency_objects.count()),
                 sample.total_fish_preserved,
                 lab_processed_date,
                 otolith_processed_date,
