@@ -78,7 +78,7 @@ class Person(models.Model):
         return "{}, {}".format(self.user.last_name, self.user.first_name)
 
     class Meta:
-        ordering = ['user']
+        ordering = ['user__last_name', 'user__first_name']
 
     def save(self, *args, **kwargs):
         self.full_name = "{} {}".format(self.user.first_name, self.user.last_name)

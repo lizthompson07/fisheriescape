@@ -9,7 +9,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
-            <li class="breadcrumb-item"> <a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'inventory:dm_section_list' %}">Section List</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object.section }}</li>
         </ol>
@@ -87,7 +87,8 @@
             <h3>
                 Data Resources ({{ object.resources.count }})
             </h3>
-            <table class="table table-hover table-sm">
+            (Click on a table header to sort by column)
+            <table class="table table-hover table-sm sortable">
                 <thead>
                 <tr>
                     <th scope="col">Id</th>
