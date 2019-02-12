@@ -509,7 +509,8 @@ def generate_sub_do(site, target_file):
 
         for obj in qs_years:
             y = obj['year']
-            do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station=station) if obj.dissolved_o2 is not None]
+            do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station=station) if
+                           obj.dissolved_o2 is not None]
             do_max.append(max(do_readings))
             do_min.append(min(do_readings))
             do_avg.append(statistics.mean(do_readings))
@@ -545,7 +546,8 @@ def generate_sub_do(site, target_file):
 
     for obj in qs_years:
         y = obj['year']
-        do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station__site_id=site) if obj.dissolved_o2 is not None]
+        do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station__site_id=site) if
+                       obj.dissolved_o2 is not None]
         do_max.append(max(do_readings))
         do_min.append(min(do_readings))
         do_avg.append(statistics.mean(do_readings))
@@ -631,8 +633,7 @@ def generate_annual_watershed_spreadsheet(site, year):
     target_url = os.path.join(settings.MEDIA_ROOT, 'camp', 'temp', target_file)
 
     # get a sample list for the site / year
-    sample_list = models.Sample.objects.filter(year=year).filter(station__site=site).order_by("start_date",
-                                                                                              "station__station_number")
+    sample_list = models.Sample.objects.filter(year=year).filter(station__site=site).order_by("station__station_number", "start_date")
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
     worksheet1 = workbook.add_worksheet(name="Fauna - Faune")
