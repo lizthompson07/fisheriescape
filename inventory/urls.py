@@ -31,6 +31,7 @@ urlpatterns = [
     # PEOPLE #
     ##########
     path('<int:resource>/insert-person/new/', views.PersonCreateView.as_view(), name ="person_add" ),
+    path('insert-person/new/', views.PersonCreateViewPopout.as_view(), name ="person_add_popout" ),
     path('<int:resource>/person/<int:person>/edit/', views.PersonUpdateView.as_view(), name ="person_edit" ),
 
 

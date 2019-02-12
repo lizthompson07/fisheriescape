@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.core import validators
 from . import models
 
@@ -101,7 +102,6 @@ class ResourcePersonForm(forms.ModelForm):
         }
 
 
-
 class PersonCreateForm(forms.Form):
 
     LANGUAGE_CHOICES = ((None,"---"),) + models.LANGUAGE_CHOICES
@@ -118,6 +118,13 @@ class PersonCreateForm(forms.Form):
     phone = forms.CharField(widget=forms.TextInput(attrs={'placeholder':"000-000-0000 ext.000"}),required=False)
     language = forms.ChoiceField(choices=LANGUAGE_CHOICES,required=False)
     organization = forms.ChoiceField(choices=ORGANIZATION_CHOICES,required=False)
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        # if email already exists in db
+        if User.objects.filter(email=email).count() > 0:
+            raise forms.ValidationError("email address already exists in system.")
+        return email
 
 
 class KeywordForm(forms.ModelForm):

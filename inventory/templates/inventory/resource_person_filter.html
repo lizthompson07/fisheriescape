@@ -49,7 +49,7 @@
                         <a class="btn btn-sm btn-dark"
                            href="{% url 'inventory:resource_person_add' resource.id person.user_id %}"> <i
                                 class="material-icons">add</i></a> &nbsp;
-                        {{ person.full_name }}
+                        {{ person.user.last_name }}, {{ person.user.first_name }}
                         (<a href="{% url 'inventory:person_edit' resource.id person.user_id %}">edit</a>)
                     </p>
                 {% endfor %}
