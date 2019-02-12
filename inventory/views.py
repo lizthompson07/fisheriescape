@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q
@@ -20,6 +20,24 @@ from . import forms
 from . import filters
 from . import emails
 from . import xml_export
+
+
+def not_in_inventory_dm_group(user):
+    if user:
+        return user.groups.filter(name='inventory_dm').count() != 0
+
+
+class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return not_in_inventory_dm_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
 
 
 # Create your views here.
@@ -344,25 +362,6 @@ class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('inventory:resource_detail', kwargs={'pk': self.object.resource.id})
 
-    # def delete(self):
-    #     object = form.save()
-    #
-    #     #if the person is being added as a custodian
-    #     if object.role.id == 1:
-    #
-    #         email = emails.RemovedAsCustodianEmail(object.resource, object.person.user)
-    #         # send the email object
-    #         if settings.MY_ENVR != 'dev':
-    #             send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
-    #         else:
-    #             print('not sending email since in dev mode')
-    #             print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email,email.to_list, email.subject, email.message))
-    #         messages.success(self.request, '{} has been removed as {} and a notification email has been sent to them!'.format(object.person.full_name, object.role))
-    #     else:
-    #         messages.success(self.request, '{} has been removed as {}!'.format(object.person.full_name, object.role))
-    #
-    #     return super().form_valid(form)
-
 
 # PERSON #
 ##########
@@ -372,11 +371,10 @@ class PersonCreateView(LoginRequiredMixin, FormView):
     template_name = 'inventory/person_form.html'
     form_class = forms.PersonCreateForm
 
-    def get_success_url(self):
-        return reverse_lazy('inventory:resource_person_add', kwargs={
-            'resource': self.kwargs['resource'],
-            'person': models.Person.objects.last().user_id,
-        })
+    def get_initial(self):
+        return {
+            "organization": 6,
+        }
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
@@ -384,7 +382,7 @@ class PersonCreateView(LoginRequiredMixin, FormView):
 
         # form.send_email() cool to know you can call methods off of the form like this...
 
-        # step 0: retreive data from form
+        # step 0: retrieve data from form
         first_name = form.cleaned_data['first_name']
         last_name = form.cleaned_data['last_name']
         email = form.cleaned_data['email']
@@ -399,8 +397,8 @@ class PersonCreateView(LoginRequiredMixin, FormView):
             username=email,
             first_name=first_name,
             last_name=last_name,
-            password="Welcome1",
-            is_active=0,
+            password="pbkdf2_sha256$120000$ctoBiOUIJMD1$DWVtEKBlDXXHKfy/0wKCpcIDYjRrKfV/wpYMHKVrasw=",
+            is_active=1,
             email=email,
         )
 
@@ -417,12 +415,74 @@ class PersonCreateView(LoginRequiredMixin, FormView):
             new_person.organization_id = int(organization)
 
         new_person.save()
-        return super().form_valid(form)
+
+        # finally go to the create new resource person page
+        return HttpResponseRedirect(reverse_lazy('inventory:resource_person_add', kwargs={
+            'resource': self.kwargs['resource'],
+            'person': new_person.user.id,
+        }))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = models.Resource.objects.get(id=self.kwargs['resource'])
         context['resource'] = resource
+        return context
+
+
+class PersonCreateViewPopout(LoginRequiredMixin, FormView):
+    template_name = 'inventory/person_form_popout.html'
+    form_class = forms.PersonCreateForm
+
+    def get_initial(self):
+        return {
+            "organization": 6,
+        }
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+
+        # form.send_email() cool to know you can call methods off of the form like this...
+
+        # step 0: retrieve data from form
+        first_name = form.cleaned_data['first_name']
+        last_name = form.cleaned_data['last_name']
+        email = form.cleaned_data['email']
+        position_eng = form.cleaned_data['position_eng']
+        position_fre = form.cleaned_data['position_fre']
+        phone = form.cleaned_data['phone']
+        language = form.cleaned_data['language']
+        organization = form.cleaned_data['organization']
+
+        # # step 1: create a new user - since we added the receiver decorator to models.py, we do not have to create a person. It will be handled automatically.
+        user = User.objects.create(
+            username=email,
+            first_name=first_name,
+            last_name=last_name,
+            password="pbkdf2_sha256$120000$ctoBiOUIJMD1$DWVtEKBlDXXHKfy/0wKCpcIDYjRrKfV/wpYMHKVrasw=",
+            is_active=1,
+            email=email,
+        )
+
+        # step 2: fetch the Person
+        new_person = models.Person.objects.get(user_id=user.id)
+        new_person.position_eng = position_eng
+        new_person.position_fre = position_fre
+        new_person.phone = phone
+
+        if language != "":
+            new_person.language = int(language)
+
+        if organization != "":
+            new_person.organization_id = int(organization)
+
+        new_person.save()
+
+        # finally close the form
+        return HttpResponseRedirect(reverse_lazy('inventory:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 
@@ -813,7 +873,7 @@ def export_resource_xml(request, resource, publish):
 # DATA MANAGEMENT ADMIN #
 #########################
 
-class DataManagementHomeTemplateView(TemplateView):
+class DataManagementHomeTemplateView(InventoryDMRequiredMixin, TemplateView):
     template_name = 'inventory/dm_admin_index.html'
 
     def get_context_data(self, **kwargs):
@@ -831,7 +891,7 @@ class DataManagementHomeTemplateView(TemplateView):
         return context
 
 
-class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
+class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
     login_url = '/accounts/login_required/'
     template_name = 'inventory/dm_custodian_list.html'
 
@@ -858,7 +918,7 @@ class DataManagementCustodianListView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class DataManagementCustodianDetailView(LoginRequiredMixin, DetailView):
+class DataManagementCustodianDetailView(InventoryDMRequiredMixin, DetailView):
     login_url = '/accounts/login_required/'
     template_name = 'inventory/dm_custodian_detail.html'
     model = models.Person
@@ -893,12 +953,12 @@ def send_certification_request(request, person):
     return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
 
 
-class PublishedResourcesListView(LoginRequiredMixin, ListView):
+class PublishedResourcesListView(InventoryDMRequiredMixin, ListView):
     template_name = "inventory/dm_published_resource.html"
     queryset = models.Resource.objects.filter(fgp_publication_date__isnull=False)
 
 
-class FlaggedListView(LoginRequiredMixin, ListView):
+class FlaggedListView(InventoryDMRequiredMixin, ListView):
     template_name = "inventory/dm_flagged_list.html"
 
     def get_queryset(self):
@@ -909,17 +969,17 @@ class FlaggedListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class CertificationListView(LoginRequiredMixin, ListView):
+class CertificationListView(InventoryDMRequiredMixin, ListView):
     template_name = "inventory/dm_certification_list.html"
     queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
 
 
-class ModificationListView(LoginRequiredMixin, ListView):
+class ModificationListView(InventoryDMRequiredMixin, ListView):
     template_name = "inventory/dm_modification_list.html"
     queryset = models.Resource.objects.all().order_by("-date_last_modified")[:50]
 
 
-class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
+class CustodianPersonUpdateView(InventoryDMRequiredMixin, FormView):
     template_name = 'inventory/dm_custodian_form.html'
     form_class = forms.PersonCreateForm
 
@@ -983,12 +1043,12 @@ class CustodianPersonUpdateView(LoginRequiredMixin, FormView):
 
 ## SECTIONS
 
-class SectionListView(LoginRequiredMixin, ListView):
+class SectionListView(InventoryDMRequiredMixin, ListView):
     template_name = "inventory/dm_section_list.html"
     queryset = models.Section.objects.all().order_by("branch", "division", "section")
 
 
-class SectionDetailView(LoginRequiredMixin, DetailView):
+class SectionDetailView(InventoryDMRequiredMixin, DetailView):
     template_name = "inventory/dm_section_detail.html"
     model = models.Section
 
@@ -1021,7 +1081,7 @@ def send_section_report(request, section):
     return HttpResponseRedirect(reverse('inventory:dm_section_detail', kwargs={'pk': section}))
 
 
-class SectionUpdateView(LoginRequiredMixin, UpdateView):
+class SectionUpdateView(InventoryDMRequiredMixin, UpdateView):
     template_name = "inventory/dm_section_form.html"
     model = models.Section
     fields = "__all__"
@@ -1047,13 +1107,13 @@ class SectionUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class SectionDeleteView(LoginRequiredMixin, DeleteView):
+class SectionDeleteView(InventoryDMRequiredMixin, DeleteView):
     template_name = "inventory/dm_section_confirm_delete.html"
     model = models.Section
     success_url = reverse_lazy("inventory:dm_section_list")
 
 
-class SectionCreateView(LoginRequiredMixin, CreateView):
+class SectionCreateView(InventoryDMRequiredMixin, CreateView):
     template_name = "inventory/dm_section_form.html"
     model = models.Section
     fields = "__all__"
@@ -1079,10 +1139,9 @@ class SectionCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MySectionDetailView(LoginRequiredMixin, TemplateView):
+class MySectionDetailView(InventoryDMRequiredMixin, TemplateView):
     template_name = "inventory/my_section_detail.html"
     model = models.Section
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1238,7 +1297,6 @@ class FileDeleteView(DeleteView):
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
-
 
 
 # DATA RESOURCE #

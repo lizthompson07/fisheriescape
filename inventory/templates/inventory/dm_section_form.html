@@ -22,7 +22,7 @@
         {% load static %}
         {# Load js file to allow for popout window #}
         {% if object.id %}
-            <h1>{{ object.section }}</h1><br>
+            <h1>{{ object }}</h1><br>
         {% else %}
             <h1>New Section</h1>
         {% endif %}
@@ -35,8 +35,18 @@
 
         <form method="post" class="form">
             {% for field in form %}
-                {% bootstrap_field field placeholder=False %}
+                {% if field.name == "unit_head" %}
+                    {% bootstrap_field field placeholder=False %}
+                    <a href="#" onclick="return popitup('{% url 'inventory:person_add_popout' %}','popoutWindow')">
+                        (click here to add a person who is not in the list)
+                    </a><br><br>
+                {% else %}
+                    {% bootstrap_field field placeholder=False %}
+                {% endif %}
             {% endfor %}
+
+
+
             {% csrf_token %}
             <input type="submit" name="" value="Submit" class="btn btn-primary">
             {% if object.id %}

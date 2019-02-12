@@ -725,8 +725,8 @@ class UserCreateView(LoginRequiredMixin, FormView):
             username=email,
             first_name=first_name,
             last_name=last_name,
-            password="Welcome1",
-            is_active=0,
+            password="pbkdf2_sha256$120000$ctoBiOUIJMD1$DWVtEKBlDXXHKfy/0wKCpcIDYjRrKfV/wpYMHKVrasw=",
+            is_active=1,
             email=email,
         )
         return super().form_valid(form)

@@ -24,17 +24,14 @@
     <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}"> Full Inventory </a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_resource_list' %}"> My Items </a></li>
 
-    {% for group in user.groups.all %}
-        {% if group.name == "inventory_section_head" %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a>
-            </li>
-        {% endif %}
 
-    {% endfor %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a>
+    </li>
 
     {% for group in user.groups.all %}
         {% if group.name == "inventory_dm" %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'inventory:dm_home' %}"> DM Admin </a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'inventory:dm_home' %}"> Data Manager Admin </a></li>
         {% endif %}
     {% endfor %}
 
