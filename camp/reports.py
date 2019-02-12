@@ -354,7 +354,7 @@ def generate_sub_species_richness(site, target_file):
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
     title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}.".format(site_name_fre)
-    sub_title_fre = "L’abondance d’espèces cumulative et le nombre des échantillonnés par année sont aussi indiqués."
+    sub_title_fre = "L’abondance d’espèces cumulative et le nombre d'échantillons par année sont aussi indiqués."
     title_eng = "Species richness at each CAMP sampling station in {}.".format(site_name)
     sub_title_eng = "Cumulative species richness and number of samples per year are also indicated."
 
@@ -437,7 +437,9 @@ def generate_sub_species_richness(site, target_file):
         species_set = set([i["species_id"] for i in annual_obs])
         years.append(y)
         counts.append(len(species_set))
-        sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
+        # sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
+        sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
+                                                                      species__sav=False).values('sample_id', ).distinct().count())
 
     legend_title = "Entire site / ensemble du site"
 
@@ -467,7 +469,7 @@ def generate_sub_do(site, target_file):
     title_eng = "Mean and range of dissolved oxygen levels recorded at each CAMP sampling station in {}".format(site_name)
     sub_title_eng = "Number of samples per year is indicated above error bars."
     title_fre = "Moyenne et intervalle des niveaux d’oxygène dissous mesurés à chaque station du PSCA à {}".format(site_name_fre)
-    sub_title_fre = "Le nombre des échantillonnés par année est indiqué au-dessus des barres d’erreur."
+    sub_title_fre = "Le nombre d'échantillons par année est indiqué au-dessus des barres d’erreur."
 
     p = figure(
         x_axis_label='Year / année',
@@ -577,7 +579,7 @@ def generate_sub_green_crab(site, target_file):
     title_eng = "Green Crab abundance observed during CAMP sampling in {}".format(site_name)
     sub_title_eng = "Number of samples per year is indicated above columns.".format(site_name)
     title_fre = "Abondance de crabes verts observée durant l’échantillonnage du PSCA à {}".format(site_name_fre)
-    sub_title_fre = "Le nombre des échantillonnés par année est indiqué au-dessus des colonnes.".format(site_name_fre)
+    sub_title_fre = "Le nombre d'échantillons par année est indiqué au-dessus des colonnes.".format(site_name_fre)
 
     color = palettes.BuGn[5][2]
 
