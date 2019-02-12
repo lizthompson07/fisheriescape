@@ -201,7 +201,7 @@ def generate_hlen(year):
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="hermorrhage_hlen_{}.csv"'.format(year)
+    response['Content-Disposition'] = 'attachment; filename="hlen{}.csv"'.format(year)
     writer = csv.writer(response)
 
     # these files have no headers so we jump straight into the date
@@ -265,7 +265,7 @@ def generate_hlog(year):
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="hermorrhage_hlog_{}.csv"'.format(year)
+    response['Content-Disposition'] = 'attachment; filename="hlog{}.csv"'.format(year)
     writer = csv.writer(response)
 
     # these files have no headers so we jump straight into the date
@@ -367,7 +367,8 @@ def generate_hlog(year):
                 sample.total_fish_preserved,
                 None,
                 None,
-                sample.remarks,
+                None,
+                # sample.remarks,
                 None,
                 None,
                 None,
@@ -382,7 +383,7 @@ def generate_hdet(year):
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="hermorrhage_hdet_{}.csv"'.format(year)
+    response['Content-Disposition'] = 'attachment; filename="hdet{}.csv"'.format(year)
     writer = csv.writer(response)
 
     # these files have no headers so we jump straight into the date
@@ -428,6 +429,11 @@ def generate_hdet(year):
                 fish.gonad_weight,
                 os,
                 annulus_count,
+                None,
+                None,
+                None,
+                None,
+                None,
             ])
 
     return response
