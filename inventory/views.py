@@ -1,25 +1,51 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
-from django.template import Context, loader
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
-from accounts import models as accounts_models
 from collections import OrderedDict
 from . import models
 from . import forms
 from . import filters
 from . import emails
 from . import xml_export
+
+
+
+#
+# def not_custodian(user, resource_id):
+#     try:
+#         person = models.Person.objects.get(user=user)
+#     except ObjectDoesNotExist:
+#         return True
+#
+#
+#
+#     if user:
+#         return user.groups.filter(name='inventory_dm').count() != 0
+#
+#
+# class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+#     login_url = '/accounts/login_required/'
+#
+#     def test_func(self):
+#         return not_in_inventory_dm_group(self.request.user)
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         user_test_result = self.get_test_func()()
+#         if not user_test_result and self.request.user.is_authenticated:
+#             return HttpResponseRedirect('/accounts/denied/')
+#         return super().dispatch(request, *args, **kwargs)
+#
+
 
 
 def not_in_inventory_dm_group(user):
