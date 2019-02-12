@@ -554,7 +554,8 @@ def generate_sub_do(site, target_file):
         do_min.append(min(do_readings))
         do_avg.append(statistics.mean(do_readings))
         years.append(y)
-        sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
+        sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
+                                                                      species__sav=False).values('sample_id', ).distinct().count())
 
     source = ColumnDataSource(data={
         'years': years,
@@ -595,7 +596,8 @@ def generate_sub_green_crab(site, target_file):
             counts.append(green_crab_sum[0]["dsum"])
         except:
             counts.append(0)
-        sample_counts.append(models.Sample.objects.filter(year=year, station__site_id=site).count())
+        sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=year, sample__station__site_id=site,
+                                                                      species__sav=False).values('sample_id', ).distinct().count())
 
     years = [str(y) for y in years]
     source = ColumnDataSource(data={
