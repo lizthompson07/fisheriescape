@@ -515,18 +515,12 @@ def generate_sub_do(site, target_file):
                            obj.dissolved_o2 is not None]
             try:
                 do_max.append(max(do_readings))
-            except ValueError:
-                do_max.append(0)
-
-            try:
                 do_min.append(min(do_readings))
-            except ValueError:
-                do_max.append(0)
-
-            try:
                 do_avg.append(statistics.mean(do_readings))
             except ValueError:
-                do_avg.append(0)
+                do_max.append(None)
+                do_max.append(None)
+                do_avg.append(None)
 
             years.append(y)
         legend_title = str(station)
