@@ -513,9 +513,21 @@ def generate_sub_do(site, target_file):
             y = obj['year']
             do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station=station) if
                            obj.dissolved_o2 is not None]
-            do_max.append(max(do_readings))
-            do_min.append(min(do_readings))
-            do_avg.append(statistics.mean(do_readings))
+            try:
+                do_max.append(max(do_readings))
+            except ValueError:
+                do_max.append(0)
+
+            try:
+                do_min.append(min(do_readings))
+            except ValueError:
+                do_max.append(0)
+
+            try:
+                do_avg.append(statistics.mean(do_readings))
+            except ValueError:
+                do_avg.append(0)
+
             years.append(y)
         legend_title = str(station)
 
