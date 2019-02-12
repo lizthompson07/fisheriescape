@@ -409,6 +409,11 @@ def generate_hdet(year):
         else:
             os = None
 
+        if fish.annulus_count == -99:
+            annulus_count = None
+        else:
+            annulus_count = fish.annulus_count
+
         writer.writerow(
             [
                 fish.sample.id,
@@ -422,7 +427,7 @@ def generate_hdet(year):
                 maturity,
                 fish.gonad_weight,
                 os,
-                fish.annulus_count,
+                annulus_count,
             ])
 
     return response
