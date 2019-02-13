@@ -87,11 +87,11 @@
                     {% endif %}
 
                     {% if object.id %}
-                        <a class="btn btn-secondary" href="{% url 'projects:project_detail' object.id %}">
+                        <a class="btn btn-secondary" href="{% url 'ihub:entry_detail' object.id %}">
                             {% trans "Cancel" %}
                         </a>
                     {% else %}
-                        <a class="btn btn-secondary" href="{% url 'projects:my_project_list' %}">
+                        <a class="btn btn-secondary" href="{% url 'ihub:entry_list' %}">
                             {% trans "Cancel" %}
                         </a>
                     {% endif %}
