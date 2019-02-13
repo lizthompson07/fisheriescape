@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import  UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
 from . import models
 from . import forms
@@ -43,6 +43,24 @@ class iHubAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+def not_in_ihub_admin_group(user):
+    if user:
+        return user.groups.filter(name='ihub_admin').count() != 0
+
+
+class iHubAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return not_in_ihub_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class IndexTemplateView(iHubAccessRequiredMixin, TemplateView):
     template_name = 'ihub/index.html'
 
@@ -63,14 +81,38 @@ class OrganizationListView(iHubAccessRequiredMixin, FilterView):
         context["field_list"] = [
             'name_eng',
             'name_fre',
-            'abbrev',
-            'address',
-            'city',
-            'postal_code',
+            'name_ind',
+            # 'abbrev',
+            # 'address',
+            # 'city',
+            # 'postal_code',
             'province.abbrev_eng',
             # 'grouping',
         ]
         return context
+
+
+class OrganizationDetailView(iHubAccessRequiredMixin, DetailView):
+    model = models.Organization
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'name_eng',
+            'name_fre',
+            'name_ind',
+            'abbrev',
+            'address',
+            'city',
+            'postal_code',
+            # 'province.abbrev_eng',
+            'current_chief',
+            'election_date',
+            'notes',
+            # 'grouping',
+        ]
+        return context
+
 
 class OrganizationUpdateView(iHubAccessRequiredMixin, UpdateView):
     model = models.Organization
@@ -84,7 +126,7 @@ class OrganizationCreateView(iHubAccessRequiredMixin, CreateView):
     success_url = reverse_lazy('ihub:org_list')
 
 
-class OrganizationDeleteView(iHubAccessRequiredMixin, DeleteView):
+class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = models.Organization
     success_url = reverse_lazy('ihub:org_list')
     success_message = 'The organization was deleted successfully!'
@@ -92,7 +134,6 @@ class OrganizationDeleteView(iHubAccessRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
 
 
 # ENTRY #
@@ -124,8 +165,8 @@ class EntryDetailView(iHubAccessRequiredMixin, DetailView):
             'amount_transferred',
             'fiscal_year',
             'funding_purpose',
-            'date_last_modified',
-            'date_created',
+            # 'date_last_modified',
+            # 'date_created',
             'last_modified_by',
             'created_by',
         ]
@@ -145,10 +186,12 @@ class EntryCreateView(iHubAccessRequiredMixin, CreateView):
     form_class = forms.EntryCreateForm
 
     def form_valid(self, form):
-        self.object = form.save()
+        object = form.save()
+
+        models.EntryPerson.objects.create(entry=object, role=1, user_id=self.request.user.id, organization="DFO")
 
         # create a new email object
-        email = emails.NewEntryEmail(self.object)
+        email = emails.NewEntryEmail(object)
         # send the email object
         if settings.MY_ENVR != 'dev':
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
@@ -157,7 +200,7 @@ class EntryCreateView(iHubAccessRequiredMixin, CreateView):
             print('not sending email since in dev mode')
         messages.success(self.request,
                          "The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!")
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(reverse_lazy('ihub:entry_detail', kwargs={"pk": object.id}))
 
     def get_initial(self):
         return {
@@ -166,7 +209,7 @@ class EntryCreateView(iHubAccessRequiredMixin, CreateView):
         }
 
 
-class EntryDeleteView(iHubAccessRequiredMixin, DeleteView):
+class EntryDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = models.Entry
     success_url = reverse_lazy('ihub:entry_list')
     success_message = _('The entry was successfully deleted!')
@@ -263,7 +306,6 @@ def entry_person_delete(request, pk):
     return HttpResponseRedirect(reverse_lazy("ihub:entry_detail", kwargs={"pk": object.entry.id}))
 
 
-
 # FILE #
 ########
 
@@ -309,6 +351,7 @@ class FileUpdateView(iHubAccessRequiredMixin, UpdateView):
             'date_uploaded': timezone.now(),
         }
 
+
 def file_delete(request, pk):
     object = models.File.objects.get(pk=pk)
     object.delete()
@@ -340,9 +383,9 @@ class ReportSearchFormView(iHubAccessRequiredMixin, FormView):
             if fy and orgs:
                 return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs={"fy": fy, "orgs": orgs}))
             elif fy:
-                return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs={"fy": fy,}))
+                return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs={"fy": fy, }))
             elif orgs:
-                return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs={"orgs": orgs,}))
+                return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs={"orgs": orgs, }))
             else:
                 return HttpResponseRedirect(reverse("ihub:capacity_xlsx"))
         else:
@@ -359,7 +402,6 @@ def capacity_export_spreadsheet(request, fy=None, orgs=None):
             response['Content-Disposition'] = 'inline; filename="iHub export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
-
 
 #
 # def report_species_count(request, species_list):
