@@ -7,14 +7,14 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">
-                {% trans "My Projects" %}
+            <li class="breadcrumb-item"><a href="{% url 'ihub:entry_list' %}">
+                {% trans "All Entries" %}
             </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'projects:project_detail' object.id %}">
-                {% trans "Project Detail" %}
+            <li class="breadcrumb-item"><a href="{% url 'ihub:entry_detail' object.id %}">
+                {% trans "Entry Detail" %}
             </a></li>
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Delete Project" %}
+                {% trans "Delete" %}
             </li>
         </ol>
     </nav>
@@ -23,7 +23,7 @@
 
         <h1>
             {% blocktrans with o=object %}
-                Are you sure you want to delete the project entitled: <em>{{ o }}</em> from the database?
+                Are you sure you want to delete the entry entitled: <em>{{ o }}</em> from the database?
             {% endblocktrans %}
         </h1>
         <p>
@@ -36,7 +36,7 @@
             <button type="submit" class="btn btn-danger">
                 {% trans "Delete" %}
             </button>
-            <a class="btn btn-secondary" href="{% url 'projects:project_detail' object.id %}">
+            <a class="btn btn-secondary" href="{% url 'ihub:entry_detail' object.id %}">
                 {% trans "Cancel" %}
             </a>
         </form>

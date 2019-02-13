@@ -1,0 +1,61 @@
+{% extends "ihub/ihub_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% block header %}
+{% endblock %}
+{% block content %}
+
+    <style>
+    .label{
+        font-weight: bold;
+    }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:org_list' %}">Organizations</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>{{ object }}</h1>
+
+
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'ihub:org_edit' object.id %}">
+                Edit
+            </a>
+            <a class="btn btn-danger " href="{% url 'ihub:org_delete' object.id %}">
+                Delete
+            </a>
+
+        </div>
+        <br><br>
+
+        <div class="row">
+            <div class="col-4">
+                <h3>
+                    Organization Detail:
+                </h3>
+
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+
+            </div>
+            <div class="col-8">
+{#                {% include "ihub/_people.html" %}#}
+{#                {% include "ihub/_notes.html" %}#}
+{#                {% include "ihub/_file.html" %}#}
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock content %}

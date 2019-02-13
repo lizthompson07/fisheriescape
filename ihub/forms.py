@@ -64,6 +64,9 @@ class OrganizationForm(forms.ModelForm):
         model = models.Organization
         fields = "__all__"
 
+        widgets = {
+            'election_date': forms.DateInput(attrs={"type": "date"}),
+        }
 
 class EntryPersonForm(forms.ModelForm):
     # save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)

@@ -1,6 +1,6 @@
 from django import template
 from django.template.defaultfilters import yesno
-from django.utils.safestring import SafeString
+from django.utils.safestring import SafeString, mark_safe
 
 register = template.Library()
 
@@ -36,7 +36,7 @@ def get_verbose_label(instance, field_name):
 
 
 @register.simple_tag
-def get_field_value(instance, field_name, format=None, display_time=False):
+def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None):
     """
     Returns verbose_name for a field. To return a field from a foreign key, send in the field name as such: "user.first_name"
     """
@@ -54,7 +54,6 @@ def get_field_value(instance, field_name, format=None, display_time=False):
 
         # first check if there is a value :
         if getattr(instance, field_name) is not None:
-
             # check to see if there are choices
             if len(field_instance.choices) > 0:
                 field_value = getattr(instance, "get_{}_display".format(field_name))()
@@ -75,6 +74,9 @@ def get_field_value(instance, field_name, format=None, display_time=False):
             elif field_instance.get_internal_type() == 'BooleanField' or field_instance.get_internal_type() == 'NullBooleanField':
                 field_value = yesno(getattr(instance, field_name), "Yes,No,Unknown")
 
+            # check to see if hyperlink was provided
+            elif hyperlink:
+                field_value = mark_safe('<a href="{}">{}</a>'.format(hyperlink, getattr(instance, field_name)))
             else:
                 field_value = getattr(instance, field_name)
         else:

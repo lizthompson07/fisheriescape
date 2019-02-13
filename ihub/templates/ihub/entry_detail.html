@@ -39,13 +39,11 @@
 
 
         <div class="btn-group">
-            {% if can_delete %}
-                <a class="btn btn-danger " href="{% url 'ihub:entry_delete' object.id %}">
-                    {% trans "Delete" %}
-                </a>
-            {% endif %}
             <a class="btn btn-warning" href="{% url 'ihub:entry_edit' object.id %}">
                 {% trans "Edit" %}
+            </a>
+            <a class="btn btn-danger " href="{% url 'ihub:entry_delete' object.id %}">
+                {% trans "Delete" %}
             </a>
 
         </div>
@@ -60,7 +58,13 @@
                 </h3>
 
                 {% for field in field_list %}
-                    {% verbose_field_display object field %}
+                    {% if field == "amount_expected" or field == "amount_transferred" %}
+                        {% verbose_field_display object field "currency" %}
+
+                    {% else %}
+
+                        {% verbose_field_display object field %}
+                    {% endif %}
                 {% endfor %}
                 <br>
 
