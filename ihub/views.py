@@ -116,7 +116,6 @@ class EntryDetailView(iHubAccessRequiredMixin, DetailView):
             'sector',
             'entry_type',
             'initial_date',
-            'leads',
             'region',
             'funding_needed',
             'funding_requested',
@@ -217,6 +216,103 @@ def note_delete(request, pk):
     object = models.EntryNote.objects.get(pk=pk)
     object.delete()
     messages.success(request, _("The note has been successfully deleted from the entry."))
+    return HttpResponseRedirect(reverse_lazy("ihub:entry_detail", kwargs={"pk": object.entry.id}))
+
+
+# ENTRYPERSON #
+###############
+
+class EntryPersonCreateView(iHubAccessRequiredMixin, CreateView):
+    model = models.EntryPerson
+    template_name = 'ihub/entry_person_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.EntryPersonForm
+
+    def get_initial(self):
+        entry = models.Entry.objects.get(pk=self.kwargs['entry'])
+        return {
+            'entry': entry,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        entry = models.Entry.objects.get(id=self.kwargs['entry'])
+        context['entry'] = entry
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ihub:close_me'))
+
+
+class EntryPersonUpdateView(iHubAccessRequiredMixin, UpdateView):
+    model = models.EntryPerson
+    template_name = 'ihub/entry_person_form_popout.html'
+    form_class = forms.EntryPersonForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ihub:close_me'))
+
+
+def entry_person_delete(request, pk):
+    object = models.EntryPerson.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, _("The person has been successfully deleted from the entry."))
+    return HttpResponseRedirect(reverse_lazy("ihub:entry_detail", kwargs={"pk": object.entry.id}))
+
+
+
+# FILE #
+########
+
+class FileCreateView(iHubAccessRequiredMixin, CreateView):
+    model = models.File
+    template_name = 'ihub/file_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.FileForm
+
+    def get_initial(self):
+        entry = models.Entry.objects.get(pk=self.kwargs['entry'])
+        return {
+            'entry': entry,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        entry = models.Entry.objects.get(id=self.kwargs['entry'])
+        context['entry'] = entry
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        if object.user:
+            object.organization = "DFO"
+        object.save()
+        return HttpResponseRedirect(reverse('ihub:close_me'))
+
+
+class FileUpdateView(iHubAccessRequiredMixin, UpdateView):
+    model = models.File
+    template_name = 'ihub/file_form_popout.html'
+    form_class = forms.FileForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ihub:close_me'))
+
+    def get_initial(self):
+        entry = models.Entry.objects.get(pk=self.kwargs['entry'])
+        return {
+            'date_uploaded': timezone.now(),
+        }
+
+def file_delete(request, pk):
+    object = models.File.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, _("The file has been successfully deleted from the entry."))
     return HttpResponseRedirect(reverse_lazy("ihub:entry_detail", kwargs={"pk": object.entry.id}))
 
 

@@ -41,14 +41,18 @@ class Grouping(models.Model):
 
 
 class Organization(models.Model):
-    name_eng = models.CharField(max_length=1000, verbose_name=_("Name (EN)"))
-    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (FR)"))
+    name_eng = models.CharField(max_length=1000, verbose_name=_("english Name"))
+    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
+    name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
     abbrev = models.CharField(max_length=30, verbose_name=_("abbreviation"))
     address = models.TextField(blank=True, null=True)
     city = models.CharField(max_length=255, blank=True, null=True)
     postal_code = models.CharField(max_length=7, blank=True, null=True)
     province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True)
     grouping = models.ManyToManyField(Grouping)
+    current_chief = models.CharField(max_length=1000, blank=True, null=True)
+    election_date = models.DateTimeField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return "{}".format(self.name_eng)
@@ -122,7 +126,7 @@ class Entry(models.Model):
     sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
     initial_date = models.DateTimeField(verbose_name=_("initial date"))
-    leads = models.CharField(max_length=1000, blank=True, null=True)
+    # leads = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("lead / contact"))
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
 
     # funding
@@ -157,6 +161,30 @@ class Entry(models.Model):
         return reverse('ihub:entry_detail', kwargs={'pk': self.pk})
 
 
+class EntryPerson(models.Model):
+    # Choices for role
+    LEAD = 1
+    CONTACT = 2
+    ROLE_CHOICES = (
+        (LEAD, 'Lead'),
+        (CONTACT, 'Contact'),
+    )
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="people", blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
+    name = models.CharField(max_length=50, blank=True, null=True)
+    organization = models.CharField(max_length=50)
+    role = models.IntegerField(choices=ROLE_CHOICES, blank=True, null=True)
+
+    def __str__(self):
+        if self.user:
+            return "{} {}".format(self.user.first_name, self.user.last_name)
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['role', 'user__first_name', "user__last_name"]
+
+
 class EntryNote(models.Model):
     # Choices for type
     ACTION = 1
@@ -180,3 +208,53 @@ class EntryNote(models.Model):
 
     class Meta:
         ordering = ["-date"]
+
+
+def file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
+    return 'ihub/entry_{0}/{1}'.format(instance.id, filename)
+
+
+class File(models.Model):
+    caption = models.CharField(max_length=255)
+    entry = models.ForeignKey(Entry, related_name="files", on_delete=models.CASCADE)
+    file = models.FileField(upload_to=file_directory_path)
+    date_uploaded = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-date_uploaded']
+
+    def __str__(self):
+        return self.caption
+
+
+@receiver(models.signals.post_delete, sender=File)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=File)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = File.objects.get(pk=instance.pk).file
+    except File.DoesNotExist:
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

@@ -4,23 +4,13 @@
 {% load i18n %}
 {% get_current_language as LANG %}
 
-<style>
-    table, td {
-        font-size: small;
-    }
-</style>
 
-<div class="neighbours">
+<div class="">
     <h3>
         {% trans "Actions, Next Steps or Comments:" %}
     </h3>
 </div>
-<div class="neighbours" style="float: right">
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'ihub:note_new' object.id %}','popoutWindow')">
-        {% trans "Add" %}
-    </a>
-</div>
+
 
 
 
@@ -32,7 +22,7 @@
 
 
 
-    <table class="table table-bordered table-sm">
+    <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th>
                 {% trans "Type" %}
@@ -57,7 +47,7 @@
                 <td>{{ obj.date|date:"F d, Y" }}</td>
                 <td>{{ obj.author.first_name }} {{ obj.author.last_name }}</td>
                 <td>{{ obj.note }}</td>
-                <td>{{ obj.status }}</td>
+                <td style="background: {{ obj.status.color }};">{{ obj.status }}</td>
 
                 <td>
                     <a href="#"
@@ -67,11 +57,11 @@
                     </a>
                 </td>
                 <td>
-                    <a class="delete-me" href="#" val="{{ obj.id }}">
+                    <a class="note-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                              title="Delete">
                     </a>
-                    <a id="secrect-delete-btn-{{ obj.id }}"
+                    <a id="note-secrect-delete-btn-{{ obj.id }}"
                        href="{% url 'ihub:note_delete' obj.id %}" class="hidden"></a>
                 </td>
             </tr>
@@ -79,4 +69,11 @@
         </tbody>
     </table>
 {% endif %}
+<a class="primary" href="#"
+   onclick="return popitup('{% url 'ihub:note_new' object.id %}','popoutWindow')">
+    {% trans "(Add note)" %}
+</a>
 <br>
+<br>
+<br>
+

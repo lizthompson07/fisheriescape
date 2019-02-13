@@ -28,6 +28,17 @@ urlpatterns = [
     path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),
     path('note/<int:pk>/delete/', views.note_delete, name="note_delete"),
 
+    # ENTRYPERSON #
+    ###############
+    path('entry/<int:entry>/person/new/', views.EntryPersonCreateView.as_view(), name="ep_new"),
+    path('dfo-person/<int:pk>/edit/', views.EntryPersonUpdateView.as_view(), name="ep_edit"),
+    path('dfo-person/<int:pk>/delete/', views.entry_person_delete, name="ep_delete"),
+
+    # FILE #
+    ########
+    path('entry/<int:entry>/file/new/', views.FileCreateView.as_view(), name="file_new"),
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name="file_edit"),
+    path('file/<int:pk>/delete/', views.file_delete, name="file_delete"),
 
     # Reports #
     ###########
