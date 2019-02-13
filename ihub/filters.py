@@ -28,8 +28,9 @@ class EntryFilter(django_filters.FilterSet):
         fields = {
             'status': ['exact'],
             'title': ['icontains'],
+            'entry_type': ['exact'],
             'sector': ['exact'],
             'organization': ['exact'],
-            'created_by': ['exact'],
+            # 'created_by': ['exact'],
         }
 

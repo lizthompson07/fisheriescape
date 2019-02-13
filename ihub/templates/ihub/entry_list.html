@@ -64,6 +64,9 @@
             <th scope="col">
                 {% trans "Type" %}
             </th>
+             <th scope="col">
+                {% trans "Region" %}
+            </th>
             <th scope="col">
                 {% trans "Organization" %}
             </th>
@@ -92,6 +95,7 @@
                         </a>
                     </td>
                     <td style="background-color: {{ obj.entry_type.color }}">{{ obj.entry_type }}</td>
+                    <td>{{ obj.region }}</td>
                     <td>{{ obj.organization }}</td>
                     <td>{{ obj.sector }}</td>
                     <td>{{ obj.date_created|date:"F d, Y"}}</td>
