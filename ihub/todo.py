@@ -3,8 +3,8 @@
 # TODO: set up the capacity report.. this should be a mulitselect field for organization on the report search page
 
 
-# TODO: CRUD needed for sector
 # TODO: organization detail page needed
+# TODO: batch edit of orgs and maybe people too
 #
 #
 # -	Can we click on the name of the organization to bring up a separate page with information on the community? I would like to add info such as current chief, election date, contact people and information etc.

@@ -1,0 +1,62 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load nz %}
+
+<div class="">
+    <h3>
+        {% trans "Organization Members:" %}
+    </h3>
+</div>
+
+{% if object.members.count == 0 %}
+    <em>
+        {% trans "No members have been added to this organization" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "Name" %}
+            </th>
+            <th>
+                {% trans "Position Title" %}
+            </th>
+            <th>Phone 1</th>
+            <th>Phone 2</th>
+            <th>Email</th>
+            <th>Notes</th>
+
+        </tr>
+        <tbody>
+        {% for obj in object.members.all %}
+            <tr href="{% url 'ihub:member_edit' obj.id %}" pop>
+                <td>
+                    {{ obj.person.first_name }} {{ obj.person.last_name }}
+                </td>
+                <td>{{ obj.position_title|nz:"" }}</td>
+                <td>{{ obj.person.telephone1|nz:""}}</td>
+                <td>{{ obj.person.telephone2|nz:""}}</td>
+                <td>{{ obj.person.email|nz:""}}</td>
+                <td>{{ obj.person.notes|nz:""}}</td>
+                <td>
+                    <a class="person-delete-me" href="#" val="{{ obj.id }}">
+                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                             title="Remove">
+                    </a>
+                    <a id="person-secrect-delete-btn-{{ obj.id }}"
+                       href="{% url 'ihub:member_delete' obj.id %}" class="hidden"></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<a class="" href="#"
+   onclick="return popitup('{% url 'ihub:member_new' object.id %}','popoutWindow')">
+    {% trans "(Add members)" %}
+</a>
+<br>
+<br>
+<br>

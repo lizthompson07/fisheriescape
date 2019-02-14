@@ -32,15 +32,17 @@
 {% endblock left_all %}
 
 {% block left_auth %}
-
-    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:org_list'  %}">
+    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:person_list' %}">
+        {% trans "People" %}
+    </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:org_list' %}">
         {% trans "Organizations" %}
     </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:entry_list'  %}">
+    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:entry_list' %}">
         {% trans "Entries" %}
     </a></li>
 
-    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:report_search'  %}">
+    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:report_search' %}">
         {% trans "Reports" %}
     </a></li>
     {#  {% for group in user.groups.all %}#}

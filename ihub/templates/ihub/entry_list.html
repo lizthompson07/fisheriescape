@@ -17,11 +17,6 @@
             font-size: 14px;
         }
 
-        .indent-med {
-            margin: 4em;
-        }
-
-
     </style>
 
     <nav aria-label="breadcrumb">
@@ -32,10 +27,11 @@
         </ol>
     </nav>
 
-    <div class="indent-med">
+    <div class="indent-lg">
         <h1>
-            {% trans "All Entries:" %}
+            {% trans "iHub Entries" %}
         </h1>
+
 
         <form class="form" action="." method="get">
             <div class="row">
@@ -49,16 +45,30 @@
                 {% endfor %}
                 <div class="col">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
-                    <a href="{% url 'ihub:entry_new' %}" class="btn btn btn-primary btn-sm float-right">
-                        {% trans "New Entry" %}
-                    </a>
+                    <div class="btn-group">
+                        <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                        <a href="." class="btn btn btn-secondary btn-sm"> Clear</a>
+                    </div>
                 </div>
             </div>
         </form>
-
         <br>
-        <span style="font-size: small">(click on a header to sort the table)</span>
+        <div class="col" style="text-align: center; padding-bottom: 10px">
+            <h4>
+            <a href="{% url 'ihub:entry_new' %}">Click here to create a new entry</a>
+            </h4>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: right">
+                <em>displaying all {{ filter.qs.count }} records</em>
+            </div>
+
+        </div>
+
         <table class="table table-hover table-sm sortable">
             <thead>
             <th scope="col" style="width: 450px;">
@@ -76,12 +86,7 @@
             <th scope="col">
                 {% trans "DFO Sector" %}
             </th>
-            {#            <th scope="col">#}
-            {#                {% trans "Date Created" %}#}
-            {#            </th>#}
-            {#            <th scope="col">#}
-            {#                {% trans "Created By" %}#}
-            {#            </th>#}
+
             <th scope="col">
                 {% trans "Status" %}
             </th>
@@ -91,12 +96,8 @@
             <tbody>
 
             {% for obj in filter.qs %}
-                <tr>
-                    <td>
-                        <a href="{% url 'ihub:entry_detail' obj.id %}">
-                            {{ obj.title }}
-                        </a>
-                    </td>
+                <tr href="{% url 'ihub:entry_detail' obj.id %}">
+                    <td>{{ obj.title }}</td>
                     <td style="background-color: {{ obj.entry_type.color }}">{{ obj.entry_type }}</td>
                     <td>{{ obj.region }}</td>
                     <td>{{ obj.organization }}</td>
@@ -108,9 +109,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <b>
-            TOTAL: {{ object_list.count }}
-        </b>
+
     </div>
 
 {% endblock content %}

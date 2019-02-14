@@ -14,13 +14,13 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Organizations</li>
+            <li class="breadcrumb-item active" aria-current="page">People</li>
         </ol>
     </nav>
 
     <div class="indent-lg">
 
-        <h1 class="big-header">Organizations </h1>
+        <h1 class="big-header">People </h1>
         <p>TOTAL: {{ object_list.count }}</p>
 
         <form class="form" action="." method="get">
@@ -49,7 +49,7 @@
                         <em>displaying all {{ filter.qs.count }} records</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'ihub:org_new' %}" class="btn btn-sm btn-primary">New Organization</a>
+                        <a href="{% url 'ihub:person_new' %}" class="btn btn-sm btn-primary">New Person</a>
                     </div>
                 </div>
 
@@ -60,24 +60,16 @@
                         {% for field in field_list %}
                             <th scope="col">{% get_verbose_label my_object field %}</th>
                         {% endfor %}
-                        <th scope="col">Grouping</th>
-                        <th scope="col">Address</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for object in filter.qs %}
-                        {% url 'ihub:org_detail' object.id as my_url %}
+                        {% url 'ihub:person_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
-                            <td>
-                                {% for grouping in object.grouping.all %}
-                                    {{ grouping }}
-                                {% endfor %}
 
-                            </td>
-                            <td>{{ object.full_address }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
