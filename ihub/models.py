@@ -54,6 +54,9 @@ class Person(models.Model):
     class Meta:
         ordering = ['last_name', 'first_name']
 
+    def get_absolute_url(self):
+        return reverse('ihub:person_detail', kwargs={'pk': self.pk})
+
 
 class Organization(models.Model):
     name_eng = models.CharField(max_length=1000, verbose_name=_("english Name"))
@@ -81,6 +84,7 @@ class Organization(models.Model):
 
     class Meta:
         ordering = ['name_eng']
+
 
     @property
     def full_address(self):

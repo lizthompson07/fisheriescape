@@ -28,21 +28,22 @@
                 {% trans "Adding Member" %}
             {% endif %}
         </h3>
-        <div class="btn-group">
-            <button type="submit" class="btn btn-success" onclick="refreshParent()">
-                {% trans "Submit" %}
-            </button>
-            <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
-                {% trans "Close" %}
-            </a>
-            {% if object %}
-                <a href="{% url 'ihub:person_edit_pop' object.person.id %}" class="btn btn-warning">Edit {{ object.person.first_name }} {{ object.person.last_name }}</a>
-            {% endif %}
-            <a href="{% url 'ihub:person_new_pop' %}" class="btn btn-primary">Add a New Person</a>
-        </div>
-        <br><br>
 
         <form method="post" class="form">
+            <div class="btn-group">
+                <button type="submit" class="btn btn-success" onclick="refreshParent()">
+                    {% trans "Submit" %}
+                </button>
+                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                    {% trans "Close" %}
+                </a>
+                {% if object %}
+                    <a href="{% url 'ihub:person_edit_pop' object.person.id %}"
+                       class="btn btn-warning">Edit {{ object.person.first_name }} {{ object.person.last_name }}</a>
+                {% endif %}
+                <a href="{% url 'ihub:person_new_pop' %}" class="btn btn-primary">Add a New Person</a>
+            </div>
+            <br><br>
             {% csrf_token %}
 
             {% for field in form %}
