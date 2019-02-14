@@ -10,6 +10,10 @@ class OrganizationFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search organizations (name, abbreviation, etc...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
 
+class PersonFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+
 
 class EntryFilter(django_filters.FilterSet):
     # FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in

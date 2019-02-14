@@ -2,11 +2,21 @@
 {% load static %}
 {% load humanize %}
 {% load bootstrap4 %}
+{% load el_pagination_tags %}
 {% block content %}
-    {% load el_pagination_tags %}
 
+    <style>
+        table {
+            width: auto;
+        }
 
-    <div class="indent-med">
+        table, td, th {
+            font-size: small;
+        }
+
+    </style>
+
+    <div class="indent-lg">
 
         <p>
         <h1>Data Resource Inventory </h1>
@@ -32,11 +42,22 @@
             </div>
         </form>
         <br>
-        {% paginate 40 filter.qs as filter_list %}
-        {% show_pages %}
-        <a href="{% url 'inventory:resource_new' %}" class="btn btn-sm btn-primary">New Resource</a>
+        {% paginate 50 filter.qs as filter_list %}
 
-        <table class="table table-hover table-sm sortable" style="width: auto;">
+        <div class="row">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: center">
+                {% show_pages %}
+                <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
+            </div>
+            <div class="col" style="text-align: right">
+                <a href="{% url 'inventory:resource_new' %}" class="btn btn-sm btn-primary">New Resource</a>
+            </div>
+        </div>
+
+        <table class="table table-hover table-sm sortable">
             <thead>
             <tr>
                 {# <th scope="col">Id</th> #}
@@ -49,9 +70,9 @@
             </thead>
             <tbody>
             {% for obj in filter_list %}
-                <tr>
+                <tr href="{% url 'inventory:resource_detail' obj.id %}">
                     <td>{{ obj.section.get_region_display }}</td>
-                    <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{ obj.title_eng }}</a></td>
+                    <td>{{ obj.title_eng }}</td>
 
                     {% if obj.status.id == 3 %}
                         <td class="good">

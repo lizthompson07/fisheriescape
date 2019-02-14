@@ -5,7 +5,7 @@
 {% load i18n %}
 
 {% block content %}
-{% get_current_language as LANG %}
+    {% get_current_language as LANG %}
     {% load bootstrap4 %}
 
     <style>
@@ -27,7 +27,7 @@
         </ol>
     </nav>
 
-    <div class="indent-med">
+    <div class="indent-lg">
         <h1>
             {% trans "All Projects:" %}
         </h1>
@@ -45,15 +45,24 @@
                 <div class="col">
                     <br>
                     <input type="submit" value="Filter" class="btn btn-warning btn-sm">
-                    <a href="{% url 'projects:project_new' %}" class="btn btn btn-primary btn-sm float-right">
-                        {% trans "New Project" %}
-                    </a>
+
                 </div>
             </div>
         </form>
-
         <br>
-        <table class="table table-hover table-sm">
+        <div class="row">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+            <div class="col" style="text-align: center">
+                <em>{% trans "displaying all records" %}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'projects:project_new' %}" class="btn btn-sm btn-primary">{% trans "New Project" %}</a>
+            </div>
+        </div>
+
+        <table class="table table-hover table-sm sortable">
             <thead>
             <th scope="col" style="width: 120px;">
                 {% trans "Fiscal Year" %}
@@ -75,7 +84,7 @@
             <tbody>
 
             {% for obj in filter.qs %}
-                <tr>
+                <tr href="{% url 'projects:project_detail' obj.id %}">
                     <td>{{ obj.fiscal_year }}</td>
 
                     {% if LANG == "fr" %}
@@ -86,9 +95,7 @@
                         <td>{{ obj.section.name }}</td>
                     {% endif %}
                     <td>
-                        <a href="{% url 'projects:project_detail' obj.id %}">
-                            {{ obj.project_title }}
-                        </a>
+                        {{ obj.project_title }}
                     </td>
                     <td>{{ obj.submitted|yesno:_("yes,no") }}</td>
                 </tr>
