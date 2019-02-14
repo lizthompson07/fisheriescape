@@ -56,41 +56,6 @@ class CloserTemplateView(TemplateView):
     template_name = 'herring/close_me.html'
 
 
-# QUALITY CONTROL #
-###################
-
-# def port_sample_tests(sample):
-#     quality_control.run_test_mandatory_fields(sample,"port_sample")
-#     quality_control.run_test_205(sample)
-#     quality_control.run_test_231(sample)
-#     quality_control.run_test_232(sample)
-#
-#
-# def lab_sample_tests(fish_detail):
-# #     my_dict = {}
-# #     my_dict["fish_length"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_length")
-# #     my_dict["fish_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="fish_weight")
-# #     my_dict["gonad_weight"] = quality_control.run_data_point_tests(fish_detail, field_name="gonad_weight")
-# #     quality_control.run_test_mandatory_fields(fish_detail,"lab_sample")
-# #     quality_control.run_test_possible_range(fish_detail,"lab_sample")
-# #     my_dict["global_204"] = quality_control.run_test_204(fish_detail)
-# #     my_dict["global_207"] = quality_control.run_test_207(fish_detail)
-# #     quality_control.run_test_improbable_accepted(fish_detail,"lab_sample")
-# #     quality_control.run_test_qc_passed(fish_detail,"lab_sample")
-# #
-# #     return my_dict
-#
-# def otolith_tests(fish_detail):
-#     my_dict = {}
-#     my_dict["annulus_count"] = quality_control.run_data_point_tests(fish_detail, field_name="annulus_count")
-#     quality_control.run_test_mandatory_fields(fish_detail,"otolith") # mandatory fields
-#     quality_control.run_test_possible_range(fish_detail,"otolith") # possible range
-#     my_dict["global_209"] = quality_control.run_test_209(fish_detail) # annulus_count length ratio
-#     quality_control.run_test_improbable_accepted(fish_detail,"otolith") # improbable obs accepted
-#     quality_control.run_test_qc_passed(fish_detail,"otolith") # all tests passed
-#
-#     return my_dict
-
 # SAMPLER #
 ###########
 

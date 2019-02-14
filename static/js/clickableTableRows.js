@@ -13,6 +13,7 @@ $("tr").each(function () {
             } else {
                 document.location.href = href
             }
+
         });
     }
 });
