@@ -79,12 +79,11 @@ class PersonListView(iHubAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Person.objects.first()
         context["field_list"] = [
-            'first_name',
             'last_name',
-            'telephone1',
-            'telephone2',
+            'first_name',
+            'phone_1',
+            'phone_2',
             'email',
-            'notes',
         ]
         return context
 
@@ -97,8 +96,9 @@ class PersonDetailView(iHubAccessRequiredMixin, DetailView):
         context["field_list"] = [
             'first_name',
             'last_name',
-            'telephone1',
-            'telephone2',
+            'phone_1',
+            'phone_2',
+            'fax',
             'email',
             'notes',
         ]
@@ -223,16 +223,27 @@ class MemberCreateView(iHubAccessRequiredMixin, CreateView):
     form_class = forms.MemberForm
 
     def get_initial(self):
-        entry = models.Organization.objects.get(pk=self.kwargs['org'])
+        org = models.Organization.objects.get(pk=self.kwargs['org'])
         return {
-            'entry': entry,
+            'organization': org,
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        entry = models.Organization.objects.get(id=self.kwargs['org'])
-        context['entry'] = entry
+        org = models.Organization.objects.get(id=self.kwargs['org'])
+        context['organization'] = org
+
+        # get a list of people
+        person_list = [
+            '<a href="#" class="person_insert" code={id}>{first} {last}</a>'.format(
+                id=p.id, first=p.first_name, last=p.last_name
+            ) for p in models.Person.objects.all()
+        ]
+
+        context['person_list'] = person_list
+
         return context
+
 
     def form_valid(self, form):
         object = form.save()
@@ -250,11 +261,25 @@ class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get a list of people
+        person_list = [
+            '<a href="#" class="person_insert" code={id}>{first} {last}</a>'.format(
+                id=p.id, first=p.first_name, last=p.last_name
+            ) for p in models.Person.objects.all()
+        ]
+
+        context['person_list'] = person_list
+
+        return context
+
 def member_delete(request, pk):
     object = models.OrganizationMember.objects.get(pk=pk)
     object.delete()
     messages.success(request, _("The member has been successfully deleted from the organization."))
-    return HttpResponseRedirect(reverse_lazy("ihub:organization_detail", kwargs={"pk": object.entry.id}))
+    return HttpResponseRedirect(reverse_lazy("ihub:org_detail", kwargs={"pk": object.organization.id}))
 
 
 # ENTRY #
