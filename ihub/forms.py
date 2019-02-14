@@ -64,9 +64,12 @@ class OrganizationForm(forms.ModelForm):
         model = models.Organization
         fields = "__all__"
 
-        widgets = {
-            'election_date': forms.DateInput(attrs={"type": "date"}),
-        }
+
+class PersonForm(forms.ModelForm):
+    class Meta:
+        model = models.Person
+        fields = "__all__"
+
 
 class EntryPersonForm(forms.ModelForm):
     # save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
@@ -90,6 +93,18 @@ class EntryPersonForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].queryset = User.objects.all().order_by("last_name", "first_name")
         self.fields['user'].choices = USER_CHOICES
+
+
+
+
+class MemberForm(forms.ModelForm):
+    # save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
+    class Meta:
+        model = models.OrganizationMember
+        fields = "__all__"
+        widgets = {
+            'organization': forms.HiddenInput(),
+        }
 
 
 class FileForm(forms.ModelForm):

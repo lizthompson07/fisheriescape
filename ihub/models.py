@@ -40,19 +40,41 @@ class Grouping(models.Model):
         ordering = ['name', ]
 
 
+class Person(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    telephone1 = models.CharField(max_length=25, blank=True, null=True)
+    telephone2 = models.CharField(max_length=25, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{}, {}".format(self.last_name, self.first_name)
+
+    class Meta:
+        ordering = ['last_name', 'first_name']
+
+
 class Organization(models.Model):
     name_eng = models.CharField(max_length=1000, verbose_name=_("english Name"))
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
     abbrev = models.CharField(max_length=30, verbose_name=_("abbreviation"))
-    address = models.TextField(blank=True, null=True)
+    address = models.CharField(max_length=1000, blank=True, null=True)
     city = models.CharField(max_length=255, blank=True, null=True)
     postal_code = models.CharField(max_length=7, blank=True, null=True)
     province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True)
     grouping = models.ManyToManyField(Grouping)
-    current_chief = models.CharField(max_length=1000, blank=True, null=True)
-    election_date = models.DateTimeField(blank=True, null=True)
+    phone = models.CharField(max_length=25, blank=True, null=True)
+    fax = models.CharField(max_length=25, blank=True, null=True)
+    next_election = models.CharField(max_length=100, blank=True, null=True)
+    election_term = models.CharField(max_length=100, blank=True, null=True)
+    population_on_reserve = models.IntegerField(blank=True, null=True)
+    population_off_reserve = models.IntegerField(blank=True, null=True)
+    population_other_reserve = models.IntegerField(blank=True, null=True)
+    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name="FIN")
     notes = models.TextField(blank=True, null=True)
+
 
     def __str__(self):
         return "{}".format(self.name_eng)
@@ -60,6 +82,43 @@ class Organization(models.Model):
     class Meta:
         ordering = ['name_eng']
 
+    @property
+    def full_address(self):
+        # initial my_str with either address or None
+        if self.address:
+            my_str = self.address
+        else:
+            my_str = ""
+        # add city
+        if self.city:
+            if my_str:
+                my_str += ", "
+            my_str += self.city
+        # add province abbrev.
+        if self.province:
+            if my_str:
+                my_str += ", "
+            my_str += self.province.abbrev_eng
+        # add postal code
+        if self.postal_code:
+            if my_str:
+                my_str += ", "
+            my_str += self.postal_code
+        return my_str
+
+    def get_absolute_url(self):
+        return reverse('ihub:org_detail', kwargs={'pk': self.pk})
+
+class OrganizationMember(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, blank=True, null=True, related_name="memberships")
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, blank=True, null=True, related_name="members")
+    position_title = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        ordering = ['position_title']
+
+    def __str__(self):
+        return "{} ({})".format(self.person, self.position_title)
 
 class EntryType(models.Model):
     name = models.CharField(max_length=255)
@@ -212,7 +271,7 @@ class EntryNote(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
-    return 'ihub/entry_{0}/{1}'.format(instance.id, filename)
+    return 'ihub/entry_{0}/{1}'.format(instance.entry.id, filename)
 
 
 class File(models.Model):

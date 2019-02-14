@@ -65,6 +65,85 @@ class IndexTemplateView(iHubAccessRequiredMixin, TemplateView):
     template_name = 'ihub/index.html'
 
 
+# PERSON #
+##########
+
+class PersonListView(iHubAccessRequiredMixin, FilterView):
+    template_name = 'ihub/person_list.html'
+    filterset_class = filters.PersonFilter
+    model = models.Person
+    queryset = models.Person.objects.annotate(
+        search_term=Concat('first_name', 'last_name', 'notes', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Person.objects.first()
+        context["field_list"] = [
+            'first_name',
+            'last_name',
+            'telephone1',
+            'telephone2',
+            'email',
+            'notes',
+        ]
+        return context
+
+
+class PersonDetailView(iHubAccessRequiredMixin, DetailView):
+    model = models.Person
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'first_name',
+            'last_name',
+            'telephone1',
+            'telephone2',
+            'email',
+            'notes',
+        ]
+        return context
+
+
+class PersonUpdateView(iHubAccessRequiredMixin, UpdateView):
+    model = models.Person
+    form_class = forms.PersonForm
+
+
+class PersonUpdateViewPopout(iHubAccessRequiredMixin, UpdateView):
+    template_name = 'ihub/person_form_popout.html'
+    model = models.Person
+    form_class = forms.PersonForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ihub:close_me'))
+
+
+class PersonCreateView(iHubAccessRequiredMixin, CreateView):
+    model = models.Organization
+    form_class = forms.PersonForm
+
+
+class PersonCreateViewPopout(iHubAccessRequiredMixin, CreateView):
+    template_name = 'ihub/person_form_popout.html'
+    model = models.Person
+    form_class = forms.PersonForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ihub:close_me'))
+
+class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
+    model = models.Person
+    success_url = reverse_lazy('ihub:person_list')
+    success_message = 'The person was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
 # ORGANIZATION #
 ################
 
@@ -82,12 +161,7 @@ class OrganizationListView(iHubAccessRequiredMixin, FilterView):
             'name_eng',
             'name_fre',
             'name_ind',
-            # 'abbrev',
-            # 'address',
-            # 'city',
-            # 'postal_code',
-            'province.abbrev_eng',
-            # 'grouping',
+            'province',
         ]
         return context
 
@@ -105,11 +179,16 @@ class OrganizationDetailView(iHubAccessRequiredMixin, DetailView):
             'address',
             'city',
             'postal_code',
-            # 'province.abbrev_eng',
-            'current_chief',
-            'election_date',
+            'province',
+            'phone',
+            'fax',
+            'next_election',
+            'election_term',
+            'population_on_reserve',
+            'population_off_reserve',
+            'population_other_reserve',
+            'fin',
             'notes',
-            # 'grouping',
         ]
         return context
 
@@ -117,13 +196,11 @@ class OrganizationDetailView(iHubAccessRequiredMixin, DetailView):
 class OrganizationUpdateView(iHubAccessRequiredMixin, UpdateView):
     model = models.Organization
     form_class = forms.OrganizationForm
-    success_url = reverse_lazy('ihub:org_list')
 
 
 class OrganizationCreateView(iHubAccessRequiredMixin, CreateView):
     model = models.Organization
     form_class = forms.OrganizationForm
-    success_url = reverse_lazy('ihub:org_list')
 
 
 class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
@@ -134,6 +211,50 @@ class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+# MEMBER  (ORGANIZATION PERSON) #
+#################################
+
+class MemberCreateView(iHubAccessRequiredMixin, CreateView):
+    model = models.OrganizationMember
+    template_name = 'ihub/member_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.MemberForm
+
+    def get_initial(self):
+        entry = models.Organization.objects.get(pk=self.kwargs['org'])
+        return {
+            'entry': entry,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        entry = models.Organization.objects.get(id=self.kwargs['org'])
+        context['entry'] = entry
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ihub:close_me'))
+
+
+class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
+    model = models.OrganizationMember
+    template_name = 'ihub/member_form_popout.html'
+    form_class = forms.MemberForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ihub:close_me'))
+
+
+def member_delete(request, pk):
+    object = models.OrganizationMember.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, _("The member has been successfully deleted from the organization."))
+    return HttpResponseRedirect(reverse_lazy("ihub:organization_detail", kwargs={"pk": object.entry.id}))
 
 
 # ENTRY #
@@ -314,6 +435,7 @@ class FileCreateView(iHubAccessRequiredMixin, CreateView):
     template_name = 'ihub/file_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.FileForm
+    success_url = reverse_lazy('ihub:close_me')
 
     def get_initial(self):
         entry = models.Entry.objects.get(pk=self.kwargs['entry'])
@@ -326,13 +448,6 @@ class FileCreateView(iHubAccessRequiredMixin, CreateView):
         entry = models.Entry.objects.get(id=self.kwargs['entry'])
         context['entry'] = entry
         return context
-
-    def form_valid(self, form):
-        object = form.save()
-        if object.user:
-            object.organization = "DFO"
-        object.save()
-        return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
 class FileUpdateView(iHubAccessRequiredMixin, UpdateView):
