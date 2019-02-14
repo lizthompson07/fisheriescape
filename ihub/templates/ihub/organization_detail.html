@@ -2,8 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
-{% block header %}
-{% endblock %}
+{% load i18n %}
 {% block content %}
 
     <style>
@@ -59,4 +58,23 @@
 
     </div>
 
+    <script type="application/javascript">
+
+
+
+
+        $(".person-delete-me").click(function () {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            userInput = confirm("{% trans "Are you sure you want to delete this person from the entry?" %}");
+
+            if (userInput === true) {
+                $("#person-secrect-delete-btn-" + objectId)[0].click();
+            }
+        })
+
+
+    </script>
 {% endblock content %}
+

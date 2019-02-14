@@ -43,8 +43,9 @@ class Grouping(models.Model):
 class Person(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    telephone1 = models.CharField(max_length=25, blank=True, null=True)
-    telephone2 = models.CharField(max_length=25, blank=True, null=True)
+    phone_1 = models.CharField(max_length=25, blank=True, null=True)
+    phone_2 = models.CharField(max_length=25, blank=True, null=True)
+    fax = models.CharField(max_length=25, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
@@ -57,6 +58,18 @@ class Person(models.Model):
     def get_absolute_url(self):
         return reverse('ihub:person_detail', kwargs={'pk': self.pk})
 
+    @property
+    def contact_card(self):
+        my_str = "<b>{first} {last}</b>".format(first=self.first_name, last=self.last_name)
+        if self.phone_1:
+            my_str += "<br>Phone 1: {}".format(self.phone_1)
+        if self.phone_2:
+            my_str += "<br>Phone 2: {}".format(self.phone_2)
+        if self.fax:
+            my_str += "<br>Fax: {}".format(self.fax)
+        if self.email:
+            my_str += "<br>E-mail: {}".format(self.email)
+        return my_str
 
 class Organization(models.Model):
     name_eng = models.CharField(max_length=1000, verbose_name=_("english Name"))
@@ -113,16 +126,31 @@ class Organization(models.Model):
     def get_absolute_url(self):
         return reverse('ihub:org_detail', kwargs={'pk': self.pk})
 
-class OrganizationMember(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, blank=True, null=True, related_name="memberships")
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, blank=True, null=True, related_name="members")
-    position_title = models.CharField(max_length=255, blank=True, null=True)
 
-    class Meta:
-        ordering = ['position_title']
+class MemberRole(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    color = models.CharField(max_length=25, blank=True, null=True)
 
     def __str__(self):
-        return "{} ({})".format(self.person, self.position_title)
+        return "{}".format(getattr(self, str(_("name"))))
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class OrganizationMember(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="memberships")
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
+    roles = models.ManyToManyField(MemberRole)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["organization", "person"]
+        unique_together = ["organization", "person"]
+
+    def __str__(self):
+        return "{}".format(self.person)
 
 class EntryType(models.Model):
     name = models.CharField(max_length=255)
@@ -193,11 +221,11 @@ class Entry(models.Model):
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
 
     # funding
-    funding_needed = models.NullBooleanField(verbose_name=_("is funding needed?"))
-    funding_requested = models.NullBooleanField(verbose_name=_("was funding requested?"))
-    amount_expected = models.FloatField(blank=True, null=True, verbose_name=_("How much funding is expected?"))
-    transferred = models.NullBooleanField(verbose_name=_("has any funding been transferred?"))
-    amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("If yes, how much funding was transferred?"))
+    funding_needed = models.NullBooleanField(verbose_name=_("is funding needed"))
+    funding_requested = models.NullBooleanField(verbose_name=_("was funding requested"))
+    amount_expected = models.FloatField(blank=True, null=True, verbose_name=_("How much funding is expected"))
+    transferred = models.NullBooleanField(verbose_name=_("has any funding been transferred"))
+    amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("If yes, how much funding was transferred"))
     fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding purpose"), related_name="entries")
