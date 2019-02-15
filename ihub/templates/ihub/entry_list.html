@@ -55,7 +55,7 @@
         <br>
         <div class="col" style="text-align: center; padding-bottom: 10px">
             <h4>
-            <a href="{% url 'ihub:entry_new' %}">Click here to create a new entry</a>
+                <a href="{% url 'ihub:entry_new' %}">Click here to create a new entry</a>
             </h4>
         </div>
 
@@ -99,11 +99,17 @@
                 <tr href="{% url 'ihub:entry_detail' obj.id %}">
                     <td>{{ obj.title }}</td>
                     <td style="background-color: {{ obj.entry_type.color }}">{{ obj.entry_type }}</td>
-                    <td>{{ obj.region }}</td>
-                    <td>{{ obj.organization }}</td>
+                    <td>
+                        {% for region in obj.regions.all %}
+                            {{ region }}<br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for org in obj.organizations.all %}
+                            {{ org }}<br>
+                        {% endfor %}
+                    </td>
                     <td>{{ obj.sector }}</td>
-                    {#                    <td>{{ obj.date_created|date:"F d, Y"}}</td>#}
-                    {#                    <td>{{ obj.created_by.first_name}} {{ obj.created_by.last_name}}</td>#}
                     <td style="background-color: {{ obj.status.color }}">{{ obj.status }}</td>
                 </tr>
             {% endfor %}

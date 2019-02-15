@@ -30,11 +30,10 @@ class EntryFilter(django_filters.FilterSet):
     class Meta:
         model = models.Entry
         fields = {
-            'status': ['exact'],
             'title': ['icontains'],
+            'status': ['exact'],
             'entry_type': ['exact'],
-            # 'sector': ['exact'],
-            # 'organization': ['exact'],
+            'organizations': ['exact'],
             # 'created_by': ['exact'],
         }
 
