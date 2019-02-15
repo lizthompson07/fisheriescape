@@ -95,11 +95,15 @@ urlpatterns = [
     path('incidental-report/<int:pk>/view/', views.ReportDetailView.as_view(), name="report_detail"),
     path('incidental-report/<int:pk>/edit/', views.ReportUpdateView.as_view(), name="report_edit"),
     path('incidental-report/<int:pk>/delete/', views.ReportDeleteView.as_view(), name="report_delete"),
-    path('incidental-report/<int:report>/species/<int:species>/delete/', views.report_species_observation_delete, name="report_species_delete"),
+    path('incidental-report/<int:report>/species/<int:species>/delete/', views.report_species_observation_delete,
+         name="report_species_delete"),
     path('incidental-report/<int:report>/species/<int:species>/add/', views.report_species_observation_add, name="report_species_add"),
 
-
-
+    # FOLLOWUP #
+    ############
+    path('report/<int:report>/follow-up/new/', views.FollowUpCreateView.as_view(), name="follow_up_new"),
+    path('follow-up/<int:pk>/edit/', views.FollowUpUpdateView.as_view(), name="follow_up_edit"),
+    path('follow-up/<int:pk>/delete/', views.follow_up_delete, name="follow_up_delete"),
 
     # Reports #
     ###########
@@ -108,4 +112,3 @@ urlpatterns = [
          name="spp_sample_xlsx"),
 
 ]
-
