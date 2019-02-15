@@ -217,7 +217,7 @@ class Entry(models.Model):
     organizations = models.ManyToManyField(Organization, related_name="entries")
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
-    sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
+    sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries", verbose_name=_("DFO sector"))
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
     regions = models.ManyToManyField(Region, related_name="entries")
 

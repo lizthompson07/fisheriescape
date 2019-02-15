@@ -61,7 +61,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             # check to see if it is a many to many field
             elif field_instance.get_internal_type() == 'ManyToManyField':
                 m2m = getattr(instance, field_name)
-                field_value = str([str(field) for field in m2m.all()]).replace("[","").replace("]","").replace("'","")
+                field_value = str([str(field) for field in m2m.all()]).replace("[","").replace("]","").replace("'","").replace('"',"")
 
             # check to see if it is a datefield
             elif field_instance.get_internal_type() == 'DateTimeField':
