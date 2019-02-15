@@ -48,18 +48,20 @@ class ReportSearchForm(forms.Form):
         ("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
         models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
     FY_CHOICES.insert(0, (None, "all years"))
-    # ORG_CHOICES = [(obj.id, obj) for obj in models.Organization.objects.all()]
-    ORG_CHOICES = [(None, "---"), ]
+    ORG_CHOICES = [(obj.id, obj) for obj in models.Organization.objects.all()]
+    # ORG_CHOICES = [(None, "---"), ]
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Capacity Report (Excel Spreadsheet)"),
+        (2, "Organizational Report / Cue Card (PDF)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, choices=FY_CHOICES, label='Fiscal year')
     organizations = forms.MultipleChoiceField(required=False, choices=ORG_CHOICES,
                                               label='Organizations (Leave blank for all)')
-
+    single_org = forms.ChoiceField(required=False, choices=ORG_CHOICES,
+                                              label='Organization')
 
 class OrganizationForm(forms.ModelForm):
     class Meta:
@@ -174,5 +176,70 @@ class OrganizationFormShort(forms.ModelForm):
 OrganizationFormSet = modelformset_factory(
     model=models.Organization,
     form=OrganizationFormShort,
+    extra=1,
+)
+
+
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = models.Status
+        fields = "__all__"
+
+
+StatusFormSet = modelformset_factory(
+    model=models.Status,
+    form=StatusForm,
+    extra=1,
+)
+
+
+class EntryTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.EntryType
+        fields = "__all__"
+
+
+EntryTypeFormSet = modelformset_factory(
+    model=models.EntryType,
+    form=EntryTypeForm,
+    extra=1,
+)
+
+
+class FundingPurposeForm(forms.ModelForm):
+    class Meta:
+        model = models.FundingPurpose
+        fields = "__all__"
+
+
+FundingPurposeFormSet = modelformset_factory(
+    model=models.FundingPurpose,
+    form=FundingPurposeForm,
+    extra=1,
+)
+
+
+class RegionForm(forms.ModelForm):
+    class Meta:
+        model = models.Region
+        fields = "__all__"
+
+
+RegionFormSet = modelformset_factory(
+    model=models.Region,
+    form=RegionForm,
+    extra=1,
+)
+
+
+class GroupingForm(forms.ModelForm):
+    class Meta:
+        model = models.Grouping
+        fields = "__all__"
+
+
+GroupingFormSet = modelformset_factory(
+    model=models.Grouping,
+    form=GroupingForm,
     extra=1,
 )

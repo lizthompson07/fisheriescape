@@ -20,8 +20,8 @@ class Province(models.Model):
         (CAN, 'Canada'),
         (US, 'United States'),
     )
-    name_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (En)"))
-    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (Fr)"))
+    name_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (English)"))
+    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (French)"))
     country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
     abbrev_eng = models.CharField(max_length=25, blank=True, null=True)
     abbrev_fre = models.CharField(max_length=25, blank=True, null=True)
@@ -31,8 +31,8 @@ class Province(models.Model):
 
 
 class Grouping(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("Name (En)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (Fr)"))
+    name = models.CharField(max_length=255, verbose_name=_("Name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -62,6 +62,19 @@ class Person(models.Model):
     @property
     def contact_card(self):
         my_str = "<b>{first} {last}</b>".format(first=self.first_name, last=self.last_name)
+        if self.phone_1:
+            my_str += "<br>Phone 1: {}".format(self.phone_1)
+        if self.phone_2:
+            my_str += "<br>Phone 2: {}".format(self.phone_2)
+        if self.fax:
+            my_str += "<br>Fax: {}".format(self.fax)
+        if self.email:
+            my_str += "<br>E-mail: {}".format(self.email)
+        return my_str
+
+    @property
+    def contact_card_no_name(self):
+        my_str = ""
         if self.phone_1:
             my_str += "<br>Phone 1: {}".format(self.phone_1)
         if self.phone_2:
@@ -128,8 +141,8 @@ class Organization(models.Model):
 
 
 class MemberRole(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("Name (Fr)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (En)"))
+    name = models.CharField(max_length=255, verbose_name=_("Name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -153,8 +166,8 @@ class OrganizationMember(models.Model):
 
 
 class EntryType(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
     color = models.CharField(max_length=25, blank=True, null=True)
 
     def __str__(self):
@@ -165,8 +178,8 @@ class EntryType(models.Model):
 
 
 class Status(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
     color = models.CharField(max_length=25, blank=True, null=True)
 
     def __str__(self):
@@ -177,8 +190,8 @@ class Status(models.Model):
 
 
 class FundingPurpose(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -199,8 +212,8 @@ class Sector(models.Model):
 
 
 class Region(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -212,8 +225,9 @@ class Region(models.Model):
 class Entry(models.Model):
     # basic
     title = models.CharField(max_length=1000, blank=True, null=True)
-    initial_date = models.DateTimeField(verbose_name=_("initial date"))
     organizations = models.ManyToManyField(Organization, related_name="entries")
+    fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
+    initial_date = models.DateTimeField(verbose_name=_("initial date"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
     sectors = models.ManyToManyField(Sector, related_name="entries", verbose_name=_("DFO sectors"))
@@ -228,7 +242,7 @@ class Entry(models.Model):
     amount_approved = models.FloatField(blank=True, null=True, verbose_name=_("funding approved"))
     amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("amount transferred"))
     amount_lapsed = models.FloatField(blank=True, null=True, verbose_name=_("amount lapsed"))
-    fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
+    amount_owing = models.NullBooleanField(verbose_name=_("Does any funding need to be recovered"))
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
