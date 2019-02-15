@@ -109,7 +109,11 @@
                             {{ org }}<br>
                         {% endfor %}
                     </td>
-                    <td>{{ obj.sector }}</td>
+                    <td>
+                        {% for sector in obj.sectors.all %}
+                            {{ sector }}<br>
+                        {% endfor %}
+                    </td>
                     <td style="background-color: {{ obj.status.color }}">{{ obj.status }}</td>
                 </tr>
             {% endfor %}

@@ -299,7 +299,7 @@ class EntryListView(iHubAccessRequiredMixin, FilterView):
             'entry_type',
             'regions',
             'organizations',
-            'sector',
+            'sectors',
             'status',
         ]
         return context
@@ -313,7 +313,7 @@ class EntryDetailView(iHubAccessRequiredMixin, DetailView):
             'title',
             'organizations',
             'status',
-            'sector',
+            'sectors',
             'entry_type',
             'initial_date',
             'regions',
