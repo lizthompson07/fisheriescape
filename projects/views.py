@@ -232,7 +232,7 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
             my_dict["end_date"] = "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
                                                             self.object.end_date.day)
         except:
-            print("no start date...")
+            print("no end date...")
 
         return my_dict
 
