@@ -20,8 +20,8 @@ class Province(models.Model):
         (CAN, 'Canada'),
         (US, 'United States'),
     )
-    name_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (EN)"))
-    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (FR)"))
+    name_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (En)"))
+    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (Fr)"))
     country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
     abbrev_eng = models.CharField(max_length=25, blank=True, null=True)
     abbrev_fre = models.CharField(max_length=25, blank=True, null=True)
@@ -31,8 +31,8 @@ class Province(models.Model):
 
 
 class Grouping(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("Name (En)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (Fr)"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -128,9 +128,8 @@ class Organization(models.Model):
 
 
 class MemberRole(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-    color = models.CharField(max_length=25, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("Name (Fr)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (En)"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -189,8 +188,8 @@ class FundingPurpose(models.Model):
 
 
 class Sector(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))

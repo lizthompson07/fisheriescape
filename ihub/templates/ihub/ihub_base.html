@@ -32,19 +32,33 @@
 {% endblock left_all %}
 
 {% block left_auth %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:entry_list' %}">
+        {% trans "Entries" %}
+    </a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'ihub:person_list' %}">
         {% trans "People" %}
     </a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'ihub:org_list' %}">
         {% trans "Organizations" %}
     </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'ihub:entry_list' %}">
-        {% trans "Entries" %}
-    </a></li>
 
     <li class="nav-item"><a class="nav-link" href="{% url 'ihub:report_search' %}">
         {% trans "Reports" %}
     </a></li>
+
+     <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            Settings
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'ihub:manage_sectors'  %}">Edit Sectors</a>
+            <a class="dropdown-item" href="{% url 'ihub:manage_roles'  %}">Edit Member Roles</a>
+            <a class="dropdown-item" href="{% url 'ihub:manage_orgs'  %}">Edit Organizations</a>
+            {# <a class="dropdown-item" href="#">New Sea Sample</a> #}
+        </div>
+    </li>
+
     {#  {% for group in user.groups.all %}#}
     {#    {% if group.name == "inventory_section_head"   %}#}
     {#      <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a></li>#}

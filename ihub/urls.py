@@ -65,11 +65,10 @@ urlpatterns = [
     path('reports/capacity-report/fy/<str:fy>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     path('reports/capacity-report/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
 
-    # path('reports/<str:species_list>/species-count/', views.report_species_count, name="species_report"),
-    # path('reports/species-richness/', views.report_species_richness, name="species_richness"),
-    # path('reports/species-richness/site/<int:site>/', views.report_species_richness, name="species_richness"),
-    # path('reports/annual-watershed-report/site/<int:site>/year/<int:year>',
-    #      views.AnnualWatershedReportTemplateView.as_view(), name="watershed_report"),
-    # path('reports/fgp-csv-export/', views.fgp_export, name="watershed_csv"),
+    # SETTINGS #
+    ############
+    path('settings/sectors/', views.manage_sectors, name="manage_sectors"),
+    path('settings/member-roles/', views.manage_roles, name="manage_roles"),
+    path('settings/organizations/', views.manage_orgs, name="manage_orgs"),
 
 ]
