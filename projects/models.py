@@ -89,47 +89,47 @@ class Project(models.Model):
                                     blank=True, null=True, verbose_name=_("budget code"))
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"))
-    approved = models.NullBooleanField(default=False, verbose_name=_("Has this project already been approved?"))
+    approved = models.NullBooleanField(default=False, verbose_name=_("Has this project already been approved"))
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start Date"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End Date"))
 
     # details
-    description = models.TextField(blank=True, null=True, verbose_name=_("Project Objective & Description"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
     priorities = models.TextField(blank=True, null=True, verbose_name=_(
-        "Project-specific priorities in 2019/2020 (e.g., what will be the project emphasis in this fiscal year?)"))
+        "Project-specific priorities (e.g., what will be the project emphasis in this fiscal year)"))
     deliverables = models.TextField(blank=True, null=True,
-                                    verbose_name=_("Project Deliverables in 2019 / 2020 (bulleted form)"))
+                                    verbose_name=_("Project deliverables (bulleted form)"))
 
     # data
-    data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected?"))
+    data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
     data_sharing = models.TextField(blank=True, null=True,
                                     verbose_name=_(
-                                        "Which of these data will be share-worthy and what is the plan to share / disseminate?"))
-    data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data Storage / Archiving Plan"))
+                                        "Which of these data will be share-worthy and what is the plan to share / disseminate"))
+    data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
     metadata_url = models.URLField(blank=True, null=True,
                                    verbose_name=_("please provide link to metadata, if available"))
 
     # needs
     regional_dm = models.NullBooleanField(
-        verbose_name=_("Does the program require assistance of the branch data manager?"))
+        verbose_name=_("Does the program require assistance of the branch data manager"))
     regional_dm_needs = models.TextField(blank=True, null=True,
                                          verbose_name=_("If yes, please describe"))
     sectional_dm = models.NullBooleanField(
-        verbose_name=_("Does the program require assistance of the section's data manager?"))
+        verbose_name=_("Does the program require assistance of the section's data manager"))
     sectional_dm_needs = models.TextField(blank=True, null=True,
                                           verbose_name=_("If yes, please describe"))
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_(
                                          "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
-    it_needs = models.TextField(blank=True, null=True, verbose_name=_("IT Requirements (software, licenses, hardware)"))
+    it_needs = models.TextField(blank=True, null=True, verbose_name=_("IT requirements (software, licenses, hardware)"))
     chemical_needs = models.TextField(blank=True, null=True,
                                       verbose_name=_(
                                           "Please provide details regarding chemical needs and the plan for storage and disposal."))
-    ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, Charter) Requirements"))
+    ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
 
     # admin
     feedback = models.TextField(blank=True, null=True,
-                                verbose_name=_("Do you have any feedback you would like to submit about this process?"))
+                                verbose_name=_("Do you have any feedback you would like to submit about this process"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
                                               verbose_name=_("date last modified"))

@@ -13,14 +13,11 @@ class NewProjectForm(forms.ModelForm):
             'fiscal_year',
             'project_title',
             'section',
+            'last_modified_by',
         ]
         widgets = {
-            'start_date': forms.DateInput(attrs={"type": "date"}),
-            'end_date': forms.DateInput(attrs={"type": "date"}),
             'last_modified_by': forms.HiddenInput(),
             'project_title': forms.Textarea(attrs={"rows": 5}),
-            "description": forms.Textarea(attrs={"rows": 8}),
-            "notes": forms.Textarea(attrs={"rows": 5}),
         }
 
 
@@ -28,8 +25,8 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = models.Project
         exclude = [
-            'last_modified_by',
             'submitted',
+            'date_last_modified',
         ]
         widgets = {
             'start_date': forms.DateInput(attrs={"type": "date"}),
@@ -56,6 +53,7 @@ class ProjectSubmitForm(forms.ModelForm):
 
 class StaffForm(forms.ModelForm):
     save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
+
     class Meta:
         model = models.Staff
         fields = "__all__"
