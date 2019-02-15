@@ -10,8 +10,8 @@
             margin-right: 5em;
         }
 
-        label, input {
-            font-size: x-small;
+        label, input, select {
+            font-size: small;
         }
     </style>
 
@@ -35,10 +35,12 @@
 
             {% for form in formset %}
                 <h3>
-
                     {{ form.instance.name_eng }}
                 </h3>
+
+{#                #}
                 <div class="row">
+
                     <div class="col">
                         {% for field in form %}
                             {% if field.name == "name_eng" or field.name == "name_fre" or field.name == "name_ind" or field.name == "abbrev" %}
@@ -70,7 +72,7 @@
                     </div>
                     <div class="col">
                         {% for field in form %}
-                            {% if field.name == "notes" or field.name == "grouping" %}
+                            {% if field.name == "notes" or field.name == "grouping" or field.name == "id"%}
                                 {% bootstrap_field field size='small' placeholder="" %}
                             {% endif %}
                         {% endfor %}
@@ -79,7 +81,6 @@
                 </div>
                 <hr>
             {% endfor %}
-
             <p>
                 <button id="submit" type="submit" class="btn btn-primary">Save</button>
                 <a class="btn btn-secondary" href="{% url 'ihub:index' %}">Back</a>
