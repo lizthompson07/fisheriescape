@@ -816,3 +816,42 @@ def species_sample_spreadsheet_export(request, species_list):
             response['Content-Disposition'] = 'inline; filename="grais export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
+
+
+
+# FOLLOWUP #
+############
+
+class FollowUpUpdateView(GraisAccessRequiredMixin, UpdateView):
+    model = models.FollowUp
+    form_class = forms.FollowUpForm
+    template_name = 'grais/followup_form_popout.html'
+    success_url = reverse_lazy("grais:close_me")
+
+
+class FollowUpCreateView(GraisAccessRequiredMixin, CreateView):
+    model = models.FollowUp
+    form_class = forms.FollowUpForm
+    template_name = 'grais/followup_form_popout.html'
+    success_url = reverse_lazy("grais:close_me")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["report"] = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
+        return context
+
+    def get_initial(self):
+        report = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
+        return {
+            "incidental_report": report,
+            "author": self.request.user
+        }
+
+
+def follow_up_delete(request, pk):
+    followup = models.FollowUp.objects.get(pk=pk)
+    followup.delete()
+    messages.success(request, "The followup has been successfully deleted.")
+    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": followup.incidental_report_id}))
+
+

@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.core import validators
 from . import models
 
@@ -52,6 +53,25 @@ class SampleNoteForm(forms.ModelForm):
 
         }
 
+
+class FollowUpForm(forms.ModelForm):
+    class Meta:
+        model = models.FollowUp
+        fields = "__all__"
+        widgets = {
+            'incidental_report': forms.HiddenInput(),
+            'note': forms.Textarea(attrs={"rows": 6}),
+            'date': forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
+                        User.objects.all().order_by("last_name", "first_name")]
+        USER_CHOICES.insert(0, tuple((None, "---")))
+
+        super().__init__(*args, **kwargs)
+        self.fields['author'].queryset = User.objects.all().order_by("last_name", "first_name")
+        self.fields['author'].choices = USER_CHOICES
 
 class ProbeMeasurementForm(forms.ModelForm):
     class Meta:

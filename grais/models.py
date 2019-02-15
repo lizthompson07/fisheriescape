@@ -404,5 +404,20 @@ class IncidentalReport(models.Model):
         ordering = ["-report_date"]
         
 
+class FollowUp(models.Model):
+    incidental_report = models.ForeignKey(IncidentalReport, related_name='followups', on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    author = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    note = models.TextField()
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('grais:sample_detail', kwargs={'pk': self.sample.id,})
+
+    class Meta:
+        ordering = ["-date"]
+
 
 
