@@ -1,27 +1,12 @@
-import statistics
-import pandas
-import unicodecsv as csv
 import xlsxwriter as xlsxwriter
-from django.http import HttpResponse
 from django.template.defaultfilters import yesno
 from django.utils import timezone
-from math import pi
-
-from bokeh.io import show, export_png, export_svgs
-from bokeh.models import SingleIntervalTicker, ColumnDataSource, HoverTool, LabelSet, Label, Title
-from bokeh.plotting import figure, output_file, save
-from bokeh import palettes
-from bokeh.transform import cumsum
-from django.db.models import Sum, Q
-from shutil import rmtree
 from django.conf import settings
 
 from lib.functions.nz import nz
-from lib.functions.verbose_field_name import verbose_field_name
+from lib.templatetags.verbose_names import get_verbose_label
 from . import models
-import numpy as np
 import os
-import pandas as pd
 
 
 def generate_capacity_spreadsheet(fy=None, orgs=None):
@@ -36,9 +21,9 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
 
     # create formatting
     header_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'normal',
-         "text_wrap": True})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
 
     # get an entry list for the fiscal year (if any)
     if fy:
@@ -48,26 +33,21 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
 
     # define the header
     header = [
-        "Entry ID",
-        verbose_field_name(entry_list.first(), 'title'),
-        verbose_field_name(entry_list.first(), 'organization'),
-        verbose_field_name(entry_list.first(), 'status'),
-        verbose_field_name(entry_list.first(), 'sector'),
-        verbose_field_name(entry_list.first(), 'entry_type'),
-        verbose_field_name(entry_list.first(), 'initial_date'),
-        verbose_field_name(entry_list.first(), 'leads'),
-        verbose_field_name(entry_list.first(), 'region'),
-        verbose_field_name(entry_list.first(), 'funding_needed'),
-        verbose_field_name(entry_list.first(), 'funding_requested'),
-        verbose_field_name(entry_list.first(), 'amount_expected'),
-        verbose_field_name(entry_list.first(), 'transferred'),
-        verbose_field_name(entry_list.first(), 'amount_transferred'),
-        verbose_field_name(entry_list.first(), 'fiscal_year'),
-        verbose_field_name(entry_list.first(), 'funding_purpose'),
-        verbose_field_name(entry_list.first(), 'date_last_modified'),
-        verbose_field_name(entry_list.first(), 'date_created'),
-        verbose_field_name(entry_list.first(), 'last_modified_by'),
-        verbose_field_name(entry_list.first(), 'created_by'),
+        get_verbose_label(entry_list.first(), 'fiscal_year'),
+        get_verbose_label(entry_list.first(), 'title'),
+        get_verbose_label(entry_list.first(), 'organizations'),
+        get_verbose_label(entry_list.first(), 'status'),
+        get_verbose_label(entry_list.first(), 'sectors'),
+        get_verbose_label(entry_list.first(), 'entry_type'),
+        get_verbose_label(entry_list.first(), 'initial_date'),
+        get_verbose_label(entry_list.first(), 'regions'),
+        get_verbose_label(entry_list.first(), 'funding_needed'),
+        get_verbose_label(entry_list.first(), 'funding_purpose'),
+        get_verbose_label(entry_list.first(), 'amount_requested'),
+        get_verbose_label(entry_list.first(), 'amount_approved'),
+        get_verbose_label(entry_list.first(), 'amount_transferred'),
+        get_verbose_label(entry_list.first(), 'amount_lapsed'),
+        "Amount outstanding",
     ]
 
     # worksheets #
@@ -89,31 +69,53 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
             col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
             my_ws.write_row(0, 0, header, header_format)
 
+            tot_requested = 0
+            tot_approved = 0
+            tot_transferred = 0
+            tot_lapsed = 0
+            tot_outstanding = 0
             i = 1
-            for e in entry_list.filter(organization=org):
+            for e in entry_list.filter(organizations=org):
+
+                if e.organizations.count() > 0:
+                    orgs = str([str(obj) for obj in e.organizations.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"',
+                                                                                                                                       "")
+                else:
+                    orgs = None
+
+                if e.sectors.count() > 0:
+                    sectors = str([str(obj) for obj in e.sectors.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
+                else:
+                    sectors = None
+
+                if e.regions.count() > 0:
+                    regions = str([str(obj) for obj in e.regions.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
+                else:
+                    regions = None
 
                 data_row = [
-                    e.id,
+                    e.fiscal_year,
                     e.title,
-                    str(e.organization),
+                    orgs,
                     str(e.status),
-                    str(e.sector),
+                    sectors,
                     str(e.entry_type),
                     e.initial_date.strftime("%Y-%m-%d"),
-                    e.leads,
-                    str(e.region),
-                    e.funding_needed,
-                    e.funding_requested,
-                    e.amount_expected,
-                    e.transferred,
-                    e.amount_transferred,
-                    e.fiscal_year,
+                    regions,
+                    yesno(e.funding_needed),
                     nz(str(e.funding_purpose), ""),
-                    e.date_created.strftime("%Y-%m-%d"),
-                    "{} {}".format(e.created_by.first_name, e.created_by.last_name),
-                    e.date_last_modified.strftime("%Y-%m-%d"),
-                    "{} {}".format(e.last_modified_by.first_name, e.last_modified_by.last_name),
+                    nz(e.amount_requested, 0),
+                    nz(e.amount_approved, 0),
+                    nz(e.amount_transferred, 0),
+                    nz(e.amount_lapsed, 0),
+                    nz(e.amount_outstanding, 0),
                 ]
+
+                tot_requested += nz(e.amount_requested, 0)
+                tot_approved += nz(e.amount_approved, 0)
+                tot_transferred += nz(e.amount_transferred, 0)
+                tot_lapsed += nz(e.amount_lapsed, 0)
+                tot_outstanding += nz(e.amount_outstanding, 0)
 
                 # adjust the width of the columns based on the max string length in each col
                 ## replace col_max[j] if str length j is bigger than stored value
@@ -131,14 +133,32 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
                 my_ws.write_row(i, 0, data_row, normal_format)
                 i += 1
 
+            # set column widths
             for j in range(0, len(col_max)):
                 my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
-            num_row = entry_list.filter(organization=org).count()+10
+            # set formatting on currency columns
+            # my_ws.set_column(first_col=10, last_col=10, cell_format=money_format)
+            # my_ws.set_column(header.index("Funding requested"), header.index("Funding requested"), cell_format=money_format)
+            # my_ws.set_column(header.index("Funding approved"), header.index("Funding approved"), cell_format=money_format)
+            # my_ws.set_column(header.index("Amount transferred"), header.index("Amount transferred"), cell_format=money_format)
+            # my_ws.set_column(header.index("Amount lapsed"), header.index("Amount lapsed"), cell_format=money_format)
+            # my_ws.set_column(header.index("Amount outstanding"), header.index("Amount outstanding"), cell_format=money_format)
+
+            # sum all the currency columns
+            total_row = [
+                "GRAND TOTAL:",
+                tot_requested,
+                tot_approved,
+                tot_transferred,
+                tot_lapsed,
+                tot_outstanding,
+            ]
+            my_ws.write_row(i + 2, header.index("Funding requested") - 1, total_row, total_format)
 
             # set formatting for status
             for status in models.Status.objects.all():
-                my_ws.conditional_format(0, 3, num_row, 3,
+                my_ws.conditional_format(0, header.index("Status"), i, header.index("Status"),
                                          {
                                              'type': 'cell',
                                              'criteria': 'equal to',
@@ -148,14 +168,13 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
 
             # set formatting for entry type
             for entry_type in models.EntryType.objects.all():
-                my_ws.conditional_format(0, 5, num_row, 5,
+                my_ws.conditional_format(0, header.index("Entry type"), i, header.index("Entry type"),
                                          {
                                              'type': 'cell',
                                              'criteria': 'equal to',
                                              'value': '"{}"'.format(entry_type.name),
                                              'format': workbook.add_format({'bg_color': entry_type.color, }),
                                          })
-
 
     workbook.close()
     return target_url

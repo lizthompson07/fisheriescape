@@ -73,6 +73,10 @@
                     <div class="year_div">
                         {% bootstrap_field field %}
                     </div>
+                {% elif field.name == "single_org" %}
+                    <div class="single_org_div">
+                        {% bootstrap_field field %}
+                    </div>
                 {% else %}
                     {% bootstrap_field field %}
                 {% endif %}
@@ -94,10 +98,12 @@
         function hideAll() {
             $(".org_div").addClass("gone");
             $(".year_div").addClass("gone");
+            $(".single_org_div").addClass("gone");
 
             $("#id_report").prop('required', true);
             $("#id_organizations").prop('required', false);
             $("#id_fiscal_year").prop('required', false);
+            $("#id_single_org").prop('required', false);
         }
 
         function configureForm() {
@@ -108,6 +114,11 @@
                 $(".year_div").removeClass("gone");
                 $("#id_organizations").multiSelect()
             }
+            if (reportChoice == 2) {
+                $(".single_org_div").removeClass("gone");
+                $("#id_single_org").prop('required', true);
+            }
+
         }
 
         $(document).ready(function () {
@@ -135,8 +146,6 @@
             $("form").removeClass("hidden");
             $(".loader").addClass("hidden");
         }
-
-
 
 
     </script>

@@ -64,11 +64,17 @@ urlpatterns = [
     path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     path('reports/capacity-report/fy/<str:fy>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     path('reports/capacity-report/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
+    path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
 
     # SETTINGS #
     ############
     path('settings/sectors/', views.manage_sectors, name="manage_sectors"),
     path('settings/member-roles/', views.manage_roles, name="manage_roles"),
     path('settings/organizations/', views.manage_orgs, name="manage_orgs"),
+    path('settings/status/', views.manage_statuses, name="manage_statuses"),
+    path('settings/entry-types/', views.manage_entry_types, name="manage_entry_types"),
+    path('settings/funding-purpose/', views.manage_funding_purposes, name="manage_funding_purposes"),
+    path('settings/regions/', views.manage_regions, name="manage_regions"),
+    path('settings/groupings/', views.manage_groupings, name="manage_groupings"),
 
 ]
