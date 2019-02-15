@@ -29,8 +29,8 @@
             </thead>
             <tbody>
             {% for obj in filter.qs %}
-                <tr>
-                    <td><a href="{% url 'grais:report_detail' obj.id %}">{{ obj.report_date|date:"F m, Y" }}</a></td>
+                <tr href="{% url 'grais:report_detail' obj.id %}">
+                    <td>{{ obj.report_date|date:"F m, Y" }}</td>
                     <td>{{ obj.get_report_source_display }}</td>
                     <td>
                         {% for sp in obj.species.all %}
