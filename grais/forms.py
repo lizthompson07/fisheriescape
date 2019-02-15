@@ -195,7 +195,7 @@ class LineSpeciesForm(SampleSpeciesForm):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = models.IncidentalReport
-        exclude = ["season", "date_last_modified"]
+        exclude = ["season", "date_last_modified", "species"]
 
         labels = {
             'reporter_name': "Name of person filing report",

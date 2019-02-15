@@ -1,60 +1,68 @@
 {% extends "grais/grais_base.html" %}
 {% load static %}
+{% load el_pagination_tags %}
 {% block content %}
 
 
-<div class="container">
+    <div class="container">
 
-  <h1 class="big-header">Biofouling Samples </h1>
-  <p>TOTAL: {{object_list.count}}</p>
-  <p>
-  </p>
+        <h1 class="big-header">Biofouling Samples </h1>
 
-  <form class="form" action="." method="get">
+        <form class="form" action="." method="get">
 
-    {% for field in filter.form %}
-    {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp;
-    {% endfor %}
-      <input type="submit" value="Filter" class="btn btn-sm btn-warning">
-  </form>
-  <br>
-  <a href="{% url 'grais:sample_new' %}" class="btn btn-sm btn-success ">New Sample</a>
-  <br>
-  <table class="table table-hover table-sm">
-    <thead>
-      <tr>
-        <th scope="col">Sample #</th>
-        <th scope="col">Station</th>
-{#        <th scope="col">Sampler</th>#}
-        <th scope="col">Date Deployed</th>
-        <th scope="col">Date Retreived</th>
-        <th scope="col">Weeks deployed</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sample in filter.qs  %}
-        <tr href="{% url 'grais:sample_detail' sample.id %}">
-          <td>{{sample.id}}</td>
-          <td>{{sample.station}}</td>
-{#          <td>{{sample.sampler}}</td>#}
-          <td>{{sample.date_deployed|date:'F d, Y'}}</td>
-          {% if sample.date_retrieved %}
-            <td>{{sample.date_retrieved|date:'F d, Y'}}</td>
-            <td>{{sample.weeks_deployed}}</td>
-          {% else %}
-            <td>n/a</td>
-            <td>n/a</td>
-          {% endif %}
+            {% for field in filter.form %}
+                {{ field.label }}: &nbsp; {{ field }}&nbsp;&nbsp;
+            {% endfor %}
+            <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+        </form>
+        <br><br>
+        {% paginate 50 filter.qs as filter_list %}
+
+        <div class="row">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: center">
+                {% show_pages %}
+                <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'grais:sample_new' %}" class="btn btn-sm btn-primary">New Sample</a>
+            </div>
+        </div>
+
+        <table class="table table-hover table-sm sortable">
+            <thead>
+            <tr>
+                <th scope="col">Sample #</th>
+                <th scope="col">Station</th>
+                <th scope="col">Date Deployed</th>
+                <th scope="col">Date Retreived</th>
+                <th scope="col">Weeks deployed</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sample in filter_list %}
+                <tr href="{% url 'grais:sample_detail' sample.id %}">
+                    <td>{{ sample.id }}</td>
+                    <td>{{ sample.station }}</td>
+                    {#          <td>{{sample.sampler}}</td>#}
+                    <td>{{ sample.date_deployed|date:'F d, Y' }}</td>
+                    {% if sample.date_retrieved %}
+                        <td>{{ sample.date_retrieved|date:'F d, Y' }}</td>
+                        <td>{{ sample.weeks_deployed }}</td>
+                    {% else %}
+                        <td>n/a</td>
+                        <td>n/a</td>
+                    {% endif %}
 
 
-        </tr>
-      {% endfor %}
-      <br>
-
-      </tbody>
-    </table>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
 
-  </div>
+    </div>
 
 {% endblock content %}

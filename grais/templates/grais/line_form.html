@@ -14,9 +14,8 @@
                 <li class="breadcrumb-item active" aria-current="page"> Edit</li>
             {% else %}
                 <li class="breadcrumb-item"><a
-                        href="{% url 'grais:sample_detail' view.kwargs.sample %}"> {{ line.sample }} </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'grais:line_detail' line.id %}"> {{ line }} </a></li>
-                <li class="breadcrumb-item active" aria-current="page">New Surface</li>
+                        href="{% url 'grais:sample_detail' view.kwargs.sample %}"> {{ sample }} </a></li>
+                <li class="breadcrumb-item active" aria-current="page">New Line</li>
             {% endif %}
 
         </ol>
