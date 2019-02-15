@@ -401,7 +401,11 @@ def generate_hdet(year):
             sex = None
 
         if fish.maturity:
-            maturity = fish.maturity.id
+            # the other database uses 0 as unknown, as oppposed to 9
+            if fish.maturity.id == 9:
+                maturity = 0
+            else:
+                maturity = fish.maturity.id
         else:
             maturity = None
 
@@ -422,18 +426,15 @@ def generate_hdet(year):
                 fish.sample.sample_date.month,
                 fish.sample.sample_date.year,
                 fish.fish_number,
-                fish.fish_length,
-                fish.fish_weight,
+                # must be cast to int
+                int(math.ceil(fish.fish_length)),
+                # must be cast to int
+                int(math.ceil(fish.fish_weight)),
                 sex,
                 maturity,
                 fish.gonad_weight,
                 os,
                 annulus_count,
-                None,
-                None,
-                None,
-                None,
-                None,
             ])
 
     return response
