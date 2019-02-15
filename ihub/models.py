@@ -9,6 +9,7 @@ import uuid
 from django.utils.translation import gettext_lazy as _
 
 from lib.functions.fiscal_year import fiscal_year
+from lib.functions.nz import nz
 
 
 class Province(models.Model):
@@ -71,6 +72,7 @@ class Person(models.Model):
             my_str += "<br>E-mail: {}".format(self.email)
         return my_str
 
+
 class Organization(models.Model):
     name_eng = models.CharField(max_length=1000, verbose_name=_("english Name"))
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
@@ -91,13 +93,11 @@ class Organization(models.Model):
     fin = models.CharField(max_length=100, blank=True, null=True, verbose_name="FIN")
     notes = models.TextField(blank=True, null=True)
 
-
     def __str__(self):
         return "{}".format(self.name_eng)
 
     class Meta:
         ordering = ['name_eng']
-
 
     @property
     def full_address(self):
@@ -151,6 +151,7 @@ class OrganizationMember(models.Model):
 
     def __str__(self):
         return "{}".format(self.person)
+
 
 class EntryType(models.Model):
     name = models.CharField(max_length=255)
@@ -212,30 +213,30 @@ class Region(models.Model):
 class Entry(models.Model):
     # basic
     title = models.CharField(max_length=1000, blank=True, null=True)
-    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
-    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"), related_name="entries")
+    initial_date = models.DateTimeField(verbose_name=_("initial date"))
+    organizations = models.ManyToManyField(Organization, related_name="entries")
+    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
+                               related_name="entries")
     sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
-    initial_date = models.DateTimeField(verbose_name=_("initial date"))
-    # leads = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("lead / contact"))
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
+    regions = models.ManyToManyField(Region, related_name="entries")
 
     # funding
     funding_needed = models.NullBooleanField(verbose_name=_("is funding needed"))
-    funding_requested = models.NullBooleanField(verbose_name=_("was funding requested"))
-    amount_expected = models.FloatField(blank=True, null=True, verbose_name=_("How much funding is expected"))
-    transferred = models.NullBooleanField(verbose_name=_("has any funding been transferred"))
-    amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("If yes, how much funding was transferred"))
-    fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding purpose"), related_name="entries")
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
-                                              verbose_name=_("date last modified"))
+    amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("funding requested"))
+    amount_approved = models.FloatField(blank=True, null=True, verbose_name=_("funding approved"))
+    amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("amount transferred"))
+    amount_lapsed = models.FloatField(blank=True, null=True, verbose_name=_("amount lapsed"))
+    fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
+
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     date_created = models.DateTimeField(default=timezone.now, verbose_name=_("date created"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                         verbose_name=_("last modified by"))
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   verbose_name=_("created by"), related_name="user_entries")
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"),
+                                   related_name="user_entries")
 
     class Meta:
         ordering = ['-date_created', ]
@@ -250,6 +251,10 @@ class Entry(models.Model):
 
     def get_absolute_url(self):
         return reverse('ihub:entry_detail', kwargs={'pk': self.pk})
+
+    @property
+    def amount_outstanding(self):
+        return nz(self.amount_approved, 0) - nz(self.amount_transferred, 0) - nz(self.amount_lapsed, 0)
 
 
 class EntryPerson(models.Model):

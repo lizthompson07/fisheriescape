@@ -134,6 +134,7 @@ class PersonCreateViewPopout(iHubAccessRequiredMixin, CreateView):
         object = form.save()
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
+
 class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = models.Person
     success_url = reverse_lazy('ihub:person_list')
@@ -244,7 +245,6 @@ class MemberCreateView(iHubAccessRequiredMixin, CreateView):
 
         return context
 
-
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse('ihub:close_me'))
@@ -260,7 +260,6 @@ class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
         object = form.save()
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -274,6 +273,7 @@ class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
         context['person_list'] = person_list
 
         return context
+
 
 def member_delete(request, pk):
     object = models.OrganizationMember.objects.get(pk=pk)
@@ -298,24 +298,26 @@ class EntryDetailView(iHubAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'title',
-            'organization',
+            'organizations',
             'status',
             'sector',
             'entry_type',
             'initial_date',
-            'region',
-            'funding_needed',
-            'funding_requested',
-            'amount_expected',
-            'transferred',
-            'amount_transferred',
+            'regions',
             'fiscal_year',
-            'funding_purpose',
-            # 'date_last_modified',
-            # 'date_created',
             'last_modified_by',
             'created_by',
         ]
+
+        context["field_list_1"] = [
+            'funding_needed',
+            'funding_purpose',
+            'amount_requested',
+            'amount_approved',
+            'amount_transferred',
+            'amount_lapsed',
+        ]
+
         return context
 
 

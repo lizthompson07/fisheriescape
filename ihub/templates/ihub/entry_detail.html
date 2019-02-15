@@ -4,6 +4,7 @@
 {% load verbose_names %}
 {% load nz %}
 {% load i18n %}
+{% load humanize %}
 
 {% block content %}
 
@@ -30,7 +31,7 @@
         </ol>
     </nav>
 
-    <div class="container">
+    <div class="indent-lg">
 
 
         <h1>
@@ -52,24 +53,32 @@
         <br><br>
 
         <div class="row">
-            <div class="col-4">
+            <div class="col-3">
                 <h3>
                     {% trans "Entry Detail:" %}
                 </h3>
-
                 {% for field in field_list %}
-                    {% if field == "amount_expected" or field == "amount_transferred" %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+            </div>
+
+            <div class="col-3">
+                <h3>
+                    {% trans "Funding Detail:" %}
+                </h3>
+                {% for field in field_list_1 %}
+                    {% if "amount" in  field %}
                         {% verbose_field_display object field "currency" %}
-
                     {% else %}
-
                         {% verbose_field_display object field %}
                     {% endif %}
                 {% endfor %}
-                <br>
-
+                <p><span class="label">Amount Outstanding:</span><br>
+                    ${{ object.amount_outstanding|floatformat:2|intcomma }}
+                </p><br>
             </div>
-            <div class="col-8">
+            <div class="col-6">
                 {% include "ihub/_people.html" %}
                 {% include "ihub/_notes.html" %}
                 {% include "ihub/_file.html" %}
