@@ -62,7 +62,7 @@ urlpatterns = [
     path('surface/<int:pk>/edit/', views.SurfaceUpdateView.as_view(), name="surface_edit"),
     path('surface/<int:pk>/delete/', views.SurfaceDeleteView.as_view(), name="surface_delete"),
 
-    # SPECIES OBSERVATIONS (for sample and line level obs) #
+    # SPECIES OBSERVATIONS (for sample + line level obs) #
     ########################################################
     path('species-observation/<str:type>/<int:pk>/insert/', views.SpeciesObservationInsertView.as_view(),
          name="spp_obs_insert"),
@@ -95,6 +95,11 @@ urlpatterns = [
     path('incidental-report/<int:pk>/view/', views.ReportDetailView.as_view(), name="report_detail"),
     path('incidental-report/<int:pk>/edit/', views.ReportUpdateView.as_view(), name="report_edit"),
     path('incidental-report/<int:pk>/delete/', views.ReportDeleteView.as_view(), name="report_delete"),
+    path('incidental-report/<int:report>/species/<int:species>/delete/', views.report_species_observation_delete, name="report_species_delete"),
+    path('incidental-report/<int:report>/species/<int:species>/add/', views.report_species_observation_add, name="report_species_add"),
+
+
+
 
     # Reports #
     ###########
@@ -103,3 +108,4 @@ urlpatterns = [
          name="spp_sample_xlsx"),
 
 ]
+
