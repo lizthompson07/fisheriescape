@@ -1,3 +1,4 @@
+import math
 import os
 
 from django.conf import settings
@@ -14,6 +15,9 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
+from easy_pdf.views import PDFTemplateView
+
+from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
@@ -304,6 +308,7 @@ class EntryListView(iHubAccessRequiredMixin, FilterView):
         ]
         return context
 
+
 class EntryDetailView(iHubAccessRequiredMixin, DetailView):
     model = models.Entry
 
@@ -329,6 +334,7 @@ class EntryDetailView(iHubAccessRequiredMixin, DetailView):
             'amount_approved',
             'amount_transferred',
             'amount_lapsed',
+            'amount_owing'
         ]
 
         return context
@@ -531,6 +537,7 @@ class ReportSearchFormView(iHubAccessRequiredMixin, FormView):
 
     def form_valid(self, form):
         orgs = str(form.cleaned_data["organizations"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        org = int(nz(form.cleaned_data["single_org"]), 0)
         fy = str(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
 
@@ -543,6 +550,8 @@ class ReportSearchFormView(iHubAccessRequiredMixin, FormView):
                 return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs={"orgs": orgs, }))
             else:
                 return HttpResponseRedirect(reverse("ihub:capacity_xlsx"))
+        if report == 2:
+            return HttpResponseRedirect(reverse("ihub:report_q", kwargs={"org": org}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
@@ -557,6 +566,70 @@ def capacity_export_spreadsheet(request, fy=None, orgs=None):
             response['Content-Disposition'] = 'inline; filename="iHub export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
+
+
+class OrganizationCueCard(iHubAccessRequiredMixin, PDFTemplateView):
+    template_name = "ihub/report_cue_card.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = models.Organization.objects.get(pk=self.kwargs["org"])
+        context["org"] = org
+        context["org_field_list_1"] = [
+            'name_eng',
+            'name_fre',
+            'name_ind',
+            'abbrev',
+        ]
+        context["org_field_list_2"] = [
+            'address',
+            'city',
+            'postal_code',
+            'province',
+            'phone',
+            'fax',
+        ]
+        context["org_field_list_3"] = [
+            'next_election',
+            'election_term',
+            'population_on_reserve',
+            'population_off_reserve',
+            'population_other_reserve',
+        ]
+        context["org_field_list_4"] = [
+            'fin',
+            'notes',
+        ]
+
+        # determine how many rows for the table
+        context["contact_table_rows"] = range(0, math.ceil(org.members.count() / 4))
+        context["one_to_four"] = range(0, 4)
+
+        context["entry_field_list_1"] = [
+            'fiscal_year',
+            'initial_date',
+            'status',
+        ]
+        context["entry_field_list_2"] = [
+            'sectors',
+            'entry_type',
+            'regions',
+        ]
+        context["entry_field_list_3"] = [
+            'funding_needed',
+            'funding_purpose',
+            'amount_requested',
+        ]
+        context["entry_field_list_4"] = [
+            'amount_approved',
+            'amount_transferred',
+            'amount_lapsed',
+        ]
+        context["entry_field_list_5"] = [
+            'amount_owing',
+        ]
+        context["now"] = timezone.now()
+        return context
 
 
 # SETTINGS #
@@ -621,3 +694,115 @@ def manage_orgs(request):
     context['title'] = "Manage Organizations"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings.html', context)
+
+
+def manage_statuses(request):
+    qs = models.Status.objects.all()
+    if request.method == 'POST':
+        formset = forms.StatusFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Statuses have been successfully updated")
+    else:
+        formset = forms.StatusFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'color',
+    ]
+    context['title'] = "Manage Statuses"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def manage_entry_types(request):
+    qs = models.EntryType.objects.all()
+    if request.method == 'POST':
+        formset = forms.EntryTypeFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Entry types have been successfully updated")
+    else:
+        formset = forms.EntryTypeFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'color',
+    ]
+    context['title'] = "Manage Entry Types"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def manage_funding_purposes(request):
+    qs = models.FundingPurpose.objects.all()
+    if request.method == 'POST':
+        formset = forms.FundingPurposeFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Funding purposes have been successfully updated")
+    else:
+        formset = forms.FundingPurposeFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage Funding Purposes"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def manage_regions(request):
+    qs = models.Region.objects.all()
+    if request.method == 'POST':
+        formset = forms.RegionFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "DFO regions have been successfully updated")
+    else:
+        formset = forms.RegionFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage DFO Regions"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def manage_groupings(request):
+    qs = models.Grouping.objects.all()
+    if request.method == 'POST':
+        formset = forms.GroupingFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Groupings have been successfully updated")
+    else:
+        formset = forms.GroupingFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage Groupings"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
