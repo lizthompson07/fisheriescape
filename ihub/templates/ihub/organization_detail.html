@@ -6,12 +6,13 @@
 {% block content %}
 
     <style>
-    .label{
-        font-weight: bold;
-    }
-    table, td{
-        font-size: small;
-    }
+        .label {
+            font-weight: bold;
+        }
+
+        table, td {
+            font-size: small;
+        }
     </style>
 
     <nav aria-label="breadcrumb">
@@ -39,7 +40,7 @@
         <br><br>
 
         <div class="row">
-            <div class="col-3">
+            <div class="col">
                 <h3>
                     Organization Detail:
                 </h3>
@@ -50,17 +51,17 @@
                 <br>
 
             </div>
-             <div class="col-9">
+            <div class="col">
                 {% include "ihub/_members.html" %}
             </div>
-
+            <div class="col">
+                {% include "ihub/_entries.html" %}
+            </div>
         </div>
 
     </div>
 
     <script type="application/javascript">
-
-
 
 
         $(".person-delete-me").click(function () {

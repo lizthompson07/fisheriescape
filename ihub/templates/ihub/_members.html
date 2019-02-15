@@ -21,12 +21,9 @@
                 {% trans "Name" %}
             </th>
             <th>
-                {% trans "Role" %}
+                {% trans "Role(s)" %}
             </th>
             <th>Notes</th>
-{#            <th>Phone 1</th>#}
-{#            <th>Phone 2</th>#}
-{#            <th>Email</th>#}
 
         </tr>
         <tbody>
@@ -35,11 +32,12 @@
                 <td>
                     {{ obj.person.first_name }} {{ obj.person.last_name }}
                 </td>
-                <td>{{ obj.member_role|nz:"" }}</td>
-                <td>{{ obj.notes|nz:""}}</td>
-{#                <td>{{ obj.person.phone_1|nz:""}}</td>#}
-{#                <td>{{ obj.person.phone_2|nz:""}}</td>#}
-{#                <td>{{ obj.person.email|nz:""}}</td>#}
+                <td>
+                    {% for role in obj.roles.all %}
+                        {{ role }}<br>
+                    {% endfor %}
+                </td>
+                <td>{{ obj.notes|nz:"" }}</td>
                 <td>
                     <a class="person-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
