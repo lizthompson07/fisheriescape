@@ -3,6 +3,12 @@
 {% load bootstrap4 %}
 {% load i18n %}
 {% block content %}
+    <style>
+    label{
+        font-weight: bold;
+    }
+    </style>
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">
