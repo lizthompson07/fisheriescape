@@ -1,0 +1,20 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load nz %}
+
+<h3>
+    {% trans "iHub Entries:" %}
+</h3>
+
+<ul>
+    {% for entry in object.entries.all %}
+        <li>
+            <a href="{% url 'ihub:entry_detail'  entry.id %}">{{ entry.title }} </a>
+        </li>
+    {% empty %}
+        <em>There are no iHub entries for this organization.</em>
+    {% endfor %}
+
+</ul>
+

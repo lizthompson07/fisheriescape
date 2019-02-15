@@ -20,12 +20,12 @@ class EntryFilter(django_filters.FilterSet):
     #               range(timezone.now().year - 2, timezone.now().year + 1)]
     # # SECTION_CHOICES = [(None, "----"),]
     # DIVISION_CHOICES = [(d.id, str(d)) for d in models.Division.objects.all()]
-    # SECTION_CHOICES = [(s.id, str(s)) for s in models.Section.objects.all()]
-    #
+    SECTION_CHOICES = [(s.id, str(s)) for s in models.Sector.objects.all()]
+
     # fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=FY_CHOICES)
     # project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
     # division = django_filters.ChoiceFilter(field_name='division', lookup_expr='exact', choices=DIVISION_CHOICES)
-    # section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', choices=SECTION_CHOICES)
+    section = django_filters.MultipleChoiceFilter(field_name='sector', lookup_expr='exact', choices=SECTION_CHOICES, label="Sector (shift+click)")
 
     class Meta:
         model = models.Entry
@@ -33,8 +33,8 @@ class EntryFilter(django_filters.FilterSet):
             'status': ['exact'],
             'title': ['icontains'],
             'entry_type': ['exact'],
-            'sector': ['exact'],
-            'organization': ['exact'],
+            # 'sector': ['exact'],
+            # 'organization': ['exact'],
             # 'created_by': ['exact'],
         }
 
