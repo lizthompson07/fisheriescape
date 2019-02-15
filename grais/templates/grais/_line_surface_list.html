@@ -6,9 +6,8 @@
         <a class="btn btn-sm btn-outline-primary" href="{% url 'grais:surface_new' object.id %}"> Add</a>
       </h4>
 
-      <table class="table table-bordered">
+      <table class="table table-sm table-hover">
         <thead>
-          <th>Id</th>
           <th>Surface</th>
 {#          <th>Invasive spp.</th>#}
           <th>Total spp.</th>
@@ -16,11 +15,9 @@
         </thead>
         <tbody>
           {% for s in object.surfaces.all  %}
-            <tr>
+            <tr href="{% url 'grais:surface_detail' s.id %}">
 
-              <td><b>
-                <a href="{% url 'grais:surface_detail' s.id %}">{{s.id}}</a> </td>
-              </b>
+
 
               {% if s.surface_type == 'pe' %}
                 <td class="petri">

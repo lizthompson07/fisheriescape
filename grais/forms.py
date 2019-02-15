@@ -205,7 +205,7 @@ class ReportForm(forms.ModelForm):
 
         widgets = {
             'report_date': forms.DateInput(attrs={'type': 'date'}),
-            'date_of_occurence': forms.DateInput(attrs={'type': 'date'}),
+            'date_of_occurrence': forms.DateInput(attrs={'type': 'date'}),
             'sighting_description': forms.Textarea(attrs={'rows': '3'}),
             'notes': forms.Textarea(attrs={'rows': '3'}),
             'last_modified_by': forms.HiddenInput(),

@@ -33,8 +33,8 @@
     </thead>
     <tbody>
       {% for sample in filter.qs  %}
-        <tr>
-          <td><a href="{% url 'grais:sample_detail' sample.id %}">{{sample.id}}</a></td>
+        <tr href="{% url 'grais:sample_detail' sample.id %}">
+          <td>{{sample.id}}</td>
           <td>{{sample.station}}</td>
 {#          <td>{{sample.sampler}}</td>#}
           <td>{{sample.date_deployed|date:'F d, Y'}}</td>
