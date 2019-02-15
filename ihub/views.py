@@ -290,6 +290,18 @@ class EntryListView(iHubAccessRequiredMixin, FilterView):
     model = models.Entry
     filterset_class = filters.EntryFilter
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Entry.objects.first()
+        context["field_list"] = [
+            'title',
+            'entry_type',
+            'regions',
+            'organizations',
+            'sector',
+            'status',
+        ]
+        return context
 
 class EntryDetailView(iHubAccessRequiredMixin, DetailView):
     model = models.Entry
