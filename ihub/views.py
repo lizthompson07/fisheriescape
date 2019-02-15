@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
 from django.db.models import TextField
 from django.db.models.functions import Concat
+from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
@@ -557,51 +558,66 @@ def capacity_export_spreadsheet(request, fy=None, orgs=None):
             return response
     raise Http404
 
-#
-# def report_species_count(request, species_list):
-#     reports.generate_species_count_report(species_list)
-#     # find the name of the file
-#     base_dir = os.path.dirname(os.path.abspath(__file__))
-#     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
-#     for root, dirs, files in os.walk(target_dir):
-#         for file in files:
-#             if "report_temp" in file:
-#                 my_file = "camp/temp/{}".format(file)
-#
-#     return render(request, "camp/report_display.html", {"report_path": my_file})
-#
-#
-# def report_species_richness(request, site=None):
-#     if site:
-#         reports.generate_species_richness_report(site)
-#     else:
-#         reports.generate_species_richness_report()
-#
-#     return render(request, "camp/report_display.html")
-#
-#
-# class AnnualWatershedReportTemplateView(PDFTemplateView):
-#     template_name = 'camp/report_watershed_display.html'
-#
-#     def get_pdf_filename(self):
-#         site = models.Site.objects.get(pk=self.kwargs['site']).site
-#         return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
-#
-#     def get_context_data(self, **kwargs):
-#         reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
-#         site = models.Site.objects.get(pk=self.kwargs['site']).site
-#         return super().get_context_data(
-#             pagesize="A4 landscape",
-#             title="Annual Report for {}_{}".format(site, self.kwargs['year']),
-#             **kwargs
-#         )
-#
-#
 
-#
-#
-# def fgp_export(request):
-#
-#     response = reports.generate_fgp_export()
-#     return response
-#
+# SETTINGS #
+############
+
+def manage_sectors(request):
+    qs = models.Sector.objects.all()
+    if request.method == 'POST':
+        formset = forms.SectorFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Sectors have been successfully updated")
+    else:
+        formset = forms.SectorFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Sectors"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def manage_roles(request):
+    qs = models.MemberRole.objects.all()
+    if request.method == 'POST':
+        formset = forms.MemberRoleFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Member roles have been successfully updated")
+    else:
+        formset = forms.MemberRoleFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Member Roles"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def manage_orgs(request):
+    qs = models.Organization.objects.all()
+    if request.method == 'POST':
+        formset = forms.OrganizationFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Organizations have been successfully updated")
+    else:
+        formset = forms.OrganizationFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Organizations"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings.html', context)

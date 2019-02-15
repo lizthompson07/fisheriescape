@@ -1,0 +1,87 @@
+{% extends "ihub/ihub_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% block content %}
+
+    <style>
+        .indent-lg {
+            margin-left: 5em;
+            margin-right: 5em;
+        }
+
+        {% if "Org" in title %}
+            table {
+                width: 100%;
+            }
+            th, td, table{
+                font-size: small;
+            }
+        {% else %}
+            table {
+                width: 60%;
+            }
+        {% endif %}
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+        </ol>
+    </nav>
+
+    <div class="indent-lg">
+        <h1>
+            {{ title }}
+        </h1>
+        <br>
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            {{ formset.management_form }}
+            {% bootstrap_formset_errors formset %}
+
+            <table>
+                <thead>
+                <tr>
+                    {% for field in field_list %}
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for form in formset %}
+                    <tr>
+                        {% for field in form %}
+                            <td>
+                                {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                            </td>
+                        {% endfor %}
+                        {% if form.instance.id %}
+
+                            <td>
+                                <a class="file-delete-me" href="#" val="{{ form.instance.id }}">
+                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                         title="Delete">
+                                </a>
+                                <a id="secrect-delete-btn-{{ form.instance.id }}"
+                                   href="#" class="hidden"></a>
+                            </td>
+                        {% else %}
+                            <td>(new record)</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+            <p>
+                <button id="submit" type="submit" class="btn btn-primary">Save</button>
+                <a class="btn btn-secondary" href="{% url 'ihub:index' %}">Back</a>
+            </p>
+
+        </form>
+    </div>
+{% endblock content %}

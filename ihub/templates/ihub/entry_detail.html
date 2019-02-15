@@ -58,7 +58,17 @@
                     {% trans "Entry Detail:" %}
                 </h3>
                 {% for field in field_list %}
-                    {% verbose_field_display object field %}
+                    {% if field == "organizations" %}
+                        <p><span class="label">Organizations:</span><br>
+                            {% for org in object.organizations.all %}
+                                <a href="{% url 'ihub:org_detail' org.id %}" target="_blank">
+                                    {{ org }}
+                                </a><br>
+                            {% endfor %}
+                        </p>
+                    {% else %}
+                        {% verbose_field_display object field %}
+                    {% endif %}
                 {% endfor %}
                 <br>
             </div>

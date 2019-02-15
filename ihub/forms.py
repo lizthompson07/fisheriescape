@@ -1,4 +1,6 @@
 from django import forms
+from django.forms import modelformset_factory
+
 from . import models
 from django.contrib.auth.models import User
 
@@ -95,8 +97,6 @@ class EntryPersonForm(forms.ModelForm):
         self.fields['user'].choices = USER_CHOICES
 
 
-
-
 class MemberForm(forms.ModelForm):
     # save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
     class Meta:
@@ -115,3 +115,64 @@ class FileForm(forms.ModelForm):
             'entry': forms.HiddenInput(),
             'date_uploaded': forms.HiddenInput(),
         }
+
+
+class SectorForm(forms.ModelForm):
+    class Meta:
+        model = models.Sector
+        fields = "__all__"
+
+
+SectorFormSet = modelformset_factory(
+    model=models.Sector,
+    form=SectorForm,
+    extra=1,
+)
+
+
+class MemberRoleForm(forms.ModelForm):
+    class Meta:
+        model = models.MemberRole
+        fields = "__all__"
+
+
+MemberRoleFormSet = modelformset_factory(
+    model=models.MemberRole,
+    form=MemberRoleForm,
+    extra=1,
+)
+
+
+class OrganizationFormShort(forms.ModelForm):
+    class Meta:
+        model = models.Organization
+        fields = [
+            'name_eng',
+            'name_fre',
+            'name_ind',
+            'abbrev',
+            'address',
+            'city',
+            'postal_code',
+            'province',
+            'phone',
+            'fax',
+            'next_election',
+            'election_term',
+            'population_on_reserve',
+            'population_off_reserve',
+            'population_other_reserve',
+            'fin',
+            'notes',
+            'grouping',
+        ]
+        widgets = {
+            'notes': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+OrganizationFormSet = modelformset_factory(
+    model=models.Organization,
+    form=OrganizationFormShort,
+    extra=1,
+)
