@@ -4,26 +4,6 @@
 {% load bootstrap4 %}
 
 
-<h4>
-    <b style="padding-right: 1.1em">Species Observations</b>
-</h4>
-<ul>
-    {% for obj in object.species.all %}
-        <li>
-            <a href="{% url 'grais:species_detail' obj.id %}" target="_blank">{{ obj }}</a>
-            <a class="delete-me" href="#" val="{{ obj.id }}">
-                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
-            </a>
-            <a id="secrect-delete-btn-{{ obj.id }}" href="{% url 'grais:report_species_delete' object.id obj.id %}" class="hidden"></a>
-        </li>
-
-
-    {% empty %}
-        <em>No species observations have been reported.</em>
-    {% endfor %}
-</ul>
-
-<br><br>
 
 <div style="font-size: .9em">
 
@@ -42,6 +22,28 @@
     </div>
 
 </div>
+<br><br>
+
+
+<h4>
+    <b style="padding-right: 1.1em">Species Observations</b>
+</h4>
+<ul>
+    {% for obj in object.species.all %}
+        <li>
+            <a href="{% url 'grais:species_detail' obj.id %}" target="_blank">{{ obj }}</a>
+            <a class="delete-me" href="#" val="{{ obj.id }}">
+                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+            </a>
+            <a id="secrect-delete-btn-{{ obj.id }}" href="{% url 'grais:report_species_delete' object.id obj.id %}" class="hidden"></a>
+        </li>
+
+
+    {% empty %}
+        <em>No species observations have been reported.</em>
+    {% endfor %}
+</ul>
+<br><br>
 
 
 <script type="application/javascript">

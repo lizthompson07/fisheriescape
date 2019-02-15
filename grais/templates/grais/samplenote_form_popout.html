@@ -5,32 +5,33 @@
 
 {% block content %}
 
-{# A script to refresh the parent window; to be called in when the buttons are pushed #}
-<script>
-window.resizeTo(width=700, height=400);
+    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
+    <script>
+        window.resizeTo(width = 700, height = 400);
 
-window.onunload = refreshParent;
-function refreshParent() {
-  window.opener.location.reload();
-}
-</script>
+        window.onunload = refreshParent;
 
-<div class="container">
-{% if object %}
-  <h1>Edit Note</h1>
-{% else %}
-  <h1>New Note</h1>
-{% endif %}
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+    </script>
 
-  <form method="post" class="form" >
-      {% csrf_token %}
+    <div class="container">
+        {% if object %}
+            <h1>Edit Note</h1>
+        {% else %}
+            <h1>New Note</h1>
+        {% endif %}
 
-      {% bootstrap_form form %}
+        <form method="post" class="form">
+            {% csrf_token %}
 
-      {% buttons %}
-          <button type="submit" class="btn btn-primary" onclick="refreshParent()">Submit</button>
-          <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">Cancel</a>
-      {% endbuttons %}
-  </form>
-</div>
+            {% bootstrap_form form %}
+
+            {% buttons %}
+                <button type="submit" class="btn btn-primary" onclick="refreshParent()">Submit</button>
+                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">Cancel</a>
+            {% endbuttons %}
+        </form>
+    </div>
 {% endblock content %}
