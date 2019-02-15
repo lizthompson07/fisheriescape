@@ -172,7 +172,7 @@ class Line(models.Model):
         if self.collector:
             my_str = "{} (collector #{})".format(self.id, self.collector)
         else:
-            my_str = "Surface {}".format(self.id)
+            my_str = "Line {}".format(self.id)
 
         return my_str
 
@@ -380,8 +380,8 @@ class IncidentalReport(models.Model):
     identified_by = models.CharField(max_length=150, null=True, blank=True)
     date_of_occurrence = models.DateTimeField()
     observation_type = models.IntegerField(choices=OBSERVATION_TYPE_CHOICES)
-    phone1 = models.CharField(max_length=50, null=True, blank=True)
-    phone2 = models.CharField(max_length=50, null=True, blank=True)
+    phone1 = models.CharField(max_length=50, null=True, blank=True, verbose_name="phone 1")
+    phone2 = models.CharField(max_length=50, null=True, blank=True, verbose_name="phone 2")
     email = models.EmailField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     season = models.IntegerField()
@@ -403,4 +403,6 @@ class IncidentalReport(models.Model):
     class Meta:
         ordering = ["-report_date"]
         
+
+
 
