@@ -25,11 +25,14 @@
     </em><br>
 {% else %}
 
-    <table class="table table-hover table-sm" style="width: auto">
-        <tr>
+    <table class="table table-hover table-sm sortable" style="width: auto">
+        <thead>
             <th></th>
             <th>
                 {% trans "Name" %}
+            </th>
+            <th>
+                {% trans "Project Lead" %}
             </th>
             <th>
                 {% trans "Employee type" %}
@@ -52,7 +55,7 @@
             <th colspan="2">
                 {% trans "Funding Source" %}
             </th>
-        </tr>
+        </thead>
         <tbody>
         {% for obj in object.staff_members.all %}
             <tr id="staff-{{ obj.id }}" href="{% url 'projects:staff_edit' obj.id %}" pop data-toggle="tooltip" title="Edit"
@@ -74,7 +77,7 @@
                         {{ obj.name }}
                     {% endif %}
                 </td>
-
+                <td style="text-align: center">{{ obj.lead|yesno }}</td>
                 {% if obj.employee_type %}
                     <td>
                         {% else %}

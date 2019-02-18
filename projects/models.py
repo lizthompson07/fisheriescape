@@ -197,11 +197,12 @@ class Staff(models.Model):
         (FSWEP, "FSWEP"),
         (COOP, "Coop"),
     ]
-
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="staff_members",
                                 verbose_name=_("project"))
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.DO_NOTHING, verbose_name=_("employee type"))
-    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="staff_members", verbose_name=_("funding source"), default=1)
+    lead = models.BooleanField(default=True, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
+    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="staff_members",
+                                       verbose_name=_("funding source"), default=1)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True,
                             null=True)
@@ -298,7 +299,8 @@ class OMCategory(models.Model):
 class OMCost(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="om_costs", verbose_name=_("project"))
     om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
-    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("funding source"), default=1)
+    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="om_costs",
+                                       verbose_name=_("funding source"), default=1)
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     budget_requested = models.FloatField(default=0, verbose_name=_("budget requested"))
 
@@ -325,7 +327,8 @@ class CapitalCost(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="capital_costs",
                                 verbose_name=_("project"))
     category = models.IntegerField(choices=CATEGORY_CHOICES, verbose_name=_("category"))
-    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="capital_costs", verbose_name=_("funding source"), default=1)
+    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="capital_costs",
+                                       verbose_name=_("funding source"), default=1)
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     budget_requested = models.FloatField(default=0, verbose_name=_("budget requested"))
 

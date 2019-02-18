@@ -56,6 +56,9 @@
                 {% trans "Title" %}
             </th>
             <th scope="col">
+                {% trans "Project Lead?" %}
+            </th>
+            <th scope="col">
                 {% trans "Role" %}
             </th>
             <th scope="col">
@@ -79,7 +82,10 @@
                         <td>{{ obj.project.section.name }}</td>
                     {% endif %}
                     <td>
-                            {{ obj.project.project_title }}
+                        {{ obj.project.project_title }}
+                    </td>
+                    <td>
+                        {{ obj.lead|yesno}}
                     </td>
                     <td>{{ obj.employee_type }}</td>
                     <td>{{ obj.duration_weeks }}</td>

@@ -38,8 +38,8 @@
     </em><br>
 {% else %}
 
-    <table class="table table-hover table-sm" style="width: auto">
-        <tr>
+    <table class="table table-hover table-sm sortable" style="width: auto">
+        <thead>
             <th></th>
             <th>
                 {% trans "Category Type" %}
@@ -57,7 +57,7 @@
                 {% trans "Description provided" %}
             </th>
 
-        </tr>
+        </thead>
         <tbody>
         {% for obj in object.om_costs.all %}
             <tr id="om-{{ obj.id }}" data-toggle="tooltip" title="Edit" href="{% url 'projects:om_edit' obj.id %}" pop
