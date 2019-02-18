@@ -9,7 +9,7 @@
 </style>
 
 <h3>
-    {% trans "Capital Requests:" %}
+    {% trans "Capital Costs:" %}
 </h3>
 <a class="btn btn-sm btn-primary" href="#"
    onclick="return popitup('{% url 'projects:capital_new' object.id %}','popoutWindow')">
@@ -19,7 +19,7 @@
 
 {% if object.capital_costs.count == 0 %}
     <em>
-        {% trans "No Capital Requests" %}
+        {% trans "No Capital Costs" %}
     </em><br>
 {% else %}
 
@@ -33,14 +33,18 @@
             <th>
                 {% trans "Description" %}
             </th>
+            <th colspan="2">
+                {% trans "Funding Source" %}
+            </th>
             <th>
-                {% trans "Budget Requested" %}
+                {% trans "Budget Amount" %}
             </th>
 
         </tr>
         <tbody>
         {% for obj in object.capital_costs.all %}
-            <tr data-toggle="tooltip" title="Edit" href="{% url 'projects:capital_edit' obj.id %}" pop>
+            <tr id="capital-{{ obj.id }}" data-toggle="tooltip" title="Edit" href="{% url 'projects:capital_edit' obj.id %}" pop
+                style="background-color: {{ obj.funding_source.color }}">
                 <td>
                     <a class="capital-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
@@ -51,14 +55,36 @@
                 </td>
                 <td>{{ obj.get_category_display }}</td>
                 <td>{{ obj.description|nz:"" }}</td>
+
+                <td>
+                    {{ obj.funding_source }}
+                </td>
+                <td>
+                    <a class="toggle-source" href="#" type="capital" pk="{{ obj.id }}">
+                        <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
+                             title="click to toggle funding source">
+                    </a>
+                    <a id="capital-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "capital" obj.id %}"
+                       class="hidden"></a>
+                </td>
+
                 <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
 
             </tr>
         {% endfor %}
-        {#    <tr style="font-weight: bold;">#}
-        {#        <td>Count: <span style="margin-left: 15px">{{ object.agreements.count }}</span></td>#}
-        {#    </tr>#}
+
         </tbody>
     </table>
 {% endif %}
 <br>
+
+
+<script type="application/javascript">
+    $(".toggle-source").click(function (e) {
+        e.stopImmediatePropagation()
+        var objectId = $(this)[0].getAttribute("pk");
+        var objectType = $(this)[0].getAttribute("type");
+        window.location.href = $("#" + objectType + "-secrect-toggle-btn-" + objectId)[0].getAttribute("href")
+
+    });
+</script>

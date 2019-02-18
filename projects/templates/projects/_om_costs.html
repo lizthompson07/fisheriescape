@@ -11,7 +11,7 @@
 </style>
 
 <h3>
-    {% trans "O&M Requests:" %}
+    {% trans "O&M Costs:" %}
 </h3>
 <div class="btn-group">
     <a class="btn btn-sm btn-primary" href="#"
@@ -32,7 +32,7 @@
 
 {% if object.om_costs.count == 0 %}
     <em>
-        {% trans "No O&M Requests" %}
+        {% trans "No O&M Costs" %}
     </em><br>
 {% else %}
 
@@ -45,8 +45,11 @@
             <th>
                 {% trans "Category" %}
             </th>
+            <th colspan="2">
+                {% trans "Funding Source" %}
+            </th>
             <th>
-                {% trans "Budget Requested" %}
+                {% trans "Budget Amount" %}
             </th>
             <th>
                 {% trans "Description provided" %}
@@ -55,7 +58,8 @@
         </tr>
         <tbody>
         {% for obj in object.om_costs.all %}
-            <tr data-toggle="tooltip" title="Edit" href="{% url 'projects:om_edit' obj.id %}" pop>
+            <tr id="om-{{ obj.id }}" data-toggle="tooltip" title="Edit" href="{% url 'projects:om_edit' obj.id %}" pop
+                style="background-color: {{ obj.funding_source.color }}">
                 <td>
                     <a class="om-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
@@ -72,16 +76,36 @@
                     <td>{{ obj.om_category.name }}</td>
                 {% endif %}
 
+                <td>
+                    {{ obj.funding_source }}
+                </td>
+                <td>
+                    <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">
+                        <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
+                             title="click to toggle">
+                    </a>
+                    <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "om" obj.id %}" class="hidden"></a>
+                </td>
+
                 <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
                 <td>{{ obj.description|yesno:"yes,," }}</td>
 
 
             </tr>
         {% endfor %}
-        {#    <tr style="font-weight: bold;">#}
-        {#        <td>Count: <span style="margin-left: 15px">{{ object.agreements.count }}</span></td>#}
-        {#    </tr>#}
         </tbody>
     </table>
 {% endif %}
 <br>
+
+
+<script type="application/javascript">
+    $(".toggle-source").click(function (e) {
+        e.stopImmediatePropagation()
+        var objectId = $(this)[0].getAttribute("pk");
+        var objectType = $(this)[0].getAttribute("type");
+        window.location.href = $("#" + objectType + "-secrect-toggle-btn-" + objectId)[0].getAttribute("href")
+
+    });
+</script>
+

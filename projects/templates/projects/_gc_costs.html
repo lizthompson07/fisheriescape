@@ -9,9 +9,9 @@
 </style>
 
 
-<h3>
-    {% trans "Grant & Contribution Requests:" %}
-</h3>
+<h4>
+    {% trans "Grant & Contributions:" %}
+</h4>
 <a class="btn btn-sm btn-primary" href="#"
    onclick="return popitup('{% url 'projects:gc_new' object.id %}','popoutWindow')">
     {% trans "Add G&C" %}
@@ -19,7 +19,7 @@
 <br><br>
 {% if object.gc_costs.count == 0 %}
     <em>
-        {% trans "No G&C Requests" %}
+        {% trans "No G&Cs" %}
     </em><br>
 {% else %}
 
@@ -33,7 +33,7 @@
                 {% trans "G&C Program" %}
             </th>
             <th>
-                {% trans "Budget Requested" %}
+                {% trans "Budget Amount" %}
             </th>
 
 
