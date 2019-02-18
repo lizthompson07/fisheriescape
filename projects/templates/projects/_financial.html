@@ -1,5 +1,6 @@
 {% load static %}
 {% load humanize %}
+{% load custom_filters %}
 {% load i18n %}
 <style>
     table, td {
@@ -8,46 +9,72 @@
 </style>
 
 <div class="">
-    <h3>
+    <h4>
         {% trans "Financial Summary:" %}
-    </h3>
+    </h4>
 </div>
 
-<table class="table table-bordered table-sm">
+<table class="table table-bordered table-sm" style="width: auto">
     <tr>
         <th>
             {% trans "Category" %}
+        </th>
+        <th>
+            {% trans "A-base" %}
+        </th>
+        <th>
+            {% trans "B-base" %}
+        </th>
+        <th>
+            {% trans "C-base" %}
         </th>
         <th>
             {% trans "Total Cost" %}
         </th>
     </tr>
     <tbody>
-    <tr>
-        <td>
-            {% trans "Salary (excluding full time employees)" %}
-        </td>
-        <td>{{ salary_total|floatformat:0|intcomma }}</td>
-    </tr>
-    <tr>
-        <td>
-            {% trans "O & M" %}
-        </td>
-        <td>{{ om_total|floatformat:0|intcomma }}</td>
-    </tr>
-    <tr>
-        <td>
-            {% trans "Capital" %}
-        </td>
-        <td>{{ capital_total|floatformat:0|intcomma }}</td>
-    </tr>
-    <tr>
-        <td>
-            {% trans "G & C" %}
-        </td>
-        <td>{{ gc_total|floatformat:0|intcomma }}</td>
-    </tr>
-
+    {% with "---" as na %}
+        <tr>
+            <td>
+                {% trans "Salary (excluding full time employees)" %}
+            </td>
+            <td style="background-color: {{ abase }}">{{ salary_abase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td style="background-color: {{ bbase }}">{{ salary_bbase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td style="background-color: {{ cbase }}">{{ salary_cbase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td>{{ salary_total|floatformat:0|intcomma|zero2val:na }}</td>
+        </tr>
+        <tr>
+            <td>
+                {% trans "O & M" %}
+            </td>
+            <td style="background-color: {{ abase }}">{{ om_abase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td style="background-color: {{ bbase }}">{{ om_bbase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td style="background-color: {{ cbase }}">{{ om_cbase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td>{{ om_total|floatformat:0|intcomma }}</td>
+        </tr>
+        <tr>
+            <td>
+                {% trans "Capital" %}
+            </td>
+            <td style="background-color: {{ abase }}">{{ capital_abase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td style="background-color: {{ bbase }}">{{ capital_bbase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td style="background-color: {{ cbase }}">{{ capital_cbase|floatformat:0|intcomma|zero2val:na }}</td>
+            <td>{{ capital_total|floatformat:0|intcomma|zero2val:na }}</td>
+        </tr>
+        <tr>
+            <td>
+                {% trans "G & C" %}
+            </td>
+            <td>{{na}}</td>
+            <td>{{ na }}</td>
+            <td>{{ na }}</td>
+            <td>{{ gc_total|floatformat:0|intcomma|zero2val:na }}</td>
+        </tr>
+    {% endwith %}
 
     </tbody>
 </table>
+
+{{ salary_abase }}
+{{ salary_bbase }}
+{{ om_cbase }}

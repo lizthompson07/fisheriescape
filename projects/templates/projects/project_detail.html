@@ -90,11 +90,11 @@
 
 
         {% include "projects/_staff.html" %}
-        {% include "projects/_collaborators.html" %}
-        {% include "projects/_agreements.html" %}
         {% include "projects/_om_costs.html" %}
         {% include "projects/_capital_costs.html" %}
         {% include "projects/_gc_costs.html" %}
+        {% include "projects/_collaborators.html" %}
+        {% include "projects/_agreements.html" %}
 
         {% include "projects/_financial.html" %}
 
@@ -166,6 +166,14 @@
             }
         })
 
+
+        $(".toggle-source").click(function (e) {
+            e.stopImmediatePropagation()
+            var objectId = $(this)[0].getAttribute("pk");
+            var objectType = $(this)[0].getAttribute("type");
+            window.location.href = $("#" + objectType + "-secrect-toggle-btn-" + objectId)[0].getAttribute("href")
+
+        });
 
     </script>
 

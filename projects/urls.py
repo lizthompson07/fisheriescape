@@ -63,14 +63,16 @@ urlpatterns = [
     path('gc-cost/<int:pk>/edit/', views.GCCostUpdateView.as_view(), name="gc_edit"),
     path('gc-cost/<int:pk>/delete/', views.gc_cost_delete, name="gc_delete"),
 
-    # SHARED COSTS #
-    ################
-    path('toggle-cost-funding-source/<str:type>/<int:cost_pk>/', views.toggle_source, name="toggle_source"),
 
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     path('reports/master-spreadsheet/fiscal-year/<str:fiscal_year>', views.master_spreadsheet, name="report_master"),
     path('reports/section-head-spreadsheet/fiscal-year/<str:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
+
+    # SHARED #
+    ##########
+    path('toggle-funding-source/<str:type>/<int:pk>/', views.toggle_source, name="toggle_source"),
+
 
 ]

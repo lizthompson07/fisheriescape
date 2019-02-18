@@ -17,7 +17,3 @@ def get_subset(iterable, index):
 
     return value
 
-
-@register.filter
-def multiply(value, arg):
-    return float(value)*float(arg)

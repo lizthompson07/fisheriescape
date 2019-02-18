@@ -119,38 +119,93 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             'deliverables',
         ]
 
-        salary_total = 0
-        om_total = 0
+        salary_abase = 0
+        om_abase = 0
+        capital_abase = 0
+
+        salary_bbase = 0
+        om_bbase = 0
+        capital_bbase = 0
+
+        salary_cbase = 0
+        om_cbase = 0
+        capital_cbase = 0
+
         gc_total = 0
-        capital_total = 0
 
         # first calc for staff
         for staff in project.staff_members.all():
             # exclude full time employees
             if staff.employee_type.id != 1 or staff.employee_type.id != 6:
-                # if salary
-                if staff.employee_type.cost_type is 1:
-                    salary_total += nz(staff.cost, 0)
-                # if o&M
-                elif staff.employee_type.cost_type is 2:
-                    om_total += nz(staff.cost, 0)
+                # if the staff member is being paid from bbase...
+                if staff.funding_source.id == 1:
+                    # if salary
+                    if staff.employee_type.cost_type is 1:
+                        salary_abase += nz(staff.cost, 0)
+                    # if o&M
+                    elif staff.employee_type.cost_type is 2:
+                        om_abase += nz(staff.cost, 0)
+                elif staff.funding_source.id == 2:
+                    # if salary
+                    if staff.employee_type.cost_type is 1:
+                        salary_bbase += nz(staff.cost, 0)
+                    # if o&M
+                    elif staff.employee_type.cost_type is 2:
+                        om_bbase += nz(staff.cost, 0)
+                elif staff.funding_source.id == 3:
+                    # if salary
+                    if staff.employee_type.cost_type is 1:
+                        salary_cbase += nz(staff.cost, 0)
+                    # if o&M
+                    elif staff.employee_type.cost_type is 2:
+                        om_cbase += nz(staff.cost, 0)
 
         # O&M costs
         for cost in project.om_costs.all():
-            om_total += nz(cost.budget_requested, 0)
+            if cost.funding_source.id == 1:
+                om_abase += nz(cost.budget_requested, 0)
+            elif cost.funding_source.id == 2:
+                om_bbase += nz(cost.budget_requested, 0)
+            elif cost.funding_source.id == 3:
+                om_cbase += nz(cost.budget_requested, 0)
 
         # Capital costs
         for cost in project.capital_costs.all():
-            capital_total += nz(cost.budget_requested, 0)
+            if cost.funding_source.id == 1:
+                capital_abase += nz(cost.budget_requested, 0)
+            elif cost.funding_source.id == 2:
+                capital_bbase += nz(cost.budget_requested, 0)
+            elif cost.funding_source.id == 3:
+                capital_cbase += nz(cost.budget_requested, 0)
 
         # g&c costs
         for cost in project.gc_costs.all():
-            gc_total += nz(cost.budget_requested, 0)
+                gc_total += nz(cost.budget_requested, 0)
 
-        context["salary_total"] = salary_total
-        context["om_total"] = om_total
+        # abase
+        context["salary_abase"] = salary_abase
+        context["om_abase"] = om_abase
+        context["capital_abase"] = capital_abase
+
+        # bbase
+        context["salary_bbase"] = salary_bbase
+        context["om_bbase"] = om_bbase
+        context["capital_bbase"] = capital_bbase
+
+        # cbase
+        context["salary_cbase"] = salary_cbase
+        context["om_cbase"] = om_cbase
+        context["capital_cbase"] = capital_cbase
+
+        context["salary_total"] = salary_abase + salary_bbase + salary_cbase
+        context["om_total"] = om_abase + om_bbase + om_cbase
+        context["capital_total"] = capital_abase + capital_bbase + capital_cbase
         context["gc_total"] = gc_total
-        context["capital_total"] = capital_total
+
+        # import color schemes from funding_source table
+        context["abase"] = models.FundingSource.objects.get(pk=1).color
+        context["bbase"] = models.FundingSource.objects.get(pk=2).color
+        context["cbase"] = models.FundingSource.objects.get(pk=3).color
 
         can_delete = False
         if self.request.user.is_superuser:
@@ -638,30 +693,6 @@ def capital_cost_delete(request, pk):
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
-# SHARED COSTS #
-################
-def toggle_source(request, cost_pk, type):
-    if type == "om":
-        my_cost = models.OMCost.objects.get(pk=cost_pk)
-    elif type == "capital":
-        my_cost = models.CapitalCost.objects.get(pk=cost_pk)
-
-    # otherwise function is being used improperly
-
-    if my_cost.funding_source_id is None:
-        my_cost.funding_source_id = 1
-    elif my_cost.funding_source_id == 1:
-        my_cost.funding_source_id = 2
-    elif my_cost.funding_source_id == 2:
-        my_cost.funding_source_id = 3
-    else:
-        my_cost.funding_source_id = 1
-    my_cost.save()
-
-    return HttpResponseRedirect(
-        reverse_lazy("projects:project_detail", kwargs={"pk": my_cost.project.id}) + "?#{}-{}".format(type, cost_pk))
-
-
 # GC COSTS #
 ############
 
@@ -710,6 +741,31 @@ def gc_cost_delete(request, pk):
     object.delete()
     messages.success(request, _("The cost has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
+
+# SHARED #
+##########
+def toggle_source(request, pk, type):
+    if type == "om":
+        my_cost = models.OMCost.objects.get(pk=pk)
+    elif type == "capital":
+        my_cost = models.CapitalCost.objects.get(pk=pk)
+    elif type == "staff":
+        my_cost = models.Staff.objects.get(pk=pk)
+    # otherwise function is being used improperly
+
+    if my_cost.funding_source_id is None:
+        my_cost.funding_source_id = 1
+    elif my_cost.funding_source_id == 1:
+        my_cost.funding_source_id = 2
+    elif my_cost.funding_source_id == 2:
+        my_cost.funding_source_id = 3
+    else:
+        my_cost.funding_source_id = 1
+    my_cost.save()
+
+    return HttpResponseRedirect(
+        reverse_lazy("projects:project_detail", kwargs={"pk": my_cost.project.id}) + "?#{}-{}".format(type, pk))
 
 
 # REPORTS #
