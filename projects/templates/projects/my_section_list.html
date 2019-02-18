@@ -41,7 +41,9 @@
             <br> <br>
             <div class="row">
                 <div class="col">
-                    <em>displaying all {{ object.list.count }} records</em>
+                    <em>
+                        {% trans "displaying all records" %}
+                    </em>
                 </div>
                 <div class="col" style="text-align: center">
                     {% trans "(click on a header to sort table)" %}

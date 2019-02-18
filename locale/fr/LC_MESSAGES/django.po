@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-18 15:42-0400\n"
+"POT-Creation-Date: 2019-02-18 15:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -462,7 +462,7 @@ msgstr "Toutes les entrées"
 
 #: .\ihub\templates\ihub\entry_list.html:74
 #: .\projects\templates\projects\my_project_list.html:56
-#: .\projects\templates\projects\my_section_list.html:67
+#: .\projects\templates\projects\my_section_list.html:69
 #: .\projects\templates\projects\project_list.html:77
 msgid "Title"
 msgstr "Titre"
@@ -1356,7 +1356,7 @@ msgstr ""
 "            "
 
 #: .\projects\templates\projects\my_project_list.html:41
-#: .\projects\templates\projects\my_section_list.html:51
+#: .\projects\templates\projects\my_section_list.html:53
 #: .\projects\templates\projects\project_form.html:25
 #: .\projects\templates\projects\project_form.html:36
 #: .\projects\templates\projects\project_list.html:61
@@ -1364,19 +1364,19 @@ msgid "New Project"
 msgstr "Nouveau projet"
 
 #: .\projects\templates\projects\my_project_list.html:47
-#: .\projects\templates\projects\my_section_list.html:58
+#: .\projects\templates\projects\my_section_list.html:60
 #: .\projects\templates\projects\project_list.html:68
 msgid "Fiscal Year"
 msgstr "Année fiscale"
 
 #: .\projects\templates\projects\my_project_list.html:50
-#: .\projects\templates\projects\my_section_list.html:61
+#: .\projects\templates\projects\my_section_list.html:63
 #: .\projects\templates\projects\project_list.html:71
 msgid "Division"
 msgstr "Division"
 
 #: .\projects\templates\projects\my_project_list.html:53
-#: .\projects\templates\projects\my_section_list.html:64
+#: .\projects\templates\projects\my_section_list.html:66
 #: .\projects\templates\projects\project_list.html:74
 msgid "Section"
 msgstr "Section"
@@ -1386,13 +1386,13 @@ msgid "No. weeks"
 msgstr "No. de semaines"
 
 #: .\projects\templates\projects\my_project_list.html:65
-#: .\projects\templates\projects\my_section_list.html:73
+#: .\projects\templates\projects\my_section_list.html:75
 #: .\projects\templates\projects\project_list.html:81
 msgid "Submitted"
 msgstr "Soumis"
 
 #: .\projects\templates\projects\my_project_list.html:93
-#: .\projects\templates\projects\my_section_list.html:112
+#: .\projects\templates\projects\my_section_list.html:114
 #: .\projects\templates\projects\project_list.html:100
 msgid "yes,no"
 msgstr "oui,non"
@@ -1426,16 +1426,21 @@ msgstr ""
 "avec tous les projets  %(fy)s <a href=\"%(report_url)s\">ici</a>.\n"
 "                        "
 
-#: .\projects\templates\projects\my_section_list.html:47
+#: .\projects\templates\projects\my_section_list.html:45
+#: .\projects\templates\projects\project_list.html:58
+msgid "displaying all records"
+msgstr "afficher tous les enregistrements"
+
+#: .\projects\templates\projects\my_section_list.html:49
 #: .\projects\templates\projects\project_list.html:55
 msgid "(click on a header to sort table)"
-msgstr ""
+msgstr "(cliquez sur un en-tête pour trier le tableau)"
 
-#: .\projects\templates\projects\my_section_list.html:70
+#: .\projects\templates\projects\my_section_list.html:72
 msgid "FTE(s)"
 msgstr "ETP"
 
-#: .\projects\templates\projects\my_section_list.html:125
+#: .\projects\templates\projects\my_section_list.html:127
 msgid ""
 "\n"
 "                    There are no sections assigned to you. If there should "
@@ -1612,10 +1617,6 @@ msgstr "Tous les projets"
 #: .\projects\templates\projects\project_list.html:32
 msgid "All Projects:"
 msgstr "Tous les projets:"
-
-#: .\projects\templates\projects\project_list.html:58
-msgid "displaying all records"
-msgstr "afficher tous les enregistrements"
 
 #: .\projects\templates\projects\project_report.html:34
 msgid "Project Detail:"
