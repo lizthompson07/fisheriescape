@@ -11,13 +11,16 @@
         height: 0px;
         padding: 0px;
     }
+    label{
+        font-weight: bold;
+    }
 </style>
 
 {% block content %}
 
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
     <script>
-        window.resizeTo(width = 800, height = 950);
+        window.resizeTo(width = 800, height = 1000);
 
         window.onunload = refreshParent;
 
@@ -148,8 +151,8 @@
             } else {
                 $("#id_student_program").prop("disabled", false)
             }
-            // if employee type is fte, disable "cost" field and the "name" field and the "level" field
-            if ($("#id_employee_type").val() == "1" || $("#id_employee_type").val() == "6") {
+            // if employee type is fte, disable "cost" field and the "name" field and the "level" field (ONLY IF a-base ***)
+            if (($("#id_employee_type").val() == "1" || $("#id_employee_type").val() == "6") && $("#id_funding_source").val() == "1") {
                 $("#id_cost").val("")
                 $("#id_cost").prop("disabled", true)
 
