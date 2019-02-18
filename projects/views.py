@@ -565,6 +565,29 @@ def om_cost_delete(request, pk):
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
 
+def om_cost_clear(request, project):
+    project = models.Project.objects.get(pk=project)
+    for obj in models.OMCategory.objects.all():
+        for cost in models.OMCost.objects.filter(project=project, om_category=obj):
+            print(cost)
+            if (cost.budget_requested is None or cost.budget_requested == 0) and not cost.description:
+                cost.delete()
+
+    messages.success(request, _("All empty O&M lines have been cleared."))
+    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+
+def om_cost_populate(request, project):
+    project = models.Project.objects.get(pk=project)
+    for obj in models.OMCategory.objects.all():
+        if not models.OMCost.objects.filter(project=project, om_category=obj).count():
+            new_item = models.OMCost.objects.create(project=project, om_category=obj)
+            new_item.save()
+
+    messages.success(request, _("All O&M categories have been added to this project."))
+    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+
+
+
 # CAPITAL COSTS #
 #################
 
