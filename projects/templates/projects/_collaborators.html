@@ -6,22 +6,23 @@
     }
 </style>
 
-    <h3>
-        {% trans "Collaborators & Partners:" %}
-    </h3>
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:collab_new' object.id %}','popoutWindow')">
-        {% trans "Add Collaborator" %}
-    </a><br><br>
+<h3>
+    {% trans "Collaborators & Partners:" %}
+</h3>
+<a class="btn btn-sm btn-primary" href="#"
+   onclick="return popitup('{% url 'projects:collab_new' object.id %}','popoutWindow')">
+    {% trans "Add Collaborator" %}
+</a><br><br>
 
 {% if object.collaborators.count == 0 %}
     <em>
-    {% trans "No Collaborators or Partners" %}
-</em><br>
+        {% trans "No Collaborators or Partners" %}
+    </em><br>
 {% else %}
 
-    <table class="table table-bordered table-sm">
+    <table class="table table-hover table-sm">
         <tr>
+            <th></th>
             <th>
                 {% trans "Name" %}
             </th>
@@ -36,18 +37,7 @@
         </tr>
         <tbody>
         {% for obj in object.collaborators.all %}
-            <tr>
-                <td>{{ obj.name }}</td>
-                <td>{{ obj.get_type_display }}</td>
-                <td>{{ obj.critical|yesno }}</td>
-
-                <td>
-                    <a href="#"
-                       onclick="return popitup('{% url 'projects:collab_edit' obj.id %}','popoutWindow')">
-                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                             title="Edit">
-                    </a>
-                </td>
+            <tr data-toggle="tooltip" title="Edit" href="{% url 'projects:collab_edit' obj.id %}" pop>
                 <td>
                     <a class="collab-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
@@ -56,6 +46,11 @@
                     <a id="collab-secrect-delete-btn-{{ obj.id }}"
                        href="{% url 'projects:collab_delete' obj.id %}" class="hidden"></a>
                 </td>
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.get_type_display }}</td>
+                <td>{{ obj.critical|yesno }}</td>
+
+
             </tr>
         {% endfor %}
         {#    <tr style="font-weight: bold;">#}

@@ -13,10 +13,20 @@
 <h3>
     {% trans "O&M Requests:" %}
 </h3>
-<a class="btn btn-sm btn-primary" href="#"
-   onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
-    {% trans "Add O&M" %}
-</a>
+<div class="btn-group">
+    <a class="btn btn-sm btn-primary" href="#"
+       onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
+        {% trans "Add O&M" %}
+    </a>
+    <a class="btn btn-sm btn-success" href="{% url 'projects:om_populate' object.id %}">
+        {% trans "Add all categories" %}
+    </a>
+
+    <a class="btn btn-sm btn-warning" href="{% url 'projects:om_clear' object.id %}">
+        {% trans "Clear empty lines" %}
+    </a>
+</div>
+
 <br><br>
 
 
@@ -26,8 +36,9 @@
     </em><br>
 {% else %}
 
-    <table class="table table-bordered table-sm">
+    <table class="table table-hover table-sm">
         <tr>
+            <th></th>
             <th>
                 {% trans "Category Type" %}
             </th>
@@ -44,7 +55,15 @@
         </tr>
         <tbody>
         {% for obj in object.om_costs.all %}
-            <tr>
+            <tr data-toggle="tooltip" title="Edit" href="{% url 'projects:om_edit' obj.id %}" pop>
+                <td>
+                    <a class="om-delete-me" href="#" val="{{ obj.id }}">
+                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                             title="Delete">
+                    </a>
+                    <a id="om-secrect-delete-btn-{{ obj.id }}"
+                       href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
+                </td>
                 <td>{{ obj.om_category.get_group_display }}</td>
 
                 {% if LANG == "fr" %}
@@ -56,21 +75,7 @@
                 <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
                 <td>{{ obj.description|yesno:"yes,," }}</td>
 
-                <td>
-                    <a href="#"
-                       onclick="return popitup('{% url 'projects:om_edit' obj.id %}','popoutWindow')">
-                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                             title="Edit">
-                    </a>
-                </td>
-                <td>
-                    <a class="om-delete-me" href="#" val="{{ obj.id }}">
-                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                             title="Delete">
-                    </a>
-                    <a id="om-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
-                </td>
+
             </tr>
         {% endfor %}
         {#    <tr style="font-weight: bold;">#}

@@ -1,22 +1,8 @@
 from . import models
 
-# def resave_all(resources = models.Resource.objects.all()):
-#
-#     for r in resources:
-#         if r.uuid == None:
-#             my_r = models.Resource.objects.get(id=r.id)
-#             my_r.save()
-
-
-# def resave_all(people = models.Person.objects.all()):
-#
-#     for p in people:
-#         my_p = models.Person.objects.get(user_id=p.user.id)
-#         my_p.save()
-#
-
-def resave_all(keywords = models.Keyword.objects.all()):
-
-    for k in keywords:
-        my_obj = models.Keyword.objects.get(id=k.id)
-        my_obj.save()
+def resave_all(projects = models.Project.objects.all()):
+    for p in projects:
+        for obj in models.OMCategory.objects.all():
+            if not models.OMCost.objects.filter(project=p, om_category=obj).count():
+                new_item = models.OMCost.objects.create(project=p, om_category=obj)
+                new_item.save()

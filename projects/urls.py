@@ -48,6 +48,8 @@ urlpatterns = [
     path('project/<int:project>/om-cost/new/', views.OMCostCreateView.as_view(), name="om_new"),
     path('om-cost/<int:pk>/edit/', views.OMCostUpdateView.as_view(), name="om_edit"),
     path('om-cost/<int:pk>/delete/', views.om_cost_delete, name="om_delete"),
+    path('om-cost/<int:project>/clear-empty/', views.om_cost_clear, name="om_clear"),
+    path('om-cost/<int:project>/populate-all/', views.om_cost_populate, name="om_populate"),
 
     # CAPITAL COST #
     ################
