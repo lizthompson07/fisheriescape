@@ -17,3 +17,19 @@ def get_subset(iterable, index):
 
     return value
 
+
+@register.filter(name='lookup')
+def lookup(my_dict, key):
+    """lookup the value of a dictionary. value is a dictionary object and arg is the key"""
+    return my_dict[key]
+
+
+@register.simple_tag
+def add(value, arg):
+    return float(value)+float(arg)
+
+
+@register.simple_tag
+def subtract(value, arg):
+    return float(value) - float(arg)
+

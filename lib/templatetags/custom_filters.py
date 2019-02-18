@@ -38,3 +38,35 @@ def zero2val(value, arg):
             return arg
         else:
             return value
+
+
+@register.filter
+def divide(value, arg):
+    return float(value) / float(arg)
+
+
+@register.filter
+def percentage(value, arg=2):
+    return format(value, ".{}%".format(arg))
+
+
+@register.filter
+def add(value, arg):
+    return float(value)+float(arg)
+
+
+@register.filter
+def subtract(value, arg):
+    return float(value)-float(arg)
+
+
+@register.filter
+def timedelta(value, arg):
+    """the difference of two datetime objects in days"""
+    return (value - arg).days
+
+
+@register.filter
+def tostring(value):
+    """casts 'value' into a str """
+    return str(value)
