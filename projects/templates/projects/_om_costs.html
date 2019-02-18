@@ -13,21 +13,23 @@
 <h4>
     {% trans "O&M Costs:" %}
 </h4>
-<div class="btn-group">
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
-        {% trans "Add O&M" %}
-    </a>
-    <a class="btn btn-sm btn-success" href="{% url 'projects:om_populate' object.id %}">
-        {% trans "Add all categories" %}
-    </a>
+{% if not object.submitted %}
+    <div class="btn-group">
+        <a class="btn btn-sm btn-primary" href="#"
+           onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
+            {% trans "Add O&M" %}
+        </a>
+        <a class="btn btn-sm btn-success" href="{% url 'projects:om_populate' object.id %}">
+            {% trans "Add all categories" %}
+        </a>
 
-    <a class="btn btn-sm btn-warning" href="{% url 'projects:om_clear' object.id %}">
-        {% trans "Clear empty lines" %}
-    </a>
-</div>
+        <a class="btn btn-sm btn-warning" href="{% url 'projects:om_clear' object.id %}">
+            {% trans "Clear empty lines" %}
+        </a>
+    </div>
+    <br><br>
+{% endif %}
 
-<br><br>
 
 
 {% if object.om_costs.count == 0 %}
@@ -61,12 +63,14 @@
             <tr id="om-{{ obj.id }}" data-toggle="tooltip" title="Edit" href="{% url 'projects:om_edit' obj.id %}" pop
                 style="background-color: {{ obj.funding_source.color }}">
                 <td>
-                    <a class="om-delete-me" href="#" val="{{ obj.id }}">
-                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                             title="Delete">
-                    </a>
-                    <a id="om-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
+                    {% if not object.submitted %}
+                        <a class="om-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete">
+                        </a>
+                        <a id="om-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
+                    {% endif %}
                 </td>
                 <td>{{ obj.om_category.get_group_display }}</td>
 
@@ -76,19 +80,21 @@
                     <td>{{ obj.om_category.name }}</td>
                 {% endif %}
 
-                <td>
+                <td style="text-align: center">
                     {{ obj.funding_source }}
                 </td>
                 <td>
-                    <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">
-                        <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
-                             title="click to toggle funding source">
-                    </a>
-                    <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "om" obj.id %}" class="hidden"></a>
+                    {% if not object.submitted %}
+                        <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">
+                            <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
+                                 title="click to toggle funding source">
+                        </a>
+                        <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "om" obj.id %}" class="hidden"></a>
+                    {% endif %}
                 </td>
 
-                <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
-                <td>{{ obj.description|yesno:"yes,," }}</td>
+                <td style="text-align: center">{{ obj.budget_requested|floatformat:0|intcomma }}</td>
+                <td style="text-align: center">{{ obj.description|yesno:"yes,," }}</td>
 
 
             </tr>

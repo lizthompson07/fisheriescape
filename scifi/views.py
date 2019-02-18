@@ -27,12 +27,12 @@ class CloserTemplateView(TemplateView):
     template_name = 'scifi/close_me.html'
 
 
-def not_in_scifi_group(user):
+def in_scifi_group(user):
     if user:
         return user.groups.filter(name='scifi_access').count() != 0
 
 
-def not_in_scifi_admin_group(user):
+def in_scifi_admin_group(user):
     if user:
         return user.groups.filter(name='scifi_admin').count() != 0
 
@@ -41,7 +41,7 @@ class SciFiAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return not_in_scifi_group(self.request.user)
+        return in_scifi_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -54,7 +54,7 @@ class SciFiAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return not_in_scifi_admin_group(self.request.user)
+        return in_scifi_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()

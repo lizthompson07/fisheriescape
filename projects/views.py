@@ -17,6 +17,29 @@ from . import forms
 from . import filters
 from . import reports
 
+
+
+
+def can_delete(user, project):
+    """returns True if user is a custodian in the specified resource"""
+    if user.id:
+        # check to see if a superuser
+        if user.is_superuser:
+            return True
+        # check to see if they are a section head
+        elif project.section.section_head is user:
+            return True
+        # otherwise check to see if they are a project lead
+        else:
+            for staff in project.staff_members.filter(employee_type_id=1):
+                try:
+                    if staff.user is user:
+                        return True
+                except:
+                    print("staff has no user id")
+                    return False
+
+
 project_field_list = [
     'project_title',
     'section',
@@ -207,19 +230,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context["bbase"] = models.FundingSource.objects.get(pk=2).color
         context["cbase"] = models.FundingSource.objects.get(pk=3).color
 
-        can_delete = False
-        if self.request.user.is_superuser:
-            can_delete = True
-        else:
-            for staff in project.staff_members.filter(employee_type_id=1):
-                try:
-                    if staff.user.id is self.request.user.id:
-                        can_delete = True
-                        break
-                except:
-                    print("staff has no user id")
-
-        context["can_delete"] = can_delete
+        context["can_delete"] = can_delete(self.request.user, project)
         return context
 
 

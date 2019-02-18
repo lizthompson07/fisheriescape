@@ -9,11 +9,13 @@
 <h4>
     {% trans "Collaborative Agreements:" %}
 </h4>
-<a class="btn btn-sm btn-primary" href="#"
-   onclick="return popitup('{% url 'projects:agreement_new' object.id %}','popoutWindow')">
-    {% trans "Add Agreement" %}
-</a>
-<br><br>
+{% if not object.submitted %}
+    <a class="btn btn-sm btn-primary" href="#"
+       onclick="return popitup('{% url 'projects:agreement_new' object.id %}','popoutWindow')">
+        {% trans "Add Agreement" %}
+    </a>
+    <br><br>
+{% endif %}
 {% if object.agreements.count == 0 %}
     <em>
         {% trans "No Collaborative Agreements" %}
@@ -38,24 +40,20 @@
         {% for obj in object.agreements.all %}
             <tr data-toggle="tooltip" title="Edit" href="{% url 'projects:agreement_edit' obj.id %}" pop>
                 <td>
-                    <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
-                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                             title="Delete">
-                    </a>
-                    <a id="agreement-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'projects:agreement_delete' obj.id %}" class="hidden"></a>
+                    {% if not object.submitted %}
+                        <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete">
+                        </a>
+                        <a id="agreement-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects:agreement_delete' obj.id %}" class="hidden"></a>
+                    {% endif %}
                 </td>
                 <td>{{ obj.partner_organization }}</td>
                 <td>{{ obj.project_lead }}</td>
                 <td>{{ obj.agreement_title }}</td>
-
-
-
             </tr>
         {% endfor %}
-        {#    <tr style="font-weight: bold;">#}
-        {#        <td>Count: <span style="margin-left: 15px">{{ object.agreements.count }}</span></td>#}
-        {#    </tr>#}
         </tbody>
     </table>
 {% endif %}

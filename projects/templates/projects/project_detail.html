@@ -37,24 +37,48 @@
 
 
         <div class="btn-group">
-            {% if object.submitted %}
-                <a class="btn btn-secondary btn-sm" href="{% url 'projects:project_submit' object.id %}">
-                    {% trans "Unsubmit Project" %}
-                </a>
+            {% if can_delete %}
+                {% if object.submitted %}
+                    <a class="btn btn-secondary btn-sm" href="{% url 'projects:project_submit' object.id %}">
+                        {% trans "Unsubmit Project" %}
+                    </a>
+                {% else %}
+                    <a class="btn btn-success btn-sm" href="{% url 'projects:project_submit' object.id %}">
+                        {% trans "Submit Project" %}
+                    </a>
+                {% endif %}
             {% else %}
-                <a class="btn btn-success btn-sm" href="{% url 'projects:project_submit' object.id %}">
-                    {% trans "SUBMIT PROJECT" %}
-                </a>
+                <span data-toggle="tooltip"
+                      title="{% trans "Cannot submit/unsumbit projects that do not belong to you or your section." %}">
+
+                {% if object.submitted %}
+                    <a class="btn btn-secondary btn-sm disabled" href="{% url 'projects:project_submit' object.id %}">
+                        {% trans "Unsubmit Project" %}
+                    </a>
+                {% else %}
+                    <a class="btn btn-success btn-sm disabled" href="{% url 'projects:project_submit' object.id %}">
+                        {% trans "Submit Project" %}
+                    </a>
+                {% endif %}
+                </span>
+
             {% endif %}
+
+
 
             {% if can_delete %}
                 <a class="btn btn-danger btn-sm" href="{% url 'projects:project_delete' object.id %}">
                     {% trans "Delete" %}
                 </a>
-                <a class="btn btn-dark btn-sm" href="{% url 'projects:project_print' object.id %}">
-                    {% trans "Export PDF" %}
-                </a>
+            {% else %}
+                <span data-toggle="tooltip" title="{% trans "Cannot delete projects that do not belong to you or your section." %}">
+                    <a class="btn btn-danger btn-sm disabled" href="#">{% trans "Delete" %}</a>
+                </span>
             {% endif %}
+
+            <a class="btn btn-dark btn-sm" href="{% url 'projects:project_print' object.id %}">
+                {% trans "Export PDF" %}
+            </a>
 
         </div>
 
@@ -66,9 +90,11 @@
         </h3>
 
         <div class="btn-group">
-            <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
-                {% trans "Add/Edit Project Details" %}
-            </a>
+            {% if not object.submitted %}
+                <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
+                    {% trans "Add/Edit Project Details" %}
+                </a>
+            {% endif %}
         </div>
 
         <br><br>

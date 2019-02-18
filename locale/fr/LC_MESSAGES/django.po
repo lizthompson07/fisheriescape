@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-18 09:58-0400\n"
+"POT-Creation-Date: 2019-02-18 15:20-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -99,7 +99,8 @@ msgstr "name_fre"
 #: .\ihub\models.py:186 .\ihub\models.py:197 .\ihub\models.py:208
 #: .\ihub\models.py:219 .\projects\models.py:24 .\projects\models.py:38
 #: .\projects\models.py:45 .\projects\models.py:52 .\projects\models.py:63
-#: .\projects\models.py:74 .\projects\models.py:167 .\projects\models.py:282
+#: .\projects\models.py:74 .\projects\models.py:167 .\projects\models.py:186
+#: .\projects\models.py:295
 msgid "name"
 msgstr "nom"
 
@@ -198,7 +199,7 @@ msgstr "Dernière modification par"
 msgid "created by"
 msgstr ""
 
-#: .\ihub\models.py:282 .\projects\models.py:192
+#: .\ihub\models.py:282 .\projects\models.py:205
 msgid "User"
 msgstr "Utilisateur"
 
@@ -241,9 +242,9 @@ msgid "No members have been added to this organization"
 msgstr ""
 
 #: .\ihub\templates\ihub\_members.html:21 .\ihub\templates\ihub\_people.html:20
-#: .\projects\models.py:224
-#: .\projects\templates\projects\_collaborators.html:27
-#: .\projects\templates\projects\_staff.html:29
+#: .\projects\models.py:237
+#: .\projects\templates\projects\_collaborators.html:29
+#: .\projects\templates\projects\_staff.html:32
 #: .\projects\templates\projects\project_report.html:52
 #: .\projects\templates\projects\project_report.html:136
 msgid "Name"
@@ -268,8 +269,8 @@ msgid "No Actions, next steps or comments have been added to this entry..."
 msgstr ""
 
 #: .\ihub\templates\ihub\_notes.html:28
-#: .\ihub\templates\ihub\entry_list.html:78
-#: .\projects\templates\projects\_collaborators.html:30
+#: .\ihub\templates\ihub\entry_list.html:77
+#: .\projects\templates\projects\_collaborators.html:32
 #: .\projects\templates\projects\project_report.html:139
 msgid "Type"
 msgstr "Type"
@@ -288,7 +289,7 @@ msgid "Note"
 msgstr "Remarque"
 
 #: .\ihub\templates\ihub\_notes.html:40
-#: .\ihub\templates\ihub\entry_list.html:91 .\templates\index.html:47
+#: .\ihub\templates\ihub\entry_list.html:90 .\templates\index.html:47
 msgid "Status"
 msgstr "Statut"
 
@@ -305,7 +306,7 @@ msgid "No people have been added to this entry"
 msgstr ""
 
 #: .\ihub\templates\ihub\_people.html:23
-#: .\ihub\templates\ihub\entry_list.html:84
+#: .\ihub\templates\ihub\entry_list.html:83
 msgid "Organization"
 msgstr "Organisation partenaire"
 
@@ -325,7 +326,7 @@ msgstr ""
 #: .\ihub\templates\ihub\entry_confirm_delete.html:11
 #: .\ihub\templates\ihub\entry_detail.html:28
 #: .\ihub\templates\ihub\entry_form.html:19
-#: .\ihub\templates\ihub\entry_list.html:25
+#: .\ihub\templates\ihub\entry_list.html:24
 msgid "All Entries"
 msgstr "Toutes les entrées"
 
@@ -340,7 +341,8 @@ msgstr "Détails de l'entrée:"
 #: .\ihub\templates\ihub\entry_detail.html:47
 #: .\ihub\templates\ihub\organization_detail.html:36
 #: .\projects\templates\projects\project_confirm_delete.html:37
-#: .\projects\templates\projects\project_detail.html:52
+#: .\projects\templates\projects\project_detail.html:71
+#: .\projects\templates\projects\project_detail.html:75
 #: .\scifi\templates\scifi\allotmentcode_detail.html:28
 #: .\scifi\templates\scifi\businessline_detail.html:28
 #: .\scifi\templates\scifi\lineobject_detail.html:28
@@ -451,25 +453,25 @@ msgstr "Mettre à jour"
 msgid "Add"
 msgstr "Ajouter"
 
-#: .\ihub\templates\ihub\entry_list.html:32
-#: .\ihub\templates\ihub\report_cue_card.html:103
+#: .\ihub\templates\ihub\entry_list.html:31
+#: .\ihub\templates\ihub\report_cue_card.html:104
 #, fuzzy
 #| msgid "All Entries"
 msgid "iHub Entries"
 msgstr "Toutes les entrées"
 
-#: .\ihub\templates\ihub\entry_list.html:75
+#: .\ihub\templates\ihub\entry_list.html:74
 #: .\projects\templates\projects\my_project_list.html:56
 #: .\projects\templates\projects\my_section_list.html:58
 #: .\projects\templates\projects\project_list.html:77
 msgid "Title"
 msgstr "Titre"
 
-#: .\ihub\templates\ihub\entry_list.html:81
+#: .\ihub\templates\ihub\entry_list.html:80
 msgid "Region"
 msgstr ""
 
-#: .\ihub\templates\ihub\entry_list.html:87
+#: .\ihub\templates\ihub\entry_list.html:86
 msgid "DFO Sector"
 msgstr "Science du MPO"
 
@@ -485,7 +487,7 @@ msgid "Adding Person"
 msgstr ""
 
 #: .\ihub\templates\ihub\entry_person_form_popout.html:48
-#: .\projects\templates\projects\staff_form_popout.html:83
+#: .\projects\templates\projects\staff_form_popout.html:86
 msgid "OR"
 msgstr "OU"
 
@@ -498,7 +500,7 @@ msgstr "OU"
 #: .\projects\templates\projects\collaborator_form_popout.html:45
 #: .\projects\templates\projects\cost_form_popout.html:48
 #: .\projects\templates\projects\project_submit_form.html:22
-#: .\projects\templates\projects\staff_form_popout.html:107
+#: .\projects\templates\projects\staff_form_popout.html:110
 msgid "Submit"
 msgstr "Soumettre"
 
@@ -510,7 +512,7 @@ msgstr "Soumettre"
 #: .\projects\templates\projects\agreement_form_popout.html:48
 #: .\projects\templates\projects\collaborator_form_popout.html:48
 #: .\projects\templates\projects\cost_form_popout.html:51
-#: .\projects\templates\projects\staff_form_popout.html:110
+#: .\projects\templates\projects\staff_form_popout.html:113
 msgid "Close"
 msgstr "Fermé"
 
@@ -655,21 +657,21 @@ msgstr "Ajouter d'une note"
 msgid "Cue Card"
 msgstr ""
 
-#: .\ihub\templates\ihub\person_form_popout.html:28 .\projects\models.py:241
+#: .\ihub\templates\ihub\person_form_popout.html:28 .\projects\models.py:254
 msgid "New"
 msgstr "Nouveau"
 
-#: .\ihub\templates\ihub\report_cue_card.html:38
+#: .\ihub\templates\ihub\report_cue_card.html:39
 #, fuzzy
 #| msgid "Organization"
 msgid "Organization Information"
 msgstr "Organisation partenaire"
 
-#: .\ihub\templates\ihub\report_cue_card.html:69
+#: .\ihub\templates\ihub\report_cue_card.html:70
 msgid "List of Contacts"
 msgstr ""
 
-#: .\ihub\templates\ihub\report_cue_card.html:108
+#: .\ihub\templates\ihub\report_cue_card.html:109
 msgid "There are no entries to display for this organization"
 msgstr ""
 
@@ -854,144 +856,150 @@ msgstr "Soumettre le projet"
 msgid "Salary"
 msgstr "Salaire"
 
-#: .\projects\models.py:159 .\projects\views.py:557
+#: .\projects\models.py:159 .\projects\views.py:623
 msgid "O&M"
 msgstr "F & E"
 
-#: .\projects\models.py:190 .\projects\models.py:223 .\projects\models.py:245
-#: .\projects\models.py:286 .\projects\models.py:313 .\projects\models.py:326
+#: .\projects\models.py:202 .\projects\models.py:236 .\projects\models.py:258
+#: .\projects\models.py:299 .\projects\models.py:326 .\projects\models.py:340
 msgid "project"
 msgstr "projet"
 
-#: .\projects\models.py:191
+#: .\projects\models.py:203
 msgid "employee type"
 msgstr "Type d'employé"
 
-#: .\projects\models.py:193
+#: .\projects\models.py:204 .\projects\models.py:301 .\projects\models.py:328
+#, fuzzy
+#| msgid "Funding requested"
+msgid "funding source"
+msgstr "Budget demandé"
+
+#: .\projects\models.py:206
 msgid "Person name (leave blank if user is selected)"
 msgstr "Nom de la personne (laisser vide si l'utilisateur est sélectionné)"
 
-#: .\projects\models.py:195
+#: .\projects\models.py:208
 msgid "level"
 msgstr "niveau"
 
-#: .\projects\models.py:197
+#: .\projects\models.py:210
 msgid "student program"
 msgstr "Programme d'étudiant"
 
-#: .\projects\models.py:198
+#: .\projects\models.py:211
 msgid "duration in weeks"
 msgstr "Durée en semaines"
 
-#: .\projects\models.py:199
+#: .\projects\models.py:212
 msgid "overtime in hours"
 msgstr "Heures supplémentaires"
 
-#: .\projects\models.py:200
+#: .\projects\models.py:213
 msgid "overtime description"
 msgstr "description d'heures supplémentaires"
 
-#: .\projects\models.py:201
+#: .\projects\models.py:214
 msgid "cost"
 msgstr "coût"
 
-#: .\projects\models.py:218
+#: .\projects\models.py:231
 msgid "Collaborator"
 msgstr "Collaborateur "
 
-#: .\projects\models.py:219
+#: .\projects\models.py:232
 msgid "Partner"
 msgstr "Partenaire"
 
-#: .\projects\models.py:225
+#: .\projects\models.py:238
 msgid "type"
 msgstr "type"
 
-#: .\projects\models.py:226
+#: .\projects\models.py:239
 msgid "Critical to project delivery"
 msgstr "Critique à la livraison du projet"
 
-#: .\projects\models.py:227 .\projects\models.py:251
+#: .\projects\models.py:240 .\projects\models.py:264
 msgid "notes"
 msgstr "remarques"
 
-#: .\projects\models.py:242
+#: .\projects\models.py:255
 msgid "Existing"
 msgstr "Existant"
 
-#: .\projects\models.py:247
+#: .\projects\models.py:260
 msgid "partner organization"
 msgstr "Organisation partenaire"
 
-#: .\projects\models.py:248 .\projects\models.py:328
+#: .\projects\models.py:261 .\projects\models.py:342
 msgid "project lead"
 msgstr "Chef de projet"
 
-#: .\projects\models.py:249
+#: .\projects\models.py:262
 msgid "Title of the agreement"
 msgstr "Titre de l'accord"
 
-#: .\projects\models.py:250
+#: .\projects\models.py:263
 msgid "new or existing"
 msgstr "Nouveau ou existant"
 
-#: .\projects\models.py:268
+#: .\projects\models.py:281
 msgid "Travel"
 msgstr "Voyage"
 
-#: .\projects\models.py:269
+#: .\projects\models.py:282
 msgid "Equipment Purchase"
 msgstr "Achat d'équipement"
 
-#: .\projects\models.py:270
+#: .\projects\models.py:283
 msgid "Material and Supplies"
 msgstr "Matériel et fournitures"
 
-#: .\projects\models.py:271
+#: .\projects\models.py:284
 msgid "Human Resources"
 msgstr "Ressources humaines"
 
-#: .\projects\models.py:272
+#: .\projects\models.py:285
 msgid "Contracts, Leases, Services"
 msgstr "Contrats, baux, services"
 
-#: .\projects\models.py:288 .\projects\models.py:314
+#: .\projects\models.py:300 .\projects\models.py:327
 msgid "category"
 msgstr "catégorie"
 
-#: .\projects\models.py:289 .\projects\models.py:315
+#: .\projects\models.py:302 .\projects\models.py:329
 msgid "description"
 msgstr "description"
 
-#: .\projects\models.py:290 .\projects\models.py:316 .\projects\models.py:332
+#: .\projects\models.py:303 .\projects\models.py:330 .\projects\models.py:346
 msgid "budget requested"
 msgstr "Budget demandé"
 
-#: .\projects\models.py:306
+#: .\projects\models.py:319
 msgid "IM / IT - computers, hardware"
 msgstr "GI / TI - ordinateurs, matériel"
 
-#: .\projects\models.py:307
+#: .\projects\models.py:320
 msgid "Lab Equipment"
 msgstr "Équipement de laboratoire"
 
-#: .\projects\models.py:308
+#: .\projects\models.py:321
 msgid "Field Equipment"
 msgstr "Équipement de terrain"
 
-#: .\projects\models.py:309
+#: .\projects\models.py:322
 msgid "Other"
 msgstr "Autre"
 
-#: .\projects\models.py:327
+#: .\projects\models.py:341
 msgid "Recipient organization"
 msgstr "Organisation destinataire"
 
-#: .\projects\models.py:330
+#: .\projects\models.py:344
 msgid "Proposed title of agreement"
 msgstr "Titre de l'accord proposé"
 
-#: .\projects\models.py:331
+#: .\projects\models.py:345
 msgid "Name of G&C program"
 msgstr "Nom du programme de S & C"
 
@@ -1000,67 +1008,76 @@ msgstr "Nom du programme de S & C"
 msgid "Collaborative Agreements:"
 msgstr "Ententes de collaboration"
 
-#: .\projects\templates\projects\_agreements.html:14
+#: .\projects\templates\projects\_agreements.html:15
 msgid "Add Agreement"
 msgstr "Ajouter un accord"
 
-#: .\projects\templates\projects\_agreements.html:19
+#: .\projects\templates\projects\_agreements.html:21
 #: .\projects\templates\projects\project_report.html:172
 msgid "No Collaborative Agreements"
 msgstr "Aucun accord de collaboration"
 
-#: .\projects\templates\projects\_agreements.html:27
+#: .\projects\templates\projects\_agreements.html:29
 #: .\projects\templates\projects\project_report.html:179
 msgid "Partner Organization"
 msgstr "Organisation partenaire"
 
-#: .\projects\templates\projects\_agreements.html:30
+#: .\projects\templates\projects\_agreements.html:32
 #: .\projects\templates\projects\project_report.html:182
 #: .\projects\templates\projects\project_report.html:303
 msgid "Project Lead"
 msgstr "Chef de projet"
 
-#: .\projects\templates\projects\_agreements.html:33
+#: .\projects\templates\projects\_agreements.html:35
 #: .\projects\templates\projects\project_report.html:185
 msgid "Agreement Title"
 msgstr "Titre de l'accord"
 
 #: .\projects\templates\projects\_capital_costs.html:12
-#: .\projects\templates\projects\project_report.html:252
-msgid "Capital Requests:"
+#, fuzzy
+#| msgid "Capital Requests:"
+msgid "Capital Costs:"
 msgstr "Demandes de capital:"
 
-#: .\projects\templates\projects\_capital_costs.html:16
+#: .\projects\templates\projects\_capital_costs.html:17
 msgid "Add Capital"
 msgstr "Ajouter du capital"
 
-#: .\projects\templates\projects\_capital_costs.html:22
-#: .\projects\templates\projects\project_report.html:257
-msgid "No Capital Requests"
+#: .\projects\templates\projects\_capital_costs.html:24
+#, fuzzy
+#| msgid "No Capital Requests"
+msgid "No Capital Costs"
 msgstr "Aucune demande de capital"
 
-#: .\projects\templates\projects\_capital_costs.html:31
-#: .\projects\templates\projects\_financial.html:19
-#: .\projects\templates\projects\_om_costs.html:46
+#: .\projects\templates\projects\_capital_costs.html:33
+#: .\projects\templates\projects\_financial.html:21
+#: .\projects\templates\projects\_om_costs.html:48
 #: .\projects\templates\projects\project_report.html:226
 #: .\projects\templates\projects\project_report.html:264
 #: .\projects\templates\projects\project_report.html:349
 msgid "Category"
 msgstr "Catégorie"
 
-#: .\projects\templates\projects\_capital_costs.html:34
+#: .\projects\templates\projects\_capital_costs.html:36
 #: .\projects\templates\projects\project_report.html:229
 #: .\projects\templates\projects\project_report.html:267
 msgid "Description"
 msgstr "Description"
 
-#: .\projects\templates\projects\_capital_costs.html:37
-#: .\projects\templates\projects\_gc_costs.html:36
-#: .\projects\templates\projects\_om_costs.html:49
-#: .\projects\templates\projects\project_report.html:232
-#: .\projects\templates\projects\project_report.html:270
-#: .\projects\templates\projects\project_report.html:312
-msgid "Budget Requested"
+#: .\projects\templates\projects\_capital_costs.html:39
+#: .\projects\templates\projects\_om_costs.html:51
+#: .\projects\templates\projects\_staff.html:53
+#, fuzzy
+#| msgid "Project Detail:"
+msgid "Funding Source"
+msgstr "Détails de l'entrée:"
+
+#: .\projects\templates\projects\_capital_costs.html:42
+#: .\projects\templates\projects\_gc_costs.html:39
+#: .\projects\templates\projects\_om_costs.html:54
+#, fuzzy
+#| msgid "Budget Requested"
+msgid "Budget Amount"
 msgstr "Budget demandé"
 
 #: .\projects\templates\projects\_collaborators.html:10
@@ -1068,103 +1085,110 @@ msgstr "Budget demandé"
 msgid "Collaborators & Partners:"
 msgstr "Collaborateurs et partenaires:"
 
-#: .\projects\templates\projects\_collaborators.html:14
+#: .\projects\templates\projects\_collaborators.html:15
 msgid "Add Collaborator"
 msgstr "Ajout d'un collaborateur"
 
-#: .\projects\templates\projects\_collaborators.html:19
+#: .\projects\templates\projects\_collaborators.html:21
 #: .\projects\templates\projects\project_report.html:129
 msgid "No Collaborators or Partners"
 msgstr "Aucun collaborateur ou partenaire"
 
-#: .\projects\templates\projects\_collaborators.html:33
+#: .\projects\templates\projects\_collaborators.html:35
 #: .\projects\templates\projects\project_report.html:142
 msgid "Critical to project?"
 msgstr "Critique au projet?"
 
-#: .\projects\templates\projects\_financial.html:12
+#: .\projects\templates\projects\_financial.html:14
 #: .\projects\templates\projects\project_report.html:342
 msgid "Financial Summary:"
 msgstr "Résumé financier:"
 
-#: .\projects\templates\projects\_financial.html:22
+#: .\projects\templates\projects\_financial.html:24
+msgid "A-base"
+msgstr ""
+
+#: .\projects\templates\projects\_financial.html:27
+msgid "B-base"
+msgstr ""
+
+#: .\projects\templates\projects\_financial.html:30
+msgid "C-base"
+msgstr ""
+
+#: .\projects\templates\projects\_financial.html:33
 #: .\projects\templates\projects\project_report.html:352
 msgid "Total Cost"
 msgstr "Coût total"
 
-#: .\projects\templates\projects\_financial.html:28
+#: .\projects\templates\projects\_financial.html:40
 #: .\projects\templates\projects\project_report.html:358
 msgid "Salary (excluding full time employees)"
 msgstr "Salaire (excluant les employés à temps plein)"
 
-#: .\projects\templates\projects\_financial.html:34
+#: .\projects\templates\projects\_financial.html:49
 #: .\projects\templates\projects\project_report.html:364
 msgid "O & M"
 msgstr "F & E"
 
-#: .\projects\templates\projects\_financial.html:40
+#: .\projects\templates\projects\_financial.html:58
 #: .\projects\templates\projects\project_report.html:370
 msgid "Capital"
 msgstr "Capital"
 
-#: .\projects\templates\projects\_financial.html:46
+#: .\projects\templates\projects\_financial.html:67
 #: .\projects\templates\projects\project_report.html:376
 msgid "G & C"
 msgstr "S & C"
 
 #: .\projects\templates\projects\_gc_costs.html:13
-msgid "Grant & Contribution Requests:"
-msgstr "Demandes de subventions et contributions:"
+msgid "Grant & Contributions:"
+msgstr "Subventions et contributions:"
 
-#: .\projects\templates\projects\_gc_costs.html:17
+#: .\projects\templates\projects\_gc_costs.html:18
 msgid "Add G&C"
 msgstr "Ajouter S & C"
 
-#: .\projects\templates\projects\_gc_costs.html:22
-#: .\projects\templates\projects\project_report.html:293
-msgid "No G&C Requests"
-msgstr "Aucune demande de S et C"
+#: .\projects\templates\projects\_gc_costs.html:25
+msgid "No G&Cs"
+msgstr "Aucune de S et C"
 
-#: .\projects\templates\projects\_gc_costs.html:30
+#: .\projects\templates\projects\_gc_costs.html:33
 #: .\projects\templates\projects\project_report.html:300
 msgid "Recipient Organization"
 msgstr "Organisation destinataire"
 
-#: .\projects\templates\projects\_gc_costs.html:33
+#: .\projects\templates\projects\_gc_costs.html:36
 #: .\projects\templates\projects\project_report.html:309
 msgid "G&C Program"
 msgstr "Programme de S & C"
 
 #: .\projects\templates\projects\_om_costs.html:14
-#: .\projects\templates\projects\project_report.html:211
-msgid "O&M Requests:"
-msgstr "Demandes de F & E:"
+msgid "O&M Costs:"
+msgstr "F et E:"
 
-#: .\projects\templates\projects\_om_costs.html:19
+#: .\projects\templates\projects\_om_costs.html:20
 msgid "Add O&M"
 msgstr "Ajouter F & E:"
 
-#: .\projects\templates\projects\_om_costs.html:22
-#, fuzzy
-#| msgid "All Entries"
+#: .\projects\templates\projects\_om_costs.html:23
 msgid "Add all categories"
 msgstr "Ajouter toutes les catégories"
 
-#: .\projects\templates\projects\_om_costs.html:26
+#: .\projects\templates\projects\_om_costs.html:27
 msgid "Clear empty lines"
 msgstr "Effacer les lignes vides"
 
-#: .\projects\templates\projects\_om_costs.html:35
-#: .\projects\templates\projects\project_report.html:216
-msgid "No O&M Requests"
-msgstr "Aucune demande de F & E"
+#: .\projects\templates\projects\_om_costs.html:37
+msgid "No O&M Costs"
+msgstr "Aucune de F et E"
 
-#: .\projects\templates\projects\_om_costs.html:43
+#: .\projects\templates\projects\_om_costs.html:45
 #: .\projects\templates\projects\project_report.html:223
 msgid "Category Type"
 msgstr "Type de catégorie"
 
-#: .\projects\templates\projects\_om_costs.html:52
+#: .\projects\templates\projects\_om_costs.html:57
 msgid "Description provided"
 msgstr "Description fournie"
 
@@ -1173,41 +1197,41 @@ msgstr "Description fournie"
 msgid "Project Staff:"
 msgstr "Personnel du projet:"
 
-#: .\projects\templates\projects\_staff.html:16
+#: .\projects\templates\projects\_staff.html:17
 msgid "Add Staff"
 msgstr "Ajouté personnel"
 
-#: .\projects\templates\projects\_staff.html:21
+#: .\projects\templates\projects\_staff.html:24
 msgid "No Staff Members"
 msgstr "Aucune demande de personnel"
 
-#: .\projects\templates\projects\_staff.html:32
+#: .\projects\templates\projects\_staff.html:35
 #: .\projects\templates\projects\project_report.html:55
 msgid "Employee type"
 msgstr "Type d'employé"
 
-#: .\projects\templates\projects\_staff.html:35
+#: .\projects\templates\projects\_staff.html:38
 #: .\projects\templates\projects\project_report.html:58
 msgid "Level"
 msgstr "Niveau"
 
-#: .\projects\templates\projects\_staff.html:38
+#: .\projects\templates\projects\_staff.html:41
 #: .\projects\templates\projects\project_report.html:61
 msgid "Duration (weeks)"
 msgstr "Durée en semaines"
 
-#: .\projects\templates\projects\_staff.html:41
+#: .\projects\templates\projects\_staff.html:44
 #: .\projects\templates\projects\overtime_calculator_popout.html:60
 #: .\projects\templates\projects\project_report.html:64
 msgid "Overtime hours"
 msgstr "Heures supplémentaires"
 
-#: .\projects\templates\projects\_staff.html:44
+#: .\projects\templates\projects\_staff.html:47
 #: .\projects\templates\projects\project_report.html:70
 msgid "Cost Category"
 msgstr "Catégorie de coût"
 
-#: .\projects\templates\projects\_staff.html:47
+#: .\projects\templates\projects\_staff.html:50
 #: .\projects\templates\projects\project_report.html:73
 msgid "Cost"
 msgstr "Coût"
@@ -1516,47 +1540,58 @@ msgstr "SOUMIS"
 msgid "DRAFT VERSION"
 msgstr "ÉBAUCHE"
 
-#: .\projects\templates\projects\project_detail.html:42
+#: .\projects\templates\projects\project_detail.html:43
+#: .\projects\templates\projects\project_detail.html:56
 msgid "Unsubmit Project"
 msgstr "Annuler la soumission"
 
-#: .\projects\templates\projects\project_detail.html:46
-msgid "SUBMIT PROJECT"
-msgstr "SOUMETTRE LE PROJET"
+#: .\projects\templates\projects\project_detail.html:47
+#: .\projects\templates\projects\project_detail.html:60
+msgid "Submit Project"
+msgstr "Soumettre le project"
 
-#: .\projects\templates\projects\project_detail.html:55
+#: .\projects\templates\projects\project_detail.html:52
+msgid ""
+"Cannot submit/unsumbit projects that do not belong to you or your section."
+msgstr "Impossible de soumettre / unsumbit des projets qui ne vous appartiennent pas ou qui appartiennent à votre section"
+
+#: .\projects\templates\projects\project_detail.html:74
+msgid "Cannot delete projects that do not belong to you or your section."
+msgstr "Impossible de supprimer des projets qui ne vous appartiennent pas, ni votre section."
+
+#: .\projects\templates\projects\project_detail.html:80
 msgid "Export PDF"
 msgstr "Exporter le PDF"
 
-#: .\projects\templates\projects\project_detail.html:65
+#: .\projects\templates\projects\project_detail.html:89
 msgid "Project Summary:"
 msgstr "Résumé du projet:"
 
-#: .\projects\templates\projects\project_detail.html:70
+#: .\projects\templates\projects\project_detail.html:95
 msgid "Add/Edit Project Details"
 msgstr "Ajouter / Modifier les détails du projet"
 
-#: .\projects\templates\projects\project_detail.html:112
+#: .\projects\templates\projects\project_detail.html:138
 msgid "Are you sure you want to delete this staff member from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer ce membre du personnel du projet?"
 
-#: .\projects\templates\projects\project_detail.html:123
+#: .\projects\templates\projects\project_detail.html:149
 msgid "Are you sure you want to delete this collaborator from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer ce collaborateur du projet?"
 
-#: .\projects\templates\projects\project_detail.html:133
+#: .\projects\templates\projects\project_detail.html:159
 msgid "Are you sure you want to delete this agreement from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
 
-#: .\projects\templates\projects\project_detail.html:143
+#: .\projects\templates\projects\project_detail.html:169
 msgid "Are you sure you want to delete this o&m request from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette demande de F & E du projet?"
 
-#: .\projects\templates\projects\project_detail.html:153
+#: .\projects\templates\projects\project_detail.html:179
 msgid "Are you sure you want to delete this capital request from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette demande de capital du projet?"
 
-#: .\projects\templates\projects\project_detail.html:163
+#: .\projects\templates\projects\project_detail.html:189
 msgid "Are you sure you want to delete this G&C request from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette demande de S & C du projet?"
 
@@ -1594,9 +1629,35 @@ msgstr "Remarques"
 msgid "New or Existing"
 msgstr "Nouveau ou existant"
 
+#: .\projects\templates\projects\project_report.html:211
+msgid "O&M Requests:"
+msgstr "Demandes de F & E:"
+
+#: .\projects\templates\projects\project_report.html:216
+msgid "No O&M Requests"
+msgstr "Aucune demande de F & E"
+
+#: .\projects\templates\projects\project_report.html:232
+#: .\projects\templates\projects\project_report.html:270
+#: .\projects\templates\projects\project_report.html:312
+msgid "Budget Requested"
+msgstr "Budget demandé"
+
+#: .\projects\templates\projects\project_report.html:252
+msgid "Capital Requests:"
+msgstr "Demandes de capital:"
+
+#: .\projects\templates\projects\project_report.html:257
+msgid "No Capital Requests"
+msgstr "Aucune demande de capital"
+
 #: .\projects\templates\projects\project_report.html:288
 msgid "G&C Requests:"
 msgstr "Demandes de S & C:"
+
+#: .\projects\templates\projects\project_report.html:293
+msgid "No G&C Requests"
+msgstr "Aucune demande de S et C"
 
 #: .\projects\templates\projects\project_report.html:306
 msgid "Proposed Title"
@@ -1622,23 +1683,23 @@ msgstr "D'accord"
 msgid "Project Planning"
 msgstr "Planification de projets (Science)"
 
-#: .\projects\templates\projects\staff_form_popout.html:38
+#: .\projects\templates\projects\staff_form_popout.html:41
 msgid "Editing Staff Member:"
 msgstr "Modification au personnel:"
 
-#: .\projects\templates\projects\staff_form_popout.html:41
+#: .\projects\templates\projects\staff_form_popout.html:44
 msgid "Adding Staff Member"
 msgstr "Ajouter de personnel"
 
-#: .\projects\templates\projects\staff_form_popout.html:66
+#: .\projects\templates\projects\staff_form_popout.html:69
 msgid "OT Calculator"
 msgstr "Calculatrice d'heures supplémentaires"
 
-#: .\projects\templates\projects\staff_form_popout.html:67
+#: .\projects\templates\projects\staff_form_popout.html:70
 msgid "(Open OT Calculator)"
 msgstr "(Ouvrir la calculatrice d'heures supplémentaires)"
 
-#: .\projects\templates\projects\staff_form_popout.html:95
+#: .\projects\templates\projects\staff_form_popout.html:98
 msgid ""
 "\n"
 "                            (User not in list?\n"
@@ -1652,31 +1713,31 @@ msgstr ""
 "en ajouter un nouveau.)</a>\n"
 "                        "
 
-#: .\projects\views.py:319
+#: .\projects\views.py:385
 msgid "The project was successfully deleted!"
 msgstr "Le projet a été supprimé avec succès!"
 
-#: .\projects\views.py:370
+#: .\projects\views.py:436
 msgid "The staff member has been successfully deleted from project."
 msgstr "Le membre du personnel a été supprimé du projet avec succès."
 
-#: .\projects\views.py:470
+#: .\projects\views.py:536
 msgid "The collaborator has been successfully deleted from project."
 msgstr "Le collaborateur a été supprimé du projet avec succès."
 
-#: .\projects\views.py:514
+#: .\projects\views.py:580
 msgid "The agreement has been successfully deleted."
 msgstr "L'accord a été supprimé avec succès."
 
-#: .\projects\views.py:564 .\projects\views.py:637 .\projects\views.py:687
+#: .\projects\views.py:630 .\projects\views.py:703 .\projects\views.py:753
 msgid "The cost has been successfully deleted."
 msgstr "Le coût a été supprimé avec succès."
 
-#: .\projects\views.py:576
+#: .\projects\views.py:642
 msgid "All empty O&M lines have been cleared."
 msgstr ""
 
-#: .\projects\views.py:586
+#: .\projects\views.py:653
 msgid "All O&M categories have been added to this project."
 msgstr ""
 
@@ -1689,10 +1750,8 @@ msgid "SciFi"
 msgstr ""
 
 #: .\scifi\templates\scifi\scifi_base.html:54
-#, fuzzy
-#| msgid "Organizations"
 msgid "Transactions"
-msgstr "Organisations"
+msgstr "Transactions"
 
 #: .\scifi\templates\scifi\transaction_detail.html:35
 msgid "Duplicate Record"
@@ -1782,6 +1841,9 @@ msgstr "Marine Diets db"
 #: .\templates\index.html:216
 msgid "Marine Environmental Quality (MEQ) db"
 msgstr "Qualité de l'environnement marin (QEM)"
+
+#~ msgid "SUBMIT PROJECT"
+#~ msgstr "SOUMETTRE LE PROJET"
 
 #~ msgid "grAIS: Gulf Region Aquatic Invasive Species"
 #~ msgstr "grAIS: Espèces aquatiques envahissantes"

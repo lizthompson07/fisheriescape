@@ -31,33 +31,33 @@
             <p>
 
             <div class="btn-group">
-                <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
-                <a class="btn btn-success" href="{% url 'inventory:resource_full_detail' object.id %}">Review Full
+                <a class="btn btn-sm btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
+                <a class="btn btn-sm btn-success" href="{% url 'inventory:resource_full_detail' object.id %}">Review Full
                     Record</a>
-                <a class="btn btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify Record</a>
+                <a class="btn btn-sm btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify Record</a>
 
 
 
 
                 {% if object.flagged_4_deletion %}
-                    <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Unflag for
+                    <a class="btn btn-sm btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Unflag for
                         Deletion</a>
                 {% else %}
-                    <a class="btn btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Flag for
+                    <a class="btn btn-sm btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Flag for
                         Deletion</a>
                 {% endif %}
 
                 {% if object.flagged_4_publication %}
-                    <a class="btn btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Unflag for
+                    <a class="btn btn-sm btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Unflag for
                         Open Data</a>
                 {% else %}
-                    <a class="btn btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Flag for
+                    <a class="btn btn-sm btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Flag for
                         Open Data</a>
                 {% endif %}
 
 
                 <div class="dropdown">
-                    <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton"
+                    <button class="btn btn-sm btn-dark dropdown-toggle" type="button" id="dropdownMenuButton"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Export XML
                     </button>
@@ -72,7 +72,7 @@
             </div>
 
             {% if user.is_superuser %}
-                <a class="btn btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
+                <a class="btn btn-sm btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
             {% endif %}
         </div>
 

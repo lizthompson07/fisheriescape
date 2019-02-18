@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
@@ -19,45 +20,51 @@ from . import emails
 from . import xml_export
 
 
+# @login_required(login_url='/accounts/login_required/')
+# @user_passes_test(in_herring_group, login_url='/accounts/denied/')
 
-#
-# def not_custodian(user, resource_id):
-#     try:
-#         person = models.Person.objects.get(user=user)
-#     except ObjectDoesNotExist:
-#         return True
-#
-#
-#
-#     if user:
-#         return user.groups.filter(name='inventory_dm').count() != 0
-#
-#
-# class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-#     login_url = '/accounts/login_required/'
-#
-#     def test_func(self):
-#         return not_in_inventory_dm_group(self.request.user)
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         user_test_result = self.get_test_func()()
-#         if not user_test_result and self.request.user.is_authenticated:
-#             return HttpResponseRedirect('/accounts/denied/')
-#         return super().dispatch(request, *args, **kwargs)
-#
-
-
-
-def not_in_inventory_dm_group(user):
+def in_inventory_dm_group(user):
+    """returns True if user is in specified group"""
     if user:
-        return user.groups.filter(name='inventory_dm').count() != 0
+        return user.groups.filter(name='inventory_dm').count() > 0
+
+
+def is_custodian_or_admin(user, resource_id):
+    """returns True if user is a custodian in the specified resource"""
+    if user.id:
+        # first, check to see if user is a dm admin
+        if in_inventory_dm_group(user):
+            return True
+        else:
+            # if the user has no associated Person in the app, automatic fail
+            try:
+                person = models.Person.objects.get(user=user)
+            except ObjectDoesNotExist:
+                return False
+            else:
+                # check to see if they are listed as custodian (role_id=1) on the specified resource id
+                return models.ResourcePerson.objects.filter(person=person, resource=resource_id, role_id=1).count() > 0
+
+
+class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/custodians-only/')
+        return super().dispatch(request, *args, **kwargs)
+
 
 
 class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return not_in_inventory_dm_group(self.request.user)
+        return in_inventory_dm_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -149,13 +156,22 @@ class ResourceFullDetailView(UpdateView):
         return context
 
 
-class ResourceUpdateView(LoginRequiredMixin, UpdateView):
+class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
     login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
+    # def test_func(self):
+    #     return is_custodian(self.request.user, self.kwargs["pk"])
+    #
+    # def dispatch(self, request, *args, **kwargs):
+    #     user_test_result = self.get_test_func()()
+    #     if not user_test_result and self.request.user.is_authenticated:
+    #         return HttpResponseRedirect('/accounts/denied/')
+    #     return super().dispatch(request, *args, **kwargs)
 
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
@@ -181,7 +197,7 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ResourceDeleteView(LoginRequiredMixin, DeleteView):
+class ResourceDeleteView(CustodianRequiredMixin, DeleteView):
     model = models.Resource
     success_url = reverse_lazy('inventory:resource_list')
     success_message = 'The data resource was successfully deleted!'
@@ -266,9 +282,12 @@ class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
 # RESOURCE PERSON #
 ###################
 
-class ResourcePersonFilterView(FilterView):
+class ResourcePersonFilterView(CustodianRequiredMixin, FilterView):
     filterset_class = filters.PersonFilter
     template_name = "inventory/resource_person_filter.html"
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -279,11 +298,13 @@ class ResourcePersonFilterView(FilterView):
         return context
 
 
-class ResourcePersonCreateView(LoginRequiredMixin, CreateView):
+class ResourcePersonCreateView(CustodianRequiredMixin, CreateView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_form.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.ResourcePersonForm
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def get_initial(self):
         resource = models.Resource.objects.get(pk=self.kwargs['resource'])
@@ -325,11 +346,13 @@ class ResourcePersonCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ResourcePersonUpdateView(LoginRequiredMixin, UpdateView):
+class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_form.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.ResourcePersonForm
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def form_valid(self, form):
         object = form.save()
@@ -354,12 +377,14 @@ class ResourcePersonUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ResourcePersonDeleteView(LoginRequiredMixin, DeleteView):
+class ResourcePersonDeleteView(CustodianRequiredMixin, DeleteView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_confirm_delete.html'
     success_url = reverse_lazy('inventory:resource_person')
     success_message = 'The person has been removed from the data resource!'
-    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def delete(self, request, *args, **kwargs):
         object = models.ResourcePerson.objects.get(pk=self.kwargs["pk"])
@@ -582,13 +607,19 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 # RESOURCE KEYWORD #
 ####################
 
-class ResourceKeywordFilterView(FilterView):
+
+
+
+class ResourceKeywordFilterView(CustodianRequiredMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
         search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
         ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).order_by(
         'text_value_eng')
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1165,7 +1196,7 @@ class SectionCreateView(InventoryDMRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MySectionDetailView(InventoryDMRequiredMixin, TemplateView):
+class MySectionDetailView(LoginRequiredMixin, TemplateView):
     template_name = "inventory/my_section_detail.html"
     model = models.Section
 

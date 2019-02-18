@@ -19,7 +19,7 @@ from . import filters
 from . import reports
 
 
-def not_in_grais_group(user):
+def in_grais_group(user):
     if user:
         return user.groups.filter(name='grais_access').count() != 0
 
@@ -28,7 +28,7 @@ class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return not_in_grais_group(self.request.user)
+        return in_grais_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
