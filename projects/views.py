@@ -31,7 +31,7 @@ def can_delete(user, project):
             return True
         # otherwise check to see if they are a project lead
         else:
-            for staff in project.staff_members.filter(employee_type_id=1):
+            for staff in project.staff_members.filter(lead=True):
                 try:
                     if staff.user.id == user.id:
                         return True
@@ -366,7 +366,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         object = form.save()
-        models.Staff.objects.create(project=object, employee_type_id=1, user_id=self.request.user.id)
+        models.Staff.objects.create(project=object, lead=True, employee_type_id=1, user_id=self.request.user.id)
 
         for obj in models.OMCategory.objects.all():
             new_item = models.OMCost.objects.create(project=object, om_category=obj)
