@@ -38,6 +38,13 @@ def access_denied(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+def access_denied_custodian(request):
+    denied_message = "Sorry, only custodians and system administrators have access to this view."
+    messages.error(request, denied_message)
+    # send user back to the page that they came from
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 class UserLoginView(LoginView):
     template_name = "registration/login.html"
 

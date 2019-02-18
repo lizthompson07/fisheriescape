@@ -27,7 +27,7 @@ class CloserTemplateView(TemplateView):
     template_name = 'grais/close_me.html'
 
 
-def not_in_camp_group(user):
+def in_camp_group(user):
     if user:
         return user.groups.filter(name='camp_access').count() != 0
 
@@ -36,7 +36,7 @@ class CampAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return not_in_camp_group(self.request.user)
+        return in_camp_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()

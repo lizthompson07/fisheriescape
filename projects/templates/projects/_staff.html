@@ -11,10 +11,13 @@
 <h4>
     {% trans "Project Staff:" %}
 </h4>
-<a class="btn btn-sm btn-primary" href="#"
-   onclick="return popitup('{% url 'projects:staff_new' object.id %}','popoutWindow')">
-    {% trans "Add Staff" %}
-</a><br><br>
+{% if not object.submitted %}
+    <a class="btn btn-sm btn-primary" href="#"
+       onclick="return popitup('{% url 'projects:staff_new' object.id %}','popoutWindow')">
+        {% trans "Add Staff" %}
+    </a>
+    <br><br>
+{% endif %}
 
 {% if object.staff_members.count == 0 %}
     <em>
@@ -52,14 +55,17 @@
         </tr>
         <tbody>
         {% for obj in object.staff_members.all %}
-            <tr id="staff-{{ obj.id }}" href="{% url 'projects:staff_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" style="background-color: {{ obj.funding_source.color }}">
+            <tr id="staff-{{ obj.id }}" href="{% url 'projects:staff_edit' obj.id %}" pop data-toggle="tooltip" title="Edit"
+                style="background-color: {{ obj.funding_source.color }}">
                 <td>
-                    <a class="staff-delete-me" href="#" val="{{ obj.id }}">
-                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                             title="Delete">
-                    </a>
-                    <a id="staff-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'projects:staff_delete' obj.id %}" class="hidden"></a>
+                    {% if not object.submitted %}
+                        <a class="staff-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete">
+                        </a>
+                        <a id="staff-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects:staff_delete' obj.id %}" class="hidden"></a>
+                    {% endif %}
                 </td>
                 <td>
                     {% if obj.user.id %}
@@ -86,33 +92,35 @@
 
 
                 {% if obj.duration_weeks %}
-                    <td>
+                    <td style="text-align: center">
                         {% else %}
-                    <td class="red-font">
+                    <td class="red-font" style="text-align: center">
                 {% endif %}
                 {{ obj.duration_weeks }}
                 </td>
 
 
-                <td>
+                <td style="text-align: center">
                     {{ obj.overtime_hours }}
                 </td>
 
-                <td>{{ obj.employee_type.get_cost_type_display }}</td>
+                <td style="text-align: center">{{ obj.employee_type.get_cost_type_display }}</td>
 
-                <td>
+                <td style="text-align: center">
                     {{ obj.cost|floatformat:0|intcomma }}
                 </td>
-                <td>
+                <td style="text-align: center">
                     {{ obj.funding_source }}
                 </td>
-                <td>
-                    <a class="toggle-source" href="#" type="staff" pk="{{ obj.id }}">
-                        <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
-                             title="click to toggle funding source">
-                    </a>
-                    <a id="staff-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "staff" obj.id %}"
-                       class="hidden"></a>
+                <td style="text-align: center">
+                    {% if not object.submitted %}
+                        <a class="toggle-source" href="#" type="staff" pk="{{ obj.id }}">
+                            <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
+                                 title="click to toggle funding source">
+                        </a>
+                        <a id="staff-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "staff" obj.id %}"
+                           class="hidden"></a>
+                    {% endif %}
                 </td>
 
             </tr>

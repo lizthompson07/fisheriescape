@@ -26,13 +26,13 @@ class CloserTemplateView(TemplateView):
     template_name = 'diets/close_me.html'
 
 
-def not_in_diets_group(user):
+def in_diets_group(user):
     if user:
         return user.groups.filter(name='diets_access').count() != 0
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(not_in_diets_group, login_url='/accounts/denied/')
+@user_passes_test(in_diets_group, login_url='/accounts/denied/')
 def index(request):
     return render(request, 'diets/index.html')
 

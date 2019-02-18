@@ -30,7 +30,7 @@ class CloserTemplateView(TemplateView):
     template_name = 'ihub/close_me.html'
 
 
-def not_in_ihub_group(user):
+def in_ihub_group(user):
     if user:
         return user.groups.filter(name='ihub_access').count() != 0
 
@@ -39,7 +39,7 @@ class iHubAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return not_in_ihub_group(self.request.user)
+        return in_ihub_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -48,7 +48,7 @@ class iHubAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-def not_in_ihub_admin_group(user):
+def in_ihub_admin_group(user):
     if user:
         return user.groups.filter(name='ihub_admin').count() != 0
 
@@ -57,7 +57,7 @@ class iHubAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return not_in_ihub_admin_group(self.request.user)
+        return in_ihub_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
