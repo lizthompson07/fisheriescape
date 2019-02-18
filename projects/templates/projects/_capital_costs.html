@@ -11,11 +11,13 @@
 <h4>
     {% trans "Capital Costs:" %}
 </h4>
-<a class="btn btn-sm btn-primary" href="#"
-   onclick="return popitup('{% url 'projects:capital_new' object.id %}','popoutWindow')">
-    {% trans "Add Capital" %}
-</a>
-<br><br>
+{% if not object.submitted %}
+    <a class="btn btn-sm btn-primary" href="#"
+       onclick="return popitup('{% url 'projects:capital_new' object.id %}','popoutWindow')">
+        {% trans "Add Capital" %}
+    </a>
+    <br><br>
+{% endif %}
 
 {% if object.capital_costs.count == 0 %}
     <em>
@@ -46,29 +48,33 @@
             <tr id="capital-{{ obj.id }}" data-toggle="tooltip" title="Edit" href="{% url 'projects:capital_edit' obj.id %}" pop
                 style="background-color: {{ obj.funding_source.color }}">
                 <td>
-                    <a class="capital-delete-me" href="#" val="{{ obj.id }}">
-                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                             title="Delete">
-                    </a>
-                    <a id="capital-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'projects:capital_delete' obj.id %}" class="hidden"></a>
+                    {% if not object.submitted %}
+                        <a class="capital-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete">
+                        </a>
+                        <a id="capital-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects:capital_delete' obj.id %}" class="hidden"></a>
+                    {% endif %}
                 </td>
                 <td>{{ obj.get_category_display }}</td>
                 <td>{{ obj.description|nz:"" }}</td>
 
-                <td>
+                <td style="text-align: center"
                     {{ obj.funding_source }}
                 </td>
-                <td>
-                    <a class="toggle-source" href="#" type="capital" pk="{{ obj.id }}">
-                        <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
-                             title="click to toggle funding source">
-                    </a>
-                    <a id="capital-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "capital" obj.id %}"
-                       class="hidden"></a>
+                <td style="text-align: center">
+                    {% if not object.submitted %}
+                        <a class="toggle-source" href="#" type="capital" pk="{{ obj.id }}">
+                            <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
+                                 title="click to toggle funding source">
+                        </a>
+                        <a id="capital-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "capital" obj.id %}"
+                           class="hidden"></a>
+                    {% endif %}
                 </td>
 
-                <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
+                <td style="text-align: center">{{ obj.budget_requested|floatformat:0|intcomma }}</td>
 
             </tr>
         {% endfor %}

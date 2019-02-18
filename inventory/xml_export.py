@@ -1019,7 +1019,6 @@ def verify(resource):
     # Are all keywords bilingual?
     ## examine all keywords, excluding ISO topic category which will be handled explicitly by FGP
     for keyword in resource.keywords.filter(~Q(keyword_domain_id=8)):
-        print(keyword)
         if keyword.text_value_fre == None or keyword.text_value_fre == "":
             SubElement(checklist, 'li').text = 'French value for keyword is needed for <a href="{}">{}</a>'.format(
                 reverse('inventory:keyword_detail', kwargs={'resource': resource.id, 'pk': keyword.id, }),

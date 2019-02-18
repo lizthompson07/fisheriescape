@@ -22,7 +22,7 @@ import csv
 
 # Create your views here.
 
-def not_in_herring_group(user):
+def in_herring_group(user):
     if user:
         return user.groups.filter(name='herring_access').count() != 0
 
@@ -31,7 +31,7 @@ class HerringAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return not_in_herring_group(self.request.user)
+        return in_herring_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -41,7 +41,7 @@ class HerringAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(not_in_herring_group, login_url='/accounts/denied/')
+@user_passes_test(in_herring_group, login_url='/accounts/denied/')
 def index(request):
     return render(request, 'herring/index.html')
 
