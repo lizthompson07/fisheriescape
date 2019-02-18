@@ -576,6 +576,7 @@ def om_cost_clear(request, project):
     messages.success(request, _("All empty O&M lines have been cleared."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
 
+
 def om_cost_populate(request, project):
     project = models.Project.objects.get(pk=project)
     for obj in models.OMCategory.objects.all():
@@ -585,7 +586,6 @@ def om_cost_populate(request, project):
 
     messages.success(request, _("All O&M categories have been added to this project."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
-
 
 
 # CAPITAL COSTS #
@@ -636,6 +636,30 @@ def capital_cost_delete(request, pk):
     object.delete()
     messages.success(request, _("The cost has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
+
+# SHARED COSTS #
+################
+def toggle_source(request, cost_pk, type):
+    if type == "om":
+        my_cost = models.OMCost.objects.get(pk=cost_pk)
+    elif type == "capital":
+        my_cost = models.CapitalCost.objects.get(pk=cost_pk)
+
+    # otherwise function is being used improperly
+
+    if my_cost.funding_source_id is None:
+        my_cost.funding_source_id = 1
+    elif my_cost.funding_source_id == 1:
+        my_cost.funding_source_id = 2
+    elif my_cost.funding_source_id == 2:
+        my_cost.funding_source_id = 3
+    else:
+        my_cost.funding_source_id = 1
+    my_cost.save()
+
+    return HttpResponseRedirect(
+        reverse_lazy("projects:project_detail", kwargs={"pk": my_cost.project.id}) + "?#{}-{}".format(type, cost_pk))
 
 
 # GC COSTS #

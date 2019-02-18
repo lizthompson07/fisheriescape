@@ -6,3 +6,5 @@ def resave_all(projects = models.Project.objects.all()):
             if not models.OMCost.objects.filter(project=p, om_category=obj).count():
                 new_item = models.OMCost.objects.create(project=p, om_category=obj)
                 new_item.save()
+
+

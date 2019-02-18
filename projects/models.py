@@ -282,10 +282,23 @@ class OMCategory(models.Model):
         return "{} ({})".format(getattr(self, str(_("name"))), self.get_group_display())
 
 
+
+class FundingSource(models.Model):
+    name = models.CharField(max_length=50)
+    nom = models.CharField(max_length=50, blank=True, null=True)
+    color = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return "{}".format(getattr(self, str(_("name"))))
+
+    class Meta:
+        ordering = ['name', ]
+
+
 class OMCost(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="om_costs", verbose_name=_("project"))
-    om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs",
-                                    verbose_name=_("category"))
+    om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
+    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("funding source"), blank=True, null=True)
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     budget_requested = models.FloatField(default=0, verbose_name=_("budget requested"))
 
@@ -312,6 +325,7 @@ class CapitalCost(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="capital_costs",
                                 verbose_name=_("project"))
     category = models.IntegerField(choices=CATEGORY_CHOICES, verbose_name=_("category"))
+    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="capital_costs", verbose_name=_("funding_source"), blank=True, null=True)
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     budget_requested = models.FloatField(default=0, verbose_name=_("budget requested"))
 
