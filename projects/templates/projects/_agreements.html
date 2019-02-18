@@ -6,22 +6,23 @@
     }
 </style>
 
-    <h3>
-        {% trans "Collaborative Agreements:" %}
-    </h3>
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:agreement_new' object.id %}','popoutWindow')">
-        {% trans "Add Agreement" %}
-    </a>
+<h3>
+    {% trans "Collaborative Agreements:" %}
+</h3>
+<a class="btn btn-sm btn-primary" href="#"
+   onclick="return popitup('{% url 'projects:agreement_new' object.id %}','popoutWindow')">
+    {% trans "Add Agreement" %}
+</a>
 <br><br>
 {% if object.agreements.count == 0 %}
     <em>
-    {% trans "No Collaborative Agreements" %}
-</em><br>
+        {% trans "No Collaborative Agreements" %}
+    </em><br>
 {% else %}
 
-    <table class="table table-bordered table-sm">
+    <table class="table table-hover table-sm">
         <tr>
+            <th></th>
             <th>
                 {% trans "Partner Organization" %}
             </th>
@@ -35,18 +36,7 @@
         </tr>
         <tbody>
         {% for obj in object.agreements.all %}
-            <tr>
-                <td>{{ obj.partner_organization }}</td>
-                <td>{{ obj.project_lead }}</td>
-                <td>{{ obj.agreement_title }}</td>
-
-                <td>
-                    <a href="#"
-                       onclick="return popitup('{% url 'projects:agreement_edit' obj.id %}','popoutWindow')">
-                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                             title="Edit">
-                    </a>
-                </td>
+            <tr data-toggle="tooltip" title="Edit" href="{% url 'projects:agreement_edit' obj.id %}" pop>
                 <td>
                     <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
@@ -55,6 +45,12 @@
                     <a id="agreement-secrect-delete-btn-{{ obj.id }}"
                        href="{% url 'projects:agreement_delete' obj.id %}" class="hidden"></a>
                 </td>
+                <td>{{ obj.partner_organization }}</td>
+                <td>{{ obj.project_lead }}</td>
+                <td>{{ obj.agreement_title }}</td>
+
+
+
             </tr>
         {% endfor %}
         {#    <tr style="font-weight: bold;">#}
