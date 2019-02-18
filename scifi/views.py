@@ -71,7 +71,7 @@ class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
 ##################
 
 class AllotmentCodeListView(SciFiAccessRequiredMixin, ListView):
-    queryset = models.AllotmentCode.objects.all().order_by("category", "code")
+    queryset = models.AllotmentCode.objects.all().order_by("allotment_category", "code")
 
 
 class AllotmentCodeUpdateView(SciFiAdminRequiredMixin, UpdateView):

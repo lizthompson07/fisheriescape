@@ -10,9 +10,9 @@
     }
 </style>
 
-<h3>
+<h4>
     {% trans "O&M Costs:" %}
-</h3>
+</h4>
 <div class="btn-group">
     <a class="btn btn-sm btn-primary" href="#"
        onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
@@ -36,7 +36,7 @@
     </em><br>
 {% else %}
 
-    <table class="table table-hover table-sm">
+    <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th></th>
             <th>
@@ -82,7 +82,7 @@
                 <td>
                     <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">
                         <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
-                             title="click to toggle">
+                             title="click to toggle funding source">
                     </a>
                     <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "om" obj.id %}" class="hidden"></a>
                 </td>
@@ -98,14 +98,4 @@
 {% endif %}
 <br>
 
-
-<script type="application/javascript">
-    $(".toggle-source").click(function (e) {
-        e.stopImmediatePropagation()
-        var objectId = $(this)[0].getAttribute("pk");
-        var objectType = $(this)[0].getAttribute("type");
-        window.location.href = $("#" + objectType + "-secrect-toggle-btn-" + objectId)[0].getAttribute("href")
-
-    });
-</script>
 
