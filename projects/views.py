@@ -27,13 +27,13 @@ def can_delete(user, project):
         if user.is_superuser:
             return True
         # check to see if they are a section head
-        elif project.section.section_head is user:
+        elif project.section.section_head.id == user.id:
             return True
         # otherwise check to see if they are a project lead
         else:
             for staff in project.staff_members.filter(employee_type_id=1):
                 try:
-                    if staff.user is user:
+                    if staff.user.id == user.id:
                         return True
                 except:
                     print("staff has no user id")
