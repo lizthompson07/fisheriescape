@@ -77,7 +77,7 @@
                         {{ obj.name }}
                     {% endif %}
                 </td>
-                <td style="text-align: center">{{ obj.lead|yesno }}</td>
+                <td style="text-align: center" class="{% if obj.lead %}blue-font{% endif %}">{{ obj.lead|yesno }}</td>
                 {% if obj.employee_type %}
                     <td>
                         {% else %}
