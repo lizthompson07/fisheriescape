@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-18 15:20-0400\n"
+"POT-Creation-Date: 2019-02-18 15:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -462,7 +462,7 @@ msgstr "Toutes les entrées"
 
 #: .\ihub\templates\ihub\entry_list.html:74
 #: .\projects\templates\projects\my_project_list.html:56
-#: .\projects\templates\projects\my_section_list.html:58
+#: .\projects\templates\projects\my_section_list.html:67
 #: .\projects\templates\projects\project_list.html:77
 msgid "Title"
 msgstr "Titre"
@@ -1356,7 +1356,7 @@ msgstr ""
 "            "
 
 #: .\projects\templates\projects\my_project_list.html:41
-#: .\projects\templates\projects\my_section_list.html:43
+#: .\projects\templates\projects\my_section_list.html:51
 #: .\projects\templates\projects\project_form.html:25
 #: .\projects\templates\projects\project_form.html:36
 #: .\projects\templates\projects\project_list.html:61
@@ -1364,19 +1364,19 @@ msgid "New Project"
 msgstr "Nouveau projet"
 
 #: .\projects\templates\projects\my_project_list.html:47
-#: .\projects\templates\projects\my_section_list.html:49
+#: .\projects\templates\projects\my_section_list.html:58
 #: .\projects\templates\projects\project_list.html:68
 msgid "Fiscal Year"
 msgstr "Année fiscale"
 
 #: .\projects\templates\projects\my_project_list.html:50
-#: .\projects\templates\projects\my_section_list.html:52
+#: .\projects\templates\projects\my_section_list.html:61
 #: .\projects\templates\projects\project_list.html:71
 msgid "Division"
 msgstr "Division"
 
 #: .\projects\templates\projects\my_project_list.html:53
-#: .\projects\templates\projects\my_section_list.html:55
+#: .\projects\templates\projects\my_section_list.html:64
 #: .\projects\templates\projects\project_list.html:74
 msgid "Section"
 msgstr "Section"
@@ -1386,13 +1386,13 @@ msgid "No. weeks"
 msgstr "No. de semaines"
 
 #: .\projects\templates\projects\my_project_list.html:65
-#: .\projects\templates\projects\my_section_list.html:64
+#: .\projects\templates\projects\my_section_list.html:73
 #: .\projects\templates\projects\project_list.html:81
 msgid "Submitted"
 msgstr "Soumis"
 
 #: .\projects\templates\projects\my_project_list.html:93
-#: .\projects\templates\projects\my_section_list.html:103
+#: .\projects\templates\projects\my_section_list.html:112
 #: .\projects\templates\projects\project_list.html:100
 msgid "yes,no"
 msgstr "oui,non"
@@ -1426,11 +1426,16 @@ msgstr ""
 "avec tous les projets  %(fy)s <a href=\"%(report_url)s\">ici</a>.\n"
 "                        "
 
-#: .\projects\templates\projects\my_section_list.html:61
+#: .\projects\templates\projects\my_section_list.html:47
+#: .\projects\templates\projects\project_list.html:55
+msgid "(click on a header to sort table)"
+msgstr ""
+
+#: .\projects\templates\projects\my_section_list.html:70
 msgid "FTE(s)"
 msgstr "ETP"
 
-#: .\projects\templates\projects\my_section_list.html:116
+#: .\projects\templates\projects\my_section_list.html:125
 msgid ""
 "\n"
 "                    There are no sections assigned to you. If there should "
@@ -1553,11 +1558,15 @@ msgstr "Soumettre le project"
 #: .\projects\templates\projects\project_detail.html:52
 msgid ""
 "Cannot submit/unsumbit projects that do not belong to you or your section."
-msgstr "Impossible de soumettre / unsumbit des projets qui ne vous appartiennent pas ou qui appartiennent à votre section"
+msgstr ""
+"Impossible de soumettre / unsumbit des projets qui ne vous appartiennent pas "
+"ou qui appartiennent à votre section"
 
 #: .\projects\templates\projects\project_detail.html:74
 msgid "Cannot delete projects that do not belong to you or your section."
-msgstr "Impossible de supprimer des projets qui ne vous appartiennent pas, ni votre section."
+msgstr ""
+"Impossible de supprimer des projets qui ne vous appartiennent pas, ni votre "
+"section."
 
 #: .\projects\templates\projects\project_detail.html:80
 msgid "Export PDF"
@@ -1604,13 +1613,9 @@ msgstr "Tous les projets"
 msgid "All Projects:"
 msgstr "Tous les projets:"
 
-#: .\projects\templates\projects\project_list.html:55
-msgid "(click on a header to sort table)"
-msgstr ""
-
 #: .\projects\templates\projects\project_list.html:58
 msgid "displaying all records"
-msgstr ""
+msgstr "afficher tous les enregistrements"
 
 #: .\projects\templates\projects\project_report.html:34
 msgid "Project Detail:"
@@ -1631,11 +1636,11 @@ msgstr "Nouveau ou existant"
 
 #: .\projects\templates\projects\project_report.html:211
 msgid "O&M Requests:"
-msgstr "Demandes de F & E:"
+msgstr "Demandes de F et E:"
 
 #: .\projects\templates\projects\project_report.html:216
 msgid "No O&M Requests"
-msgstr "Aucune demande de F & E"
+msgstr "Aucune de F et E"
 
 #: .\projects\templates\projects\project_report.html:232
 #: .\projects\templates\projects\project_report.html:270
@@ -1735,11 +1740,11 @@ msgstr "Le coût a été supprimé avec succès."
 
 #: .\projects\views.py:642
 msgid "All empty O&M lines have been cleared."
-msgstr ""
+msgstr "Toutes les lignes de F et E vides ont été effacées."
 
 #: .\projects\views.py:653
 msgid "All O&M categories have been added to this project."
-msgstr ""
+msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
 #: .\scifi\templates\scifi\index.html:11
 msgid "Welcome to SciFi"
