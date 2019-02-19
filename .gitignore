@@ -44,6 +44,7 @@ Thumbs.db
 #####################
 /media/*
 media_conf.py
+local_conf.py
 
 # access files dir #
 ####################
@@ -63,6 +64,7 @@ media_conf.py
 # my.cnf file should not be on the repo since it has the db password #
 ######################################################################
 my.cnf
+prod.cnf
 
 # Google API key #
 ##################
