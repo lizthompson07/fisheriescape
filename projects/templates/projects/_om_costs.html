@@ -13,7 +13,7 @@
 <h4>
     {% trans "O&M Costs:" %}
 </h4>
-{% if not object.submitted %}
+{% if not object.submitted and not report_mode %}
     <div class="btn-group">
         <a class="btn btn-sm btn-primary" href="#"
            onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
@@ -47,14 +47,14 @@
         <th>
             {% trans "Category" %}
         </th>
-        <th colspan="2">
+        <th>
+            {% trans "Description" %}
+        </th>
+        <th colspan="2" style="text-align: center">
             {% trans "Funding Source" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "Budget Amount" %}
-        </th>
-        <th>
-            {% trans "Description provided" %}
         </th>
 
         </thead>
@@ -83,6 +83,7 @@
                 {% else %}
                     <td>{{ obj.om_category.name }}</td>
                 {% endif %}
+                <td> {{ obj.description}}</td>
 
                 <td style="text-align: center">
                     {{ obj.funding_source }}
@@ -98,7 +99,6 @@
                 </td>
 
                 <td style="text-align: center">{{ obj.budget_requested|floatformat:0|intcomma }}</td>
-                <td style="text-align: center">{{ obj.description|yesno:"yes,," }}</td>
 
 
             </tr>
