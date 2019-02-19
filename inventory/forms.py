@@ -107,8 +107,8 @@ class PersonCreateForm(forms.Form):
     LANGUAGE_CHOICES = ((None,"---"),) + models.LANGUAGE_CHOICES
 
     ORGANIZATION_CHOICES = ((None,"---"),)
-    # for org in models.Organization.objects.all():
-    #     ORGANIZATION_CHOICES = ORGANIZATION_CHOICES.__add__(((org.id,org.name_eng),))
+    for org in models.Organization.objects.all():
+        ORGANIZATION_CHOICES = ORGANIZATION_CHOICES.__add__(((org.id,org.name_eng),))
 
     first_name = forms.CharField()
     last_name = forms.CharField()

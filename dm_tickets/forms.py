@@ -58,17 +58,16 @@ class FileForm(forms.ModelForm):
 
 
 class FilterForm(forms.Form):
-    # # # SECTION_CHOICES = []
-    # # #
-    # # # for section in models.Section.objects.all():
-    # # #     SECTION_CHOICES.append(tuple((section.id, section.section_name)))
-    # # #
-    # # # initial = tuple(('----', '----'))
-    # # #
-    # # # SECTION_CHOICES.insert(0, initial)
-    # # # status_choices = list(models.Ticket.STATUS_CHOICES)
-    # # status_choices.insert(0, initial)
-    #
-    # section = forms.ChoiceField(choices=SECTION_CHOICES, initial=initial)
-    # ticket_status = forms.ChoiceField(choices=status_choices, initial=initial)
-    pass
+    SECTION_CHOICES = []
+
+    for section in models.Section.objects.all():
+        SECTION_CHOICES.append(tuple((section.id, section.section_name)))
+
+    initial = tuple(('----', '----'))
+
+    SECTION_CHOICES.insert(0, initial)
+    status_choices = list(models.Ticket.STATUS_CHOICES)
+    status_choices.insert(0, initial)
+
+    section = forms.ChoiceField(choices=SECTION_CHOICES, initial=initial)
+    ticket_status = forms.ChoiceField(choices=status_choices, initial=initial)
