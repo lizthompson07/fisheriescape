@@ -12,26 +12,26 @@ class DevDatabaseRouter:
         """
         Attempts to read any models will always look at the production db ("default").
         """
-        #
-        # if MY_ENVR == 'dev':
-        #     if model._meta.app_label == 'auth' or model._meta.app_label == 'sessions' or model._meta.app_label == 'grais' or model._meta.app_label == 'herring':
-        #         return None
-        #     else:
-        #         return 'dev_db'
-        # else:
-        #     return None
-
-        return None
+        if MY_ENVR == 'dev':
+            return 'dev'
+        else:
+            return None
 
     def db_for_write(self, model, **hints):
         """
         Attempts to write any models will depend on the dev environment.
         """
-        # print(model._meta.app_label)
         if MY_ENVR == 'dev':
-            if model._meta.app_label == 'auth' or model._meta.app_label == 'sessions' or model._meta.app_label == 'inventory' or model._meta.app_label == 'projects':
-                return None
-            else:
-                return 'dev_db'
+            return 'dev'
         else:
             return None
+
+
+# useful piece of code:
+#         if MY_ENVR == 'dev':
+#             if model._meta.app_label == 'auth' or model._meta.app_label == 'sessions' or model._meta.app_label == 'inventory' or model._meta.app_label == 'projects':
+#                 return None
+#             else:
+#                 return 'dev'
+#         else:
+#             return None
