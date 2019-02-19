@@ -47,6 +47,7 @@ Thumbs.db
 # local configuration #
 #######################
 local_conf.py
+media_conf.py # for legacy sake
 
 # access files dir #
 ####################
@@ -66,6 +67,7 @@ local_conf.py
 # prod.cnf file should not be in the repo since it has the credentials + connection strings for the production db #
 ###################################################################################################################
 prod.cnf
+my.cnf # for legacy sake
 
 # Google API key #
 ##################
