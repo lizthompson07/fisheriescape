@@ -234,13 +234,13 @@ class ReportForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    SPECIES_CHOICES = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
-                       models.Species.objects.all().order_by("scientific_name")]
-    REPORT_CHOICES = (
-        (None, "---"),
-        (1, "Biofouling: Species observations by sample"),
-    )
-
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    species = forms.MultipleChoiceField(required=False, choices=SPECIES_CHOICES)
+    # SPECIES_CHOICES = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
+    #                    models.Species.objects.all().order_by("scientific_name")]
+    # REPORT_CHOICES = (
+    #     (None, "---"),
+    #     (1, "Biofouling: Species observations by sample"),
+    # )
+    #
+    # report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    # species = forms.MultipleChoiceField(required=False, choices=SPECIES_CHOICES)
     year = forms.CharField(required=False, widget=forms.NumberInput())

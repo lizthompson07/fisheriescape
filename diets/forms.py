@@ -37,16 +37,17 @@ class PreyForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    CRUISE_CHOICES = ((None, "---"),)
-    for obj in models.Cruise.objects.all():
-        CRUISE_CHOICES = CRUISE_CHOICES.__add__(((obj.id, obj),))
-
-    SPECIES_CHOICES = ((None, "---"),)
-    for obj in models.Species.objects.all().order_by("id"):
-        SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
-    # processing_year = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all years"}))
-    # processing_month = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all months"}))
-    cruise = forms.ChoiceField(required=False, choices=CRUISE_CHOICES)
-    species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
-
-    field_order = [  "cruise", "species"]
+    # CRUISE_CHOICES = ((None, "---"),)
+    # for obj in models.Cruise.objects.all():
+    #     CRUISE_CHOICES = CRUISE_CHOICES.__add__(((obj.id, obj),))
+    #
+    # SPECIES_CHOICES = ((None, "---"),)
+    # for obj in models.Species.objects.all().order_by("id"):
+    #     SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
+    # # processing_year = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all years"}))
+    # # processing_month = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all months"}))
+    # cruise = forms.ChoiceField(required=False, choices=CRUISE_CHOICES)
+    # species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
+    #
+    # field_order = [  "cruise", "species"]
+    pass

@@ -14,15 +14,28 @@ import os
 
 from django.utils.translation import gettext_lazy as _
 
+# Custom variables
+WEB_APP_NAME = "ScienceDataManagement"
 FORCE_DEV_MODE = False
 
 # check to see if there is a local configuration file
-# if there is, we override some existing configuration in the settings.py
+# if there is, we can override some above variables, if desired
+# THE PRODUCTION WEB SERVER SHOULD NEVER HAVE THIS FILE
 try:
     from . import local_conf
-    FORCE_DEV_MODE = local_conf.FORCE_DEV_MODE
 
+    FORCE_DEV_MODE = local_conf.FORCE_DEV_MODE
 except ModuleNotFoundError:
+    print("no local configuration file found.")
+
+# check to see if there is a file containing the google api key
+# if there is not, set this to a null string and maps will open in dev mode
+try:
+    from . import google_api_key
+
+    GOOGLE_API_KEY = google_api_key.GOOGLE_API_KEY
+except ModuleNotFoundError:
+    GOOGLE_API_KEY = ""
     print("no local configuration file found.")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -31,31 +44,24 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
-
 # This is the name of the production database connection file
 MY_CNF = os.path.join(BASE_DIR, 'prod.cnf')
-# check to see if the file is present
+
+# check to see if the MY_CNF file is present
 # if it is, we are in prod mode
-if os.path.isfile(MY_CNF):
-    from . import google_api_key
+if os.path.isfile(MY_CNF) and not FORCE_DEV_MODE:
     MY_ENVR = "prod"
 
 # otherwise we are in dev mode
 else:
+    if os.path.isfile(MY_CNF):
+        print("production connection string is present however running dev mode since FORCE_DEV_MODE setting is set to True")
+    MY_ENVR = "dev"
     # overwrite MY_CNF var so that it points to the dev db
     MY_CNF = os.path.join(BASE_DIR, 'dev.cnf')
 
-    from . import google_api_key_dev
-    MY_ENVR = "dev"
 
 
-# Custom variables
-
-
-
-
-WEB_APP_NAME = "GulfScienceDataManagement"
-GOOGLE_API_KEY = google_api_key.GOOGLE_API_KEY
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -70,13 +76,12 @@ if MY_ENVR == "dev":
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = ['glfscidm001', '127.0.0.1', 'glf-sci-dm']
+ALLOWED_HOSTS = ['127.0.0.1', 'glf-sci-dm']
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'accounts/login/'
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -139,7 +144,7 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASE_ROUTERS = ['glf_sci_site.routers.DevDatabaseRouter', ]
+# DATABASE_ROUTERS = ['glf_sci_site.routers.DevDatabaseRouter', ]
 
 # for mysql
 DATABASES = {
@@ -151,10 +156,6 @@ DATABASES = {
             'init_command': 'SET default_storage_engine=INNODB',
         },
     },
-    'dev_db': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
 }
 
 # Password validation
@@ -198,7 +199,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
@@ -207,7 +207,6 @@ LANGUAGES = [
     ('en', _('English')),
     ('fr', _('French')),
 ]
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/

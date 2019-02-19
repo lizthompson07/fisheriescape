@@ -14,17 +14,17 @@ class Migration(migrations.Migration):
             name='organizationmember',
             options={'ordering': ['organization', 'person']},
         ),
-        migrations.AddField(
-            model_name='organizationmember',
-            name='roles',
-            field=models.ManyToManyField(to='ihub.MemberRole'),
-        ),
-        migrations.RemoveField(
-            model_name='organizationmember',
-            name='member_role',
-        ),
-        migrations.AlterUniqueTogether(
-            name='organizationmember',
-            unique_together={('organization', 'person')},
-        ),
+        # migrations.AddField(
+        #     model_name='organizationmember',
+        #     name='roles',
+        #     field=models.ManyToManyField(to='ihub.MemberRole'),
+        # ),
+        # migrations.RemoveField(
+        #     model_name='organizationmember',
+        #     name='member_role',
+        # ),
+        # migrations.AlterUniqueTogether(
+        #     name='organizationmember',
+        #     unique_together={('organization', 'person')},
+        # ),
     ]
