@@ -46,13 +46,13 @@
         <tbody>
         {% for obj in object.capital_costs.all %}
             <tr id="capital-{{ obj.id }}"
-                    {% if not object.submitted %}
+                    {% if not object.submitted and not report_mode %}
                 href="{% url 'projects:capital_edit' obj.id %}" pop
                 data-toggle="tooltip" title="Edit"
                     {% endif %}
                 style="background-color: {{ obj.funding_source.color }}">
                 <td>
-                    {% if not object.submitted %}
+                    {% if not object.submitted and not report_mode %}
                         <a class="capital-delete-me" href="#" val="{{ obj.id }}">
                             <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                  title="Delete">
@@ -68,7 +68,7 @@
                     {{ obj.funding_source }}
                 </td>
                 <td style="text-align: center">
-                    {% if not object.submitted %}
+                    {% if not object.submitted and not report_mode %}
                         <a class="toggle-source" href="#" type="capital" pk="{{ obj.id }}">
                             <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
                                  title="click to toggle funding source">
