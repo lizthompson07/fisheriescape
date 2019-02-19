@@ -40,27 +40,31 @@
 
     <table class="table table-hover table-sm sortable" style="width: auto">
         <thead>
-            <th></th>
-            <th>
-                {% trans "Category Type" %}
-            </th>
-            <th>
-                {% trans "Category" %}
-            </th>
-            <th colspan="2">
-                {% trans "Funding Source" %}
-            </th>
-            <th>
-                {% trans "Budget Amount" %}
-            </th>
-            <th>
-                {% trans "Description provided" %}
-            </th>
+        <th></th>
+        <th>
+            {% trans "Category Type" %}
+        </th>
+        <th>
+            {% trans "Category" %}
+        </th>
+        <th colspan="2">
+            {% trans "Funding Source" %}
+        </th>
+        <th>
+            {% trans "Budget Amount" %}
+        </th>
+        <th>
+            {% trans "Description provided" %}
+        </th>
 
         </thead>
         <tbody>
         {% for obj in object.om_costs.all %}
-            <tr id="om-{{ obj.id }}" data-toggle="tooltip" title="Edit" href="{% url 'projects:om_edit' obj.id %}" pop
+            <tr id="om-{{ obj.id }}"
+                    {% if not object.submitted %}
+                href="{% url 'projects:om_edit' obj.id %}" pop
+                data-toggle="tooltip" title="Edit"
+                    {% endif %}
                 style="background-color: {{ obj.funding_source.color }}">
                 <td>
                     {% if not object.submitted %}
