@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 import os
 import uuid
+from scifi import models as scifi_models
 from django.utils.translation import gettext_lazy as _
 
 # Choices for language
@@ -85,8 +86,18 @@ class Project(models.Model):
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                                 verbose_name=_("section (Division)"))
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("program"))
+
+    # coding
     budget_code = models.ForeignKey(BudgetCode, on_delete=models.DO_NOTHING, related_name="is_section_head_on_projects",
                                     blank=True, null=True, verbose_name=_("budget code"))
+    responsibility_center = models.ForeignKey(scifi_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
+                                              null=True, related_name='projects_projects',
+                                              verbose_name=_("responsibility center (if known)"))
+    allotment_code = models.ForeignKey(scifi_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                       related_name='projects_projects', verbose_name=_("allotment code (if known)"))
+    existing_project_code = models.ForeignKey(scifi_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                              related_name='projects_projects', verbose_name=_("existing project code (if known)"))
+
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"))
     approved = models.NullBooleanField(default=False, verbose_name=_("Has this project already been approved"))
@@ -148,6 +159,22 @@ class Project(models.Model):
 
     def get_absolute_url(self):
         return reverse('projects:project_detail', kwargs={'pk': self.pk})
+
+    @property
+    def coding(self):
+        if self.responsibility_center:
+            rc = self.responsibility_center.code
+        else:
+            rc = "xxxxx"
+        if self.allotment_code:
+            ac = self.allotment_code.code
+        else:
+            ac = "xxx"
+        if self.existing_project_code:
+            pc = self.existing_project_code.code
+        else:
+            pc = "xxxxx"
+        return "{}-{}-{}".format(rc, ac, pc)
 
 
 class EmployeeType(models.Model):
