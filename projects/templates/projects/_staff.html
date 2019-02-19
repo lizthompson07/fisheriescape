@@ -31,13 +31,13 @@
         <th>
             {% trans "Name" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "Project Lead" %}
         </th>
         <th>
             {% trans "Employee type" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "Level" %}
         </th>
         <th style="text-align: center">
@@ -82,12 +82,7 @@
                     {% endif %}
                 </td>
                 <td style="text-align: center" class="{% if obj.lead %}blue-font{% endif %}">{{ obj.lead|yesno }}</td>
-                {% if obj.employee_type %}
-                    <td>
-                        {% else %}
-                    <td class="red-font">
-                {% endif %}
-                {{ obj.employee_type }}
+                <td class="{% if obj.employee_type %}{% else %}red-font{% endif %}">{{ obj.employee_type }}</td>
                 {% if  obj.employee_type is 4 %}
                     ({{ obj.student_program }}
                 {% endif %}
