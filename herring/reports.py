@@ -419,22 +419,25 @@ def generate_hdet(year):
         else:
             annulus_count = fish.annulus_count
 
+        # we will have to turn this into a fixed width
+        padding_lengths = [5, 2, 2, 4, 3, 3, 3, 1, 1, 5, 3, 2]
+
         writer.writerow(
             [
-                fish.sample.id,
-                fish.sample.sample_date.day,
-                fish.sample.sample_date.month,
-                fish.sample.sample_date.year,
-                fish.fish_number,
+                str(fish.sample.id).rjust(padding_lengths[0]),
+                str(fish.sample.sample_date.day).rjust(padding_lengths[1]),
+                str(fish.sample.sample_date.month).rjust(padding_lengths[2]),
+                str(fish.sample.sample_date.year).rjust(padding_lengths[3]),
+                str(fish.fish_number).rjust(padding_lengths[4]),
                 # must be cast to int
-                int(math.ceil(fish.fish_length)),
+                str(int(math.ceil(fish.fish_length))).rjust(padding_lengths[5]),
                 # must be cast to int
-                int(math.ceil(fish.fish_weight)),
-                sex,
-                maturity,
-                fish.gonad_weight,
-                os,
-                annulus_count,
+                str(int(math.ceil(fish.fish_weight))).rjust(padding_lengths[6]),
+                str(sex).rjust(padding_lengths[7]),
+                str(maturity).rjust(padding_lengths[8]),
+                str(fish.gonad_weight).rjust(padding_lengths[9]),
+                str(os).rjust(padding_lengths[10]),
+                str(annulus_count).rjust(padding_lengths[11]),
             ])
 
     return response
