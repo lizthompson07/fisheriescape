@@ -17,28 +17,42 @@ def get_verbose_field_name(instance, field_name):
 def get_verbose_label(instance, field_name):
     """
     Returns verbose_name for a field.
+    To return a label from a foreign key, send in the field name as such: "user.first_name".
+    To return a label from a model property, send in the property name as such: myprop|"label of my prop"
     """
+
+    def __special_capitalize__(raw_string):
+        """ Little dance to make sure the first letter is capitalized.
+        Do not want to use the capitalize() method since it makes the remaining portion of str lowercase """
+        first_letter = raw_string[0].upper()
+        str_list = list(raw_string)
+        str_list[0] = first_letter
+        raw_string = "".join(str_list)
+        return raw_string
+
     # check to see if there were any arguments passed in with the field name
+    # this means the field is a foreign key so we will need to separate the first part preceding the "."
     if len(field_name.split(".")) > 1:
-        arg = field_name.split(".")[1]
         field_name = field_name.split(".")[0]
+        field_instance = instance._meta.get_field(field_name)
+        verbose_name = field_instance.verbose_name
+    # this means a model property was sent in
+    elif len(field_name.split("|")) > 1:
+        verbose_name = field_name.split("|")[1]
+    # this means a plain old field_name was sent in
+    else:
+        field_instance = instance._meta.get_field(field_name)
+        verbose_name = field_instance.verbose_name
 
-    # complicated little dance to make sure the first letter is capitalized.
-    # Do not want to use the capitalize() method since it makes the remaining portion of str lowercase
-    field_instance = instance._meta.get_field(field_name)
-    verbose_name = field_instance.verbose_name
-    first_letter = verbose_name[0].upper()
-    str_list = list(verbose_name)
-    str_list[0] = first_letter
-    verbose_name = "".join(str_list)
-
-    return verbose_name
+    return __special_capitalize__(verbose_name)
 
 
 @register.simple_tag
 def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None):
     """
-    Returns verbose_name for a field. To return a field from a foreign key, send in the field name as such: "user.first_name"
+    Returns verbose_name for a field.
+    To return a field from a foreign key, send in the field name as such: "user.first_name".
+    To return a model property value, send in the property name as such: myprop|"label of my prop"
     """
     # check to see if there were any arguments passed in with the field name
     if len(field_name.split(".")) > 1:
@@ -46,6 +60,13 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
         field_name = field_name.split(".")[0]
         try:
             field_value = getattr(getattr(instance, field_name), arg)
+        except:
+            field_value = ""
+
+    elif len(field_name.split("|")) > 1:
+        myprop = field_name.split("|")[0]
+        try:
+            field_value = getattr(instance, myprop)
         except:
             field_value = ""
 
@@ -61,7 +82,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             # check to see if it is a many to many field
             elif field_instance.get_internal_type() == 'ManyToManyField':
                 m2m = getattr(instance, field_name)
-                field_value = str([str(field) for field in m2m.all()]).replace("[","").replace("]","").replace("'","").replace('"',"")
+                field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
 
             # check to see if it is a datefield
             elif field_instance.get_internal_type() == 'DateTimeField':
@@ -102,7 +123,6 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
     """
     Returns a standard display block for a field based on the verbose fieldname
     """
-    field_instance = instance._meta.get_field(field_name)
 
     # call on the get_verbose_label func to handle label prep
     verbose_name = get_verbose_label(instance, field_name)
