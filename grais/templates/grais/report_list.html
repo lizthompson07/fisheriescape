@@ -30,7 +30,7 @@
                 <th scope="col">Season</th>
                 <th scope="col">Source</th>
                 <th scope="col">Requestor Type</th>
-{#                <th scope="col">Report date (yyyy-mm-dd)</th>#}
+                {#                <th scope="col">Report date (yyyy-mm-dd)</th>#}
                 <th scope="col">Species</th>
                 <th scope="col">Follow-ups</th>
 
@@ -42,7 +42,7 @@
                     <td>{{ obj.season }}</td>
                     <td>{{ obj.get_report_source_display }}</td>
                     <td>{{ obj.get_requestor_type_display }}</td>
-{#                    <td>{{ obj.report_date|date:"Y-m-d" }}</td>#}
+                    {#                    <td>{{ obj.report_date|date:"Y-m-d" }}</td>#}
                     <td>
                         {% for sp in obj.species.all %}
                             {{ sp }}<br>
@@ -50,7 +50,7 @@
                             ---
                         {% endfor %}
                     </td>
-                    <td>None</td>
+                    <td>{{ obj.followups.count }}</td>
                 </tr>
             {% endfor %}
             </tbody>
