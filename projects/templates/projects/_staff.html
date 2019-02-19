@@ -11,7 +11,7 @@
 <h4>
     {% trans "Project Staff:" %}
 </h4>
-{% if not object.submitted %}
+{% if not object.submitted and not report_mode %}
     <a class="btn btn-sm btn-primary" href="#"
        onclick="return popitup('{% url 'projects:staff_new' object.id %}','popoutWindow')">
         {% trans "Add Staff" %}
@@ -40,20 +40,20 @@
         <th>
             {% trans "Level" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "Duration (weeks)" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "Overtime hours" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "Cost Category" %}
         </th>
-        <th>
-            {% trans "Cost" %}
-        </th>
-        <th colspan="2">
+        <th colspan="2" style="text-align: center">
             {% trans "Funding Source" %}
+        </th>
+        <th style="text-align: center">
+            {% trans "Cost" %}
         </th>
         </thead>
         <tbody>
@@ -114,9 +114,6 @@
                 <td style="text-align: center">{{ obj.employee_type.get_cost_type_display }}</td>
 
                 <td style="text-align: center">
-                    {{ obj.cost|floatformat:0|intcomma }}
-                </td>
-                <td style="text-align: center">
                     {{ obj.funding_source }}
                 </td>
                 <td style="text-align: center">
@@ -128,6 +125,9 @@
                         <a id="staff-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "staff" obj.id %}"
                            class="hidden"></a>
                     {% endif %}
+                </td>
+                <td style="text-align: center">
+                    {{ obj.cost|floatformat:0|intcomma }}
                 </td>
 
             </tr>

@@ -9,7 +9,7 @@
 <h4>
     {% trans "Collaborative Agreements:" %}
 </h4>
-{% if not object.submitted %}
+{% if not object.submitted and not report_mode %}
     <a class="btn btn-sm btn-primary" href="#"
        onclick="return popitup('{% url 'projects:agreement_new' object.id %}','popoutWindow')">
         {% trans "Add Agreement" %}
@@ -34,6 +34,12 @@
             <th>
                 {% trans "Agreement Title" %}
             </th>
+            <th style="text-align: center">
+                {% trans "New or Existing" %}
+            </th>
+            <th>
+                {% trans "Notes" %}
+            </th>
 
         </tr>
         <tbody>
@@ -42,6 +48,7 @@
                 data-toggle="tooltip" title="Edit" href="{% url 'projects:agreement_edit' obj.id %}" pop
             {% endif %}
             >
+                <td>
                 {% if not object.submitted %}
                     <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
@@ -54,6 +61,8 @@
                 <td>{{ obj.partner_organization }}</td>
                 <td>{{ obj.project_lead }}</td>
                 <td>{{ obj.agreement_title }}</td>
+                <td style="text-align: center">{{ obj.get_new_or_existing_display }}</td>
+                <td>{{ obj.notes }}</td>
             </tr>
         {% endfor %}
         </tbody>
