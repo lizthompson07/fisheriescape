@@ -11,7 +11,8 @@
         height: 0px;
         padding: 0px;
     }
-    label{
+
+    label {
         font-weight: bold;
     }
 </style>
@@ -49,7 +50,62 @@
             {% csrf_token %}
 
             {% for field in form %}
-                {% if field.name == "overtime_hours" %}
+
+                {% if field.name == "employee_type" %}
+                    <div class="row">
+                        <div class="col">
+                            {% bootstrap_field field placeholder="" size="small" %}
+                        </div>
+                        <div class="col">
+                            {% for field in form %}
+                                {% if field.name == "lead" %}
+                                    {% bootstrap_field field placeholder="" size="small" %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="col">
+                            {% for field in form %}
+                                {% if field.name == "funding_source" %}
+                                    {% bootstrap_field field placeholder="" size="small" %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% elif field.name == "lead" %}
+                    {#                    do nothing #}
+                {% elif field.name == "funding_source" %}
+                    {#                    do nothing #}
+
+
+
+                {% elif field.name == "level" %}
+                    <div class="row">
+                        <div class="col">
+                            {% bootstrap_field field placeholder="" size="small" %}
+                        </div>
+                        <div class="col">
+                            {% for field in form %}
+                                {% if field.name == "student_program" %}
+                                    {% bootstrap_field field placeholder="" size="small" %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="col">
+                            {% for field in form %}
+                                {% if field.name == "duration_weeks" %}
+                                    {% bootstrap_field field placeholder="" size="small" %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% elif field.name == "student_program" %}
+                    {#                    do nothing #}
+                {% elif field.name == "duration_weeks" %}
+                    {#                    do nothing #}
+
+
+
+                {% elif field.name == "overtime_hours" %}
                     <div class="row">
                         <div class="col-3">
                             {% bootstrap_field field placeholder="" size="small" %}
