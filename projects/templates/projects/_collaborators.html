@@ -39,7 +39,10 @@
         </tr>
         <tbody>
         {% for obj in object.collaborators.all %}
-            <tr data-toggle="tooltip" title="Edit" href="{% url 'projects:collab_edit' obj.id %}" pop>
+            <tr {% if not object.submitted %}
+                data-toggle="tooltip" title="Edit" href="{% url 'projects:collab_edit' obj.id %}" pop
+            {% endif %}
+            >
                 <td>
                     {% if not object.submitted %}
                         <a class="collab-delete-me" href="#" val="{{ obj.id }}">

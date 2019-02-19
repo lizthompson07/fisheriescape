@@ -38,16 +38,18 @@
         </tr>
         <tbody>
         {% for obj in object.agreements.all %}
-            <tr data-toggle="tooltip" title="Edit" href="{% url 'projects:agreement_edit' obj.id %}" pop>
-                <td>
-                    {% if not object.submitted %}
-                        <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
-                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                 title="Delete">
-                        </a>
-                        <a id="agreement-secrect-delete-btn-{{ obj.id }}"
-                           href="{% url 'projects:agreement_delete' obj.id %}" class="hidden"></a>
-                    {% endif %}
+            <tr {% if not object.submitted %}
+                data-toggle="tooltip" title="Edit" href="{% url 'projects:agreement_edit' obj.id %}" pop
+            {% endif %}
+            >
+                {% if not object.submitted %}
+                    <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
+                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                             title="Delete">
+                    </a>
+                    <a id="agreement-secrect-delete-btn-{{ obj.id }}"
+                       href="{% url 'projects:agreement_delete' obj.id %}" class="hidden"></a>
+                {% endif %}
                 </td>
                 <td>{{ obj.partner_organization }}</td>
                 <td>{{ obj.project_lead }}</td>
