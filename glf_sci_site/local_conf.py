@@ -1,1 +1,0 @@
-FORCE_DEV_MODE = True
