@@ -44,12 +44,12 @@
         </tr>
         <tbody>
         {% for obj in object.agreements.all %}
-            <tr {% if not object.submitted %}
+            <tr {% if not object.submitted and not report_mode %}
                 data-toggle="tooltip" title="Edit" href="{% url 'projects:agreement_edit' obj.id %}" pop
             {% endif %}
             >
                 <td>
-                {% if not object.submitted %}
+                {% if not object.submitted and not report_mode %}
                     <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                              title="Delete">

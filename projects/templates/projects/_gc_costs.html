@@ -49,13 +49,13 @@
         </tr>
         <tbody>
         {% for obj in object.gc_costs.all %}
-            <tr  {% if not object.submitted %}
+            <tr  {% if not object.submitted and not report_mode %}
                 href="{% url 'projects:gc_edit' obj.id %}" pop
                 data-toggle="tooltip" title="Edit"
             {% endif %}
                 >
                 <td>
-                    {% if not object.submitted %}
+                    {% if not object.submitted and not report_mode %}
                         <a class="gc-delete-me" href="#" val="{{ obj.id }}">
                             <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                  title="Delete">

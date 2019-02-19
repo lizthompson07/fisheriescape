@@ -61,13 +61,13 @@
         <tbody>
         {% for obj in object.om_costs.all %}
             <tr id="om-{{ obj.id }}"
-                    {% if not object.submitted %}
+                    {% if not object.submitted and not report_mode %}
                 href="{% url 'projects:om_edit' obj.id %}" pop
                 data-toggle="tooltip" title="Edit"
                     {% endif %}
                 style="background-color: {{ obj.funding_source.color }}">
                 <td>
-                    {% if not object.submitted %}
+                    {% if not object.submitted and not report_mode %}
                         <a class="om-delete-me" href="#" val="{{ obj.id }}">
                             <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                  title="Delete">
@@ -89,7 +89,7 @@
                     {{ obj.funding_source }}
                 </td>
                 <td>
-                    {% if not object.submitted %}
+                    {% if not object.submitted and not report_mode %}
                         <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">
                             <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
                                  title="click to toggle funding source">

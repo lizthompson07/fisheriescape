@@ -37,7 +37,7 @@
 
 
         <div class="btn-group">
-            {% if can_delete %}
+            {% if not report_mode %}
                 {% if object.submitted %}
                     <a class="btn btn-secondary btn-sm" href="{% url 'projects:project_submit' object.id %}">
                         {% trans "Unsubmit Project" %}
@@ -66,7 +66,7 @@
 
 
 
-            {% if can_delete %}
+            {% if not report_mode %}
                 <a class="btn btn-danger btn-sm" href="{% url 'projects:project_delete' object.id %}">
                     {% trans "Delete" %}
                 </a>
@@ -90,7 +90,7 @@
         </h3>
 
         <div class="btn-group">
-            {% if not object.submitted %}
+            {% if not object.submitted and not report_mode %}
                 <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
                     {% trans "Add/Edit Project Details" %}
                 </a>

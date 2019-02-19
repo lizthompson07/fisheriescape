@@ -7,3 +7,6 @@
 # TODO: create visio diagram
 # TODO: full time employees should be on the list of users... so it should grey out the field
 # TODO: function to clean up O&M requests
+
+# TODO: there should always be at least one project lead
+# TODO: if possible, uses should get a warning before removing themselves as lead... they will be locked out of project...
