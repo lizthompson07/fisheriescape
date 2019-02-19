@@ -196,17 +196,16 @@ class OtolithForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    YEAR_CHOICES = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
-    REPORT_CHOICES = [
-        (1, "Progress Report"),
-        (2, "Pretty fish detail export (csv)"),
-        (4, "Export hlog file (csv)"),
-        (3, "Export hlen file (csv)"),
-        (5, "Export hdet file (csv)"),
-    ]
-    REPORT_CHOICES.insert(0, (None, "------"))
-
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
-    # rc = forms.ChoiceField(required=False, choices=RC_CHOICES, label="Responsibility centre")
-    # project = forms.ChoiceField(required=False, choices=PROJECT_CHOICES, label="Project")
+    # YEAR_CHOICES = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
+    # REPORT_CHOICES = [
+    #     (1, "Progress Report"),
+    #     (2, "Pretty fish detail export (csv)"),
+    #     (4, "Export hlog file (csv)"),
+    #     (3, "Export hlen file (csv)"),
+    #     (5, "Export hdet file (csv)"),
+    # ]
+    # REPORT_CHOICES.insert(0, (None, "------"))
+    #
+    # report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    # year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
+    pass

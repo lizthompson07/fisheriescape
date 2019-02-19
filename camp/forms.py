@@ -40,26 +40,26 @@ class SpeciesForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    SITE_CHOICES = ((None, "---"),)
-    for obj in models.Site.objects.all().order_by("site"):
-        SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
-
-    STATION_CHOICES = ((None, "---"),)
-    for obj in models.Station.objects.all():
-        STATION_CHOICES = STATION_CHOICES.__add__(((obj.id, obj),))
-
-    SPECIES_CHOICES = ((None, "---"),)
-    for obj in models.Species.objects.all():
-        SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
-
-    year = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all years"}))
-    month = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all months"}))
-    site = forms.ChoiceField(required=False, choices=SITE_CHOICES)
-    station = forms.ChoiceField(required=False, choices=STATION_CHOICES)
-    species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
-
-    field_order = ["year", "month", "site", "station", "species"]
-
+    # SITE_CHOICES = ((None, "---"),)
+    # for obj in models.Site.objects.all().order_by("site"):
+    #     SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
+    #
+    # STATION_CHOICES = ((None, "---"),)
+    # for obj in models.Station.objects.all():
+    #     STATION_CHOICES = STATION_CHOICES.__add__(((obj.id, obj),))
+    #
+    # SPECIES_CHOICES = ((None, "---"),)
+    # for obj in models.Species.objects.all():
+    #     SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
+    #
+    # year = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all years"}))
+    # month = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all months"}))
+    # site = forms.ChoiceField(required=False, choices=SITE_CHOICES)
+    # station = forms.ChoiceField(required=False, choices=STATION_CHOICES)
+    # species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
+    #
+    # field_order = ["year", "month", "site", "station", "species"]
+    pass
 
 class SampleForm(forms.ModelForm):
     do_another = forms.BooleanField(widget=forms.HiddenInput(), required=False)
@@ -151,23 +151,24 @@ class SAVObservationForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    SPECIES_CHOICES = ((None, "---"),)
-    for obj in models.Species.objects.all().order_by("common_name_eng"):
-        SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
-
-    SITE_CHOICES = ((None, "All Stations"),)
-    for obj in models.Site.objects.all():
-        SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
-
-    REPORT_CHOICES = (
-        (None, "---"),
-        (1, "Species counts by year"),
-        (3, "Annual watershed report (PDF)"),
-        (4, "Annual watershed spreadsheet (XLSX)"),
-        (5, "Dataset export for FGP (CSV)"),
-    )
-
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    species = forms.MultipleChoiceField(required=False, choices=SPECIES_CHOICES)
-    year = forms.CharField(required=False, widget=forms.NumberInput())
-    site = forms.ChoiceField(required=False, choices=SITE_CHOICES)
+    # SPECIES_CHOICES = ((None, "---"),)
+    # for obj in models.Species.objects.all().order_by("common_name_eng"):
+    #     SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
+    #
+    # SITE_CHOICES = ((None, "All Stations"),)
+    # for obj in models.Site.objects.all():
+    #     SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
+    #
+    # REPORT_CHOICES = (
+    #     (None, "---"),
+    #     (1, "Species counts by year"),
+    #     (3, "Annual watershed report (PDF)"),
+    #     (4, "Annual watershed spreadsheet (XLSX)"),
+    #     (5, "Dataset export for FGP (CSV)"),
+    # )
+    #
+    # report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    # species = forms.MultipleChoiceField(required=False, choices=SPECIES_CHOICES)
+    # year = forms.CharField(required=False, widget=forms.NumberInput())
+    # site = forms.ChoiceField(required=False, choices=SITE_CHOICES)
+    pass
