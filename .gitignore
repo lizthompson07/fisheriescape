@@ -47,7 +47,8 @@ Thumbs.db
 # local configuration #
 #######################
 local_conf.py
-media_conf.py # for legacy sake
+# for legacy sake
+media_conf.py
 
 # access files dir #
 ####################
@@ -67,7 +68,8 @@ media_conf.py # for legacy sake
 # prod.cnf file should not be in the repo since it has the credentials + connection strings for the production db #
 ###################################################################################################################
 prod.cnf
-my.cnf # for legacy sake
+# for legacy sake
+my.cnf
 
 # Google API key #
 ##################
