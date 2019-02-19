@@ -88,7 +88,7 @@ class Project(models.Model):
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("program"))
 
     # coding
-    budget_code = models.ForeignKey(BudgetCode, on_delete=models.DO_NOTHING, related_name="is_section_head_on_projects",
+    #budget_code = models.ForeignKey(BudgetCode, on_delete=models.DO_NOTHING, related_name="is_section_head_on_projects",
                                     blank=True, null=True, verbose_name=_("budget code"))
     responsibility_center = models.ForeignKey(scifi_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
                                               null=True, related_name='projects_projects',
