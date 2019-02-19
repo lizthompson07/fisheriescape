@@ -14,8 +14,16 @@ import os
 
 from django.utils.translation import gettext_lazy as _
 
-from . import media_conf
-from . import google_api_key
+FORCE_DEV_MODE = False
+
+# check to see if there is a local configuration file
+# if there is, we override some existing configuration in the settings.py
+try:
+    from . import local_conf
+    FORCE_DEV_MODE = local_conf.FORCE_DEV_MODE
+
+except ModuleNotFoundError:
+    print("no local configuration file found.")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +31,29 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
+
+# This is the name of the production database connection file
+MY_CNF = os.path.join(BASE_DIR, 'prod.cnf')
+# check to see if the file is present
+# if it is, we are in prod mode
+if os.path.isfile(MY_CNF):
+    from . import google_api_key
+    MY_ENVR = "prod"
+
+# otherwise we are in dev mode
+else:
+    # overwrite MY_CNF var so that it points to the dev db
+    MY_CNF = os.path.join(BASE_DIR, 'dev.cnf')
+
+    from . import google_api_key_dev
+    MY_ENVR = "dev"
+
+
 # Custom variables
-MY_ENVR = media_conf.where_am_i()
-MY_CNF = os.path.join(BASE_DIR, 'my.cnf')
+
+
+
+
 WEB_APP_NAME = "GulfScienceDataManagement"
 GOOGLE_API_KEY = google_api_key.GOOGLE_API_KEY
 

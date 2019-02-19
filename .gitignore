@@ -43,7 +43,10 @@ Thumbs.db
 # project media dir #
 #####################
 /media/*
-media_conf.py
+
+# local configuration #
+#######################
+local_conf.py
 
 # access files dir #
 ####################
@@ -60,9 +63,9 @@ media_conf.py
 /.IDEA/*
 
 
-# my.cnf file should not be on the repo since it has the db password #
-######################################################################
-my.cnf
+# prod.cnf file should not be in the repo since it has the credentials + connection strings for the production db #
+###################################################################################################################
+prod.cnf
 
 # Google API key #
 ##################
