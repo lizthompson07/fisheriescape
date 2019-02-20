@@ -1,4 +1,3 @@
-from braces.views import LoginRequiredMixin
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, update_session_auth_hash, login
@@ -16,6 +15,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView, UpdateView, CreateView, \
     FormView  # ,ListView, DetailView, CreateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .tokens import account_activation_token
 from . import forms
