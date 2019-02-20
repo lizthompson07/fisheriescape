@@ -8,11 +8,15 @@ register = template.Library()
 @register.simple_tag
 def get_subset(iterable, index):
     """
-    Returns a subset of an interable
+    Returns a subset of an iterable
     """
     try:
-        value = iterable[index]
-    except:
+        value = iterable[int(index)]
+    except IndexError or TypeError:
+        if TypeError:
+            print("index provided is of an invalid type")
+        if IndexError:
+            print("value does not exist at the index provided")
         value = None
 
     return value
@@ -26,10 +30,9 @@ def lookup(my_dict, key):
 
 @register.simple_tag
 def add(value, arg):
-    return float(value)+float(arg)
+    return float(value) + float(arg)
 
 
 @register.simple_tag
 def subtract(value, arg):
     return float(value) - float(arg)
-
