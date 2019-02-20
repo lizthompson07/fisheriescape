@@ -43,6 +43,11 @@ Thumbs.db
 # project media dir #
 #####################
 /media/*
+
+# local configuration #
+#######################
+local_conf.py
+# for legacy sake
 media_conf.py
 local_conf.py
 
@@ -61,8 +66,10 @@ local_conf.py
 /.IDEA/*
 
 
-# my.cnf file should not be on the repo since it has the db password #
-######################################################################
+# prod.cnf file should not be in the repo since it has the credentials + connection strings for the production db #
+###################################################################################################################
+prod.cnf
+# for legacy sake
 my.cnf
 prod.cnf
 
