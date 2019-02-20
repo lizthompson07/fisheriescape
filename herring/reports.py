@@ -435,7 +435,7 @@ def generate_hdet(year):
                 str(int(math.ceil(fish.fish_weight))).rjust(padding_lengths[6]),
                 str(sex).rjust(padding_lengths[7]),
                 str(maturity).rjust(padding_lengths[8]),
-                str(fish.gonad_weight).rjust(padding_lengths[9]),
+                "{:.1f}".format(fish.gonad_weight).rjust(padding_lengths[9]),
                 str(os).rjust(padding_lengths[10]),
                 str(annulus_count).rjust(padding_lengths[11]),
             ])
