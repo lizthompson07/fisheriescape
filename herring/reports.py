@@ -237,23 +237,26 @@ def generate_hlen(year):
                     # otherwise mark a zero value
                     length_list.append(0)
 
+            # we will have to turn this into a fixed width
+            padding_lengths = [5, 2, 2, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, ]
+
             writer.writerow(
                 [
-                    sample.id,
-                    sample.sample_date.day,
-                    sample.sample_date.month,
-                    sample.sample_date.year,
-                    int(row[0]),
-                    length_list[0],
-                    length_list[1],
-                    length_list[2],
-                    length_list[3],
-                    length_list[4],
-                    length_list[5],
-                    length_list[6],
-                    length_list[7],
-                    length_list[8],
-                    length_list[9],
+                    str(sample.id).rjust(padding_lengths[0]),
+                    str(sample.sample_date.day).rjust(padding_lengths[1]),
+                    str(sample.sample_date.month).rjust(padding_lengths[2]),
+                    str(sample.sample_date.year).rjust(padding_lengths[3]),
+                    str(int(row[0])).rjust(padding_lengths[4]),
+                    str(length_list[0]).rjust(padding_lengths[5]),
+                    str(length_list[1]).rjust(padding_lengths[6]),
+                    str(length_list[2]).rjust(padding_lengths[7]),
+                    str(length_list[3]).rjust(padding_lengths[8]),
+                    str(length_list[4]).rjust(padding_lengths[9]),
+                    str(length_list[5]).rjust(padding_lengths[10]),
+                    str(length_list[6]).rjust(padding_lengths[11]),
+                    str(length_list[7]).rjust(padding_lengths[12]),
+                    str(length_list[8]).rjust(padding_lengths[13]),
+                    str(length_list[9]).rjust(padding_lengths[14]),
                 ])
 
     return response
@@ -308,30 +311,30 @@ def generate_hlog(year):
             else:
                 sampler = "{}. {}".format(sample.sampler.first_name.upper()[:1], sample.sampler.last_name.upper())
         else:
-            sampler = None
+            sampler = ""
 
         if sample.survey_id:
             survey_id = sample.survey_id
         else:
-            survey_id = None
+            survey_id = ""
 
         if sample.fishing_area:
             nafo_code = sample.fishing_area.nafo_area_code
 
         else:
-            nafo_code = None
+            nafo_code = ""
 
         if sample.gear:
             gear_code = sample.gear.gear_code
             if sample.experimental_net_used:
                 gear_code = gear_code + "*"
         else:
-            gear_code = None
+            gear_code = ""
 
         if sample.mesh_size:
-            mesh_size = sample.mesh_size.size_inches_decimal
+            mesh_size = "{:.2f}".format(sample.mesh_size.size_inches_decimal)
         else:
-            mesh_size = None
+            mesh_size = ""
 
         # based on a discussion with Francois Turcotte, we will try leaving this blank
         if sample.type == 2:  # sea sample
@@ -342,36 +345,44 @@ def generate_hlog(year):
             else:
                 protocol = 1
 
+        if sample.catch_weight_lbs:
+            catch_wt = int(sample.catch_weight_lbs)
+        else:
+            catch_wt = ""
+
+        # we will have to turn this into a fixed width
+        padding_lengths = [5, 2, 2, 4, 20, 15, 6, 3, 3, 3, 3, 20, 4, 4, 6, 6, 6, 2, 8, 3, 3, 10, 15, 85, 4, 4, 7, 7]
+
         writer.writerow(
             [
-                sample.id,
-                sample.sample_date.day,
-                sample.sample_date.month,
-                sample.sample_date.year,
-                survey_id,
-                sampler,
-                sample.sampler_ref_number,
-                sample.total_fish_measured,
-                sample.total_fish_preserved,
-                nafo_code,
-                sample.district_id,
-                sample.vessel_cfvn,
-                gear_code,
-                mesh_size,
-                sample.latitude_n,
-                sample.longitude_w,
-                sample.catch_weight_lbs,
-                protocol,
-                None,
-                0.5,
-                sample.total_fish_preserved,
-                None,
-                None,
-                None,
-                # sample.remarks,
-                None,
-                None,
-                None,
+                str(sample.id).rjust(padding_lengths[0]),
+                str(nz(sample.sample_date.day, "")).rjust(padding_lengths[1]),
+                str(nz(sample.sample_date.month, "")).rjust(padding_lengths[2]),
+                str(nz(sample.sample_date.year, "")).rjust(padding_lengths[3]),
+                str(survey_id).rjust(padding_lengths[4]),
+                str(sampler).rjust(padding_lengths[5]),
+                str(nz(sample.sampler_ref_number, "")).rjust(padding_lengths[6]),
+                str(nz(sample.total_fish_measured, "")).rjust(padding_lengths[7]),
+                str(nz(sample.total_fish_preserved, "")).rjust(padding_lengths[8]),
+                str(nafo_code).rjust(padding_lengths[9]),
+                str(nz(sample.district_id, "")).rjust(padding_lengths[10]),
+                str(nz(sample.vessel_cfvn, "")).rjust(padding_lengths[11]),
+                str(gear_code).rjust(padding_lengths[12]),
+                str(mesh_size).rjust(padding_lengths[13]),
+                str(nz(sample.latitude_n, "")).rjust(padding_lengths[14]),
+                str(nz(sample.longitude_w, "")).rjust(padding_lengths[15]),
+                str(catch_wt).rjust(padding_lengths[16]),
+                str(protocol).rjust(padding_lengths[17]),
+                str("").rjust(padding_lengths[18]),
+                str(0.5).rjust(padding_lengths[19]),
+                str(nz(sample.total_fish_preserved, "")).rjust(padding_lengths[20]),
+                str("").rjust(padding_lengths[21]),
+                str("").rjust(padding_lengths[22]),
+                str("").rjust(padding_lengths[23]),
+                str("").rjust(padding_lengths[24]),
+                str("").rjust(padding_lengths[25]),
+                str("").rjust(padding_lengths[26]),
+                str("").rjust(padding_lengths[27]),
             ])
 
     return response
