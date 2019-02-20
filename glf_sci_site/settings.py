@@ -18,26 +18,26 @@ from django.utils.translation import gettext_lazy as _
 WEB_APP_NAME = "ScienceDataManagement"
 # This should always be set to false
 FORCE_DEV_MODE = False
+LOCAL_CONF_FILE_FOUND = False
 
 # check to see if there is a local configuration file
 # if there is, we can override some above variables, if desired
 # THE PRODUCTION WEB SERVER SHOULD NEVER HAVE THIS FILE
 try:
     from . import local_conf
-
     FORCE_DEV_MODE = local_conf.FORCE_DEV_MODE
-except ModuleNotFoundError:
+    LOCAL_CONF_FILE_FOUND = True
+except ModuleNotFoundError and ImportError:
     print("no local configuration file found.")
 
 # check to see if there is a file containing the google api key
 # if there is not, set this to a null string and maps will open in dev mode
 try:
     from . import google_api_key
-
     GOOGLE_API_KEY = google_api_key.GOOGLE_API_KEY
-except ModuleNotFoundError:
+except ModuleNotFoundError and ImportError:
     GOOGLE_API_KEY = ""
-    print("no local configuration file found.")
+    print("no google api key file found.")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,9 +49,16 @@ MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 MY_CNF = os.path.join(BASE_DIR, 'prod.cnf')
 
 # check to see if the MY_CNF file is present
-# if it is, we are in prod mode
+# if it is, we are in prod mode...
 if os.path.isfile(MY_CNF) and not FORCE_DEV_MODE:
-    MY_ENVR = "prod"
+    # however, if there is a local configuration file, it means the app is running on the dev server
+    # in this case, static and mediafiles need to be served as if in dev mode
+    if LOCAL_CONF_FILE_FOUND:
+        MY_ENVR = "dev"
+    else:
+        MY_ENVR = "prod"
+    # this file is used in base.html to indicate which database you are connected to
+    PROD_CNF = True
 
 # otherwise we are in dev mode
 else:
@@ -60,6 +67,8 @@ else:
     MY_ENVR = "dev"
     # overwrite MY_CNF var so that it points to the dev db
     MY_CNF = os.path.join(BASE_DIR, 'dev.cnf')
+    # this file is used in base.html to indicate which database you are connected to
+    PROD_CNF = False
 
 
 # Quick-start development settings - unsuitable for production
