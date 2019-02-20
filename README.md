@@ -33,4 +33,6 @@ pip install -r stable_reqs.txt
 python manage.py runserver
 ```
 
-Without any other configuration, the app will connect to the development database
+- Without any other configuration, the app will connect to the development database
+- The development server is essentially a slave of the production database. There is currently no script to automate the syncing 
+so it will be done on an as needed basis
