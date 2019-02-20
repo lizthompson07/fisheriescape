@@ -208,5 +208,3 @@ class ReportSearchForm(forms.Form):
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
-    # rc = forms.ChoiceField(required=False, choices=RC_CHOICES, label="Responsibility centre")
-    # project = forms.ChoiceField(required=False, choices=PROJECT_CHOICES, label="Project")

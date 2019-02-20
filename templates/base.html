@@ -25,6 +25,11 @@
 
     <title>{% block title %}{% endblock title %}</title>
     {% block header %}{% endblock header %}
+    {% if MY_ENVR == "dev" %}
+        <div style="text-align: center; background-color: #ffaa06">
+            WORKING IN DEV MODE - You are connected to the development database.
+        </div>
+    {% endif %}
 </head>
 
 <body>
