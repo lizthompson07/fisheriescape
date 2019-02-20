@@ -72,11 +72,13 @@
 
 
 <table>
+
     {% for row in contact_table_rows %}
         <tr>
             {% for cell in one_to_four %}
                 {% with row|multiply:4|add:cell as pos %}
                     {% get_subset org.members.all pos as member %}
+                    {{ member }}
                     <td>
                         <p>
                             <b>{{ member.person }}</b><br>
