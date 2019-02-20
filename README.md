@@ -5,7 +5,7 @@
 
 2. Create a Python virtual environment and activate it. 
 To do so, create a directory on your computer where the virtual environment will live 
-(called VENV-FOLDER in the example below), 
+(called 'glf_sci_site_venv' in the example below), 
 create the virtual environment in that directory and activate the virtual environment:
 
 ```
