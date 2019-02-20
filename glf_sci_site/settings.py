@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Custom variables
 WEB_APP_NAME = "ScienceDataManagement"
+# This should always be set to false
 FORCE_DEV_MODE = False
 
 # check to see if there is a local configuration file
@@ -59,8 +60,6 @@ else:
     MY_ENVR = "dev"
     # overwrite MY_CNF var so that it points to the dev db
     MY_CNF = os.path.join(BASE_DIR, 'dev.cnf')
-
-
 
 
 # Quick-start development settings - unsuitable for production
@@ -134,6 +133,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'glf_sci_site.context_processor.my_envr'
             ],
         },
     },
