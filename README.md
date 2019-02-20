@@ -3,20 +3,22 @@
 ### Prerequisite to running the application
 1. Install Python (<https://www.python.org>), and make sure that Python is added to your PATH variable.
 
-2. Create a Python virtual environment and activate it. To do so, create a directory on your computer where the virtual environment will live (called VENV-FOLDER in the example below), create the virtual environment in that directory and activate the virtual environment:
+2. Create a Python virtual environment and activate it. 
+To do so, create a directory on your computer where the virtual environment will live 
+(called VENV-FOLDER in the example below), 
+create the virtual environment in that directory and activate the virtual environment:
 
-on windows
 ```
-python -m venv VENV-FOLDER
-cd VENV-FOLDER
-cd Scripts
-activate
+python -m venv glf_sci_site_venv
 ```
-on linux:
+To activate the venv on windows:
 ```
-source VENV-FOLDER/bin/activate
+.\glf_sci_site_venv\Scripts\activate
 ```
-
+To activate the venv on linux:
+```
+source .\glf_sci_site_venv\bin\activate
+```
 
 3. Clone the glf_sci_site repository
 

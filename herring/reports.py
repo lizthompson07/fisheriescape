@@ -398,7 +398,7 @@ def generate_hdet(year):
         if fish.sex:
             sex = fish.sex.oracle_code
         else:
-            sex = None
+            sex = ""
 
         if fish.maturity:
             # the other database uses 0 as unknown, as oppposed to 9
@@ -407,15 +407,15 @@ def generate_hdet(year):
             else:
                 maturity = fish.maturity.id
         else:
-            maturity = None
+            maturity = ""
 
         if fish.otolith_season:
             os = fish.otolith_season.oracle_code
         else:
-            os = None
+            os = ""
 
         if fish.annulus_count == -99:
-            annulus_count = None
+            annulus_count = ""
         else:
             annulus_count = fish.annulus_count
 
