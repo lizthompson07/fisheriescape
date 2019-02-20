@@ -17,7 +17,6 @@ class ResourceFilter(django_filters.FilterSet):
 
     STATUS_CHOICES = [(s.id, str(s)) for s in models.Status.objects.all()]
     SECTION_CHOICES = [(s.id, str(s)) for s in models.Section.objects.all()]
-    # SECTION_CHOICES = [(None, "str(s)"),]
 
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains',
                                             widget=forms.TextInput())

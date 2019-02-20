@@ -60,7 +60,6 @@ class SearchForm(forms.Form):
 
     field_order = ["year", "month", "site", "station", "species"]
 
-
 class SampleForm(forms.ModelForm):
     do_another = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
