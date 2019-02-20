@@ -414,7 +414,7 @@ def generate_hdet(year):
         else:
             os = ""
 
-        if fish.annulus_count == -99:
+        if fish.annulus_count == -99 or fish.annulus_count is None:
             annulus_count = ""
         else:
             annulus_count = fish.annulus_count
