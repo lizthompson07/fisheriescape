@@ -22,9 +22,9 @@ class Province(models.Model):
     )
     name_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (English)"))
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (French)"))
-    country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
-    abbrev_eng = models.CharField(max_length=25, blank=True, null=True)
-    abbrev_fre = models.CharField(max_length=25, blank=True, null=True)
+    country = models.CharField(max_length=25, choices=COUNTRY_CHOICES, verbose_name=_("country"))
+    abbrev_eng = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (English)"))
+    abbrev_fre = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (French)"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name_eng"))))
@@ -35,20 +35,25 @@ class Grouping(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
 
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    phone_1 = models.CharField(max_length=25, blank=True, null=True)
-    phone_2 = models.CharField(max_length=25, blank=True, null=True)
-    fax = models.CharField(max_length=25, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"))
+    phone_1 = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("phone 1"))
+    phone_2 = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("phone 2"))
+    fax = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("fax"))
+    email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
 
     def __str__(self):
         return "{}, {}".format(self.last_name, self.first_name)
@@ -63,26 +68,26 @@ class Person(models.Model):
     def contact_card(self):
         my_str = "<b>{first} {last}</b>".format(first=self.first_name, last=self.last_name)
         if self.phone_1:
-            my_str += "<br>Phone 1: {}".format(self.phone_1)
+            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone_1)
         if self.phone_2:
-            my_str += "<br>Phone 2: {}".format(self.phone_2)
+            my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
         if self.fax:
-            my_str += "<br>Fax: {}".format(self.fax)
+            my_str += "<br>{}: {}".format(_("Fax"), self.fax)
         if self.email:
-            my_str += "<br>E-mail: {}".format(self.email)
+            my_str += "<br>{}: {}".format(_("E-mail"), self.email)
         return my_str
 
     @property
     def contact_card_no_name(self):
         my_str = ""
         if self.phone_1:
-            my_str += "<br>Phone 1: {}".format(self.phone_1)
+            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone_1)
         if self.phone_2:
-            my_str += "<br>Phone 2: {}".format(self.phone_2)
+            my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
         if self.fax:
-            my_str += "<br>Fax: {}".format(self.fax)
+            my_str += "<br>{}: {}".format(_("Fax"), self.fax)
         if self.email:
-            my_str += "<br>E-mail: {}".format(self.email)
+            my_str += "<br>{}: {}".format(_("E-mail"), self.email)
         return my_str
 
 
@@ -91,23 +96,28 @@ class Organization(models.Model):
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
     abbrev = models.CharField(max_length=30, verbose_name=_("abbreviation"))
-    address = models.CharField(max_length=1000, blank=True, null=True)
-    city = models.CharField(max_length=255, blank=True, null=True)
-    postal_code = models.CharField(max_length=7, blank=True, null=True)
-    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True)
-    grouping = models.ManyToManyField(Grouping)
-    phone = models.CharField(max_length=25, blank=True, null=True)
-    fax = models.CharField(max_length=25, blank=True, null=True)
-    next_election = models.CharField(max_length=100, blank=True, null=True)
-    election_term = models.CharField(max_length=100, blank=True, null=True)
-    population_on_reserve = models.IntegerField(blank=True, null=True)
-    population_off_reserve = models.IntegerField(blank=True, null=True)
-    population_other_reserve = models.IntegerField(blank=True, null=True)
-    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name="FIN")
-    notes = models.TextField(blank=True, null=True)
+    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
+    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
+    postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
+    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
+    grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"))
+    phone = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("phone"))
+    fax = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("fax"))
+    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election"))
+    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term"))
+    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve"))
+    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve"))
+    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve"))
+    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
 
     def __str__(self):
-        return "{}".format(self.name_eng)
+        # check to see if a french value is given
+        if getattr(self, str(_("name_eng"))):
+            return "{}".format(getattr(self, str(_("name_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name_eng)
 
     class Meta:
         ordering = ['name_eng']
@@ -145,7 +155,12 @@ class MemberRole(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
@@ -171,7 +186,12 @@ class EntryType(models.Model):
     color = models.CharField(max_length=25, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
@@ -183,7 +203,12 @@ class Status(models.Model):
     color = models.CharField(max_length=25, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
@@ -194,7 +219,12 @@ class FundingPurpose(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
@@ -205,7 +235,12 @@ class Sector(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
@@ -216,7 +251,12 @@ class Region(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
