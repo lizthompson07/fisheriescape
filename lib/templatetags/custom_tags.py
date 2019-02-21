@@ -2,6 +2,8 @@ from django import template
 from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString, mark_safe
 
+from lib.templatetags.custom_filters import nz
+
 register = template.Library()
 
 
@@ -30,9 +32,9 @@ def lookup(my_dict, key):
 
 @register.simple_tag
 def add(value, arg):
-    return float(value) + float(arg)
+    return float(nz(value, 0)) + float(nz(arg, 0))
 
 
 @register.simple_tag
 def subtract(value, arg):
-    return float(value) - float(arg)
+    return float(nz(value, 0)) - float(nz(arg, 0))
