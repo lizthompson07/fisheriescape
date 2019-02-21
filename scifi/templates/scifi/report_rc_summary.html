@@ -44,7 +44,7 @@
             </thead>
             <tbody>
             {% for project in project_list %}
-                <tr href="{% url 'scifi:report_project' fiscal_year project.id %}">
+                <tr href="{% url 'scifi:report_project' fiscal_year.id project.id %}">
                     <td>
                         {{ project.code }}
                     </td>
