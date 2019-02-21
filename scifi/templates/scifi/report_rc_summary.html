@@ -44,11 +44,9 @@
             </thead>
             <tbody>
             {% for project in project_list %}
-                <tr>
+                <tr href="{% url 'scifi:report_project' fiscal_year project.id %}">
                     <td>
-                        <a href="{% url 'scifi:report_project' fiscal_year project.id %}">
-                            {{ project.code }}
-                        </a>
+                        {{ project.code }}
                     </td>
                     <td>{{ project.name }}</td>
                     <td>{{ my_dict|lookup:project.code|lookup:"rcs" }}</td>
