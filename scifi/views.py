@@ -342,7 +342,7 @@ class TransactionListView(SciFiAdminRequiredMixin, FilterView):
         kwargs = super().get_filterset_kwargs(filterset_class)
         if kwargs["data"] is None:
             kwargs["data"] = {
-                "fiscal_year": fiscal_year(),
+                "fiscal_year": fiscal_year(sap_style=True),
             }
         return kwargs
 

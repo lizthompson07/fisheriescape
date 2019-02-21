@@ -103,8 +103,19 @@ class Project(models.Model):
         ordering = ['code', ]
 
 
+class FiscalYear(models.Model):
+    full = models.TextField(blank=True, null=True)
+    short = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{}".format(self.full)
+
+    class Meta:
+        ordering = ['id', ]
+
+
 class Transaction(models.Model):
-    # Choices for tranaction_type
+    # Choices for transaction_type
     EXP = 1
     ADJ = 2
     ALL = 3
@@ -114,7 +125,7 @@ class Transaction(models.Model):
         (ALL, 'Allocation'),
     )
 
-    fiscal_year = models.CharField(blank=True, null=True, max_length=25)
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name='transactions', verbose_name=_("fiscal year"))
     responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, related_name='transactions')
     business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, related_name='transactions')
     allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, related_name='transactions')
