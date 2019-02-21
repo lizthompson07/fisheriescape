@@ -8,7 +8,6 @@
 {% block content %}
 
 
-
     <style>
         table, td, th {
             font-size: small;
@@ -51,16 +50,24 @@
         </div>
         <div class="row">
             <div class="col-12">
-                Total transactions = {{ object_list.count }}<br><br>
                 {% paginate 40 filter.qs as filter_list %}
-                {% show_pages %} <b><em>(ordered by creation date)</em></b>
-                <div class="float-right" style="padding-bottom: 10px">
-                    <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">New
-                        Transaction (Ctrl+A)</a>
+                                <br>
+
+            
+                <div class="row">
+                    <div class="col">
+                        (click on a header to sort table)
+                    </div>
+                    <div class="col" style="text-align: center">
+                        {% show_pages %}
+                        <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
+                    </div>
+                    <div class="col" style="text-align: right; padding-bottom: 10px">
+                        <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">Transaction (Ctrl+A)</a>
+                    </div>
                 </div>
                 <table class="table table-sm table-hover table-bordered sortable">
                     <thead>
-                    <tr>
                         <th></th>
                         {% for field in field_list %}
                             {% if field == "fiscal_year" or field == "invoice_date" %}
@@ -73,15 +80,11 @@
                                 <th scope="col">{% get_verbose_label my_object field %}</th>
                             {% endif %}
                         {% endfor %}
-                    </tr>
                     </thead>
                     <tbody>
                     {% for object in filter_list %}
-                        <tr id="trans{{ object.id }}">
+                        <tr id="trans{{ object.id }}" data-toggle="tooltip" title="Click to view" href="{% url 'scifi:trans_detail' object.id %}">
                             <td style="font-size: x-small">
-                                <a href="{% url 'scifi:trans_detail' object.id %}">
-                                    view
-                                </a><br>
                                 <a href="{% url 'scifi:trans_edit' object.id %}">
                                     edit
                                 </a><br>
@@ -146,8 +149,6 @@
                             {% endfor %}
                         </tr>
                     {% endfor %}
-
-                    <br>
                     </tbody>
                 </table>
                 {% show_pages %}
