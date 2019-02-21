@@ -388,6 +388,7 @@ class TransactionBasicListView(SciFiAdminRequiredMixin, FilterView):
             }
         return kwargs
 
+
 def toggle_mrs(request, pk, query=None):
     # get instance of transaction
     my_t = models.Transaction.objects.get(pk=pk)
@@ -399,6 +400,7 @@ def toggle_mrs(request, pk, query=None):
     my_t.save()
 
     return HttpResponseRedirect(reverse("scifi:trans_list") + "?{}#trans{}".format(query, pk))
+
 
 class TransactionDetailView(SciFiAdminRequiredMixin, DetailView):
     model = models.Transaction
@@ -606,7 +608,7 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
     def get_initial(self):
         # default the year to the year of the latest samples
         return {
-            "fiscal_year": fiscal_year(),
+            "fiscal_year": fiscal_year(sap_style=True),
             # "report": 1,
         }
 
@@ -615,7 +617,7 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
-        fiscal_year = str(form.cleaned_data["fiscal_year"])
+        fiscal_year = int(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
         try:
             rc = int(form.cleaned_data["rc"])
@@ -736,8 +738,8 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        fy = self.kwargs['fiscal_year']
-        context["fiscal_year"] = fiscal_year
+        fy = models.FiscalYear.objects.get(pk=self.kwargs['fiscal_year'])
+        context["fiscal_year"] = fy
 
         rc = models.ResponsibilityCenter.objects.get(pk=self.kwargs['rc'])
         context["rc"] = rc
@@ -865,7 +867,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Transaction.objects.first()
-        fy = self.kwargs['fiscal_year']
+        fy = models.FiscalYear.objects.get(pk=self.kwargs['fiscal_year'])
         context["fiscal_year"] = fy
 
         project = models.Project.objects.get(pk=self.kwargs['project'])
