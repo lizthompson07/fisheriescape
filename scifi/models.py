@@ -116,13 +116,13 @@ class FiscalYear(models.Model):
 
 class Transaction(models.Model):
     # Choices for transaction_type
-    EXP = 1
-    ADJ = 2
-    ALL = 3
+    ALLOCATION = 1
+    ADJUSTMENT = 2
+    EXPENDITURE = 3
     TYPE_CHOICES = (
-        (EXP, 'Expenditure'),
-        (ADJ, 'Adjustment'),
-        (ALL, 'Allocation'),
+        (ALLOCATION, 'Allocation'),
+        (ADJUSTMENT, 'Adjustment'),
+        (EXPENDITURE, 'Expenditure'),
     )
 
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name='transactions', verbose_name=_("fiscal year"))
@@ -151,10 +151,6 @@ class Transaction(models.Model):
         return "{}".format(self.supplier_description)
 
     def save(self, *args, **kwargs):
-        if self.invoice_date:
-            self.fiscal_year = fiscal_year(date=self.invoice_date)
-        elif self.creation_date:
-            self.fiscal_year = fiscal_year(date=self.creation_date)
 
         if self.obligation_cost:
             self.outstanding_obligation = self.obligation_cost - nz(self.invoice_cost, 0)

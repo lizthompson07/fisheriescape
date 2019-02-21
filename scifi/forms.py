@@ -38,8 +38,9 @@ class TransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
     class Meta:
         model = models.Transaction
-        exclude = ["fiscal_year", "outstanding_obligation"]
+        exclude = ["outstanding_obligation"]
         widgets = {
+            "fiscal_year": forms.NumberInput(),
             "created_by": forms.HiddenInput(),
             "creation_date": forms.DateInput(attrs={"type": "date"}),
             "invoice_date": forms.DateInput(attrs={"type": "date"}),
