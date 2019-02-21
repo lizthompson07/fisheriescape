@@ -621,13 +621,20 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
             rc = int(form.cleaned_data["rc"])
         except ValueError:
             rc = None
+        try:
+            project = int(form.cleaned_data["project"])
+        except ValueError:
+            project = None
 
         if report == 1:
             return HttpResponseRedirect(reverse("scifi:report_branch", kwargs={'fiscal_year': fiscal_year}))
         elif report == 2:
             return HttpResponseRedirect(reverse("scifi:report_rc", kwargs={'fiscal_year': fiscal_year, "rc": rc}))
-        # elif report == 3:
-        #     return HttpResponseRedirect(reverse("scifi:report_branch", kwargs={'fiscal_year': fiscal_year}))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("scifi:report_project", kwargs={
+                'fiscal_year': fiscal_year,
+                'project': project,
+            }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("scifi:report_search"))
