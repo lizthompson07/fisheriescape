@@ -43,6 +43,7 @@ urlpatterns += i18n_patterns(
     path('projects/', include('projects.urls')),
     path('ihub/', include('ihub.urls')),
     path('scifi/', include('scifi.urls')),
+    path('master-list/', include('masterlist.urls')),
 
     # Password reset views. Views are part of accounts app #
     ########################################################
