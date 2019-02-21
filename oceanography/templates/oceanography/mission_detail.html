@@ -72,7 +72,6 @@
 
         function initialize() {
             var locations = [
-
                 {% for bottle in object.bottles.all %}
                     {% if bottle.lat_DDdd and bottle.long_DDdd %}
                         ['<a href="{% url 'oceanography:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>', {{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/icons/milk_bottle.png" %}'],
@@ -110,50 +109,14 @@
             map.fitBounds(bounds);
         }
 
-        {##}
-        {#for (i = 0; i < locations.length; i++) {#}
-        {#    marker = new google.maps.Marker({#}
-        {#        position: new google.maps.LatLng(locations[i][1], locations[i][2]),#}
-        {#        map: map,#}
-        {#        icon: locations[i][3]#}
-        {#    });#}
-        {##}
-        {#    bounds.extend(marker.position);#}
-        {##}
-        {#    google.maps.event.addListener(marker, 'spider_click', (function (marker, i) {#}
-        {#        return function () {#}
-        {##}
-        {#            infowindow.setContent(locations[i][0]);#}
-        {#            infowindow.open(map, marker);#}
-        {#        }#}
-        {#    })(marker, i));#}
-        {#}#}
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+        }
 
-            {#for (var i = 0, len = window.mapData.length; i < len; i++) {#}
-            {#    (function () {  // make a closure over the marker and marker data#}
-            {#        var markerData = window.mapData[i];  // e.g. { lat: 50.123, lng: 0.123, text: 'XYZ' }#}
-            {#        var marker = new google.maps.Marker({position: markerData});  // markerData works here as a LatLngLiteral#}
-            {#        google.maps.event.addListener(marker, 'spider_click', function (e) {  // 'spider_click', not plain 'click'#}
-            {#            iw.setContent(markerData.text);#}
-            {#            iw.open(map, marker);#}
-            {#        });#}
-            {#        oms.addMarker(marker);  // adds the marker to the spiderfier _and_ the map#}
-            {#    })();#}
-            {#}#}
-                {##}
-                {#                map.fitBounds(bounds);#}
-                {##}
-                {##}
-                {#            }#}
-
-                function loadScript() {
-                    var script = document.createElement('script');
-                    script.type = 'text/javascript';
-                    script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-                    document.body.appendChild(script);
-                }
-
-                window.onload = loadScript;
+        window.onload = loadScript();
 
     </script>
 

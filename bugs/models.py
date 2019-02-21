@@ -24,7 +24,6 @@ class Bug(models.Model):
 
 
     # Choices for application
-
     GENERAL = 1
     GRAIS = 2
     INVENTORY = 3
@@ -37,20 +36,22 @@ class Bug(models.Model):
     PROJECTS = 10
     IHUB = 11
     SCIFI = 12
+    MASTERLIST = 13
 
     APP_CHOICES = (
         (GENERAL,'General'),
         (ACCOUNTS,'Accounts'),
         (GRAIS,'grAIS'),
         (INVENTORY,'Data Inventory'),
-        (HERMORRHAGE,'HERMorrhage'),
+        (HERMORRHAGE,'HerMorrhage'),
         (RDMTS,'Ticketing System'),
         (CAMP, 'CAMP'),
         (SNOWCRAB, 'Snow Crab'),
         (DIETS, 'Diets'),
         (PROJECTS, 'Project Planning'),
-        (IHUB, 'Indigenous Hub'),
+        (IHUB, 'iHub'),
         (SCIFI, 'SciFi'),
+        (MASTERLIST, 'Master List'),
     )
 
     APP_DICT = {
