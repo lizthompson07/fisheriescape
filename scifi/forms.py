@@ -36,9 +36,13 @@ class ProjectForm(forms.ModelForm):
 
 class TransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
+
     class Meta:
         model = models.Transaction
         exclude = ["outstanding_obligation"]
+        labels = {
+            "fiscal_year": "Fiscal year (SAP style e.g. 2018-2019 = 2019)",
+        }
         widgets = {
             "fiscal_year": forms.NumberInput(),
             "created_by": forms.HiddenInput(),
@@ -49,6 +53,7 @@ class TransactionForm(forms.ModelForm):
 
 class CustomTransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
+
     class Meta:
         model = models.Transaction
         fields = [
@@ -69,7 +74,6 @@ class CustomTransactionForm(forms.ModelForm):
             "in_mrs",
         ]
 
-
         labels = {
             "supplier_description": "Expense description",
             "obligation_cost": "Cost estimation",
@@ -85,15 +89,16 @@ class CustomTransactionForm(forms.ModelForm):
             "in_mrs": forms.HiddenInput(),
         }
 
+
 class ReportSearchForm(forms.Form):
-    FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in
-                  range(timezone.now().year - 2, timezone.now().year + 1)]
+    FY_CHOICES = [(obj.id, "{}".format(obj.full)) for obj in models.FiscalYear.objects.all()]
+    FY_CHOICES.insert(0, (None, "------"))
     RC_CHOICES = [(obj.id, obj) for obj in models.ResponsibilityCenter.objects.all()]
     RC_CHOICES.insert(0, (None, "------"))
     PROJECT_CHOICES = [(obj.id, "{} - {}".format(obj.code, obj.name)) for obj in models.Project.objects.all()]
     PROJECT_CHOICES.insert(0, (None, "------"))
     REPORT_CHOICES = [
-        (1, "Branch Summary"),
+        # (1, "Branch Summary"),
         (2, "RC Summary"),
         (3, "Project Summary"),
     ]
