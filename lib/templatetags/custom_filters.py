@@ -42,7 +42,7 @@ def zero2val(value, arg):
 
 @register.filter
 def divide(value, arg):
-    return float(value) / float(arg)
+    return float(nz(value,0)) / float(arg)
 
 
 @register.filter
