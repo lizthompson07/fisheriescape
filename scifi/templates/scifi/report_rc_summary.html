@@ -51,10 +51,10 @@
                     <td>{{ project.name }}</td>
                     <td>{{ my_dict|lookup:project.code|lookup:"rcs" }}</td>
                     <td>{{ my_dict|lookup:project.code|lookup:"ac_cats" }}</td>
-                    <td>$ {{ my_dict|lookup:project.code|lookup:"allocations"|floatformat:2|intcomma }}</td>
-                    <td>$ {{ my_dict|lookup:project.code|lookup:"adjustments"|floatformat:2|intcomma }}</td>
-                    <td>$ {{ my_dict|lookup:project.code|lookup:"obligations"|floatformat:2|intcomma }}</td>
-                    <td>$ {{ my_dict|lookup:project.code|lookup:"expenditures"|floatformat:2|intcomma }}</td>
+                    <td>{{ my_dict|lookup:project.code|lookup:"allocations"|currency }}</td>
+                    <td>{{ my_dict|lookup:project.code|lookup:"adjustments"|currency }}</td>
+                    <td>{{ my_dict|lookup:project.code|lookup:"obligations"|currency }}</td>
+                    <td>{{ my_dict|lookup:project.code|lookup:"expenditures"|currency }}</td>
                     {% with my_dict|lookup:project.code|lookup:"allocations" as allocations %}
                         {% with my_dict|lookup:project.code|lookup:"adjustments" as adjustments %}
                             {% with my_dict|lookup:project.code|lookup:"expenditures" as expenditures %}
@@ -69,7 +69,7 @@
                                                 {% else %}
                                             <td>
                                         {% endif %}
-                                    $ {{ balance|floatformat:2|intcomma }}
+                                    {{ balance|currency }}
                                     </td>
                                     {% endwith %}
                                 {% endwith %}

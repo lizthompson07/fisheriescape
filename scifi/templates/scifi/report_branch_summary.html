@@ -28,19 +28,19 @@
             <tbody>
             <tr>
                 <th>Total allocations</th>
-                <td>$ {{ my_dict|lookup:"total_allocations"|floatformat:2|intcomma }}</td>
+                <td>$ {{ my_dict|lookup:"total_allocations"|currency }}</td>
             </tr>
             <tr>
                 <th>Total adjustments</th>
-                <td>$ {{ my_dict|lookup:"total_adjustments"|floatformat:2|intcomma }}</td>
+                <td>$ {{ my_dict|lookup:"total_adjustments"|currency }}</td>
             </tr>
             <tr>
                 <th>Total outstanding obligations</th>
-                <td>$ {{ my_dict|lookup:"total_obligations"|floatformat:2|intcomma }}</td>
+                <td>$ {{ my_dict|lookup:"total_obligations"|currency }}</td>
             </tr>
             <tr>
                 <th>Total expenditures</th>
-                <td>$ {{ my_dict|lookup:"total_expenditures"|floatformat:2|intcomma }}</td>
+                <td>$ {{ my_dict|lookup:"total_expenditures"|currency }}</td>
             </tr>
             <tr>
                 <th>Total unofficial free balance</th>
@@ -58,7 +58,7 @@
                                             {% else %}
                                         <td>
                                     {% endif %}
-                                $ {{ balance|floatformat:2|intcomma }}
+                                $ {{ balance|currency }}
                                 </td>
                                 {% endwith %}
                             {% endwith %}
@@ -90,10 +90,10 @@
                         </a>
                     </td>
                     <td>{{ rc.name }}</td>
-                    <td>$ {{ my_dict|lookup:rc.code|lookup:"allocations"|floatformat:2|intcomma }}</td>
-                    <td>$ {{ my_dict|lookup:rc.code|lookup:"adjustments"|floatformat:2|intcomma }}</td>
-                    <td>$ {{ my_dict|lookup:rc.code|lookup:"obligations"|floatformat:2|intcomma }}</td>
-                    <td>$ {{ my_dict|lookup:rc.code|lookup:"expenditures"|floatformat:2|intcomma }}</td>
+                    <td>{{ my_dict|lookup:rc.code|lookup:"allocations"|currency }}</td>
+                    <td>{{ my_dict|lookup:rc.code|lookup:"adjustments"|currency }}</td>
+                    <td>{{ my_dict|lookup:rc.code|lookup:"obligations"|currency }}</td>
+                    <td>{{ my_dict|lookup:rc.code|lookup:"expenditures"|currency }}</td>
                     {% with my_dict|lookup:rc.code|lookup:"allocations" as allocations %}
                         {% with my_dict|lookup:rc.code|lookup:"adjustments" as adjustments %}
                             {% with my_dict|lookup:rc.code|lookup:"expenditures" as expenditures %}
@@ -108,7 +108,7 @@
                                                 {% else %}
                                             <td>
                                         {% endif %}
-                                    $ {{ balance|floatformat:2|intcomma }}
+                                    {{ balance|currency }}
                                     </td>
                                     {% endwith %}
                                 {% endwith %}

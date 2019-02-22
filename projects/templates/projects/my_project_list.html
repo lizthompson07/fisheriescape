@@ -43,7 +43,7 @@
         <br> <br>
         <table class="table table-hover table-sm">
             <thead>
-            <th scope="col" style="width: 100px;">
+            <th scope="col" style="width: auto">
                 {% trans "Fiscal Year" %}
             </th>
             <th scope="col">
@@ -52,7 +52,7 @@
             <th scope="col">
                 {% trans "Section" %}
             </th>
-            <th scope="col" style="width: 500px;">
+            <th scope="col">
                 {% trans "Title" %}
             </th>
             <th scope="col">
@@ -64,9 +64,12 @@
             <th scope="col">
                 {% trans "No. weeks" %}
             </th>
-            <th scope="col">
+            <th scope="col" style="text-align: center">
                 {% trans "Submitted" %}
             </th>
+{#            <th scope="col" style="text-align: center">#}
+{#                {% trans "Approved by Section Head" %}#}
+{#            </th>#}
             </thead>
 
             <tbody>
@@ -85,19 +88,18 @@
                         {{ obj.project.project_title }}
                     </td>
                     <td>
-                        {{ obj.lead|yesno}}
+                        {{ obj.lead|yesno }}
                     </td>
                     <td>{{ obj.employee_type }}</td>
                     <td>{{ obj.duration_weeks }}</td>
 
-                    {% if obj.project.submitted %}
-                        <td class="good">
-                            {% else %}
-                        <td class="bad">
-
-                    {% endif %}
-                    {{ obj.project.submitted|yesno:_("yes,no") }}
+                    <td class="{% if obj.project.submitted %}good{% else %}bad{% endif %}" style="text-align:center">
+                        {{ obj.project.submitted|yesno:_("yes,no") }}
                     </td>
+{#                    <td class="{% if obj.project.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">#}
+{#                        {{ obj.project.section_head_approved|yesno:_("yes,no") }}<br>#}
+{#                    </td>#}
+
                 </tr>
             {% endfor %}
             </tbody>

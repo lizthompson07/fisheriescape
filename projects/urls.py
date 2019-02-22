@@ -73,6 +73,7 @@ urlpatterns = [
     # SHARED #
     ##########
     path('toggle-funding-source/<str:type>/<int:pk>/', views.toggle_source, name="toggle_source"),
+    path('toggle-section-head-approved/<int:project>/', views.toggle_project_approval, name="toggle_project_approval"),
 
 
 ]
