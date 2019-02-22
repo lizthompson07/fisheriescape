@@ -66,6 +66,17 @@ class SciFiAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
     template_name = 'scifi/index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_user = self.request.user
+        rc_list = models.ResponsibilityCenter.objects.filter(responsible_manager=my_user)
+        context["rc_list"] = rc_list
+        context["fy"] = fiscal_year(sap_style=True)
+
+
+
+        return context
+
 
 # ALLOTMENT CODE #
 ##################
