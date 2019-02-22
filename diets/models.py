@@ -31,6 +31,9 @@ class Cruise(models.Model):
     def __str__(self):
         return "{}".format(self.cruise_number)
 
+    def get_absolute_url(self):
+        return reverse('diets:cruise_detail', kwargs={'pk': self.id})
+
     def save(self, *args, **kwargs):
         if self.start_date:
             self.season = self.start_date.year
