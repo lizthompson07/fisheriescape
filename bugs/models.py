@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
+
+
 # Create your models here.
 
 class Bug(models.Model):
@@ -14,14 +16,13 @@ class Bug(models.Model):
     QC_ELEMENT = 'q'
 
     IMPORTANCE_CHOICES = (
-        (URGENT,'Urgent'),
-        (HIGH,'High'),
-        (MED,'Medium'),
-        (LOW,'Low'),
-        (WISHLIST,'Wishlist'),
-        (QC_ELEMENT,'Quality control element')
+        (URGENT, 'Urgent'),
+        (HIGH, 'High'),
+        (MED, 'Medium'),
+        (LOW, 'Low'),
+        (WISHLIST, 'Wishlist'),
+        (QC_ELEMENT, 'Quality control element')
     )
-
 
     # Choices for application
     GENERAL = 1
@@ -39,12 +40,12 @@ class Bug(models.Model):
     MASTERLIST = 13
 
     APP_CHOICES = (
-        (GENERAL,'General'),
-        (ACCOUNTS,'Accounts'),
-        (GRAIS,'grAIS'),
-        (INVENTORY,'Data Inventory'),
-        (HERMORRHAGE,'HerMorrhage'),
-        (RDMTS,'Ticketing System'),
+        (GENERAL, 'General'),
+        (ACCOUNTS, 'Accounts'),
+        (GRAIS, 'grAIS'),
+        (INVENTORY, 'Data Inventory'),
+        (HERMORRHAGE, 'HerMorrhage'),
+        (RDMTS, 'Ticketing System'),
         (CAMP, 'CAMP'),
         (SNOWCRAB, 'Snow Crab'),
         (DIETS, 'Diets'),
@@ -55,13 +56,19 @@ class Bug(models.Model):
     )
 
     APP_DICT = {
-        GENERAL:'General',
-        ACCOUNTS:'Accounts',
-        GRAIS:'grAIS',
-        INVENTORY:'Data Inventory',
-        HERMORRHAGE:'HerMorrhage',
-        RDMTS:'Ticketing System',
+        GENERAL: 'General',
+        ACCOUNTS: 'Accounts',
+        GRAIS: 'grAIS',
+        INVENTORY: 'Data Inventory',
+        HERMORRHAGE: 'HerMorrhage',
+        RDMTS: 'Ticketing System',
         CAMP: 'CAMP app',
+        SNOWCRAB: 'Snow Crab',
+        DIETS: 'Diets',
+        PROJECTS: 'Project Planning',
+        IHUB: 'iHub',
+        SCIFI: 'SciFi',
+        MASTERLIST: 'Master List',
     }
 
     user = models.ForeignKey('auth.User', on_delete=models.DO_NOTHING)
@@ -71,15 +78,15 @@ class Bug(models.Model):
     subject = models.CharField(max_length=255)
     detail = models.TextField(blank=True, null=True)
     date_resolved = models.DateTimeField(db_column='DATE_RESOLVED', blank=True, null=True)
-    resolved = models.BooleanField(default = False)
+    resolved = models.BooleanField(default=False)
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         if self.date_resolved == None:
             self.resolved = False
         else:
             self.resolved = True
 
-        super().save(*args,**kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ['resolved','application','-date_created']
+        ordering = ['resolved', 'application', '-date_created']
