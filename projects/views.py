@@ -4,6 +4,7 @@ import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -16,8 +17,6 @@ from . import models
 from . import forms
 from . import filters
 from . import reports
-
-
 
 
 def can_delete(user, project):
@@ -225,7 +224,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             'project_title',
             'section',
             'program',
-            'coding|'+_("budget code"),
+            'coding|' + _("budget code"),
             'date_last_modified',
             'last_modified_by',
         ]
@@ -737,6 +736,19 @@ def toggle_source(request, pk, type):
 
     return HttpResponseRedirect(
         reverse_lazy("projects:project_detail", kwargs={"pk": my_cost.project.id}) + "?#{}-{}".format(type, pk))
+
+
+def toggle_project_approval(request, project):
+    my_proj = models.Project.objects.get(pk=project)
+
+    if my_proj.section_head_approved:
+        my_proj.section_head_approved = None
+    else:
+        my_proj.section_head_approved = timezone.now()
+
+    my_proj.save()
+
+    return HttpResponseRedirect(reverse_lazy("projects:my_section_list"))
 
 
 # REPORTS #

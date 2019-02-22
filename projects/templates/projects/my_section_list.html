@@ -35,7 +35,7 @@
 
             <h3>
                 {% blocktrans with fy=next_fiscal_year %}
-                      You can download a spreadsheet with all {{ fy }} projects <a href="{{ report_url }}">here</a>
+                    You can download a spreadsheet with all {{ fy }} projects <a href="{{ report_url }}">here</a>
                 {% endblocktrans %}
             </h3>
             <br> <br>
@@ -56,24 +56,27 @@
             </div>
             <table class="table table-hover table-sm sortable">
                 <thead>
-                    <th scope="col" style="width: 120px;">
-                        {% trans "Fiscal Year" %}
-                    </th>
-                    <th scope="col">
-                        {% trans "Division" %}
-                    </th>
-                    <th scope="col">
-                        {% trans "Section" %}
-                    </th>
-                    <th scope="col">
-                        {% trans "Title" %}
-                    </th>
-                    <th scope="col">
-                        {% trans "Project Lead" %}
-                    </th>
-                    <th scope="col">
-                        {% trans "Submitted" %}
-                    </th>
+                <th scope="col" style="width: 120px;">
+                    {% trans "Fiscal Year" %}
+                </th>
+                <th scope="col">
+                    {% trans "Division" %}
+                </th>
+                <th scope="col">
+                    {% trans "Section" %}
+                </th>
+                <th scope="col">
+                    {% trans "Title" %}
+                </th>
+                <th scope="col">
+                    {% trans "Project Lead" %}
+                </th>
+                <th scope="col" style="text-align:center">
+                    {% trans "Submitted" %}
+                </th>
+                <th scope="col" style="text-align:center">
+                    {% trans "Section Head Approved" %}
+                </th>
                 </thead>
                 <tbody>
 
@@ -90,7 +93,7 @@
                                 <td>{{ obj.section.name }}</td>
                             {% endif %}
                             <td>
-                                    {{ obj.project_title }}
+                                {{ obj.project_title }}
                             </td>
                             <td>
                                 {% for staff in obj.staff_members.all %}
@@ -105,15 +108,20 @@
                                 {% endfor %}
                             </td>
 
-                            {% if obj.submitted %}
-                                <td class="good">
-                                    {% else %}
-                                <td class="bad">
-                            {% endif %}
-
-                            {{ obj.submitted|yesno:_("yes,no") }}
+                            <td class="{% if obj.submitted %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.submitted|yesno:_("yes,no") }}
                             </td>
-
+                            <td class="{% if obj.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.section_head_approved|yesno:_("yes,no") }}<br>
+                                <a href="#" style="font-size: small" class="approve"
+                                   my_url="{% url 'projects:toggle_project_approval' obj.id %}">
+                                    {% if not obj.section_head_approved %}
+                                        (click to approve)
+                                    {% else %}
+                                        (click to un-approve)
+                                    {% endif %}
+                                </a>
+                            </td>
 
                         </tr>
                     {% endfor %}
@@ -131,5 +139,15 @@
             </p>
 
         {% endif %}
+
+    <
+    <script type="application/javascript">
+        $(".approve").click(function (e) {
+            e.stopImmediatePropagation()
+            var myURL = $(this)[0].getAttribute("my_url");
+            window.location.href = myURL
+
+        });
+    </script>>
 
 {% endblock content %}

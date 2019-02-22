@@ -76,7 +76,14 @@ def tostring(value):
 @register.filter
 def currency(value, with_sign=False):
     """returns 'value' into a currency format """
-    if with_sign:
-        return "$ {0:,.2f}".format(value)
+    try:
+        float(value) == 0
+        # if not able to cast, then just return 'value'
+    except ValueError or TypeError:
+        return value
     else:
-        return "{0:,.2f}".format(value)
+        if with_sign:
+            return "$ {0:,.2f}".format(value)
+        else:
+            return "{0:,.2f}".format(value)
+
