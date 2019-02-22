@@ -31,7 +31,7 @@
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            $("#id_digestion_level")[0].focus()
+            $("#id_employee_type")[0].focus()
         });
     </script>
     {% url 'projects:user_new' as user_url %}
@@ -172,6 +172,7 @@
         </form>
     </div>
 
+    {% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." as warning %}
 
     <script type="application/javascript">
         $(document).ready(function () {
@@ -193,6 +194,13 @@
 
         });
 
+        $("#id_lead").change(function () {
+            currentUser = {{ user.id }}
+                selectedUser = $("#id_user").val()
+            if (currentUser == selectedUser && $(this).val() == "False") {
+                alert("{{warning}}")
+            }
+        });
 
         $("form").change(function () {
             checkFields()
