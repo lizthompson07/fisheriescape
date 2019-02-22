@@ -27,6 +27,7 @@ class ProjectForm(forms.ModelForm):
         exclude = [
             'submitted',
             'date_last_modified',
+            'section_head_approved',
         ]
         widgets = {
             'start_date': forms.DateInput(attrs={"type": "date"}),
