@@ -146,6 +146,7 @@ class Transaction(models.Model):
     procurement_hub_contact = models.CharField(max_length=500, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    exclude_from_rollup = models.BooleanField(default=False, verbose_name="Exclude from rollup", choices=YES_NO_CHOICES)
 
     def __str__(self):
         return "{}".format(self.supplier_description)
