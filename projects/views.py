@@ -24,8 +24,8 @@ def can_delete(user, project):
     """returns True if user is a custodian in the specified resource"""
     if user.id:
         # # check to see if a superuser
-        # if user.is_superuser:
-        #     return True
+        if user.is_superuser:
+            return True
         # check to see if they are a section head
         if project.section.section_head.id == user.id:
             return True
