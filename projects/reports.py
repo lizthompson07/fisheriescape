@@ -48,6 +48,7 @@ def generate_master_spreadsheet(fiscal_year, user=None):
         verbose_field_name(project_list.first(), 'program'),
         "Coding",
         verbose_field_name(project_list.first(), 'status'),
+        "Project lead",
         verbose_field_name(project_list.first(), 'approved'),
         verbose_field_name(project_list.first(), 'start_date'),
         verbose_field_name(project_list.first(), 'end_date'),
@@ -130,6 +131,11 @@ def generate_master_spreadsheet(fiscal_year, user=None):
             status = "n/a"
 
         try:
+            lead = str(["{} {}".format(lead.user.first_name, lead.user.last_name) for lead in p.staff_members.filter(lead=True)])
+        except:
+            lead = "n/a"
+
+        try:
             program = p.program.name
         except:
             program = "n/a"
@@ -152,6 +158,7 @@ def generate_master_spreadsheet(fiscal_year, user=None):
             program,
             p.coding,
             status,
+            lead,
             p.approved,
             start,
             end,
