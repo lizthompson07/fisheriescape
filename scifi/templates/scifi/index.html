@@ -23,19 +23,31 @@
 
         </div>
 
-        {% if user.is_authenticated %}
-            <br><br><br>
-            <h2>Quickstart Menu:</h2>
+
+        <br>
+        <h2>Quickstart Menu:</h2>
+        <ul>
+
+            <li>
+                <a href="{% url 'scifi:ctrans_new' %}">Create a new expense</a>
+            </li>
+            <li>
+                <a href="{% url 'scifi:report_search' %}">View account summary</a>
+            </li>
+        </ul>
+        <br>
+
+        {% if rc_list %}
+            <h4> {{ user.first_name }}, here is a list of your responsibility centers:</h4>
             <ul>
-            <li>
-                <a href="{% url 'scifi:ctrans_new'  %}">Create a new expense</a>
-            </li>
-            <li>
-                <a href="{% url 'scifi:report_search'  %}">View account summary</a>
-            </li>
+                {% for rc in rc_list %}
+                    <li>
+                        <a href="{% url 'scifi:report_rc' fy rc.id %}">{{ rc }}</a>
+                    </li>
+                {% endfor %}
+
             </ul>
         {% endif %}
-
 
     </div>
 
