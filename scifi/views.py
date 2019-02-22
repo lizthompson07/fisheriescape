@@ -344,6 +344,7 @@ class TransactionListView(SciFiAdminRequiredMixin, FilterView):
             'amount_paid_in_mrs',
             'mrs_notes',
             'procurement_hub_contact',
+            'exclude_from_rollup',
             'comment',
         ]
         context["my_object"] = self.model.objects.first()
@@ -437,6 +438,7 @@ class TransactionDetailView(SciFiAdminRequiredMixin, DetailView):
             'amount_paid_in_mrs',
             'mrs_notes',
             'procurement_hub_contact',
+            'exclude_from_rollup',
             'comment',
         ]
         return context
@@ -804,7 +806,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project allocation
                 try:
                     project_allocations = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
+                        models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
                             transaction_type=1).filter(allotment_code=ac).values("project").order_by(
                             "project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
                 except TypeError:
@@ -819,7 +821,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project adjustments
                 try:
                     project_adjustments = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
+                        models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
                             transaction_type=2).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
                 except TypeError:
@@ -832,7 +834,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project obligations
                 try:
                     project_obligations = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
+                        models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
                             transaction_type=3).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(
                             dsum=Sum("outstanding_obligation")).first()[
@@ -847,7 +849,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project expenditures
                 try:
                     project_expenditures = \
-                        nz(models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
+                        nz(models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
                             transaction_type=3).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()[
                                "dsum"], 0)
@@ -871,7 +873,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
     template_name = 'scifi/report_project_summary.html'
 
     def get_queryset(self, **kwargs):
-        qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+        qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(exclude_from_rollup=False).filter(
             fiscal_year_id=self.kwargs["fiscal_year"]).order_by("-transaction_type", "creation_date")
         return qs
 
@@ -903,7 +905,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         my_dict["total_obligations"] = {}
         my_dict["total_expenditures"] = {}
 
-        qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(fiscal_year=fy)
+        qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(exclude_from_rollup=False).filter(fiscal_year=fy)
 
         ac_list = [models.AllotmentCode.objects.get(pk=t["allotment_code"]) for t in
                    qs.values("allotment_code").order_by("allotment_code").distinct()]
@@ -913,7 +915,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
             # project allocation
             try:
                 project_allocations = \
-                    nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+                    nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(exclude_from_rollup=False).filter(
                         fiscal_year=fy).filter(
                         transaction_type=1).filter(allotment_code=ac).values("project").order_by(
                         "project").aggregate(dsum=Sum("invoice_cost"))["dsum"], 0)
@@ -925,7 +927,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
             # project adjustments
             try:
                 project_adjustments = \
-                    models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+                    models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(exclude_from_rollup=False).filter(
                         fiscal_year=fy).filter(
                         transaction_type=2).filter(allotment_code=ac).values(
                         "project").order_by("project").aggregate(dsum=Sum("invoice_cost"))["dsum"]
@@ -937,7 +939,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
             # project obligations
             try:
                 project_obligations = \
-                    models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+                    models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(exclude_from_rollup=False).filter(
                         fiscal_year=fy).filter(transaction_type=3).filter(allotment_code=ac).values(
                         "project").order_by("project").aggregate(
                         dsum=Sum("outstanding_obligation"))["dsum"]
@@ -949,7 +951,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
             # project expenditures
             try:
                 project_expenditures = \
-                    nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
+                    nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(exclude_from_rollup=False).filter(
                         fiscal_year=fy).filter(
                         transaction_type=3).filter(allotment_code=ac).values(
                         "project").order_by("project").aggregate(dsum=Sum("invoice_cost"))[
