@@ -22,7 +22,7 @@
         {% for ac in ac_list %}
             {% with "total_allocations" as var %}
                 {% if my_dict|lookup:var|lookup:ac.code %}
-                    <td class="green-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
+                    <td class="green-font">{{ my_dict|lookup:var|lookup:ac.code|currency }}</td>
                 {% else %}
                     <td></td>
                 {% endif %}
@@ -34,7 +34,7 @@
         {% for ac in ac_list %}
             {% with "total_adjustments" as var %}
                 {% if my_dict|lookup:var|lookup:ac.code != 0 %}
-                    <td class="blue-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
+                    <td class="blue-font">{{ my_dict|lookup:var|lookup:ac.code|currency }}</td>
                 {% else %}
                     <td></td>
                 {% endif %}
@@ -46,7 +46,7 @@
         {% for ac in ac_list %}
             {% with "total_obligations" as var %}
                 {% if my_dict|lookup:var|lookup:ac.code %}
-                    <td class="red-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
+                    <td class="red-font">{{ my_dict|lookup:var|lookup:ac.code|currency }}</td>
                 {% else %}
                     <td></td>
                 {% endif %}
@@ -58,7 +58,7 @@
         {% for ac in ac_list %}
             {% with "total_expenditures" as var %}
                 {% if my_dict|lookup:var|lookup:ac.code %}
-                    <td class="red-font">{{ my_dict|lookup:var|lookup:ac.code|divide:1000|floatformat:1 }}</td>
+                    <td class="red-font">{{ my_dict|lookup:var|lookup:ac.code|currency }}</td>
                 {% else %}
                     <td></td>
                 {% endif %}
@@ -83,20 +83,14 @@
                                         {% else %}
                                     <td>
                                 {% endif %}
-                            <b>{{ balance|divide:1000|floatformat:2 }}</b>
+                            <b>{{ balance|currency }}</b>
                             </td>
                             {% endwith %}
                         {% endwith %}
                     {% endwith %}
                 {% endwith %}
             {% endwith %}
-
-
-
-
         {% endfor %}
-
-
     </tr>
     </tbody>
 </table>

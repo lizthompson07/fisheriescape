@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
-from django.db.models import Value, TextField, Q, Sum
+from django.db.models import TextField, Sum
 from django.db.models.functions import Concat
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -861,7 +861,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
 
     def get_queryset(self, **kwargs):
         qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
-            fiscal_year=self.kwargs["fiscal_year"]).order_by("-transaction_type", "creation_date")
+            fiscal_year_id=self.kwargs["fiscal_year"]).order_by("-transaction_type", "creation_date")
         return qs
 
     def get_context_data(self, **kwargs):
@@ -905,7 +905,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
                     nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
                         fiscal_year=fy).filter(
                         transaction_type=1).filter(allotment_code=ac).values("project").order_by(
-                        "project").distinct().aggregate(dsum=Sum("invoice_cost"))["dsum"], 0)
+                        "project").aggregate(dsum=Sum("invoice_cost"))["dsum"], 0)
             except TypeError:
                 project_allocations = 0
 
@@ -917,7 +917,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
                     models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
                         fiscal_year=fy).filter(
                         transaction_type=2).filter(allotment_code=ac).values(
-                        "project").order_by("project").distinct().aggregate(dsum=Sum("invoice_cost"))["dsum"]
+                        "project").order_by("project").aggregate(dsum=Sum("invoice_cost"))["dsum"]
             except TypeError:
                 project_adjustments = 0
 
@@ -927,11 +927,9 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
             try:
                 project_obligations = \
                     models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
-                        fiscal_year=fy).filter(
-                        transaction_type=3).filter(allotment_code=ac).values(
-                        "project").order_by("project").distinct().aggregate(
-                        dsum=Sum("outstanding_obligation"))[
-                        "dsum"]
+                        fiscal_year=fy).filter(transaction_type=3).filter(allotment_code=ac).values(
+                        "project").order_by("project").aggregate(
+                        dsum=Sum("outstanding_obligation"))["dsum"]
             except TypeError:
                 project_obligations = 0
 
@@ -943,7 +941,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
                     nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
                         fiscal_year=fy).filter(
                         transaction_type=3).filter(allotment_code=ac).values(
-                        "project").order_by("project").distinct().aggregate(dsum=Sum("invoice_cost"))[
+                        "project").order_by("project").aggregate(dsum=Sum("invoice_cost"))[
                            "dsum"], 0)
             except TypeError:
                 project_expenditures = 0

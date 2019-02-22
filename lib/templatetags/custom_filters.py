@@ -70,3 +70,13 @@ def timedelta(value, arg):
 def tostring(value):
     """casts 'value' into a str """
     return str(value)
+
+
+
+@register.filter
+def currency(value, with_sign=False):
+    """returns 'value' into a currency format """
+    if with_sign:
+        return "$ {0:,.2f}".format(value)
+    else:
+        return "{0:,.2f}".format(value)
