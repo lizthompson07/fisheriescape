@@ -67,9 +67,9 @@
             <th scope="col" style="text-align: center">
                 {% trans "Submitted" %}
             </th>
-{#            <th scope="col" style="text-align: center">#}
-{#                {% trans "Approved by Section Head" %}#}
-{#            </th>#}
+            <th scope="col" style="text-align: center">
+                {% trans "Approved by Section Head" %}
+            </th>
             </thead>
 
             <tbody>
@@ -96,9 +96,9 @@
                     <td class="{% if obj.project.submitted %}good{% else %}bad{% endif %}" style="text-align:center">
                         {{ obj.project.submitted|yesno:_("yes,no") }}
                     </td>
-{#                    <td class="{% if obj.project.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">#}
-{#                        {{ obj.project.section_head_approved|yesno:_("yes,no") }}<br>#}
-{#                    </td>#}
+                    <td class="{% if obj.project.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                        {{ obj.project.section_head_approved|yesno:_("yes,no") }}<br>
+                    </td>
 
                 </tr>
             {% endfor %}
