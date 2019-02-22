@@ -17,7 +17,6 @@ class ProjectFilter(django_filters.FilterSet):
 
 
 class TransactionFilter(django_filters.FilterSet):
-
     FY_CHOICES = [(obj.id, "{}".format(obj.full)) for obj in models.FiscalYear.objects.all()]
     RC_CHOICES = [(obj.id, "{} ({})".format(obj.code, obj.name)) for obj in models.ResponsibilityCenter.objects.all()]
 

@@ -794,7 +794,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 try:
                     project_allocations = \
                         models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
-                            transaction_type=3).filter(allotment_code=ac).values("project").order_by(
+                            transaction_type=1).filter(allotment_code=ac).values("project").order_by(
                             "project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
                 except TypeError:
                     project_allocations = 0
@@ -822,7 +822,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 try:
                     project_obligations = \
                         models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
-                            transaction_type=1).filter(allotment_code=ac).values(
+                            transaction_type=3).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(
                             dsum=Sum("outstanding_obligation")).first()[
                             "dsum"]
@@ -837,7 +837,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 try:
                     project_expenditures = \
                         nz(models.Transaction.objects.filter(project_id=p.id).filter(fiscal_year=fy).filter(
-                            transaction_type=1).filter(allotment_code=ac).values(
+                            transaction_type=3).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()[
                                "dsum"], 0)
                 except TypeError:
@@ -904,7 +904,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
                 project_allocations = \
                     nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
                         fiscal_year=fy).filter(
-                        transaction_type=3).filter(allotment_code=ac).values("project").order_by(
+                        transaction_type=1).filter(allotment_code=ac).values("project").order_by(
                         "project").distinct().aggregate(dsum=Sum("invoice_cost"))["dsum"], 0)
             except TypeError:
                 project_allocations = 0
@@ -928,7 +928,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
                 project_obligations = \
                     models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
                         fiscal_year=fy).filter(
-                        transaction_type=1).filter(allotment_code=ac).values(
+                        transaction_type=3).filter(allotment_code=ac).values(
                         "project").order_by("project").distinct().aggregate(
                         dsum=Sum("outstanding_obligation"))[
                         "dsum"]
@@ -942,7 +942,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
                 project_expenditures = \
                     nz(models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(
                         fiscal_year=fy).filter(
-                        transaction_type=1).filter(allotment_code=ac).values(
+                        transaction_type=3).filter(allotment_code=ac).values(
                         "project").order_by("project").distinct().aggregate(dsum=Sum("invoice_cost"))[
                            "dsum"], 0)
             except TypeError:
