@@ -77,10 +77,10 @@ def tostring(value):
 def currency(value, with_sign=False):
     """returns 'value' into a currency format """
     try:
-        float(value) == 0
+        float(value)
         # if not able to cast, then just return 'value'
-    except ValueError or TypeError:
-        return value
+    except ValueError and TypeError:
+        return ""
     else:
         if with_sign:
             return "$ {0:,.2f}".format(value)
