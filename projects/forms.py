@@ -10,7 +10,7 @@ class NewProjectForm(forms.ModelForm):
     class Meta:
         model = models.Project
         fields = [
-            'fiscal_year',
+            'year',
             'project_title',
             'section',
             'last_modified_by',
@@ -123,13 +123,10 @@ class GCCostForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    FY_CHOICES = [("{}-{}".format(y, y + 1), "{}-{}".format(y, y + 1)) for y in
-                  range(timezone.now().year - 2, timezone.now().year + 1)]
-
+    FY_CHOICES = [(fy.id, str(fy)) for fy in models.FiscalYear.objects.all()]
     REPORT_CHOICES = (
         (1, "Regional Project Planning Summary"),
     )
-
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)
 
