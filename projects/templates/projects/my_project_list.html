@@ -76,7 +76,7 @@
 
             {% for obj in object_list %}
                 <tr href="{% url 'projects:project_detail' obj.project.id %}">
-                    <td>{{ obj.project.fiscal_year }}</td>
+                    <td>{{ obj.project.year }}</td>
                     {% if LANG == "fr" %}
                         <td>{{ obj.project.section.division.nom }}</td>
                         <td>{{ obj.project.section.nom }}</td>

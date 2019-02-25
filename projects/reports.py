@@ -1,10 +1,13 @@
 import xlsxwriter as xlsxwriter
 from django.db.models import Sum, Q
 from django.conf import settings
+from django.template.defaultfilters import yesno
+
 from lib.functions.nz import nz
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
 import os
+
 
 def generate_master_spreadsheet(fiscal_year, user=None):
     # figure out the filename
@@ -36,9 +39,9 @@ def generate_master_spreadsheet(fiscal_year, user=None):
 
     # get a project list for the year
     if not user:
-        project_list = models.Project.objects.filter(fiscal_year=fiscal_year)
+        project_list = models.Project.objects.filter(year=fiscal_year)
     else:
-        project_list = models.Project.objects.filter(fiscal_year=fiscal_year).filter(section__section_head__id=user)
+        project_list = models.Project.objects.filter(year=fiscal_year).filter(section__section_head__id=user)
     print(project_list.count())
     header = [
         "Project ID",
@@ -73,6 +76,9 @@ def generate_master_spreadsheet(fiscal_year, user=None):
         'Total O&M',
         'Total Capital',
         'Total G&Cs',
+        verbose_field_name(project_list.first(), 'submitted'),
+        verbose_field_name(project_list.first(), 'section_head_approved'),
+
     ]
 
     # create the col_max column to store the length of each header
@@ -131,7 +137,8 @@ def generate_master_spreadsheet(fiscal_year, user=None):
             status = "n/a"
 
         try:
-            lead = str(["{} {}".format(lead.user.first_name, lead.user.last_name) for lead in p.staff_members.filter(lead=True)])
+            lead = str(["{} {}".format(lead.user.first_name, lead.user.last_name) for lead in p.staff_members.filter(lead=True)]).replace(
+                "[", "").replace("]", "").replace("'", "").replace('"', "")
         except:
             lead = "n/a"
 
@@ -159,7 +166,7 @@ def generate_master_spreadsheet(fiscal_year, user=None):
             p.coding,
             status,
             lead,
-            p.approved,
+            yesno(p.approved),
             start,
             end,
             p.description,
@@ -183,6 +190,8 @@ def generate_master_spreadsheet(fiscal_year, user=None):
             om_total,
             capital_total,
             gc_total,
+            yesno(p.submitted),
+            yesno(p.section_head_approved, "yes,no,no"),
         ]
 
         # adjust the width of the columns based on the max string length in each col
@@ -210,11 +219,12 @@ def generate_master_spreadsheet(fiscal_year, user=None):
     # create a queryset, showing all users and their total hours for FTE
 
     if not user:
-        staff_list = models.Staff.objects.filter(project__fiscal_year=fiscal_year).filter(employee_type=1).values(
+        staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1).values(
             'user__last_name', 'user__first_name',
         ).order_by('user__last_name', 'user__first_name', ).distinct().annotate(sum_of_weeks=Sum('duration_weeks'))
     else:
-        staff_list = models.Staff.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user).filter(employee_type=1).values(
+        staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(project__section__section_head__id=user).filter(
+            employee_type=1).values(
             'user__last_name', 'user__first_name',
         ).order_by('user__last_name', 'user__first_name', ).distinct().annotate(sum_of_weeks=Sum('duration_weeks'))
 
@@ -258,10 +268,9 @@ def generate_master_spreadsheet(fiscal_year, user=None):
     # spreadsheet: collaborator List #
     ##################################
     if not user:
-        collaborator_list = models.Collaborator.objects.filter(project__fiscal_year=fiscal_year)
+        collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year)
     else:
-        collaborator_list = models.Collaborator.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
-
+        collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year).filter(project__section__section_head__id=user)
 
     header = [
         "Project Id",
@@ -308,9 +317,10 @@ def generate_master_spreadsheet(fiscal_year, user=None):
     ##################################
 
     if not user:
-        agreement_list = models.CollaborativeAgreement.objects.filter(project__fiscal_year=fiscal_year)
+        agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year)
     else:
-        agreement_list = models.CollaborativeAgreement.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
+        agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year).filter(
+            project__section__section_head__id=user)
 
     header = [
         "Project Id",
@@ -353,13 +363,13 @@ def generate_master_spreadsheet(fiscal_year, user=None):
     for j in range(0, len(col_max)):
         worksheet4.set_column(j, j, width=col_max[j] * 1.1)
 
-
     # spreadsheet: OM List #
     ########################
     if not user:
-        om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year).filter(budget_requested__gt=0)
+        om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0)
     else:
-        om_list = models.OMCost.objects.filter(project__fiscal_year=fiscal_year).filter(budget_requested__gt=0).filter(project__section__section_head__id=user)
+        om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0).filter(
+            project__section__section_head__id=user)
 
     header = [
         "Project Id",
@@ -400,13 +410,12 @@ def generate_master_spreadsheet(fiscal_year, user=None):
     for j in range(0, len(col_max)):
         worksheet5.set_column(j, j, width=col_max[j] * 1.1)
 
-
     # spreadsheet: Capital List #
     #############################
     if not user:
-        capital_list = models.CapitalCost.objects.filter(project__fiscal_year=fiscal_year)
+        capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year)
     else:
-        capital_list = models.CapitalCost.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
+        capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year).filter(project__section__section_head__id=user)
 
     header = [
         "Project Id",
@@ -447,13 +456,12 @@ def generate_master_spreadsheet(fiscal_year, user=None):
     for j in range(0, len(col_max)):
         worksheet6.set_column(j, j, width=col_max[j] * 1.1)
 
-
     # spreadsheet: GC List #
     ########################
     if not user:
-        gc_list = models.GCCost.objects.filter(project__fiscal_year=fiscal_year)
+        gc_list = models.GCCost.objects.filter(project__year=fiscal_year)
     else:
-        gc_list = models.GCCost.objects.filter(project__fiscal_year=fiscal_year).filter(project__section__section_head__id=user)
+        gc_list = models.GCCost.objects.filter(project__year=fiscal_year).filter(project__section__section_head__id=user)
 
     header = [
         "Project Id",
@@ -463,7 +471,6 @@ def generate_master_spreadsheet(fiscal_year, user=None):
         verbose_field_name(gc_list.first(), 'gc_program'),
         verbose_field_name(gc_list.first(), 'budget_requested'),
     ]
-
 
     # create the col_max column to store the length of each header
     # should be a maximum column width to 100
@@ -498,7 +505,6 @@ def generate_master_spreadsheet(fiscal_year, user=None):
 
     for j in range(0, len(col_max)):
         worksheet7.set_column(j, j, width=col_max[j] * 1.1)
-
 
     workbook.close()
     return target_url

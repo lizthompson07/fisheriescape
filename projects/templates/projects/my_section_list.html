@@ -3,7 +3,9 @@
 {% load humanize %}
 {% load custom_filters %}
 {% load i18n %}
+{% load bootstrap4 %}
 {% block content %}
+
     {% get_current_language as LANG %}
 
     <style>
@@ -20,13 +22,13 @@
         </ol>
     </nav>
 
-    {% url 'projects:report_sh' next_fiscal_year request.user.id as report_url %}
+    {% url 'projects:report_sh' next_fiscal_year.id request.user.id as report_url %}
 
     <div class="indent-med">
-        {% if object_list.count %}
+        {% if has_section %}
 
             <h1>
-                {% blocktrans with name=user.first_name plur=object_list|pluralize %}
+                {% blocktrans with name=user.first_name plur=filter.qs|pluralize %}
                     Projects Listed under {{ name }}'s Section{{ plur }}:
                 {% endblocktrans %}
             </h1>
@@ -38,15 +40,34 @@
                     You can download a spreadsheet with all {{ fy }} projects <a href="{{ report_url }}">here</a>
                 {% endblocktrans %}
             </h3>
+            <br><br>
+
+            <form class="form" action="." method="get">
+                <div class="row">
+
+                    {% for field in filter.form %}
+                        <div class="col">
+                            {% bootstrap_field field placeholder="" size="small" %}
+                        </div>
+                    {% endfor %}
+                    <div class="col">
+                        <br>
+                        <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                    </div>
+                </div>
+            </form>
             <br> <br>
+
+
+
             <div class="row">
                 <div class="col">
                     <em>
-                        {% trans "displaying all records" %}
+{#                        {% trans "displaying all records" %}#}
                     </em>
+                    {% trans "(click on a header to sort table)" %}
                 </div>
                 <div class="col" style="text-align: center">
-                    {% trans "(click on a header to sort table)" %}
                 </div>
                 <div class="col" style="text-align: right; padding-bottom: 10px">
                     <a href="{% url 'projects:project_new' %}" class="btn btn-sm btn-primary">
@@ -80,51 +101,49 @@
                 </thead>
                 <tbody>
 
-                {% for section in object_list %}
-                    {% for obj in section.projects.all %}
-                        <tr href="{% url 'projects:project_detail' obj.id %}">
-                            <td>{{ obj.fiscal_year }}</td>
+                {% for obj in filter.qs %}
+                    <tr href="{% url 'projects:project_detail' obj.id %}">
+                        <td>{{ obj.year }}</td>
 
-                            {% if LANG == "fr" %}
-                                <td>{{ obj.section.division.nom }}</td>
-                                <td>{{ obj.section.nom }}</td>
-                            {% else %}
-                                <td>{{ obj.section.division.name }}</td>
-                                <td>{{ obj.section.name }}</td>
-                            {% endif %}
-                            <td>
-                                {{ obj.project_title }}
-                            </td>
-                            <td>
-                                {% for staff in obj.staff_members.all %}
-                                    {% if staff.lead %}
-                                        {% if staff.user_id %}
-                                            {{ staff.user.first_name }} {{ staff.user.last_name }}
-                                        {% else %}
-                                            {{ staff.name }}
-                                        {% endif %}
-                                        <br>
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-
-                            <td class="{% if obj.submitted %}good{% else %}bad{% endif %}" style="text-align:center">
-                                {{ obj.submitted|yesno:_("yes,no") }}
-                            </td>
-                            <td class="{% if obj.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
-                                {{ obj.section_head_approved|yesno:_("yes,no") }}<br>
-                                <a href="#" style="font-size: small" class="approve"
-                                   my_url="{% url 'projects:toggle_project_approval' obj.id %}">
-                                    {% if not obj.section_head_approved %}
-                                        (click to approve)
+                        {% if LANG == "fr" %}
+                            <td>{{ obj.section.division.nom }}</td>
+                            <td>{{ obj.section.nom }}</td>
+                        {% else %}
+                            <td>{{ obj.section.division.name }}</td>
+                            <td>{{ obj.section.name }}</td>
+                        {% endif %}
+                        <td>
+                            {{ obj.project_title }}
+                        </td>
+                        <td>
+                            {% for staff in obj.staff_members.all %}
+                                {% if staff.lead %}
+                                    {% if staff.user_id %}
+                                        {{ staff.user.first_name }} {{ staff.user.last_name }}
                                     {% else %}
-                                        (click to un-approve)
+                                        {{ staff.name }}
                                     {% endif %}
-                                </a>
-                            </td>
+                                    <br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
 
-                        </tr>
-                    {% endfor %}
+                        <td class="{% if obj.submitted %}good{% else %}bad{% endif %}" style="text-align:center">
+                            {{ obj.submitted|yesno:_("yes,no") }}
+                        </td>
+                        <td class="{% if obj.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                            {{ obj.section_head_approved|yesno:_("yes,no") }}<br>
+                            <a href="#" style="font-size: small" class="approve"
+                               my_url="{% url 'projects:toggle_project_approval' obj.id %}">
+                                {% if not obj.section_head_approved %}
+                                    (click to approve)
+                                {% else %}
+                                    (click to un-approve)
+                                {% endif %}
+                            </a>
+                        </td>
+
+                    </tr>
                 {% endfor %}
                 </tbody>
             </table>

@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.utils import timezone
 import os
 import uuid
+
+from lib.functions.fiscal_year import fiscal_year
 from scifi import models as scifi_models
 from django.utils.translation import gettext_lazy as _
 
@@ -78,9 +80,21 @@ class Status(models.Model):
         ordering = ['name', ]
 
 
-class Project(models.Model):
-    fiscal_year = models.CharField(max_length=50, default="2019-2020", verbose_name=_("fiscal year"))
+class FiscalYear(models.Model):
+    full = models.TextField(blank=True, null=True)
+    short = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return "{}".format(self.full)
+
+    class Meta:
+        ordering = ['id', ]
+
+
+class Project(models.Model):
+    # fiscal_year = models.CharField(max_length=50, default="2019-2020", verbose_name=_("fiscal year"))
+    year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
+                                     verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
     # basic
     project_title = models.TextField(verbose_name=_("Project title"))
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
@@ -147,7 +161,7 @@ class Project(models.Model):
                                          verbose_name=_("last modified by"))
 
     class Meta:
-        ordering = ['-fiscal_year', 'section__division', 'section', 'project_title']
+        ordering = ['-year', 'section__division', 'section', 'project_title']
 
     def __str__(self):
         return "{}".format(self.project_title)
