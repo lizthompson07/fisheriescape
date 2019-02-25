@@ -26,8 +26,11 @@ def can_delete(user, project):
         if user.is_superuser:
             return True
         # check to see if they are a section head
-        if project.section.section_head.id == user.id:
-            return True
+        if project.section:
+            if project.section.section_head:
+                if project.section.section_head.id == user.id:
+                    return True
+
         # otherwise check to see if they are a project lead
         else:
             for staff in project.staff_members.filter(lead=True):
@@ -193,16 +196,18 @@ class MyProjectListView(LoginRequiredMixin, ListView):
         return context
 
 
-class MySectionListView(LoginRequiredMixin, ListView):
+class MySectionListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/my_section_list.html'
+    filterset_class = filters.MySectionFilter
 
     def get_queryset(self):
-        return models.Section.objects.filter(section_head=self.request.user)
+        return models.Project.objects.filter(section__section_head=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['next_fiscal_year'] = fiscal_year(next=True)
+        context['next_fiscal_year'] = models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
+        context['has_section'] = models.Project.objects.filter(section__section_head=self.request.user).count() > 0
         return context
 
 

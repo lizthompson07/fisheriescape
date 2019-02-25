@@ -216,15 +216,6 @@
             });
 
 
-            {#satHoursWorked = Number($("#id_saturdays").val());#}
-            {#sunHoursWorked = Number($("#id_sundays").val());#}
-            {#statHoursWorked = Number($("#id_stat_holidays").val());#}
-            {##}
-            {#weekdayOT = weekdayHoursWorked * 1.5;#}
-            {#satOT = satHoursWorked * 1.5;#}
-            {#sunOT = sunHoursWorked * 2;#}
-            {#statOT = statHoursWorked * 2;#}
-            {##}
             totalHoursWorked = weekdayHoursWorked + satHoursWorked + sunHoursWorked + statHoursWorked;
             totalOTHours = weekdayOT + satOT + sunOT + statOT;
 

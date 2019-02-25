@@ -87,7 +87,7 @@
 
             {% for obj in filter.qs %}
                 <tr href="{% url 'projects:project_detail' obj.id %}">
-                    <td>{{ obj.fiscal_year }}</td>
+                    <td>{{ obj.year }}</td>
 
                     {% if LANG == "fr" %}
                         <td>{{ obj.section.division.nom }}</td>
