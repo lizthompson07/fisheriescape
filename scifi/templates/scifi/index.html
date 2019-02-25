@@ -29,10 +29,13 @@
         <ul>
 
             <li>
-                <a href="{% url 'scifi:ctrans_new' %}">Create a new expense</a>
+                <a href="{% url 'scifi:ctrans_new' %}">Flag a new expense</a>
             </li>
             <li>
-                <a href="{% url 'scifi:report_search' %}">View account summary</a>
+                <a href="{% url 'scifi:report_search' 2 %}">Search for a responsibility center account summary</a>
+            </li>
+            <li>
+                <a href="{% url 'scifi:report_search' 3 %}">Search for a proejct account summary</a>
             </li>
         </ul>
         <br>
