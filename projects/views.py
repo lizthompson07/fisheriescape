@@ -226,6 +226,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         project = self.object
         context["field_list"] = [
+            'year',
             'project_title',
             'section',
             'program',
