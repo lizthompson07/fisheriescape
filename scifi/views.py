@@ -73,8 +73,6 @@ class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
         context["rc_list"] = rc_list
         context["fy"] = fiscal_year(sap_style=True)
 
-
-
         return context
 
 
@@ -541,7 +539,8 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
     def get_initial(self):
         return {
             'created_by': self.request.user,
-            'transaction_type': 1,
+            'transaction_type': 3,
+            'in_mrs': False,
             'do_another': 1,
         }
 
@@ -620,10 +619,14 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
 
     def get_initial(self):
         # default the year to the year of the latest samples
-        return {
+        my_dict = {
             "fiscal_year": fiscal_year(sap_style=True),
-            # "report": 1,
         }
+
+        if self.kwargs["report_number"]:
+            my_dict["report"] = self.kwargs["report_number"]
+
+        return my_dict
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -849,7 +852,8 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project expenditures
                 try:
                     project_expenditures = \
-                        nz(models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
+                        nz(models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(
+                            fiscal_year=fy).filter(
                             transaction_type=3).filter(allotment_code=ac).values(
                             "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()[
                                "dsum"], 0)

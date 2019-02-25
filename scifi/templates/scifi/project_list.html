@@ -52,30 +52,22 @@
                     <a href="{% url 'scifi:project_new' %}" class="btn btn-sm btn-primary">New Project</a>
                 </div>
 
-                <table class="table table-hover table-sm">
+                <table class="table table-hover table-sm sortable">
                     <thead>
-                    <tr>
                         {% for field in field_list %}
                             <th scope="col">{% get_verbose_label filter.qs.first field %}</th>
                         {% endfor %}
-                    </tr>
                     </thead>
                     <tbody>
 
 
                     {% for object in filter_list %}
-                        <tr>
+                        <tr href="{% url 'scifi:project_edit' object.id %}">
                             {% for field in field_list %}
                                 <td>
                                     {% get_field_value object field %}
                                 </td>
                             {% endfor %}
-                            <td>
-                                <a href="{% url 'scifi:project_edit' object.id %}">
-                                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                                         title="Edit">
-                                </a>
-                            </td>
                             <td>
                                 <a class="delete-me" href="{% url 'scifi:project_delete' object.id %}">
                                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"

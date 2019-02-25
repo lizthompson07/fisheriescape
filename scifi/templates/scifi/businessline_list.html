@@ -19,32 +19,22 @@
 
         <div class="row">
             <div class="col-6">
-                <table class="table table-hover table-sm">
+                <table class="table table-hover table-sm sortable">
                     <thead>
-                    <tr>
-                        <th scope="col">Code</th>
-                        <th scope="col">Description</th>
-                    </tr>
+                    <th scope="col">Code</th>
+                    <th scope="col">Description</th>
                     </thead>
                     <tbody>
                     {% for object in object_list %}
-                        <tr>
+                        <tr href="{% url 'scifi:business_edit' object.id %}">
                             <td>{{ object.code }}</td>
                             <td>{{ object.name }}</td>
-                            <td>
-                                <a href="{% url 'scifi:business_edit' object.id %}">
-                                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                                         title="Edit">
-                                </a>
-                            </td>
                             <td>
                                 <a class="delete-me" href="{% url 'scifi:business_delete' object.id %}">
                                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                          title="Delete">
                                 </a>
-
                             </td>
-
                         </tr>
                     {% endfor %}
                     <br>
