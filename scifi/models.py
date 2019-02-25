@@ -163,4 +163,4 @@ class Transaction(models.Model):
         return reverse('scifi:trans_detail', kwargs={'pk': self.id})
 
     class Meta:
-        ordering = ["creation_date", ]
+        ordering = ["-creation_date", ]

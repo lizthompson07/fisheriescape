@@ -64,6 +64,7 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('reports/search/<int:report_number>', views.ReportSearchFormView.as_view(), name="report_search"),
     path('report/branch-summary/fiscal/<str:fiscal_year>/', views.BranchSummaryTemplateView.as_view(), name="report_branch"),
     path('report/account-summary/fiscal/<int:fiscal_year>/rc/<int:rc>/', views.AccountSummaryTemplateView.as_view(), name="report_rc"),
     path('report/project-summary/fiscal/<int:fiscal_year>/project/<int:project>/', views.ProjectSummaryListView.as_view(), name="report_project"),
