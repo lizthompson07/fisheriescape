@@ -95,7 +95,8 @@ class Person(models.Model):
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="masterlist_person_last_modified_by")
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
+                                         related_name="masterlist_person_last_modified_by")
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -135,8 +136,6 @@ class Person(models.Model):
         if self.email:
             my_str += "<br>{}: {}".format(_("E-mail"), self.email)
         return my_str
-
-
 
 
 class Organization(models.Model):
@@ -212,27 +211,10 @@ class Organization(models.Model):
         return reverse('masterlist:org_detail', kwargs={'pk': self.pk})
 
 
-class MemberRole(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("Name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
 class OrganizationMember(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="memberships")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
-    roles = models.ManyToManyField(MemberRole)
-    role_notes = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
+    role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
     notes = models.TextField(blank=True, null=True)
 
     # metadata
