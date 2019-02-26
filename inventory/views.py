@@ -352,7 +352,7 @@ class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
     form_class = forms.ResourcePersonForm
 
     def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
+        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
 
     def form_valid(self, form):
         object = form.save()
@@ -384,7 +384,7 @@ class ResourcePersonDeleteView(CustodianRequiredMixin, DeleteView):
     success_message = 'The person has been removed from the data resource!'
 
     def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
+        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
 
     def delete(self, request, *args, **kwargs):
         object = models.ResourcePerson.objects.get(pk=self.kwargs["pk"])
