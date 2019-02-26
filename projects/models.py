@@ -1,15 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-import os
-import uuid
+from textile import textile
 
 from lib.functions.fiscal_year import fiscal_year
 from scifi import models as scifi_models
 from django.utils.translation import gettext_lazy as _
+import markdown
 
 # Choices for language
 ENG = 1
@@ -120,8 +118,12 @@ class Project(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
     priorities = models.TextField(blank=True, null=True, verbose_name=_(
         "Project-specific priorities (e.g., what will be the project emphasis in this fiscal year)"))
-    deliverables = models.TextField(blank=True, null=True,
-                                    verbose_name=_("Project deliverables (bulleted form)"))
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables (bulleted form)"))
+
+    description_html = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
+    priorities_html = models.TextField(blank=True, null=True, verbose_name=_(
+        "Project-specific priorities"))
+    deliverables_html = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
 
     # data
     data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
@@ -166,7 +168,12 @@ class Project(models.Model):
         return "{}".format(self.project_title)
 
     def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
+        # self.date_last_modified = timezone.now()
+
+        self.description_html = textile(self.description)
+        self.priorities_html = textile(self.priorities)
+        self.deliverables_html = textile(self.deliverables)
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
