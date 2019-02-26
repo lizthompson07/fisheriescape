@@ -21,7 +21,7 @@
                 {% trans "Name" %}
             </th>
             <th>
-                {% trans "Role(s)" %}
+                {% trans "Role" %}
             </th>
             <th>Notes</th>
 
@@ -33,9 +33,7 @@
                     {{ obj.person.first_name }} {{ obj.person.last_name }}
                 </td>
                 <td>
-                    {% for role in obj.roles.all %}
-                        {{ role }}<br>
-                    {% endfor %}
+                    {{ obj.role_notes }}
                 </td>
                 <td>{{ obj.notes|nz:"" }}</td>
                 <td>
