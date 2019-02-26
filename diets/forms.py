@@ -15,6 +15,12 @@ class DigestionForm(forms.ModelForm):
         fields = "__all__"
 
 
+class SamplerForm(forms.ModelForm):
+    class Meta:
+        model = models.Sampler
+        fields = "__all__"
+
+
 class SpeciesForm(forms.ModelForm):
     class Meta:
         model = models.Species
@@ -24,19 +30,21 @@ class SpeciesForm(forms.ModelForm):
 class PredatorForm(forms.ModelForm):
     class Meta:
         model = models.Predator
-        exclude = ["old_seq_num", ]
+        exclude = ["old_seq_num", "date_last_modified"]
         widgets = {
             "processing_date": forms.DateInput(attrs={"type": "date"}),
+            'last_modified_by': forms.HiddenInput(),
         }
 
 
 class PreyForm(forms.ModelForm):
     class Meta:
         model = models.Prey
-        exclude = ["stomach_wt_g", "sensor_used"]
+        exclude = ["stomach_wt_g", "sensor_used", "date_last_modified"]
         widgets = {
             'species': forms.HiddenInput(),
             'predator': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
             'comments': forms.Textarea(attrs={"rows": "3"}),
         }
 

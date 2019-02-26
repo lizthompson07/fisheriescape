@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -65,19 +66,35 @@ class Species(models.Model):
         return super().save(*args, **kwargs)
 
 
+class Sampler(models.Model):
+    first_name = models.CharField(max_length=255, blank=True, null=True)
+    last_name = models.CharField(max_length=255, blank=True, null=True)
+    notes = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+    class Meta:
+        ordering = ['first_name', 'last_name']
+
+
 class Predator(models.Model):
-    species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING)
-    processing_date = models.DateTimeField(verbose_name="processing date (dd-mm-yyyy)", default=timezone.now)
     cruise = models.ForeignKey(Cruise, related_name='predators', on_delete=models.DO_NOTHING)
+    processing_date = models.DateTimeField(verbose_name="processing date (yyyy-mm-dd)", default=timezone.now)
+    species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING)
     set = models.IntegerField(blank=True, null=True)
     stratum = models.IntegerField(blank=True, null=True)
     fish_number = models.IntegerField(blank=True, null=True)
-    sampler = models.CharField(max_length=500, blank=True, null=True)
+    samplers = models.ManyToManyField(Sampler)
+    # sampler = models.CharField(max_length=500, blank=True, null=True)
     somatic_length_cm = models.FloatField(null=True, blank=True, verbose_name="body length (cm)")
     somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="body weight (g)")
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
+    content_wt_g = models.FloatField(null=True, blank=True, verbose_name="content weight (g)")
     comments = models.TextField(blank=True, null=True)
     old_seq_num = models.IntegerField(blank=True, null=True)
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         ordering = ['-processing_date', 'species']
@@ -97,7 +114,6 @@ class DigestionLevel(models.Model):
     class Meta:
         ordering = ['id']
 
-
     def __str__(self):
         return "{}-{}".format(self.code, self.level)
 
@@ -106,8 +122,11 @@ class Prey(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, )
     predator = models.ForeignKey(Predator, on_delete=models.DO_NOTHING, related_name="prey_items")
     digestion_level = models.ForeignKey(DigestionLevel, on_delete=models.DO_NOTHING, blank=True, null=True)
+    number_of_prey = models.IntegerField(blank=True, null=True, verbose_name="number of prey")
     somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="body weight (g)")
     somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="body length (mm)")
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
     sensor_used = models.BooleanField(default=False)
     comments = models.TextField(blank=True, null=True)
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
