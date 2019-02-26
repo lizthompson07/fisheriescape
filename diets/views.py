@@ -91,42 +91,6 @@ class SpeciesDeleteView(LoginRequiredMixin, DeleteView):
 # PREDATOR #
 ############
 
-class PredatorSearchFormView(LoginRequiredMixin, FormView):
-    template_name = 'diets/predator_search.html'
-    login_url = '/accounts/login_required/'
-    form_class = forms.SearchForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        cruise_list = [{"val": obj.id, "text": obj} for obj in models.Cruise.objects.all()]
-        species_list = [{"val": obj.id, "text": obj} for obj in models.Species.objects.all()]
-
-        context["species_list"] = species_list
-        context["cruise_list"] = cruise_list
-        return context
-
-    def form_valid(self, form):
-        cruise = nz(form.cleaned_data["cruise"], None)
-        species = nz(form.cleaned_data["species"], None)
-
-        # check to see how many results will be returned
-        qs = models.Predator.objects.all()
-        if cruise:
-            qs = qs.filter(cruise_id=cruise)
-        if species:
-            qs = qs.filter(species_id=species)
-
-        if qs.count() > 1500:
-            messages.error(self.request, "The search requested has returned too many results. Please try again.")
-            return HttpResponseRedirect(reverse("diets:predator_search"))
-        elif qs.count() is 0:
-            messages.error(self.request, "The search requested has returned no results. Please try again.")
-            return HttpResponseRedirect(reverse("diets:predator_search"))
-        else:
-            return HttpResponseRedirect(reverse("diets:predator_list",
-                                                kwargs={"cruise": cruise, "species": species, }))
-
 
 class PredatorFilterView(LoginRequiredMixin, FilterView):
     template_name = "diets/predator_filter.html"
@@ -240,39 +204,6 @@ class PredatorDeleteView(LoginRequiredMixin, DeleteView):
 # PREY #
 ########
 
-class PreyInsertView(TemplateView):
-    template_name = "diets/prey_insert.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        predator = models.Predator.objects.get(pk=self.kwargs['predator'])
-        context['predator'] = predator
-        prey_items = models.Predator.objects.get(pk=predator.id).prey_items.all()
-        context['prey_items'] = prey_items
-
-        queryset = models.Species.objects.annotate(
-            search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'id',
-                               output_field=TextField()))
-
-        # get a list of species
-        species_list = []
-        for obj in queryset:
-            # html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
-            #         p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
-            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / {} / <em>{}</em> / {}</span>'.format(
-                reverse("diets:prey_new", kwargs={"predator": predator.id, "species": obj.id}),
-                static("admin/img/icon-addlink.svg"),
-                obj.common_name_eng,
-                obj.common_name_fre,
-                obj.scientific_name,
-                obj.id
-            )
-            species_list.append(html_insert)
-        context['species_list'] = species_list
-        context["species_count"] = models.Prey.objects.filter(predator=predator).count
-
-        return context
-
 
 class PreyCreateView(LoginRequiredMixin, CreateView):
     model = models.Prey
@@ -317,15 +248,11 @@ class PreyUpdateView(LoginRequiredMixin, UpdateView):
         }
 
 
-def prey_delete(request, pk, backto):
+def prey_delete(request, pk):
     object = models.Prey.objects.get(pk=pk)
     object.delete()
     messages.success(request, "The prey has been successfully deleted from {}.".format(object.predator))
-
-    if backto == "detail":
-        return HttpResponseRedirect(reverse_lazy("diets:predator_detail", kwargs={"pk": object.predator.id}))
-    else:
-        return HttpResponseRedirect(reverse_lazy("diets:prey_search", kwargs={"predator": object.predator.id}))
+    return HttpResponseRedirect(reverse_lazy("diets:predator_detail", kwargs={"pk": object.predator.id}))
 
 
 # CRUISE #
