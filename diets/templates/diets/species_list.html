@@ -36,26 +36,24 @@
         </form>
 
 
-        <table class="table table-hover table-sm">
+        <table class="table table-hover table-sm sortable">
             <thead>
-            <tr>
-                <th scope="col">Id</th>
+                <th scope="col">Code</th>
                 <th scope="col">Common name (English)</th>
                 <th scope="col">Common name (French)</th>
                 <th scope="col">Scientific name</th>
-                <th scope="col">ITIS TSN</th>
-                <th scope="col">AphiaID</th>
-            </tr>
+{#                <th scope="col">ITIS TSN</th>#}
+{#                <th scope="col">AphiaID</th>#}
             </thead>
             <tbody>
             {% for object in filter.qs %}
-                <tr>
+                <tr href="{% url 'diets:species_detail' object.id %}">
                     <td>{{ object.id }}</td>
-                    <td><a href="{% url 'diets:species_detail' object.id %}">{{ object.common_name_eng }}</a></td>
+                    <td>{{ object.common_name_eng }}</td>
                     <td>{{ object.common_name_fre }}</td>
                     <td><em>{{ object.scientific_name }}</em></td>
-                    <td>{{ object.tsn }}</td>
-                    <td>{{ object.aphia_id }}</td>
+{#                    <td>{{ object.tsn }}</td>#}
+{#                    <td>{{ object.aphia_id }}</td>#}
                 </tr>
             {% endfor %}
             <br>

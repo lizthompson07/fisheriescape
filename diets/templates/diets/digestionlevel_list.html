@@ -29,16 +29,11 @@
             </thead>
             <tbody>
             {% for object in object_list %}
-                <tr>
-                    <td>{{ object.id }}</td>
+                <tr href="{% url 'diets:digestion_edit' object.id  %}">
+                    <td>{{ object.code }}</td>
                     <td>{{ object.level }}</td>
                     <td>{{ object.interpretation }}</td>
-                    <td>
-                        <a href="{% url 'diets:digestion_edit' object.id  %}">
-                            <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                                 title="Edit">
-                        </a>
-                    </td>
+
                     <td>
                         <a class="delete-me" href="{% url 'diets:digestion_delete' object.id %}">
                             <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
