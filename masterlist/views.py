@@ -127,6 +127,8 @@ class PersonCreateView(MasterListAccessRequiredMixin, CreateView):
     model = models.Organization
     form_class = forms.PersonForm
 
+    def get_initial(self):
+            return {'last_modified_by': self.request.user}
 
 class PersonCreateViewPopout(MasterListAccessRequiredMixin, CreateView):
     template_name = 'masterlist/person_form_popout.html'
@@ -137,6 +139,8 @@ class PersonCreateViewPopout(MasterListAccessRequiredMixin, CreateView):
         object = form.save()
         return HttpResponseRedirect(reverse('masterlist:close_me'))
 
+    def get_initial(self):
+            return {'last_modified_by': self.request.user}
 
 class PersonDeleteView(MasterListAdminRequiredMixin, DeleteView):
     model = models.Person
@@ -186,13 +190,14 @@ class OrganizationDetailView(MasterListAccessRequiredMixin, DetailView):
             'province',
             'phone',
             'fax',
-            'next_election',
-            'election_term',
-            'population_on_reserve',
-            'population_off_reserve',
-            'population_other_reserve',
-            'fin',
+            'key_species',
+            'dfo_contact_instructions',
             'notes',
+            'grouping',
+            'regions',
+            'sectors',
+            'date_last_modified',
+            'last_modified_by',
         ]
         return context
 
@@ -201,10 +206,15 @@ class OrganizationUpdateView(MasterListAccessRequiredMixin, UpdateView):
     model = models.Organization
     form_class = forms.OrganizationForm
 
+    def get_initial(self):
+            return {'last_modified_by': self.request.user}
 
 class OrganizationCreateView(MasterListAccessRequiredMixin, CreateView):
     model = models.Organization
     form_class = forms.OrganizationForm
+
+    def get_initial(self):
+            return {'last_modified_by': self.request.user}
 
 
 class OrganizationDeleteView(MasterListAdminRequiredMixin, DeleteView):
@@ -230,6 +240,7 @@ class MemberCreateView(MasterListAccessRequiredMixin, CreateView):
         org = models.Organization.objects.get(pk=self.kwargs['org'])
         return {
             'organization': org,
+            'last_modified_by': self.request.user
         }
 
     def get_context_data(self, **kwargs):
@@ -277,6 +288,10 @@ class MemberUpdateView(MasterListAccessRequiredMixin, UpdateView):
 
         return context
 
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
 
 def member_delete(request, pk):
     object = models.OrganizationMember.objects.get(pk=pk)

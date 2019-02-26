@@ -7,7 +7,31 @@ from django.contrib.auth.models import User
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = models.Organization
-        fields = "__all__"
+        fields = [
+            'name_eng',
+            'name_fre',
+            'name_ind',
+            'abbrev',
+            'address',
+            'city',
+            'postal_code',
+            'province',
+            'phone',
+            'fax',
+            'key_species',
+            'dfo_contact_instructions',
+            'notes',
+            'grouping',
+            'regions',
+            'sectors',
+            'last_modified_by',
+        ]
+        widgets = {
+            'key_species':forms.Textarea(attrs={"rows":2}),
+            'dfo_contact_instructions':forms.Textarea(attrs={"rows":2}),
+            'notes':forms.Textarea(attrs={"rows":2}),
+            'last_modified_by':forms.HiddenInput(),
+        }
 
 
 class PersonForm(forms.ModelForm):
@@ -17,12 +41,17 @@ class PersonForm(forms.ModelForm):
 
 
 class MemberForm(forms.ModelForm):
-    # save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
     class Meta:
         model = models.OrganizationMember
-        fields = "__all__"
+        exclude = [
+            'roles',
+            # 'notes',
+            'date_last_modified',
+        ]
         widgets = {
             'organization': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": 2}),
+            'last_modified_by': forms.HiddenInput(),
         }
 
 
