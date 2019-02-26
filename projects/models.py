@@ -168,11 +168,13 @@ class Project(models.Model):
         return "{}".format(self.project_title)
 
     def save(self, *args, **kwargs):
-        # self.date_last_modified = timezone.now()
-
-        self.description_html = textile(self.description)
-        self.priorities_html = textile(self.priorities)
-        self.deliverables_html = textile(self.deliverables)
+        self.date_last_modified = timezone.now()
+        if self.description:
+            self.description_html = textile(self.description)
+        if self.priorities:
+            self.priorities_html = textile(self.priorities)
+        if self.deliverables:
+            self.deliverables_html = textile(self.deliverables)
 
         super().save(*args, **kwargs)
 
