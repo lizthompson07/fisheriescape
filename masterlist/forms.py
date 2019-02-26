@@ -55,19 +55,6 @@ class MemberForm(forms.ModelForm):
         }
 
 
-class MemberRoleForm(forms.ModelForm):
-    class Meta:
-        model = models.MemberRole
-        fields = "__all__"
-
-
-MemberRoleFormSet = modelformset_factory(
-    model=models.MemberRole,
-    form=MemberRoleForm,
-    extra=1,
-)
-
-
 class OrganizationFormShort(forms.ModelForm):
     class Meta:
         model = models.Organization
