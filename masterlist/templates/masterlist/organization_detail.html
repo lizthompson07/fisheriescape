@@ -35,9 +35,9 @@
             <a class="btn btn-danger " href="{% url 'masterlist:org_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
-              <a class="btn btn-success" href="{% url 'masterlist:report_q' object.id %}">
-                {% trans "Cue Card" %}
-            </a>
+{#            <a class="btn btn-success" href="{% url 'masterlist:report_q' object.id %}">#}
+{#                {% trans "Cue Card" %}#}
+{#            </a>#}
 
         </div>
         <br><br>
@@ -57,9 +57,6 @@
             <div class="col">
                 {% include "masterlist/_members.html" %}
             </div>
-            <div class="col">
-                {% include "masterlist/_entries.html" %}
-            </div>
         </div>
 
     </div>
@@ -71,7 +68,7 @@
             var objectId = $(this)[0].getAttribute("val");
 
             var userInput = "";
-            userInput = confirm("{% trans "Are you sure you want to delete this person from the entry?" %}");
+            userInput = confirm("{% trans "Are you sure you want to delete this member?" %}");
 
             if (userInput === true) {
                 $("#person-secrect-delete-btn-" + objectId)[0].click();
