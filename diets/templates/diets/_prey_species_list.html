@@ -35,6 +35,7 @@
 
 <table class="table table-hover table-sm sortable">
     <thead>
+    <th></th>
     <th>Species</th>
     <th>Digestion Level</th>
     <th>Number of prey</th>
@@ -45,12 +46,6 @@
     <tbody>
     {% for obj in predator.prey_items.all %}
         <tr href="{% url 'diets:prey_edit' obj.id %}" pop>
-            <td>{{ obj.species.common_name_eng }}</td>
-            <td>{{ obj.digestion_level }}</td>
-            <td>{{ obj.number_of_prey|nz:"" }}</td>
-            <td>{{ obj.somatic_wt_g|nz:"" }}</td>
-            <td>{{ obj.somatic_length_mm|nz:"" }}</td>
-            <td>{{ obj.comments|nz:"" }}</td>
 
             <td>
                 <a class="delete-me" href="#" val="{{ obj.id }}">
@@ -58,6 +53,12 @@
                 </a>
                 <a id="secrect-delete-btn-{{ obj.id }}" href="{% url 'diets:prey_delete' obj.id %}" class="hidden"></a>
             </td>
+            <td>{{ obj.species.common_name_eng }}</td>
+            <td>{{ obj.digestion_level.code }}</td>
+            <td>{{ obj.number_of_prey|nz:"" }}</td>
+            <td>{{ obj.somatic_wt_g|nz:"" }}</td>
+            <td>{{ obj.somatic_length_mm|nz:"" }}</td>
+            <td>{{ obj.comments|nz:"" }}</td>
         </tr>
     {% endfor %}
     </tbody>
