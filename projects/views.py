@@ -29,8 +29,15 @@ def can_delete(user, project):
         if project.section:
             if project.section.section_head:
                 if project.section.section_head.id == user.id:
-                    return True
-
+                    return
+                else:
+                    for staff in project.staff_members.filter(lead=True):
+                        try:
+                            if staff.user.id == user.id:
+                                return True
+                        except:
+                            print("staff has no user id")
+                            return False
         # otherwise check to see if they are a project lead
         else:
             for staff in project.staff_members.filter(lead=True):
