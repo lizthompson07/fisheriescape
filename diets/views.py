@@ -128,13 +128,13 @@ class PredatorSearchFormView(LoginRequiredMixin, FormView):
                                                 kwargs={"cruise": cruise, "species": species, }))
 
 
-# class PredatorListView(LoginRequiredMixin, FilterView):
-#     template_name = "diets/predator_list.html"
-#     filterset_class = filters.PredatorFilter
-#     login_url = '/accounts/login_required/'
-#     queryset = models.Predator.objects.annotate(
-#         search_term=Concat('species__common_name_eng', 'species__common_name_fre', 'species__scientific_name',
-#                            'species__id', output_field=TextField()))
+class PredatorFilterView(LoginRequiredMixin, FilterView):
+    template_name = "diets/predator_filter.html"
+    filterset_class = filters.PredatorFilter
+    login_url = '/accounts/login_required/'
+    queryset = models.Predator.objects.annotate(
+        search_term=Concat('species__common_name_eng', 'species__common_name_fre', 'species__scientific_name',
+                           'species__id', output_field=TextField()))
 
 class PredatorListView(LoginRequiredMixin, ListView):
     template_name = "diets/predator_list.html"
