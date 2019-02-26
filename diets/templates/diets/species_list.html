@@ -26,8 +26,8 @@
                 {% endfor %}
                 <div class="col-3">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn btn-warning">
-                    <a href="{% url 'diets:species_new' %}" class="btn btn-success">New Species</a><br>
+                    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                    <a href="{% url 'diets:species_new' %}" class="btn btn-sm btn-success">New Species</a><br>
                 </div>
 
             </div>
@@ -36,7 +36,7 @@
         </form>
 
 
-        <table class="table table-hover table-sm sortable">
+        <table class="table table-hover table-sm sortable" style="width: auto">
             <thead>
                 <th scope="col">Code</th>
                 <th scope="col">Common name (English)</th>

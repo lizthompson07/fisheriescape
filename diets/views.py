@@ -136,6 +136,7 @@ class PredatorFilterView(LoginRequiredMixin, FilterView):
         search_term=Concat('species__common_name_eng', 'species__common_name_fre', 'species__scientific_name',
                            'species__id', output_field=TextField()))
 
+
 class PredatorListView(LoginRequiredMixin, ListView):
     template_name = "diets/predator_list.html"
     login_url = '/accounts/login_required/'
@@ -159,16 +160,35 @@ class PredatorDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'cruise',
             'set',
             'stratum',
             'fish_number',
             'processing_date',
-            'sampler',
-            'somatic_length_mm',
+            'samplers',
+            'somatic_length_cm',
             'somatic_wt_g',
             'stomach_wt_g',
+            'content_wt_g',
             'comments',
+            'last_modified_by',
+            'date_last_modified',
         ]
+
+        species_list = []
+        for obj in models.Species.objects.all():
+            url = reverse("diets:prey_new", kwargs={"predator": self.object.id, "species": obj.id}),
+            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / {} / <em>{}</em> / {}</span>'.format(
+                url[0],
+                static("admin/img/icon-addlink.svg"),
+                obj.id,
+                obj.common_name_eng,
+                obj.scientific_name,
+                obj.abbrev,
+            )
+            species_list.append(html_insert)
+        context['species_list'] = species_list
+
         return context
 
 
@@ -177,17 +197,39 @@ class PredatorUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/accounts/login_required/'
     form_class = forms.PredatorForm
 
+    def get_initial(self):
+        return {'last_modified_by': self.request.user, }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # get lists
+        species_list = ['<a href="#" class="species_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for
+                        obj in models.Species.objects.all()]
+        context['species_list'] = species_list
+        return context
+
 
 class PredatorCreateView(LoginRequiredMixin, CreateView):
     model = models.Predator
     login_url = '/accounts/login_required/'
     form_class = forms.PredatorForm
 
+    def get_initial(self):
+        return {'last_modified_by': self.request.user, }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # get lists
+        species_list = ['<a href="#" class="species_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for
+                        obj in models.Species.objects.all()]
+        context['species_list'] = species_list
+        return context
+
 
 class PredatorDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Predator
     permission_required = "__all__"
-    success_url = reverse_lazy('diets:predator_search')
+    success_url = reverse_lazy('diets:predator_filter')
     success_message = 'The predator was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
@@ -244,6 +286,7 @@ class PreyCreateView(LoginRequiredMixin, CreateView):
         return {
             'predator': predator,
             'species': species,
+            'last_modified_by': self.request.user,
         }
 
     def get_context_data(self, **kwargs):
@@ -268,6 +311,11 @@ class PreyUpdateView(LoginRequiredMixin, UpdateView):
         self.object = form.save()
         return HttpResponseRedirect(reverse('diets:close_me'))
 
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
 
 def prey_delete(request, pk, backto):
     object = models.Prey.objects.get(pk=pk)
@@ -280,13 +328,13 @@ def prey_delete(request, pk, backto):
         return HttpResponseRedirect(reverse_lazy("diets:prey_search", kwargs={"predator": object.predator.id}))
 
 
-
 # CRUISE #
 ##########
 
 class CruiseListView(LoginRequiredMixin, ListView):
     login_url = '/accounts/login_required/'
     model = models.Cruise
+
 
 class CruiseDetailView(LoginRequiredMixin, DetailView):
     model = models.Cruise
@@ -331,7 +379,6 @@ class CruiseDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-
 # DIGESTION #
 #############
 
@@ -358,6 +405,39 @@ class DigestionDeleteView(LoginRequiredMixin, DeleteView):
     model = models.DigestionLevel
     success_url = reverse_lazy('diets:digestion_list')
     success_message = 'The digestion level was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+
+# SAMPLER #
+###########
+
+class SamplerListView(LoginRequiredMixin, ListView):
+    login_url = '/accounts/login_required/'
+    model = models.Sampler
+
+
+class SamplerUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Sampler
+    login_url = '/accounts/login_required/'
+    form_class = forms.SamplerForm
+    success_url = reverse_lazy('diets:sampler_list')
+
+
+class SamplerCreateView(LoginRequiredMixin, CreateView):
+    model = models.Sampler
+    login_url = '/accounts/login_required/'
+    form_class = forms.SamplerForm
+    success_url = reverse_lazy('diets:sampler_list')
+
+
+class SamplerDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.Sampler
+    success_url = reverse_lazy('diets:sampler_list')
+    success_message = 'The samplers was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

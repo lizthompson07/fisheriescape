@@ -29,7 +29,7 @@ urlpatterns = [
     path('predator/<int:predator>/species/insert/', views.PreyInsertView.as_view(), name="prey_search"),
     path('predator/<int:predator>/species/<int:species>/add/', views.PreyCreateView.as_view(), name="prey_new"),
     path('prey/<int:pk>/edit/', views.PreyUpdateView.as_view(), name="prey_edit"),
-    path('prey/<int:pk>/delete/return-to-<str:backto>/', views.prey_delete, name="prey_delete"),
+    path('prey/<int:pk>/delete/', views.prey_delete, name="prey_delete"),
 
     # CRUISES #
     ###########
@@ -45,6 +45,13 @@ urlpatterns = [
     path('digestion-level/new/', views.DigestionCreateView.as_view(), name ="digestion_new" ),
     path('digestion-level/<int:pk>/edit/', views.DigestionUpdateView.as_view(), name ="digestion_edit" ),
     path('digestion-level/<int:pk>/delete/', views.DigestionDeleteView.as_view(), name ="digestion_delete" ),
+
+    # SAMPLERS #
+    ############
+    path('samplers/', views.SamplerListView.as_view(), name="sampler_list"),
+    path('sampler/new/', views.SamplerCreateView.as_view(), name="sampler_new"),
+    path('sampler/<int:pk>/edit/', views.SamplerUpdateView.as_view(), name="sampler_edit"),
+    path('sampler/<int:pk>/delete/', views.SamplerDeleteView.as_view(), name="sampler_delete"),
 
 ]
 
