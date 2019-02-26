@@ -18,20 +18,18 @@
         <a href="{% url 'diets:cruise_new' %}" class="btn btn-success">New Cruise</a><br>
 
 
-        <table class="table table-hover table-sm">
+        <table class="table table-hover table-sm sortable">
             <thead>
-            <tr>
                 <th scope="col">Year</th>
                 <th scope="col">Cruise Number</th>
                 <th scope="col">Predators sampled</th>
 
-            </tr>
             </thead>
             <tbody>
             {% for object in object_list %}
-                <tr>
+                <tr href="{% url 'diets:cruise_detail' object.id %}">
                     <td>{{ object.start_date.year }}</td>
-                    <td><a href="{% url 'diets:cruise_detail' object.id %}">{{ object.cruise_number }}</a></td>
+                    <td>{{ object.cruise_number }}</td>
                     <td>{{ object.predators.count }}</td>
                 </tr>
             {% endfor %}

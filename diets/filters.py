@@ -8,8 +8,14 @@ class SpeciesFilter(django_filters.FilterSet):
 class PredatorFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains', widget= forms.TextInput())
 
+    class Meta:
+        model = models.Predator
+        fields = {
+            'cruise':['exact'],
+        }
 
-#
+
+
 # class SampleFilter(django_filters.FilterSet):
 #     SeasonExact = django_filters.NumberFilter(field_name='year', label="From year", lookup_expr='exact', widget= forms.NumberInput(attrs={'style':"width: 4em"}))
 #     MonthExact = django_filters.NumberFilter(field_name='month', label="From month", lookup_expr='exact', widget= forms.NumberInput(attrs={'style':"width: 4em"}))

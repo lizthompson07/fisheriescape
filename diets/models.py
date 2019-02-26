@@ -73,7 +73,7 @@ class Predator(models.Model):
     stratum = models.IntegerField(blank=True, null=True)
     fish_number = models.IntegerField(blank=True, null=True)
     sampler = models.CharField(max_length=500, blank=True, null=True)
-    somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="body length (mm)")
+    somatic_length_cm = models.FloatField(null=True, blank=True, verbose_name="body length (cm)")
     somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="body weight (g)")
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
     comments = models.TextField(blank=True, null=True)
@@ -90,14 +90,16 @@ class Predator(models.Model):
 
 
 class DigestionLevel(models.Model):
+    code = models.IntegerField(unique=True)
     level = models.CharField(max_length=150)
     interpretation = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ['id']
 
+
     def __str__(self):
-        return "{}-{}".format(self.id, self.level)
+        return "{}-{}".format(self.code, self.level)
 
 
 class Prey(models.Model):
