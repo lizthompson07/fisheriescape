@@ -25,20 +25,8 @@ def can_delete(user, project):
         # # check to see if a superuser
         if user.is_superuser:
             return True
-        # check to see if they are a section head
-        if project.section:
-            if project.section.section_head:
-                if project.section.section_head.id == user.id:
-                    return
-                else:
-                    for staff in project.staff_members.filter(lead=True):
-                        try:
-                            if staff.user.id == user.id:
-                                return True
-                        except:
-                            print("staff has no user id")
-                            return False
-        # otherwise check to see if they are a project lead
+
+        # otherwise check to see if they are a project lead or section head
         else:
             for staff in project.staff_members.filter(lead=True):
                 try:
@@ -47,6 +35,20 @@ def can_delete(user, project):
                 except:
                     print("staff has no user id")
                     return False
+
+            # finally, check to see if they are a section head
+            if project.section:
+                if project.section.section_head:
+                    if project.section.section_head.id == user.id:
+                        return True
+                    else:
+                        return False
+    else:
+        return False
+
+
+
+
 
 
 def financial_summary_data(project):
