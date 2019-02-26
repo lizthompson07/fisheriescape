@@ -129,8 +129,7 @@ class Project(models.Model):
                                     verbose_name=_(
                                         "Which of these data will be share-worthy and what is the plan to share / disseminate"))
     data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
-    metadata_url = models.URLField(blank=True, null=True,
-                                   verbose_name=_("please provide link to metadata, if available"))
+    metadata_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("please provide link to metadata, if available"))
 
     # needs
     regional_dm = models.NullBooleanField(
