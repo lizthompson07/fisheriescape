@@ -30,6 +30,11 @@
             WORKING IN DEV MODE
         </div>
     {% endif %}
+
+    {% autoescape off %}
+        {% bootstrap_messages size='small' %}
+    {% endautoescape %}
+
 </head>
 
 <body>
@@ -106,10 +111,7 @@
         </ul>
     </div>
 </nav>
-{# Display django.contrib.messages as Bootstrap alerts #}
-{% autoescape off %}
-    {% bootstrap_messages size='small' %}
-{% endautoescape %}
+
 
 {% block body %}{% endblock body %}
 
