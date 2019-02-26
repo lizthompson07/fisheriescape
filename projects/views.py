@@ -154,9 +154,9 @@ project_field_list = [
     'approved',
     'start_date',
     'end_date',
-    'description',
-    'priorities',
-    'deliverables',
+    'description_html',
+    'priorities_html',
+    'deliverables_html',
     'data_collection',
     'data_sharing',
     'data_storage',
@@ -245,9 +245,9 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         ]
 
         context["field_list_1"] = [
-            'description',
-            'priorities',
-            'deliverables',
+            'description_html',
+            'priorities_html',
+            'deliverables_html',
         ]
 
         # bring in financial summary data
