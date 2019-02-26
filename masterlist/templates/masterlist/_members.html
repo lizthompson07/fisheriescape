@@ -23,6 +23,9 @@
             <th>
                 {% trans "Role" %}
             </th>
+            <th>
+                {% trans "Last Modified" %}
+            </th>
             <th>Notes</th>
 
         </tr>
@@ -36,6 +39,7 @@
                     {{ obj.role_notes }}
                 </td>
                 <td>{{ obj.notes|nz:"" }}</td>
+                <td>{{ obj.date_last_modified }}</td>
                 <td>
                     <a class="person-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
