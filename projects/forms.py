@@ -28,6 +28,9 @@ class ProjectForm(forms.ModelForm):
             'submitted',
             'date_last_modified',
             'section_head_approved',
+            'description_html',
+            'priorities_html',
+            'deliverables_html',
         ]
         widgets = {
             'start_date': forms.DateInput(attrs={"type": "date"}),
