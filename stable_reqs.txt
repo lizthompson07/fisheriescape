@@ -25,3 +25,5 @@ unicodecsv==0.14.1
 webencodings==0.5.1
 xhtml2pdf==0.2.3
 XlsxWriter==1.1.4
+textile==3.0.3
+
