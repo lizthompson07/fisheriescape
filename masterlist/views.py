@@ -1,13 +1,8 @@
-import math
 import os
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.mail import send_mail
 from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
@@ -15,12 +10,13 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
-from easy_pdf.views import PDFTemplateView
 
 from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
+from . import reports
+
 
 
 # Create your views here.
@@ -129,7 +125,8 @@ class PersonCreateView(MasterListAccessRequiredMixin, CreateView):
     form_class = forms.PersonForm
 
     def get_initial(self):
-            return {'last_modified_by': self.request.user}
+        return {'last_modified_by': self.request.user}
+
 
 class PersonCreateViewPopout(MasterListAccessRequiredMixin, CreateView):
     template_name = 'masterlist/person_form_popout.html'
@@ -141,7 +138,8 @@ class PersonCreateViewPopout(MasterListAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('masterlist:close_me'))
 
     def get_initial(self):
-            return {'last_modified_by': self.request.user}
+        return {'last_modified_by': self.request.user}
+
 
 class PersonDeleteView(MasterListAdminRequiredMixin, DeleteView):
     model = models.Person
@@ -209,14 +207,15 @@ class OrganizationUpdateView(MasterListAccessRequiredMixin, UpdateView):
     form_class = forms.OrganizationForm
 
     def get_initial(self):
-            return {'last_modified_by': self.request.user}
+        return {'last_modified_by': self.request.user}
+
 
 class OrganizationCreateView(MasterListAccessRequiredMixin, CreateView):
     model = models.Organization
     form_class = forms.OrganizationForm
 
     def get_initial(self):
-            return {'last_modified_by': self.request.user}
+        return {'last_modified_by': self.request.user}
 
 
 class OrganizationDeleteView(MasterListAdminRequiredMixin, DeleteView):
@@ -295,9 +294,64 @@ class MemberUpdateView(MasterListAccessRequiredMixin, UpdateView):
             'last_modified_by': self.request.user
         }
 
+
 def member_delete(request, pk):
     object = models.OrganizationMember.objects.get(pk=pk)
     object.delete()
     messages.success(request, _("The member has been successfully deleted from the organization."))
     return HttpResponseRedirect(reverse_lazy("masterlist:org_detail", kwargs={"pk": object.organization.id}))
 
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(MasterListAccessRequiredMixin, FormView):
+    template_name = 'masterlist/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        provinces = str(form.cleaned_data["provinces"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        groupings = str(form.cleaned_data["groupings"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        sectors = str(form.cleaned_data["sectors"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        regions = str(form.cleaned_data["regions"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        is_indigenous = int(form.cleaned_data["is_indigenous"])
+        species = str(form.cleaned_data["species"])
+
+        if provinces == "":
+            provinces = "None"
+        if groupings == "":
+            groupings = "None"
+        if sectors == "":
+            sectors = "None"
+        if regions == "":
+            regions = "None"
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("masterlist:export_custom_list", kwargs={
+                'provinces': provinces,
+                'groupings': groupings,
+                'sectors': sectors,
+                'regions': regions,
+                'is_indigenous': is_indigenous,
+                'species': species,
+            }))
+
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("masterlist:report_search"))
+
+
+def export_custom_list(request, provinces, groupings, sectors, regions, is_indigenous, species):
+    file_url = reports.generate_custom_list(provinces, groupings, sectors, regions, is_indigenous, species)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
