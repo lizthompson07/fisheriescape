@@ -62,7 +62,7 @@ class ReportSearchForm(forms.Form):
     organizations = forms.MultipleChoiceField(required=False, choices=ORG_CHOICES,
                                               label='Organizations (Leave blank for all)')
     single_org = forms.ChoiceField(required=False, choices=ORG_CHOICES,
-                                              label='Organization')
+                                   label='Organization')
 
 class OrganizationForm(forms.ModelForm):
     class Meta:

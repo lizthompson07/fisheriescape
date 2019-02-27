@@ -1,8 +1,6 @@
-{% extends "ihub/ihub_base.html" %}
+{% extends "masterlist/masterlist_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
-
-{% block title %}iHub reports{% endblock title %}
 
 {% block content %}
 
@@ -63,25 +61,35 @@
             {% csrf_token %}
             {% for field in form %}
 
-                {% if field.name == "organizations" %}
-                    <div class="org_div">
-                        {% bootstrap_field field %}
-
-                    </div>
-
-                {% elif field.name == "fiscal_year" %}
-                    <div class="year_div">
+                {% if field.name == "provinces" %}
+                    <div class="province_div">
                         {% bootstrap_field field %}
                     </div>
-                {% elif field.name == "single_org" %}
-                    <div class="single_org_div">
+                {% elif field.name == "groupings" %}
+                    <div class="grouping_div">
+                        {% bootstrap_field field %}
+                    </div>
+                {% elif field.name == "sectors" %}
+                    <div class="sector_div">
+                        {% bootstrap_field field %}
+                    </div>
+                {% elif field.name == "regions" %}
+                    <div class="region_div">
+                        {% bootstrap_field field %}
+                    </div>
+                {% elif field.name == "is_indigenous" %}
+                    <div class="indigenous_div">
+                        {% bootstrap_field field %}
+                    </div>
+                {% elif field.name == "species" %}
+                    <div class="species_div">
                         {% bootstrap_field field %}
                     </div>
                 {% else %}
                     {% bootstrap_field field %}
                 {% endif %}
             {% endfor %}
-            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search"><br><br>
+            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
 
 
         </form>
@@ -96,27 +104,41 @@
     <script type="application/javascript">
 
         function hideAll() {
-            $(".org_div").addClass("gone");
-            $(".year_div").addClass("gone");
-            $(".single_org_div").addClass("gone");
+            $(".province_div").addClass("gone");
+            $(".grouping_div").addClass("gone");
+            $(".sector_div").addClass("gone");
+            $(".region_div").addClass("gone");
+            $(".indigenous_div").addClass("gone");
+            $(".species_div").addClass("gone");
 
             $("#id_report").prop('required', true);
-            $("#id_organizations").prop('required', false);
-            $("#id_fiscal_year").prop('required', false);
-            $("#id_single_org").prop('required', false);
+            $("#id_provinces").prop('required', false);
+            $("#id_groupings").prop('required', false);
+            $("#id_sectors").prop('required', false);
+            $("#id_regions").prop('required', false);
+            $("#id_is_indigenous").prop('required', false);
+            $("#id_species").prop('required', false);
+
         }
 
         function configureForm() {
             var reportChoice = $("#id_report")[0].value;
             // species count report
             if (reportChoice == 1) {
-                $(".org_div").removeClass("gone");
-                $(".year_div").removeClass("gone");
-                $("#id_organizations").multiSelect()
+                $(".province_div").removeClass("gone");
+                $(".grouping_div").removeClass("gone");
+                $(".sector_div").removeClass("gone");
+                $(".region_div").removeClass("gone");
+                $(".indigenous_div").removeClass("gone");
+                $(".species_div").removeClass("gone");
+
+                $("#id_provinces").multiSelect()
+                $("#id_groupings").multiSelect()
+                $("#id_sectors").multiSelect()
+                $("#id_regions").multiSelect()
             }
             if (reportChoice == 2) {
-                $(".single_org_div").removeClass("gone");
-                $("#id_single_org").prop('required', true);
+                // not developed
             }
 
         }
