@@ -38,9 +38,9 @@
         {% trans "Organizations" %}
     </a></li>
 
-{#    <li class="nav-item"><a class="nav-link" href="{% url 'masterlist:report_search' %}">#}
-{#        {% trans "Reports" %}#}
-{#    </a></li>#}
+    <li class="nav-item"><a class="nav-link" href="{% url 'masterlist:report_search' %}">
+        {% trans "Reports" %}
+    </a></li>
 
     {% for group in user.groups.all %}
         {% if group.name == "masterlist_admin" %}

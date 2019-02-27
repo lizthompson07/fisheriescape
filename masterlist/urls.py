@@ -31,5 +31,11 @@ urlpatterns = [
     path('member/<int:pk>/edit/', views.MemberUpdateView.as_view(), name="member_edit"),
     path('member/<int:pk>/delete/', views.member_delete, name="member_delete"),
 
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('reports/export-custom-list/<str:provinces>/<str:groupings>/<str:sectors>/<str:regions>/<int:is_indigenous>/<str:species>', views.export_custom_list, name="export_custom_list"),
+
+
 
 ]
