@@ -37,8 +37,12 @@ class OrganizationForm(forms.ModelForm):
 class PersonForm(forms.ModelForm):
     class Meta:
         model = models.Person
-        fields = "__all__"
+        exclude = ["date_last_modified",]
 
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": 3}),
+        }
 
 class MemberForm(forms.ModelForm):
     class Meta:
