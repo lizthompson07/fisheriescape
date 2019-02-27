@@ -86,7 +86,7 @@ class PersonListView(MasterListAccessRequiredMixin, FilterView):
             'first_name',
             'phone_1',
             'phone_2',
-            'email',
+            'email_1',
         ]
         return context
 
@@ -102,7 +102,8 @@ class PersonDetailView(MasterListAccessRequiredMixin, DetailView):
             'phone_1',
             'phone_2',
             'fax',
-            'email',
+            'email_1',
+            'email_2',
             'notes',
         ]
         return context
