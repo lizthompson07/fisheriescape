@@ -1,183 +1,14 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 import os
-import uuid
 from django.utils.translation import gettext_lazy as _
 
 from lib.functions.fiscal_year import fiscal_year
 from lib.functions.nz import nz
-
-
-class Province(models.Model):
-    # Choices for surface_type
-    CAN = 'Canada'
-    US = 'United States'
-    COUNTRY_CHOICES = (
-        (CAN, 'Canada'),
-        (US, 'United States'),
-    )
-    name_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (English)"))
-    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (French)"))
-    country = models.CharField(max_length=25, choices=COUNTRY_CHOICES, verbose_name=_("country"))
-    abbrev_eng = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (English)"))
-    abbrev_fre = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (French)"))
-
-    def __str__(self):
-        return "{}".format(getattr(self, str(_("name_eng"))))
-
-
-class Grouping(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("Name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
-class Person(models.Model):
-    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
-    last_name = models.CharField(max_length=100, verbose_name=_("last name"))
-    phone_1 = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("phone 1"))
-    phone_2 = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("phone 2"))
-    fax = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("fax"))
-    email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-
-    def __str__(self):
-        return "{}, {}".format(self.last_name, self.first_name)
-
-    class Meta:
-        ordering = ['last_name', 'first_name']
-
-    def get_absolute_url(self):
-        return reverse('ihub:person_detail', kwargs={'pk': self.pk})
-
-    @property
-    def contact_card(self):
-        my_str = "<b>{first} {last}</b>".format(first=self.first_name, last=self.last_name)
-        if self.phone_1:
-            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone_1)
-        if self.phone_2:
-            my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
-        if self.fax:
-            my_str += "<br>{}: {}".format(_("Fax"), self.fax)
-        if self.email:
-            my_str += "<br>{}: {}".format(_("E-mail"), self.email)
-        return my_str
-
-    @property
-    def contact_card_no_name(self):
-        my_str = ""
-        if self.phone_1:
-            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone_1)
-        if self.phone_2:
-            my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
-        if self.fax:
-            my_str += "<br>{}: {}".format(_("Fax"), self.fax)
-        if self.email:
-            my_str += "<br>{}: {}".format(_("E-mail"), self.email)
-        return my_str
-
-
-class Organization(models.Model):
-    name_eng = models.CharField(max_length=1000, verbose_name=_("english Name"))
-    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
-    name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
-    abbrev = models.CharField(max_length=30, verbose_name=_("abbreviation"))
-    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
-    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
-    postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
-    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
-    grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"))
-    phone = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("phone"))
-    fax = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("fax"))
-    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election"))
-    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term"))
-    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve"))
-    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve"))
-    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve"))
-    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name_eng"))):
-            return "{}".format(getattr(self, str(_("name_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name_eng)
-
-    class Meta:
-        ordering = ['name_eng']
-
-    @property
-    def full_address(self):
-        # initial my_str with either address or None
-        if self.address:
-            my_str = self.address
-        else:
-            my_str = ""
-        # add city
-        if self.city:
-            if my_str:
-                my_str += ", "
-            my_str += self.city
-        # add province abbrev.
-        if self.province:
-            if my_str:
-                my_str += ", "
-            my_str += self.province.abbrev_eng
-        # add postal code
-        if self.postal_code:
-            if my_str:
-                my_str += ", "
-            my_str += self.postal_code
-        return my_str
-
-    def get_absolute_url(self):
-        return reverse('ihub:org_detail', kwargs={'pk': self.pk})
-
-
-class MemberRole(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("Name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
-class OrganizationMember(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="memberships")
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
-    roles = models.ManyToManyField(MemberRole)
-    notes = models.TextField(blank=True, null=True)
-
-    class Meta:
-        ordering = ["organization", "person"]
-        unique_together = ["organization", "person"]
-
-    def __str__(self):
-        return "{}".format(self.person)
+from masterlist import models as ml_models
 
 
 class EntryType(models.Model):
@@ -230,51 +61,20 @@ class FundingPurpose(models.Model):
         ordering = ['name', ]
 
 
-class Sector(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
-class Region(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
 class Entry(models.Model):
     # basic
     title = models.CharField(max_length=1000, blank=True, null=True)
-    organizations = models.ManyToManyField(Organization, related_name="entries")
-    fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
+    organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
+                                           limit_choices_to={'grouping__is_indigenous': True})
     initial_date = models.DateTimeField(verbose_name=_("initial date"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
-    sectors = models.ManyToManyField(Sector, related_name="entries", verbose_name=_("DFO sectors"))
+    sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
-    regions = models.ManyToManyField(Region, related_name="entries")
+    regions = models.ManyToManyField(ml_models.Region, related_name="entries")
 
     # funding
+    fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
     funding_needed = models.NullBooleanField(verbose_name=_("is funding needed"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding purpose"), related_name="entries")

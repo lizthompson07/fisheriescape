@@ -60,8 +60,6 @@
                         {% for field in field_list %}
                             <th scope="col">{% get_verbose_label my_object field %}</th>
                         {% endfor %}
-                        <th scope="col">Grouping</th>
-                        <th scope="col">Address</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -71,13 +69,7 @@
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
-                            <td>
-                                {% for grouping in object.grouping.all %}
-                                    {{ grouping }}
-                                {% endfor %}
 
-                            </td>
-                            <td>{{ object.full_address }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
