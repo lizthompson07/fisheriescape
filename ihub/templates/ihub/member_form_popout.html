@@ -94,6 +94,11 @@
 
         </form>
 
+        {% if object %}
+            <p><b>Date last modified:</b><br>{{ object.date_last_modified }}</p>
+            <p><b>Last modified by:</b><br>{{ object.last_modified_by }}</p>
+        {% endif %}
+
 
     </div>
 

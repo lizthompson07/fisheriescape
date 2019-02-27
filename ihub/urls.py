@@ -69,7 +69,7 @@ urlpatterns = [
     # SETTINGS #
     ############
     path('settings/sectors/', views.manage_sectors, name="manage_sectors"),
-    path('settings/member-roles/', views.manage_roles, name="manage_roles"),
+    # path('settings/member-roles/', views.manage_roles, name="manage_roles"),
     path('settings/organizations/', views.manage_orgs, name="manage_orgs"),
     path('settings/status/', views.manage_statuses, name="manage_statuses"),
     path('settings/entry-types/', views.manage_entry_types, name="manage_entry_types"),

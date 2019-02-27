@@ -35,7 +35,7 @@
             <a class="btn btn-danger " href="{% url 'ihub:org_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
-              <a class="btn btn-success" href="{% url 'ihub:report_q' object.id %}">
+            <a class="btn btn-success" href="{% url 'ihub:report_q' object.id %}">
                 {% trans "Cue Card" %}
             </a>
 
@@ -43,12 +43,21 @@
         <br><br>
 
         <div class="row">
-            <div class="col">
+            <div class="col-3">
                 <h3>
                     Organization Detail:
                 </h3>
 
                 {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+
+                <h3>
+                    Extended Detail:
+                </h3>
+
+                {% for field in field_list_2 %}
                     {% verbose_field_display object field %}
                 {% endfor %}
                 <br>

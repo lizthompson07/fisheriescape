@@ -58,7 +58,7 @@ class Province(models.Model):
 class Grouping(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("Name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
-    is_indigenous = models.BooleanField(default=False, verbose_name=_("indigenous organization"))
+    is_indigenous = models.BooleanField(default=False, verbose_name=_("indigenous?"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -85,9 +85,9 @@ class Person(models.Model):
     designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 1"))
-    phone_2 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 1"))
-    email_1 = models.EmailField(blank=True, null=True, verbose_name=_("email 1"))
+    phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    phone_2 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 2"))
+    email_1 = models.EmailField(blank=True, null=True, verbose_name=_("email"))
     email_2 = models.EmailField(blank=True, null=True, verbose_name=_("email 2"))
     cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 2"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
@@ -212,8 +212,8 @@ class Organization(models.Model):
             my_str += self.postal_code
         return my_str
 
-    def get_absolute_url(self):
-        return reverse('masterlist:org_detail', kwargs={'pk': self.pk})
+    # def get_absolute_url(self):
+    #     return reverse('masterlist:org_detail', kwargs={'pk': self.pk})
 
 
 class OrganizationMember(models.Model):

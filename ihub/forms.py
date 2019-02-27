@@ -3,6 +3,7 @@ from django.forms import modelformset_factory
 
 from . import models
 from django.contrib.auth.models import User
+from masterlist import models as ml_models
 
 
 class EntryCreateForm(forms.ModelForm):
@@ -48,7 +49,7 @@ class ReportSearchForm(forms.Form):
         ("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
         models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
     FY_CHOICES.insert(0, (None, "all years"))
-    ORG_CHOICES = [(obj.id, obj) for obj in models.Organization.objects.all()]
+    ORG_CHOICES = [(obj.id, obj) for obj in models.ml_models.Organization.objects.all()]
     # ORG_CHOICES = [(None, "---"), ]
     REPORT_CHOICES = (
         (None, "------"),
@@ -65,14 +66,19 @@ class ReportSearchForm(forms.Form):
 
 class OrganizationForm(forms.ModelForm):
     class Meta:
-        model = models.Organization
-        fields = "__all__"
-
+        model = ml_models.Organization
+        exclude = ["date_last_modified",]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
 
 class PersonForm(forms.ModelForm):
     class Meta:
-        model = models.Person
-        fields = "__all__"
+        model = ml_models.Person
+        exclude = ["date_last_modified",]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
 
 
 class EntryPersonForm(forms.ModelForm):
@@ -102,10 +108,11 @@ class EntryPersonForm(forms.ModelForm):
 class MemberForm(forms.ModelForm):
     # save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
     class Meta:
-        model = models.OrganizationMember
-        fields = "__all__"
+        model = ml_models.OrganizationMember
+        exclude = ["date_last_modified",]
         widgets = {
             'organization': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
         }
 
 
@@ -121,33 +128,33 @@ class FileForm(forms.ModelForm):
 
 class SectorForm(forms.ModelForm):
     class Meta:
-        model = models.Sector
+        model = ml_models.Sector
         fields = "__all__"
 
 
 SectorFormSet = modelformset_factory(
-    model=models.Sector,
+    model=ml_models.Sector,
     form=SectorForm,
     extra=1,
 )
 
 
-class MemberRoleForm(forms.ModelForm):
-    class Meta:
-        model = models.MemberRole
-        fields = "__all__"
-
-
-MemberRoleFormSet = modelformset_factory(
-    model=models.MemberRole,
-    form=MemberRoleForm,
-    extra=1,
-)
+# class MemberRoleForm(forms.ModelForm):
+#     class Meta:
+#         model = models.MemberRole
+#         fields = "__all__"
+#
+#
+# MemberRoleFormSet = modelformset_factory(
+#     model=models.MemberRole,
+#     form=MemberRoleForm,
+#     extra=1,
+# )
 
 
 class OrganizationFormShort(forms.ModelForm):
     class Meta:
-        model = models.Organization
+        model = ml_models.Organization
         fields = [
             'name_eng',
             'name_fre',
@@ -174,7 +181,7 @@ class OrganizationFormShort(forms.ModelForm):
 
 
 OrganizationFormSet = modelformset_factory(
-    model=models.Organization,
+    model=ml_models.Organization,
     form=OrganizationFormShort,
     extra=1,
 )
@@ -221,12 +228,12 @@ FundingPurposeFormSet = modelformset_factory(
 
 class RegionForm(forms.ModelForm):
     class Meta:
-        model = models.Region
+        model = ml_models.Region
         fields = "__all__"
 
 
 RegionFormSet = modelformset_factory(
-    model=models.Region,
+    model=ml_models.Region,
     form=RegionForm,
     extra=1,
 )
@@ -234,12 +241,12 @@ RegionFormSet = modelformset_factory(
 
 class GroupingForm(forms.ModelForm):
     class Meta:
-        model = models.Grouping
+        model = ml_models.Grouping
         fields = "__all__"
 
 
 GroupingFormSet = modelformset_factory(
-    model=models.Grouping,
+    model=ml_models.Grouping,
     form=GroupingForm,
     extra=1,
 )

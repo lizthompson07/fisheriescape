@@ -170,6 +170,7 @@ class OrganizationListView(MasterListAccessRequiredMixin, FilterView):
             'name_eng',
             'name_fre',
             'name_ind',
+            'abbrev',
             'province',
         ]
         return context

@@ -8,6 +8,10 @@
         {% trans "Organization Members:" %}
     </h3>
 </div>
+<a class="" href="#"
+   onclick="return popitup('{% url 'ihub:member_new' object.id %}','popoutWindow')">
+    {% trans "(Add members)" %}
+</a>
 
 {% if object.members.count == 0 %}
     <em>
@@ -15,15 +19,21 @@
     </em><br>
 {% else %}
 
+
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th>
                 {% trans "Name" %}
             </th>
             <th>
-                {% trans "Role(s)" %}
+                {% trans "Role" %}
             </th>
-            <th>Notes</th>
+            <th>
+                {% trans "Notes" %}
+            </th>
+            <th>
+                {% trans "Last modified" %}
+            </th>
 
         </tr>
         <tbody>
@@ -33,11 +43,10 @@
                     {{ obj.person.first_name }} {{ obj.person.last_name }}
                 </td>
                 <td>
-                    {% for role in obj.roles.all %}
-                        {{ role }}<br>
-                    {% endfor %}
+                        {{ obj.role }}
                 </td>
                 <td>{{ obj.notes|nz:"" }}</td>
+                <td>{{ obj.date_last_modified|date:"Y-m-d" }}</td>
                 <td>
                     <a class="person-delete-me" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
@@ -51,10 +60,6 @@
         </tbody>
     </table>
 {% endif %}
-<a class="" href="#"
-   onclick="return popitup('{% url 'ihub:member_new' object.id %}','popoutWindow')">
-    {% trans "(Add members)" %}
-</a>
 <br>
 <br>
 <br>
