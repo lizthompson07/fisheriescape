@@ -34,7 +34,6 @@ def can_delete(user, project):
                         return True
                 except:
                     print("staff has no user id")
-                    return False
 
             # finally, check to see if they are a section head
             if project.section:
@@ -43,6 +42,8 @@ def can_delete(user, project):
                         return True
                     else:
                         return False
+            else:
+                return False
     else:
         return False
 
