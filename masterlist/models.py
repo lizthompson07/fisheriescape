@@ -82,14 +82,15 @@ class Person(models.Model):
         (FRE, _("French")),
         (BI, _("Bilingual")),
     )
+    designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
     phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 1"))
     phone_2 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 1"))
+    email_1 = models.EmailField(blank=True, null=True, verbose_name=_("email 1"))
+    email_2 = models.EmailField(blank=True, null=True, verbose_name=_("email 2"))
     cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 2"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
     language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
 
@@ -120,8 +121,10 @@ class Person(models.Model):
             my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
         if self.fax:
             my_str += "<br>{}: {}".format(_("Fax"), self.fax)
-        if self.email:
-            my_str += "<br>{}: {}".format(_("E-mail"), self.email)
+        if self.email_1:
+            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email_1)
+        if self.email_2:
+            my_str += "<br>{}: {}".format(_("E-mail 2"), self.email_2)
         return my_str
 
     @property
@@ -133,8 +136,10 @@ class Person(models.Model):
             my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
         if self.fax:
             my_str += "<br>{}: {}".format(_("Fax"), self.fax)
-        if self.email:
-            my_str += "<br>{}: {}".format(_("E-mail"), self.email)
+        if self.email_1:
+            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email_1)
+        if self.email_2:
+            my_str += "<br>{}: {}".format(_("E-mail 2"), self.email_2)
         return my_str
 
 
@@ -143,7 +148,6 @@ class Organization(models.Model):
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
     abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
-    grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"))
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
@@ -153,8 +157,9 @@ class Organization(models.Model):
     dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("dfo contact instructions"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     key_species = models.TextField(blank=True, null=True, verbose_name=_("key species"))
-    regions = models.ManyToManyField(Region, verbose_name=_("region"))
-    sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"))
+    grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"), blank=True)
+    regions = models.ManyToManyField(Region, verbose_name=_("region"), blank=True)
+    sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
 
     # ihub only
     next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election"))
