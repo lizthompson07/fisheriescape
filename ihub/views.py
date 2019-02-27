@@ -23,7 +23,9 @@ from . import forms
 from . import filters
 from . import emails
 from . import reports
+from masterlist import models as ml_models
 
+ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 
 # Create your views here.
 class CloserTemplateView(TemplateView):
@@ -76,25 +78,26 @@ class IndexTemplateView(iHubAccessRequiredMixin, TemplateView):
 class PersonListView(iHubAccessRequiredMixin, FilterView):
     template_name = 'ihub/person_list.html'
     filterset_class = filters.PersonFilter
-    model = models.Person
-    queryset = models.Person.objects.annotate(
+    model = ml_models.Person
+    queryset = ml_models.Person.objects.annotate(
         search_term=Concat('first_name', 'last_name', 'notes', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Person.objects.first()
+        context["my_object"] = ml_models.Person.objects.first()
         context["field_list"] = [
             'last_name',
             'first_name',
             'phone_1',
             'phone_2',
-            'email',
+            'email_1',
         ]
         return context
 
 
 class PersonDetailView(iHubAccessRequiredMixin, DetailView):
-    model = models.Person
+    model = ml_models.Person
+    template_name = 'ihub/person_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -104,20 +107,22 @@ class PersonDetailView(iHubAccessRequiredMixin, DetailView):
             'phone_1',
             'phone_2',
             'fax',
-            'email',
+            'email_1',
+            'email_2',
             'notes',
         ]
         return context
 
 
 class PersonUpdateView(iHubAccessRequiredMixin, UpdateView):
-    model = models.Person
+    model = ml_models.Person
+    template_name = 'ihub/person_form.html'
     form_class = forms.PersonForm
 
 
 class PersonUpdateViewPopout(iHubAccessRequiredMixin, UpdateView):
     template_name = 'ihub/person_form_popout.html'
-    model = models.Person
+    model = ml_models.Person
     form_class = forms.PersonForm
 
     def form_valid(self, form):
@@ -126,13 +131,14 @@ class PersonUpdateViewPopout(iHubAccessRequiredMixin, UpdateView):
 
 
 class PersonCreateView(iHubAccessRequiredMixin, CreateView):
-    model = models.Organization
+    model = ml_models.Organization
+    template_name = 'ihub/person_form.html'
     form_class = forms.PersonForm
 
 
 class PersonCreateViewPopout(iHubAccessRequiredMixin, CreateView):
+    model = ml_models.Person
     template_name = 'ihub/person_form_popout.html'
-    model = models.Person
     form_class = forms.PersonForm
 
     def form_valid(self, form):
@@ -141,7 +147,8 @@ class PersonCreateViewPopout(iHubAccessRequiredMixin, CreateView):
 
 
 class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
-    model = models.Person
+    model = ml_models.Person
+    template_name = 'ihub/person_confirm_delete.html'
     success_url = reverse_lazy('ihub:person_list')
     success_message = 'The person was deleted successfully!'
 
@@ -156,24 +163,26 @@ class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
 class OrganizationListView(iHubAccessRequiredMixin, FilterView):
     template_name = 'ihub/organization_list.html'
     filterset_class = filters.OrganizationFilter
-    model = models.Organization
-    queryset = models.Organization.objects.annotate(
+    queryset = ind_organizations.annotate(
         search_term=Concat('name_eng', 'name_fre', 'abbrev', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Organization.objects.first()
+        context["my_object"] = ml_models.Organization.objects.first()
         context["field_list"] = [
             'name_eng',
             'name_fre',
             'name_ind',
             'province',
+            'grouping',
+            'full_address|'+_("Full address"),
         ]
         return context
 
 
 class OrganizationDetailView(iHubAccessRequiredMixin, DetailView):
-    model = models.Organization
+    model = ml_models.Organization
+    template_name = 'ihub/organization_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -188,6 +197,8 @@ class OrganizationDetailView(iHubAccessRequiredMixin, DetailView):
             'province',
             'phone',
             'fax',
+        ]
+        context["field_list_2"] = [
             'next_election',
             'election_term',
             'population_on_reserve',
@@ -200,17 +211,20 @@ class OrganizationDetailView(iHubAccessRequiredMixin, DetailView):
 
 
 class OrganizationUpdateView(iHubAccessRequiredMixin, UpdateView):
-    model = models.Organization
+    model = ml_models.Organization
+    template_name = 'ihub/organization_form.html'
     form_class = forms.OrganizationForm
 
 
 class OrganizationCreateView(iHubAccessRequiredMixin, CreateView):
-    model = models.Organization
+    model = ml_models.Organization
+    template_name = 'ihub/organization_form.html'
     form_class = forms.OrganizationForm
 
 
 class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
-    model = models.Organization
+    model = ml_models.Organization
+    template_name = 'ihub/organization_confirm_delete.html'
     success_url = reverse_lazy('ihub:org_list')
     success_message = 'The organization was deleted successfully!'
 
@@ -223,27 +237,27 @@ class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
 #################################
 
 class MemberCreateView(iHubAccessRequiredMixin, CreateView):
-    model = models.OrganizationMember
+    model = ml_models.OrganizationMember
     template_name = 'ihub/member_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.MemberForm
 
     def get_initial(self):
-        org = models.Organization.objects.get(pk=self.kwargs['org'])
+        org = ml_models.Organization.objects.get(pk=self.kwargs['org'])
         return {
             'organization': org,
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        org = models.Organization.objects.get(id=self.kwargs['org'])
+        org = ml_models.Organization.objects.get(id=self.kwargs['org'])
         context['organization'] = org
 
         # get a list of people
         person_list = [
             '<a href="#" class="person_insert" code={id}>{first} {last}</a>'.format(
                 id=p.id, first=p.first_name, last=p.last_name
-            ) for p in models.Person.objects.all()
+            ) for p in ml_models.Person.objects.all()
         ]
 
         context['person_list'] = person_list
@@ -256,7 +270,7 @@ class MemberCreateView(iHubAccessRequiredMixin, CreateView):
 
 
 class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
-    model = models.OrganizationMember
+    model = ml_models.OrganizationMember
     template_name = 'ihub/member_form_popout.html'
     form_class = forms.MemberForm
     login_url = '/accounts/login_required/'
@@ -272,7 +286,7 @@ class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
         person_list = [
             '<a href="#" class="person_insert" code={id}>{first} {last}</a>'.format(
                 id=p.id, first=p.first_name, last=p.last_name
-            ) for p in models.Person.objects.all()
+            ) for p in ml_models.Person.objects.all()
         ]
 
         context['person_list'] = person_list
@@ -281,7 +295,7 @@ class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
 
 
 def member_delete(request, pk):
-    object = models.OrganizationMember.objects.get(pk=pk)
+    object = ml_models.OrganizationMember.objects.get(pk=pk)
     object.delete()
     messages.success(request, _("The member has been successfully deleted from the organization."))
     return HttpResponseRedirect(reverse_lazy("ihub:org_detail", kwargs={"pk": object.organization.id}))
@@ -322,12 +336,12 @@ class EntryDetailView(iHubAccessRequiredMixin, DetailView):
             'entry_type',
             'initial_date',
             'regions',
-            'fiscal_year',
             'last_modified_by',
             'created_by',
         ]
 
         context["field_list_1"] = [
+            'fiscal_year',
             'funding_needed',
             'funding_purpose',
             'amount_requested',
@@ -573,7 +587,7 @@ class OrganizationCueCard(iHubAccessRequiredMixin, PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        org = models.Organization.objects.get(pk=self.kwargs["org"])
+        org = ml_models.Organization.objects.get(pk=self.kwargs["org"])
         context["org"] = org
         context["org_field_list_1"] = [
             'name_eng',
@@ -636,7 +650,7 @@ class OrganizationCueCard(iHubAccessRequiredMixin, PDFTemplateView):
 ############
 
 def manage_sectors(request):
-    qs = models.Sector.objects.all()
+    qs = ml_models.Sector.objects.all()
     if request.method == 'POST':
         formset = forms.SectorFormSet(request.POST, )
         if formset.is_valid():
@@ -656,31 +670,31 @@ def manage_sectors(request):
     ]
     return render(request, 'ihub/manage_settings_small.html', context)
 
-
-def manage_roles(request):
-    qs = models.MemberRole.objects.all()
-    if request.method == 'POST':
-        formset = forms.MemberRoleFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Member roles have been successfully updated")
-    else:
-        formset = forms.MemberRoleFormSet(
-            queryset=qs)
-    context = {}
-    context['title'] = "Manage Member Roles"
-    context['formset'] = formset
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-    ]
-    return render(request, 'ihub/manage_settings_small.html', context)
+#
+# def manage_roles(request):
+#     qs = models.MemberRole.objects.all()
+#     if request.method == 'POST':
+#         formset = forms.MemberRoleFormSet(request.POST, )
+#         if formset.is_valid():
+#             formset.save()
+#             # do something with the formset.cleaned_data
+#             messages.success(request, "Member roles have been successfully updated")
+#     else:
+#         formset = forms.MemberRoleFormSet(
+#             queryset=qs)
+#     context = {}
+#     context['title'] = "Manage Member Roles"
+#     context['formset'] = formset
+#     context["my_object"] = qs.first()
+#     context["field_list"] = [
+#         'name',
+#         'nom',
+#     ]
+#     return render(request, 'ihub/manage_settings_small.html', context)
 
 
 def manage_orgs(request):
-    qs = models.Organization.objects.all()
+    qs = ind_organizations
     if request.method == 'POST':
         formset = forms.OrganizationFormSet(request.POST, )
         if formset.is_valid():
@@ -765,7 +779,7 @@ def manage_funding_purposes(request):
 
 
 def manage_regions(request):
-    qs = models.Region.objects.all()
+    qs = ml_models.Region.objects.all()
     if request.method == 'POST':
         formset = forms.RegionFormSet(request.POST, )
         if formset.is_valid():
@@ -787,7 +801,7 @@ def manage_regions(request):
 
 
 def manage_groupings(request):
-    qs = models.Grouping.objects.all()
+    qs = ml_models.Grouping.objects.filter(is_indigenous=True)
     if request.method == 'POST':
         formset = forms.GroupingFormSet(request.POST, )
         if formset.is_valid():
