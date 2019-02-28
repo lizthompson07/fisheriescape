@@ -157,11 +157,21 @@ def generate_master_spreadsheet(fiscal_year, user=None):
         except:
             end = "n/a"
 
+        try:
+            division = p.section.division.name
+        except:
+            division = "MISSING"
+
+        try:
+            section = p.section.name
+        except:
+            section = "MISSING"
+
         data_row = [
             p.id,
             p.project_title,
-            p.section.division.name,
-            p.section.name,
+            division,
+            section,
             program,
             p.coding,
             status,
