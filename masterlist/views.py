@@ -330,6 +330,8 @@ class ReportSearchFormView(MasterListAccessRequiredMixin, FormView):
             sectors = "None"
         if regions == "":
             regions = "None"
+        if species == "":
+            species = "None"
 
         if report == 1:
             return HttpResponseRedirect(reverse("masterlist:export_custom_list", kwargs={
