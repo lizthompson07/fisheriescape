@@ -217,7 +217,7 @@ class Organization(models.Model):
 
 
 class OrganizationMember(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="memberships")
+    person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="memberships")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
     role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
     notes = models.TextField(blank=True, null=True)
@@ -282,7 +282,7 @@ class ConsultationInstructionRecipient(models.Model):
         (CC, _("CC")),
     )
     consultation_instruction = models.ForeignKey(ConsultationInstruction, on_delete=models.CASCADE, related_name="recipients")
-    member = models.ForeignKey(OrganizationMember, on_delete=models.CASCADE, related_name="consultation_instructions")
+    member = models.ForeignKey(OrganizationMember, on_delete=models.DO_NOTHING, related_name="consultation_instructions")
     to_cc = models.IntegerField(choices=TO_CC_CHOICES, verbose_name=_("TO / CC"))
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
