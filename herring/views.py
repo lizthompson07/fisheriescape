@@ -558,11 +558,6 @@ class OtolithUpdateView(HerringAccessRequired, UpdateView):
         return context
 
     def get_initial(self):
-
-        # THIS IS VERY IMPORTANT:
-        # if the fish is a spring fish, there should be a +1 added to the annulus_count.
-        # However, if there is already a value present, we cannot add 1
-
         return {
             'last_modified_by': self.request.user,
             'otolith_sampler': self.request.user,
