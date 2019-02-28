@@ -25,11 +25,23 @@ urlpatterns = [
     path('organization/<int:pk>/edit/', views.OrganizationUpdateView.as_view(), name="org_edit"),
     path('organization/<int:pk>/delete/', views.OrganizationDeleteView.as_view(), name="org_delete"),
 
-    # ORGANIZATIONPERSON #
+    # ORGANIZATION MEMBER #
     ######################
     path('organization/<int:org>/member/new/', views.MemberCreateView.as_view(), name="member_new"),
     path('member/<int:pk>/edit/', views.MemberUpdateView.as_view(), name="member_edit"),
     path('member/<int:pk>/delete/', views.member_delete, name="member_delete"),
+
+    # Consultation Instructions #
+    #############################
+    path('organization/<int:org>/instructions/new/', views.InstructionCreateView.as_view(), name="instruction_new"),
+    path('instructions/<int:pk>/edit/', views.InstructionUpdateView.as_view(), name="instruction_edit"),
+    path('instructions/<int:pk>/delete/', views.InstructionDeleteView.as_view(), name="instruction_delete"),
+
+    # RECIPIENTS #
+    ##############
+    path('instructions/<int:instruction>/member/<int:member>/add/', views.RecipientCreateView.as_view(), name="recipient_new"),
+    path('recipient/<int:pk>/edit/', views.RecipientUpdateView.as_view(), name="recipient_edit"),
+    path('recipient/<int:pk>/delete/', views.recipient_delete, name="recipient_delete"),
 
     # Reports #
     ###########
