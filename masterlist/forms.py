@@ -51,16 +51,28 @@ class PersonForm(forms.ModelForm):
         }
 
 
+class NewMemberForm(forms.ModelForm):
+    class Meta:
+        model = models.OrganizationMember
+        exclude = [
+            'roles',
+            'date_last_modified',
+        ]
+        widgets = {
+            'organization': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": 2}),
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
 class MemberForm(forms.ModelForm):
     class Meta:
         model = models.OrganizationMember
         exclude = [
             'roles',
-            # 'notes',
             'date_last_modified',
         ]
         widgets = {
-            'organization': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": 2}),
             'last_modified_by': forms.HiddenInput(),
         }
