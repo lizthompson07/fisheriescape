@@ -17,7 +17,7 @@
     </style>
 
     <script>
-        window.resizeTo(width = 600, height = 600);
+        window.resizeTo(width = 600, height = 800);
 
         window.onunload = refreshParent;
 
@@ -33,7 +33,7 @@
                 {% trans "Editing Member" %}
 
             {% else %}
-                {% trans "Adding Member" %}
+                {% trans "Adding New Member to " %} {{ organization }}
             {% endif %}
         </h3>
         <br>
