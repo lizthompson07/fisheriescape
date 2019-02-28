@@ -13,28 +13,22 @@
         (click on a header to sort)
         <table class="table table-bordered table-sm sortable">
             <thead>
-            <tr>
-                <th scope="col">Season</th>
-                <th scope="col">Sample Id</th>
-                <th scope="col">Type</th>
-                <th scope="col">Sample date</th>
-                <th scope="col" style="width: 150px;">Sampler's reference no.</th>
-                <th scope="col">Sampler name</th>
-                <th scope="col">Length frequencies collected</th>
-                <th scope="col">Fish preserved</th>
-                <th scope="col" style="text-align: center;">Lab processed</th>
-                <th scope="col" style="text-align: center;">Otoliths processed</th>
-            </tr>
+            <th scope="col">Season</th>
+            <th scope="col">Sample Id</th>
+            <th scope="col">Type</th>
+            <th scope="col">Sample date</th>
+            <th scope="col" style="width: 150px;">Sampler's reference no.</th>
+            <th scope="col">Sampler name</th>
+            <th scope="col">Length frequencies collected</th>
+            <th scope="col">Fish preserved</th>
+            <th scope="col" style="text-align: center;">Lab processed</th>
+            <th scope="col" style="text-align: center;">Otoliths processed</th>
             </thead>
             <tbody>
             {% for sample in object_list %}
-                <tr>
+                <tr href="{% url 'herring:sample_detail' sample.id %}">
                     <td>{{ sample.season }}</td>
-                    <td>
-                        <a href="{% url 'herring:sample_detail' sample.id %}">
-                            {{ sample.id }}
-                        </a>
-                    </td>
+                    <td>{{ sample.id }}</td>
                     <td>{{ sample.get_type_display }}</td>
                     <td>{{ sample.sample_date|date:'F d, Y' }}</td>
                     <td>{{ sample.sampler_ref_number }}</td>
