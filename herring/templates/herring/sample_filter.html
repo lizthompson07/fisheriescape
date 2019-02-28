@@ -5,95 +5,88 @@
 {% block content %}
 
     <style type="text/css">
-        table{
+        table {
             font-size: 0.85em;
         }
     </style>
 
-<div class="indent-med">
+    <div class="indent-med">
 
-  <h1 class="big-header">Herring Samples </h1>
-  <p>TOTAL: {{object_list.count}}</p>
-  <p>
-  </p>
+        <h1 class="big-header">Herring Samples </h1>
+        <p>TOTAL: {{ object_list.count }}</p>
+        <p>
+        </p>
 
-  <form class="form" action="." method="get">
-    <div class="row">
+        <form class="form" action="." method="get">
+            <div class="row">
 
-    {% for field in filter.form %}
-    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
-    <div class="col">
-      {%bootstrap_field field placeholder=""%}
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-warning">
+                </div>
+            </div>
+        </form>
+
+        <br>
+        <div class="btn-group">
+            <a href="{% url 'herring:sample_new' %}" class="btn btn-sm btn-outline-primary ">New Sample</a>
+        </div>
+        <br>
+        <br>
+        <table class="table table-hover table-sm sortable">
+            <thead>
+            <th scope="col">Sample #</th>
+            <th scope="col">Type</th>
+            <th scope="col">Sample Collection Date</th>
+            <th scope="col" style="text-align: center;">Sampler Ref. No.</th>
+            <th scope="col" style="text-align: center;">Experimental?</th>
+            <th scope="col">Sampler</th>
+            <th scope="col" style="text-align: center;"># Fish Processed</th>
+            <th scope="col" style="text-align: center;">Date Processed</th>
+            <th scope="col" style="text-align: center;">Lab Complete</th>
+            <th scope="col" style="text-align: center;">Otoliths Complete</th>
+            </thead>
+            <tbody>
+            {% for sample in filter.qs %}
+                <tr href="{% url 'herring:sample_detail' sample.id %}">
+                    <td>{{ sample.id }}</td>
+                    <td>{{ sample.get_type_display }}</td>
+                    <td>{{ sample.sample_date|date:'F d, Y' }}</td>
+                    <td align='center'>{{ sample.sampler_ref_number }}</td>
+                    <td align='center'>{{ sample.experimental_net_used|yesno:"yes,no,n/a" }}</td>
+                    <td>{{ sample.sampler }}</td>
+
+                    <td align='center'>{{ sample.fish_details.count }}</td>
+                    <td align='center'>{{ sample.fish_details.last.lab_processed_date|date:"F d, Y" }}</td>
+
+                    <td align='center'>
+                        {% if sample.lab_processing_complete %}
+                            <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+                        {% else %}
+                            <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+                        {% endif %}
+                    </td>
+
+                    <td align='center'>
+                        {% if sample.otolith_processing_complete %}
+                            <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+                        {% else %}
+                            <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+                        {% endif %}
+                    </td>
+
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
-
-    {% endfor %}
-  <div class="col">
-    <br>
-    <input type="submit" value="Filter" class="btn btn-warning">
-  </div>
-  </div>
-  </form>
-
-  <br>
-  <div class="btn-group">
-    <a href="{% url 'herring:sample_new' %}" class="btn btn-sm btn-outline-primary ">New Sample</a>
-  </div>
-  <br>
-  <br>
-  <table class="table table-hover table-sm">
-    <thead>
-      <tr>
-        <th scope="col">Sample #</th>
-        <th scope="col">Type</th>
-        <th scope="col">Sample Collection Date</th>
-        <th scope="col" style="text-align: center;">Sampler Ref. No.</th>
-        <th scope="col" style="text-align: center;">Experimental?</th>
-        <th scope="col">Sampler</th>
-        <th scope="col" style="text-align: center;"># Fish Processed</th>
-        <th scope="col" style="text-align: center;">Date Processed</th>
-        <th scope="col" style="text-align: center;">Lab Complete</th>
-        <th scope="col" style="text-align: center;">Otoliths Complete</th>
-{#        <th scope="col">Last Modified</th>#}
-
-
-      </tr>
-    </thead>
-    <tbody>
-      {% for sample in filter.qs  %}
-        <tr>
-          <td><a href="{% url 'herring:sample_detail' sample.id %}">{{sample.id}}</a></td>
-          <td>{{sample.get_type_display}}</td>
-          <td>{{sample.sample_date|date:'F d, Y'}}</td>
-          <td align='center'>{{sample.sampler_ref_number}}</td>
-          <td align='center'>{{sample.experimental_net_used|yesno:"yes,no,n/a"}}</td>
-          <td>{{sample.sampler}}</td>
-
-            <td align='center'>{{sample.fish_details.count}}</td>
-            <td align='center'>{{sample.fish_details.last.lab_processed_date|date:"F d, Y"}}</td>
-
-            <td align='center'>
-            {% if sample.lab_processing_complete %}
-            <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
-            {% else %}
-            <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
-            {% endif %}
-            </td>
-
-
-            <td align='center'>
-            {% if sample.otolith_processing_complete %}
-            <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
-            {% else %}
-            <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
-            {% endif %}
-          </td>
-
-{#          <td>{{sample.last_modified_date|naturaltime}}</td>#}
-
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
 
 {% endblock content %}

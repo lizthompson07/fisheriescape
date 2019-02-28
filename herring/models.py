@@ -289,7 +289,7 @@ class FishDetail(models.Model):
                 self.lab_processed_date = timezone.now()
         else:
             self.lab_processed_date = None
-        if self.otolith_sampler and self.annulus_count and self.otolith_season:
+        if self.otolith_sampler and self.annulus_count is not None and self.otolith_season:
             if self.otolith_processed_date == None:
                 self.otolith_processed_date = timezone.now()
         else:
