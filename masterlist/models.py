@@ -236,3 +236,5 @@ class OrganizationMember(models.Model):
 
     def __str__(self):
         return "{}".format(self.person)
+
+
