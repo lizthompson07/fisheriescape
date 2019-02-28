@@ -18,7 +18,6 @@ from . import filters
 from . import reports
 
 
-
 # Create your views here.
 class CloserTemplateView(TemplateView):
     template_name = 'masterlist/close_me.html'
@@ -228,7 +227,7 @@ class OrganizationDeleteView(MasterListAdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# MEMBER  (ORGANIZATION PERSON) #
+# MEMBER  (ORGANIZATION MEMBER) #
 #################################
 
 class MemberCreateView(MasterListAccessRequiredMixin, CreateView):
@@ -302,6 +301,121 @@ def member_delete(request, pk):
     return HttpResponseRedirect(reverse_lazy("masterlist:org_detail", kwargs={"pk": object.organization.id}))
 
 
+# CONSULTATION INSTRUCTION #
+############################
+
+class InstructionCreateView(MasterListAccessRequiredMixin, CreateView):
+    model = models.ConsultationInstruction
+    template_name = 'masterlist/instruction_form.html'
+    form_class = forms.InstructionForm
+
+    def get_initial(self):
+        org = models.Organization.objects.get(pk=self.kwargs['org'])
+        return {
+            'organization': org,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = models.Organization.objects.get(id=self.kwargs['org'])
+        context['org'] = org
+
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy('masterlist:instruction_edit', kwargs={"pk":object.id}))
+
+
+class InstructionUpdateView(MasterListAccessRequiredMixin, UpdateView):
+    model = models.ConsultationInstruction
+    template_name = 'masterlist/instruction_form.html'
+    form_class = forms.InstructionForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # # get a list of members from only the indigenous organizations
+        member_list = ['<a href="#" class="add-btn" target-url="{target_url}">{text}</a>'.format(
+            target_url=reverse_lazy("masterlist:recipient_new", kwargs={"instruction": self.object.id, "member": member.id}),
+            text=member) for member in models.OrganizationMember.objects.filter(organization__grouping__is_indigenous=True)]
+        context['member_list'] = member_list
+
+        return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class InstructionDeleteView(MasterListAdminRequiredMixin, DeleteView):
+    model = models.ConsultationInstruction
+    success_message = _("The organization's consultation instructions were deleted successfully!")
+    template_name = 'masterlist/instruction_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy("masterlist:org_detail", kwargs={"pk": self.object.organization.id})
+
+
+# RECIPIENTS #
+##############
+
+class RecipientCreateView(MasterListAdminRequiredMixin, CreateView):
+    model = models.ConsultationInstructionRecipient
+    template_name = 'masterlist/recipient_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.RecipientForm
+
+    def get_initial(self):
+        instruction = models.ConsultationInstruction.objects.get(pk=self.kwargs['instruction'])
+        member = models.OrganizationMember.objects.get(pk=self.kwargs['member'])
+        return {
+            'consultation_instruction': instruction.id,
+            'member': member.id,
+            'last_modified_by': self.request.user,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instruction = models.ConsultationInstruction.objects.get(id=self.kwargs['instruction'])
+        member = models.OrganizationMember.objects.get(id=self.kwargs['member'])
+        context['instruction'] = instruction
+        context['member'] = member
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponseRedirect(reverse('masterlist:close_me'))
+
+
+class RecipientUpdateView(MasterListAdminRequiredMixin, UpdateView):
+    model = models.ConsultationInstructionRecipient
+    template_name = 'masterlist/recipient_form_popout.html'
+    form_class = forms.RecipientForm
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponseRedirect(reverse('masterlist:close_me'))
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+
+def recipient_delete(request, pk):
+    object = models.ConsultationInstructionRecipient.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, "The recipient has been successfully deleted from {}.".format(object.consultation_instruction))
+    return HttpResponseRedirect(reverse_lazy("masterlist:instruction_edit", kwargs={"pk": object.consultation_instruction.id}))
+
+
 # REPORTS #
 ###########
 
@@ -354,6 +468,7 @@ def export_custom_list(request, provinces, groupings, sectors, regions, is_indig
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404

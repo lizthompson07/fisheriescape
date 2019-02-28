@@ -85,9 +85,9 @@ class Person(models.Model):
     designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 1"))
     phone_2 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 2"))
-    email_1 = models.EmailField(blank=True, null=True, verbose_name=_("email"))
+    email_1 = models.EmailField(blank=True, null=True, verbose_name=_("email 1"))
     email_2 = models.EmailField(blank=True, null=True, verbose_name=_("email 2"))
     cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone 2"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
@@ -212,8 +212,8 @@ class Organization(models.Model):
             my_str += self.postal_code
         return my_str
 
-    # def get_absolute_url(self):
-    #     return reverse('masterlist:org_detail', kwargs={'pk': self.pk})
+    def get_absolute_url(self):
+        return reverse('masterlist:org_detail', kwargs={'pk': self.pk})
 
 
 class OrganizationMember(models.Model):
@@ -235,6 +235,91 @@ class OrganizationMember(models.Model):
         unique_together = ["organization", "person"]
 
     def __str__(self):
-        return "{}".format(self.person)
+
+        if self.person.first_name:
+            first_name = self.person.first_name + " "
+        else:
+            first_name = ""
+
+        if self.person.last_name:
+            last_name = self.person.last_name
+        else:
+            last_name = ""
 
 
+        return "{} {}, {} ({})".format(first_name, last_name, self.role, self.organization)
+
+
+class ConsultationInstruction(models.Model):
+    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, related_name="consultation_instructions")
+    letter_to = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("address letter to:"))
+    letter_cc = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("include on cc (letter)"))
+    paper_copy = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("paper copy to"))
+    notes = models.TextField(blank=True, null=True)
+    # metadata
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def get_absolute_url(self):
+        return reverse('masterlist:org_detail', kwargs={'pk': self.organization.pk})
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ["organization", ]
+
+    def __str__(self):
+        return "Consultation Instructions for {}".format(self.organization)
+
+
+class ConsultationInstructionRecipient(models.Model):
+    TO = 1
+    CC = 2
+    TO_CC_CHOICES = (
+        (TO, _("TO")),
+        (CC, _("CC")),
+    )
+    consultation_instruction = models.ForeignKey(ConsultationInstruction, on_delete=models.CASCADE, related_name="recipients")
+    member = models.ForeignKey(OrganizationMember, on_delete=models.CASCADE, related_name="consultation_instructions")
+    to_cc = models.IntegerField(choices=TO_CC_CHOICES, verbose_name=_("TO / CC"))
+    # metadata
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ["to_cc", "member"]
+        unique_together = ["consultation_instruction", "member"]
+
+    def __str__(self):
+        if self.member.person.designation:
+            designation = self.member.person.designation + " "
+        else:
+            designation = ""
+
+        if self.member.person.first_name:
+            first_name = self.member.person.first_name + " "
+        else:
+            first_name = ""
+
+        if self.member.person.last_name:
+            last_name = self.member.person.last_name
+        else:
+            last_name = ""
+
+        if self.member.person.email_1:
+            email = self.member.person.email_1
+        else:
+            email = _("EMAIL MISSING")
+
+        if self.member.role:
+            role = self.member.role
+        else:
+            role = _("MISSING ROLE")
+
+        return "{}: {}{}{} - {} [{}]".format(self.get_to_cc_display(), designation, first_name, last_name, role, email)
