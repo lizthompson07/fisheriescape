@@ -234,7 +234,7 @@ class MemberCreateView(MasterListAccessRequiredMixin, CreateView):
     model = models.OrganizationMember
     template_name = 'masterlist/member_form_popout.html'
     login_url = '/accounts/login_required/'
-    form_class = forms.MemberForm
+    form_class = forms.NewMemberForm
 
     def get_initial(self):
         org = models.Organization.objects.get(pk=self.kwargs['org'])
