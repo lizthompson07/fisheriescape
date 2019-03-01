@@ -15,21 +15,21 @@ def get_app_dict(request):
     app_dict = {
         "inventory": {
             "title": _("Metadata Inventory"),
-            "description": _("Tool for organizing and managing metadata of regional datasets and data resources."),
+            "description": _("Tool for organizing and managing regional data resources."),
             "status": "production",
             "access": "open",
             "url": inventory_url,
         },
         "tickets": {
             "title": _("Data Management Tickets"),
-            "description": _("Tool for submitting and tracking data management requests."),
+            "description": _("Submit and track data management service requests."),
             "status": "production",
             "access": "open",
             "url": reverse('tickets:list'),
         },
         "grais": {
             "title": _("grAIS"),
-            "description": _("Gulf Region Aquatic Invasive Species application."),
+            "description": _("Gulf Region Aquatic Invasive Species data entry and archiving tool."),
             "status": "production",
             "access": "permission-required",
             "url": reverse('grais:index'),
@@ -41,16 +41,16 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('herring:index'),
         },
-        "oceanography": {
-            "title": _("Regional Oceanographic Archive"),
-            "description": _("Tool for tracking the collection and processing of oceanographic data."),
+        "ihub": {
+            "title": _("iHub"),
+            "description": _("Indigenous Hub entry management and reporting tool."),
             "status": "beta",
-            "access": "open",
-            "url": reverse('oceanography:index'),
+            "access": "permission-required",
+            "url": reverse('ihub:index'),
         },
         "camp": {
             "title": _("CAMP db"),
-            "description": _("Tool for organizing and managing metadata of regional datasets and data resources."),
+            "description": _("Community Aquatic Monitoring Program (CAMP) data entry and archiving tool."),
             "status": "production",
             "access": "permission-required",
             "url": reverse('camp:index'),
@@ -69,13 +69,6 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('scifi:index'),
         },
-        "ihub": {
-            "title": _("iHub"),
-            "description": _("Indigenous Hub entry management tool."),
-            "status": "beta",
-            "access": "permission-required",
-            "url": reverse('ihub:index'),
-        },
         "masterlist": {
             "title": _("MasterList"),
             "description": _("Regional master list and consultation instructions."),
@@ -83,12 +76,19 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('masterlist:index'),
         },
-        "snowcrab": {
-            "title": _("Snow Crab"),
-            "description": _("front-end application for the Gulf snow crab monitoring dataset"),
-            "status": "dev",
+        # "snowcrab": {
+        #     "title": _("Snow Crab"),
+        #     "description": _("front-end application for the Gulf snow crab monitoring dataset"),
+        #     "status": "dev",
+        #     "access": "open",
+        #     "url": reverse('crab:index'),
+        # },
+        "oceanography": {
+            "title": _("Regional Oceanographic Archive"),
+            "description": _("Collection, processing and storage of regional oceanographic data."),
+            "status": "beta",
             "access": "open",
-            "url": reverse('crab:index'),
+            "url": reverse('oceanography:index'),
         },
         "diets": {
             "title": _("Marine Diets"),
@@ -97,16 +97,16 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('diets:index'),
         },
-        "meq": {
-            "title": _("MEQ"),
-            "description": _("Marine Environmental Quality (MEQ) database."),
-            "status": "dev",
-            "access": "open",
-            "url": "#"
-        },
+        # "meq": {
+        #     "title": _("MEQ"),
+        #     "description": _("Marine Environmental Quality (MEQ) database."),
+        #     "status": "dev",
+        #     "access": "open",
+        #     "url": "#"
+        # },
     }
 
-    return app_dict
+    return OrderedDict(app_dict)
 
 
 class IndexView(TemplateView):
