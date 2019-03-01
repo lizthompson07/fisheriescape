@@ -23,6 +23,10 @@
     <!--  Google icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+    <!--  favicon -->
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+
+
     <title>{% block title %}{% endblock title %}</title>
     {% block header %}{% endblock header %}
     {% if not PROD_CNF %}
@@ -38,9 +42,10 @@
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark transparent">
     <a class="navbar-brand bigbrand" href="{% url 'index' %}">
-        {% trans 'DM Home' %}
+        <img src="{% static 'img/icons/iconfinder_cluster-data-group-organize_2205240 - white.png' %}" width="30" height="30"
+             class="d-inline-block align-top" alt="" data-toggle="tooltip" title="{% trans "Data Management Home" %}">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

@@ -87,3 +87,7 @@ def currency(value, with_sign=False):
         else:
             return "{0:,.2f}".format(value)
 
+@register.filter(name='lookup')
+def lookup(my_dict, key):
+    """lookup the value of a dictionary. value is a dictionary object and arg is the key"""
+    return my_dict[key]

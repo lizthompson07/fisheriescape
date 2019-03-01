@@ -14,3 +14,11 @@
 
 
 
+# TODO: PDF report for all projects (project cards)
+
+# TODO: approved amount
+# TODO: create a capital request report for next fiscal
+# TODO: remove Student and post-doc from O&M view
+# TODO: financial summary report
+# TODO: for access, anyone with scifi_access or if name on a section head
+
