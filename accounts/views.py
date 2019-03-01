@@ -20,10 +20,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .tokens import account_activation_token
 from . import forms
 from . import emails
-from inventory import models as inventory_models
 
-
-# Create your views here.
 
 class IndexView(TemplateView):
     template_name = 'accounts/index.html'

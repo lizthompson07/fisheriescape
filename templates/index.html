@@ -1,7 +1,23 @@
 {% extends "accounts/accounts_base.html" %}
 {% load static %}
 {% load i18n %}
+{% load custom_filters %}
+
 {% block bug_create %}{% url 'bugs:bug_create' 1 %}{% endblock bug_create %}
+{% block header %}
+    <style>
+        body {
+            background-image: url("{% static 'img/jeremy-cai-1174-unsplash.jpg' %}");
+        {#background-color: #4acc28;#} background-size: cover;
+        }
+
+        .card-title {
+            font-weight: bold;
+        }
+
+    </style>
+
+{% endblock %}
 
 {% block title %}
     {% trans 'Data Management Home' %}
@@ -11,249 +27,91 @@
     <br>
     <div class="container">
 
-        <div class="jumbotron">
+        <div class="jumbotron text-center">
             <h1 class="text-center">
-    <span class="two-em">
-      {% trans 'DFO Science' %}
-    </span>
-                <br>
-                <span class="roboto">
-                    {% trans 'Gulf Region Data Management' %}
-    </span>
+                {% trans 'DFO Science Data Management' %}
             </h1>
-            <br>
             <hr>
-            <br>
-            <h3 class="text-center">
+
+            {% url 'accounts:login' as sign_in_url %}
+            {% url 'accounts:signup' as sign_up_url %}
+
+
+            <h4 class="text-center">
                 {% if user.is_authenticated %}
                     {% blocktrans with name=user.first_name %}
                         Welcome back, {{ name }}! Please select an application below.
                     {% endblocktrans %}
                 {% else %}
-                    {% trans 'Welcome! Please select an application below.' %}
+                    {% blocktrans %}
+                        Welcome! Please <a href="{{ sign_in_url }}">sign in</a> or select an application below. If you do not have an
+                        account, you can register for one
+                        <a href="{{ sign_up_url }}">here</a>
+                    {% endblocktrans %}
                 {% endif %}
-            </h3>
+            </h4>
+
         </div>
-        <br>
+    </div>
+
+    <div class="container-fluid">
+        {% trans "Go" as btn_text %}
+        <div class="row" style="margin-bottom: 25px">
+            {% for app in app_dict %}
+                <div class="card text-dark border-dark mb-3" style="width: 16rem; margin-right: 25px; margin-left: 25px">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {{ app_dict|lookup:app|lookup:"title" }}
+                            {% if app_dict|lookup:app|lookup:"status" == "beta" %}
+                                <span class="badge badge-pill badge-warning" style="font-size: small">
+                                                {% trans "beta" %}
+                                            </span>
+                            {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
+                                <span class="badge badge-pill badge-danger" style="font-size: small">
+                                                {% trans "dev" %}
+                                            </span>
+                            {% endif %}
+
+                        </h5>
+                        <p class="card-text">
+                            {{ app_dict|lookup:app|lookup:"description" }}
+                        </p>
+
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ app_dict|lookup:app|lookup:"url" }}" class="btn btn-primary">
+                            {{ btn_text }}
+                        </a>
 
 
-        <table class="table  table-sm table-striped" style="margin-left: auto; margin-right: auto;">
-            <thead>
-            <th></th>
-            <th>
-                {% trans 'Application Name' %}
-            </th>
-            <th>
-                {% trans 'Status' %}
-            </th>
-            </thead>
-            <tbody>
-            <tr>
-                <td>
-
-                    <a href="
-                            
-
-                            {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="
-                            
-
-                            {% if user.is_authenticated %}{% url 'inventory:my_resource_list' %}{% else %}{% url 'inventory:resource_list' %}{% endif %}">
-                        {% trans 'Regional Metadata Inventory' %}
-                    </a>
-                </td>
-                <td class="good"> Active</td>
-            </tr>
-
-            <tr>
-                <td>
-                    <a href="{% url 'tickets:list' %}">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'tickets:list' %}">
-                        {% trans 'Data Management Ticketing System' %}
-                    </a>
-                </td>
-                <td class="good"> Active</td>
-            </tr>
-
-            <tr>
-                <td>
-                    <a href="{% url 'grais:index' %}">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'grais:index' %}">
-                        {% trans 'grAIS' %}
-                    </a>
-                </td>
-                <td class="good"> Active</td>
-            </tr>
-
-            <tr>
-                <td>
-                    <a href="{% url 'herring:index' %}">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'herring:index' %}">
-                        HERmorrhage
-                    </a>
-                </td>
-                <td class="good"> Active</td>
-            </tr>
-
-            <tr>
-                <td>
-                    <a href="{% url 'oceanography:index' %}">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'oceanography:index' %}">
-                        {% trans 'Gulf Region Oceanographic Archive' %}
-                    </a>
-                </td>
-                <td class="good"> Active</td>
-            </tr>
-
-            <tr>
-                <td>
-                    <a href="{% url 'camp:index' %}">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'camp:index' %}">
-                        {% trans 'CAMP db' %}
-                    </a>
-                </td>
-                <td class="good"> Active</td>
-            </tr>
-            <tr>
-                <td>
-                    <a href="{% url 'projects:index' %}" class="">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'projects:index' %}" class="">
-                        {% trans 'Science Project Planning' %}
-                    </a>
-                </td>
-                <td class="concern"> Beta</td>
-            </tr>
-            <tr>
-                <td>
-                    <a href="{% url 'scifi:index' %}" class="">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'scifi:index' %}" class="">
-                        {% trans 'SciFi' %}
-                    </a>
-                </td>
-                <td class="concern"> Development</td>
-            </tr>
-            <tr>
-                <td>
-                    <a href="{% url 'ihub:index' %}" class="">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'ihub:index' %}" class="">
-                        {% trans 'iHub' %}
-                    </a>
-                </td>
-                <td class="concern"> Beta</td>
-            </tr>
-             <tr>
-                <td>
-                    <a href="{% url 'masterlist:index' %}" class="">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'masterlist:index' %}" class="">
-                        {% trans 'Regional Master List' %}
-                    </a>
-                </td>
-                <td class="concern"> Development</td>
-            </tr>
-            <tr>
-                <td>
-                    <a href="{% url 'crab:index' %}">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'crab:index' %}">
-                        {% trans 'Gulf Region Snow Crab db' %}
-                    </a>
-                </td>
-                <td class="good"> Active</td>
-            </tr>
-
-            <tr>
-                <td>
-                    <a href="{% url 'diets:index' %}">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'diets:index' %}">
-                        {% trans 'Marine Diets db' %}
-                    </a>
-                </td>
-                <td class="concern"> Development</td>
-            </tr>
-
-            <tr>
-                <td>
-                    <a href="#" class="under-dev">
-                        <img src="{% static "/img/database-152091.svg" %}" style="width: 2em">
-                    </a>
-                </td>
-                <td>
-                    <a href="#" class="under-dev">
-                        {% trans 'Marine Environmental Quality (MEQ) db' %}
-                    </a>
-                </td>
-                <td class="concern"> Development</td>
-            </tr>
+                        {% trans "access to this app requires special permissions" as permissions_msg %}
+                        {% trans "access to this app requires you to be logged in" as login_msg %}
+                        {% trans "this app is opened to all users" as open_msg %}
 
 
-            </tbody>
-        </table>
+                        {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}
+                            <span class="float-right" data-toggle="tooltip" title="{{ permissions_msg }}">
+                                                <img src="{% static 'img/icons/iconfinder_lock_285646.svg' %}" alt="">
+                                            </span>
+                        {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}
+                            <span class="float-right" data-toggle="tooltip" title="{{ login_msg }}" style="width: 20px">
+                                                <img src="{% static 'img/icons/iconfinder_user-avatar-human-admin-login_2203549.svg' %}"
+                                                     alt="">
+                                            </span>
+                        {% else %}
+                            <span class="float-right" data-toggle="tooltip" title="{{ open_msg }}">
+                                                <img src="{% static 'admin/img/icon-yes.svg' %}" alt="">
+                                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 
-        {#            <a href="#" class="neighbours under-dev"#}
-        {#               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">#}
-        {#                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">#}
-        {#                <div class="caption">#}
-        {#                    <p>MEQ</p>#}
-        {#                </div>#}
-        {#            </a>#}
-        {#            <a href="#" class="neighbours under-dev"#}
-        {#               style="width:{{ my_width }}px; margin-bottom: {{ my_mar }}px">#}
-        {#                <img src="{% static "/img/database-152091.svg" %}" style="width:{{ my_img_width }}%">#}
-        {#                <div class="caption">#}
-        {#                    <p>Marine Diets db</p>#}
-        {#                </div>#}
-        {#            </a>#}
-        {#            {% endwith %}#}
-        {#            {% endwith %}#}
+
         {##}
-        {#            {% endwith %}#}
+        {#            </tbody>#}
+        {#        </table>#}
 
     </div>
 
@@ -266,3 +124,17 @@
 
 
 {% endblock body %}
+{# Blank template #}
+{#        <div class="card {{ prod_card }} mb-3" style="width: {{ my_width }};">#}
+{#            <div class="card-body">#}
+{#                <h5 class="card-title">#}
+{#                    {% trans "Regional Metadata Inventory" %}#}
+{#                </h5>#}
+{#                <p class="card-text">#}
+{#                    {% trans "Tool for organizing and managing metadata of regional datasets and data resources." %}#}
+{#                </p>#}
+{#                <a href="#" class="btn btn-warning">#}
+{#                    {% trans "Select" %}#}
+{#                </a>#}
+{#            </div>#}
+{#        </div>#}
