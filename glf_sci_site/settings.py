@@ -84,7 +84,7 @@ if MY_ENVR == "dev":
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'glf-sci-dm']
+ALLOWED_HOSTS = ['127.0.0.1', 'glf-sci-dm', '142.130.6.69']
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'accounts/login/'
