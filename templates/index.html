@@ -8,8 +8,11 @@
     <style>
         body {
             background-image: url("{% static 'img/ahmed-nishaath-1248803-unsplash.jpg' %}");
+            background-size: cover;
         }
-
+        .jumbotron{
+            opacity: 0.85;
+        }
         .card-title {
         {#font-weight: bold;#}
         }
@@ -57,7 +60,7 @@
         {% trans "Select" as btn_text %}
         <div class="row" style="margin-bottom: 25px">
             {% for app in app_dict %}
-                <div class="card" style="width: 20rem; margin-right: 35px; margin-left: 15px; margin-bottom: 15px">
+                <div class="card" style="width: 20rem; margin-right: 35px; margin-left: 10px; margin-bottom: 20px">
                     <div class="card-body">
                         <h5 class="card-title">
                             {{ app_dict|lookup:app|lookup:"title" }}
