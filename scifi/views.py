@@ -623,7 +623,12 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
             "fiscal_year": fiscal_year(sap_style=True),
         }
 
-        if self.kwargs["report_number"]:
+
+        try:
+            self.kwargs["report_number"]
+        except KeyError:
+            print("no report")
+        else:
             my_dict["report"] = self.kwargs["report_number"]
 
         return my_dict
