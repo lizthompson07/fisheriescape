@@ -63,7 +63,7 @@
         {% for section in division.sections.all %}
             <h3>
                 <em>
-                    {{ section }}
+                    {{ section.name }}
                 </em>
             </h3>
             <ol>
@@ -76,7 +76,13 @@
         {% endfor %}
     </ul>
 {% endfor %}
+<h2>
+    TOTAL PROJECTS: {{ object_list.count }}
+</h2>
 
+<div>
+    <pdf:nextpage/>
+</div>
 
 
 {% for object in object_list %}

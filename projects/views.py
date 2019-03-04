@@ -821,7 +821,6 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
         context["field_list"] = project_field_list
         context["division_list"] = [models.Division.objects.get(pk=item["section__division"]) for item in
                                     project_list.values("section__division").order_by("section__division").distinct()]
-        print(context["division_list"])
         # bring in financial summary data for each project:
         context["financial_summary_data"] = {}
         for project in project_list:
