@@ -51,26 +51,26 @@
     {% endblock %}
 </div>
 {# summary page #}
-<h1>{{ fy }} List of Projects</h1>
+<h1>{{ fy }} Submitted and Approved Project List</h1>
 {# list of projects by section #}
 {% for division in division_list %}
     <h2>
         {{ division }}
     </h2>
-    <ul>
-        {% for section in division.sections.all %}
-            <h3>
-                <li>
-                    {{ section }}
-                </li>
-            </h3>
-            <ol>
-                {% for project in section.projects.all %}
+    {% for section in division.sections.all %}
+        <h3>
+            <em>
+                {{ section }}
+            </em>
+        </h3>
+        <ol>
+            {% for project in section.projects.all %}
+                {% if project.subbmitted and project.section_head_approved != None %}
                     <li>{{ project }}</li>
-                {% endfor %}
-            </ol>
-        {% endfor %}
-    </ul>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    {% endfor %}
 {% endfor %}
 
 

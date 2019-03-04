@@ -817,7 +817,7 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
         project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved__isnull=False)
         context["fy"] = fy
         context["report_mode"] = True
-        context["object_list"] = project_list
+        context["object_list"] = project_list[:2]
         context["field_list"] = project_field_list
         context["division_list"] = [models.Division.objects.get(pk=item["section__division"]) for item in
                                     project_list.values("section__division").distinct()]
