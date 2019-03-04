@@ -99,8 +99,6 @@
         <th colspan="3">C-Base</th>
     </tr>
     <tr>
-        <th></th>
-        <th></th>
         <th>Salary</th>
         <th>O&M</th>
         <th>Capital</th>
@@ -113,9 +111,17 @@
     </tr>
 
     </thead>
+<tr>
+    {% for division in division_list %}
+        <td rowspan="{{division.sections.count}}">{{ division }}</td>
+        {% for section in division.sections  %}
+            <td>{{ section }}</td>
+        {% endfor %}
 
-{#    {% for division in division_list %}#}
-{#    {% endfor %}#}
+        <td>{{ section }}</td>
+    {% endfor %}
+
+</tr>
 
 </table>
 
