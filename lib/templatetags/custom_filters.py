@@ -8,7 +8,7 @@ def multiply(value, arg):
     """will multiple value and arg and return the product"""
     try:
         return float(value) * float(arg)
-    except ValueError or TypeError:
+    except (ValueError, TypeError):
         # if an error is encountered, just return 'value'
         return value
 
@@ -29,7 +29,7 @@ def zero2val(value, arg):
     try:
         float(value) == 0
     # if not able to cast, then just return 'value'
-    except ValueError or TypeError:
+    except (ValueError, TypeError):
         print("val={},arg={}".format(value, arg))
         return value
     else:
@@ -79,7 +79,7 @@ def currency(value, with_sign=False):
     try:
         float(value)
         # if not able to cast, then just return 'value'
-    except ValueError or TypeError:
+    except (ValueError, TypeError):
         return ""
     else:
         if with_sign:
@@ -92,5 +92,5 @@ def lookup(my_dict, key):
     """lookup the value of a dictionary. value is a dictionary object and arg is the key"""
     try:
         return my_dict[key]
-    except KeyError:
+    except (KeyError, TypeError):
         return ""
