@@ -79,7 +79,7 @@ def currency(value, with_sign=False):
     try:
         float(value)
         # if not able to cast, then just return 'value'
-    except ValueError and TypeError:
+    except ValueError or TypeError:
         return ""
     else:
         if with_sign:

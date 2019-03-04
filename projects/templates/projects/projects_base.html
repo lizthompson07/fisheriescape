@@ -40,7 +40,7 @@
 
       {% for group in user.groups.all %}
         {% if group.name == "projects_admin"   %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'projects:report_search' %}"> Master Report </a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'projects:report_search' %}">Reports </a></li>
         {% endif %}
 
       {% endfor %}

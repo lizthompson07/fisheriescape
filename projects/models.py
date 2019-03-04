@@ -45,7 +45,7 @@ class Division(models.Model):
 class Section(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name"))
     nom = models.CharField(max_length=255, blank=True, null=True)
-    division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True)
+    division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="sections")
     section_head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                      verbose_name=_("section head"))
 

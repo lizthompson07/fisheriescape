@@ -28,7 +28,9 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-            <th></th>
+            {% if not report_mode %}
+                <th></th>
+            {% endif %}
             <th>
                 {% trans "Recipient Organization" %}
             </th>
@@ -53,17 +55,19 @@
                 href="{% url 'projects:gc_edit' obj.id %}" pop
                 data-toggle="tooltip" title="Edit"
             {% endif %}
-                >
-                <td>
-                    {% if not object.submitted and not report_mode %}
-                        <a class="gc-delete-me" href="#" val="{{ obj.id }}">
-                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                 title="Delete">
-                        </a>
-                        <a id="gc-secrect-delete-btn-{{ obj.id }}"
-                           href="{% url 'projects:gc_delete' obj.id %}" class="hidden"></a>
-                    {% endif %}
-                </td>
+            >
+                {% if not report_mode %}
+                    <td>
+                        {% if not object.submitted and not report_mode %}
+                            <a class="gc-delete-me" href="#" val="{{ obj.id }}">
+                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                     title="Delete">
+                            </a>
+                            <a id="gc-secrect-delete-btn-{{ obj.id }}"
+                               href="{% url 'projects:gc_delete' obj.id %}" class="hidden"></a>
+                        {% endif %}
+                    </td>
+                {% endif %}
                 <td>{{ obj.recipient_org }}</td>
                 <td>{{ obj.project_lead }}</td>
                 <td>{{ obj.proposed_title }}</td>

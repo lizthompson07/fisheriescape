@@ -24,7 +24,9 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-            <th></th>
+            {% if not report_mode %}
+                <th></th>
+            {% endif %}
             <th>
                 {% trans "Partner Organization" %}
             </th>
@@ -48,16 +50,18 @@
                 data-toggle="tooltip" title="Edit" href="{% url 'projects:agreement_edit' obj.id %}" pop
             {% endif %}
             >
-                <td>
-                {% if not object.submitted and not report_mode %}
-                    <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
-                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                             title="Delete">
-                    </a>
-                    <a id="agreement-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'projects:agreement_delete' obj.id %}" class="hidden"></a>
+                {% if not report_mode %}
+                    <td>
+                        {% if not object.submitted and not report_mode %}
+                            <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
+                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                     title="Delete">
+                            </a>
+                            <a id="agreement-secrect-delete-btn-{{ obj.id }}"
+                               href="{% url 'projects:agreement_delete' obj.id %}" class="hidden"></a>
+                        {% endif %}
+                    </td>
                 {% endif %}
-                </td>
                 <td>{{ obj.partner_organization }}</td>
                 <td>{{ obj.project_lead }}</td>
                 <td>{{ obj.agreement_title }}</td>

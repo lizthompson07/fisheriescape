@@ -40,7 +40,9 @@
 
     <table class="table table-hover table-sm sortable" style="width: auto">
         <thead>
-        <th></th>
+        {% if not report_mode %}
+            <th></th>
+        {% endif %}
         <th>
             {% trans "Category Type" %}
         </th>
@@ -50,7 +52,7 @@
         <th>
             {% trans "Description" %}
         </th>
-        <th colspan="2" style="text-align: center">
+        <th {% if not report_mode %} colspan="2" {% endif %} style="text-align: center">
             {% trans "Funding Source" %}
         </th>
         <th style="text-align: center">
@@ -66,16 +68,19 @@
                 data-toggle="tooltip" title="Edit"
                     {% endif %}
                 style="background-color: {{ obj.funding_source.color }}">
-                <td>
-                    {% if not object.submitted and not report_mode %}
-                        <a class="om-delete-me" href="#" val="{{ obj.id }}">
-                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                 title="Delete">
-                        </a>
-                        <a id="om-secrect-delete-btn-{{ obj.id }}"
-                           href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
-                    {% endif %}
-                </td>
+                {% if not report_mode %}
+
+                    <td>
+                        {% if not object.submitted and not report_mode %}
+                            <a class="om-delete-me" href="#" val="{{ obj.id }}">
+                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                     title="Delete">
+                            </a>
+                            <a id="om-secrect-delete-btn-{{ obj.id }}"
+                               href="{% url 'projects:om_delete' obj.id %}" class="hidden"></a>
+                        {% endif %}
+                    </td>
+                {% endif %}
                 <td>{{ obj.om_category.get_group_display }}</td>
 
                 {% if LANG == "fr" %}
@@ -83,22 +88,25 @@
                 {% else %}
                     <td>{{ obj.om_category.name }}</td>
                 {% endif %}
-                <td> {{ obj.description}}</td>
+                <td> {{ obj.description }}</td>
 
                 <td style="text-align: center">
                     {{ obj.funding_source }}
                 </td>
-                <td>
-                    {% if not object.submitted and not report_mode %}
-                        <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">
-                            <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
-                                 title="click to toggle funding source">
-                        </a>
-                        <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "om" obj.id %}" class="hidden"></a>
-                    {% endif %}
-                </td>
+                {% if not report_mode %}
+                    <td>
+                        {% if not object.submitted %}
+                            <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">
+                                <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
+                                     title="click to toggle funding source">
+                            </a>
+                            <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'projects:toggle_source' "om" obj.id %}"
+                               class="hidden"></a>
+                        {% endif %}
+                    </td>
+                {% endif %}
 
-                <td style="text-align: center">{{ obj.budget_requested|floatformat:0|intcomma }}</td>
+                <td style="text-align: center">{{ obj.budget_requested|currency }}</td>
 
 
             </tr>
