@@ -58,14 +58,14 @@
         {{ division }}
     </h2>
     <ul>
-        {% for section in division.sections %}
+        {% for section in division.sections.all %}
             <h3>
                 <li>
                     {{ section }}
                 </li>
             </h3>
             <ol>
-                {% for project in section.projects %}
+                {% for project in section.projects.all %}
                     <li>{{ project }}</li>
                 {% endfor %}
             </ol>
