@@ -57,20 +57,22 @@
     <h2>
         {{ division }}
     </h2>
-    {% for section in division.sections.all %}
-        <h3>
-            <em>
-                {{ section }}
-            </em>
-        </h3>
-        <ol>
-            {% for project in section.projects.all %}
-                {% if project.subbmitted and project.section_head_approved != None %}
-                    <li>{{ project }}</li>
-                {% endif %}
-            {% endfor %}
-        </ol>
-    {% endfor %}
+    <ul>
+        {% for section in division.sections.all %}
+            <h3>
+                <em>
+                    {{ section }}
+                </em>
+            </h3>
+            <ol>
+                {% for project in section.projects.all %}
+                    {% if project.submitted and project.section_head_approved != None %}
+                        <li>{{ project }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        {% endfor %}
+    </ul>
 {% endfor %}
 
 
