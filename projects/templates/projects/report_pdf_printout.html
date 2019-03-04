@@ -127,6 +127,7 @@
                     {% if forloop.counter == 1 %}
                         <td rowspan="
 
+
                                 {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
                     {% endif %}
                     <td>{{ section.name }}</td>
@@ -142,22 +143,31 @@
                 </tr>
             {% endfor %}
             {% if division.sections.count > 0 %}
-                <tr>
-                    <td class="total"><em>SUB-TOTAL</em></td>
+                <tr class="total">
+                    <td><em>SUB-TOTAL</em></td>
                     <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
-                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
-                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
                     <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
-                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
-                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
                     <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
                     <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
                     <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
                 </tr>
             {% endif %}
         {% endfor %}
-        <tr>
+        <tr class="total">
             <td colspan="2" class="total">TOTAL</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
+            <td>{{ financial_summary_data|lookup:"total"|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
         </tr>
         </tbody>
 
