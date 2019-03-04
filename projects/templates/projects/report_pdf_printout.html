@@ -121,9 +121,11 @@
                 <td>{{ section.name }}</td>
             </tr>
         {% endfor %}
+        {% if division.sections.count > 0 %}
         <tr>
-            <td>SUB-TOTAL</td>
+            <td><em>SUB-TOTAL</em></td>
         </tr>
+        {% endif %}
     {% endfor %}
     <tr>
         <td colspan="2">TOTAL</td>
