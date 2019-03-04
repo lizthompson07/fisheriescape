@@ -50,9 +50,10 @@
         <pdf:pagenumber/>
     {% endblock %}
 </div>
-{# summary page #}
-<h1>{{ fy }} Submitted and Approved Projects </h1>
+
+
 {# list of projects by section #}
+<h1>{{ fy }} Submitted and Approved Projects </h1>
 {% for division in division_list %}
     <h2>
         <u>
@@ -85,10 +86,50 @@
 </div>
 
 
-{% for object in object_list %}
-    {% include "projects/_project_content.html" %}
-    <div>
-        <pdf:nextpage/>
-    </div>
-{% endfor %}
+{# financial summary #}
+<h1>{{ fy }} Financial Summary</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th rowspan="2">Division</th>
+        <th rowspan="2">Section</th>
+        <th colspan="3">A-Base</th>
+        <th colspan="3">B-Base</th>
+        <th colspan="3">C-Base</th>
+    </tr>
+    <tr>
+        <th></th>
+        <th></th>
+        <th>Salary</th>
+        <th>O&M</th>
+        <th>Capital</th>
+        <th>Salary</th>
+        <th>O&M</th>
+        <th>Capital</th>
+        <th>Salary</th>
+        <th>O&M</th>
+        <th>Capital</th>
+    </tr>
+
+    </thead>
+
+{#    {% for division in division_list %}#}
+{#    {% endfor %}#}
+
+</table>
+
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{##}
+{#{% for object in object_list %}#}
+{#    {% include "projects/_project_content.html" %}#}
+{#    <div>#}
+{#        <pdf:nextpage/>#}
+{#    </div>#}
+{#{% endfor %}#}
 
