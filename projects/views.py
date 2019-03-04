@@ -48,10 +48,6 @@ def can_delete(user, project):
         return False
 
 
-
-
-
-
 def financial_summary_data(project):
     salary_abase = 0
     om_abase = 0
@@ -145,6 +141,7 @@ def financial_summary_data(project):
 
 
 project_field_list = [
+    'id',
     'project_title',
     'section',
     'program',
@@ -236,6 +233,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         project = self.object
         context["field_list"] = [
+            'id',
             'year',
             'project_title',
             'section',
@@ -777,7 +775,7 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
 
     def get_initial(self):
         # default the year to the year of the latest samples
-        return {"fiscal_year": fiscal_year(next=True)}
+        return {"fiscal_year": fiscal_year(next=True, sap_style=True)}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -789,6 +787,11 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects:report_master", kwargs={'fiscal_year': fiscal_year}))
+        if report == 2:
+            return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={'fiscal_year': fiscal_year}))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("ihub:report_search"))
 
 
 def master_spreadsheet(request, fiscal_year, user=None):
@@ -802,6 +805,28 @@ def master_spreadsheet(request, fiscal_year, user=None):
                 fiscal_year)
             return response
     raise Http404
+
+
+class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_printout.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved__isnull=False)
+        context["fy"] = fy
+        context["report_mode"] = True
+        context["object_list"] = project_list[:2]
+        context["field_list"] = project_field_list
+        context["division_list"] = [models.Division.objects.get(pk=item["section__division"]) for item in
+                                    project_list.values("section__division").distinct()]
+
+        # bring in financial summary data for each project:
+        context["financial_summary_data"] = {}
+        for project in project_list:
+            context["financial_summary_data"][project.id] = financial_summary_data(project)
+        return context
 
 
 # USER #

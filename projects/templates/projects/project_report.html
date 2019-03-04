@@ -32,27 +32,4 @@
     }
 </style>
 
-<h1>{{ object }} -
-    {% if object.submitted %}
-        {% trans "SUBMITTED" %}
-    {% else %}
-        <span class="red-font">
-                {% trans "DRAFT VERSION" %}
-                </span>
-    {% endif %}
-</h1>
-
-<hr>
-    {% for field in field_list %}
-        {% verbose_field_display object field %}
-    {% endfor %}
-<hr>
-
-{% include "projects/_staff.html" %}
-{% include "projects/_om_costs.html" %}
-{% include "projects/_capital_costs.html" %}
-{% include "projects/_gc_costs.html" %}
-{% include "projects/_collaborators.html" %}
-{% include "projects/_agreements.html" %}
-{% include "projects/_financial.html" %}
-
+{% include "projects/_project_content.html" %}

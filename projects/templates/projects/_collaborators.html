@@ -24,7 +24,9 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-            <th></th>
+            {% if not report_mode %}
+                <th></th>
+            {% endif %}
             <th>
                 {% trans "Name" %}
             </th>
@@ -46,16 +48,18 @@
                 data-toggle="tooltip" title="Edit" href="{% url 'projects:collab_edit' obj.id %}" pop
             {% endif %}
             >
-                <td>
-                    {% if not object.submitted and not report_mode %}
-                        <a class="collab-delete-me" href="#" val="{{ obj.id }}">
-                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                 title="Delete">
-                        </a>
-                        <a id="collab-secrect-delete-btn-{{ obj.id }}"
-                           href="{% url 'projects:collab_delete' obj.id %}" class="hidden"></a>
-                    {% endif %}
-                </td>
+                {% if not report_mode %}
+                    <td>
+                        {% if not object.submitted and not report_mode %}
+                            <a class="collab-delete-me" href="#" val="{{ obj.id }}">
+                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                     title="Delete">
+                            </a>
+                            <a id="collab-secrect-delete-btn-{{ obj.id }}"
+                               href="{% url 'projects:collab_delete' obj.id %}" class="hidden"></a>
+                        {% endif %}
+                    </td>
+                {% endif %}
                 <td>{{ obj.name }}</td>
                 <td>{{ obj.get_type_display }}</td>
                 <td style="text-align: center">{{ obj.critical|yesno }}</td>
