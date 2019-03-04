@@ -111,15 +111,18 @@
     </tr>
 
     </thead>
+    <tbody>
     {% for division in division_list %}
         <tr>
             <td rowspan="{{ division.sections.count|nz:1 }}">{{ division }}</td>
-            {% for section in division.sections.all %}
-                <td>{{ section }}</td>
-            {% endfor %}
-            <td>{{ section }}</td>
         </tr>
+        {% for section in division.sections.all %}
+            <tr>
+                <td>{{ section }}</td>
+            </tr>
+        {% endfor %}
     {% endfor %}
+    </tbody>
 
 
 </table>
