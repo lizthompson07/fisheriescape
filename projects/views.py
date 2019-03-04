@@ -824,6 +824,7 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
         # bring in financial summary data for each project:
         context["financial_summary_data"] = {}
         context["financial_summary_data"]["sections"] = {}
+        context["financial_summary_data"]["divisions"] = {}
         key_list = [
             "salary_abase",
             "salary_bbase",
