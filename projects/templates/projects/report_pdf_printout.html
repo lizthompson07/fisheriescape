@@ -23,9 +23,14 @@
     }
 
     th {
+        background-color: black;
+        color: white;
+    }
+    .total {
         background-color: lightgray;
         color: black;
     }
+
 
     h1 {
         font-size: 24px;
@@ -136,12 +141,12 @@
             {% endfor %}
             {% if division.sections.count > 0 %}
                 <tr>
-                    <td><em>SUB-TOTAL</em></td>
+                    <td class="total"><em>SUB-TOTAL</em></td>
                 </tr>
             {% endif %}
         {% endfor %}
         <tr>
-            <td colspan="2">TOTAL</td>
+            <td colspan="2" class="total">TOTAL</td>
         </tr>
         </tbody>
 
