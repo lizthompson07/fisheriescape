@@ -116,15 +116,25 @@
         {% for section in division.sections.all %}
             <tr>
                 {% if forloop.counter == 1 %}
-                    <td rowspan="{% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
+                    <td rowspan="
+                            {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
                 {% endif %}
                 <td>{{ section.name }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_abase" }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_abase" }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_abase" }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_bbase" }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_bbase" }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_bbase" }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_cbase" }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_cbase" }}</td>
+                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_cbase" }}</td>
             </tr>
         {% endfor %}
         {% if division.sections.count > 0 %}
-        <tr>
-            <td><em>SUB-TOTAL</em></td>
-        </tr>
+            <tr>
+                <td><em>SUB-TOTAL</em></td>
+            </tr>
         {% endif %}
     {% endfor %}
     <tr>
