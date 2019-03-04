@@ -55,7 +55,9 @@
 {# list of projects by section #}
 {% for division in division_list %}
     <h2>
-        {{ division }}
+        <u>
+            {{ division }} Division
+        </u>
     </h2>
     <ul>
         {% for section in division.sections.all %}
