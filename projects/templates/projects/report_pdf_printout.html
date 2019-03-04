@@ -113,12 +113,11 @@
     </thead>
     <tbody>
     {% for division in division_list %}
-        <tr>
-            <td rowspan="{{ division.sections.count|nz:1 }}">{{ division }}</td>
-            <td rowspan="0"></td>
-        </tr>
         {% for section in division.sections.all %}
             <tr>
+                {% if forloop.counter == 1 %}
+                    <td rowspan="{{ division.sections.count|nz:1 }}">{{ division }}</td>
+                {% endif %}
                 <td>{{ section }}</td>
             </tr>
         {% endfor %}
