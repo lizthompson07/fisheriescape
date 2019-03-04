@@ -849,9 +849,6 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
                 for key in key_list:
                     context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][key]
 
-
-
-
         return context
 
 
