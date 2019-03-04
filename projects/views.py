@@ -823,9 +823,38 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
                                     project_list.values("section__division").order_by("section__division").distinct()]
         # bring in financial summary data for each project:
         context["financial_summary_data"] = {}
+        context["financial_summary_data"]["sections"] = {}
+        key_list = [
+            "salary_abase",
+            "salary_bbase",
+            "salary_cbase",
+            "om_abase",
+            "om_bbase",
+            "om_cbase",
+            "capital_abase",
+            "capital_bbase",
+            "capital_cbase",
+        ]
         for project in project_list:
             context["financial_summary_data"][project.id] = financial_summary_data(project)
+
+            try:
+                context["financial_summary_data"]["sections"][project.section.id]
+            except KeyError:
+                context["financial_summary_data"]["sections"][project.section.id] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["sections"][project.section.id][key] = 0
+            else:
+                for key in key_list:
+                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][key]
+
+
+
+
         return context
+
+
 
 
 # USER #
