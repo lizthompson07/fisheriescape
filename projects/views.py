@@ -825,6 +825,7 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
         context["financial_summary_data"] = {}
         context["financial_summary_data"]["sections"] = {}
         context["financial_summary_data"]["divisions"] = {}
+        context["financial_summary_data"]["total"] = {}
         key_list = [
             "salary_abase",
             "salary_bbase",
@@ -862,6 +863,19 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
             finally:
                 for key in key_list:
                     context["financial_summary_data"]["divisions"][project.section.division.id][key] += context["financial_summary_data"][project.id][key]
+
+            # for total
+            try:
+                context["financial_summary_data"]["total"]
+            except KeyError:
+                context["financial_summary_data"]["total"] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["total"][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["total"][key] += \
+                    context["financial_summary_data"][project.id][key]
 
         return context
 
