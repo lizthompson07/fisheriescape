@@ -845,7 +845,7 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
                 # go through the keys and make sure each category is initialized
                 for key in key_list:
                     context["financial_summary_data"]["sections"][project.section.id][key] = 0
-            else:
+            finally:
                 for key in key_list:
                     context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][key]
 
