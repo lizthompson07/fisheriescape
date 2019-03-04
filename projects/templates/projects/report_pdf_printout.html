@@ -27,6 +27,7 @@
         color: white;
         border: 1px solid white;
     }
+
     .total {
         background-color: lightgray;
         color: black;
@@ -143,6 +144,15 @@
             {% if division.sections.count > 0 %}
                 <tr>
                     <td class="total"><em>SUB-TOTAL</em></td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
                 </tr>
             {% endif %}
         {% endfor %}
