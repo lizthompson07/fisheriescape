@@ -90,4 +90,7 @@ def currency(value, with_sign=False):
 @register.filter(name='lookup')
 def lookup(my_dict, key):
     """lookup the value of a dictionary. value is a dictionary object and arg is the key"""
-    return my_dict[key]
+    try:
+        return my_dict[key]
+    except KeyError:
+        return ""
