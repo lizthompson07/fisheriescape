@@ -877,7 +877,7 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
                     context["financial_summary_data"]["total"][key] += \
                     context["financial_summary_data"][project.id][key]
 
-        return context
+            return context
 
 
 
