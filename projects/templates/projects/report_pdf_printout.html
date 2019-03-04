@@ -113,7 +113,7 @@
     </thead>
 <tr>
     {% for division in division_list %}
-        <td rowspan="{{division.sections.count}}">{{ division }}</td>
+        <td rowspan="{{division.sections.count|nz:1}}">{{ division }}</td>
         {% for section in division.sections  %}
             <td>{{ section }}</td>
         {% endfor %}
