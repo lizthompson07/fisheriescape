@@ -50,9 +50,9 @@ def percentage(value, arg=2):
     return format(value, ".{}%".format(arg))
 
 
-@register.filter
-def add(value, arg):
-    return float(value)+float(arg)
+# @register.filter
+# def add(value, arg):
+#     return float(value)+float(arg)
 
 
 @register.filter
