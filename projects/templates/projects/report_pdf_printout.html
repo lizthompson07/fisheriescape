@@ -87,64 +87,68 @@
 
 
 {# financial summary #}
-<h1>{{ fy }} Financial Summary</h1>
+{% with "---" as na %}
 
-<table>
-    <thead>
-    <tr>
-        <th rowspan="2">Division</th>
-        <th rowspan="2">Section</th>
-        <th colspan="3">A-Base</th>
-        <th colspan="3">B-Base</th>
-        <th colspan="3">C-Base</th>
-    </tr>
-    <tr>
-        <th>Salary</th>
-        <th>O&M</th>
-        <th>Capital</th>
-        <th>Salary</th>
-        <th>O&M</th>
-        <th>Capital</th>
-        <th>Salary</th>
-        <th>O&M</th>
-        <th>Capital</th>
-    </tr>
+    <h1>{{ fy }} Financial Summary</h1>
 
-    </thead>
-    <tbody>
-    {% for division in division_list %}
-        {% for section in division.sections.all %}
-            <tr>
-                {% if forloop.counter == 1 %}
-                    <td rowspan="
-                            {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
-                {% endif %}
-                <td>{{ section.name }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_abase" }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_abase" }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_abase" }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_bbase" }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_bbase" }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_bbase" }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_cbase" }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_cbase" }}</td>
-                <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_cbase" }}</td>
-            </tr>
+    <table>
+        <thead>
+        <tr>
+            <th rowspan="2">Division</th>
+            <th rowspan="2">Section</th>
+            <th colspan="3">A-Base</th>
+            <th colspan="3">B-Base</th>
+            <th colspan="3">C-Base</th>
+        </tr>
+        <tr>
+            <th>Salary</th>
+            <th>O&M</th>
+            <th>Capital</th>
+            <th>Salary</th>
+            <th>O&M</th>
+            <th>Capital</th>
+            <th>Salary</th>
+            <th>O&M</th>
+            <th>Capital</th>
+        </tr>
+
+        </thead>
+        <tbody>
+        {% for division in division_list %}
+            {% for section in division.sections.all %}
+                <tr>
+                    {% if forloop.counter == 1 %}
+                        <td rowspan="
+
+                                {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
+                    {% endif %}
+                    <td>{{ section.name }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td>{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
+                </tr>
+            {% endfor %}
+            {% if division.sections.count > 0 %}
+                <tr>
+                    <td><em>SUB-TOTAL</em></td>
+                </tr>
+            {% endif %}
         {% endfor %}
-        {% if division.sections.count > 0 %}
-            <tr>
-                <td><em>SUB-TOTAL</em></td>
-            </tr>
-        {% endif %}
-    {% endfor %}
-    <tr>
-        <td colspan="2">TOTAL</td>
-    </tr>
-    </tbody>
+        <tr>
+            <td colspan="2">TOTAL</td>
+        </tr>
+        </tbody>
 
 
-</table>
+    </table>
 
+{% endwith %}
 
 <div>
     <pdf:nextpage/>
