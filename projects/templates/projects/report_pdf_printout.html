@@ -132,6 +132,12 @@
 
 
 
+
+
+
+
+
+
                                 {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
                     {% endif %}
                     <td>{{ section.name }}</td>
@@ -204,7 +210,6 @@
 
 {# list of capital requests #}
 
-
 <h1>{{ fy }} Capital Request List</h1>
 <table class="table table-hover table-sm" style="width: auto">
     <tr>
@@ -224,6 +229,125 @@
             <td>{{ obj.description|nz:"" }}</td>
             <td>{{ obj.funding_source }}</td>
             <td>{{ obj.budget_requested|currency }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of G&Cs #}
+
+<h1>{{ fy }} Grants & Contributions List</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th>
+            {% trans "Recipient Organization" %}
+        </th>
+        <th>
+            {% trans "Project Lead" %}
+        </th>
+        <th>
+            {% trans "Proposed Title" %}
+        </th>
+        <th>
+            {% trans "G&C Program" %}
+        </th>
+        <th>
+            {% trans "Amount" %}
+        </th>
+    </tr>
+
+    <tbody>
+    {% for obj in gc_list %}
+        <tr>
+            <td>{{ obj.recipient_org }}</td>
+            <td>{{ obj.project_lead }}</td>
+            <td>{{ obj.proposed_title }}</td>
+            <td>{{ obj.gc_program }}</td>
+            <td>{{ obj.budget_requested|currency }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of Collaborators #}
+
+<h1>{{ fy }} List of Collaborators and Parteners</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th>
+            {% trans "Name" %}
+        </th>
+        <th>
+            {% trans "Type" %}
+        </th>
+        <th style="text-align: center">
+            {% trans "Critical to project?" %}
+        </th>
+        <th>
+            {% trans "Notes" %}
+        </th>
+    </tr>
+
+    <tbody>
+    {% for obj in collaborator_list %}
+        <tr>
+            <td>{{ obj.name }}</td>
+            <td>{{ obj.get_type_display }}</td>
+            <td style="text-align: center">{{ obj.critical|yesno }}</td>
+            <td>{{ obj.notes }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of Agreements #}
+
+<h1>{{ fy }} List of Collaborative Agreements</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th>
+            {% trans "Partner Organization" %}
+        </th>
+        <th>
+            {% trans "Project Lead" %}
+        </th>
+        <th>
+            {% trans "Agreement Title" %}
+        </th>
+        <th style="text-align: center">
+            {% trans "New or Existing" %}
+        </th>
+        <th>
+            {% trans "Notes" %}
+        </th>
+    </tr>
+
+    <tbody>
+    {% for obj in agreement_list %}
+        <tr>
+            <td>{{ obj.partner_organization }}</td>
+            <td>{{ obj.project_lead }}</td>
+            <td>{{ obj.agreement_title }}</td>
+            <td style="text-align: center">{{ obj.get_new_or_existing_display }}</td>
+            <td>{{ obj.notes }}</td>
         </tr>
     {% endfor %}
 
