@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class ResourcesConfig(AppConfig):
-    name = 'masterlist'
+    name = 'shares'

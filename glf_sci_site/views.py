@@ -97,6 +97,13 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('diets:index'),
         },
+        "shares": {
+            "title": _("Gulf Shares"),
+            "description": _("Administrative tool for managing gulf region shares."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('shares:index'),
+        },
         # "meq": {
         #     "title": _("MEQ"),
         #     "description": _("Marine Environmental Quality (MEQ) database."),

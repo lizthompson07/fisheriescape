@@ -117,6 +117,7 @@ INSTALLED_APPS = [
     'ihub',
     'scifi',
     'masterlist',
+    'shares',
 ]
 
 MIDDLEWARE = [
