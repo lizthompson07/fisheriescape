@@ -42,8 +42,11 @@ def get_verbose_label(instance, field_name):
     # this means a plain old field_name was sent in
     else:
         field_instance = instance._meta.get_field(field_name)
-        verbose_name = field_instance.verbose_name
-
+        try:
+            verbose_name = field_instance.verbose_name
+        except AttributeError:
+            # if there is no verbose_name attribute, just send back the field name
+            verbose_name = field_name
     return __special_capitalize__(verbose_name)
 
 
@@ -75,14 +78,14 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
 
         # first check if there is a value :
         if getattr(instance, field_name) is not None:
-            # check to see if there are choices
-            if len(field_instance.choices) > 0:
-                field_value = getattr(instance, "get_{}_display".format(field_name))()
-
             # check to see if it is a many to many field
-            elif field_instance.get_internal_type() == 'ManyToManyField':
+            if field_instance.get_internal_type() == 'ManyToManyField' or field_instance.get_internal_type() == 'ManyToManyRel':
                 m2m = getattr(instance, field_name)
                 field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
+
+            # check to see if there are choices
+            elif len(field_instance.choices) > 0:
+                field_value = getattr(instance, "get_{}_display".format(field_name))()
 
             # check to see if it is a datefield
             elif field_instance.get_internal_type() == 'DateTimeField':

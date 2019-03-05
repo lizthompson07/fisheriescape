@@ -1,0 +1,65 @@
+{% extends "shares/shares_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% block header %}
+{% endblock %}
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+
+        table, td {
+            font-size: small;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'shares:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'shares:server_list' %}">Servers</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>{{ object }}</h1>
+
+
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'shares:server_edit' object.id %}">
+                Edit
+            </a>
+            <a class="btn btn-danger " href="{% url 'shares:server_delete' object.id %}">
+                Delete
+            </a>
+
+        </div>
+        <br><br>
+
+        <div class="row">
+            <div class="col-3">
+                <h3>
+                    Server Detail:
+                </h3>
+
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+
+            </div>
+            <div class="col">
+               {% include "shares/_users.html" %}
+            </div>
+
+            <div class="col">
+               {% include "shares/_shares.html" %}
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

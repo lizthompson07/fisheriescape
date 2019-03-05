@@ -44,6 +44,7 @@ urlpatterns += i18n_patterns(
     path('ihub/', include('ihub.urls')),
     path('scifi/', include('scifi.urls')),
     path('master-list/', include('masterlist.urls')),
+    path('gulf-shares/', include('shares.urls')),
 
     # Password reset views. Views are part of accounts app #
     ########################################################

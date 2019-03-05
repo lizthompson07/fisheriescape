@@ -8,31 +8,30 @@ from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView
 ###
 
 from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
-from . import reports
 
 
 # Create your views here.
 class CloserTemplateView(TemplateView):
-    template_name = 'masterlist/close_me.html'
+    template_name = 'shares/close_me.html'
 
 
-def in_masterlist_group(user):
+def in_shares_group(user):
     if user:
-        return user.groups.filter(name='masterlist_access').count() != 0
+        return user.groups.filter(name='shares_access').count() != 0
 
 
-class MasterListAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class SharesAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return in_masterlist_group(self.request.user)
+        return in_shares_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -41,16 +40,16 @@ class MasterListAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-def in_masterlist_admin_group(user):
+def in_shares_admin_group(user):
     if user:
-        return user.groups.filter(name='masterlist_admin').count() != 0
+        return user.groups.filter(name='shares_admin').count() != 0
 
 
-class MasterListAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class SharesAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return in_masterlist_admin_group(self.request.user)
+        return in_shares_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -59,416 +58,190 @@ class MasterListAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class IndexTemplateView(MasterListAccessRequiredMixin, TemplateView):
-    template_name = 'masterlist/index.html'
+class IndexTemplateView(SharesAdminRequiredMixin, TemplateView):
+    template_name = 'shares/index.html'
 
 
-# PERSON #
+# SERVER #
 ##########
-
-class PersonListView(MasterListAccessRequiredMixin, FilterView):
-    template_name = 'masterlist/person_list.html'
-    filterset_class = filters.PersonFilter
-    model = models.Person
-    queryset = models.Person.objects.annotate(
-        search_term=Concat('first_name', 'last_name', 'notes', output_field=TextField()))
+class ServerListView(SharesAdminRequiredMixin, ListView):
+    model = models.Server
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Person.objects.first()
+        context["my_object"] = models.Server.objects.first()
         context["field_list"] = [
-            'last_name',
-            'first_name',
-            'phone_1',
-            'phone_2',
-            'email_1',
+            'server_type',
+            'hostname',
+            'ip_address',
+            'mac_address',
         ]
         return context
 
 
-class PersonDetailView(MasterListAccessRequiredMixin, DetailView):
-    model = models.Person
+class ServerDetailView(SharesAdminRequiredMixin, DetailView):
+    model = models.Server
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'first_name',
-            'last_name',
-            'phone_1',
-            'phone_2',
-            'fax',
-            'email_1',
-            'email_2',
+            'server_type',
+            'hostname',
+            'ip_address',
+            'mac_address',
             'notes',
         ]
         return context
 
 
-class PersonUpdateView(MasterListAccessRequiredMixin, UpdateView):
-    model = models.Person
-    form_class = forms.PersonForm
+class ServerUpdateView(SharesAdminRequiredMixin, UpdateView):
+    model = models.Server
+    form_class = forms.ServerForm
 
 
-class PersonUpdateViewPopout(MasterListAccessRequiredMixin, UpdateView):
-    template_name = 'masterlist/person_form_popout.html'
-    model = models.Person
-    form_class = forms.PersonForm
-
-    def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('masterlist:close_me'))
+class ServerCreateView(SharesAdminRequiredMixin, CreateView):
+    model = models.Server
+    form_class = forms.ServerForm
 
 
-class PersonCreateView(MasterListAccessRequiredMixin, CreateView):
-    model = models.Organization
-    form_class = forms.PersonForm
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
-
-
-class PersonCreateViewPopout(MasterListAccessRequiredMixin, CreateView):
-    template_name = 'masterlist/person_form_popout.html'
-    model = models.Person
-    form_class = forms.PersonForm
+class ServerCreateViewPopout(SharesAdminRequiredMixin, CreateView):
+    model = models.Server
+    form_class = forms.ServerForm
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse('masterlist:close_me'))
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
+        return HttpResponseRedirect(reverse('shares:close_me'))
 
 
-class PersonDeleteView(MasterListAdminRequiredMixin, DeleteView):
-    model = models.Person
-    success_url = reverse_lazy('masterlist:person_list')
-    success_message = 'The person was deleted successfully!'
+class ServerDeleteView(SharesAdminRequiredMixin, DeleteView):
+    model = models.Server
+    success_url = reverse_lazy('shares:server_list')
+    success_message = 'The server was deleted successfully!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
 
-# ORGANIZATION #
-################
 
-class OrganizationListView(MasterListAccessRequiredMixin, FilterView):
-    template_name = 'masterlist/organization_list.html'
-    filterset_class = filters.OrganizationFilter
-    model = models.Organization
-    queryset = models.Organization.objects.annotate(
-        search_term=Concat('name_eng', 'name_fre', 'abbrev', output_field=TextField()))
+# USER #
+##########
+class UserListView(SharesAdminRequiredMixin, ListView):
+    model = models.User
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Organization.objects.first()
+        context["my_object"] = models.User.objects.first()
         context["field_list"] = [
-            'name_eng',
-            'name_fre',
-            'name_ind',
-            'abbrev',
-            'province',
+            'server',
+            'username',
+            'shares',
         ]
         return context
 
 
-class OrganizationDetailView(MasterListAccessRequiredMixin, DetailView):
-    model = models.Organization
+class UserDetailView(SharesAdminRequiredMixin, DetailView):
+    model = models.User
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'name_eng',
-            'name_fre',
-            'name_ind',
-            'abbrev',
-            'address',
-            'city',
-            'postal_code',
-            'province',
-            'phone',
-            'fax',
-            'key_species',
-            'dfo_contact_instructions',
+            'username',
+            'password',
+            'server',
             'notes',
-            'grouping',
-            'regions',
-            'sectors',
-            'date_last_modified',
-            'last_modified_by',
+            'flag_for_deletion',
         ]
         return context
 
 
-class OrganizationUpdateView(MasterListAccessRequiredMixin, UpdateView):
-    model = models.Organization
-    form_class = forms.OrganizationForm
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
+class UserUpdateView(SharesAdminRequiredMixin, UpdateView):
+    model = models.User
+    form_class = forms.UserForm
 
 
-class OrganizationCreateView(MasterListAccessRequiredMixin, CreateView):
-    model = models.Organization
-    form_class = forms.OrganizationForm
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
+class UserCreateView(SharesAdminRequiredMixin, CreateView):
+    model = models.User
+    form_class = forms.UserForm
 
 
-class OrganizationDeleteView(MasterListAdminRequiredMixin, DeleteView):
-    model = models.Organization
-    success_url = reverse_lazy('masterlist:org_list')
-    success_message = 'The organization was deleted successfully!'
+class UserCreateViewPopout(SharesAdminRequiredMixin, CreateView):
+    model = models.User
+    form_class = forms.UserForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('shares:close_me'))
+
+
+class UserDeleteView(SharesAdminRequiredMixin, DeleteView):
+    model = models.User
+    success_url = reverse_lazy('shares:server_list')
+    success_message = 'The user was deleted successfully!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
 
-# MEMBER  (ORGANIZATION MEMBER) #
-#################################
-
-class MemberCreateView(MasterListAccessRequiredMixin, CreateView):
-    model = models.OrganizationMember
-    template_name = 'masterlist/member_form_popout.html'
-    login_url = '/accounts/login_required/'
-    form_class = forms.NewMemberForm
-
-    def get_initial(self):
-        org = models.Organization.objects.get(pk=self.kwargs['org'])
-        return {
-            'organization': org,
-            'last_modified_by': self.request.user
-        }
+# SHARE #
+#########
+class ShareListView(SharesAdminRequiredMixin, ListView):
+    model = models.Share
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        org = models.Organization.objects.get(id=self.kwargs['org'])
-        context['organization'] = org
-
-        # get a list of people
-        person_list = [
-            '<a href="#" class="person_insert" code={id}>{first} {last}</a>'.format(
-                id=p.id, first=p.first_name, last=p.last_name
-            ) for p in models.Person.objects.all()
+        context["my_object"] = models.Share.objects.first()
+        context["field_list"] = [
+            'server',
+            'name',
+            'local_path',
+            'mounted_path',
+            'network_path',
         ]
-
-        context['person_list'] = person_list
-
         return context
 
-    def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('masterlist:close_me'))
 
-
-class MemberUpdateView(MasterListAccessRequiredMixin, UpdateView):
-    model = models.OrganizationMember
-    template_name = 'masterlist/member_form_popout.html'
-    form_class = forms.MemberForm
-    login_url = '/accounts/login_required/'
-
-    def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('masterlist:close_me'))
+class ShareDetailView(SharesAdminRequiredMixin, DetailView):
+    model = models.Share
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # get a list of people
-        person_list = [
-            '<a href="#" class="person_insert" code={id}>{first} {last}</a>'.format(
-                id=p.id, first=p.first_name, last=p.last_name
-            ) for p in models.Person.objects.all()
+        context["field_list"] = [
+            'server',
+            'name',
+            'local_path',
+            'mounted_path',
+            'network_path',
+            'notes',
         ]
-
-        context['person_list'] = person_list
-
         return context
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user
-        }
+
+class ShareUpdateView(SharesAdminRequiredMixin, UpdateView):
+    model = models.Share
+    form_class = forms.ShareForm
 
 
-def member_delete(request, pk):
-    object = models.OrganizationMember.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The member has been successfully deleted from the organization."))
-    return HttpResponseRedirect(reverse_lazy("masterlist:org_detail", kwargs={"pk": object.organization.id}))
+class ShareCreateView(SharesAdminRequiredMixin, CreateView):
+    model = models.Share
+    form_class = forms.ShareForm
 
 
-# CONSULTATION INSTRUCTION #
-############################
-
-class InstructionCreateView(MasterListAccessRequiredMixin, CreateView):
-    model = models.ConsultationInstruction
-    template_name = 'masterlist/instruction_form.html'
-    form_class = forms.InstructionForm
-
-    def get_initial(self):
-        org = models.Organization.objects.get(pk=self.kwargs['org'])
-        return {
-            'organization': org,
-            'last_modified_by': self.request.user
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        org = models.Organization.objects.get(id=self.kwargs['org'])
-        context['org'] = org
-
-        return context
+class ShareCreateViewPopout(SharesAdminRequiredMixin, CreateView):
+    model = models.Share
+    form_class = forms.ShareForm
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse_lazy('masterlist:instruction_edit', kwargs={"pk":object.id}))
+        return HttpResponseRedirect(reverse('shares:close_me'))
 
 
-class InstructionUpdateView(MasterListAccessRequiredMixin, UpdateView):
-    model = models.ConsultationInstruction
-    template_name = 'masterlist/instruction_form.html'
-    form_class = forms.InstructionForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # # get a list of members from only the indigenous organizations
-        member_list = ['<a href="#" class="add-btn" target-url="{target_url}">{text}</a>'.format(
-            target_url=reverse_lazy("masterlist:recipient_new", kwargs={"instruction": self.object.id, "member": member.id}),
-            text=member) for member in models.OrganizationMember.objects.filter(organization__grouping__is_indigenous=True)]
-        context['member_list'] = member_list
-
-        return context
-
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user
-        }
-
-
-class InstructionDeleteView(MasterListAdminRequiredMixin, DeleteView):
-    model = models.ConsultationInstruction
-    success_message = _("The organization's consultation instructions were deleted successfully!")
-    template_name = 'masterlist/instruction_confirm_delete.html'
+class ShareDeleteView(SharesAdminRequiredMixin, DeleteView):
+    model = models.Share
+    success_url = reverse_lazy('shares:server_list')
+    success_message = 'The share was deleted successfully!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse_lazy("masterlist:org_detail", kwargs={"pk": self.object.organization.id})
-
-
-# RECIPIENTS #
-##############
-
-class RecipientCreateView(MasterListAdminRequiredMixin, CreateView):
-    model = models.ConsultationInstructionRecipient
-    template_name = 'masterlist/recipient_form_popout.html'
-    login_url = '/accounts/login_required/'
-    form_class = forms.RecipientForm
-
-    def get_initial(self):
-        instruction = models.ConsultationInstruction.objects.get(pk=self.kwargs['instruction'])
-        member = models.OrganizationMember.objects.get(pk=self.kwargs['member'])
-        return {
-            'consultation_instruction': instruction.id,
-            'member': member.id,
-            'last_modified_by': self.request.user,
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        instruction = models.ConsultationInstruction.objects.get(id=self.kwargs['instruction'])
-        member = models.OrganizationMember.objects.get(id=self.kwargs['member'])
-        context['instruction'] = instruction
-        context['member'] = member
-        return context
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(reverse('masterlist:close_me'))
-
-
-class RecipientUpdateView(MasterListAdminRequiredMixin, UpdateView):
-    model = models.ConsultationInstructionRecipient
-    template_name = 'masterlist/recipient_form_popout.html'
-    form_class = forms.RecipientForm
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(reverse('masterlist:close_me'))
-
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
-
-
-def recipient_delete(request, pk):
-    object = models.ConsultationInstructionRecipient.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, "The recipient has been successfully deleted from {}.".format(object.consultation_instruction))
-    return HttpResponseRedirect(reverse_lazy("masterlist:instruction_edit", kwargs={"pk": object.consultation_instruction.id}))
-
-
-# REPORTS #
-###########
-
-class ReportSearchFormView(MasterListAccessRequiredMixin, FormView):
-    template_name = 'masterlist/report_search.html'
-    form_class = forms.ReportSearchForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-        report = int(form.cleaned_data["report"])
-        provinces = str(form.cleaned_data["provinces"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-        groupings = str(form.cleaned_data["groupings"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-        sectors = str(form.cleaned_data["sectors"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-        regions = str(form.cleaned_data["regions"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-        is_indigenous = int(form.cleaned_data["is_indigenous"])
-        species = str(form.cleaned_data["species"])
-
-        if provinces == "":
-            provinces = "None"
-        if groupings == "":
-            groupings = "None"
-        if sectors == "":
-            sectors = "None"
-        if regions == "":
-            regions = "None"
-        if species == "":
-            species = "None"
-
-        if report == 1:
-            return HttpResponseRedirect(reverse("masterlist:export_custom_list", kwargs={
-                'provinces': provinces,
-                'groupings': groupings,
-                'sectors': sectors,
-                'regions': regions,
-                'is_indigenous': is_indigenous,
-                'species': species,
-            }))
-
-        else:
-            messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("masterlist:report_search"))
-
-
-def export_custom_list(request, provinces, groupings, sectors, regions, is_indigenous, species):
-    file_url = reports.generate_custom_list(provinces, groupings, sectors, regions, is_indigenous, species)
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
-                timezone.now().strftime("%Y-%m-%d"))
-            return response
-    raise Http404
