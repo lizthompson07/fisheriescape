@@ -24,8 +24,7 @@
 
     th {
         background-color: lightblue;
-        {#color: white;#}
-        border: 1px solid black;
+    {#color: white;#} border: 1px solid black;
         font-weight: bold;
     }
 
@@ -129,6 +128,7 @@
                         <td rowspan="
 
 
+
                                 {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
                     {% endif %}
                     <td>{{ section.name }}</td>
@@ -146,29 +146,47 @@
             {% if division.sections.count > 0 %}
                 <tr>
                     <td class="total"><em>SUB-TOTAL</em></td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
-                    <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
                 </tr>
             {% endif %}
         {% endfor %}
         <tr>
             <td colspan="2" class="total">TOTAL</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
-            <td class="total" style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
         </tr>
         </tbody>
 
@@ -182,13 +200,21 @@
 </div>
 
 {# list of capital requests #}
+{% for cost in capital_cost %}
+    {{ cost }}
+{% endfor %}
+
+    <div>
+        <pdf:nextpage/>
+    </div>
+
 
 {##}
 
-{#{% for object in object_list %}#}
-{#    {% include "projects/_project_content.html" %}#}
-{#    <div>#}
-{#        <pdf:nextpage/>#}
-{#    </div>#}
-{#{% endfor %}#}
+{% for object in object_list %}
+    {% include "projects/_project_content.html" %}
+    <div>
+        <pdf:nextpage/>
+    </div>
+{% endfor %}
 
