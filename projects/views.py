@@ -877,7 +877,7 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
                     context["financial_summary_data"]["total"][key] += \
                     context["financial_summary_data"][project.id][key]
 
-        context["capital_list"] = [capital_cost for capital_cost in project.capital_costs.all() for project in project_list if capital_cost.budget_requested > 0]
+        context["capital_list"] = [capital_cost for capital_cost in project.capital_costs.all() for project in project_list]
         print(context["capital_list"])
         return context
 
