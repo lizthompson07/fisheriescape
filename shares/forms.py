@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.forms import modelformset_factory
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User as AuthUser
@@ -45,3 +46,8 @@ class ShareForm(forms.ModelForm):
         widgets = {
             'notes': forms.Textarea(attrs={"rows": 3}),
         }
+
+    def __init__(self, *args, **kwargs):
+        USER_CHOICES = [(u.id, u.username) for u in models.User.objects.filter(server_id=5).order_by("username")]
+        super().__init__(*args, **kwargs)
+        self.fields['users'].choices = USER_CHOICES

@@ -1,6 +1,9 @@
 import os
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.mail import send_mail
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.utils import timezone
@@ -14,7 +17,7 @@ from django.views.generic import UpdateView, DeleteView, CreateView, DetailView,
 from lib.functions.nz import nz
 from . import models
 from . import forms
-from . import filters
+from . import emails
 
 
 # Create your views here.
@@ -69,10 +72,6 @@ class EmailListTemplateView(SharesAdminRequiredMixin, TemplateView):
         context = super().get_context_data(*args, **kwargs)
         context["user_list"] = models.User.objects.filter(status=2).filter(user__email__isnull=False)
         return context
-
-
-
-
 
 
 # SERVER #
@@ -136,7 +135,6 @@ class ServerDeleteView(SharesAdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-
 # USER #
 ##########
 class UserListView(SharesAdminRequiredMixin, ListView):
@@ -196,6 +194,26 @@ class UserDeleteView(SharesAdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+def send_instructions(request, pk):
+    # create a new email object
+    my_user = models.User.objects.get(pk=pk)
+    email = emails.SendInstructionsEmail(my_user)
+    # send the email object
+    if settings.MY_ENVR != 'dev':
+        send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                  recipient_list=email.to_list, fail_silently=False, )
+    else:
+        print('not sending email since in dev mode')
+        print("from={}".format(email.from_email))
+        print("to={}".format(email.to_list))
+        print("subject={}".format(email.subject))
+        print("message={}".format(email.message))
+
+    messages.success(request, "An email has been sent to the user with setup instructions!")
+
+    return HttpResponseRedirect(reverse("shares:user_detail", kwargs={"pk": pk}))
 
 
 # SHARE #
