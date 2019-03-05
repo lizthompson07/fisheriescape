@@ -850,7 +850,8 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
                     context["financial_summary_data"]["sections"][project.section.id][key] = 0
             finally:
                 for key in key_list:
-                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][key]
+                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][
+                        key]
 
             # for Divisions
             try:
@@ -862,7 +863,8 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
                     context["financial_summary_data"]["divisions"][project.section.division.id][key] = 0
             finally:
                 for key in key_list:
-                    context["financial_summary_data"]["divisions"][project.section.division.id][key] += context["financial_summary_data"][project.id][key]
+                    context["financial_summary_data"]["divisions"][project.section.division.id][key] += \
+                    context["financial_summary_data"][project.id][key]
 
             # for total
             try:
@@ -875,12 +877,12 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
             finally:
                 for key in key_list:
                     context["financial_summary_data"]["total"][key] += \
-                    context["financial_summary_data"][project.id][key]
+                        context["financial_summary_data"][project.id][key]
 
-        context["capital_list"] = [capital_cost for project in project_list for capital_cost in project.capital_costs.all()]
+        # get a list of the capital requests
+        context["capital_list"] = [capital_cost for project in project_list.order_by("section__division", "section", "project_title") for
+                                   capital_cost in project.capital_costs.all()]
         return context
-
-
 
 
 # USER #
