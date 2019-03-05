@@ -260,6 +260,9 @@
         <th>
             {% trans "Amount" %}
         </th>
+        <th>
+            {% trans "Project" %}
+        </th>
     </tr>
 
     <tbody>
@@ -270,6 +273,7 @@
             <td>{{ obj.proposed_title }}</td>
             <td>{{ obj.gc_program }}</td>
             <td>{{ obj.budget_requested|currency }}</td>
+            <td>{{ obj.project }}</td>
         </tr>
     {% endfor %}
 
@@ -298,6 +302,9 @@
         <th>
             {% trans "Notes" %}
         </th>
+        <th>
+            {% trans "Project" %}
+        </th>
     </tr>
 
     <tbody>
@@ -307,6 +314,7 @@
             <td>{{ obj.get_type_display }}</td>
             <td style="text-align: center">{{ obj.critical|yesno }}</td>
             <td>{{ obj.notes }}</td>
+            <td>{{ obj.project }}</td>
         </tr>
     {% endfor %}
 
@@ -338,6 +346,9 @@
         <th>
             {% trans "Notes" %}
         </th>
+        <th>
+            {% trans "Project" %}
+        </th>
     </tr>
 
     <tbody>
@@ -348,6 +359,7 @@
             <td>{{ obj.agreement_title }}</td>
             <td style="text-align: center">{{ obj.get_new_or_existing_display }}</td>
             <td>{{ obj.notes }}</td>
+            <td>{{ obj.project }}</td>
         </tr>
     {% endfor %}
 
@@ -359,7 +371,7 @@
 </div>
 
 
-{##}
+{# project details #}
 
 {% for object in object_list %}
     {% include "projects/_project_content.html" %}
