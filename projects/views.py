@@ -882,6 +882,19 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
         # get a list of the capital requests
         context["capital_list"] = [capital_cost for project in project_list.order_by("section__division", "section", "project_title") for
                                    capital_cost in project.capital_costs.all()]
+
+        # get a list of the G&Cs
+        context["gc_list"] = [gc for project in project_list.order_by("section__division", "section", "project_title") for
+                                   gc in project.gc_costs.all()]
+
+        # get a list of the collaborators
+        context["collaborator_list"] = [collaborator for project in project_list.order_by("section__division", "section", "project_title") for
+                              collaborator in project.collaborators.all()]
+
+        # get a list of the agreements
+        context["agreement_list"] = [agreement for project in project_list.order_by("section__division", "section", "project_title")
+                                        for agreement in project.agreements.all()]
+
         return context
 
 
