@@ -892,13 +892,13 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
         #                                 for
         #                                 collaborator in project.collaborators.all()]
         context["collaborator_list"] = [collaborator for collaborator in models.Collaborator.objects.filter(project__submitted=True).filter(
-            project_section_head_approved__isnull=False)]
+            project__section_head_approved__isnull=False)]
 
         # get a list of the agreements
         # context["agreement_list"] = [agreement for project in project_list.order_by("section__division", "section", "project_title")
         #                              for agreement in project.agreements.all()]
         context["agreement_list"] = [agreement for agreement in models.CollaborativeAgreement.objects.filter(project__submitted=True).filter(
-            project_section_head_approved__isnull=False)]
+            project__section_head_approved__isnull=False)]
 
         return context
 
