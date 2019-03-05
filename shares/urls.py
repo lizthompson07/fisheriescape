@@ -23,6 +23,7 @@ urlpatterns = [
     path('user/<int:pk>/view/', views.UserDetailView.as_view(), name="user_detail"),
     path('user/<int:pk>/edit/', views.UserUpdateView.as_view(), name="user_edit"),
     path('user/<int:pk>/delete/', views.UserDeleteView.as_view(), name="user_delete"),
+    path('user/<int:pk>/send-instructions/', views.send_instructions, name="send_instructions"),
 
     # SHARE #
     #########
