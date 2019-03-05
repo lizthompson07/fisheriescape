@@ -1,0 +1,10 @@
+<h3>Users:</h3>
+<ul>
+    {% for user in object.users.all %}
+        <li>
+            <a href="#">{{ user.username }} </a>
+        </li>
+    {% empty %}
+        <em>No users for this server</em>
+    {% endfor %}
+</ul>
