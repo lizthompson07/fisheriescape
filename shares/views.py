@@ -62,6 +62,19 @@ class IndexTemplateView(SharesAdminRequiredMixin, TemplateView):
     template_name = 'shares/index.html'
 
 
+class EmailListTemplateView(SharesAdminRequiredMixin, TemplateView):
+    template_name = 'shares/email_list.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["user_list"] = models.User.objects.filter(status=2).filter(user__email__isnull=False)
+        return context
+
+
+
+
+
+
 # SERVER #
 ##########
 class ServerListView(SharesAdminRequiredMixin, ListView):
@@ -136,6 +149,7 @@ class UserListView(SharesAdminRequiredMixin, ListView):
             'server',
             'username',
             'shares',
+            'status',
         ]
         return context
 
@@ -150,7 +164,7 @@ class UserDetailView(SharesAdminRequiredMixin, DetailView):
             'password',
             'server',
             'notes',
-            'flag_for_deletion',
+            'status',
         ]
         return context
 

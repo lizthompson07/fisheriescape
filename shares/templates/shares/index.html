@@ -12,25 +12,65 @@
             </h1>
         </div>
 
-        {% if user.is_authenticated %}
-            <div align="center">
-                {% url 'shares:server_list' as server_list_url %}
-                {% url 'shares:user_list' as user_list_url %}
-                {% url 'shares:share_list' as share_list_url %}
+        {% url 'shares:server_list' as server_list_url %}
+        {% url 'shares:user_list' as user_list_url %}
+        {% url 'shares:share_list' as share_list_url %}
 
-                <h4>
-                    {% blocktrans %}
-                        Click <a href="{{ server_list_url }}">HERE</a> to see a list of servers.
-                        <br><br>
-                        Click <a href="{{ user_list_url }}">HERE</a> to see a list of users.
-                        <br><br>
-                        Click <a href="{{ share_list_url }}">HERE</a> to see a list of shares.
-                        <br><br>
-                    {% endblocktrans %}
-                </h4>
-            </div>
-        {% endif %}
-
+        <h2>
+            <ul>
+                <li>
+                    <a href="{{ server_list_url }}">Servers</a>
+                </li>
+                <li>
+                    <a href="{{ user_list_url }}">Users</a>
+                </li>
+                <li>
+                    <a href="{{ share_list_url }}">Shares</a>
+                </li>
+                <li>
+                    <a href="{% url 'shares:email_list' %}">Email list</a>
+                </li>
+            </ul>
+        </h2>
+        <br><br>
+        <div class="">
+            <h3>
+                Steps for adding new users:
+            </h3>
+            <ul>
+                <li>
+                    Add new user to this database. Also, add them to the shares they will want to access.
+                </li>
+                <li>
+                    Create user on glfscidm002 using shell script:
+                    <code>~/create_smb_user.sh [username]</code>
+                </li>
+                <li>
+                    add the user to the appropriate share(s) in the /etc/samba/smb.conf file
+                </li>
+            </ul>
+        </div>
     </div>
+
+    <br><br>
+        <div class="">
+            <h3>
+                Steps for adding new shares:
+            </h3>
+            <ul>
+                <li>
+                    Add new user to this database. Also, add them to the shares they will want to access.
+                </li>
+                <li>
+                    Create user on glfscidm002 using shell script:
+                    <code>~/create_smb_user.sh [username]</code>
+                </li>
+                <li>
+                    add the user to the appropriate share(s) in the /etc/samba/smb.conf file
+                </li>
+            </ul>
+        </div>
+    </div>
+
 
 {% endblock content %}

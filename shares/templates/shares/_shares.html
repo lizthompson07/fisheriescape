@@ -2,7 +2,7 @@
 <ul>
     {% for share in object.shares.all %}
         <li>
-            <a href="#">{{ share.name }} </a>
+            <a href="{% url 'shares:share_detail' share.id  %}">{{ share.name }} </a>
         </li>
     {% empty %}
         <em>No shares on this server</em>
