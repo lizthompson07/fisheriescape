@@ -133,11 +133,6 @@
 
 
 
-
-
-
-
-
                                 {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
                     {% endif %}
                     <td>{{ section.name }}</td>
@@ -261,7 +256,7 @@
             {% trans "Amount" %}
         </th>
         <th>
-            {% trans "Project" %}
+            {% trans "DFO Project" %}
         </th>
     </tr>
 
@@ -280,6 +275,10 @@
     </tbody>
 </table>
 
+{% if not gc_list %}
+    There are no G&Cs to show.
+{% endif %}
+
 <div>
     <pdf:nextpage/>
 </div>
@@ -287,24 +286,14 @@
 
 {# list of Collaborators #}
 
-<h1>{{ fy }} List of Collaborators and Parteners</h1>
+<h1>{{ fy }} List of Collaborators and Partners</h1>
 <table class="table table-hover table-sm" style="width: auto">
     <tr>
-        <th>
-            {% trans "Name" %}
-        </th>
-        <th>
-            {% trans "Type" %}
-        </th>
-        <th style="text-align: center">
-            {% trans "Critical to project?" %}
-        </th>
-        <th>
-            {% trans "Notes" %}
-        </th>
-        <th>
-            {% trans "Project" %}
-        </th>
+        <th> Name</th>
+        <th> Type</th>
+        <th style="text-align: center"> Critical to project?</th>
+        <th> Notes</th>
+        <th> DFO Project</th>
     </tr>
 
     <tbody>
@@ -321,6 +310,10 @@
     </tbody>
 </table>
 
+{% if not collaborator_list %}
+    There are no Collaborators and/or Partners to show.
+{% endif %}
+
 <div>
     <pdf:nextpage/>
 </div>
@@ -331,24 +324,12 @@
 <h1>{{ fy }} List of Collaborative Agreements</h1>
 <table class="table table-hover table-sm" style="width: auto">
     <tr>
-        <th>
-            {% trans "Partner Organization" %}
-        </th>
-        <th>
-            {% trans "Project Lead" %}
-        </th>
-        <th>
-            {% trans "Agreement Title" %}
-        </th>
-        <th style="text-align: center">
-            {% trans "New or Existing" %}
-        </th>
-        <th>
-            {% trans "Notes" %}
-        </th>
-        <th>
-            {% trans "Project" %}
-        </th>
+        <th> Partner Organization</th>
+        <th> Project Lead</th>
+        <th> Agreement Title</th>
+        <th style="text-align: center"> New or Existing</th>
+        <th> Notes</th>
+        <th> DFO Project</th>
     </tr>
 
     <tbody>
@@ -365,6 +346,10 @@
 
     </tbody>
 </table>
+
+{% if not agreement_list %}
+    There are no Collaborative Agreements to show.
+{% endif %}
 
 <div>
     <pdf:nextpage/>
