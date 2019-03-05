@@ -864,7 +864,7 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
             finally:
                 for key in key_list:
                     context["financial_summary_data"]["divisions"][project.section.division.id][key] += \
-                    context["financial_summary_data"][project.id][key]
+                        context["financial_summary_data"][project.id][key]
 
             # for total
             try:
@@ -885,15 +885,20 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
 
         # get a list of the G&Cs
         context["gc_list"] = [gc for project in project_list.order_by("section__division", "section", "project_title") for
-                                   gc in project.gc_costs.all()]
+                              gc in project.gc_costs.all()]
 
         # get a list of the collaborators
-        context["collaborator_list"] = [collaborator for project in project_list.order_by("section__division", "section", "project_title") for
-                              collaborator in project.collaborators.all()]
+        # context["collaborator_list"] = [collaborator for project in project_list.order_by("section__division", "section", "project_title")
+        #                                 for
+        #                                 collaborator in project.collaborators.all()]
+        context["collaborator_list"] = [collaborator for collaborator in models.Collaborator.objects.filter(project__submitted=True).filter(
+            project_section_head_approved__isnull=False)]
 
         # get a list of the agreements
-        context["agreement_list"] = [agreement for project in project_list.order_by("section__division", "section", "project_title")
-                                        for agreement in project.agreements.all()]
+        # context["agreement_list"] = [agreement for project in project_list.order_by("section__division", "section", "project_title")
+        #                              for agreement in project.agreements.all()]
+        context["agreement_list"] = [agreement for agreement in models.CollaborativeAgreement.objects.filter(project__submitted=True).filter(
+            project_section_head_approved__isnull=False)]
 
         return context
 
