@@ -129,6 +129,9 @@
 
 
 
+
+
+
                                 {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
                     {% endif %}
                     <td>{{ section.name }}</td>
@@ -200,13 +203,36 @@
 </div>
 
 {# list of capital requests #}
-{% for cost in capital_cost %}
-    {{ cost }}
-{% endfor %}
 
-    <div>
-        <pdf:nextpage/>
-    </div>
+
+<h1>{{ fy }} Capital Request List</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th>Section</th>
+        <th>Project</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Funding Source</th>
+        <th>Request</th>
+    </tr>
+    <tbody>
+    {% for obj in capital_list %}
+        <tr>
+            <td>{{ obj.project.section }}</td>
+            <td>{{ obj.project }}</td>
+            <td>{{ obj.get_category_display }}</td>
+            <td>{{ obj.description|nz:"" }}</td>
+            <td>{{ obj.funding_source }}</td>
+            <td>{{ obj.budget_requested|currency }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<div>
+    <pdf:nextpage/>
+</div>
 
 
 {##}
