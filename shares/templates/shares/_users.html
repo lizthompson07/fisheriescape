@@ -2,7 +2,7 @@
 <ul>
     {% for user in object.users.all %}
         <li>
-            <a href="#">{{ user.username }} </a>
+            <a href="{% url 'shares:user_detail' user.id %}">{{ user.username }} </a>
         </li>
     {% empty %}
         <em>No users for this server</em>
