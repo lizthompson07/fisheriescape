@@ -120,7 +120,7 @@ class PersonUpdateViewPopout(MasterListAccessRequiredMixin, UpdateView):
 
 
 class PersonCreateView(MasterListAccessRequiredMixin, CreateView):
-    model = models.Person
+    model = models.Organization
     form_class = forms.PersonForm
 
     def get_initial(self):
