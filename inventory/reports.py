@@ -47,7 +47,6 @@ def generate_batch_xml(sections):
         xml_filename = "xml_metadata_export_{}.xml".format(resource.id)
         target_file_path = os.path.join(xml_dir, xml_filename)
         # write xml data to file
-        print(resource.id)
         xml_data.write(target_file_path)
 
     # zip the folder
