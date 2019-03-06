@@ -1481,18 +1481,16 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
 
 def export_batch_xml(request, sections):
     file_url = reports.generate_batch_xml(sections)
+    print(file_url)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/zip")
+            response['Content-Disposition'] = 'inline; filename="xml_batch_export_{}.zip"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
 
-
-
-    # if os.path.exists(file_url):
-    #     with open(file_url, 'rb') as fh:
-    #         response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-    #         response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
-    #             timezone.now().strftime("%Y-%m-%d"))
-    #         return response
-    # raise Http404
-
-    return HttpResponseRedirect(reverse("inventory:report_search"))
+    # return HttpResponseRedirect(reverse("inventory:report_search"))
 
 # def capacity_export_spreadsheet(request, fy=None, orgs=None):
 #     file_url = reports.generate_capacity_spreadsheet(fy, orgs)
