@@ -47,12 +47,12 @@ def divide(value, arg):
 
 @register.filter
 def percentage(value, arg=2):
-    return format(value, ".{}%".format(arg))
-
-
-# @register.filter
-# def add(value, arg):
-#     return float(value)+float(arg)
+    try:
+        float(value)
+    except TypeError:
+        return "0%"
+    else:
+        return format(value, ".{}%".format(arg))
 
 
 @register.filter
