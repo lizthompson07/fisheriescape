@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -262,6 +263,18 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
     model = models.Project
     login_url = '/accounts/login_required/'
     template_name = "projects/project_report.html"
+
+    def get_pdf_filename(self):
+        project = models.Project.objects.get(pk=self.kwargs["pk"])
+        pdf_filename = "{}-{}-{}-{}-{}.pdf".format(
+            project.year.id,
+            project.section.division.abbrev,
+            project.section.abbrev,
+            project.id,
+            str(project.project_title).title().replace(" ","")[:10],
+        )
+
+        return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -787,7 +800,9 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects:report_master", kwargs={'fiscal_year': fiscal_year}))
-        if report == 2:
+        elif report == 2:
+            return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={'fiscal_year': fiscal_year}))
+        elif report == 3:
             return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={'fiscal_year': fiscal_year}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -795,7 +810,6 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
 
 
 def master_spreadsheet(request, fiscal_year, user=None):
-    # my_site = models.Site.objects.get(pk=site)
     file_url = reports.generate_master_spreadsheet(fiscal_year, user)
 
     if os.path.exists(file_url):
@@ -807,9 +821,14 @@ def master_spreadsheet(request, fiscal_year, user=None):
     raise Http404
 
 
-class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
+class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
     login_url = '/accounts/login_required/'
     template_name = "projects/report_pdf_printout.html"
+
+    def get_pdf_filename(self):
+        fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        pdf_filename = "{} Workplan Printout.pdf".format(fy)
+        return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -901,6 +920,18 @@ class PDFProjectPrintout(LoginRequiredMixin, PDFTemplateView):
             project__section_head_approved__isnull=False)]
 
         return context
+
+
+def workplan_summary(request, fiscal_year):
+    file_url = reports.generate_workplan_summary(fiscal_year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="{} Workplan Summary.xlsx"'.format(
+                fiscal_year)
+            return response
+    raise Http404
 
 
 # USER #

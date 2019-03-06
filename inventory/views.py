@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -7,7 +9,7 @@ from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django_filters.views import FilterView
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
@@ -18,6 +20,7 @@ from . import forms
 from . import filters
 from . import emails
 from . import xml_export
+from . import reports
 
 
 # @login_required(login_url='/accounts/login_required/')
@@ -1446,3 +1449,57 @@ class WebServiceDeleteView(DeleteView):
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
+
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
+    template_name = 'inventory/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        sections = str(form.cleaned_data["sections"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+
+        if sections == "":
+            sections = "None"
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("inventory:export_batch_xml", kwargs={
+                'sections': sections,
+            }))
+
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("inventory:report_search"))
+
+def export_batch_xml(request, sections):
+    file_url = reports.generate_batch_xml(sections)
+
+
+
+    # if os.path.exists(file_url):
+    #     with open(file_url, 'rb') as fh:
+    #         response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+    #         response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
+    #             timezone.now().strftime("%Y-%m-%d"))
+    #         return response
+    # raise Http404
+
+    return HttpResponseRedirect(reverse("inventory:report_search"))
+
+# def capacity_export_spreadsheet(request, fy=None, orgs=None):
+#     file_url = reports.generate_capacity_spreadsheet(fy, orgs)
+#
+#     if os.path.exists(file_url):
+#         with open(file_url, 'rb') as fh:
+#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+#             response['Content-Disposition'] = 'inline; filename="iHub export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+#             return response
+#     raise Http404
