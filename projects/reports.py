@@ -518,3 +518,217 @@ def generate_master_spreadsheet(fiscal_year, user=None):
 
     workbook.close()
     return target_url
+
+
+def generate_workplan_summary(fiscal_year):
+    pass
+    # # figure out the filename
+    # target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
+    # target_file = "temp_export.xlsx"
+    # target_file_path = os.path.join(target_dir, target_file)
+    # target_url = os.path.join(settings.MEDIA_ROOT, 'projects', 'temp', target_file)
+    #
+    # # create workbook and worksheets
+    # workbook = xlsxwriter.Workbook(target_file_path)
+    # ws1 = workbook.add_worksheet(name="Workplan Summary")
+    #
+    # # create formatting
+    # header_format = workbook.add_format(
+    #     {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#42a1f4', 'font_color': 'black', "align": 'normal', })
+    # total_format = workbook.add_format({'bg_color': '#D6D1C0', "align": 'left', "text_wrap": True})
+    # normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
+    #
+    # # spreadsheet: Project summary #
+    # #############################
+    #
+    # # develop the header
+    # header = [
+    #     "Section",
+    #     "Section",
+    #     "Division",
+    #     verbose_field_name(project_list.first(), 'program'),
+    #     "Coding",
+    #     verbose_field_name(project_list.first(), 'status'),
+    #     "Project lead",
+    #     verbose_field_name(project_list.first(), 'approved'),
+    #     verbose_field_name(project_list.first(), 'start_date'),
+    #     verbose_field_name(project_list.first(), 'end_date'),
+    #     verbose_field_name(project_list.first(), 'description'),
+    #     verbose_field_name(project_list.first(), 'priorities'),
+    #     verbose_field_name(project_list.first(), 'deliverables'),
+    #     verbose_field_name(project_list.first(), 'data_collection'),
+    #     verbose_field_name(project_list.first(), 'data_sharing'),
+    #     verbose_field_name(project_list.first(), 'data_storage'),
+    #     verbose_field_name(project_list.first(), 'metadata_url'),
+    #     verbose_field_name(project_list.first(), 'regional_dm'),
+    #     verbose_field_name(project_list.first(), 'regional_dm_needs'),
+    #     verbose_field_name(project_list.first(), 'sectional_dm'),
+    #     verbose_field_name(project_list.first(), 'sectional_dm_needs'),
+    #     verbose_field_name(project_list.first(), 'vehicle_needs'),
+    #     verbose_field_name(project_list.first(), 'it_needs'),
+    #     verbose_field_name(project_list.first(), 'chemical_needs'),
+    #     verbose_field_name(project_list.first(), 'ship_needs'),
+    #     'Total FTE (weeks)',
+    #     'Total Salary (in excess of FTE)',
+    #     'Total OT (hours)',
+    #     'Total O&M',
+    #     'Total Capital',
+    #     'Total G&Cs',
+    #     verbose_field_name(project_list.first(), 'submitted'),
+    #     verbose_field_name(project_list.first(), 'section_head_approved'),
+    #
+    # ]
+    #
+    # # start with a list of each section
+    # section_list = models.Section.objects.all()
+    #
+    # for section in section_list:
+    #     # get a list of projects that were submitted and section_head_approved
+    #     project_list = [p for p in models.Project.objects.filter(year=fiscal_year, section=section, submitted=True,
+    #                                                              section_head_approved__isnull=False)]
+    #
+    #
+    #     # create the col_max column to store the length of each header
+    #     # should be a maximum column width to 100
+    #     col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+    #
+    #     worksheet1.write_row(0, 0, header, header_format)
+    #
+    #     i = 1
+    #     for p in project_list:
+    #         fte_total = 0
+    #     salary_total = 0
+    #     ot_total = 0
+    #     om_total = 0
+    #     gc_total = 0
+    #     capital_total = 0
+    #
+    #     # first calc for staff
+    #     for staff in p.staff_members.all():
+    #     # exclude full time employees
+    #         if
+    #     staff.employee_type.id != 1 or staff.employee_type.id != 6:
+    #     # if salary
+    #     if staff.employee_type.cost_type is 1:
+    #         salary_total += nz(staff.cost, 0)
+    #     # if o&M
+    #     elif staff.employee_type.cost_type is 2:
+    #         om_total += nz(staff.cost, 0)
+    #
+    #     # include only FTEs
+    #     if staff.employee_type.id == 1 or staff.employee_type.id == 6:
+    #         fte_total += nz(staff.duration_weeks, 0)
+    #
+    #     ot_total += nz(staff.overtime_hours, 0)
+    #
+    #     # O&M costs
+    #     for cost in p.om_costs.all():
+    #         om_total += nz(cost.budget_requested, 0)
+    #
+    #     # Capital costs
+    #     for cost in p.capital_costs.all():
+    #         capital_total += nz(cost.budget_requested, 0)
+    #
+    #     # g&c costs
+    #     for cost in p.gc_costs.all():
+    #         gc_total += nz(cost.budget_requested, 0)
+    #
+    #     try:
+    #         budget_code = p.budget_code.code
+    #     except:
+    #         budget_code = "n/a"
+    #
+    #     try:
+    #         status = p.status.name
+    #     except:
+    #         status = "n/a"
+    #
+    #     try:
+    #         lead = str(["{} {}".format(lead.user.first_name, lead.user.last_name) for lead in p.staff_members.filter(lead=True)]).replace(
+    #             "[", "").replace("]", "").replace("'", "").replace('"', "")
+    #     except:
+    #         lead = "n/a"
+    #
+    #     try:
+    #         program = p.program.name
+    #     except:
+    #         program = "n/a"
+    #
+    #     try:
+    #         start = p.start_date.strftime('%Y-%m-%d')
+    #     except:
+    #         start = "n/a"
+    #
+    #     try:
+    #         end = p.end_date.strftime('%Y-%m-%d')
+    #     except:
+    #         end = "n/a"
+    #
+    #     try:
+    #         division = p.section.division.name
+    #     except:
+    #         division = "MISSING"
+    #
+    #     try:
+    #         section = p.section.name
+    #     except:
+    #         section = "MISSING"
+    #
+    #     data_row = [
+    #         p.id,
+    #         p.project_title,
+    #         division,
+    #         section,
+    #         program,
+    #         p.coding,
+    #         status,
+    #         lead,
+    #         yesno(p.approved),
+    #         start,
+    #         end,
+    #         p.description,
+    #         p.priorities,
+    #         p.deliverables,
+    #         p.data_collection,
+    #         p.data_sharing,
+    #         p.data_storage,
+    #         p.metadata_url,
+    #         p.regional_dm,
+    #         p.regional_dm_needs,
+    #         p.sectional_dm,
+    #         p.sectional_dm_needs,
+    #         p.vehicle_needs,
+    #         p.it_needs,
+    #         p.chemical_needs,
+    #         p.ship_needs,
+    #         fte_total,
+    #         salary_total,
+    #         ot_total,
+    #         om_total,
+    #         capital_total,
+    #         gc_total,
+    #         yesno(p.submitted),
+    #         yesno(p.section_head_approved, "yes,no,no"),
+    #     ]
+    #
+    #     # adjust the width of the columns based on the max string length in each col
+    #     ## replace col_max[j] if str length j is bigger than stored value
+    #
+    #     j = 0
+    #     for d in data_row:
+    #         # if new value > stored value... replace stored value
+    #         if len(str(d)) > col_max[j]:
+    #             if len(str(d)) < 100:
+    #                 col_max[j] = len(str(d))
+    #             else:
+    #                 col_max[j] = 100
+    #         j += 1
+    #
+    #     worksheet1.write_row(i, 0, data_row, normal_format)
+    #     i += 1
+    #
+    # for j in range(0, len(col_max)):
+    #     worksheet1.set_column(j, j, width=col_max[j] * 1.1)
+    #
+    # workbook.close()
+    # return target_url

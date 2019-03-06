@@ -2,3 +2,6 @@
 # TODO: reviewed field?
 # TODO: there should always be at least one project lead
 # TODO: should be a delete button in the staff form.. same for costs, collaborators, and agreements
+
+# TODO: pdf printout should ba able to export for a section
+# TODO: update translation

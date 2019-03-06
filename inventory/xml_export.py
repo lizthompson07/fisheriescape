@@ -1,6 +1,5 @@
 from django.db.models import Q
-from xml.etree.ElementTree import Element, SubElement, Comment, tostring, fromstring
-from xml.etree import ElementTree
+from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 from xml.dom import minidom
 from django.utils import timezone
 from . import models
@@ -10,7 +9,7 @@ from django.urls import reverse
 def prettify(elem):
     """Return a pretty-printed XML string for the Element.
     """
-    rough_string = ElementTree.tostring(elem, 'utf-8')
+    rough_string = tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ", encoding="utf-8")
 
@@ -554,7 +553,7 @@ class KeywordGroup:
         return descriptiveKeywords
 
 
-def construct(my_resource):
+def construct(my_resource, pretty=True):
     # ElementTree.register_namespace("gmd","http://www.isotc211.org/2005/gmd")
     # ElementTree.register_namespace("xsi","http://www.w3.org/2001/XMLSchema-instance")
 
@@ -592,9 +591,12 @@ def construct(my_resource):
         charstring(root, 'gmd:parentIdentifier', str(my_resource.parent.uuid))
 
     # ResourceType
-    codelist(root, "gmd:hierarchyLevel", "gmd:MD_ScopeCode",
-             "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_108",
-             my_resource.resource_type.code, my_resource.resource_type.label)
+    try:
+        codelist(root, "gmd:hierarchyLevel", "gmd:MD_ScopeCode",
+                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_108",
+                 my_resource.resource_type.code, my_resource.resource_type.label)
+    except AttributeError:
+        print("no resource_type")
 
     # responsible parties for metadata information
     gmd_contact = SubElement(root, 'gmd:contact')
@@ -633,7 +635,7 @@ def construct(my_resource):
     try:
         charstring(RS_Identifier, 'gmd:code', my_resource.spat_ref_system.code)
         charstring(RS_Identifier, 'gmd:codeSpace', my_resource.spat_ref_system.codespace)
-    except Exception as e:
+    except AttributeError:
         print("no spat_ref_system")
 
     # Data identification Info #
@@ -695,16 +697,22 @@ def construct(my_resource):
     charstring(MD_DataIdentification, 'gmd:purpose', my_resource.purpose_eng, my_resource.purpose_fre)
 
     # status
-    codelist(MD_DataIdentification, "gmd:status", "gmd:MD_ProgressCode",
-             "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_106", my_resource.status.code,
-             my_resource.status.label)
+    try:
+        codelist(MD_DataIdentification, "gmd:status", "gmd:MD_ProgressCode",
+                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_106", my_resource.status.code,
+                 my_resource.status.label)
+    except AttributeError:
+        print("no 'status'")
 
     # resource Maintenance
     MD_MaintenanceInformation = SubElement(SubElement(MD_DataIdentification, 'gmd:resourceMaintenance'),
                                            'gmd:MD_MaintenanceInformation')
-    codelist(MD_MaintenanceInformation, "gmd:maintenanceAndUpdateFrequency", "gmd:MD_MaintenanceFrequencyCode",
-             "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_102",
-             my_resource.maintenance.code, my_resource.maintenance.code)
+    try:
+        codelist(MD_MaintenanceInformation, "gmd:maintenanceAndUpdateFrequency", "gmd:MD_MaintenanceFrequencyCode",
+                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_102",
+                 my_resource.maintenance.code, my_resource.maintenance.code)
+    except AttributeError:
+        print("no 'maintenance'")
 
     # uncontrolled
     uncontrolled = KeywordGroup(my_resource, 4)
@@ -773,16 +781,19 @@ def construct(my_resource):
         codelist(MD_DataIdentification, "gmd:spatialRepresentationType", "gmd:MD_SpatialRepresentationTypeCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_109",
                  my_resource.spat_representation.code, my_resource.spat_representation.label)
-    except Exception as e:
+    except AttributeError:
         print("No 'spat_representation'")
 
         # language
     charstring(MD_DataIdentification, 'gmd:language', 'eng; CAN')
 
     # characterSet
-    codelist(MD_DataIdentification, "gmd:characterSet", "gmd:MD_CharacterSetCode",
-             "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_195",
-             my_resource.data_char_set.code, my_resource.data_char_set.label)
+    try:
+        codelist(MD_DataIdentification, "gmd:characterSet", "gmd:MD_CharacterSetCode",
+                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_195",
+                 my_resource.data_char_set.code, my_resource.data_char_set.label)
+    except AttributeError:
+        print("No 'data_char_set")
 
     # topic category
     topic_category = KeywordGroup(my_resource, 8)
@@ -869,11 +880,10 @@ def construct(my_resource):
         charstring(CI_OnlineResource, 'gmd:name', web_service.name_eng, web_service.name_fre)
         charstring(CI_OnlineResource, 'gmd:description', web_service.content_type.english_value,
                    web_service.content_type.french_value)
-
-    my_xml = prettify(root)
-    # my_xml = ""
-
-    return my_xml
+    if pretty:
+        return prettify(root)
+    else:
+        return ElementTree(root)
 
 
 def verify(resource):
@@ -1085,6 +1095,6 @@ def verify(resource):
         SubElement(checklist,
                    'li').text = "'Resource Constraints' is an optional field, but if entered, must be present in both languages"
 
-    return str(ElementTree.tostring(checklist, 'utf-8')).replace("b'", '').replace("&gt;", ">").replace("&lt;",
+    return str(tostring(checklist, 'utf-8')).replace("b'", '').replace("&gt;", ">").replace("&lt;",
                                                                                                         "<").replace(
         'b"', '')
