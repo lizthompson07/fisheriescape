@@ -128,8 +128,9 @@ class GCCostForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     FY_CHOICES = [(fy.id, str(fy)) for fy in models.FiscalYear.objects.all()]
     REPORT_CHOICES = (
-        (1, "Regional Project Planning Summary"),
         (2, "Project printout PDF"),
+        # (3, "Workplan summary spreadsheet"),
+        (1, "Master spreadsheet"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)

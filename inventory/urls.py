@@ -126,4 +126,15 @@ urlpatterns = [
     path('web-service/<int:pk>/edit/', views.WebServiceUpdateView.as_view(), name='web_service_edit'),
     path('web-service/<int:pk>/delete/', views.WebServiceDeleteView.as_view(), name='web_service_delete'),
 
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('reports/export-batch-xml/<str:sections>/', views.export_batch_xml, name="export_batch_xml"),
+
+    # path('reports/capacity-report/fy/<str:fy>/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
+    # path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
+    # path('reports/capacity-report/fy/<str:fy>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
+    # path('reports/capacity-report/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
+    # path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
+
 ]

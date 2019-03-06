@@ -88,12 +88,12 @@ class Person(models.Model):
 
 class Section(models.Model):
     # choices for region
-    GULF=1
-    MAR=2
-    QC=3
-    CA=4
-    PAC=5
-    NL=6
+    GULF = 1
+    MAR = 2
+    QC = 3
+    CA = 4
+    PAC = 5
+    NL = 6
     REGION_CHOICES = (
         (GULF, "Gulf"),
         (MAR, "Maritime"),
@@ -444,7 +444,7 @@ class DataResource(models.Model):
     url = models.URLField()
     name_eng = models.CharField(max_length=255, verbose_name="Name (English)")
     name_fre = models.CharField(max_length=255, verbose_name="Name (French)")
-    protocol = models.CharField(max_length=255, choices=PROTOCOL_CHOICES )
+    protocol = models.CharField(max_length=255, choices=PROTOCOL_CHOICES)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
 
     def __str__(self):
