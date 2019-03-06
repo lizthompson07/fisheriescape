@@ -18,20 +18,19 @@ def generate_batch_xml(sections):
     #################################
     # this will be the target dir of the zipfile
     zip_dir = os.path.join(settings.BASE_DIR, 'media', 'inventory', 'temp')
-    # this is the filename for the zip file
+    # this is the filename for the zip file (the zipping function will include the .zip extention)
     zip_filename = "temp_export_{}".format(timezone.now().strftime("%Y-%m-%d"))
     # this is the full path to the target zip file
     zip_file_path = os.path.join(zip_dir, zip_filename)
     # this is the url to the target zip file.. is what is returned by the function
-    target_url = os.path.join(settings.MEDIA_ROOT, 'inventory', 'temp', zip_filename)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'inventory', 'temp', "{}.zip".format(zip_filename))
     # this will be the target dir of the xml files
     xml_dir = os.path.join(settings.BASE_DIR, 'media', 'inventory', 'temp', 'zipdir')
 
-
-    # clean out the zip_dir directory
+    # clean out the zip_dir directory and subdir
     for root, dirs, files in os.walk(zip_dir):
         for file in files:
-            os.remove(file)
+            os.remove(os.path.join(root,file))
 
     # start with all resources
     resource_list = models.Resource.objects.all()
@@ -57,26 +56,3 @@ def generate_batch_xml(sections):
 
     return target_url
 
-
-def export_resource_xml(request, resource, publish):
-    # grab resource instance
-    my_resource = models.Resource.objects.get(pk=resource)
-
-    if publish == "yes":
-        my_resource.fgp_publication_date = timezone.now()
-        my_resource.flagged_4_publication = False
-
-        my_resource.save()
-
-    # Create the HttpResponse object
-    filename = "xml_metadata_export_{}.xml".format(my_resource.id)
-    response = HttpResponse(content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-
-    # pass the object to the xml builder module
-    xml_data = xml_export.construct(my_resource)
-
-    response.write(xml_data)
-    # print(xml_data)
-    return response
-    #
