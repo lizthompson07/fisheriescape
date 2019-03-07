@@ -4,6 +4,7 @@ import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
@@ -271,7 +272,7 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
             project.section.division.abbrev,
             project.section.abbrev,
             project.id,
-            str(project.project_title).title().replace(" ","")[:10],
+            str(project.project_title).title().replace(" ", "")[:10],
         )
 
         return pdf_filename
@@ -854,10 +855,17 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
             "capital_abase",
             "capital_bbase",
             "capital_cbase",
+            "students",
+            "casuals",
+            "OT",
         ]
 
         for project in project_list:
             context["financial_summary_data"][project.id] = financial_summary_data(project)
+            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(employee_type=4).count()
+            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(employee_type=3).count()
+            context["financial_summary_data"][project.id]["OT"] = nz(project.staff_members.values("overtime_hours").order_by(
+                "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"],0)
 
             # for sections
             try:
@@ -916,8 +924,9 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
         # get a list of the agreements
         # context["agreement_list"] = [agreement for project in project_list.order_by("section__division", "section", "project_title")
         #                              for agreement in project.agreements.all()]
-        context["agreement_list"] = [agreement for agreement in models.CollaborativeAgreement.objects.filter(project__submitted=True).filter(
-            project__section_head_approved__isnull=False)]
+        context["agreement_list"] = [agreement for agreement in
+                                     models.CollaborativeAgreement.objects.filter(project__submitted=True).filter(
+                                         project__section_head_approved__isnull=False)]
 
         return context
 
