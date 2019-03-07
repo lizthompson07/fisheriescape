@@ -3,9 +3,15 @@
 
 
 {% block content %}
+    {% if user.is_authenticated %}
+        {% url 'inventory:my_resource_list' as home_url %}
+    {% else %}
+        {% url 'inventory:resource_list' as home_url %}
+    {% endif %}
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a
                         href="{% url 'inventory:resource_detail' object.resource.id %}">{{ object.resource.truncated_title }}</a>

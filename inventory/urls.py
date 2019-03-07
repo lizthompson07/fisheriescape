@@ -31,6 +31,7 @@ urlpatterns = [
     path('<int:resource>/insert-person/new/', views.PersonCreateView.as_view(), name="person_add"),
     path('insert-person/new/', views.PersonCreateViewPopout.as_view(), name="person_add_popout"),
     path('<int:resource>/person/<int:person>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
+    path('person/<int:person>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
 
     # RESOURCE KEYWORD #
     ####################
@@ -72,7 +73,6 @@ urlpatterns = [
     ################
     path('<int:resource>/xml/export/publish-<slug:publish>/', views.export_resource_xml, name="export_xml"),
     path('<int:resource>/xml/export/', views.export_resource_xml, name="export_xml"),
-    path('<int:pk>/verify-completedness/', views.VerifyCompletednessDetailView.as_view(), name="verify_readiness"),
 
     # DATA MANAGEMENT ADMIN #
     #########################

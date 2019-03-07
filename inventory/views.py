@@ -542,9 +542,15 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
     form_class = forms.PersonForm
 
     def get_success_url(self):
-        return reverse_lazy('inventory:resource_detail', kwargs={
-            'pk': self.kwargs['resource'],
-        })
+        try:
+            self.kwargs['resource']
+        except KeyError:
+            print("no resource id")
+            return reverse_lazy('inventory:my_resource_list')
+        else:
+            return reverse_lazy('inventory:resource_detail', kwargs={
+                'pk': self.kwargs['resource'],
+            })
 
     def get_initial(self):
         person = models.Person.objects.get(pk=self.kwargs['person'])
@@ -597,8 +603,12 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource'] = resource
+        try:
+            resource = models.Resource.objects.get(id=self.kwargs['resource'])
+            context['resource'] = resource
+        except KeyError:
+            print("no resource id")
+
         person = models.Person.objects.get(user_id=self.kwargs['person'])
         context['person'] = person
         return context
@@ -892,25 +902,6 @@ class PublicationCreateView(LoginRequiredMixin, CreateView):
 # XML GOODNESS #
 ################
 
-class VerifyCompletednessDetailView(DetailView):
-    template_name = 'inventory/resource_verification.html'
-    model = models.Resource
-    
-    def dispatch(self, request, *args, **kwargs):
-        xml_export.verify(models.Resource.objects.get(pk=self.kwargs["pk"]))
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"]=[
-            "completedness_report",
-            "completedness_rating",
-            "translation_needed",
-        ]
-
-        return context
-
-
 def export_resource_xml(request, resource, publish):
     # grab resource instance
     my_resource = models.Resource.objects.get(pk=resource)
@@ -991,7 +982,8 @@ class DataManagementCustodianDetailView(InventoryDMRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.object.resource_people.filter(role=1)
-        email = emails.CertificationRequestEmail(self.object)
+        me = models.Person.objects.get(user=User.objects.get(pk=self.request.user.id))
+        email = emails.CertificationRequestEmail(me, self.object)
         context['queryset'] = queryset
         context['email'] = email
         context['now'] = timezone.now()
@@ -1003,7 +995,8 @@ def send_certification_request(request, person):
     # grab a copy of the resource
     my_person = models.Person.objects.get(pk=person)
     # create a new email object
-    email = emails.CertificationRequestEmail(my_person)
+    me = models.Person.objects.get(user=User.objects.get(pk=self.request.user.id))
+    email = emails.CertificationRequestEmail(me, my_person)
     # send the email object
     if settings.MY_ENVR != 'dev':
         send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
@@ -1120,7 +1113,8 @@ class SectionDetailView(InventoryDMRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.object.unit_head:
-            email = emails.SectionReportEmail(self.object.unit_head, self.object)
+            me = models.Person.objects.get(user=User.objects.get(pk=self.request.user.id))
+            email = emails.SectionReportEmail(me, self.object.unit_head, self.object)
             context['email'] = email
         context['now'] = timezone.now()
         return context
@@ -1131,7 +1125,8 @@ def send_section_report(request, section):
     my_section = models.Section.objects.get(pk=section)
     my_person = my_section.unit_head
     # create a new email object
-    email = emails.SectionReportEmail(my_person, my_section)
+    me = models.Person.objects.get(user=User.objects.get(pk=request.user.id))
+    email = emails.SectionReportEmail(me, my_person, my_section)
     # send the email object
     if settings.MY_ENVR != 'dev':
         send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
