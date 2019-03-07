@@ -1,6 +1,7 @@
 {% extends "inventory/inventory_base.html" %}
 {% load static %}
 {% load verbose_names %}
+{% load custom_filters %}
 
 {% block content %}
     <style media="screen">
@@ -55,20 +56,9 @@
                         Open Data</a>
                 {% endif %}
 
+                <a class="btn btn-sm btn-primary" href="#" data-toggle="modal" data-target="#completedness">Completedness Report</a>
+                <a class="btn btn-sm btn-dark" href="#" data-toggle="modal" data-target="#hnap">Export XML</a>
 
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-dark dropdown-toggle" type="button" id="dropdownMenuButton"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Export XML
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#"
-                           onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')">Verify
-                            Completedness</a>
-                        <a href="#" class="dropdown-item" data-toggle="modal" data-target="#hnap"> HNAP </a>
-
-                    </div>
-                </div>
             </div>
 
             {% if user.is_superuser %}
@@ -84,24 +74,15 @@
 
                     <div class="modal-body">
                         {% if verified %}
-                            <p>
                             <h1>Are you going to publish this record to FGP?</h1>
-                            </p>
-                            <p>
+                            <br>
                             <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3>
-                            <br><br>
-                            </p>
-
+                            <br>
                         {% else %}
-                            <p>
-                            <h1>Just a heads up: this record did not pass the verification test</h1>
-                            </p>
-                            <p>
-                            <h3>Click <a
-                                    onclick="return popitup('{% url 'inventory:verify_readiness' object.id %}','popItOut')"
-                                    href="#">HERE</a> to see what still needs to be addressed.</h3><br><br>
-                            </p>
-
+                            <h1>Just a heads up: this record is not considered complete.</h1>
+                            <br>
+                            <h3>Here is what still needs to be addressed:</h3>
+                            {{ object.completedness_report|safe }}
                         {% endif %}
                     </div>
                     <div class="modal-footer">
@@ -110,16 +91,43 @@
                                href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
                             <a class="btn btn-lg btn-primary closeBtn"
                                href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
-                            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole
-                                Thing
-                            </button>
+                            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole Thing</button>
                         {% else %}
                             <a class="btn btn-lg btn-warning closeBtn"
                                href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
-                            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind
-                            </button>
+                            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind</button>
                         {% endif %}
 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {#<!-- COMPLETEDNESS MODAL -->#}
+        <div class="modal fade" id="completedness" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-body">
+                        {% if verified %}
+                            <div class="text-center">
+                                <img src="{% static 'img/inventory/good to go.jpg' %}" alt="">
+                            </div>
+                        {% else %}
+                            <h1> This record is <span class="blue-font">{{ object.completedness_rating|percentage:0 }}</span> complete.</h1>
+                            {% if object.translation_needed %}
+                                <br><h1>It seems as though there is a need for translation.</h1>
+                            {% endif %}
+                            <br><h1>Here is what still needs to be addressed:</h1>
+                            <span class="red-font">
+                                {{ object.completedness_report|safe }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -167,8 +175,6 @@
                     Web Service</a>
                 {% include "inventory/_resource_detail_web_services.html" %}
                 <br>
-
-
 
 
             </div>
@@ -226,8 +232,7 @@
         $(".collapse-btn").click(function () {
             if ($(this).text() == "Expand") {
                 $(this).text("Collapse")
-            }
-            else {
+            } else {
                 $(this).text("Expand")
             }
         })

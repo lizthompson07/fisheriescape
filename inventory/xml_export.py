@@ -1,7 +1,11 @@
+import html
+
 from django.db.models import Q
 from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 from xml.dom import minidom
 from django.utils import timezone
+
+from lib.templatetags.custom_filters import nz
 from . import models
 from django.urls import reverse
 
@@ -17,7 +21,7 @@ def prettify(elem):
 def charstring(root, level_1_tag, text_eng, text_fre=None):
     """Takes in the root and creates a charstring tag in the root. If text_fre is missing it will be a unilingual element.
         """
-    if text_fre == None:
+    if text_fre is None:
         level_1 = SubElement(root, level_1_tag)
         CharacterString = SubElement(level_1, 'gco:CharacterString').text = text_eng
     else:
@@ -106,7 +110,7 @@ def ci_responsible_party(resource_person):
 def descriptive_keyword(keyword):
     """ returns an xml block for a single keyword
     """
-    if keyword.text_value_fre == None:
+    if keyword.text_value_fre is None:
         print("There is no french version of the keyword '{}'".format(keyword.text_value_eng))
 
     root = Element('gmd:keyword', attrib={
@@ -141,7 +145,7 @@ class SupplemantInformation:
         # parameters collected
         if self.resource.parameters_collected_eng != None and self.resource.parameters_collected_eng != "":
             xml_temp = "PARAMETERS COLLECTED:\n{}".format(self.resource.parameters_collected_eng)
-            if xml_block == None:
+            if xml_block is None:
                 xml_block = xml_temp
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
@@ -149,7 +153,7 @@ class SupplemantInformation:
         # QC process description
         if self.resource.qc_process_descr_eng != None and self.resource.qc_process_descr_eng != "":
             xml_temp = "NOTES ON QUALITY CONTROL:\n{}".format(self.resource.qc_process_descr_eng)
-            if xml_block == None:
+            if xml_block is None:
                 xml_block = xml_temp
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
@@ -157,7 +161,7 @@ class SupplemantInformation:
         # Physical sample description
         if self.resource.physical_sample_descr_eng != None and self.resource.physical_sample_descr_eng != "":
             xml_temp = "PHYSICAL SAMPLE DETAILS:\n{}".format(self.resource.physical_sample_descr_eng)
-            if xml_block == None:
+            if xml_block is None:
                 xml_block = xml_temp
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
@@ -172,7 +176,7 @@ class SupplemantInformation:
                     citation_list = "{}\n\n{}".format(citation_list, citation.short_citation)
 
             xml_temp = "CITATION LIST:\n{}".format(citation_list)
-            if xml_block == None:
+            if xml_block is None:
                 xml_block = xml_temp
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
@@ -183,7 +187,7 @@ class SupplemantInformation:
         # parameters collected
         if self.resource.parameters_collected_fre != None and self.resource.parameters_collected_fre != "":
             xml_temp = "PARAMÈTRES COLLECTÉS :\n{}".format(self.resource.parameters_collected_fre)
-            if xml_block == None:
+            if xml_block is None:
                 xml_block = xml_temp
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
@@ -191,7 +195,7 @@ class SupplemantInformation:
         # QC process description
         if self.resource.qc_process_descr_fre != None and self.resource.qc_process_descr_fre != "":
             xml_temp = "NOTES SUR LE CONTRÔLE DE QUALITÉ :\n{}".format(self.resource.qc_process_descr_fre)
-            if xml_block == None:
+            if xml_block is None:
                 xml_block = xml_temp
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
@@ -199,7 +203,7 @@ class SupplemantInformation:
         # Physical sample description
         if self.resource.physical_sample_descr_fre != None and self.resource.physical_sample_descr_fre != "":
             xml_temp = "DÉTAILS DE L'ÉCHANTILLON PHYSIQUE :\n{}".format(self.resource.physical_sample_descr_fre)
-            if xml_block == None:
+            if xml_block is None:
                 xml_block = xml_temp
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
@@ -214,7 +218,7 @@ class SupplemantInformation:
                     citation_list = "{}\n\n{}".format(citation_list, citation.short_citation)
 
             xml_temp = "LISTE DE RÉFÉRENCE :\n{}".format(citation_list)
-            if xml_block == None:
+            if xml_block is None:
                 xml_block = xml_temp
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
@@ -657,7 +661,7 @@ def construct(my_resource, pretty=True):
              "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_87", "RI_366",
              "creation; création")
 
-    if my_resource.fgp_publication_date == None:  # only pass in a publication date, which would be the current time
+    if my_resource.fgp_publication_date is None:  # only pass in a publication date, which would be the current time
 
         # publication date
         CI_Date = SubElement(SubElement(CI_Citation, 'gmd:date'), 'gmd:CI_Date')
@@ -872,7 +876,7 @@ def construct(my_resource, pretty=True):
         MD_DigitalTransferOptions = SubElement(transferOptions, 'gmd:MD_DigitalTransferOptions')
         onLine = SubElement(MD_DigitalTransferOptions, 'gmd:onLine', attrib={
             'xlink:role': web_service.service_language,
-            })
+        })
         CI_OnlineResource = SubElement(onLine, 'gmd:CI_OnlineResource')
         linkage = SubElement(CI_OnlineResource, 'gmd:linkage')
         URL = SubElement(linkage, 'gmd:URL').text = web_service.url
@@ -887,214 +891,293 @@ def construct(my_resource, pretty=True):
 
 
 def verify(resource):
-    checklist = Element('ul')
+    fields_to_check = [
+        'uuid',
+        'time_start_year',
+        'west_bounding',
+        'south_bounding',
+        'east_bounding',
+        'north_bounding',
+        'distribution_format',
 
-    # Has record been verified?
-    if resource.certification_history.count() == 0:
-        SubElement(checklist, "li").text = 'This record has not been certified'
+        # bilingual fields
+        '?title_',
+        '?descr_',
+        '?purpose_',
+        '?geo_descr_',
+        '?security_use_limitation_',
 
-    # if there is no point of contact it should be david
-    if resource.resource_people.filter(role_id=4) == 0:
-        SubElement(checklist, "li").text = "At least one point-of-contact is needed"
+        # must check for fk and attribute
+        '.resource_type.code',  # both fk and code attr
+        '.status.code',  # both fk and code attr
+        '.spat_ref_system.code',  # both fk and code and codespace attr
+        '.spat_ref_system.codespace',  # both fk and code and codespace attr
+        '.spat_representation.code',  # both fk and code attr
+        '.data_char_set.code',
+        '.maintenance.code',
+        '.security_classification.code',
 
-    # if there is no custodian it should added
-    if resource.resource_people.filter(role_id=1) == 0:
-        SubElement(checklist, "li").text = "At least one custodian is needed"
+        # filters and counters; must have at least one of these
+        'keywords|6',  # CST
+        'keywords|7',  # dfo area
+        'keywords|8',  # Topic category
+        'resource_people|4',  # point of contact
+        'resource_people|1',  # custodian
+        'certification_history|',
+        'data_resources|',
+        'web_services|',
 
-    for person in resource.people.all():
+        # will check all keywords associated with resource
+        '*keyword.text_value_',  # special keywords function will be called
 
-        # first check if there is an org present
-        if person.organization == None:
-            SubElement(checklist, 'li').text = "An organization is needed for {}".format(person)
-        else:
-            # do all contacts have org name in eng and fre?
-            if person.organization.name_eng == None or person.organization.name_eng == "":
-                SubElement(checklist, 'li').text = "An English organization name is needed for {}".format(person)
-            if person.organization.name_fre == None or person.organization.name_fre == "":
-                SubElement(checklist, 'li').text = "A French organization name is needed for {}".format(person)
+        # will check all people associated with resource
+        '*person.organization',
+        '*person.organization.name_',
+        '*person.organization.location',
+        '*person.organization.location.location_',
+        '*person.position_',
+        '*person.user.email',
 
-            # check if there is an organization has a location
-            if person.organization.location == None:
-                SubElement(checklist,
-                           'li').text = "A location is needed for '{}' which is the organization belonging to {}".format(
-                    person.organization, person)
-            else:
-                # do all contacts have location in eng and fre?
-                if person.organization.location.location_eng == None:
-                    SubElement(checklist, 'li').text = "An English organization location is needed for {}".format(
-                        person)
-                if person.organization.location.location_fre == None:
-                    SubElement(checklist, 'li').text = "A French organization location is needed for {}".format(person)
+        # optional fields; denoted by dollar sign $
+        # these fields are optional but must be bilingual
+        '$qc_process_descr_',  # QC process
+        '$physical_sample_descr_',  # Physical Sample Description
+        '$parameters_collected_',  # Parameters Collected
+        '$sampling_method_',  # sampling method
+        '$resource_constraint_',  # resource constraint
+    ]
 
-        # do all contacts have position name in eng and fre?
-        if person.position_eng is None or person.position_eng == "":
-            SubElement(checklist, 'li').text = "An English position name is needed for {}".format(person)
-        if person.position_fre is None or person.position_fre == "":
-            SubElement(checklist, 'li').text = "A French position name is needed for {}".format(person)
+    # this is where we will store the feedback
+    checklist = []
+    # figure out the max possible score for completedness: number of fields, minus fields species to people and keywords,
+    # plus number of keywords times number of fields for keywords (excluding ISO topic category, which are populated by FGP)
+    # plus number of people times number of fields for people
+    # note: any field ending in '_' represents two fields and thus should be counted twice
 
-        # do all contacts have email?
-        if person.user.email == None:
-            SubElement(checklist, 'li').text = "An email address is needed for {}".format(person)
+    special_keyword_fields = len([f for f in fields_to_check if f.startswith("*keyword")])
+    special_bilingual_keyword_fields = len([f for f in fields_to_check if f.startswith("*keyword") and f.endswith("_")])
+    true_count_of_special_keyword_fields = special_keyword_fields - special_bilingual_keyword_fields + (
+            special_bilingual_keyword_fields * 2)
 
-    # Title
-    if resource.title_eng == None or resource.title_eng == "":
-        SubElement(checklist, 'li').text = "English title missing"
-    if resource.title_fre == None or resource.title_fre == "":
-        SubElement(checklist, 'li').text = "French title missing"
+    special_person_fields = len([f for f in fields_to_check if f.startswith("*person")])
+    special_bilingual_person_fields = len([f for f in fields_to_check if f.startswith("*person") and f.endswith("_")])
+    true_count_of_special_person_fields = special_person_fields - special_bilingual_person_fields + (special_bilingual_person_fields * 2)
 
-    # description
-    if resource.descr_eng == None or resource.descr_eng == "":
-        SubElement(checklist, 'li').text = "English description missing"
-    if resource.descr_fre == None or resource.descr_fre == "":
-        SubElement(checklist, 'li').text = "French description missing"
+    bilinugal_fields = len([f for f in fields_to_check if f.startswith("?") or f.startswith("$")])  # will include the optional fields
+    true_count_of_bilinugal_fields = bilinugal_fields * 2
 
-    # purpose
-    if resource.purpose_eng == None or resource.purpose_eng == "":
-        SubElement(checklist, 'li').text = "English purpose missing"
-    if resource.purpose_fre == None or resource.purpose_fre == "":
-        SubElement(checklist, 'li').text = "French purpose missing"
+    fk_fields = len([f for f in fields_to_check if f.startswith(".")])
+    true_count_of_fk_fields = fk_fields * 2  # because will be essentially checking for two fields.. the fk and the attr
 
-    # file identifier
-    if resource.uuid == None:
-        SubElement(checklist, 'li').text = "file identifier (uuid) missing"
+    max_rating = len(fields_to_check) - \
+                 (special_keyword_fields + special_person_fields + bilinugal_fields + fk_fields) + \
+                 (resource.people.count() * true_count_of_special_person_fields) + \
+                 (resource.keywords.filter(~Q(keyword_domain_id=8)).count() * true_count_of_special_keyword_fields) + \
+                 true_count_of_bilinugal_fields + \
+                 true_count_of_fk_fields + 1  # the +1 at the end is for the eng and fre web-service
 
-    # resource type
-    if resource.resource_type_id == None:
-        SubElement(checklist, 'li').text = "resource type missing"
-    elif resource.resource_type.code == None:
-        SubElement(checklist, 'li').text = "resource type code missing"
+    # start optimistic: full rating and translation is not needed
+    rating = max_rating
+    translation_needed = False
 
-    # status
-    if resource.status_id == None:
-        SubElement(checklist, 'li').text = "status missing"
-    elif resource.status.code == None:
-        SubElement(checklist, 'li').text = "status code missing"
+    for field in fields_to_check:
+        # starting with the most simple case: unilingual fields of resource
+        if "$" not in field and "|" not in field and "." not in field and "_" not in field and "?" not in field:
+            field_value = nz(getattr(resource, field), None)
+            verbose_name = resource._meta.get_field(field).verbose_name
+            if field_value is None:
+                checklist.append("A value for {} is missing.".format(verbose_name))
+                rating = rating - 1
+        # next lets deal with the simple bilingual fields
+        elif field.startswith("?"):
+            # for check to see if there is a value
+            clean_field = field.replace("?", "")
+            field_eng = "{}eng".format(clean_field)
+            field_fre = "{}fre".format(clean_field)
+            field_value_eng = nz(getattr(resource, field_eng), None)
+            field_value_fre = nz(getattr(resource, field_fre), None)
+            verbose_name_eng = resource._meta.get_field(field_eng).verbose_name
+            verbose_name_fre = resource._meta.get_field(field_fre).verbose_name
 
-    # Spatial Reference System
-    if resource.spat_ref_system_id == None:
-        SubElement(checklist, 'li').text = "Spatial Reference System missing"
-    elif resource.spat_ref_system.code == None:
-        SubElement(checklist, 'li').text = "Spatial Reference System code missing"
-    elif resource.spat_ref_system.codespace == None:
-        SubElement(checklist, 'li').text = "Spatial Reference System codespace missing"
+            # check english field
+            if field_value_eng is None:
+                checklist.append("A value for {} is missing.".format(verbose_name_eng))
+                rating = rating - 1
 
-    # Spatial Representation Type
-    if resource.spat_representation_id == None:
-        SubElement(checklist, 'li').text = "Spatial Representation Type missing"
-    elif resource.spat_representation.code == None:
-        SubElement(checklist, 'li').text = "Spatial Representation Type code missing"
+            # check french field
+            if field_value_fre is None:
+                checklist.append("A value for {} is missing.".format(verbose_name_fre))
+                rating = rating - 1
 
-    # start time period
-    if resource.time_start_year == None or resource.time_start_year == "":
-        SubElement(checklist, 'li').text = "start time pertiod missing"
+            # now do a special bilingual field check to see if translation is needed
+            if (field_value_eng is not None and field_value_fre is None) or (field_value_eng is None and field_value_fre is not None):
+                translation_needed = True
 
-    # geographic description
-    if resource.geo_descr_eng == None or resource.geo_descr_eng == "":
-        SubElement(checklist, 'li').text = "English geographic description missing"
-    if resource.geo_descr_fre == None or resource.geo_descr_fre == "":
-        SubElement(checklist, 'li').text = "French geographic description missing"
 
-    # west bound
-    if resource.west_bounding == None or resource.west_bounding == "":
-        SubElement(checklist, 'li').text = "west bounding coordinate missing"
+        # next lets deal with optional fields
+        elif field.startswith("$"):
+            # for check to see if there is a value
+            clean_field = field.replace("$", "")
+            field_eng = "{}eng".format(clean_field)
+            field_fre = "{}fre".format(clean_field)
+            field_value_eng = nz(getattr(resource, field_eng), None)
+            field_value_fre = nz(getattr(resource, field_fre), None)
+            verbose_name_eng = resource._meta.get_field(field_eng).verbose_name
+            verbose_name_fre = resource._meta.get_field(field_fre).verbose_name
 
-    # south bound
-    if resource.south_bounding == None or resource.south_bounding == "":
-        SubElement(checklist, 'li').text = "south bounding coordinate missing"
+            # now do a special bilingual field check to see if translation is needed
+            if (field_value_eng is not None and field_value_fre is None) or (field_value_eng is None and field_value_fre is not None):
+                checklist.append(
+                    "'{}' is an optional field, but if entered, must be present in both languages".format(clean_field.replace("_", "")))
+                rating = rating - 1
+                translation_needed = True
 
-    # east bound
-    if resource.east_bounding == None or resource.east_bounding == "":
-        SubElement(checklist, 'li').text = "east bounding coordinate missing"
+        # next lets deal with foreign keys
+        elif field.startswith("."):
+            field_split = field.split(".")[1:]  # discard the first item
+            fk_field = field_split[0]
+            attr_field = field_split[1]
 
-    # north bound
-    if resource.north_bounding == None or resource.north_bounding == "":
-        SubElement(checklist, 'li').text = "north bounding coordinate missing"
+            # first check for fk value
+            if nz(getattr(resource, fk_field), None) is None:
+                checklist.append("A selection for {} is missing.".format(resource._meta.get_field(fk_field).verbose_name))
+                rating = rating - 1
+            #   otherwise check for attr value
+            elif nz(getattr(getattr(resource, fk_field), attr_field), None) is None:
+                verbose_name_fk = resource._meta.get_field(fk_field).verbose_name
+                verbose_name_attr = getattr(resource, fk_field)._meta.get_field(attr_field).verbose_name
+                checklist.append(
+                    "The {} for {} is missing. Please contact your system administrator to have this fixed".format(verbose_name_attr,
+                                                                                                                   verbose_name_fk))
+                rating = rating - 1
 
-    # distribution format
-    if resource.distribution_format == None or resource.distribution_format == "":
-        SubElement(checklist, 'li').text = "distribution format missing"
+        # deal with filters and counts
+        elif "|" in field:
+            field_list = field.split("|")
+            field = field_list[0]
+            my_filter = field_list[1]
 
-    # data character set
-    if resource.data_char_set_id == None:
-        SubElement(checklist, 'li').text = "data character set missing"
-    elif resource.data_char_set.code == None:
-        SubElement(checklist, 'li').text = "data character set code missing"
+            if field == 'certification_history':
+                if resource.certification_history.count() == 0:
+                    checklist.append('This record has not been certified')
+                    rating = rating - 1
+            elif field == 'keywords':
+                keyword_domain = models.KeywordDomain.objects.get(pk=my_filter)
+                if resource.keywords.filter(keyword_domain=keyword_domain).count() == 0:
+                    checklist.append("At least one {} keyword is needed.".format(keyword_domain))
+                    rating = rating - 1
+            elif field == 'resource_people':
+                role = models.PersonRole.objects.get(pk=my_filter)
+                if resource.resource_people.filter(role=role) == 0:
+                    checklist.append("At least one {} is needed.".format(role))
+                    rating = rating - 1
+            elif field == 'data_resources':
+                if resource.data_resources.count() == 0:
+                    checklist.append('There has to be at least one data resource attached to the record')
+                    rating = rating - 1
+            elif field == 'web_services':
+                if resource.web_services.filter(service_language="urn:xml:lang:eng-CAN").count() == 0:
+                    checklist.append('There has to be an English web service')
+                    rating = rating - 1
+                if resource.web_services.filter(service_language="urn:xml:lang:fra-CAN").count() == 0:
+                    checklist.append('There has to be a French web service')
+                    rating = rating - 1
 
-    # maintenance frequency
-    if resource.maintenance_id == None:
-        SubElement(checklist, 'li').text = "maintenance frequency missing"
-    elif resource.maintenance.code == None:
-        SubElement(checklist, 'li').text = "maintenance frequency code missing"
+        # next lets deal with special cases. This is the messiest one
+        elif field.startswith("*"):
+            field_split = field.replace("*", "").split(".")
 
-    # Are all keywords bilingual?
-    ## examine all keywords, excluding ISO topic category which will be handled explicitly by FGP
-    for keyword in resource.keywords.filter(~Q(keyword_domain_id=8)):
-        if keyword.text_value_fre == None or keyword.text_value_fre == "":
-            SubElement(checklist, 'li').text = 'French value for keyword is needed for <a href="{}">{}</a>'.format(
-                reverse('inventory:keyword_detail', kwargs={'resource': resource.id, 'pk': keyword.id, }),
-                keyword.text_value_eng
-            )
-        elif keyword.text_value_eng == None or keyword.text_value_eng == "":
-            SubElement(checklist, 'li').text = "English value for keyword is needed for '{}'".format(
-                keyword.text_value_fre)
+            # the easier of the two is keywords. we must check to see if they are all bilingual
+            if field_split[0] == "keyword":
+                # I am taking the "easy" road and am hardcoding the test
 
-    # DFO area?
-    if resource.keywords.filter(keyword_domain_id=7).count() == 0:
-        SubElement(checklist, 'li').text = "DFO area needed"
+                # examine all keywords, excluding ISO topic category which will be handled by FGP
+                for keyword in resource.keywords.filter(~Q(keyword_domain_id=8)):
+                    if keyword.text_value_fre is None or keyword.text_value_fre == "":
+                        checklist.append('French value for keyword is needed for <a href="{}">{}</a>'.format(
+                            reverse('inventory:keyword_detail', kwargs={'resource': resource.id, 'pk': keyword.id, }),
+                            keyword.text_value_eng
+                        ))
+                        rating = rating - 1
+                        translation_needed = True
 
-    # Topic category?
-    if resource.keywords.filter(keyword_domain_id=8).count() == 0:
-        SubElement(checklist, 'li').text = "Topic category needed"
+                    elif keyword.text_value_eng is None or keyword.text_value_eng == "":
+                        checklist.append("English value for keyword is needed for '{}'".format(
+                            keyword.text_value_fre))
+                        rating = rating - 1
+                        translation_needed = True
+            elif field_split[0] == "person":
+                for person in resource.people.all():
+                    if field_split[1] == "organization":
+                        if len(field_split) == 2:  # means we are looking at the fk
+                            if person.organization is None:
+                                checklist.append("An organization for {} is missing.".format(person))
+                                rating = rating - 1
+                        elif field_split[2].startswith("name"):  # means we are looking at the org name
+                            # if there is no organization, this will produce an error
+                            try:
+                                if person.organization.name_eng is None or person.organization.name_eng == "":
+                                    checklist.append("An English organization name is needed for {}".format(person))
+                                    rating = rating - 1
+                                    translation_needed = True
+                                if person.organization.name_fre is None or person.organization.name_fre == "":
+                                    checklist.append("A French organization name is needed for {}".format(person))
+                                    rating = rating - 1
+                                    translation_needed = True
+                            except AttributeError:
+                                # two points are lost
+                                rating = rating - 2
+                        elif field_split[2].startswith("loc") and len(field_split) == 3:  # means we are looking at the fk
+                            try:
+                                if person.organization.location is None:
+                                    checklist.append("A location is needed for '{}' which is the organization belonging to {}".format(
+                                        person.organization, person))
+                                    rating = rating - 1
+                            except AttributeError:
+                                # one point is lost
+                                rating = rating - 1
 
-    # CST?
-    if resource.keywords.filter(keyword_domain_id=6).count() == 0:
-        SubElement(checklist, 'li').text = "Core Subject needed"
+                        elif field_split[2].startswith("loc") and field_split[3].startswith(
+                                "loc"):  # means we are looking at the location name
+                            # if there is no organization location, this will produce an error
+                            try:
+                                if person.organization.location.location_eng is None:
+                                    checklist.append("An English organization location is needed for {}".format(person))
+                                    rating = rating - 1
+                                    translation_needed = True
+                                if person.organization.location.location_fre is None:
+                                    checklist.append("A French organization location is needed for {}".format(person))
+                                    rating = rating - 1
+                                    translation_needed = True
+                            except AttributeError:
+                                # two points are lost
+                                rating = rating - 2
 
-    # security use limitation (techincally optional)
-    if resource.security_use_limitation_eng == None or resource.security_use_limitation_eng == "":
-        SubElement(checklist, 'li').text = "English security use limitation missing"
-    if resource.security_use_limitation_fre == None or resource.security_use_limitation_fre == "":
-        SubElement(checklist, 'li').text = "French security use limitation missing"
+                    elif field_split[1].startswith("position"):
+                        if person.position_eng is None or person.position_eng == "":
+                            checklist.append("An English position name is needed for {}".format(person))
+                            rating = rating - 1
+                        if person.position_fre is None or person.position_fre == "":
+                            checklist.append("A French position name is needed for {}".format(person))
+                            rating = rating - 1
 
-    # security classification (techincally optional)
-    if resource.security_classification_id == None:
-        SubElement(checklist, 'li').text = "security classification missing"
-    elif resource.security_classification.code == None:
-        SubElement(checklist, 'li').text = "security classification code missing"
+                        # now do a special bilingual field check to see if translation is needed
+                        if (person.position_eng is not None and person.position_fre is None) or (
+                                person.position_eng is None and person.position_fre is not None):
+                            translation_needed = True
 
-    #  Checks on Optional fields #
-    ##############################
+                    elif field_split[1].startswith("user"):
+                        if person.user.email is None:
+                            checklist.append("An email address is needed for {}".format(person))
+                            rating = rating - 1
 
-    # QC process
-    if (resource.qc_process_descr_eng != None and resource.qc_process_descr_fre == None) or (
-            resource.qc_process_descr_eng == None and resource.qc_process_descr_fre != None):
-        SubElement(checklist,
-                   'li').text = "'QC Process description' is an optional field, but if entered, must be present in both languages"
+    html_list = ""
+    for item in checklist:
+        html_list += "<li>{}</li>".format(item)
+    html_list = "<ul>{}</ul>".format(html_list)
+    resource.completedness_report = html_list
+    resource.completedness_rating = rating / max_rating
+    resource.translation_needed = translation_needed
+    resource.save()
 
-    # Physical Sample Description
-    if (resource.physical_sample_descr_eng != None and resource.physical_sample_descr_fre == None) or (
-            resource.physical_sample_descr_eng == None and resource.physical_sample_descr_fre != None):
-        SubElement(checklist,
-                   'li').text = "'Physical Sample Description' is an optional field, but if entered, must be present in both languages"
-
-    # Parameters Collected
-    if (resource.parameters_collected_eng != None and resource.parameters_collected_fre == None) or (
-            resource.parameters_collected_eng == None and resource.parameters_collected_fre != None):
-        SubElement(checklist,
-                   'li').text = "'Parameters Collected' is an optional field, but if entered, must be present in both languages"
-
-    # Sampling Method
-    if (resource.sampling_method_eng != None and resource.sampling_method_fre == None) or (
-            resource.sampling_method_eng == None and resource.sampling_method_fre != None):
-        SubElement(checklist,
-                   'li').text = "'Sampling Method' is an optional field, but if entered, must be present in both languages"
-
-    # Resource Constraints
-    if (resource.resource_constraint_eng != None and resource.resource_constraint_fre == None) or (
-            resource.resource_constraint_eng == None and resource.resource_constraint_fre != None):
-        SubElement(checklist,
-                   'li').text = "'Resource Constraints' is an optional field, but if entered, must be present in both languages"
-
-    return str(tostring(checklist, 'utf-8')).replace("b'", '').replace("&gt;", ">").replace("&lt;",
-                                                                                                        "<").replace(
-        'b"', '')
+    return html_list

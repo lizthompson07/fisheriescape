@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 import os
 import uuid
+from django.utils.translation import gettext as _
 
 # Choices for language
 ENG = 1
@@ -393,6 +394,9 @@ class Resource(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     flagged_4_deletion = models.BooleanField(default=False)
     flagged_4_publication = models.BooleanField(default=False)
+    completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"))
+    completedness_rating = models.FloatField(blank=True, null=True, verbose_name=_("completedness rating"))
+    translation_needed = models.BooleanField(default=True, verbose_name=_("translation needed"))
 
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.pk})
@@ -415,9 +419,11 @@ class Resource(models.Model):
         return my_str
 
     def save(self, *args, **kwargs):
-        if self.uuid == None:
+        if self.uuid is None:
             self.uuid = uuid.uuid1()
-        self.date_last_modified = timezone.now()
+
+        # will handle this through the resource form. If not, each time the record is verified, this field will be updated
+        # self.date_last_modified = timezone.now()
         super().save(*args, **kwargs)
 
 
