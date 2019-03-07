@@ -9,7 +9,8 @@ admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
 class CertificationRequestEmail:
 
-    def __init__(self, person_object):
+    def __init__(self, me, person_object):
+        self.me = me
         self.person_object = person_object
         self.subject = 'Your metadata inventory'
         self.message = self.load_html_template()
@@ -20,6 +21,7 @@ class CertificationRequestEmail:
     def load_html_template(self):
         t = loader.get_template('inventory/email_certification_request.html')
         context ={
+            'me': self.me,
             'object': self.person_object,
             'queryset':  self.person_object.resource_people.filter(role=1)
         }
@@ -28,7 +30,8 @@ class CertificationRequestEmail:
 
 class SectionReportEmail:
 
-    def __init__(self, person_object, section):
+    def __init__(self, me, person_object, section):
+        self.me = me
         self.person_object = person_object
         self.section = section
         self.queryset = section.resources.all().order_by("title_eng")
@@ -40,6 +43,7 @@ class SectionReportEmail:
     def load_html_template(self):
         t = loader.get_template('inventory/email_section_head_report.html')
         context ={
+            'me': self.me,
             'object': self.person_object,
             'queryset':  self.queryset,
             'section':  self.section,

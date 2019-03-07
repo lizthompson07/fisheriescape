@@ -9,6 +9,7 @@
 
         <p>
         <h1>{{ user.first_name }}'s Metadata List:</h1>
+        <h4><a href="{% url 'inventory:person_edit' user.id %}">(Click here to edit your personal details)</a></h4>
         </p>
     </div>
     <div class="indent-med">

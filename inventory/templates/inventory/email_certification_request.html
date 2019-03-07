@@ -108,15 +108,16 @@
     If you would like to set up a meeting to discuss any of the above, please let me know! Also, your feedback about the inventory app would be most welcomed and appreciated.
   </p>
   Best,
-
   {% endif %}
 
-<br><br>
-David Fishman<br><br>
-Data Manager, Science Branch, Gulf Region <br>
-Fisheries and Oceans Canada / Government of Canada <br>
-david.fishman@dfo-mpo.gc.ca / Tel: 506-851-6150 <br>
-<br>
-Gestionnaire de données, Direction des Sciences, Région du Golfe <br>
-Peches et Océans Canada, Gouvernement du Canada <br>
-david.fishman@dfo-mpo.gc.ca / Tél: 506-851-6150 <br>
+<p>
+    <br><br>
+    {{ me.full_name }}<br><br>
+    {{ me.position_eng }} <br>
+    {{ me.organization.name_eng }} <br>
+    {{ me.user.email }} / {{ me.phone }} <br>
+    <br>
+    {{ me.position_fre }} <br>
+    {{ me.organization.name_fre }} <br>
+    {{ me.user.email }} / {{ me.phone }} <br>
+</p>
