@@ -16,7 +16,7 @@ def multiply(value, arg):
 @register.filter
 def nz(value, arg):
     """if a value is equal to None, this function will return arg instead"""
-    if value is None:
+    if value is None or value == "":
         return arg
     else:
         return value
@@ -49,7 +49,7 @@ def divide(value, arg):
 def percentage(value, arg=2):
     try:
         float(value)
-    except TypeError:
+    except (TypeError, ValueError):
         return "0%"
     else:
         return format(value, ".{}%".format(arg))

@@ -3,6 +3,8 @@
 {% load humanize %}
 {% load bootstrap4 %}
 {% load el_pagination_tags %}
+{% load i18n %}
+{% load custom_filters %}
 {% block content %}
 
     <style>
@@ -61,11 +63,24 @@
             <thead>
             <tr>
                 {# <th scope="col">Id</th> #}
-                <th scope="col">Region</th>
-                <th scope="col" style="max-width: 30%">Title</th>
-                <th scope="col">Status</th>
-                <th scope="col">Section</th>
-                <th scope="col">Previous time certified</th>
+                <th scope="col">
+                    {% trans "Region" %}
+                </th>
+                <th scope="col" style="width: 35%">
+                    {% trans "Title" %}
+                </th>
+                <th scope="col">
+                    {% trans "Status" %}
+                </th>
+                <th scope="col">
+                    {% trans "Section" %}
+                </th>
+                <th scope="col">
+                    {% trans "Previous time certified" %}
+                </th>
+                <th scope="col">
+                    {% trans "Completedness Rating" %}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -95,8 +110,8 @@
                         {% else %}
                             <span class="red-font"><b>Never</b></span>
                         {% endif %}
-
                     </td>
+                    <td>{{ obj.completedness_rating|percentage:0 }}</td>
 
 
                 </tr>
