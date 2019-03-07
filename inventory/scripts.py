@@ -1,11 +1,9 @@
 from . import models
+from . import xml_export
 
-# def resave_all(resources = models.Resource.objects.all()):
-#
-#     for r in resources:
-#         if r.uuid == None:
-#             my_r = models.Resource.objects.get(id=r.id)
-#             my_r.save()
+def resave_all(resources = models.Resource.objects.all()):
+    for r in resources:
+        xml_export.verify(r)
 
 
 # def resave_all(people = models.Person.objects.all()):
@@ -15,8 +13,8 @@ from . import models
 #         my_p.save()
 #
 
-def resave_all(keywords = models.Keyword.objects.all()):
+# def resave_all(keywords = models.Keyword.objects.all()):
 
-    for k in keywords:
-        my_obj = models.Keyword.objects.get(id=k.id)
-        my_obj.save()
+    # for k in keywords:
+    #     my_obj = models.Keyword.objects.get(id=k.id)
+    #     my_obj.save()

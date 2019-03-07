@@ -14,7 +14,7 @@ class ResourceCreateForm(forms.ModelForm):
             'file_identifier',
             'uuid',
             'date_verified',
-            'date_last_modified',
+            # 'date_last_modified',
             'fgp_publication_date',
             'citations',
             'keywords',
@@ -54,16 +54,20 @@ class ResourceForm(forms.ModelForm):
             'file_identifier',
             'uuid',
             'date_verified',
-            'date_last_modified',
-            # 'fgp_publication_date',
+            # 'date_last_modified',
+            'fgp_publication_date',
             'citations',
             'keywords',
             'people',
             'flagged_4_publication',
             'flagged_4_deletion',
+            'completedness_rating',
+            'completedness_report',
+            'translation_needed',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
             'title_eng': forms.Textarea(attrs={"rows": 5}),
             'title_fre': forms.Textarea(attrs={"rows": 5}),
             "purpose_eng": forms.Textarea(attrs={"rows": 5}),
@@ -94,7 +98,6 @@ class ResourcePersonForm(forms.ModelForm):
         fields = "__all__"
         labels = {
             'notes': "Notes (optional)",
-            'longitude_w': "Longitude",
         }
         widgets = {
             'resource': forms.HiddenInput(),
@@ -127,6 +130,22 @@ class PersonCreateForm(forms.Form):
             raise forms.ValidationError("email address already exists in system.")
         return email
 
+
+class PersonForm(forms.Form):
+    LANGUAGE_CHOICES = ((None, "---"),) + models.LANGUAGE_CHOICES
+
+    ORGANIZATION_CHOICES = ((None, "---"),)
+    for org in models.Organization.objects.all():
+        ORGANIZATION_CHOICES = ORGANIZATION_CHOICES.__add__(((org.id, org.name_eng),))
+
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    email = forms.EmailField(required=False)
+    position_eng = forms.CharField(label="Position title (English)", required=False)
+    position_fre = forms.CharField(label="Position title (French)", required=False)
+    phone = forms.CharField(widget=forms.TextInput(attrs={'placeholder': "000-000-0000 ext.000"}), required=False)
+    language = forms.ChoiceField(choices=LANGUAGE_CHOICES, required=False)
+    organization = forms.ChoiceField(choices=ORGANIZATION_CHOICES, required=False)
 
 class KeywordForm(forms.ModelForm):
     class Meta:

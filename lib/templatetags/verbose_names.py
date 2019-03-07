@@ -114,7 +114,18 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
     # TODO: specify special formatting
     if format == "currency":
         try:
-            field_value = '${:,.2f}'.format(int(field_value))
+            field_value = '${:,.2f}'.format(float(field_value))
+        except:
+            pass
+    elif format.startswith("percent"):
+        try:
+            if format.endswith("1"):
+                dec = 1
+            elif format.endswith("2"):
+                dec = 2
+            else:
+                dec = 0
+            field_value = '{:.1%}'.format(field_value)
         except:
             pass
 

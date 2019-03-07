@@ -2,27 +2,40 @@
 {% load static %}
 {% load humanize %}
 {% load custom_filters %}
+{% load i18n %}
 {% block content %}
 
     <div class="container text-center">
 
         <p>
-        <h1>{{ user.first_name }}'s Data Resource List:</h1>
+        <h1>{{ user.first_name }}'s Metadata List:</h1>
         </p>
     </div>
     <div class="indent-med">
 
-        <a href="{% url 'inventory:resource_new' %}" class="btn btn btn-primary float-right">New Resource</a>
+        <a href="{% url 'inventory:resource_new' %}" class="btn btn-sm btn-primary float-right">New Resource</a>
         <h3>Custodian:</h3>
         <table class="table table-hover table-sm sortable">
             <thead>
             <th scope="col">#</th>
-            <th scope="col" style="max-width: 30%">Title</th>
-            <th scope="col">Status</th>
-            <th scope="col">Section</th>
-            <th scope="col">Role(s)</th>
-            <th scope="col">Previous time certified</th>
-            </tr>
+            <th scope="col" style="max-width: 30%">
+                {% trans "Title" %}
+            </th>
+            <th scope="col">
+                {% trans "Status" %}
+            </th>
+            <th scope="col">
+                {% trans "Section" %}
+            </th>
+            <th scope="col">
+                {% trans "Role(s)" %}
+            </th>
+            <th scope="col">
+                {% trans "Previous time certified" %}
+            </th>
+            <th scope="col">
+                {% trans "Completedness Rating" %}
+            </th>
             </thead>
             <tbody>
             {% for obj in custodian_list %}
@@ -41,9 +54,7 @@
                     {% endif %}
                     {{ obj.resource.status }}
                     </td>
-
                     <td>{{ obj.resource.section.section }}</td>
-
                     <td>
                         {% for person in obj.resource.resource_people.all %}
                             {% if person.person.user_id == user.id %}
@@ -57,9 +68,7 @@
                         {% endfor %}
 
                     </td>
-
                     {% if obj.resource.certification_history.count > 0 %}
-
                         {% if now|timedelta:obj.resource.certification_history.first.certification_date < 90 %}
                             <td class="good">
                                 {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 180 %}
@@ -74,8 +83,8 @@
                     {% else %}
                         <td><span class="red-font"><b>Never</b></span>
                     {% endif %}
-
                     </td>
+                    <td>{{ obj.resource.completedness_rating|percentage:0 }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -98,6 +107,9 @@
                 <th scope="col">Section</th>
                 <th scope="col">Role(s)</th>
                 <th scope="col">Previous time certified</th>
+                 <th scope="col">
+                {% trans "Completedness Rating" %}
+            </th>
                 </tr>
                 </thead>
                 <tbody>
@@ -151,6 +163,7 @@
                         {% endif %}
 
                         </td>
+                        <td>{{ obj.completedness_rating|percentage:0 }}</td>
 
                     </tr>
                 {% endfor %}

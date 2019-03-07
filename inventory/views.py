@@ -131,6 +131,10 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
 class ResourceDetailView(DetailView):
     model = models.Resource
 
+    def dispatch(self, request, *args, **kwargs):
+        xml_export.verify(models.Resource.objects.get(pk=self.kwargs['pk']))
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['kcount_other'] = self.object.keywords.filter(
@@ -140,12 +144,10 @@ class ResourceDetailView(DetailView):
         context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
         context['kcount_loc'] = self.object.keywords.filter(keyword_domain_id__exact=7).count()
         context['custodian_count'] = self.object.resource_people.filter(role=1).count()
-        verified = False
-        if "<ul />" in xml_export.verify(self.object):
-            verified = True
-        context['verified'] = verified
-
-        # context['google_api_key'] = settings.GOOGLE_API_KEY
+        if self.object.completedness_rating == 1:
+            context['verified'] = True
+        else:
+            context['verified'] = False
         return context
 
 
@@ -165,16 +167,10 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
     login_url = '/accounts/login_required/'
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user}
-
-    # def test_func(self):
-    #     return is_custodian(self.request.user, self.kwargs["pk"])
-    #
-    # def dispatch(self, request, *args, **kwargs):
-    #     user_test_result = self.get_test_func()()
-    #     if not user_test_result and self.request.user.is_authenticated:
-    #         return HttpResponseRedirect('/accounts/denied/')
-    #     return super().dispatch(request, *args, **kwargs)
+        return {
+            'last_modified_by': self.request.user,
+            'date_last_modified': timezone.now(),
+        }
 
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
@@ -185,6 +181,7 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,
+            'date_last_modified': timezone.now(),
             'add_custodian': True,
             'add_point_of_contact': True,
         }
@@ -542,7 +539,7 @@ class PersonCreateViewPopout(LoginRequiredMixin, FormView):
 
 class PersonUpdateView(LoginRequiredMixin, FormView):
     template_name = 'inventory/person_form.html'
-    form_class = forms.PersonCreateForm
+    form_class = forms.PersonForm
 
     def get_success_url(self):
         return reverse_lazy('inventory:resource_detail', kwargs={
@@ -895,14 +892,22 @@ class PublicationCreateView(LoginRequiredMixin, CreateView):
 # XML GOODNESS #
 ################
 
-class VerifyReadinessTemplateView(TemplateView):
+class VerifyCompletednessDetailView(DetailView):
     template_name = 'inventory/resource_verification.html'
+    model = models.Resource
+    
+    def dispatch(self, request, *args, **kwargs):
+        xml_export.verify(models.Resource.objects.get(pk=self.kwargs["pk"]))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource'] = my_resource
-        context['verification_list'] = xml_export.verify(my_resource)
+        context["field_list"]=[
+            "completedness_report",
+            "completedness_rating",
+            "translation_needed",
+        ]
+
         return context
 
 
