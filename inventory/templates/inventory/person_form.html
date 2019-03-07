@@ -3,19 +3,27 @@
 {% load bootstrap4 %}
 
 {% block content %}
+    {% if user.is_authenticated %}
+        {% url 'inventory:my_resource_list' as home_url %}
+    {% else %}
+        {% url 'inventory:resource_list' as home_url %}
+    {% endif %}
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
-            <li class="breadcrumb-item"><a
-                    href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
-            {% if person %}
-                <li class="breadcrumb-item active" aria-current="page">Edit {{ person.full_name }}</li>
-            {% else %}
-                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_person_filter' resource.id %}">Insert
-                    Person</a></li>
-                <li class="breadcrumb-item active" aria-current="page">New</li>
+            <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
+            {% if resource %}
+                <li class="breadcrumb-item"><a
+                        href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
+                {% if person %}
+                    <li class="breadcrumb-item active" aria-current="page">Edit {{ person.full_name }}</li>
+                {% else %}
+                    <li class="breadcrumb-item"><a href="{% url 'inventory:resource_person_filter' resource.id %}">Insert
+                        Person</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">New</li>
+                {% endif %}
             {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">Edit Personal Details</li>
         </ol>
     </nav>
 
@@ -39,11 +47,16 @@
 
             <p>
                 <button type="submit" class="btn btn-primary">Submit</button>
-                {% if person %}
-                    <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' resource.id %}">Cancel</a>
+                {% if resource %}
+                    {% if person %}
+                        <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' resource.id %}">Cancel</a>
+                    {% else %}
+                        <a class="btn btn-secondary" href="{% url 'inventory:resource_list' %}">Cancel</a>
+                    {% endif %}
                 {% else %}
-                    <a class="btn btn-secondary" href="{% url 'inventory:resource_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{{ home_url }}">Cancel</a>
                 {% endif %}
+
             </p>
         </form>
 

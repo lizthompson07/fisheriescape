@@ -4,9 +4,15 @@
 {% load humanize %}
 {% block content %}
 
+    {% if user.is_authenticated %}
+        {% url 'inventory:my_resource_list' as home_url %}
+    {% else %}
+        {% url 'inventory:resource_list' as home_url %}
+    {% endif %}
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_list' %}">All Resources</a></li>
+            <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">Custodian List</li>
         </ol>
@@ -22,17 +28,13 @@
         (Click on a table header to sort by column)
         <table class="table table-hover table-sm sortable" style="width: auto">
             <thead>
-            <th scope="col">#</th>
             <th scope="col">Last Name</th>
             <th scope="col">First Name</th>
             <th scope="col">Date of last email</th>
-            </tr>
             </thead>
             <tbody>
             {% for obj in custodian_list %}
-                <tr>
-                    <td><a href="{% url 'inventory:dm_custodian_detail' obj.person.user_id %}">{{ forloop.counter }}</a>
-                    </td>
+                <tr href="{% url 'inventory:dm_custodian_detail' obj.person.user_id %}">
                     <td>{{ obj.person.user.last_name }}</td>
                     <td>{{ obj.person.user.first_name }}</td>
 

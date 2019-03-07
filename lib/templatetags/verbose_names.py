@@ -117,17 +117,6 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             field_value = '${:,.2f}'.format(float(field_value))
         except:
             pass
-    elif format.startswith("percent"):
-        try:
-            if format.endswith("1"):
-                dec = 1
-            elif format.endswith("2"):
-                dec = 2
-            else:
-                dec = 0
-            field_value = '{:.1%}'.format(field_value)
-        except:
-            pass
 
     return field_value
 
