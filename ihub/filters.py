@@ -33,4 +33,5 @@ class EntryFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        print(self.filters['organizations'])
         self.filters['organizations'].queryset = ind_organizations

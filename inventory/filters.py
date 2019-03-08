@@ -6,28 +6,28 @@ import django_filters
 
 
 class ResourceFilter(django_filters.FilterSet):
-    # generate a list of people from inventory.people
-    person_list = []
-
-    person_list = [p.user_id for p in models.Person.objects.all()]
-    PEOPLE_CHOICES = []
-    for u in User.objects.all().order_by("last_name", "first_name"):
-        if u.id in person_list:
-            PEOPLE_CHOICES.append((u.id, "{}, {}".format(u.last_name, u.first_name)))
-
     STATUS_CHOICES = [(s.id, str(s)) for s in models.Status.objects.all()]
-    SECTION_CHOICES = [(s.id, str(s)) for s in models.Section.objects.all()]
 
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains',
                                             widget=forms.TextInput())
     region = django_filters.ChoiceFilter(field_name="section__region", label="Region", lookup_expr='exact',
-                                          choices=models.Section.REGION_CHOICES)
-    section = django_filters.ChoiceFilter(field_name="section", label="Section", lookup_expr='exact',
-                                          choices=SECTION_CHOICES)
-    person = django_filters.ChoiceFilter(field_name="people", label="Person", lookup_expr='exact',
-                                         choices=PEOPLE_CHOICES)
-    status = django_filters.ChoiceFilter(field_name="status", label="Status", lookup_expr='exact',
-                                         choices=STATUS_CHOICES)
+                                         choices=models.Section.REGION_CHOICES)
+    section = django_filters.ModelChoiceFilter(field_name="section", label="Section", lookup_expr='exact',
+                                               queryset=models.Section.objects.all())
+    person = django_filters.ModelChoiceFilter(field_name="people", label="Person", lookup_expr='exact',
+                                              queryset=models.Person.objects.all())
+    status = django_filters.ChoiceFilter(field_name="status", label="Status", lookup_expr='exact', choices=STATUS_CHOICES)
+    percent_complete = django_filters.NumberFilter(field_name="completedness_rating", label="Percent complete", lookup_expr='gte',
+                                                   widget=forms.NumberInput(attrs={"placeholder": "between 0 and 1"}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # if there is a filter on section, filter the people filter accordingly
+        if self.data["section"] != "":
+            self.filters["person"].queryset = models.Person.objects.filter(resource__section_id=self.data["section"]).distinct()
+        elif self.data["region"] != "":
+            self.filters["section"].queryset = models.Section.objects.filter(region=self.data["region"]).distinct()
+            self.filters["person"].queryset = models.Person.objects.filter(resource__section__region=self.data["region"]).distinct()
 
 
 class PersonFilter(django_filters.FilterSet):

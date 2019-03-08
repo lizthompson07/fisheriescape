@@ -1028,7 +1028,7 @@ def verify(resource):
             # now do a special bilingual field check to see if translation is needed
             if (field_value_eng is not None and field_value_fre is None) or (field_value_eng is None and field_value_fre is not None):
                 checklist.append(
-                    "'{}' is an optional field, but if entered, must be present in both languages".format(clean_field.replace("_", "")))
+                    "'{}' and '{}' are optional fields, but if entered, they must be present in both languages".format(verbose_name_eng, verbose_name_fre))
                 rating = rating - 1
                 translation_needed = True
 
