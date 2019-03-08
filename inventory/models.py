@@ -72,8 +72,8 @@ class Person(models.Model):
     position_eng = models.CharField(max_length=255, blank=True, null=True)
     position_fre = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=25, blank=True, null=True)
-    language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True)
-    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True)
+    language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
+    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True, default=6)
 
     def __str__(self):
         return "{}, {}".format(self.user.last_name, self.user.first_name)
