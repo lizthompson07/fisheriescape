@@ -25,7 +25,7 @@
         TOTAL: {{ filter.qs.count }}
         </p>
 
-        <form class="form" action="." method="get" style="width: 75%; font-size: small">
+        <form class="form" action="." method="get" style="width: 75%; font-size: small" id="filter-form">
             <div class="row">
                 {% for field in filter.form %}
                     <div class="col">
@@ -81,6 +81,9 @@
                 <th scope="col">
                     {% trans "Completedness Rating" %}
                 </th>
+                <th scope="col">
+                    {% trans "Translation Needed" %}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -112,11 +115,11 @@
                         {% endif %}
                     </td>
                     <td>{{ obj.completedness_rating|percentage:0 }}</td>
+                    <td>{{ obj.translation_needed|yesno }}</td>
 
 
                 </tr>
             {% endfor %}
-            <br>
 
             </tbody>
         </table>

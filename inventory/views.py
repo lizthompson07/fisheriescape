@@ -93,6 +93,13 @@ class ResourceListView(FilterView):
         search_term=Concat('title_eng', 'title_fre', 'descr_eng', 'descr_fre', 'purpose_eng', 'purpose_fre',
                            output_field=TextField()))
 
+    # def get_filterset_kwargs(self, filterset_class):
+    #     kwargs = super().get_filterset_kwargs(filterset_class)
+    #     # if kwargs["data"] is None:
+    #     #     kwargs["data"] = {"season": timezone.now().year }
+    #     print(kwargs['data'])
+    #     return kwargs
+
 
 class MyResourceListView(LoginRequiredMixin, TemplateView):
     login_url = '/accounts/login_required/'
@@ -562,7 +569,7 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
             'position_fre': person.position_fre,
             'phone': person.phone,
             'language': person.language,
-            'organization': person.organization.id,
+            'organization': person.organization_id,
         }
 
     def form_valid(self, form):
@@ -591,10 +598,14 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
         old_person.position_fre = position_fre
         old_person.phone = phone
 
-        if language != "":
+        if language == "" or language is None:
+            old_person.language = None
+        else:
             old_person.language = int(language)
 
-        if organization != "":
+        if organization == "" or organization is None:
+            old_person.organization_id = None
+        else:
             old_person.organization_id = int(organization)
 
         old_person.user.save()
