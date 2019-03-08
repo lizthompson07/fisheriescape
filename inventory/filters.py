@@ -23,12 +23,14 @@ class ResourceFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # if there is a filter on section, filter the people filter accordingly
-        if self.data["section"] != "":
-            self.filters["person"].queryset = models.Person.objects.filter(resource__section_id=self.data["section"]).distinct()
-        elif self.data["region"] != "":
-            self.filters["section"].queryset = models.Section.objects.filter(region=self.data["region"]).distinct()
-            self.filters["person"].queryset = models.Person.objects.filter(resource__section__region=self.data["region"]).distinct()
-
+        try:
+            if self.data["section"] != "":
+                self.filters["person"].queryset = models.Person.objects.filter(resource__section_id=self.data["section"]).distinct()
+            elif self.data["region"] != "":
+                self.filters["section"].queryset = models.Section.objects.filter(region=self.data["region"]).distinct()
+                self.filters["person"].queryset = models.Person.objects.filter(resource__section__region=self.data["region"]).distinct()
+        except KeyError:
+            print('no data in filter')
 
 class PersonFilter(django_filters.FilterSet):
     class Meta:
