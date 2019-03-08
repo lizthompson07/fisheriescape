@@ -22,8 +22,9 @@
                         Person</a></li>
                     <li class="breadcrumb-item active" aria-current="page">New</li>
                 {% endif %}
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">Edit Personal Details</li>
             {% endif %}
-            <li class="breadcrumb-item active" aria-current="page">Edit Personal Details</li>
         </ol>
     </nav>
 
@@ -51,7 +52,7 @@
                     {% if person %}
                         <a class="btn btn-secondary" href="{% url 'inventory:resource_detail' resource.id %}">Cancel</a>
                     {% else %}
-                        <a class="btn btn-secondary" href="{% url 'inventory:resource_list' %}">Cancel</a>
+                        <a class="btn btn-secondary" href="{% url 'inventory:resource_person_filter' resource.id %}">Cancel</a>
                     {% endif %}
                 {% else %}
                     <a class="btn btn-secondary" href="{{ home_url }}">Cancel</a>
