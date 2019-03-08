@@ -9,7 +9,11 @@
 {% endblock %}
 
 {% block content %}
-
+    <style>
+        .ms-container {
+            width: 100%;
+        }
+    </style>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">
@@ -105,7 +109,7 @@
         </form>
 
     </div>
- <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
+    <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
     <script type="application/javascript">
         $("#id_organizations").multiSelect()
         $("#id_regions").multiSelect()
