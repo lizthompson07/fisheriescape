@@ -104,6 +104,13 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('shares:index'),
         },
+        "travel": {
+            "title": _("Travel Plans"),
+            "description": _("Gulf region travel plans management tool."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('travel:index'),
+        },
         # "meq": {
         #     "title": _("MEQ"),
         #     "description": _("Marine Environmental Quality (MEQ) database."),
