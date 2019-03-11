@@ -39,6 +39,7 @@ class Bug(models.Model):
     SCIFI = 12
     MASTERLIST = 13
     SHARES = 14
+    TRAVEL = 15
 
     APP_CHOICES = (
         (GENERAL, 'General'),
@@ -55,6 +56,7 @@ class Bug(models.Model):
         (SCIFI, 'SciFi'),
         (MASTERLIST, 'Master List'),
         (SHARES, 'Gulf Shares'),
+        (TRAVEL, 'Travel Plans'),
     )
 
     APP_DICT = {
@@ -72,6 +74,7 @@ class Bug(models.Model):
         SCIFI: 'SciFi',
         MASTERLIST: 'Master List',
         SHARES: 'Gulf Shares',
+        TRAVEL: 'Travel Plans',
     }
 
     user = models.ForeignKey('auth.User', on_delete=models.DO_NOTHING)

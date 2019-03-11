@@ -1,0 +1,10 @@
+<h3>travel:</h3>
+<ul>
+    {% for share in object.travel.all %}
+        <li>
+            <a href="{% url 'travel:share_detail' share.id  %}">{{ share.name }} </a>
+        </li>
+    {% empty %}
+        <em>No travel on this server</em>
+    {% endfor %}
+</ul>
