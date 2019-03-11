@@ -118,6 +118,7 @@ INSTALLED_APPS = [
     'scifi',
     'masterlist',
     'shares',
+    'travel',
 ]
 
 MIDDLEWARE = [

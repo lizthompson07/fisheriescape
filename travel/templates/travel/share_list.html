@@ -1,0 +1,66 @@
+{% extends "travel/travel_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% block content %}
+
+    <style>
+        .indent-lg {
+            margin-left: 5em;
+            margin-right: 5em;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">travel</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+
+        <h1 class="big-header">travel </h1>
+        <p>TOTAL: {{ object_list.count }}</p>
+
+        <br>
+        <div class="row">
+            <div class="col-12">
+
+                <div class="row">
+                    <div class="col">
+                        (click on a header to sort table)
+                    </div>
+                    <div class="col" style="text-align: center">
+                        <em>displaying all {{ object_list.count }} records</em>
+                    </div>
+                    <div class="col" style="text-align: right; padding-bottom: 10px">
+                        <a href="{% url 'travel:share_new' %}" class="btn btn-sm btn-primary">New Share</a>
+                    </div>
+                </div>
+
+
+                <table class="table table-sm table-hover sortable">
+                    <thead>
+                    {% for field in field_list %}
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                    {% endfor %}
+                    </thead>
+                    <tbody>
+                    {% for object in object_list %}
+                        {% url 'travel:share_detail' object.id as my_url %}
+                        <tr href="{{ my_url }}" style="background-color: {{ object.server.color }}">
+                            {% for field in field_list %}
+                                <td>{% get_field_value object field %}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock content %}

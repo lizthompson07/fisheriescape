@@ -1,0 +1,69 @@
+{% extends "travel/travel_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% block header %}
+{% endblock %}
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+
+        table, td {
+            font-size: small;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:user_list' %}">Users</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>{{ object }}</h1>
+
+
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'travel:user_edit' object.id %}">
+                Edit
+            </a>
+            <a class="btn btn-danger " href="{% url 'travel:user_delete' object.id %}">
+                Delete
+            </a>
+            <a class="btn btn-primary " href="{% url 'travel:send_instructions' object.id %}">
+                Send Instructions
+            </a>
+
+        </div>
+        <br><br>
+
+        <div class="row">
+            <div class="col-3">
+                <h3>
+                    User Detail:
+                </h3>
+
+                <p><span class="label">First name:</span><br>{{ object.user.first_name }}</p>
+                <p><span class="label">Last name:</span><br>{{ object.user.last_name }}</p>
+                <p><span class="label">Email:</span><br>{{ object.user.email }}</p>
+
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+
+            </div>
+
+            <div class="col">
+               {% include "travel/_travel.html" %}
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
