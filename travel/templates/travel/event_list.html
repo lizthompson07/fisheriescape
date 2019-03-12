@@ -14,20 +14,20 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">travel</li>
+            <li class="breadcrumb-item active" aria-current="page">Events</li>
         </ol>
     </nav>
 
-    <div class="container-fluid">
+    <div class="container">
 
-        <h1 class="big-header">travel </h1>
+        <h1 class="big-header">Events </h1>
         <p>TOTAL: {{ object_list.count }}</p>
 
         <br>
         <div class="row">
             <div class="col-12">
 
-                <div class="row">
+                <div class="row" >
                     <div class="col">
                         (click on a header to sort table)
                     </div>
@@ -35,24 +35,27 @@
                         <em>displaying all {{ object_list.count }} records</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'travel:share_new' %}" class="btn btn-sm btn-primary">New Share</a>
+                        <a href="{% url 'travel:event_new' %}" class="btn btn-sm btn-primary">New Event</a>
                     </div>
                 </div>
 
 
-                <table class="table table-sm table-hover sortable">
+                <table class="table table-sm table-hover sortable" >
                     <thead>
-                    {% for field in field_list %}
-                        <th scope="col">{% get_verbose_label my_object field %}</th>
-                    {% endfor %}
+                    <tr>
+                        {% for field in field_list %}
+                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% endfor %}
+                    </tr>
                     </thead>
                     <tbody>
                     {% for object in object_list %}
-                        {% url 'travel:share_detail' object.id as my_url %}
-                        <tr href="{{ my_url }}" style="background-color: {{ object.server.color }}">
+                        {% url 'travel:event_detail' object.id as my_url %}
+                        <tr href="{{ my_url }}" style="background-color: {{ object.color }}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
+
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -1,8 +1,10 @@
+import json
 import os
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db.models import TextField
 from django.db.models.functions import Concat
@@ -25,16 +27,16 @@ class CloserTemplateView(TemplateView):
     template_name = 'travel/close_me.html'
 
 
-def in_travel_group(user):
+def in_travel_admin_group(user):
     if user:
-        return user.groups.filter(name='travel_access').count() != 0
+        return user.groups.filter(name='travel_admin').count() != 0
 
 
-class TravelAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return in_travel_group(self.request.user)
+        return in_travel_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -43,81 +45,135 @@ class TravelAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+# This allows any logged in user to access the view
+class TravelAccessRequiredMixin(LoginRequiredMixin):
+    login_url = '/accounts/login_required/'
+
 
 class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     template_name = 'travel/index.html'
 
-#
-# class EmailListTemplateView(travelAdminRequiredMixin, TemplateView):
-#     template_name = 'travel/email_list.html'
-#
-#     def get_context_data(self, *args, **kwargs):
-#         context = super().get_context_data(*args, **kwargs)
-#         context["user_list"] = models.User.objects.filter(status=2).filter(user__email__isnull=False)
-#         return context
-#
-#
-# # SERVER #
-# ##########
-# class ServerListView(travelAdminRequiredMixin, ListView):
-#     model = models.Server
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["my_object"] = models.Server.objects.first()
-#         context["field_list"] = [
-#             'server_type',
-#             'hostname',
-#             'ip_address',
-#             'mac_address',
-#         ]
-#         return context
-#
-#
-# class ServerDetailView(travelAdminRequiredMixin, DetailView):
-#     model = models.Server
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'server_type',
-#             'hostname',
-#             'ip_address',
-#             'mac_address',
-#             'notes',
-#         ]
-#         return context
-#
-#
-# class ServerUpdateView(travelAdminRequiredMixin, UpdateView):
-#     model = models.Server
-#     form_class = forms.ServerForm
-#
-#
-# class ServerCreateView(travelAdminRequiredMixin, CreateView):
-#     model = models.Server
-#     form_class = forms.ServerForm
-#
-#
-# class ServerCreateViewPopout(travelAdminRequiredMixin, CreateView):
-#     model = models.Server
-#     form_class = forms.ServerForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('travel:close_me'))
-#
-#
-# class ServerDeleteView(travelAdminRequiredMixin, DeleteView):
-#     model = models.Server
-#     success_url = reverse_lazy('travel:server_list')
-#     success_message = 'The server was deleted successfully!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
+
+# SERVER #
+##########
+class EventListView(TravelAccessRequiredMixin, ListView):
+    model = models.Event
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Event.objects.first()
+        context["field_list"] = [
+            'section',
+            'first_name',
+            'last_name',
+            'trip_title',
+            'location',
+            'conf_start_date',
+            'conf_end_date',
+            'plan_number',
+            'total_cost',
+        ]
+        return context
+
+
+class EventDetailView(TravelAccessRequiredMixin, DetailView):
+    model = models.Event
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'user',
+            'section',
+            'first_name',
+            'last_name',
+            'address',
+            'phone',
+            'email',
+            'public_servant',
+            'company_name',
+            'trip_title',
+            'location',
+            'conf_start_date',
+            'conf_end_date',
+            'plan_number',
+
+            # purpose
+            'role',
+            'reason',
+            'purpose',
+            'role_of_participant',
+            'objective_of_event',
+            'benefit_to_dfo',
+            'multiple_conferences_rationale',
+            'multiple_attendee_rationale',
+
+            # costs
+            'air',
+            'rail',
+            'rental_motor_vehicle',
+            'personal_motor_vehicle',
+            'taxi',
+            'other_transport',
+            'accommodations',
+            'meals',
+            'incidentals',
+            'other',
+            'total_cost',
+            'cost_breakdown|{}'.format(_("cost summary")),
+            'purpose_long|{}'.format(_("purpose")),
+        ]
+        return context
+
+
+class EventUpdateView(TravelAccessRequiredMixin, UpdateView):
+    model = models.Event
+    form_class = forms.EventForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user_dict = {}
+        for user in User.objects.all():
+            user_dict[user.id] = {}
+            user_dict[user.id]['first_name'] = user.first_name
+            user_dict[user.id]['last_name'] = user.last_name
+            user_dict[user.id]['email'] = user.email
+
+        user_json = json.dumps(user_dict)
+        # send JSON file to template so that it can be used by js script
+        context['user_json'] = user_json
+        return context
+
+
+class EventCreateView(TravelAccessRequiredMixin, CreateView):
+    model = models.Event
+    form_class = forms.EventForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user_dict = {}
+        for user in User.objects.all():
+            user_dict[user.id] = {}
+            user_dict[user.id]['first_name'] = user.first_name
+            user_dict[user.id]['last_name'] = user.last_name
+            user_dict[user.id]['email'] = user.email
+
+        user_json = json.dumps(user_dict)
+        # send JSON file to template so that it can be used by js script
+        context['user_json'] = user_json
+        return context
+
+
+class EventDeleteView(TravelAccessRequiredMixin, DeleteView):
+    model = models.Event
+    success_url = reverse_lazy('travel:event_list')
+    success_message = 'The event was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
 # # USER #
 # ##########
 # class UserListView(travelAdminRequiredMixin, ListView):
@@ -171,7 +227,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 #
 # class UserDeleteView(travelAdminRequiredMixin, DeleteView):
 #     model = models.User
-#     success_url = reverse_lazy('travel:server_list')
+#     success_url = reverse_lazy('travel:event_list')
 #     success_message = 'The user was deleted successfully!'
 #
 #     def delete(self, request, *args, **kwargs):
@@ -254,7 +310,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 #
 # class ShareDeleteView(travelAdminRequiredMixin, DeleteView):
 #     model = models.Share
-#     success_url = reverse_lazy('travel:server_list')
+#     success_url = reverse_lazy('travel:event_list')
 #     success_message = 'The share was deleted successfully!'
 #
 #     def delete(self, request, *args, **kwargs):

@@ -7,13 +7,15 @@ urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
 
-    # # SERVER #
-    # ##########
-    # path('servers/', views.ServerListView.as_view(), name="server_list"),
-    # path('server/new/', views.ServerCreateView.as_view(), name="server_new"),
-    # path('server/<int:pk>/view/', views.ServerDetailView.as_view(), name="server_detail"),
-    # path('server/<int:pk>/edit/', views.ServerUpdateView.as_view(), name="server_edit"),
-    # path('server/<int:pk>/delete/', views.ServerDeleteView.as_view(), name="server_delete"),
+    # EVENT #
+    ##########
+    path('events/', views.EventListView.as_view(), name="event_list"),
+    path('event/new/', views.EventCreateView.as_view(), name="event_new"),
+    path('event/<int:pk>/view/', views.EventDetailView.as_view(), name="event_detail"),
+    path('event/<int:pk>/edit/', views.EventUpdateView.as_view(), name="event_edit"),
+    path('event/<int:pk>/delete/', views.EventDeleteView.as_view(), name="event_delete"),
+
+
     #
     # # USER #
     # ########
