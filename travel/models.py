@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from projects import models as projects_models
 from lib.templatetags.custom_filters import nz
+from lib.functions.fiscal_year import fiscal_year
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -63,7 +64,8 @@ class Purpose(models.Model):
 
 
 class Event(models.Model):
-
+    fiscal_year = models.ForeignKey(projects_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
+                                    default=fiscal_year(sap_style=True))
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("connected user"))
     section = models.ForeignKey(projects_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("DFO section"))
@@ -130,25 +132,25 @@ class Event(models.Model):
     def cost_breakdown(self):
         my_str = ""
         if self.air:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("air").verbose_name, self.air)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("air").verbose_name, self.air)
         if self.rail:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("rail").verbose_name, self.rail)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("rail").verbose_name, self.rail)
         if self.rental_motor_vehicle:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("rental_motor_vehicle").verbose_name, self.rental_motor_vehicle)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("rental_motor_vehicle").verbose_name, self.rental_motor_vehicle)
         if self.personal_motor_vehicle:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("personal_motor_vehicle").verbose_name, self.personal_motor_vehicle)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("personal_motor_vehicle").verbose_name, self.personal_motor_vehicle)
         if self.taxi:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("taxi").verbose_name, self.taxi)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("taxi").verbose_name, self.taxi)
         if self.other_transport:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("other_transport").verbose_name, self.other_transport)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("other_transport").verbose_name, self.other_transport)
         if self.accommodations:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("accommodations").verbose_name, self.accommodations)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("accommodations").verbose_name, self.accommodations)
         if self.meals:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("meals").verbose_name, self.meals)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("meals").verbose_name, self.meals)
         if self.incidentals:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("incidentals").verbose_name, self.incidentals)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("incidentals").verbose_name, self.incidentals)
         if self.other:
-            my_str += "{}=${:,.2f};".format( self._meta.get_field("other").verbose_name, self.other)
+            my_str += "{}=${:,.2f};".format(self._meta.get_field("other").verbose_name, self.other)
         return my_str
 
     @property

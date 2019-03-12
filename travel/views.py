@@ -1,25 +1,22 @@
 import json
 import os
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
-from django.db.models import TextField
-from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView, FormView
 ###
+from django_filters.views import FilterView
 
-from lib.functions.nz import nz
+from lib.functions.fiscal_year import fiscal_year
 from . import models
 from . import forms
-from . import emails
+from . import reports
+from . import filters
 
 
 # Create your views here.
@@ -54,15 +51,18 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     template_name = 'travel/index.html'
 
 
-# SERVER #
-##########
-class EventListView(TravelAccessRequiredMixin, ListView):
+# EVENT #
+#########
+class EventListView(TravelAccessRequiredMixin, FilterView):
     model = models.Event
+    filterset_class = filters.EventFilter
+    template_name = 'travel/event_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Event.objects.first()
         context["field_list"] = [
+            'fiscal_year',
             'section',
             'first_name',
             'last_name',
@@ -82,6 +82,7 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'fiscal_year',
             'user',
             'section',
             'first_name',
@@ -173,6 +174,50 @@ class EventDeleteView(TravelAccessRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
+    template_name = 'travel/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_initial(self):
+        return {
+            "fiscal_year": fiscal_year(sap_style=True),
+        }
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        fy = form.cleaned_data["fy"]
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
+                'fy': fy,
+            }))
+
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("travel:report_search"))
+
+
+def export_cfts_list(request, fy):
+    file_url = reports.generate_cfts_spreadsheet(fy)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
 
 # # USER #
 # ##########

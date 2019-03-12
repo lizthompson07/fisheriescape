@@ -16,7 +16,7 @@
 
     <!-- custom CSS -->
     <link rel="stylesheet" href="{% static 'css/master.css' %}?version=1.2">
-{##}
+    {##}
     <!--  Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat|Open+Sans|Roboto" rel="stylesheet">
 
@@ -34,6 +34,12 @@
             WORKING IN DEV MODE
         </div>
     {% endif %}
+
+    <div class="alert alert-danger gone" role="alert" id="browser-warning">
+        <b>
+        {% trans "WARNING: You are using Internet Explorer. Please switch your broswer to Google Chrome or Microsoft Edge." %}
+        </b>
+    </div>
 
     {% autoescape off %}
         {% bootstrap_messages size='small' %}
@@ -131,3 +137,11 @@
 </body>
 </html>
 
+<script type="application/javascript">
+    // Internet Explorer 6-11
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    if(isIE) {
+        $("#browser-warning").removeClass("gone")
+    }
+
+</script>
