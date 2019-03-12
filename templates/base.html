@@ -35,10 +35,12 @@
         </div>
     {% endif %}
 
-    <div class="alert alert-danger gone" role="alert" id="browser-warning">
-        <b>
-        {% trans "WARNING: You are using Internet Explorer. Please switch your broswer to Google Chrome or Microsoft Edge." %}
-        </b>
+    <div class="gone" id="browser-warning">
+        <div class="alert alert-danger " role="alert">
+            <b>
+                {% trans "WARNING: You are using Internet Explorer. Please switch your broswer to Google Chrome or Microsoft Edge." %}
+            </b>
+        </div>
     </div>
 
     {% autoescape off %}
@@ -140,7 +142,7 @@
 <script type="application/javascript">
     // Internet Explorer 6-11
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
-    if(isIE) {
+    if (isIE) {
         $("#browser-warning").removeClass("gone")
     }
 
