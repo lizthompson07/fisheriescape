@@ -77,14 +77,15 @@ class Event(models.Model):
     public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES)
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
-    location = models.CharField(max_length=1000, verbose_name=_("location (e.g., city, province, country)"))
-    conf_start_date = models.DateTimeField(verbose_name=_("start date of conference"))
-    conf_end_date = models.DateTimeField(verbose_name=_("end date of conference"))
+    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location"), blank=True, null=True)
+    destination = models.CharField(max_length=1000, verbose_name=_("destination location"), blank=True, null=True)
+    start_date = models.DateTimeField(verbose_name=_("start date of travel"))
+    end_date = models.DateTimeField(verbose_name=_("end date of travel"))
     event = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a registered event"))
     plan_number = models.CharField(max_length=255, verbose_name=_("plan number"), blank=True, null=True)
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
-    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("rurpose of travel"))
+    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_(
@@ -116,7 +117,7 @@ class Event(models.Model):
         return "{}".format(self.trip_title)
 
     class Meta:
-        ordering = ["-conf_start_date", "last_name"]
+        ordering = ["-start_date", "last_name"]
 
     def get_absolute_url(self):
         return reverse('travel:event_detail', kwargs={'pk': self.id})
