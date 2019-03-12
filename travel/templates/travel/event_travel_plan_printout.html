@@ -1,0 +1,184 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    table.real, td.real, th.real {
+        font-size: small;
+        border: 1px solid black;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    td, th {
+        padding: 1px;
+    }
+
+    th.real {
+        background-color: #ebf597;
+    {#color: white;#} border: 1px solid black;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+    }
+
+    .block {
+        margin-bottom: 10px;
+    }
+
+    h1 {
+        font-size: 18px;
+    }
+
+    @page {
+        size: legal landscape;
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+<div class="block">
+    <table>
+        <td>
+            <div class="block">
+                <table class="real">
+                    <tr class="real">
+                        <th style="width: 100px; text-align: right;" class="real">Period Covered:</th>
+                        <td style="width: 200px; text-align: center;" class="real">{{ object.conf_start_date|date:"F d, Y" }}
+                            to {{ object.conf_end_date|date:"F d, Y" }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="block">
+                <table class="real">
+                    <tr class="real">
+                        <th style="width: 100px; text-align: right;" class="real">Plan number (optional):</th>
+                        <td style="width: 200px; text-align: center;" class="real">{{ object.plan_number }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="block">
+                <table class="real">
+                    <tr class="real">
+                        <th colspan="2" style="width: 300px; text-align: center;" class="real">Traveller's Information</th>
+                    </tr>
+                    <tr>
+                        <th style="width: 100px; text-align: right;" class="real">Name of Traveller:</th>
+                        <td style="width: 200px; text-align: left;" class="real">{{ object.first_name }} {{ object.last_name }}</td>
+                        <th style="width: 200px; text-align: left;" class="real">Public Servant: choose yes or no below</th>
+                    </tr>
+                    <tr>
+                        <th style="width: 100px; text-align: right;" class="real">"Region/Sector/Branch/<br>Directorate/Section:</th>
+                        <td style="width: 200px; text-align: left;" class="real">Gulf/Science and Ecosystems
+                            Management/{{ object.section.name }}</td>
+                        <td style="width: 200px; text-align: left;" class="real">{{ object.public_servent|yesno }}</td>
+                    </tr>
+                    <tr>
+                        <th style="width: 100px; text-align: right;" class="real">Address:</th>
+                        <td style="width: 200px; text-align: left;" class="real">{{ object.address }}</td>
+                        <th style="width: 200px; text-align: left;" class="real">For non public servant, provide company name below (if
+                            applicable)
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="width: 100px; text-align: right;" class="real">Telephone number:</th>
+                        <td style="width: 200px; text-align: left;" class="real">{{ object.phone }}</td>
+                        <td style="width: 200px; text-align: left;" class="real">{{ object.company_name|nz:"" }}</td>
+                    </tr>
+                    <tr>
+                        <th style="width: 100px; text-align: right;" class="real">Email:</th>
+                        <td colspan="2" style="width: 400px; text-align: left;" class="real">{{ object.email }}</td>
+                    </tr>
+                </table>
+            </div>
+
+        </td>
+        <td style="width: 50px"></td>
+        <td>
+
+
+            <h1>Travel Plan</h1>
+            <table style="font-size: small">
+                <tr>
+                    <th style="width: 100px; text-align: left"><u>Purpose of Travel</u></th>
+                    <th style="width: 500px; text-align: left"><u>Explanation</u></th>
+                </tr>
+                {% for purpose in purpose_list %}
+                    <tr>
+                        <td>{{ purpose.name }}</td>
+                        <td>{{ purpose.description_eng }}</td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </td>
+    </table>
+</div>
+<div class="block">
+    <table class="real">
+        <tr class="real">
+            <th rowspan="2" style="text-align: center;" class="real">Amended</th>
+            <th rowspan="2" style="text-align: center;" class="real">Trip</th>
+            <th rowspan="1" colspan="2" style="text-align: center;" class="real">Date</th>
+            <th rowspan="2" style="text-align: center;" class="real">Origin / Destination(s) of Travel</th>
+            <th rowspan="1" colspan="2" style="text-align: center;" class="real">Purpose of Travel</th>
+            <th rowspan="1" colspan="11" style="text-align: center;" class="real">Cost Information (include taxes)</th>
+            <th rowspan="1" colspan="1" style="text-align: center;" class="real">Event</th>
+        </tr>
+        <tr class="real">
+            <th style="text-align: center;" class="real">From<br>DD/MM</th>
+            <th style="text-align: center;" class="real">To<br>DD/MM</th>
+            <th style="text-align: center;" class="real">Trip Purpose</th>
+            <th style="width: 200px; text-align: center;" class="real">If "Other" is chosen as trip purpose, provide detailed explanation
+                and Provide specific trip objective and justification for not using telepresence or other alternative to travel. Provide
+                justification if agenda is not available.
+            </th>
+            <th style="text-align: center;" class="real">Air</th>
+            <th style="text-align: center;" class="real">Rail</th>
+            <th style="text-align: center;" class="real">Rental Motor Vehicle</th>
+            <th style="text-align: center;" class="real">Personal Motor Vehicle</th>
+            <th style="text-align: center;" class="real">Taxi</th>
+            <th style="text-align: center;" class="real">Other Transport</th>
+            <th style="text-align: center;" class="real">Accommodation</th>
+            <th style="text-align: center;" class="real">Meals</th>
+            <th style="text-align: center;" class="real">Incidentals</th>
+            <th style="text-align: center;" class="real">Other</th>
+            <th style="text-align: center;" class="real">Total Trip Amount</th>
+            <th style="text-align: center;" class="real">Is the trip part of an Event?</th>
+        </tr>
+        {% for event in object_list %}
+            <tr>
+                <th style="text-align: center;" class="real"></th>
+                <th style="text-align: center;" class="real">{{ forloop.counter }}</th>
+                <td style="text-align: center;" class="real">{{event.conf_start_date|date:"d-F"}}</td>
+                <td style="text-align: center;" class="real">{{event.conf_end_date|date:"d-F"}}</td>
+
+            </tr>
+        {% endfor %}
+    </table>
+</div>

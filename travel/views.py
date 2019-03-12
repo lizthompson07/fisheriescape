@@ -11,6 +11,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView, FormView
 ###
 from django_filters.views import FilterView
+from easy_pdf.views import PDFTemplateView
 
 from lib.functions.fiscal_year import fiscal_year
 from . import models
@@ -67,9 +68,9 @@ class EventListView(TravelAccessRequiredMixin, FilterView):
             'first_name',
             'last_name',
             'trip_title',
-            'location',
-            'conf_start_date',
-            'conf_end_date',
+            'destination',
+            'start_date',
+            'end_date',
             'plan_number',
             'total_cost',
         ]
@@ -93,9 +94,10 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
             'public_servant',
             'company_name',
             'trip_title',
-            'location',
-            'conf_start_date',
-            'conf_end_date',
+            'departure_location',
+            'destination',
+            'start_date',
+            'end_date',
             'plan_number',
 
             # purpose
@@ -176,6 +178,17 @@ class EventDeleteView(TravelAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class EventPrintDetailView(TravelAccessRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "travel/event_travel_plan_printout.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object = models.Event.objects.get(pk=self.kwargs['pk'])
+        context["object"] = object
+        context["object_list"] = models.Event.objects.filter(first_name=object.first_name, last_name=object.last_name)
+        context["purpose_list"] = models.Purpose.objects.all()
+        return context
 
 # REPORTS #
 ###########
