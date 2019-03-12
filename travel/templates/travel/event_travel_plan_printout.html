@@ -63,13 +63,14 @@
 </div>
 <div class="block">
     <table>
+        <td style="width: 40px;"></td>
         <td>
             <div class="block">
                 <table class="real">
                     <tr class="real">
                         <th style="width: 100px; text-align: right;" class="real">Period Covered:</th>
-                        <td style="width: 200px; text-align: center;" class="real">{{ object.conf_start_date|date:"F d, Y" }}
-                            to {{ object.conf_end_date|date:"F d, Y" }}</td>
+                        <td style="width: 200px; text-align: center;" class="real">{{ object.start_date|date:"F d, Y" }}
+                            to {{ object.end_date|date:"F d, Y" }}</td>
                     </tr>
                 </table>
             </div>
@@ -93,7 +94,7 @@
                         <th style="width: 200px; text-align: left;" class="real">Public Servant: choose yes or no below</th>
                     </tr>
                     <tr>
-                        <th style="width: 100px; text-align: right;" class="real">"Region/Sector/Branch/<br>Directorate/Section:</th>
+                        <th style="width: 100px; text-align: right;" class="real">Region/Sector/Branch/<br>Directorate/Section:</th>
                         <td style="width: 200px; text-align: left;" class="real">Gulf/Science and Ecosystems
                             Management/{{ object.section.name }}</td>
                         <td style="width: 200px; text-align: left;" class="real">{{ object.public_servent|yesno }}</td>
@@ -154,7 +155,7 @@
             <th style="text-align: center;" class="real">From<br>DD/MM</th>
             <th style="text-align: center;" class="real">To<br>DD/MM</th>
             <th style="text-align: center;" class="real">Trip Purpose</th>
-            <th style="width: 200px; text-align: center;" class="real">If "Other" is chosen as trip purpose, provide detailed explanation
+            <th style="text-align: center;" class="real">If "Other" is chosen as trip purpose, provide detailed explanation
                 and Provide specific trip objective and justification for not using telepresence or other alternative to travel. Provide
                 justification if agenda is not available.
             </th>
@@ -173,12 +174,103 @@
         </tr>
         {% for event in object_list %}
             <tr>
-                <th style="text-align: center;" class="real"></th>
-                <th style="text-align: center;" class="real">{{ forloop.counter }}</th>
-                <td style="text-align: center;" class="real">{{event.conf_start_date|date:"d-F"}}</td>
-                <td style="text-align: center;" class="real">{{event.conf_end_date|date:"d-F"}}</td>
-
+                {% with 100 as w %}
+                    <th style="width: {{ w }}px; text-align: center;" class="real"></th>
+                    <th style="width: {{ w }}px; text-align: center;" class="real">{{ forloop.counter }}</th>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.start_date|date:"d-F" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.end_date|date:"d-F" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.departure_location }}
+                        to {{ event.destination }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.purpose }}</td>
+                    <td style="width: 250px; text-align: left;" class="real">{{ event.purpose_long }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.air|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.rail|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.rental_motor_vehicle|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.personal_motor_vehicle|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.taxi|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.other_transport|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.accommodations|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.meals|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.incidentals|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.other|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.total_cost|currency|nz:"" }}</td>
+                    <td style="width: {{ w }}px; text-align: center;" class="real">{{ event.event|yesno }}</td>
+                {% endwith %}
             </tr>
         {% endfor %}
+        <tr>
+            {% with 100 as w %}
+                <td style="width: {{ w }}px; text-align: center;" class="hide-cell"></td>
+                <td style="width: {{ w }}px; text-align: center;" class=""></td>
+                <td style="width: {{ w }}px; text-align: center;" class=""></td>
+                <td style="width: {{ w }}px; text-align: center;" class=""></td>
+                <td style="width: {{ w }}px; text-align: center;" class=""></td>
+                <td style="width: {{ w }}px; text-align: center;" class=""></td>
+                <td style="width: 250px; text-align: center;" class="real"></td>
+                {# starting with AIR #}
+                <td style="width: {{ w }}px; text-align: center;" class="real">total</td>
+                <td style="width: {{ w }}px; text-align: center;" class="real">total</td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+                <td style="width: {{ w }}px; text-align: center;" class="real"></td>
+            {% endwith %}
+        </tr>
     </table>
 </div>
+
+{# signatures #}
+
+<div class="block">
+    <table>
+        <td>
+            <table style="margin-bottom: 20px" >
+                <tr>
+                    <th style="width: 600px; text-align: right">Traveller:</th>
+                    <td style="width: 500px; text-align: left">___________________________________________</td>
+                    <th style="text-align: right">Date:</th>
+                    <td style="text-align: left">___________________</td>
+                </tr>
+                <tr>
+                    <th style="text-align: right">Expenditure Initiation approved by (Print):</th>
+                    <td style="text-align: left" colspan="3"><u>Serge Doucet, Regional Director General, Gulf Region</u></td>
+                </tr>
+                <tr>
+                    <th style="text-align: right">Signature:</th>
+                    <td style="text-align: left">___________________________________________</td>
+                    <th style="text-align: right">Date:</th>
+                    <td style="text-align: left">___________________</td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <th style="width: 600px; text-align: right">Recommended by:</th>
+                    <td style="width: 500px; text-align: right">___________________________________________</td>
+                    <th style="text-align: right">Date:</th>
+                    <td style="text-align: right">___________________</td>
+                </tr>
+                <tr>
+                    <th style="width: 600px; text-align: right">Recommended by:</th>
+                    <td style="width: 500px; text-align: right">___________________________________________</td>
+                    <th style="text-align: right">Date:</th>
+                    <td style="text-align: right">___________________</td>
+                </tr>
+                <tr>
+                    <th style="width: 600px; text-align: right">Recommended by:</th>
+                    <td style="width: 500px; text-align: right">___________________________________________</td>
+                    <th style="text-align: right">Date:</th>
+                    <td style="text-align: right">___________________</td>
+                </tr>
+            </table>
+        </td>
+    </table>
+</div>
+
