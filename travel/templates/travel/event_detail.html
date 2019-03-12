@@ -19,7 +19,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:server_list' %}">Servers</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Events</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -30,10 +30,10 @@
 
 
         <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'travel:server_edit' object.id %}">
+            <a class="btn btn-warning" href="{% url 'travel:event_edit' object.id %}">
                 Edit
             </a>
-            <a class="btn btn-danger " href="{% url 'travel:server_delete' object.id %}">
+            <a class="btn btn-danger " href="{% url 'travel:event_delete' object.id %}">
                 Delete
             </a>
 
@@ -41,23 +41,16 @@
         <br><br>
 
         <div class="row">
-            <div class="col-3">
+            <div class="col">
                 <h3>
-                    Server Detail:
+                    Event Detail:
                 </h3>
 
                 {% for field in field_list %}
-                    {% verbose_field_display object field %}
+                    {% verbose_field_display object field format="currency" %}
                 {% endfor %}
                 <br>
 
-            </div>
-            <div class="col">
-               {% include "travel/_users.html" %}
-            </div>
-
-            <div class="col">
-               {% include "travel/_travel.html" %}
             </div>
         </div>
     </div>

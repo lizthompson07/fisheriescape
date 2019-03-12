@@ -11,15 +11,25 @@ YES_NO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
 )
-#
-# class ServerForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Server
-#         fields = "__all__"
-#
-#         widgets = {
-#             'notes': forms.Textarea(attrs={"rows": 3}),
-#         }
+
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = models.Event
+        exclude = ["total_cost", ]
+
+        widgets = {
+            'conf_start_date': forms.DateInput(attrs={"type": "date"}),
+            'conf_end_date': forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
+                        AuthUser.objects.all().order_by("last_name", "first_name")]
+        USER_CHOICES.insert(0, tuple((None, "---")))
+
+        super().__init__(*args, **kwargs)
+        self.fields['user'].queryset = AuthUser.objects.all().order_by("last_name", "first_name")
+        self.fields['user'].choices = USER_CHOICES
 #
 # class UserForm(forms.ModelForm):
 #     class Meta:
@@ -48,6 +58,6 @@ YES_NO_CHOICES = (
 #         }
 #
 #     def __init__(self, *args, **kwargs):
-#         USER_CHOICES = [(u.id, u.username) for u in models.User.objects.filter(server_id=5).order_by("username")]
+#         USER_CHOICES = [(u.id, u.username) for u in models.User.objects.filter(event_id=5).order_by("username")]
 #         super().__init__(*args, **kwargs)
 #         self.fields['users'].choices = USER_CHOICES
