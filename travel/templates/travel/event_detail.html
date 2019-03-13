@@ -39,6 +39,9 @@
             <a class="btn btn-success " href="{% url 'travel:travel_plan' object.fiscal_year_id object.email %}">
                 Print Travel Plan
             </a>
+            <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id  %}">
+                Use as template
+            </a>
         </div>
         <br><br>
 
