@@ -36,7 +36,7 @@
             <a class="btn btn-danger " href="{% url 'travel:event_delete' object.id %}">
                 Delete
             </a>
-            <a class="btn btn-success " href="{% url 'travel:event_print' object.id %}">
+            <a class="btn btn-success " href="{% url 'travel:travel_plan' object.fiscal_year_id object.email %}">
                 Print Travel Plan
             </a>
         </div>

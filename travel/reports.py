@@ -30,12 +30,21 @@ def generate_cfts_spreadsheet(fiscal_year):
     #############################
 
     # get a project list for the year
-    event_list = models.Event.objects.filter(year=fiscal_year)
+    event_list = models.Event.objects.filter(fiscal_year_id=fiscal_year)
 
     header = [
-        "Event ID",
-        verbose_field_name(event_list.first(), 'project_title'),
-
+        "Name",
+        "Region",
+        "Primary Role of Traveller",
+        "Primary Reason for Travel",
+        "Event",
+        "Location",
+        "Start Date",
+        "End Date",
+        "Est. DFO Cost",
+        "Est. Non-DFO Cost",
+        "Purpose",
+        "Notes",
     ]
 
     # create the col_max column to store the length of each header
@@ -53,40 +62,19 @@ def generate_cfts_spreadsheet(fiscal_year):
             section = "MISSING"
 
         data_row = [
-            p.id,
-            p.project_title,
-            division,
-            section,
-            program,
-            p.coding,
-            status,
-            lead,
-            yesno(p.approved),
-            start,
-            end,
-            p.description,
-            p.priorities,
-            p.deliverables,
-            p.data_collection,
-            p.data_sharing,
-            p.data_storage,
-            p.metadata_url,
-            p.regional_dm,
-            p.regional_dm_needs,
-            p.sectional_dm,
-            p.sectional_dm_needs,
-            p.vehicle_needs,
-            p.it_needs,
-            p.chemical_needs,
-            p.ship_needs,
-            fte_total,
-            salary_total,
-            ot_total,
-            om_total,
-            capital_total,
-            gc_total,
-            yesno(p.submitted),
-            yesno(p.section_head_approved, "yes,no,no"),
+
+            "{}, {}".format(e.last_name,e.first_name),
+            "Gulf",
+            str(e.role),
+            str(e.reason),
+            e.trip_title,
+            e.destination,
+            e.start_date.strftime("%d/%m/%Y"),
+            e.end_date.strftime("%d/%m/%Y"),
+            e.total_cost,
+            "0",
+            e.purpose_long_text,
+            e.cost_breakdown,
         ]
 
         # adjust the width of the columns based on the max string length in each col
