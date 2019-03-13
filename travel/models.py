@@ -75,14 +75,13 @@ class Event(models.Model):
     phone = models.CharField(max_length=1000, verbose_name=_("phone"))
     email = models.EmailField(verbose_name=_("email"))
     public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES)
-    company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
+    company_name = models.CharField(max_length=255, verbose_name=_("company name (leave blank if DFO)"), blank=True, null=True)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location"), blank=True, null=True)
     destination = models.CharField(max_length=1000, verbose_name=_("destination location"), blank=True, null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"))
     end_date = models.DateTimeField(verbose_name=_("end date of travel"))
     event = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a registered event"))
-    plan_number = models.CharField(max_length=255, verbose_name=_("plan number"), blank=True, null=True)
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
@@ -98,6 +97,7 @@ class Event(models.Model):
         "rationale for individual attending multiple conferences"))
     multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for multiple attendees at this event"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes (will not be included in travel plan)"))
 
     # costs
     air = models.FloatField(blank=True, null=True, verbose_name=_("air fare costs"))
@@ -109,6 +109,7 @@ class Event(models.Model):
     accommodations = models.FloatField(blank=True, null=True, verbose_name=_("accommodation costs"))
     meals = models.FloatField(blank=True, null=True, verbose_name=_("meal costs"))
     incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidental costs"))
+    registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
     other = models.FloatField(blank=True, null=True, verbose_name=_("other costs"))
 
     total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost"))
@@ -126,7 +127,7 @@ class Event(models.Model):
         # total cost
         self.total_cost = nz(self.air, 0) + nz(self.rail, 0) + nz(self.rental_motor_vehicle, 0) + nz(self.personal_motor_vehicle, 0) + nz(
             self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.meals, 0) + nz(self.incidentals, 0) + nz(
-            self.other, 0)
+            self.other, 0) + nz(self.registration, 0)
         self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
         return super().save(*args, **kwargs)
 
@@ -151,6 +152,8 @@ class Event(models.Model):
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("meals").verbose_name, self.meals)
         if self.incidentals:
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("incidentals").verbose_name, self.incidentals)
+        if self.registration:
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("registration").verbose_name, self.registration)
         if self.other:
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other").verbose_name, self.other)
         return my_str
