@@ -17,8 +17,8 @@ class EventForm(forms.ModelForm):
         exclude = ["total_cost", ]
 
         widgets = {
-            'conf_start_date': forms.DateInput(attrs={"type": "date"}),
-            'conf_end_date': forms.DateInput(attrs={"type": "date"}),
+            'start_date': forms.DateInput(attrs={"type": "date"}),
+            'end_date': forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):
