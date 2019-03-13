@@ -15,6 +15,7 @@ from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
 from lib.functions.fiscal_year import fiscal_year
+from lib.templatetags.custom_filters import nz
 from . import models
 from . import forms
 from . import reports
@@ -256,8 +257,11 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         for key in key_list:
             # registration is not in the travel plan form. therefore it should be added under the 'other' category
             if key == "other":
-                total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'] + \
-                                  object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))['dsum']
+                total_dict[key] = nz(object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'],0) + \
+                                  nz(object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))['dsum'],0)
+                # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
+                if total_dict[key] == 0:
+                    total_dict[key] = None
             else:
                 total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum']
         context['total_dict'] = total_dict
