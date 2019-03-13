@@ -178,18 +178,6 @@ class EventDeleteView(TravelAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class EventPrintDetailView(TravelAccessRequiredMixin, PDFTemplateView):
-    login_url = '/accounts/login_required/'
-    template_name = "travel/event_travel_plan_printout.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        object = models.Event.objects.get(pk=self.kwargs['pk'])
-        context["object"] = object
-        context["object_list"] = models.Event.objects.filter(first_name=object.first_name, last_name=object.last_name)
-        context["purpose_list"] = models.Purpose.objects.all()
-        return context
-
 # REPORTS #
 ###########
 
@@ -208,11 +196,17 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        fy = form.cleaned_data["fy"]
+        fy = form.cleaned_data["fiscal_year"]
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
                 'fy': fy,
+            }))
+        elif report == 2:
+            email = form.cleaned_data["traveller"]
+            return HttpResponseRedirect(reverse("travel:travel_plan", kwargs={
+                'fy': fy,
+                'email': email,
             }))
 
         else:
@@ -232,145 +226,15 @@ def export_cfts_list(request, fy):
     raise Http404
 
 
-# # USER #
-# ##########
-# class UserListView(travelAdminRequiredMixin, ListView):
-#     model = models.User
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["my_object"] = models.User.objects.first()
-#         context["field_list"] = [
-#             'server',
-#             'username',
-#             'travel',
-#             'status',
-#         ]
-#         return context
-#
-#
-# class UserDetailView(travelAdminRequiredMixin, DetailView):
-#     model = models.User
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'username',
-#             'password',
-#             'server',
-#             'notes',
-#             'status',
-#         ]
-#         return context
-#
-#
-# class UserUpdateView(travelAdminRequiredMixin, UpdateView):
-#     model = models.User
-#     form_class = forms.UserForm
-#
-#
-# class UserCreateView(travelAdminRequiredMixin, CreateView):
-#     model = models.User
-#     form_class = forms.UserForm
-#
-#
-# class UserCreateViewPopout(travelAdminRequiredMixin, CreateView):
-#     model = models.User
-#     form_class = forms.UserForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('travel:close_me'))
-#
-#
-# class UserDeleteView(travelAdminRequiredMixin, DeleteView):
-#     model = models.User
-#     success_url = reverse_lazy('travel:event_list')
-#     success_message = 'The user was deleted successfully!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-# def send_instructions(request, pk):
-#     # create a new email object
-#     my_user = models.User.objects.get(pk=pk)
-#     email = emails.SendInstructionsEmail(my_user)
-#     # send the email object
-#     if settings.MY_ENVR != 'dev':
-#         send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-#                   recipient_list=email.to_list, fail_silently=False, )
-#     else:
-#         print('not sending email since in dev mode')
-#         print("from={}".format(email.from_email))
-#         print("to={}".format(email.to_list))
-#         print("subject={}".format(email.subject))
-#         print("message={}".format(email.message))
-#
-#     messages.success(request, "An email has been sent to the user with setup instructions!")
-#
-#     return HttpResponseRedirect(reverse("travel:user_detail", kwargs={"pk": pk}))
-#
-#
-# # SHARE #
-# #########
-# class ShareListView(travelAdminRequiredMixin, ListView):
-#     model = models.Share
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["my_object"] = models.Share.objects.first()
-#         context["field_list"] = [
-#             'server',
-#             'name',
-#             'local_path',
-#             'mounted_path',
-#             'network_path',
-#         ]
-#         return context
-#
-#
-# class ShareDetailView(travelAdminRequiredMixin, DetailView):
-#     model = models.Share
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'server',
-#             'name',
-#             'local_path',
-#             'mounted_path',
-#             'network_path',
-#             'notes',
-#         ]
-#         return context
-#
-#
-# class ShareUpdateView(travelAdminRequiredMixin, UpdateView):
-#     model = models.Share
-#     form_class = forms.ShareForm
-#
-#
-# class ShareCreateView(travelAdminRequiredMixin, CreateView):
-#     model = models.Share
-#     form_class = forms.ShareForm
-#
-#
-# class ShareCreateViewPopout(travelAdminRequiredMixin, CreateView):
-#     model = models.Share
-#     form_class = forms.ShareForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('travel:close_me'))
-#
-#
-# class ShareDeleteView(travelAdminRequiredMixin, DeleteView):
-#     model = models.Share
-#     success_url = reverse_lazy('travel:event_list')
-#     success_message = 'The share was deleted successfully!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
+class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "travel/travel_plan.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object_list = models.Event.objects.filter(fiscal_year_id=self.kwargs['fy'], email=self.kwargs['email'])
+        print(object_list)
+        context["object_list"] = object_list
+        context["object"] = object_list.first()
+        context["purpose_list"] = models.Purpose.objects.all()
+        return context
