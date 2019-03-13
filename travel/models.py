@@ -97,6 +97,7 @@ class Event(models.Model):
         "rationale for individual attending multiple conferences"))
     multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for multiple attendees at this event"))
+    funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes (will not be included in travel plan)"))
 
     # costs
@@ -162,28 +163,34 @@ class Event(models.Model):
     def purpose_long(self):
         my_str = ""
         if self.role_of_participant:
-            my_str += "{}".format(self.role_of_participant)
+            my_str += "<em>Role of Participant:</em> {}".format(self.role_of_participant)
         if self.objective_of_event:
-            my_str += "<br><br>{}".format(self.objective_of_event)
+            my_str += "<br><em>Objective of Event:</em> {}".format(self.objective_of_event)
         if self.benefit_to_dfo:
-            my_str += "<br><br>{}".format(self.benefit_to_dfo)
+            my_str += "<br><em>Benefit to DFO:</em> {}".format(self.benefit_to_dfo)
         if self.multiple_conferences_rationale:
-            my_str += "<br><br>{}".format(self.multiple_conferences_rationale)
+            my_str += "<br><em>Rationale for attending multiple conferences:</em> {}".format(self.multiple_conferences_rationale)
         if self.multiple_attendee_rationale:
-            my_str += "<br><br>{}".format(self.multiple_attendee_rationale)
+            my_str += "<br><em>Rationale for multiple attendees:</em> {}".format(self.multiple_attendee_rationale)
+        if self.funding_source:
+            my_str += "<br><em>Funding source:</em> {}".format(self.multiple_attendee_rationale)
+
         return my_str
 
     @property
     def purpose_long_text(self):
         my_str = ""
         if self.role_of_participant:
-            my_str += "{}".format(self.role_of_participant)
+            my_str += "Role of Participant: {}".format(self.role_of_participant)
         if self.objective_of_event:
-            my_str += " {}".format(self.objective_of_event)
+            my_str += "\nObjective of Event: {}".format(self.objective_of_event)
         if self.benefit_to_dfo:
-            my_str += " {}".format(self.benefit_to_dfo)
+            my_str += "\nBenefit to DFO: {}".format(self.benefit_to_dfo)
         if self.multiple_conferences_rationale:
-            my_str += " {}".format(self.multiple_conferences_rationale)
+            my_str += "\nRationale for attending multiple conferences: {}".format(self.multiple_conferences_rationale)
         if self.multiple_attendee_rationale:
-            my_str += " {}".format(self.multiple_attendee_rationale)
+            my_str += "\nRationale for multiple attendees: {}".format(self.multiple_attendee_rationale)
+        if self.funding_source:
+            my_str += "\nFunding source: {}".format(self.multiple_attendee_rationale)
+
         return my_str

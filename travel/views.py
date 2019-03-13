@@ -235,7 +235,6 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         object_list = models.Event.objects.filter(fiscal_year_id=self.kwargs['fy'], email=self.kwargs['email'])
-        print(object_list)
         context["object_list"] = object_list
         context["object"] = object_list.first()
         context["purpose_list"] = models.Purpose.objects.all()
@@ -255,7 +254,12 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         ]
         total_dict = {}
         for key in key_list:
-            total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum']
+            # registration is not in the travel plan form. therefore it should be added under the 'other' category
+            if key == "other":
+                total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'] + \
+                                  object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))['dsum']
+            else:
+                total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum']
         context['total_dict'] = total_dict
         context['key_list'] = key_list
         return context
