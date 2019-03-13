@@ -119,7 +119,7 @@ class Event(models.Model):
         return "{}".format(self.trip_title)
 
     class Meta:
-        ordering = ["-start_date", "last_name"]
+        ordering = ["start_date", "last_name"]
 
     def get_absolute_url(self):
         return reverse('travel:event_detail', kwargs={'pk': self.id})

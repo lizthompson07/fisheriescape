@@ -181,6 +181,16 @@ class EventDeleteView(TravelAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+def duplicate_event(request, pk):
+    # get record to duplicate
+    event = models.Event.objects.get(pk=pk)
+    # remove the pk
+    event.pk = None
+    # save the record
+    event.save()
+    return HttpResponseRedirect(reverse("travel:event_edit", kwargs={"pk": event.id}))
+
+
 # REPORTS #
 ###########
 
@@ -257,8 +267,9 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         for key in key_list:
             # registration is not in the travel plan form. therefore it should be added under the 'other' category
             if key == "other":
-                total_dict[key] = nz(object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'],0) + \
-                                  nz(object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))['dsum'],0)
+                total_dict[key] = nz(object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'], 0) + \
+                                  nz(object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))[
+                                         'dsum'], 0)
                 # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
                 if total_dict[key] == 0:
                     total_dict[key] = None
