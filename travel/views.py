@@ -72,7 +72,6 @@ class EventListView(TravelAccessRequiredMixin, FilterView):
             'destination',
             'start_date',
             'end_date',
-            'plan_number',
             'total_cost',
         ]
         return context
@@ -99,7 +98,6 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
             'destination',
             'start_date',
             'end_date',
-            'plan_number',
 
             # purpose
             'role',
@@ -111,6 +109,8 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
             'multiple_conferences_rationale',
             'multiple_attendee_rationale',
 
+            'notes',
+
             # costs
             'air',
             'rail',
@@ -121,6 +121,7 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
             'accommodations',
             'meals',
             'incidentals',
+            'registration',
             'other',
             'total_cost',
             'cost_breakdown|{}'.format(_("cost summary")),
