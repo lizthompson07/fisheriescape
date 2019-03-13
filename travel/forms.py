@@ -14,7 +14,7 @@ YES_NO_CHOICES = (
 class EventForm(forms.ModelForm):
     class Meta:
         model = models.Event
-        exclude = ["total_cost", ]
+        exclude = ["total_cost", "fiscal_year", ]
 
         widgets = {
             'start_date': forms.DateInput(attrs={"type": "date"}),

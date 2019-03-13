@@ -65,7 +65,7 @@ class Purpose(models.Model):
 
 class Event(models.Model):
     fiscal_year = models.ForeignKey(projects_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
-                                    default=fiscal_year(sap_style=True))
+                                    default=fiscal_year(sap_style=True), blank=True, null=True)
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("connected user"))
     section = models.ForeignKey(projects_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("DFO section"))
@@ -127,6 +127,7 @@ class Event(models.Model):
         self.total_cost = nz(self.air, 0) + nz(self.rail, 0) + nz(self.rental_motor_vehicle, 0) + nz(self.personal_motor_vehicle, 0) + nz(
             self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.meals, 0) + nz(self.incidentals, 0) + nz(
             self.other, 0)
+        self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
         return super().save(*args, **kwargs)
 
     @property
