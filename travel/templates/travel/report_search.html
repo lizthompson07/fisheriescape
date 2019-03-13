@@ -65,6 +65,10 @@
                     <div class="fiscal_year_div">
                         {% bootstrap_field field %}
                     </div>
+                {% elif field.name == "traveller" %}
+                    <div class="traveller_div">
+                        {% bootstrap_field field %}
+                    </div>
 
                 {% else %}
                     {% bootstrap_field field %}
@@ -85,20 +89,11 @@
     <script type="application/javascript">
 
         function hideAll() {
-            $(".province_div").addClass("gone");
-            $(".grouping_div").addClass("gone");
-            $(".sector_div").addClass("gone");
-            $(".region_div").addClass("gone");
-            $(".indigenous_div").addClass("gone");
-            $(".species_div").addClass("gone");
+            $(".fiscal_year_div").addClass("gone");
+            $(".traveller_div").addClass("gone");
 
-            $("#id_report").prop('required', true);
-            $("#id_provinces").prop('required', false);
-            $("#id_groupings").prop('required', false);
-            $("#id_sectors").prop('required', false);
-            $("#id_regions").prop('required', false);
-            $("#id_is_indigenous").prop('required', false);
-            $("#id_species").prop('required', false);
+            $("#id_fiscal_year").prop('required', true);
+            $("#id_traveller").prop('required', false);
 
         }
 
@@ -106,20 +101,12 @@
             var reportChoice = $("#id_report")[0].value;
             // species count report
             if (reportChoice == 1) {
-                $(".province_div").removeClass("gone");
-                $(".grouping_div").removeClass("gone");
-                $(".sector_div").removeClass("gone");
-                $(".region_div").removeClass("gone");
-                $(".indigenous_div").removeClass("gone");
-                $(".species_div").removeClass("gone");
-
-                $("#id_provinces").multiSelect()
-                $("#id_groupings").multiSelect()
-                $("#id_sectors").multiSelect()
-                $("#id_regions").multiSelect()
+                $(".fiscal_year_div").removeClass("gone");
             }
             if (reportChoice == 2) {
-                // not developed
+                $(".fiscal_year_div").removeClass("gone");
+                $(".traveller_div").removeClass("gone");
+
             }
 
         }
