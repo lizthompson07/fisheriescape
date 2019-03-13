@@ -4,6 +4,7 @@ import os
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -237,4 +238,23 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         context["object_list"] = object_list
         context["object"] = object_list.first()
         context["purpose_list"] = models.Purpose.objects.all()
+
+        key_list = [
+            'air',
+            'rail',
+            'rental_motor_vehicle',
+            'personal_motor_vehicle',
+            'taxi',
+            'other_transport',
+            'accommodations',
+            'meals',
+            'incidentals',
+            'other',
+            'total_cost',
+        ]
+        total_dict = {}
+        for key in key_list:
+            total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum']
+        context['total_dict'] = total_dict
+        context['key_list'] = key_list
         return context

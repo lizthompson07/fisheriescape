@@ -133,25 +133,25 @@ class Event(models.Model):
     def cost_breakdown(self):
         my_str = ""
         if self.air:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("air").verbose_name, self.air)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("air").verbose_name, self.air)
         if self.rail:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("rail").verbose_name, self.rail)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("rail").verbose_name, self.rail)
         if self.rental_motor_vehicle:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("rental_motor_vehicle").verbose_name, self.rental_motor_vehicle)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("rental_motor_vehicle").verbose_name, self.rental_motor_vehicle)
         if self.personal_motor_vehicle:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("personal_motor_vehicle").verbose_name, self.personal_motor_vehicle)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("personal_motor_vehicle").verbose_name, self.personal_motor_vehicle)
         if self.taxi:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("taxi").verbose_name, self.taxi)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("taxi").verbose_name, self.taxi)
         if self.other_transport:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("other_transport").verbose_name, self.other_transport)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other_transport").verbose_name, self.other_transport)
         if self.accommodations:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("accommodations").verbose_name, self.accommodations)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("accommodations").verbose_name, self.accommodations)
         if self.meals:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("meals").verbose_name, self.meals)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("meals").verbose_name, self.meals)
         if self.incidentals:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("incidentals").verbose_name, self.incidentals)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("incidentals").verbose_name, self.incidentals)
         if self.other:
-            my_str += "{}=${:,.2f};".format(self._meta.get_field("other").verbose_name, self.other)
+            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other").verbose_name, self.other)
         return my_str
 
     @property
@@ -167,4 +167,19 @@ class Event(models.Model):
             my_str += "<br><br>{}".format(self.multiple_conferences_rationale)
         if self.multiple_attendee_rationale:
             my_str += "<br><br>{}".format(self.multiple_attendee_rationale)
+        return my_str
+
+    @property
+    def purpose_long_text(self):
+        my_str = ""
+        if self.role_of_participant:
+            my_str += "{}".format(self.role_of_participant)
+        if self.objective_of_event:
+            my_str += " {}".format(self.objective_of_event)
+        if self.benefit_to_dfo:
+            my_str += " {}".format(self.benefit_to_dfo)
+        if self.multiple_conferences_rationale:
+            my_str += " {}".format(self.multiple_conferences_rationale)
+        if self.multiple_attendee_rationale:
+            my_str += " {}".format(self.multiple_attendee_rationale)
         return my_str
