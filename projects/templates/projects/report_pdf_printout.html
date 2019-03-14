@@ -76,7 +76,7 @@
             </h3>
             <ol>
                 {% for project in section.projects.all %}
-                    {% if project.submitted and project.section_head_approved != None %}
+                    {% if project.submitted and project.section_head_approved %}
                         <li>{{ project }}</li>
                     {% endif %}
                 {% endfor %}
