@@ -5,3 +5,4 @@
 
 # TODO: pdf printout should ba able to export for a section
 # TODO: update translation
+# TODO: PROBLEM WITH APPROVED FILTER ON SECTION VIEW... should turn field into a boolean

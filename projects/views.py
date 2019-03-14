@@ -770,9 +770,9 @@ def toggle_project_approval(request, project):
     my_proj = models.Project.objects.get(pk=project)
 
     if my_proj.section_head_approved:
-        my_proj.section_head_approved = None
+        my_proj.section_head_approved = False
     else:
-        my_proj.section_head_approved = timezone.now()
+        my_proj.section_head_approved = True
 
     my_proj.save()
 
@@ -834,7 +834,7 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved__isnull=False)
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True)
         context["fy"] = fy
         context["report_mode"] = True
         context["object_list"] = project_list
@@ -919,14 +919,14 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
         #                                 for
         #                                 collaborator in project.collaborators.all()]
         context["collaborator_list"] = [collaborator for collaborator in models.Collaborator.objects.filter(project__submitted=True).filter(
-            project__section_head_approved__isnull=False)]
+            project__section_head_approved=True)]
 
         # get a list of the agreements
         # context["agreement_list"] = [agreement for project in project_list.order_by("section__division", "section", "project_title")
         #                              for agreement in project.agreements.all()]
         context["agreement_list"] = [agreement for agreement in
                                      models.CollaborativeAgreement.objects.filter(project__submitted=True).filter(
-                                         project__section_head_approved__isnull=False)]
+                                         project__section_head_approved=True)]
 
         return context
 

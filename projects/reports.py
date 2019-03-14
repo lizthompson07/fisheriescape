@@ -201,7 +201,7 @@ def generate_master_spreadsheet(fiscal_year, user=None):
             capital_total,
             gc_total,
             yesno(p.submitted),
-            yesno(p.section_head_approved, "yes,no,no"),
+            yesno(p.section_head_approved),
         ]
 
         # adjust the width of the columns based on the max string length in each col
