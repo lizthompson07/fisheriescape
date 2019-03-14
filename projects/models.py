@@ -157,7 +157,7 @@ class Project(models.Model):
     feedback = models.TextField(blank=True, null=True,
                                 verbose_name=_("Do you have any feedback you would like to submit about this process"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
-    section_head_approved = models.DateTimeField(blank=True, null=True)
+    section_head_approved = models.BooleanField(default=False, verbose_name=_("section head approved"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
                                               verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
