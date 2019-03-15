@@ -110,6 +110,7 @@ class PersonDetailView(iHubAccessRequiredMixin, DetailView):
             'email_1',
             'email_2',
             'notes',
+            'last_modified_by',
         ]
         return context
 
@@ -119,6 +120,14 @@ class PersonUpdateView(iHubAccessRequiredMixin, UpdateView):
     template_name = 'ihub/person_form.html'
     form_class = forms.PersonForm
 
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk":object.id}))
 
 class PersonUpdateViewPopout(iHubAccessRequiredMixin, UpdateView):
     template_name = 'ihub/person_form_popout.html'
@@ -129,12 +138,24 @@ class PersonUpdateViewPopout(iHubAccessRequiredMixin, UpdateView):
         object = form.save()
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
 
 class PersonCreateView(iHubAccessRequiredMixin, CreateView):
     model = ml_models.Organization
     template_name = 'ihub/person_form.html'
     form_class = forms.PersonForm
 
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk":object.id}))
 
 class PersonCreateViewPopout(iHubAccessRequiredMixin, CreateView):
     model = ml_models.Person
@@ -145,6 +166,10 @@ class PersonCreateViewPopout(iHubAccessRequiredMixin, CreateView):
         object = form.save()
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
 
 class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.Person
@@ -246,6 +271,7 @@ class MemberCreateView(iHubAccessRequiredMixin, CreateView):
         org = ml_models.Organization.objects.get(pk=self.kwargs['org'])
         return {
             'organization': org,
+            'last_modified_by': self.request.user,
         }
 
     def get_context_data(self, **kwargs):
@@ -293,6 +319,10 @@ class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
 
         return context
 
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
 
 def member_delete(request, pk):
     object = ml_models.OrganizationMember.objects.get(pk=pk)
