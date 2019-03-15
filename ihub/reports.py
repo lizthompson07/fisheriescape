@@ -2,13 +2,13 @@ import xlsxwriter as xlsxwriter
 from django.template.defaultfilters import yesno
 from django.utils import timezone
 from django.conf import settings
+from django.utils.translation import gettext as _
 
 from lib.functions.nz import nz
 from lib.templatetags.verbose_names import get_verbose_label
 from . import models
 import os
 from masterlist import models as ml_models
-
 
 
 def generate_capacity_spreadsheet(fy=None, orgs=None):
@@ -49,7 +49,7 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
         get_verbose_label(entry_list.first(), 'amount_approved'),
         get_verbose_label(entry_list.first(), 'amount_transferred'),
         get_verbose_label(entry_list.first(), 'amount_lapsed'),
-        "Amount outstanding",
+        _("Amount outstanding"),
     ]
 
     # worksheets #
@@ -149,18 +149,18 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
 
             # sum all the currency columns
             total_row = [
-                "GRAND TOTAL:",
+                _("GRAND TOTAL:"),
                 tot_requested,
                 tot_approved,
                 tot_transferred,
                 tot_lapsed,
                 tot_outstanding,
             ]
-            my_ws.write_row(i + 2, header.index("Funding requested") - 1, total_row, total_format)
+            my_ws.write_row(i + 2, header.index(_("Funding Requested").title()) - 1, total_row, total_format)
 
             # set formatting for status
             for status in models.Status.objects.all():
-                my_ws.conditional_format(0, header.index("Status"), i, header.index("Status"),
+                my_ws.conditional_format(0, header.index(_("status").title()), i, header.index(_("status").title()),
                                          {
                                              'type': 'cell',
                                              'criteria': 'equal to',
@@ -170,7 +170,7 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
 
             # set formatting for entry type
             for entry_type in models.EntryType.objects.all():
-                my_ws.conditional_format(0, header.index("Entry type"), i, header.index("Entry type"),
+                my_ws.conditional_format(0, header.index(_("Entry Type").title()), i, header.index(_("Entry Type").title()),
                                          {
                                              'type': 'cell',
                                              'criteria': 'equal to',

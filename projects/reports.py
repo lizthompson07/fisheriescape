@@ -21,9 +21,9 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     worksheet2 = workbook.add_worksheet(name="FTE List")
     worksheet3 = workbook.add_worksheet(name="Collaborators")
     worksheet4 = workbook.add_worksheet(name="Collaborative Agreements")
-    worksheet5 = workbook.add_worksheet(name="O&M Requests")
-    worksheet6 = workbook.add_worksheet(name="Capital Requests")
-    worksheet7 = workbook.add_worksheet(name="G&C Requests")
+    worksheet5 = workbook.add_worksheet(name="O & M")
+    worksheet6 = workbook.add_worksheet(name="Capital")
+    worksheet7 = workbook.add_worksheet(name="Gs & Cs")
 
     # create formatting
     header_format = workbook.add_format(
@@ -117,7 +117,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
             'Total FTE (weeks)',
             'Total Salary (in excess of FTE)',
             'Total OT (hours)',
-            'Total O&M',
+            'Total O & M (including staff)',
             'Total Capital',
             'Total G&Cs',
             verbose_field_name(project_list[0], 'submitted'),
@@ -153,8 +153,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
                         om_total += nz(staff.cost, 0)
 
                 # include only FTEs
-                if staff.employee_type.id == 1 or staff.employee_type.id == 6:
-                    fte_total += nz(staff.duration_weeks, 0)
+                fte_total += nz(staff.duration_weeks, 0)
 
                 ot_total += nz(staff.overtime_hours, 0)
 
@@ -270,7 +269,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     # spreadsheet: FTE List #
     #########################
     if len(staff_list) == 0:
-        worksheet2.write_row(0, 0, ["There are no staff to report",], bold_format)
+        worksheet2.write_row(0, 0, ["There are no staff to report", ], bold_format)
     else:
         # create a queryset, showing all users and their total hours for FTE
 

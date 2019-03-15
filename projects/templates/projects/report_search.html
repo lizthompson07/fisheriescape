@@ -51,7 +51,7 @@
     {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
     <div class="container">
         <div class="jumbotron">
-            <h1>Please enter the Report Details:</h1>
+            <h1>Please Select a Report:</h1>
         </div>
     </div>
 
@@ -109,6 +109,11 @@
                 $("#id_sections").multiSelect()
 
             }
+            else if (reportChoice == 2) {
+                $(".sections_div").removeClass("gone");
+                $("#id_sections").multiSelect()
+
+            }
         }
 
         $(document).ready(function () {
@@ -130,6 +135,7 @@
                 $(".loader").removeClass("hidden");
                 window.setTimeout(closeLoader, 20000)
             }
+
         })
 
         function closeLoader() {
