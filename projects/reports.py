@@ -270,7 +270,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     # spreadsheet: FTE List #
     #########################
     if len(staff_list) == 0:
-        worksheet1.write_row(0, 0, ["There are no staff to report",], bold_format)
+        worksheet2.write_row(0, 0, ["There are no staff to report",], bold_format)
     else:
         # create a queryset, showing all users and their total hours for FTE
 
@@ -351,7 +351,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
         # spreadsheet: collaborator List #
         ##################################
         if len(collaborator_list) == 0:
-            worksheet1.write_row(0, 0, ["There are no collaborators to report", ], bold_format)
+            worksheet3.write_row(0, 0, ["There are no collaborators to report", ], bold_format)
         else:
             header = [
                 "Project Id",
@@ -397,7 +397,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     # spreadsheet: agreement List #
     ##################################
     if len(agreement_list) == 0:
-        worksheet1.write_row(0, 0, ["There are no agreements to report",], bold_format)
+        worksheet4.write_row(0, 0, ["There are no agreements to report",], bold_format)
     else:
         header = [
             "Project Id",
@@ -443,7 +443,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
         # spreadsheet: OM List #
         ########################
         if len(om_list) == 0:
-            worksheet1.write_row(0, 0, ["There are no o&m expenditures to report", ], bold_format)
+            worksheet5.write_row(0, 0, ["There are no o&m expenditures to report", ], bold_format)
         else:
             header = [
                 "Project Id",
@@ -487,7 +487,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     # spreadsheet: Capital List #
     #############################
     if len(capital_list) == 0:
-        worksheet1.write_row(0, 0, ["There are no capital expenditures to report",], bold_format)
+        worksheet6.write_row(0, 0, ["There are no capital expenditures to report",], bold_format)
     else:
 
         header = [
@@ -532,7 +532,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     # spreadsheet: GC List #
     ########################
     if len(gc_list) == 0:
-        worksheet1.write_row(0, 0, ["There are no Gs & Cs to report",], bold_format)
+        worksheet7.write_row(0, 0, ["There are no Gs & Cs to report",], bold_format)
     else:
         header = [
             "Project Id",
