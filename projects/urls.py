@@ -67,7 +67,7 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/master-spreadsheet/fiscal-year/<int:fiscal_year>', views.master_spreadsheet, name="report_master"),
+    path('reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/sections/<str:sections>/', views.master_spreadsheet, name="report_master"),
     path('reports/section-head-spreadsheet/fiscal-year/<int:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
     path('reports/pdf-printout/fiscal-year/<int:fiscal_year>', views.PDFProjectPrintoutReport.as_view(), name="pdf_printout"),
     path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
