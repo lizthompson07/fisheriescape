@@ -41,7 +41,10 @@
           type="text/css">
     <style>
         .ms-container {
-            width: 700px;
+            width: 100%;
+        }
+        label{
+            font-weight: bold;
         }
     </style>
 
@@ -63,8 +66,8 @@
                         {% bootstrap_field field %}
 
                     </div>
-                {% elif field.name == "site" %}
-                    <div class="site_div">
+                {% elif field.name == "sections" %}
+                    <div class="sections_div">
                         {% bootstrap_field field %}
 
                     </div>
@@ -92,44 +95,19 @@
     <script type="application/javascript">
 
         function hideAll() {
-            $(".species_div").addClass("gone");
-            $(".site_div").addClass("gone");
-            $(".year_div").addClass("gone");
+            $(".sections_div").addClass("gone");
 
             $("#id_report").prop('required', true);
-            $("#id_species").prop('required', false);
-            $("#id_year").prop('required', false);
-            $("#id_site").prop('required', false);
 
         }
 
         function configureForm() {
             var reportChoice = $("#id_report")[0].value;
-            // species count report
+            // masterlist count report
             if (reportChoice == 1) {
-                $(".species_div").removeClass("gone");
-                $("#id_species").prop('required', true);
-                $("#id_species").multiSelect()
+                $(".sections_div").removeClass("gone");
+                $("#id_sections").multiSelect()
 
-            }
-            // species richness report
-            else if (reportChoice == 2) {
-                $("#id_site").prop('required', true);
-                $(".site_div").removeClass("gone")
-            }
-            // annual pdf
-            else if (reportChoice == 3) {
-                $("#id_site").prop('required', true);
-                $("#id_year").prop('required', true);
-                $(".site_div").removeClass("gone");
-                $(".year_div").removeClass("gone")
-            }
-            // annual csv
-            else if (reportChoice == 4) {
-                $("#id_site").prop('required', true);
-                $("#id_year").prop('required', true);
-                $(".site_div").removeClass("gone");
-                $(".year_div").removeClass("gone")
             }
         }
 
@@ -142,7 +120,6 @@
         $("#id_report").change(function () {
             hideAll()
             configureForm()
-            console.log("test")
         })
 
         $("form").submit(function () {
