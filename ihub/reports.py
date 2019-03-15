@@ -7,6 +7,8 @@ from lib.functions.nz import nz
 from lib.templatetags.verbose_names import get_verbose_label
 from . import models
 import os
+from masterlist import models as ml_models
+
 
 
 def generate_capacity_spreadsheet(fy=None, orgs=None):
@@ -56,9 +58,9 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
     # each org should be represented on a separate worksheet
     # therefore determine an appropriate org list
     if orgs:
-        org_list = [models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
+        org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
     else:
-        org_list = models.Organization.objects.all()
+        org_list = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 
     for org in org_list:
         if org.entries.count() > 0:

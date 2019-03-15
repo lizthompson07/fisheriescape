@@ -1,5 +1,5 @@
 {% load bootstrap4 %}
-
+{% load i18n %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
 
@@ -8,11 +8,15 @@
 </script>
 
 <div class="container">
-    <h1>New Access Request:</h1>
+    <h1>
+        {% trans "New Access Request:" %}
+    </h1>
     <form class="form" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
         <input type="submit" value="submit" class="btn btn-lg btn-primary">
-        <a href="#" class="btn btn-lg btn-secondary" onclick="window.close()">Cancel</a>
+        <a href="#" class="btn btn-lg btn-secondary" onclick="window.close()">
+            {% trans "Cancel" %}
+        </a>
     </form>
 </div>
