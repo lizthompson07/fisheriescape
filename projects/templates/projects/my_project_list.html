@@ -26,14 +26,43 @@
         {{ get_current_language }}
         <h1>
             {% blocktrans with name=user.first_name %}
-                {{ name }}'s Project List:
+                 {{ name }}'s Project List
             {% endblocktrans %}
         </h1>
+        <br>
+        <h3>Here's a breakdown of your time allocation:</h3>
+        <table class="table table-bordered table-sm" style="width: auto;">
+            <tr>
+                <th rowspan="3" style="width: 100px; vertical-align: bottom">Fiscal Year</th>
+                <th colspan="4" style="text-align: center">Time in Weeks</th>
+            </tr>
+            <tr>
+                <th colspan="2" style="width: 150px; text-align: center">Submitted Projects</th>
+                <th rowspan="2" style="width: 150px; text-align: center; vertical-align: bottom">Un-submitted Projects</th>
+                <th rowspan="2" style="width: 150px; text-align: center; vertical-align: bottom">Total</th>
+            </tr>
+            <tr>
+                <th style="width: 150px; text-align: center">Approved</th>
+                <th style="width: 150px; text-align: center">Unapproved</th>
+            </tr>
+            <tbody>
+            {% for fy in fy_list %}
+                <tr>
+                    <td>{{ fy }}</td>
+                    <td style="text-align: center"> {{ weeks_dict|lookup:fy.id|lookup:"submitted_approved"|floatformat:1 }}</td>
+                    <td style="text-align: center"> {{ weeks_dict|lookup:fy.id|lookup:"submitted_unapproved"|floatformat:1 }}</td>
+                    <td style="text-align: center"> {{ weeks_dict|lookup:fy.id|lookup:"unsubmitted"|floatformat:1 }}</td>
+                    <td style="text-align: center"> {{ weeks_dict|lookup:fy.id|lookup:"total"|floatformat:1 }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
         <h3>
-            {% blocktrans with wt=weeks_total|floatformat:1 plur=weeks_total|pluralize %}
-                You are currently being planned for a total of <span class="highlight"> {{ wt }} week{{ plur }} </span>
-            {% endblocktrans %}
+
+            {#            {% blocktrans with wt=weeks_total|floatformat:1 plur=weeks_total|pluralize %}#}
+            {#                You are currently being planned for a total of <span class="highlight"> {{ wt }} week{{ plur }} </span>#}
+            {#            {% endblocktrans %}#}
         </h3>
         <br>
 
@@ -41,7 +70,7 @@
             {% trans "New Project" %}
         </a>
         <br> <br>
-        <table class="table table-hover table-sm">
+        <table class="table table-hover table-sm sortable">
             <thead>
             <th scope="col" style="width: auto">
                 {% trans "Fiscal Year" %}
@@ -87,7 +116,7 @@
                     <td>
                         {{ obj.project.project_title }}
                     </td>
-                    <td>
+                    <td class="{% if obj.lead %}green-font{% else %}red-font{% endif %}">
                         {{ obj.lead|yesno }}
                     </td>
                     <td>{{ obj.employee_type }}</td>
