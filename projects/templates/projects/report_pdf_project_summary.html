@@ -1,0 +1,373 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+{% block extra_style %}
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    table, td, th {
+        font-size: small;
+        border: 1px solid black;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    td, th {
+        padding-top: 1px;
+    }
+
+    th {
+        background-color: lightblue;
+    {#color: white;#} border: 1px solid black;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+    }
+
+
+    h1 {
+        font-size: 24px;
+    }
+
+    @page {
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+
+
+{# list of projects by section #}
+<h1>{{ fy }} Submitted and Approved Projects </h1>
+{% for division in division_list %}
+    <h2>
+        <u>
+            {{ division }} Division
+        </u>
+    </h2>
+    <ul>
+        {% for section in division.sections.all %}
+            <h3>
+                <em>
+                    {{ section.name }}
+                </em>
+            </h3>
+            <ol>
+                {% for project in section.projects.all %}
+                    {% if project.submitted and project.section_head_approved %}
+                        <li>{{ project }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        {% endfor %}
+    </ul>
+{% endfor %}
+<h2>
+    TOTAL PROJECTS: {{ object_list.count }}
+</h2>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# financial summary #}
+{% with "" as na %}
+
+    <h1>{{ fy }} Financial Summary</h1>
+
+    <table>
+        <thead>
+        <tr>
+            <th rowspan="2">Division</th>
+            <th rowspan="2">Section</th>
+            <th colspan="3" style="text-align: center">A-Base</th>
+            <th colspan="3" style="text-align: center">B-Base</th>
+            <th colspan="3" style="text-align: center">C-Base</th>
+            <th rowspan="2" style="text-align: center">Students</th>
+            <th rowspan="2" style="text-align: center">Causals</th>
+            <th rowspan="2" style="text-align: center">OT</th>
+        </tr>
+        <tr>
+            <th style="text-align: center">Salary</th>
+            <th style="text-align: center">O&M</th>
+            <th style="text-align: center">Capital</th>
+            <th style="text-align: center">Salary</th>
+            <th style="text-align: center">O&M</th>
+            <th style="text-align: center">Capital</th>
+            <th style="text-align: center">Salary</th>
+            <th style="text-align: center">O&M</th>
+            <th style="text-align: center">Capital</th>
+        </tr>
+
+        </thead>
+        <tbody>
+        {% for division in division_list %}
+            {% for section in division.sections.all %}
+                <tr>
+                    {% if forloop.counter == 1 %}
+                        <td rowspan="
+
+                                {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
+                    {% endif %}
+                    <td>{{ section.name }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"students"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"casuals"|nz:0|currency|zero2val:na }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"OT"|nz:0|currency|zero2val:na }}</td>
+                </tr>
+            {% endfor %}
+            {% if division.sections.count > 0 %}
+                <tr>
+                    <td class="total"><em>SUB-TOTAL</em></td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"students"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"casuals"|nz:0|currency|zero2val:na }}</td>
+                    <td class="total"
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"OT"|nz:0|currency|zero2val:na }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        <tr>
+            <td colspan="2" class="total">TOTAL</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_abase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_abase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_abase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_bbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_cbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_cbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_cbase"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"students"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"casuals"|nz:0|currency|zero2val:na }}</td>
+            <td class="total"
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"OT"|nz:0|currency|zero2val:na }}</td>
+        </tr>
+        </tbody>
+
+
+    </table>
+
+{% endwith %}
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+{# list of capital requests #}
+
+<h1>{{ fy }} Capital Request List</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th>Section</th>
+        <th>Project</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Funding Source</th>
+        <th>Request</th>
+    </tr>
+    <tbody>
+    {% for obj in capital_list %}
+        <tr>
+            <td>{{ obj.project.section }}</td>
+            <td>{{ obj.project }}</td>
+            <td>{{ obj.get_category_display }}</td>
+            <td>{{ obj.description|nz:"" }}</td>
+            <td>{{ obj.funding_source }}</td>
+            <td>{{ obj.budget_requested|currency }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of G&Cs #}
+
+<h1>{{ fy }} Grants & Contributions List</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th>
+            {% trans "Recipient Organization" %}
+        </th>
+        <th>
+            {% trans "Project Lead" %}
+        </th>
+        <th>
+            {% trans "Proposed Title" %}
+        </th>
+        <th>
+            {% trans "G&C Program" %}
+        </th>
+        <th>
+            {% trans "Amount" %}
+        </th>
+        <th>
+            {% trans "DFO Project" %}
+        </th>
+    </tr>
+
+    <tbody>
+    {% for obj in gc_list %}
+        <tr>
+            <td>{{ obj.recipient_org }}</td>
+            <td>{{ obj.project_lead }}</td>
+            <td>{{ obj.proposed_title }}</td>
+            <td>{{ obj.gc_program }}</td>
+            <td>{{ obj.budget_requested|currency }}</td>
+            <td>{{ obj.project }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if not gc_list %}
+    There are no G&Cs to show.
+{% endif %}
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of Collaborators #}
+
+<h1>{{ fy }} List of Collaborators and Partners</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th> Name</th>
+        <th> Type</th>
+        <th style="text-align: center"> Critical to project?</th>
+        <th> Notes</th>
+        <th> DFO Project</th>
+    </tr>
+
+    <tbody>
+    {% for obj in collaborator_list %}
+        <tr>
+            <td>{{ obj.name }}</td>
+            <td>{{ obj.get_type_display }}</td>
+            <td style="text-align: center">{{ obj.critical|yesno }}</td>
+            <td>{{ obj.notes }}</td>
+            <td>{{ obj.project }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if not collaborator_list %}
+    There are no Collaborators and/or Partners to show.
+{% endif %}
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of Agreements #}
+
+<h1>{{ fy }} List of Collaborative Agreements</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th> Partner Organization</th>
+        <th> Project Lead</th>
+        <th> Agreement Title</th>
+        <th style="text-align: center"> New or Existing</th>
+        <th> Notes</th>
+        <th> DFO Project</th>
+    </tr>
+
+    <tbody>
+    {% for obj in agreement_list %}
+        <tr>
+            <td>{{ obj.partner_organization }}</td>
+            <td>{{ obj.project_lead }}</td>
+            <td>{{ obj.agreement_title }}</td>
+            <td style="text-align: center">{{ obj.get_new_or_existing_display }}</td>
+            <td>{{ obj.notes }}</td>
+            <td>{{ obj.project }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if not agreement_list %}
+    There are no Collaborative Agreements to show.
+{% endif %}
+
+<div>
+    <pdf:nextpage/>
+</div>
+

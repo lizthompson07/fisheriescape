@@ -128,13 +128,13 @@ class GCCostForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     FY_CHOICES = [(fy.id, str(fy)) for fy in models.FiscalYear.objects.all()]
     REPORT_CHOICES = (
-        (2, "Project printout PDF"),
-        # (3, "Workplan summary spreadsheet"),
-        (1, "Master spreadsheet"),
+        (3, "Project Summary Report (PDF)"),
+        (2, "Batch Workplan Export (PDF) (submitted and approved)"),
+        (1, "Master spreadsheet (XLSX)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)
-    sections = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all or use ctrl + click to select multiple)")
+    sections = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
 
     def __init__(self, *args, **kwargs):
         super().__init__( *args, **kwargs)
