@@ -22,24 +22,16 @@
             animation: spin 2s linear infinite;
         }
 
-        /* Safari */
-        @-webkit-keyframes spin {
-            0% {
-                -webkit-transform: rotate(0deg);
-            }
-            100% {
-                -webkit-transform: rotate(360deg);
-            }
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+        {##}
+        {##}
+        {#@keyframes spin {#}
+        {#    0% {#}
+        {#        transform: rotate(0deg);#}
+        {#    }#}
+        {#    100% {#}
+        {#        transform: rotate(360deg);#}
+        {#    }#}
+        {#}#}
     </style>
 
     <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen"
@@ -81,7 +73,7 @@
                     {% bootstrap_field field %}
                 {% endif %}
             {% endfor %}
-            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search"><br><br>
+            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
 
 
         </form>
