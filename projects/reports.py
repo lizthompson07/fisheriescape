@@ -36,26 +36,37 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     if sections != "None":
         section_list = [models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
     else:
-        section_list = None
+        section_list = []
 
         # If there is no user, it means that this report is being called throught the report_search.html page (as opposed to my_section.html)
     if not user:
-        project_list = models.Project.objects.filter(year=fiscal_year)
-        staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1)
-        collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year)
-        agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year)
-        om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0)
-        capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year)
-        gc_list = models.GCCost.objects.filter(project__year=fiscal_year)
+        if len(section_list) == 1:
+            section = section_list[0]
+            project_list = models.Project.objects.filter(year=fiscal_year, section=section)
+            staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1, project__section=section)
+            collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year, project__section=section)
+            agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year, project__section=section)
+            om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0, project__section=section)
+            capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year, project__section=section)
+            gc_list = models.GCCost.objects.filter(project__year=fiscal_year, project__section=section)
 
-        if section_list:
-            project_list = [project for project in project_list if project.section in section_list]
-            staff_list = [staff for staff in staff_list if staff.project.section in section_list]
-            collaborator_list = [collaborator for collaborator in collaborator_list if collaborator.project.section in section_list]
-            agreement_list = [agreement for agreement in agreement_list if agreement.project.section in section_list]
-            om_list = [om for om in om_list if om.project.section in section_list]
-            capital_list = [capital for capital in capital_list if capital.project.section in section_list]
-            gc_list = [gc for gc in gc_list if gc.project.section in section_list]
+        else:
+            project_list = models.Project.objects.filter(year=fiscal_year)
+            staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1)
+            collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year)
+            agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year)
+            om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0)
+            capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year)
+            gc_list = models.GCCost.objects.filter(project__year=fiscal_year)
+
+            if section_list:
+                project_list = [project for project in project_list if project.section in section_list]
+                staff_list = [staff for staff in staff_list if staff.project.section in section_list]
+                collaborator_list = [collaborator for collaborator in collaborator_list if collaborator.project.section in section_list]
+                agreement_list = [agreement for agreement in agreement_list if agreement.project.section in section_list]
+                om_list = [om for om in om_list if om.project.section in section_list]
+                capital_list = [capital for capital in capital_list if capital.project.section in section_list]
+                gc_list = [gc for gc in gc_list if gc.project.section in section_list]
 
     else:
         project_list = models.Project.objects.filter(year=fiscal_year).filter(section__section_head__id=user)
@@ -258,7 +269,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
 
     # spreadsheet: FTE List #
     #########################
-    if len(project_list) == 0:
+    if len(staff_list) == 0:
         worksheet1.write_row(0, 0, ["There are no staff to report",], bold_format)
     else:
         # create a queryset, showing all users and their total hours for FTE
@@ -339,7 +350,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
 
         # spreadsheet: collaborator List #
         ##################################
-        if len(project_list) == 0:
+        if len(collaborator_list) == 0:
             worksheet1.write_row(0, 0, ["There are no collaborators to report", ], bold_format)
         else:
             header = [
@@ -385,7 +396,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
 
     # spreadsheet: agreement List #
     ##################################
-    if len(project_list) == 0:
+    if len(agreement_list) == 0:
         worksheet1.write_row(0, 0, ["There are no agreements to report",], bold_format)
     else:
         header = [
@@ -431,7 +442,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
 
         # spreadsheet: OM List #
         ########################
-        if len(project_list) == 0:
+        if len(om_list) == 0:
             worksheet1.write_row(0, 0, ["There are no o&m expenditures to report", ], bold_format)
         else:
             header = [
@@ -475,7 +486,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
 
     # spreadsheet: Capital List #
     #############################
-    if len(project_list) == 0:
+    if len(capital_list) == 0:
         worksheet1.write_row(0, 0, ["There are no capital expenditures to report",], bold_format)
     else:
 
@@ -520,7 +531,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
 
     # spreadsheet: GC List #
     ########################
-    if len(project_list) == 0:
+    if len(gc_list) == 0:
         worksheet1.write_row(0, 0, ["There are no Gs & Cs to report",], bold_format)
     else:
         header = [
