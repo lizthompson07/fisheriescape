@@ -134,6 +134,11 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=True, choices=FY_CHOICES)
+    sections = forms.MultipleChoiceField(required=False, label="Sections (use ctrl + click to select multiple)")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__( *args, **kwargs)
+        self.fields["sections"].choices = [(s.id, str(s)) for s in models.Section.objects.all()]
 
 
 class OTForm(forms.ModelForm):

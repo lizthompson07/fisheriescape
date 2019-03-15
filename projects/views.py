@@ -207,7 +207,6 @@ class MyProjectListView(LoginRequiredMixin, ListView):
             weeks_dict[fy.id]['unsubmitted'] = 0
             weeks_dict[fy.id]['total'] = 0
 
-
         for obj in projects.order_by("project__year_id"):
             if obj.project.submitted:
                 if obj.project.section_head_approved:
@@ -817,20 +816,27 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         fiscal_year = str(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
+        sections = str(form.cleaned_data["sections"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+
+        if sections == "":
+            sections = "None"
 
         if report == 1:
-            return HttpResponseRedirect(reverse("projects:report_master", kwargs={'fiscal_year': fiscal_year}))
+            return HttpResponseRedirect(reverse("projects:report_master", kwargs={
+                'fiscal_year': fiscal_year,
+                'sections': sections,
+            }))
         elif report == 2:
-            return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={'fiscal_year': fiscal_year}))
-        elif report == 3:
-            return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={'fiscal_year': fiscal_year}))
+            return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={
+                'fiscal_year': fiscal_year,
+            }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
 
 
-def master_spreadsheet(request, fiscal_year, user=None):
-    file_url = reports.generate_master_spreadsheet(fiscal_year, user)
+def master_spreadsheet(request, fiscal_year, sections, user=None):
+    file_url = reports.generate_master_spreadsheet(fiscal_year, sections, user)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -884,7 +890,7 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
             context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(employee_type=4).count()
             context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(employee_type=3).count()
             context["financial_summary_data"][project.id]["OT"] = nz(project.staff_members.values("overtime_hours").order_by(
-                "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"],0)
+                "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"], 0)
 
             # for sections
             try:
