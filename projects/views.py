@@ -829,6 +829,11 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
         elif report == 2:
             return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={
                 'fiscal_year': fiscal_year,
+                'sections': sections,
+            }))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("projects:pdf_project_summary", kwargs={
+                'fiscal_year': fiscal_year,
             }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -847,19 +852,23 @@ def master_spreadsheet(request, fiscal_year, sections, user=None):
     raise Http404
 
 
-class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
+class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
     login_url = '/accounts/login_required/'
-    template_name = "projects/report_pdf_printout.html"
+    template_name = "projects/report_pdf_project_summary.html"
 
     def get_pdf_filename(self):
         fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
-        pdf_filename = "{} Workplan Printout.pdf".format(fy)
+        pdf_filename = "{} Project Summary Report.pdf".format(fy)
         return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True)
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("section__division",
+                                                                                                                   "section",
+                                                                                                                   "project_title")
+
         context["fy"] = fy
         context["report_mode"] = True
         context["object_list"] = project_list
@@ -932,26 +941,75 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
                         context["financial_summary_data"][project.id][key]
 
         # get a list of the capital requests
-        context["capital_list"] = [capital_cost for project in project_list.order_by("section__division", "section", "project_title") for
-                                   capital_cost in project.capital_costs.all()]
+        context["capital_list"] = [capital_cost for project in project_list for capital_cost in project.capital_costs.all()]
 
         # get a list of the G&Cs
-        context["gc_list"] = [gc for project in project_list.order_by("section__division", "section", "project_title") for
-                              gc in project.gc_costs.all()]
+        context["gc_list"] = [gc for project in project_list for gc in project.gc_costs.all()]
 
         # get a list of the collaborators
         # context["collaborator_list"] = [collaborator for project in project_list.order_by("section__division", "section", "project_title")
         #                                 for
         #                                 collaborator in project.collaborators.all()]
-        context["collaborator_list"] = [collaborator for collaborator in models.Collaborator.objects.filter(project__submitted=True).filter(
-            project__section_head_approved=True)]
+        context["collaborator_list"] = [collaborator for project in project_list for collaborator in project.collaborators.all()]
 
         # get a list of the agreements
         # context["agreement_list"] = [agreement for project in project_list.order_by("section__division", "section", "project_title")
         #                              for agreement in project.agreements.all()]
-        context["agreement_list"] = [agreement for agreement in
-                                     models.CollaborativeAgreement.objects.filter(project__submitted=True).filter(
-                                         project__section_head_approved=True)]
+        context["agreement_list"] = [agreement for project in project_list for agreement in project.agreements.all()]
+
+        return context
+
+
+class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_printout.html"
+
+    def get_pdf_filename(self):
+        fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        pdf_filename = "{} Workplan Export.pdf".format(fy)
+        return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        sections = self.kwargs["sections"]
+        if sections != "None":
+            section_list = [models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
+        else:
+            section_list = [s for s in models.Section.objects.all()]
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("section__division",
+                                                                                                                   "section",
+                                                                                                                   "project_title")
+        project_list = [project for project in project_list if project.section in section_list]
+
+        context["fy"] = fy
+        context["report_mode"] = True
+        context["object_list"] = project_list
+        context["field_list"] = project_field_list
+        context["division_list"] = set([s.division for s in section_list])
+        # bring in financial summary data for each project:
+        context["financial_summary_data"] = {}
+        context["financial_summary_data"]["sections"] = {}
+        context["financial_summary_data"]["divisions"] = {}
+        key_list = [
+            "salary_abase",
+            "salary_bbase",
+            "salary_cbase",
+            "om_abase",
+            "om_bbase",
+            "om_cbase",
+            "capital_abase",
+            "capital_bbase",
+            "capital_cbase",
+            "students",
+            "casuals",
+            "OT",
+        ]
+
+        for project in project_list:
+            context["financial_summary_data"][project.id] = financial_summary_data(project)
 
         return context
 

@@ -70,7 +70,7 @@ class Entry(models.Model):
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
     sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
-    entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries")
+    entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries", verbose_name=_("Entry Type")) # title case needed
     regions = models.ManyToManyField(ml_models.Region, related_name="entries")
 
     # funding
@@ -78,7 +78,7 @@ class Entry(models.Model):
     funding_needed = models.NullBooleanField(verbose_name=_("is funding needed"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding purpose"), related_name="entries")
-    amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("funding requested"))
+    amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("Funding Requested")) # title case needed
     amount_approved = models.FloatField(blank=True, null=True, verbose_name=_("funding approved"))
     amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("amount transferred"))
     amount_lapsed = models.FloatField(blank=True, null=True, verbose_name=_("amount lapsed"))
