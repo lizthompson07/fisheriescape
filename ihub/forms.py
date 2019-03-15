@@ -49,7 +49,6 @@ class ReportSearchForm(forms.Form):
         ("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
         models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
     FY_CHOICES.insert(0, (None, "all years"))
-    ORG_CHOICES = [(obj.id, obj) for obj in models.ml_models.Organization.objects.all()]
     # ORG_CHOICES = [(None, "---"), ]
     REPORT_CHOICES = (
         (None, "------"),
@@ -59,10 +58,16 @@ class ReportSearchForm(forms.Form):
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, choices=FY_CHOICES, label='Fiscal year')
-    organizations = forms.MultipleChoiceField(required=False, choices=ORG_CHOICES,
-                                              label='Organizations (Leave blank for all)')
-    single_org = forms.ChoiceField(required=False, choices=ORG_CHOICES,
-                                   label='Organization')
+    organizations = forms.MultipleChoiceField(required=False, label='Organizations (Leave blank for all)')
+    single_org = forms.ChoiceField(required=False, label='Organization')
+
+    def __init__(self, *args, **kwargs):
+        ORG_CHOICES_ALL = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
+        ORG_CHOICES_HAS_ENTRY = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True) if obj.entries.count() > 0]
+
+        super().__init__(*args, **kwargs)
+        self.fields['organizations'].choices = ORG_CHOICES_HAS_ENTRY
+        self.fields['single_org'].choices = ORG_CHOICES_ALL
 
 class OrganizationForm(forms.ModelForm):
     class Meta:
