@@ -196,12 +196,31 @@ class MyProjectListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         projects = models.Staff.objects.filter(user=self.request.user)
 
-        weeks_total = 0
-        for obj in projects:
-            weeks_total += nz(obj.duration_weeks, 0)
+        # need to produce a dictionary with number of hours committed by fiscal year
+        fiscal_year_list = set([p.project.year for p in projects.order_by("project__year_id")])
 
-        context["weeks_total"] = weeks_total
+        weeks_dict = {}
+        for fy in fiscal_year_list:
+            weeks_dict[fy.id] = {}
+            weeks_dict[fy.id]['submitted_approved'] = 0
+            weeks_dict[fy.id]['submitted_unapproved'] = 0
+            weeks_dict[fy.id]['unsubmitted'] = 0
+            weeks_dict[fy.id]['total'] = 0
 
+
+        for obj in projects.order_by("project__year_id"):
+            if obj.project.submitted:
+                if obj.project.section_head_approved:
+                    weeks_dict[obj.project.year_id]["submitted_approved"] += nz(obj.duration_weeks, 0)
+                else:
+                    weeks_dict[obj.project.year_id]["submitted_unapproved"] += nz(obj.duration_weeks, 0)
+            else:
+                weeks_dict[obj.project.year_id]["unsubmitted"] += nz(obj.duration_weeks, 0)
+            weeks_dict[obj.project.year_id]["total"] += nz(obj.duration_weeks, 0)
+
+        context["weeks_dict"] = weeks_dict
+        context["fy_list"] = fiscal_year_list
+        print(weeks_dict)
         return context
 
 
