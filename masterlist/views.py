@@ -100,13 +100,20 @@ class PersonDetailView(MasterListAccessRequiredMixin, DetailView):
             'email_1',
             'email_2',
             'notes',
+            'last_modified_by',
         ]
         return context
+
 
 
 class PersonUpdateView(MasterListAccessRequiredMixin, UpdateView):
     model = models.Person
     form_class = forms.PersonForm
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
 
 
 class PersonUpdateViewPopout(MasterListAccessRequiredMixin, UpdateView):
@@ -118,6 +125,10 @@ class PersonUpdateViewPopout(MasterListAccessRequiredMixin, UpdateView):
         object = form.save()
         return HttpResponseRedirect(reverse('masterlist:close_me'))
 
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
 
 class PersonCreateView(MasterListAccessRequiredMixin, CreateView):
     model = models.Person
