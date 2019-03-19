@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from projects import models as projects_models
+from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz
 from lib.functions.fiscal_year import fiscal_year
 
@@ -64,7 +65,7 @@ class Purpose(models.Model):
 
 
 class Event(models.Model):
-    fiscal_year = models.ForeignKey(projects_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True)
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("connected user"))

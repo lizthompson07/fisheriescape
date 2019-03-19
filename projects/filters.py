@@ -1,16 +1,12 @@
-# from accounts import models as account_models
-import datetime
-
 from django.contrib.auth.models import User
-from django import forms
-from django.utils import timezone
+from shared_models import models as shared_models
 
 from . import models
 import django_filters
 
 
 class ProjectFilter(django_filters.FilterSet):
-    FY_CHOICES = [(fy.id, str(fy)) for fy in models.FiscalYear.objects.all()]
+    FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
     DIVISION_CHOICES = [(d.id, str(d)) for d in models.Division.objects.all()]
     SECTION_CHOICES = [(s.id, str(s)) for s in models.Section.objects.all()]
     YES_NO_CHOICES = [(True, "Yes"), (False, "No"), ]
@@ -23,7 +19,7 @@ class ProjectFilter(django_filters.FilterSet):
 
 
 class MySectionFilter(django_filters.FilterSet):
-    FY_CHOICES = [(fy.id, str(fy)) for fy in models.FiscalYear.objects.all()]
+    FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
     USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in User.objects.all().order_by("last_name", "first_name")]
     YES_NO_CHOICES = [(True, "Yes"), (False, "No"), ]
 

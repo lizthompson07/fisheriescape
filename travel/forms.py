@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User as AuthUser
-from projects import models as projects_models
+from shared_models import models as shared_models
 
 from . import models
 
@@ -44,7 +44,7 @@ class ReportSearchForm(forms.Form):
     traveller = forms.ChoiceField(required=False, label=_('Fiscal year'))
 
     def __init__(self, *args, **kwargs):
-        FY_CHOICES = [(fy.id, str(fy)) for fy in projects_models.FiscalYear.objects.all().order_by("id")]
+        FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id")]
         TRAVELLER_CHOICES = [(e['email'], "{}, {}".format(e['last_name'], e['first_name'])) for e in
                              models.Event.objects.values("email", "first_name", "last_name").order_by("last_name", "first_name").distinct()]
         super().__init__(*args, **kwargs)

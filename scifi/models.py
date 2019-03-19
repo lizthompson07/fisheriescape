@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
+from shared_models import models as shared_models
 from lib.functions.fiscal_year import fiscal_year
 from lib.functions.nz import nz
 
@@ -23,6 +23,7 @@ class AllotmentCategory(models.Model):
     class Meta:
         ordering = ['name', ]
 
+
 class AllotmentCode(models.Model):
     # choices for category
     SAL = "salary"
@@ -40,7 +41,8 @@ class AllotmentCode(models.Model):
     code = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, null=True)
     # category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, default="other")
-    allotment_category = models.ForeignKey(AllotmentCategory, on_delete=models.DO_NOTHING, related_name="allotment_codes", blank=True, null=True)
+    allotment_category = models.ForeignKey(AllotmentCategory, on_delete=models.DO_NOTHING, related_name="allotment_codes", blank=True,
+                                           null=True)
 
     def __str__(self):
         return "{} ({})".format(self.code, self.name)
@@ -103,15 +105,15 @@ class Project(models.Model):
         ordering = ['code', ]
 
 
-class FiscalYear(models.Model):
-    full = models.TextField(blank=True, null=True)
-    short = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return "{}".format(self.full)
-
-    class Meta:
-        ordering = ['id', ]
+# class FiscalYear(models.Model):
+#     full = models.TextField(blank=True, null=True)
+#     short = models.TextField(blank=True, null=True)
+#
+#     def __str__(self):
+#         return "{}".format(self.full)
+#
+#     class Meta:
+#         ordering = ['id', ]
 
 
 class Transaction(models.Model):
@@ -125,7 +127,8 @@ class Transaction(models.Model):
         (EXPENDITURE, 'Expenditure'),
     )
 
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name='transactions', verbose_name=_("fiscal year"))
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, related_name='transactions',
+                                    verbose_name=_("fiscal year"))
     responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, related_name='transactions')
     business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, related_name='transactions')
     allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, related_name='transactions')
