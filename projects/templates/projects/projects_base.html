@@ -38,12 +38,13 @@
         {% trans "All Projects" %}
     </a></li>
 
-      {% for group in user.groups.all %}
-        {% if group.name == "projects_admin"   %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'projects:report_search' %}">Reports </a></li>
-        {% endif %}
-
-      {% endfor %}
+    {#      {% for group in user.groups.all %}#}
+    {#        {% if group.name == "projects_admin"   %}#}
+    <li class="nav-item"><a class="nav-link" href="{% url 'projects:report_search' %}">
+        {% trans "Reports" %}
+    </a></li>
+    {#        {% endif %}#}
+    {#      {% endfor %}#}
 
 
 
