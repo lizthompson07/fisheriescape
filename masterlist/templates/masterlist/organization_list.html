@@ -26,7 +26,7 @@
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
                 {% for field in filter.form %}
-                    <div class="col-4">
+                    <div class="col">
                         {% bootstrap_field field placeholder="" size="small" %}
                     </div>
                 {% endfor %}
