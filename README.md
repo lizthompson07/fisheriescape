@@ -21,10 +21,23 @@ source .\glf_sci_site_venv\bin\activate
 ```
 
 3. Clone the glf_sci_site repository
+```
+git clone https://gccode.ssc-spc.gc.ca/dfo-gulf-science/glf_sci_site
+```
 
 4. Install the Python packages required by the glf_sci_site application
 ```
 pip install -r stable_reqs.txt
+```
+
+### important note about installing mysqlclient
+you might need to download the precompiled version of mysqlclient. If you need to do this, you will need to download the binary
+file and remove the mysqlclient line from the stable_reqs.txt file. The binary file can be downloaded 
+[here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#mysqlclient). Be sure to select the file that matches your system configuration.
+For example, if your a running python 3.6 on an AMD64 processor, you would download the file called 
+'mysqlclient‑1.x.x‑cp36‑cp36m‑win_amd64.whl.' To install a local wheel:
+```
+pip install /path/to/local/file/mysqlclient‑1.x.x‑cp36‑cp36m‑win_amd64.whl
 ```
 
 ### Running the server application
@@ -32,7 +45,6 @@ pip install -r stable_reqs.txt
 ```
 python manage.py runserver
 ```
-
 - Without any other configuration, the app will connect to the development database
 - The development server is essentially a slave of the production database. There is currently no script to automate the syncing 
 so it will be done on an as needed basis
