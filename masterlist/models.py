@@ -3,6 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from shared_models import models as shared_models
 
 
 class Sector(models.Model):
@@ -19,40 +20,6 @@ class Sector(models.Model):
 
     class Meta:
         ordering = ['name', ]
-
-
-class Region(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
-class Province(models.Model):
-    # Choices for surface_type
-    CAN = 'Canada'
-    US = 'United States'
-    COUNTRY_CHOICES = (
-        (CAN, 'Canada'),
-        (US, 'United States'),
-    )
-    name_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (English)"))
-    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Name (French)"))
-    country = models.CharField(max_length=25, choices=COUNTRY_CHOICES, verbose_name=_("country"))
-    abbrev_eng = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (English)"))
-    abbrev_fre = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (French)"))
-
-    def __str__(self):
-        return "{}".format(getattr(self, str(_("name_eng"))))
 
 
 class Grouping(models.Model):
@@ -151,14 +118,14 @@ class Organization(models.Model):
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
-    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
     dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("dfo contact instructions"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     key_species = models.TextField(blank=True, null=True, verbose_name=_("key species"))
     grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"), blank=True)
-    regions = models.ManyToManyField(Region, verbose_name=_("region"), blank=True)
+    regions = models.ManyToManyField(shared_models.Region, verbose_name=_("region"), blank=True)
     sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
 
     # ihub only

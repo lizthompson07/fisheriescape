@@ -2,7 +2,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from django.utils import timezone
-
+from shared_models import models as shared_models
 from . import models
 import django_filters
 
@@ -17,7 +17,7 @@ class ProjectFilter(django_filters.FilterSet):
 
 
 class TransactionFilter(django_filters.FilterSet):
-    FY_CHOICES = [(obj.id, "{}".format(obj.full)) for obj in models.FiscalYear.objects.all()]
+    FY_CHOICES = [(obj.id, "{}".format(obj.full)) for obj in shared_models.FiscalYear.objects.all()]
     RC_CHOICES = [(obj.id, "{} ({})".format(obj.code, obj.name)) for obj in models.ResponsibilityCenter.objects.all()]
 
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=FY_CHOICES)

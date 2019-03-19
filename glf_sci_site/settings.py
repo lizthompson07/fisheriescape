@@ -119,6 +119,7 @@ INSTALLED_APPS = [
     'masterlist',
     'shares',
     'travel',
+    'shared_models',
 ]
 
 MIDDLEWARE = [

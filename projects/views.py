@@ -19,7 +19,7 @@ from . import models
 from . import forms
 from . import filters
 from . import reports
-
+from shared_models import models as shared_models
 
 def can_delete(user, project):
     """returns True if user is a custodian in the specified resource"""
@@ -233,7 +233,7 @@ class MySectionListView(LoginRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['next_fiscal_year'] = models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
+        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
         context['has_section'] = models.Project.objects.filter(section__section_head=self.request.user).count() > 0
         return context
 
@@ -857,13 +857,13 @@ class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
     template_name = "projects/report_pdf_project_summary.html"
 
     def get_pdf_filename(self):
-        fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
         pdf_filename = "{} Project Summary Report.pdf".format(fy)
         return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
 
         project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("section__division",
                                                                                                                    "section",
@@ -965,13 +965,13 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
     template_name = "projects/report_pdf_printout.html"
 
     def get_pdf_filename(self):
-        fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
         pdf_filename = "{} Workplan Export.pdf".format(fy)
         return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        fy = models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
 
         sections = self.kwargs["sections"]
         if sections != "None":

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.utils import timezone
-
+from shared_models import models as shared_models
 from . import models
 
 
@@ -100,7 +100,7 @@ class CustomTransactionForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    FY_CHOICES = [(obj.id, "{}".format(obj.full)) for obj in models.FiscalYear.objects.all()]
+    FY_CHOICES = [(obj.id, "{}".format(obj.full)) for obj in shared_models.FiscalYear.objects.all()]
     FY_CHOICES.insert(0, (None, "------"))
     RC_CHOICES = [(obj.id, obj) for obj in models.ResponsibilityCenter.objects.all()]
     RC_CHOICES.insert(0, (None, "------"))
