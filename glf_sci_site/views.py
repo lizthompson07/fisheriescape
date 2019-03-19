@@ -101,7 +101,7 @@ def get_app_dict(request):
         "oceanography": {
             "title": _("Oceanography"),
             "description": _("Collection, processing and storage of regional oceanographic data."),
-            "status": "beta",
+            "status": "dev",
             "access": "open",
             "url": reverse('oceanography:index'),
             "icon_path": 'img/icons/boat.svg',
