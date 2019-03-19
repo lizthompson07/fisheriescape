@@ -104,7 +104,6 @@ class Project(models.Model):
     class Meta:
         ordering = ['code', ]
 
-
 # class FiscalYear(models.Model):
 #     full = models.TextField(blank=True, null=True)
 #     short = models.TextField(blank=True, null=True)

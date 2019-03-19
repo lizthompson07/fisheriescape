@@ -17,6 +17,17 @@ class ProjectFilter(django_filters.FilterSet):
     section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label="Section", choices=SECTION_CHOICES)
     submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', label="Submitted?", choices=YES_NO_CHOICES)
 
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     # if there is a filter on section, filter the people filter accordingly
+    #     try:
+    #         if self.data["section"] != "":
+    #             self.filters["person"].queryset = models.Person.objects.filter(resource__section_id=self.data["section"]).distinct()
+    #         elif self.data["division"] != "":
+    #             self.filters["section"].queryset = models.Section.objects.filter(region=self.data["region"]).distinct()
+    #             self.filters["person"].queryset = models.Person.objects.filter(resource__section__region=self.data["region"]).distinct()
+    #     except KeyError:
+    #         print('no data in filter')
 
 class MySectionFilter(django_filters.FilterSet):
     FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]

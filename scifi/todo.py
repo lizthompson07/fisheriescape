@@ -22,3 +22,5 @@
 # TODO: financial summary report
 # TODO: for access, anyone with scifi_access or if name on a section head
 
+# TODO: user validation should also have to do with whether they are a section head 
+# TODO: DELETE THE FiscalYear Model
