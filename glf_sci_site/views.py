@@ -19,6 +19,7 @@ def get_app_dict(request):
             "status": "production",
             "access": "open",
             "url": inventory_url,
+            "icon_path": 'img/icons/research.svg',
         },
         "tickets": {
             "title": _("Data Management Tickets"),
@@ -26,6 +27,8 @@ def get_app_dict(request):
             "status": "production",
             "access": "open",
             "url": reverse('tickets:list'),
+            "icon_path": 'img/icons/tickets.svg',
+
         },
         "grais": {
             "title": _("grAIS"),
@@ -33,6 +36,8 @@ def get_app_dict(request):
             "status": "production",
             "access": "permission-required",
             "url": reverse('grais:index'),
+            "icon_path": 'img/icons/starfish.svg',
+
         },
         "herring": {
             "title": _("HERmorrhage"),
@@ -40,6 +45,8 @@ def get_app_dict(request):
             "status": "production",
             "access": "permission-required",
             "url": reverse('herring:index'),
+            "icon_path": 'img/icons/fish.svg',
+
         },
         "ihub": {
             "title": _("iHub"),
@@ -47,6 +54,8 @@ def get_app_dict(request):
             "status": "beta",
             "access": "permission-required",
             "url": reverse('ihub:index'),
+            "icon_path": 'img/icons/network.svg',
+
         },
         "camp": {
             "title": _("CAMP db"),
@@ -54,13 +63,16 @@ def get_app_dict(request):
             "status": "production",
             "access": "permission-required",
             "url": reverse('camp:index'),
+            "icon_path": 'img/icons/coral.svg',
+
         },
         "projects": {
-            "title": _("Science Project Planning"),
-            "description": _("Tool for the tracking, development and coordination of project work-planning."),
+            "title": _("Project Planning"),
+            "description": _("Tool for the tracking, development and coordination of science project workplans."),
             "status": "production",
             "access": "login-required",
             "url": reverse('projects:index'),
+            "icon_path": 'img/icons/scope.svg',
         },
         "scifi": {
             "title": _("SciFi"),
@@ -68,6 +80,7 @@ def get_app_dict(request):
             "status": "beta",
             "access": "permission-required",
             "url": reverse('scifi:index'),
+            "icon_path": 'img/icons/stats.svg',
         },
         "masterlist": {
             "title": _("MasterList"),
@@ -75,20 +88,24 @@ def get_app_dict(request):
             "status": "dev",
             "access": "permission-required",
             "url": reverse('masterlist:index'),
+            "icon_path": 'img/icons/connection.svg',
         },
-        # "snowcrab": {
-        #     "title": _("Snow Crab"),
-        #     "description": _("front-end application for the Gulf snow crab monitoring dataset"),
-        #     "status": "dev",
-        #     "access": "open",
-        #     "url": reverse('crab:index'),
-        # },
+        "snowcrab": {
+            "title": _("Snow Crab"),
+            "description": _("front-end application for the Gulf snow crab monitoring dataset"),
+            "status": "dev",
+            "access": "open",
+            "url": reverse('crab:index'),
+            "icon_path": 'img/icons/crab.svg',
+        },
         "oceanography": {
-            "title": _("Regional Oceanographic Archive"),
+            "title": _("Oceanography"),
             "description": _("Collection, processing and storage of regional oceanographic data."),
             "status": "beta",
             "access": "open",
             "url": reverse('oceanography:index'),
+            "icon_path": 'img/icons/boat.svg',
+
         },
         "diets": {
             "title": _("Marine Diets"),
@@ -96,6 +113,8 @@ def get_app_dict(request):
             "status": "dev",
             "access": "permission-required",
             "url": reverse('diets:index'),
+            "icon_path": 'img/icons/fork.svg',
+
         },
         "shares": {
             "title": _("Gulf Shares"),
@@ -103,6 +122,8 @@ def get_app_dict(request):
             "status": "dev",
             "access": "permission-required",
             "url": reverse('shares:index'),
+            "icon_path": 'img/icons/database.svg',
+
         },
         "travel": {
             "title": _("Travel Plans"),
@@ -110,6 +131,8 @@ def get_app_dict(request):
             "status": "dev",
             "access": "permission-required",
             "url": reverse('travel:index'),
+            "icon_path": 'img/icons/paper-plane.svg',
+
         },
         # "meq": {
         #     "title": _("MEQ"),
