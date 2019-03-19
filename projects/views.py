@@ -840,7 +840,9 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("ihub:report_search"))
 
 
-def master_spreadsheet(request, fiscal_year, sections, user=None):
+def master_spreadsheet(request, fiscal_year, sections=None, user=None):
+    if sections is None:
+        sections = "None"
     file_url = reports.generate_master_spreadsheet(fiscal_year, sections, user)
 
     if os.path.exists(file_url):
