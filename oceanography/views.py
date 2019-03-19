@@ -11,7 +11,6 @@ from . import models
 from . import forms
 
 
-
 class IndexTemplateView(TemplateView):
     template_name = "oceanography/index.html"
 
@@ -28,6 +27,7 @@ class DocListView(ListView):
         context['now'] = timezone.now()
         return context
 
+
 class DocCreateView(LoginRequiredMixin, CreateView):
     model = models.Doc
     template_name = "oceanography/doc_form.html"
@@ -35,12 +35,14 @@ class DocCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("oceanography:doc_list")
     login_url = '/accounts/login_required/'
 
+
 class DocUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Doc
     template_name = "oceanography/doc_form.html"
     form_class = forms.DocForm
     success_url = reverse_lazy("oceanography:doc_list")
     login_url = '/accounts/login_required/'
+
 
 # MISSIONS #
 ############
@@ -51,7 +53,6 @@ class MissionYearListView(TemplateView):
     def get_context_data(self, **kwargs):
         # get context
         context = super().get_context_data(**kwargs)
-
 
         # create a reference list of years
         season_list = []
@@ -66,7 +67,7 @@ class MissionListView(ListView):
     template_name = "oceanography/mission_list.html"
 
     def get_queryset(self):
-        return models.Mission.objects.filter(season = self.kwargs["year"])
+        return models.Mission.objects.filter(season=self.kwargs["year"])
 
 
 class MissionDetailView(DetailView):
@@ -104,7 +105,24 @@ class MissionUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/accounts/login_required/'
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:mission_detail", kwargs={"pk":self.object.id})
+        return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+
+        context["editable"] = True
+        return context
+
+
+class MissionCreateView(LoginRequiredMixin, CreateView):
+    template_name = "oceanography/mission_form.html"
+    model = models.Mission
+    form_class = forms.MissionForm
+    login_url = '/accounts/login_required/'
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.id})
 
     def get_context_data(self, **kwargs):
         # get context
@@ -121,15 +139,16 @@ class BottleListView(ListView):
     template_name = "oceanography/bottle_list.html"
 
     def get_queryset(self):
-        return models.Bottle.objects.filter(mission = self.kwargs["mission"])
+        return models.Bottle.objects.filter(mission=self.kwargs["mission"])
 
     def get_context_data(self, **kwargs):
         # get context
         context = super().get_context_data(**kwargs)
 
-        context["mission"] = models.Mission.objects.get(id = self.kwargs["mission"])
+        context["mission"] = models.Mission.objects.get(id=self.kwargs["mission"])
         context["bottle"] = models.Bottle.objects.first()
         return context
+
 
 class BottleDetailView(UpdateView):
     template_name = "oceanography/bottle_form.html"
@@ -150,7 +169,7 @@ class BottleUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/accounts/login_required/'
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:bottle_detail", kwargs={"pk":self.object.id})
+        return reverse_lazy("oceanography:bottle_detail", kwargs={"pk": self.object.id})
 
     def get_context_data(self, **kwargs):
         # get context
@@ -171,7 +190,6 @@ def export_mission_csv(request, pk):
 
     writer = csv.writer(response)
 
-
     # write the header information
     writer.writerow(['institute', m.institute])
     writer.writerow(['mission_name', m.mission_name])
@@ -187,25 +205,25 @@ def export_mission_csv(request, pk):
     writer.writerow(['timezone', "UTC"])
 
     # write the header for the bottle table
-    writer.writerow(["",])
+    writer.writerow(["", ])
     writer.writerow([
-    "bottle_uid",
-    "station",
-    "set",
-    "event",
-    "date_yyyy_mm_dd",
-    "time_hh_mm",
-    "sounding_m",
-    "bottle_depth_m",
-    "temp_c",
-    "salinity",
-    "salinity_units",
-    "ph",
-    "lat_DDdd",
-    "long_DDdd",
-    "ctd_filename",
-    "samples_collected",
-    "remarks",])
+        "bottle_uid",
+        "station",
+        "set",
+        "event",
+        "date_yyyy_mm_dd",
+        "time_hh_mm",
+        "sounding_m",
+        "bottle_depth_m",
+        "temp_c",
+        "salinity",
+        "salinity_units",
+        "ph",
+        "lat_DDdd",
+        "long_DDdd",
+        "ctd_filename",
+        "samples_collected",
+        "remarks", ])
 
     my_date = ""
     my_time = ""
@@ -219,24 +237,24 @@ def export_mission_csv(request, pk):
             my_time = None
 
         writer.writerow(
-        [
-        b.bottle_uid,
-        b.station,
-        b.set,
-        b.event,
-        my_date,
-        my_time,
-        b.sounding_m,
-        b.bottle_depth_m,
-        b.temp_c,
-        b.salinity,
-        b.get_sal_units_display(),
-        b.ph,
-        b.lat_DDdd,
-        b.long_DDdd,
-        b.ctd_filename,
-        b.samples_collected,
-        b.remarks,])
+            [
+                b.bottle_uid,
+                b.station,
+                b.set,
+                b.event,
+                my_date,
+                my_time,
+                b.sounding_m,
+                b.bottle_depth_m,
+                b.temp_c,
+                b.salinity,
+                b.get_sal_units_display(),
+                b.ph,
+                b.lat_DDdd,
+                b.long_DDdd,
+                b.ctd_filename,
+                b.samples_collected,
+                b.remarks, ])
 
     return response
 
@@ -251,7 +269,7 @@ class FileCreateView(CreateView):
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse_lazy("oceanography:mission_detail", kwargs={"pk":object.mission.id}))
+        return HttpResponseRedirect(reverse_lazy("oceanography:mission_detail", kwargs={"pk": object.mission.id}))
 
     def get_context_data(self, **kwargs):
         # get context
@@ -282,7 +300,7 @@ class FileUpdateView(UpdateView):
     form_class = forms.FileForm
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:mission_detail", kwargs={"pk":self.object.mission.id})
+        return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.mission.id})
 
     def get_context_data(self, **kwargs):
         # get context
@@ -290,9 +308,10 @@ class FileUpdateView(UpdateView):
         context["editable"] = True
         return context
 
+
 class FileDeleteView(DeleteView):
     template_name = "oceanography/file_confirm_delete.html"
     model = models.File
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:mission_detail", kwargs={"pk":self.object.mission.id})
+        return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.mission.id})
