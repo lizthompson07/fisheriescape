@@ -19,9 +19,10 @@ urlpatterns = [
     ############
     path('missions/', views.MissionYearListView.as_view(), name='mission_year_list'),
     path('missions/<int:year>/list/', views.MissionListView.as_view(), name='mission_list'),
-    path('missions/<int:pk>/view/', views.MissionDetailView.as_view(), name='mission_detail'),
-    path('missions/<int:pk>/edit/', views.MissionUpdateView.as_view(), name='mission_edit'),
-    path('missions/<int:pk>/export-csv/', views.export_mission_csv, name='mission_export_csv'),
+    path('mission/<int:pk>/view/', views.MissionDetailView.as_view(), name='mission_detail'),
+    path('mission/<int:pk>/edit/', views.MissionUpdateView.as_view(), name='mission_edit'),
+    path('mission/<int:year>/new/', views.MissionCreateView.as_view(), name='mission_new'),
+    path('mission/<int:pk>/export-csv/', views.export_mission_csv, name='mission_export_csv'),
 
     # BOTTLES #
     ###########

@@ -77,6 +77,8 @@ class Mission(models.Model):
             self.season = self.start_date.year
         return super().save(*args,**kwargs)
 
+    def __str__(self):
+        return "{} - {}".format(self.mission_number, self.mission_name)
 
 class Bottle(models.Model):
 
@@ -128,6 +130,10 @@ class Bottle(models.Model):
 
     class Meta:
         ordering = ['mission','bottle_uid']
+
+    def __str__(self):
+        return "Bottle {}".format(self.bottle_uid)
+
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
