@@ -20,7 +20,7 @@ from . import forms
 from . import filters
 from . import reports
 from . import emails
-
+from shared_models import models as shared_models
 
 # Create your views here.
 class CloserTemplateView(TemplateView):
@@ -759,7 +759,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        fy = models.FiscalYear.objects.get(pk=self.kwargs['fiscal_year'])
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs['fiscal_year'])
         context["fiscal_year"] = fy
 
         rc = models.ResponsibilityCenter.objects.get(pk=self.kwargs['rc'])
@@ -889,7 +889,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Transaction.objects.first()
-        fy = models.FiscalYear.objects.get(pk=self.kwargs['fiscal_year'])
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs['fiscal_year'])
         context["fiscal_year"] = fy
 
         project = models.Project.objects.get(pk=self.kwargs['project'])

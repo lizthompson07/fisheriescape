@@ -2,6 +2,7 @@ import xlsxwriter as xlsxwriter
 from django.conf import settings
 from django.template.defaultfilters import yesno
 
+from shared_models import models as shared_models
 from lib.functions.nz import nz
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
@@ -300,7 +301,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
             staff_dict[staff_name]['total'] += nz(s.duration_weeks, 0)
 
         header1 = [
-            'FTE Summary in weeks for {}'.format(models.FiscalYear.objects.get(pk=fiscal_year)),
+            'FTE Summary in weeks for {}'.format(shared_models.FiscalYear.objects.get(pk=fiscal_year)),
         ]
         worksheet2.write_row(0, 0, header1, bold_format)
 

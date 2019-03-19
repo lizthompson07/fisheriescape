@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from lib.functions.fiscal_year import fiscal_year
 from lib.functions.nz import nz
 from masterlist import models as ml_models
-
+from shared_models import models as shared_models
 
 class EntryType(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
@@ -71,7 +71,7 @@ class Entry(models.Model):
                                related_name="entries")
     sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries", verbose_name=_("Entry Type")) # title case needed
-    regions = models.ManyToManyField(ml_models.Region, related_name="entries")
+    regions = models.ManyToManyField(shared_models.Region, related_name="entries")
 
     # funding
     fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))

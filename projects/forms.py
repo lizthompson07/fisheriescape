@@ -1,10 +1,8 @@
 from django import forms
-from django.core import validators
-from django.utils import timezone
 from django.utils.translation import gettext as _
 from . import models
 from django.contrib.auth.models import User
-
+from shared_models import models as shared_models
 
 class NewProjectForm(forms.ModelForm):
     class Meta:
@@ -126,7 +124,7 @@ class GCCostForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    FY_CHOICES = [(fy.id, str(fy)) for fy in models.FiscalYear.objects.all()]
+    FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
     REPORT_CHOICES = (
         (3, "Project Summary Report (PDF)"),
         (2, "Batch Workplan Export (PDF) (submitted and approved)"),

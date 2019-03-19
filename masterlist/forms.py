@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import modelformset_factory
 from django.utils.translation import gettext as _
-
+from shared_models import models as shared_models
 from . import models
 
 YES_NO_CHOICES = (
@@ -139,12 +139,12 @@ OrganizationFormSet = modelformset_factory(
 
 class RegionForm(forms.ModelForm):
     class Meta:
-        model = models.Region
+        model = shared_models.Region
         fields = "__all__"
 
 
 RegionFormSet = modelformset_factory(
-    model=models.Region,
+    model=shared_models.Region,
     form=RegionForm,
     extra=1,
 )
@@ -164,10 +164,10 @@ GroupingFormSet = modelformset_factory(
 
 
 class ReportSearchForm(forms.Form):
-    PROVINCE_CHOICES = [(obj.id, str(obj)) for obj in models.Province.objects.all()]
+    PROVINCE_CHOICES = [(obj.id, str(obj)) for obj in shared_models.Province.objects.all()]
     GROUPING_CHOICES = [(obj.id, str(obj)) for obj in models.Grouping.objects.all()]
     SECTOR_CHOICES = [(obj.id, str(obj)) for obj in models.Sector.objects.all()]
-    REGION_CHOICES = [(obj.id, str(obj)) for obj in models.Region.objects.all()]
+    REGION_CHOICES = [(obj.id, str(obj)) for obj in shared_models.Region.objects.all()]
 
     REPORT_CHOICES = (
         (None, "------"),

@@ -4,6 +4,7 @@ from django.forms import modelformset_factory
 from . import models
 from django.contrib.auth.models import User
 from masterlist import models as ml_models
+from shared_models import models as shared_models
 
 
 class EntryCreateForm(forms.ModelForm):
@@ -233,12 +234,12 @@ FundingPurposeFormSet = modelformset_factory(
 
 class RegionForm(forms.ModelForm):
     class Meta:
-        model = ml_models.Region
+        model = shared_models.Region
         fields = "__all__"
 
 
 RegionFormSet = modelformset_factory(
-    model=ml_models.Region,
+    model=shared_models.Region,
     form=RegionForm,
     extra=1,
 )
