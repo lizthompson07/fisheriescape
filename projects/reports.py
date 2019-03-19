@@ -440,49 +440,49 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
         for j in range(0, len(col_max)):
             worksheet4.set_column(j, j, width=col_max[j] * 1.1)
 
-        # spreadsheet: OM List #
-        ########################
-        if len(om_list) == 0:
-            worksheet5.write_row(0, 0, ["There are no o&m expenditures to report", ], bold_format)
-        else:
-            header = [
-                "Project Id",
-                verbose_field_name(om_list[0], 'om_category'),
-                verbose_field_name(om_list[0], 'description'),
-                verbose_field_name(om_list[0], 'budget_requested'),
+    # spreadsheet: OM List #
+    ########################
+    if len(om_list) == 0:
+        worksheet5.write_row(0, 0, ["There are no o & m  expenditures to report", ], bold_format)
+    else:
+        header = [
+            "Project Id",
+            verbose_field_name(om_list[0], 'om_category'),
+            verbose_field_name(om_list[0], 'description'),
+            verbose_field_name(om_list[0], 'budget_requested'),
+        ]
+
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+        worksheet5.write_row(0, 0, header, header_format)
+
+        i = 1
+        for item in om_list:
+            data_row = [
+                item.project.id,
+                str(item.om_category),
+                item.description,
+                item.budget_requested,
             ]
 
-            # create the col_max column to store the length of each header
-            # should be a maximum column width to 100
-            col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+            # adjust the width of the columns based on the max string length in each col
+            j = 0
+            for d in data_row:
+                # if new value > stored value... replace stored value
+                if len(str(d)) > col_max[j]:
+                    if len(str(d)) < 100:
+                        col_max[j] = len(str(d))
+                    else:
+                        col_max[j] = 100
+                j += 1
 
-            worksheet5.write_row(0, 0, header, header_format)
+            worksheet5.write_row(i, 0, data_row, normal_format)
+            i += 1
 
-            i = 1
-            for item in om_list:
-                data_row = [
-                    item.project.id,
-                    str(item.om_category),
-                    item.description,
-                    item.budget_requested,
-                ]
-
-                # adjust the width of the columns based on the max string length in each col
-                j = 0
-                for d in data_row:
-                    # if new value > stored value... replace stored value
-                    if len(str(d)) > col_max[j]:
-                        if len(str(d)) < 100:
-                            col_max[j] = len(str(d))
-                        else:
-                            col_max[j] = 100
-                    j += 1
-
-                worksheet5.write_row(i, 0, data_row, normal_format)
-                i += 1
-
-            for j in range(0, len(col_max)):
-                worksheet5.set_column(j, j, width=col_max[j] * 1.1)
+        for j in range(0, len(col_max)):
+            worksheet5.set_column(j, j, width=col_max[j] * 1.1)
 
     # spreadsheet: Capital List #
     #############################
