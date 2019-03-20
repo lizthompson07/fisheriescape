@@ -14,7 +14,7 @@ class TicketFilter(django_filters.FilterSet):
             'id': ['exact'],
             'fiscal_year': ['exact'],
             'status': ['exact'],
-            'section': ['exact'],
+            # 'section': ['exact'],
         }
 
 
