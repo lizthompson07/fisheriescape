@@ -3,6 +3,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import TextField
+from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.utils import timezone
@@ -30,9 +32,10 @@ class CloserTemplateView(TemplateView):
 ##########
 
 class TicketListView(FilterView):
-    queryset = models.Ticket.objects.all()
     filterset_class = filters.TicketFilter
     template_name = "dm_tickets/ticket_list.html"
+    queryset = models.Ticket.objects.annotate(
+            search_term=Concat('title', 'description', 'notes', output_field=TextField()))
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)

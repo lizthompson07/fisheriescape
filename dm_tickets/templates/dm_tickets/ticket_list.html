@@ -19,55 +19,37 @@
         <br><br>
         {# <p>TOTAL: {{object_list.count}}</p><br> #}
 
-        <form action="." method="get">
-            {% for field in filter.form %}
-                {% if field.name == "title__icontains" or field.name == "id" %}
-                    {{ field.label }}: {{ field }}
-                {% endif %}
-            {% endfor %}
 
-            <input class="btn btn-sm btn-primary" type="submit" value="Filter"/>
-            <a href="#" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#more_filter_options">More
-                Filter Options</a>
+        <form class="form" action="." method="get" id="filter-form">
+            <div class="row">
 
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
 
-            <a class="btn btn-sm btn-outline-primary" href="."> Clear Filter</a>
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
 
-            <a class="btn btn-warning float-right" href="{% url 'tickets:create' %}">New Ticket</a>
-
-
+                </div>
+            </div>
         </form>
 
 
-        {# </div> #}
-
-
-        {#<!-- More Filter Options MODAL -->#}
-        <div class="modal fade" id="more_filter_options" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Filter options </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        {% include "dm_tickets/_filter_ticket.html" %}
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
+        <div class="row">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: center">
+                <em>displaying {{ filter.qs.count }} of {{ filter.qs.count }}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'tickets:create' %}" class="btn btn-sm btn-primary">New</a>
             </div>
         </div>
-
-
-        {# </div> #}
-        {# </div> #}
-        <br><span style="font-size: small">(click on a header to sort the table)</span>
         <table class="table table-hover table-sm sortable">
             <thead>
             <tr>
