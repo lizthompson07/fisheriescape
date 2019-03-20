@@ -37,7 +37,7 @@
                 </div>
             </div>
         </form>
-
+        <br><br>
 
         <div class="row">
             <div class="col">
@@ -47,7 +47,7 @@
                 <em>displaying {{ filter.qs.count }} of {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'tickets:create' %}" class="btn btn-sm btn-primary">New</a>
+                <a href="{% url 'tickets:create' %}" class="btn btn-sm btn-primary">New Ticket</a>
             </div>
         </div>
         <table class="table table-hover table-sm sortable">
@@ -91,13 +91,8 @@
                     {# <td>{{ticket.tags_pretty}}</td> #}
                     <td>{{ ticket.sd_ref_number|nz:"" }}</td>
 
-
-                    {# <td>{{ticket.title}}</td> #}
-                    {# <td>{{ticket.description}}</td> #}
                 </tr>
             {% endfor %}
-            <br>
-
             </tbody>
         </table>
     </div>
