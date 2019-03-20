@@ -37,6 +37,21 @@ class TicketListView(FilterView):
     queryset = models.Ticket.objects.annotate(
             search_term=Concat('title', 'description', 'notes', output_field=TextField()))
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["my_object"] = models.Ticket.objects.first()
+        context["field_list"] = [
+            'id',
+            'date_modified',
+            'section',
+            'title',
+            'request_type',
+            'status',
+            'primary_contact',
+            'sd_ref_number',
+        ]
+        return context
+
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
