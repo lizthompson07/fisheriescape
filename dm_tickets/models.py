@@ -47,6 +47,9 @@ class RequestType(models.Model):
     def __str__(self):
         return self.request_type
 
+    class Meta:
+        ordering = ['request_type', ]
+
 
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
