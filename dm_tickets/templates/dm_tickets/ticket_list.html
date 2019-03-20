@@ -3,15 +3,18 @@
 {% load bootstrap4 %}
 {% load humanize %}
 {% load custom_filters %}
+{% load verbose_names %}
+
 {% block content %}
 
+
     <style>
-    table,td{
-        font-size: small;
-    }
+        table, td {
+            font-size: small;
+        }
     </style>
 
-    <div class="container">
+    <div class="container-fluid">
         <br>
         <h1 class="text-center font-weight-bold ">
             Data Management Tickets
@@ -53,43 +56,20 @@
         <table class="table table-hover table-sm sortable">
             <thead>
             <tr>
-                <th scope="col" width='150px'>Ticket Id</th>
-                <th scope="col" width='150px'>Date modified</th>
-                <th scope="col" width='150px'>Section</th>
-                <th scope="col" width='450px'>Title</th>
-                <th scope="col" width='200px'>Request Type</th>
-                <th scope="col" width='100px'>Status</th>
-                <th scope="col" width='250px'>People</th>
-                {# <th scope="col" width='200px'>Tags</th> #}
-                <th scope="col" width='200px'>Service Desk #</th>
-
+                {% for field in field_list %}
+                    {% if field == "status" %} {% else %} {% endif %}
+                    <th scope="col">{% get_verbose_label my_object field %}</th>
+                {% endfor %}
             </tr>
             </thead>
 
             <tbody>
             {% for ticket in filter.qs %}
-                <tr>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.date_modified|naturaltime }}</td>
-                    <td>{{ ticket.section }}</td>
-                    <td><a href="{% url 'tickets:detail' pk=ticket.id %}">{{ ticket.title }}</a></td>
-                    <td>{{ ticket.request_type }}</td>
 
-                    {% if ticket.status == '5' %}
-                        <td class="active1">
-                            {% elif ticket.status == '2' %}
-                        <td class="resolved">
-                            {% elif ticket.status == '6' %}
-                        <td class="idle">
-                            {% elif ticket.status == '7' %}
-                        <td class="unresolved">
-                    {% endif %}
-                    {{ ticket.get_status_display }}
-                    </td>
-
-                    <td>{{ ticket.people_pretty|safe }}</td>
-                    {# <td>{{ticket.tags_pretty}}</td> #}
-                    <td>{{ ticket.sd_ref_number|nz:"" }}</td>
+                <tr href="{{ my_url }}">
+                    {% for field in field_list %}
+                        <td>{% get_field_value ticket field %}</td>
+                    {% endfor %}
 
                 </tr>
             {% endfor %}
