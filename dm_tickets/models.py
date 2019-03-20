@@ -6,6 +6,9 @@ from django.utils import timezone
 from django.urls import reverse
 import markdown
 
+from lib.functions.fiscal_year import fiscal_year
+from shared_models import models as shared_models
+
 
 # Create your models here.
 
@@ -120,7 +123,8 @@ class Ticket(models.Model):
     sd_date_logged = models.DateTimeField(null=True, blank=True, verbose_name="Service desk date logged")
     financial_follow_up_needed = models.BooleanField(default=False)
     estimated_cost = models.FloatField(blank=True, null=True)
-    fiscal_year = models.CharField(blank=True, null=True, max_length=20)
+    # fiscal_year = models.CharField(blank=True, null=True, max_length=20) # THIS FIELD SHOULD BE DELETED
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     def save(self, *args, **kwargs):
         if self.notes:
@@ -134,11 +138,7 @@ class Ticket(models.Model):
         else:
             self.date_closed = None
 
-        if self.date_opened.month >= 4:
-            self.fiscal_year = "{}-{}".format(self.date_opened.year, self.date_opened.year+1)
-        else:
-            self.fiscal_year = "{}-{}".format(self.date_opened.year-1, self.date_opened.year)
-
+        self.fiscal_year_id = fiscal_year(self.date_opened.year, sap_style=True)
         super().save(*args, **kwargs)
 
     class Meta:
