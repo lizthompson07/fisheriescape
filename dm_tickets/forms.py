@@ -55,19 +55,3 @@ class FileForm(forms.ModelForm):
         widgets = {
             'ticket': forms.HiddenInput(),
         }
-
-
-class FilterForm(forms.Form):
-    SECTION_CHOICES = []
-
-    for section in shared_models.Section.objects.all():
-        SECTION_CHOICES.append(tuple((section.id, str(section))))
-
-    initial = tuple(('----', '----'))
-
-    SECTION_CHOICES.insert(0, initial)
-    status_choices = list(models.Ticket.STATUS_CHOICES)
-    status_choices.insert(0, initial)
-
-    section = forms.ChoiceField(choices=SECTION_CHOICES, initial=initial)
-    ticket_status = forms.ChoiceField(choices=status_choices, initial=initial)
