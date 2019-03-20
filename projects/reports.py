@@ -35,7 +35,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     bold_format = workbook.add_format({"align": 'left', 'bold': True})
 
     if sections != "None":
-        section_list = [models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
+        section_list = [shared_models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
     else:
         section_list = []
 

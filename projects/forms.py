@@ -136,7 +136,7 @@ class ReportSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__( *args, **kwargs)
-        self.fields["sections"].choices = [(s.id, str(s)) for s in models.Section.objects.all()]
+        self.fields["sections"].choices = [(s.id, str(s)) for s in shared_models.Section.objects.filter(division__branch=1)]
 
 
 class OTForm(forms.ModelForm):

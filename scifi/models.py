@@ -104,16 +104,6 @@ class Project(models.Model):
     class Meta:
         ordering = ['code', ]
 
-# class FiscalYear(models.Model):
-#     full = models.TextField(blank=True, null=True)
-#     short = models.TextField(blank=True, null=True)
-#
-#     def __str__(self):
-#         return "{}".format(self.full)
-#
-#     class Meta:
-#         ordering = ['id', ]
-
 
 class Transaction(models.Model):
     # Choices for transaction_type
