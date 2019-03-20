@@ -125,7 +125,7 @@ class Ticket(models.Model):
         self.date_modified = timezone.now()
 
         # if status is resolved or canceled, add a date closed timestamp
-        if self.status is '2' or self.status is '7':
+        if self.status_id is 1 or self.status is 4:
             self.date_closed = timezone.now()
         else:
             self.date_closed = None
