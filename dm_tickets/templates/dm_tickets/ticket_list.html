@@ -22,8 +22,7 @@
         <br><br>
         {# <p>TOTAL: {{object_list.count}}</p><br> #}
 
-
-        <form class="form" action="." method="get" id="filter-form">
+        <form class="form" action="." method="get" id="filter-form" style="width: 85%">
             <div class="row">
 
                 {% for field in filter.form %}
@@ -35,8 +34,10 @@
                 {% endfor %}
                 <div class="col">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
-
+                    <div class="btn-group">
+                        <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                        <a href="." class="btn btn-success btn-sm">Clear</a>
+                    </div>
                 </div>
             </div>
         </form>
@@ -57,7 +58,6 @@
             <thead>
             <tr>
                 {% for field in field_list %}
-                    {% if field == "status" %} {% else %} {% endif %}
                     <th scope="col">{% get_verbose_label my_object field %}</th>
                 {% endfor %}
             </tr>
@@ -65,12 +65,15 @@
 
             <tbody>
             {% for ticket in filter.qs %}
-
+                {% url 'tickets:detail' ticket.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
-                        <td>{% get_field_value ticket field %}</td>
+                        {% if field == "status" %}
+                            <td style="background-color: {{ ticket.status.color }}">{% get_field_value ticket field %}</td>
+                        {% else %}
+                            <td>{% get_field_value ticket field %}</td>
+                        {% endif %}
                     {% endfor %}
-
                 </tr>
             {% endfor %}
             </tbody>

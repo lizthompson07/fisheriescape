@@ -35,7 +35,7 @@ class TicketListView(FilterView):
     filterset_class = filters.TicketFilter
     template_name = "dm_tickets/ticket_list.html"
     queryset = models.Ticket.objects.annotate(
-            search_term=Concat('title', 'description', 'notes', output_field=TextField()))
+            search_term=Concat('id','title', 'description', 'notes', output_field=TextField()))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
