@@ -69,7 +69,8 @@ class Event(models.Model):
                                     default=fiscal_year(sap_style=True), blank=True, null=True)
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("connected user"))
-    section = models.ForeignKey(projects_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("DFO section"))
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("DFO section"),
+                                limit_choices_to={'division__branch': 1})
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"))
     address = models.CharField(max_length=1000, verbose_name=_("address"), default="343 Université Avenue, Moncton, NB, E1C 9B6")

@@ -8,7 +8,6 @@ from . import models
 class TicketFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Key term (title, description, notes, Id):",
                                             lookup_expr='icontains', widget=forms.TextInput())
-
     class Meta:
         model = models.Ticket
         fields = {

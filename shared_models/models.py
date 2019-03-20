@@ -3,7 +3,8 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 
-# Connected
+# CONNECTED APPS: dm_tickets, travel, projects, sci_fi
+# STILL NEED TO CONNECT:
 class FiscalYear(models.Model):
     full = models.TextField(blank=True, null=True)
     short = models.TextField(blank=True, null=True)
@@ -14,10 +15,8 @@ class FiscalYear(models.Model):
     class Meta:
         ordering = ['id', ]
 
-
-# masterlist
-# camp (but needs remapping)
-# grias (but needs remapping)
+# CONNECTED APPS: masterlist
+# STILL NEED TO CONNECT: camp (needs remapping), grais (needs remapping)
 class Province(models.Model):
     # Choices for surface_type
     CAN = 'Canada'
@@ -43,8 +42,8 @@ class Province(models.Model):
     class Meta:
         ordering = ['name', ]
 
-
-# masterlist
+# CONNECTED APPS: masterlist
+# STILL NEED TO CONNECT:
 class Region(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
@@ -80,11 +79,6 @@ class Branch(models.Model):
         ordering = ['name', ]
 
 
-
-# projects
-# dm_tickets
-# inventory
-# travel
 class Division(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
@@ -103,15 +97,14 @@ class Division(models.Model):
         ordering = ['name', ]
 
 
-# projects
-# dm_tickets
-# inventory
-# travel
+# CONNECTED APPS: dm_tickets, travel, projects
+# STILL NEED TO CONNECT: inventory
 class Section(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
     division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="sections")
-    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("section head"), related_name="shared_models_sections")
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("section head"),
+                             related_name="shared_models_sections")
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
 
     def __str__(self):
@@ -124,6 +117,11 @@ class Section(models.Model):
 
     class Meta:
         ordering = ['name', ]
+
+    @property
+    def full_name(self):
+        my_str = "{} - {} - {} - {}".format(self.division.branch.region, self.division.branch, self.division, self.name)
+        return my_str
 
 ########################
 
@@ -171,9 +169,8 @@ class Vessel(models.Model):
         else:
             return "{}".format(self.name)
 
-
     class Meta:
-        ordering = ['name',]
+        ordering = ['name', ]
 
 
 # oceanography
@@ -200,7 +197,6 @@ class Cruise(models.Model):
         if self.start_date:
             self.season = self.start_date.year
         return super().save(*args, **kwargs)
-
 
 #########################################
 

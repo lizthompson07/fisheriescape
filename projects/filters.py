@@ -7,8 +7,8 @@ import django_filters
 
 class ProjectFilter(django_filters.FilterSet):
     FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
-    DIVISION_CHOICES = [(d.id, str(d)) for d in models.Division.objects.all()]
-    SECTION_CHOICES = [(s.id, str(s)) for s in models.Section.objects.all()]
+    DIVISION_CHOICES = [(d.id, str(d)) for d in shared_models.Division.objects.filter(branch=1)]
+    SECTION_CHOICES = [(s.id, str(s)) for s in shared_models.Section.objects.filter(division__branch=1)]
     YES_NO_CHOICES = [(True, "Yes"), (False, "No"), ]
 
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
