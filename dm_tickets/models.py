@@ -33,16 +33,6 @@ class Person(models.Model):
         return reverse('tickets:person_detail', kwargs={'pk': self.id})
 
 
-class Section(models.Model):
-    section_name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.section_name
-
-    class Meta:
-        ordering = ['section_name']
-
-
 class RequestType(models.Model):
     request_type = models.CharField(max_length=255)
     financial_follow_up_needed = models.BooleanField(default=False)
@@ -97,12 +87,11 @@ class Ticket(models.Model):
     )
 
     title = models.CharField(max_length=255)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING)
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
     status = models.CharField(default=ACTIVE, max_length=1, choices=STATUS_CHOICES)
     priority = models.CharField(default=HIGH, max_length=1, choices=PRIORITY_CHOICES)
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     description = models.TextField(blank=True, null=True)
-    # service_desk_ticket = models.ForeignKey(ServiceDeskTicket, blank=True,null=True, on_delete=models.DO_NOTHING)
     financial_coding = models.CharField(max_length=100, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     notes_html = models.TextField(blank=True, null=True, verbose_name="Notes")

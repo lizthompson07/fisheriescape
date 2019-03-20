@@ -1,7 +1,7 @@
 from django import forms
 from django.core import validators
 from . import models
-
+from shared_models import models as shared_models
 
 class TagForm(forms.ModelForm):
     class Meta:
@@ -60,8 +60,8 @@ class FileForm(forms.ModelForm):
 class FilterForm(forms.Form):
     SECTION_CHOICES = []
 
-    for section in models.Section.objects.all():
-        SECTION_CHOICES.append(tuple((section.id, section.section_name)))
+    for section in shared_models.Section.objects.all():
+        SECTION_CHOICES.append(tuple((section.id, str(section))))
 
     initial = tuple(('----', '----'))
 
