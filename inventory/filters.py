@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 from . import models
 import django_filters
+from shared_models import models as shared_models
 
 
 class ResourceFilter(django_filters.FilterSet):
@@ -10,10 +11,14 @@ class ResourceFilter(django_filters.FilterSet):
 
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains',
                                             widget=forms.TextInput())
-    region = django_filters.ChoiceFilter(field_name="section__region", label="Region", lookup_expr='exact',
-                                         choices=models.Section.REGION_CHOICES)
+    region = django_filters.ModelChoiceFilter(field_name="section__division__branch__region", label="Region", lookup_expr='exact',
+                                              queryset=shared_models.Region.objects.all())
+    branch = django_filters.ModelChoiceFilter(field_name="section__division__branch", label="Branch", lookup_expr='exact',
+                                              queryset=shared_models.Branch.objects.all())
+    division = django_filters.ModelChoiceFilter(field_name="section__division", label="Division", lookup_expr='exact',
+                                                queryset=shared_models.Division.objects.all())
     section = django_filters.ModelChoiceFilter(field_name="section", label="Section", lookup_expr='exact',
-                                               queryset=models.Section.objects.all())
+                                               queryset=shared_models.Section.objects.all())
     person = django_filters.ModelChoiceFilter(field_name="people", label="Person", lookup_expr='exact',
                                               queryset=models.Person.objects.all())
     status = django_filters.ChoiceFilter(field_name="status", label="Status", lookup_expr='exact', choices=STATUS_CHOICES)
@@ -31,6 +36,7 @@ class ResourceFilter(django_filters.FilterSet):
                 self.filters["person"].queryset = models.Person.objects.filter(resource__section__region=self.data["region"]).distinct()
         except KeyError:
             print('no data in filter')
+
 
 class PersonFilter(django_filters.FilterSet):
     class Meta:

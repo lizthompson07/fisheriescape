@@ -3,6 +3,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import TextField
+from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.utils import timezone
@@ -30,9 +32,25 @@ class CloserTemplateView(TemplateView):
 ##########
 
 class TicketListView(FilterView):
-    queryset = models.Ticket.objects.all()
     filterset_class = filters.TicketFilter
     template_name = "dm_tickets/ticket_list.html"
+    queryset = models.Ticket.objects.annotate(
+        search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["my_object"] = models.Ticket.objects.first()
+        context["field_list"] = [
+            'id',
+            'date_modified',
+            'section',
+            'title',
+            'request_type',
+            'status',
+            'primary_contact',
+            'sd_ref_number',
+        ]
+        return context
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -40,16 +58,18 @@ class TicketListView(FilterView):
     #         kwargs["data"] = {"status": 5}
     #     return kwargs
 
+
 class TicketDetailView(DetailView):
     model = models.Ticket
     template_name = "dm_tickets/ticket_detail.html"
+
     # form_class = forms.TicketDetailForm
 
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
 
         try:
-            extra_context = {'temp_msg':self.request.session['temp_msg']}
+            extra_context = {'temp_msg': self.request.session['temp_msg']}
             context.update(extra_context)
             del self.request.session['temp_msg']
         except Exception as e:
@@ -57,14 +77,14 @@ class TicketDetailView(DetailView):
             # pass
         context['email'] = emails.TicketResolvedEmail(self.object)
         context["field_group_1"] = [
-                # "id",
-                "primary_contact",
-                "title",
-                "section",
-                "status",
-                "priority",
-                "request_type",
-            ]
+            # "id",
+            "primary_contact",
+            "title",
+            "section",
+            "status",
+            "priority",
+            "request_type",
+        ]
 
         context["field_group_2"] = [
             "financial_coding",
@@ -88,6 +108,7 @@ class TicketDetailView(DetailView):
         ]
         return context
 
+
 def send_resolved_email(request, ticket):
     # grab a copy of the resource
     my_ticket = models.Ticket.objects.get(pk=ticket)
@@ -95,27 +116,29 @@ def send_resolved_email(request, ticket):
     email = emails.TicketResolvedEmail(my_ticket)
     # send the email object
     if settings.MY_ENVR != 'dev':
-        send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+        send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,
+                  fail_silently=False, )
     else:
         print('not sending email since in dev mode')
     my_ticket.resolved_email_date = timezone.now()
     my_ticket.save()
     messages.success(request, "the email has been sent!")
-    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk':ticket}))
+    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
+
 
 def mark_ticket_resolved(request, ticket):
     my_ticket = models.Ticket.objects.get(pk=ticket)
-    my_ticket.status = '2'
+    my_ticket.status_id = 1
     my_ticket.save()
-    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk':ticket}))
+    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
+
 
 def mark_ticket_active(request, ticket):
     my_ticket = models.Ticket.objects.get(pk=ticket)
-    my_ticket.status = "5"
+    my_ticket.status_id = 2
     my_ticket.date_closed = None
     my_ticket.save()
-    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk':ticket}))
-
+    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
 
 
 class TicketUpdateView(LoginRequiredMixin, UpdateView):
@@ -142,10 +165,12 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
         self.object.primary_contact.save()
         return HttpResponseRedirect(self.get_success_url())
 
+
 class TicketDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Ticket
     success_url = reverse_lazy('tickets:list')
     login_url = '/accounts/login_required/'
+
 
 class TicketCreateView(CreateView):
     model = models.Ticket
@@ -178,20 +203,22 @@ class TicketCreateView(CreateView):
         email = emails.NewTicketEmail(self.object)
         # send the email object
         if settings.MY_ENVR != 'dev':
-            send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
         else:
             print('not sending email since in dev mode')
 
         messages.success(self.request, "The new ticket has been logged and a confirmation email has been sent!")
 
-
         # check to see if a generic file should be appended
         if form.cleaned_data["generic_file_to_load"]:
-            return HttpResponseRedirect(reverse_lazy("tickets:add_generic_file", kwargs={"ticket":self.object.id, "type":form.cleaned_data["generic_file_to_load"]}))
+            return HttpResponseRedirect(reverse_lazy("tickets:add_generic_file",
+                                                     kwargs={"ticket": self.object.id, "type": form.cleaned_data["generic_file_to_load"]}))
 
         # if nothing, just go to detail page
         else:
             return HttpResponseRedirect(self.get_success_url())
+
 
 class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Ticket
@@ -200,30 +227,32 @@ class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.TicketNoteForm
 
 
-
 # Tags #
 ########
 
 class TagDetailView(UpdateView):
     model = models.Tag
-    template_name ='dm_tickets/tag_detail_popout.html'
+    template_name = 'dm_tickets/tag_detail_popout.html'
     form_class = forms.TagForm
+
 
 class TagUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Tag
-    template_name ='dm_tickets/tag_form_popout.html'
+    template_name = 'dm_tickets/tag_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.TagForm
 
+
 class TagCreateView(CreateView):
     model = models.Tag
-    template_name ='dm_tickets/tag_form_popout.html'
+    template_name = 'dm_tickets/tag_form_popout.html'
     form_class = forms.TagForm
 
     def form_valid(self, form):
         self.object = form.save()
         ticket = self.kwargs['ticket']
-        return HttpResponseRedirect(reverse_lazy('tickets:add_tag', kwargs={'ticket':ticket, 'tag':self.object.id}))
+        return HttpResponseRedirect(reverse_lazy('tickets:add_tag', kwargs={'ticket': ticket, 'tag': self.object.id}))
+
 
 class TagListView(FilterView):
     filterset_class = filters.TagFilter
@@ -232,13 +261,15 @@ class TagListView(FilterView):
     def get_context_data(self, **kwargs):
         context = super(TagListView, self).get_context_data(**kwargs)
         ticket = self.kwargs['ticket']
-        context['ticket']= ticket
+        context['ticket'] = ticket
         return context
+
 
 def add_tag_to_ticket(request, ticket, tag):
     my_ticket = models.Ticket.objects.get(id=ticket)
     my_ticket.tags.add(tag)
-    return HttpResponseRedirect(reverse('tickets:tag_insert', kwargs={'ticket':ticket}))
+    return HttpResponseRedirect(reverse('tickets:tag_insert', kwargs={'ticket': ticket}))
+
 
 # Files #
 #########
@@ -246,7 +277,7 @@ def add_tag_to_ticket(request, ticket, tag):
 class FileCreateView(CreateView):
     model = models.File
     # fields = '__all__'
-    template_name ='dm_tickets/file_form_popout.html'
+    template_name = 'dm_tickets/file_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.FileForm
 
@@ -261,34 +292,38 @@ class FileCreateView(CreateView):
         email = emails.NewFileAddedEmail(self.object)
         # send the email object
         if settings.MY_ENVR != 'dev':
-            send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
         else:
             print('not sending email since in dev mode')
 
-        #store a temporary message is the sessions middleware
+        # store a temporary message is the sessions middleware
         self.request.session['temp_msg'] = "The new file has been added and a notification email has been sent to the site administrator."
 
         # determine if we should attach a generic file
 
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
+
 class FileUpdateView(UpdateView):
     model = models.File
     fields = '__all__'
-    template_name ='dm_tickets/file_form_popout.html'
+    template_name = 'dm_tickets/file_form_popout.html'
     # form_class = forms.StudentCreateForm
 
-class FileDetailView(LoginRequiredMixin,UpdateView):
+
+class FileDetailView(LoginRequiredMixin, UpdateView):
     model = models.File
     fields = '__all__'
-    template_name ='dm_tickets/file_detail_popout.html'
+    template_name = 'dm_tickets/file_detail_popout.html'
+
     # form_class = forms.TagForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         try:
-            extra_context = {'temp_msg':self.request.session['temp_msg']}
+            extra_context = {'temp_msg': self.request.session['temp_msg']}
             context.update(extra_context)
             del self.request.session['temp_msg']
         except Exception as e:
@@ -297,9 +332,11 @@ class FileDetailView(LoginRequiredMixin,UpdateView):
 
         return context
 
-class FileDeleteView(LoginRequiredMixin,DeleteView):
+
+class FileDeleteView(LoginRequiredMixin, DeleteView):
     model = models.File
-    template_name ='dm_tickets/file_confirm_delete_popout.html'
+    template_name = 'dm_tickets/file_confirm_delete_popout.html'
+
     # form_class = forms.StudentCreateForm
 
     def get_success_url(self):
@@ -320,10 +357,9 @@ def add_generic_file(request, ticket, type):
     elif type == "security_exemption":
         filename = "Request_DFO_IT_Security_Exemption.doc"
 
-
-    source_file = os.path.join(settings.STATIC_DIR,"docs","dm_tickets",filename)
-    target_dir = os.path.join(settings.MEDIA_DIR,"dm_tickets","ticket_{}".format(ticket))
-    target_file= os.path.join(target_dir,filename)
+    source_file = os.path.join(settings.STATIC_DIR, "docs", "dm_tickets", filename)
+    target_dir = os.path.join(settings.MEDIA_DIR, "dm_tickets", "ticket_{}".format(ticket))
+    target_file = os.path.join(target_dir, filename)
 
     # create the new folder
     try:
@@ -331,14 +367,13 @@ def add_generic_file(request, ticket, type):
     except:
         print("folder already exists")
 
-    copyfile(source_file,target_file)
-
+    copyfile(source_file, target_file)
 
     my_new_file = models.File.objects.create(
-        caption = "unsigned {} request form".format(type),
-        ticket_id = ticket,
-        date_created = timezone.now(),
-        file="dm_tickets/ticket_{}/{}".format(ticket,filename)
+        caption="unsigned {} request form".format(type),
+        ticket_id=ticket,
+        date_created=timezone.now(),
+        file="dm_tickets/ticket_{}/{}".format(ticket, filename)
     )
 
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
@@ -349,18 +384,20 @@ def add_generic_file(request, ticket, type):
 
 class PersonDetailView(UpdateView):
     model = models.Person
-    template_name ='dm_tickets/person_detail_popout.html'
+    template_name = 'dm_tickets/person_detail_popout.html'
     fields = '__all__'
+
 
 class PersonUpdateView(UpdateView):
     model = models.Person
-    template_name ='dm_tickets/person_form_popout.html'
+    template_name = 'dm_tickets/person_form_popout.html'
     login_url = '/accounts/login_required/'
     fields = '__all__'
 
+
 class PersonCreateView(CreateView):
     model = models.Person
-    template_name ='dm_tickets/person_form_popout.html'
+    template_name = 'dm_tickets/person_form_popout.html'
     fields = '__all__'
 
     def form_valid(self, form):
@@ -370,7 +407,7 @@ class PersonCreateView(CreateView):
         except:
             return HttpResponseRedirect(reverse('tickets:close_me'))
         else:
-            return HttpResponseRedirect(reverse_lazy('tickets:add_person', kwargs={'ticket':ticket, 'person':self.object.id}))
+            return HttpResponseRedirect(reverse_lazy('tickets:add_person', kwargs={'ticket': ticket, 'person': self.object.id}))
 
 
 class PersonListView(FilterView):
@@ -380,13 +417,14 @@ class PersonListView(FilterView):
     def get_context_data(self, **kwargs):
         context = super(PersonListView, self).get_context_data(**kwargs)
         ticket = self.kwargs['ticket']
-        context['ticket']= ticket
+        context['ticket'] = ticket
         return context
+
 
 def add_person_to_ticket(request, ticket, person):
     my_ticket = models.Ticket.objects.get(id=ticket)
     my_ticket.people.add(person)
-    return HttpResponseRedirect(reverse('tickets:person_insert', kwargs={'ticket':ticket}))
+    return HttpResponseRedirect(reverse('tickets:person_insert', kwargs={'ticket': ticket}))
 
 
 # REPORTS #
@@ -399,8 +437,9 @@ class FinanceReportListView(FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["now"]= timezone.now()
+        context["now"] = timezone.now()
         return context
+
 
 def finance_spreadsheet(request):
     file_url = reports.generate_finance_spreadsheet()

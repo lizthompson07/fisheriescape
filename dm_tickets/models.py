@@ -2,10 +2,12 @@ import os
 from django.db import models
 from django.dispatch import receiver
 from django.utils import timezone
-# from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
 import markdown
 
+from lib.functions.fiscal_year import fiscal_year
+from shared_models import models as shared_models
 
 # Create your models here.
 
@@ -30,22 +32,15 @@ class Person(models.Model):
         return reverse('tickets:person_detail', kwargs={'pk': self.id})
 
 
-class Section(models.Model):
-    section_name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.section_name
-
-    class Meta:
-        ordering = ['section_name']
-
-
 class RequestType(models.Model):
     request_type = models.CharField(max_length=255)
     financial_follow_up_needed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.request_type
+
+    class Meta:
+        ordering = ['request_type', ]
 
 
 class Tag(models.Model):
@@ -61,20 +56,24 @@ class Tag(models.Model):
         ordering = ['tag']
 
 
+class Status(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
+    color = models.CharField(max_length=25, blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
 class Ticket(models.Model):
-    # Choices for status
-    RESOLVED = '2'
-    ACTIVE = '5'
-    IDLE = '6'
-    CANCELLED = '7'
-    WISHLIST = '8'
-    STATUS_CHOICES = (
-        (ACTIVE, 'Active'),
-        (RESOLVED, 'Resolved'),
-        (IDLE, 'Idle'),
-        (CANCELLED, 'Cancelled'),
-        (WISHLIST, 'Wishlist'),
-    )
 
     # Choices for priority
     HIGH = '1'
@@ -91,12 +90,11 @@ class Ticket(models.Model):
     )
 
     title = models.CharField(max_length=255)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING)
-    status = models.CharField(default=ACTIVE, max_length=1, choices=STATUS_CHOICES)
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING)
     priority = models.CharField(default=HIGH, max_length=1, choices=PRIORITY_CHOICES)
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     description = models.TextField(blank=True, null=True)
-    # service_desk_ticket = models.ForeignKey(ServiceDeskTicket, blank=True,null=True, on_delete=models.DO_NOTHING)
     financial_coding = models.CharField(max_length=100, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     notes_html = models.TextField(blank=True, null=True, verbose_name="Notes")
@@ -117,7 +115,8 @@ class Ticket(models.Model):
     sd_date_logged = models.DateTimeField(null=True, blank=True, verbose_name="Service desk date logged")
     financial_follow_up_needed = models.BooleanField(default=False)
     estimated_cost = models.FloatField(blank=True, null=True)
-    fiscal_year = models.CharField(blank=True, null=True, max_length=20)
+    # fiscal_year = models.CharField(blank=True, null=True, max_length=20) # THIS FIELD SHOULD BE DELETED
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     def save(self, *args, **kwargs):
         if self.notes:
@@ -126,16 +125,12 @@ class Ticket(models.Model):
         self.date_modified = timezone.now()
 
         # if status is resolved or canceled, add a date closed timestamp
-        if self.status is '2' or self.status is '7':
+        if self.status_id is 1 or self.status is 4:
             self.date_closed = timezone.now()
         else:
             self.date_closed = None
 
-        if self.date_opened.month >= 4:
-            self.fiscal_year = "{}-{}".format(self.date_opened.year, self.date_opened.year+1)
-        else:
-            self.fiscal_year = "{}-{}".format(self.date_opened.year-1, self.date_opened.year)
-
+        self.fiscal_year_id = fiscal_year(self.date_opened.year, sap_style=True)
         super().save(*args, **kwargs)
 
     class Meta:
