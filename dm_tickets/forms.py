@@ -3,6 +3,7 @@ from django.core import validators
 from . import models
 from shared_models import models as shared_models
 
+
 class TagForm(forms.ModelForm):
     class Meta:
         model = models.Tag

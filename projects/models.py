@@ -32,33 +32,6 @@ class BudgetCode(models.Model):
         ordering = ['code', ]
 
 
-class Division(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-    abbrev = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
-
-    class Meta:
-        ordering = ['name', ]
-
-
-class Section(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name"))
-    nom = models.CharField(max_length=255, blank=True, null=True)
-    division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="sections")
-    section_head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                     verbose_name=_("section head"))
-    abbrev = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        return "{} ({})".format(getattr(self, str(_("name"))), self.division)
-
-    class Meta:
-        ordering = ['name', ]
-
-
 class Program(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
