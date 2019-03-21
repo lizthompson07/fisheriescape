@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core import validators
 from . import models
+from shared_models import models as shared_models
 
 
 class ResourceCreateForm(forms.ModelForm):
@@ -147,6 +148,7 @@ class PersonForm(forms.Form):
     language = forms.ChoiceField(choices=LANGUAGE_CHOICES, required=False)
     organization = forms.ChoiceField(choices=ORGANIZATION_CHOICES, required=False)
 
+
 class KeywordForm(forms.ModelForm):
     class Meta:
         model = models.Keyword
@@ -239,5 +241,6 @@ class ReportSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['sections'].choices = [(s.id, "{} - {} - {}".format(s.get_region_display(), s.division, s.section)) for s in
-                                           models.Section.objects.all().order_by("region", "division", "section")]
+        self.fields['sections'].choices = [(s.id, "{}".format(s.full_name)) for s in
+                                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch",
+                                                                                        'division', "name")]
