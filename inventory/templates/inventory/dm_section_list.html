@@ -19,50 +19,47 @@
         </ol>
     </nav>
 
-    <div class="container">
-
-        <a href="{% url "inventory:dm_section_new" %}" class="float-right btn btn-primary">New Section</a>
-        <p>
+    <div class="container-fluid">
         <h1>
             Section List
         </h1>
-        TOTAL: {{ object_list.count }}
-        </p>
 
-        {% if object_list.count > 0 %}
-            (Click on a table header to sort by column)
-            <table class="table table-hover table-sm sortable" style="font-size: small; width: auto;">
-                <thead>
-                <tr>
-                    {# <th scope="col">Id</th> #}
-                    <th scope="col">Region</th>
-                    <th scope="col">Section</th>
-                    <th scope="col">Division</th>
-                    <th scope="col">Branch</th>
-                    <th scope="col">Unit Head</th>
-                    <th scope="col">Manager</th>
-                    <th scope="col">Resource Count</th>
+        <div class="row">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: center">
+                <em>displaying all {{ object_list.count }} records.</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="#" pop-href="{% url "shared_models:section_new" %}" class="btn btn-sm btn-primary">New Section</a>
+            </div>
+        </div>
+        <table class="table table-hover table-sm sortable" style="font-size: small; ">
+            <thead>
+            <tr>
+                {# <th scope="col">Id</th> #}
+                <th scope="col">Region</th>
+                <th scope="col">Branch</th>
+                <th scope="col">Division</th>
+                <th scope="col">Section</th>
+                <th scope="col">Unit Head</th>
+                <th scope="col">Resource Count</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in object_list %}
+                <tr href="{% url 'inventory:dm_section_detail' obj.id %}">
+                    <td>{{ obj.division.branch.region.name }}</td>
+                    <td>{{ obj.division.branch.name }}</td>
+                    <td>{{ obj.division.name }}</td>
+                    <td>{{ obj.name }}</td>
+                    <td>{{ obj.head.first_name }} {{ obj.head.last_name }}</td>
+                    <td>{{ obj.resources.count }}</td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for obj in object_list %}
-                    <tr>
-                        <td>{{ obj.get_region_display }}</td>
-                        <td><a href="{% url 'inventory:dm_section_detail' obj.id %}">{{ obj.section }}</a></td>
-                        <td>{{ obj.division }}</td>
-                        <td>{{ obj.branch }}</td>
-                        <td>{{ obj.unit_head }}</td>
-                        <td>{{ obj.manager }}</td>
-                        <td>{{ obj.resources.count }}</td>
-                    </tr>
-                {% endfor %}
-                <br>
-
-                </tbody>
-            </table>
-        {% else %}
-            <em>There are no data resources that have been published to FGP</em>
-        {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
 
 
     </div>

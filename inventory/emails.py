@@ -48,7 +48,7 @@ class SectionReportEmail:
         except AttributeError:
             # if the user has no email, use the default app email
             self.from_email = from_email
-        self.to_list = [person_object.user.email, self.from_email]
+        self.to_list = [person_object.email, self.from_email]
 
     def load_html_template(self):
         t = loader.get_template('inventory/email_section_head_report.html')

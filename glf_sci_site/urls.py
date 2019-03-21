@@ -46,6 +46,7 @@ urlpatterns += i18n_patterns(
     path('master-list/', include('masterlist.urls')),
     path('gulf-shares/', include('shares.urls')),
     path('travel-plans/', include('travel.urls')),
+    path('shared/', include('shared_models.urls')),
 
     # Password reset views. Views are part of accounts app #
     ########################################################

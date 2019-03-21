@@ -11,6 +11,7 @@ from lib.templatetags.verbose_names import get_verbose_label
 from . import models
 from . import xml_export
 import os
+from shared_models import models as shared_models
 
 
 def generate_batch_xml(sections):
@@ -30,13 +31,13 @@ def generate_batch_xml(sections):
     # clean out the zip_dir directory and subdir
     for root, dirs, files in os.walk(zip_dir):
         for file in files:
-            os.remove(os.path.join(root,file))
+            os.remove(os.path.join(root, file))
 
     # start with all resources
     resource_list = models.Resource.objects.all()
     # parse out the sections arg and refine the list
     if sections != "None":
-        section_list = [models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
+        section_list = [shared_models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
         resource_list = [resource for resource in resource_list if resource.section in section_list]
 
     # generate an xml file for each resource in resource_list
@@ -54,4 +55,3 @@ def generate_batch_xml(sections):
     shutil.make_archive(zip_file_path, 'zip', xml_dir)
 
     return target_url
-

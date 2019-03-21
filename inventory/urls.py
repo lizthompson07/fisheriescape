@@ -91,9 +91,9 @@ urlpatterns = [
     path('my-section/', views.MySectionDetailView.as_view(), name="my_section_detail"),
     path('dm-admin/sections/list/', views.SectionListView.as_view(), name="dm_section_list"),
     path('dm-admin/sections/detail/<int:pk>/', views.SectionDetailView.as_view(), name="dm_section_detail"),
-    path('dm-admin/sections/edit/<int:pk>/', views.SectionUpdateView.as_view(), name="dm_section_edit"),
-    path('dm-admin/sections/delete/<int:pk>/', views.SectionDeleteView.as_view(), name="dm_section_delete"),
-    path('dm-admin/sections/new/', views.SectionCreateView.as_view(), name="dm_section_new"),
+    # path('dm-admin/sections/edit/<int:pk>/', views.SectionUpdateView.as_view(), name="dm_section_edit"),
+    # path('dm-admin/sections/delete/<int:pk>/', views.SectionDeleteView.as_view(), name="dm_section_delete"),
+    # path('dm-admin/sections/new/', views.SectionCreateView.as_view(), name="dm_section_new"),
     path('dm-admin/sections/<int:section>/send-section-report/', views.send_section_report, name="send_section_report_email"),
 
     # RESOURCE CERTIFICATION #
