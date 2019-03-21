@@ -229,12 +229,12 @@ class MySectionListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MySectionFilter
 
     def get_queryset(self):
-        return models.Project.objects.filter(section__section_head=self.request.user)
+        return models.Project.objects.filter(section__head=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['has_section'] = models.Project.objects.filter(section__section_head=self.request.user).count() > 0
+        context['has_section'] = models.Project.objects.filter(section__head=self.request.user).count() > 0
         return context
 
 

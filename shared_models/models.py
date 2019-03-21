@@ -4,7 +4,6 @@ from django.utils.translation import gettext as _
 
 
 # CONNECTED APPS: dm_tickets, travel, projects, sci_fi
-# STILL NEED TO CONNECT:
 class FiscalYear(models.Model):
     full = models.TextField(blank=True, null=True)
     short = models.TextField(blank=True, null=True)
@@ -14,6 +13,7 @@ class FiscalYear(models.Model):
 
     class Meta:
         ordering = ['id', ]
+
 
 # CONNECTED APPS: masterlist
 # STILL NEED TO CONNECT: camp (needs remapping), grais (needs remapping)
@@ -42,8 +42,8 @@ class Province(models.Model):
     class Meta:
         ordering = ['name', ]
 
+
 # CONNECTED APPS: masterlist
-# STILL NEED TO CONNECT:
 class Region(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
@@ -70,10 +70,10 @@ class Branch(models.Model):
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
+            return "{} ({})".format(getattr(self, str(_("name"))), self.region)
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.name)
+            return "{} ({})".format(self.name, self.region)
 
     class Meta:
         ordering = ['name', ]
@@ -88,10 +88,10 @@ class Division(models.Model):
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
+            return "{} ({})".format(getattr(self, str(_("name"))), self.branch.region)
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.name)
+            return "{} ({})".format(self.name, self.branch.region)
 
     class Meta:
         ordering = ['name', ]
@@ -122,6 +122,7 @@ class Section(models.Model):
     def full_name(self):
         my_str = "{} - {} - {} - {}".format(self.division.branch.region, self.division.branch, self.division, self.name)
         return my_str
+
 
 ########################
 
