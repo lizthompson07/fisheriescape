@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 
@@ -30,6 +31,13 @@ class Province(models.Model):
     abbrev_eng = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (English)"))
     abbrev_fre = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (French)"))
     country = models.CharField(max_length=25, choices=COUNTRY_CHOICES, verbose_name=_("country"))
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -48,6 +56,13 @@ class Region(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -66,6 +81,13 @@ class Branch(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"))
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -84,6 +106,13 @@ class Division(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
     branch = models.ForeignKey(Branch, on_delete=models.DO_NOTHING, verbose_name=_("branch"))
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -106,6 +135,13 @@ class Section(models.Model):
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("section head"),
                              related_name="shared_models_sections")
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -120,7 +156,7 @@ class Section(models.Model):
 
     @property
     def full_name(self):
-        my_str = "{} - {} - {} - {}".format(self.division.branch.region, self.division.branch, self.division, self.name)
+        my_str = "{} - {} - {} - {}".format(self.division.branch.region.name, self.division.branch.name, self.division.name, self.name)
         return my_str
 
 

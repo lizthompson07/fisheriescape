@@ -21,7 +21,7 @@ from . import filters
 from . import emails
 from . import xml_export
 from . import reports
-
+from shared_models import  models as shared_models
 
 # @login_required(login_url='/accounts/login_required/')
 # @user_passes_test(in_herring_group, login_url='/accounts/denied/')
@@ -1114,18 +1114,18 @@ class CustodianPersonUpdateView(InventoryDMRequiredMixin, FormView):
 
 class SectionListView(InventoryDMRequiredMixin, ListView):
     template_name = "inventory/dm_section_list.html"
-    queryset = models.Section.objects.all().order_by("branch", "division", "section")
+    queryset = shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")
 
 
 class SectionDetailView(InventoryDMRequiredMixin, DetailView):
     template_name = "inventory/dm_section_detail.html"
-    model = models.Section
+    model = shared_models.Section
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.object.unit_head:
-            me = models.Person.objects.get(user=User.objects.get(pk=self.request.user.id))
-            email = emails.SectionReportEmail(me, self.object.unit_head, self.object)
+        if self.object.head:
+            me = models.Person.objects.get(user=self.request.user)
+            email = emails.SectionReportEmail(me, self.object.head, self.object)
             context['email'] = email
         context['now'] = timezone.now()
         return context
@@ -1133,11 +1133,11 @@ class SectionDetailView(InventoryDMRequiredMixin, DetailView):
 
 def send_section_report(request, section):
     # grab a copy of the resource
-    my_section = models.Section.objects.get(pk=section)
-    my_person = my_section.unit_head
+    my_section = shared_models.Section.objects.get(pk=section)
+    head = my_section.head
     # create a new email object
-    me = models.Person.objects.get(user=User.objects.get(pk=request.user.id))
-    email = emails.SectionReportEmail(me, my_person, my_section)
+    me = models.Person.objects.get(user=request.user)
+    email = emails.SectionReportEmail(me, head, my_section)
     # send the email object
     if settings.MY_ENVR != 'dev':
         send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
@@ -1147,79 +1147,21 @@ def send_section_report(request, section):
         print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
                                                               email.message))
 
-    models.Correspondence.objects.create(custodian=my_person.user, subject="Section head report")
+    models.Correspondence.objects.create(custodian=head.user, subject="Section head report")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
     return HttpResponseRedirect(reverse('inventory:dm_section_detail', kwargs={'pk': section}))
 
 
-class SectionUpdateView(InventoryDMRequiredMixin, UpdateView):
-    template_name = "inventory/dm_section_form.html"
-    model = models.Section
-    fields = "__all__"
-
-    def form_valid(self, form):
-
-        # get instance of group
-        my_group = Group.objects.get(id=7)
-
-        # remove all users from group
-        for u in User.objects.filter(groups__name='inventory_section_head'):
-            my_group.user_set.remove(u)
-
-        # re-add section head users to group
-        for s in models.Section.objects.all():
-            if s.unit_head:
-                my_group.user_set.add(s.unit_head.user)
-
-        # make sure admin users have access to the view
-        for u in User.objects.filter(is_superuser=True):
-            my_group.user_set.add(u)
-
-        return super().form_valid(form)
-
-
-class SectionDeleteView(InventoryDMRequiredMixin, DeleteView):
-    template_name = "inventory/dm_section_confirm_delete.html"
-    model = models.Section
-    success_url = reverse_lazy("inventory:dm_section_list")
-
-
-class SectionCreateView(InventoryDMRequiredMixin, CreateView):
-    template_name = "inventory/dm_section_form.html"
-    model = models.Section
-    fields = "__all__"
-
-    def form_valid(self, form):
-        object = form.save()
-        # get instance of group
-        my_group = Group.objects.get(id=7)
-
-        # remove all users from group
-        for u in User.objects.filter(groups__name='inventory_section_head'):
-            my_group.user_set.remove(u)
-
-        # re-add section head users to group
-        for s in models.Section.objects.all():
-            if s.unit_head:
-                my_group.user_set.add(s.unit_head.user)
-
-        # make sure admin users have access to the view
-        for u in User.objects.filter(is_superuser=True):
-            my_group.user_set.add(u)
-
-        return super().form_valid(form)
-
-
 class MySectionDetailView(LoginRequiredMixin, TemplateView):
     template_name = "inventory/my_section_detail.html"
-    model = models.Section
+    model = shared_models.Section
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         # grab the user
         user_id = self.request.user.id
-        my_section = models.Section.objects.filter(unit_head_id=user_id).first()
+        my_section = shared_models.Section.objects.filter(head_id=user_id).first()
 
         if my_section:
             resource_list = my_section.resources.all().order_by("title_eng")

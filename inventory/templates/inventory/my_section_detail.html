@@ -15,45 +15,11 @@
             </h3>
         {% else %}
 
-            <p>
             <h1>
-                {{ object.section }} Section
+                {{ object.full_name }}
             </h1>
-            </p>
+            <br><br>
             <div class="row">
-                <div class="col">
-                    <br>
-                    <h3>Section Info:</h3>
-                    <p><b>
-                        {% get_verbose_field_name object "section" %}:
-                    </b><br>
-                        {{ object.section }}
-                    </p>
-
-                    <p><b>
-                        {% get_verbose_field_name object "division" %}:
-                    </b><br>
-                        {{ object.division }}
-                    </p>
-
-                    <p><b>
-                        {% get_verbose_field_name object "branch" %}:
-                    </b><br>
-                        {{ object.branch }}
-                    </p>
-
-                    <p><b>
-                        {% get_verbose_field_name object "unit_head" %}:
-                    </b><br>
-                        {{ object.unit_head }}
-                    </p>
-
-                    <p><b>
-                        {% get_verbose_field_name object "manager" %}:
-                    </b><br>
-                        {{ object.manager }}
-                    </p>
-                </div>
 
                 <div class="col">
                     <h3>
@@ -101,7 +67,7 @@
             {% if object.resources.count > 0 %}
                 <br>
                 <h3>
-                    Data Resources for {{ object.section }} Section ({{ object.resources.count }})
+                    Data Resources for {{ object }} Section ({{ object.resources.count }})
                 </h3>
                 <div class="row">
                     <div class="col">
