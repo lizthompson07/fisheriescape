@@ -3,49 +3,61 @@
 {% load bootstrap4 %}
 
 {% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'tickets:list' %}">Tickets</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a href="{% url 'tickets:detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">New</li>
+            {% endif %}
+        </ol>
+    </nav>
 
     <div class="container">
 
         <div class="neighbours" style="padding-right: 100px">
-        {# Load js file to allow for popout window #}
-        {% load static %}
-        <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
+            {# Load js file to allow for popout window #}
+            {% load static %}
+            <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>
 
-        {% if object.id %}
-
-            <h1>{{object.title}}</h1>
-        {% else %}
-            <h1>New Ticket</h1>
-        {% endif %}
-        {% bootstrap_form_errors form %}
+            <h1>
+                {% if object %}
+                    {{ object.title }}
+                {% else %}
+                    New Ticket
+                {% endif %}
+            </h1>
+            {% bootstrap_form_errors form %}
 
         </div>
 
 
         <div class="neighbours">
-        {% if not object %}
-            <div class="dropdown ">
-            <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Load template
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" href="#" id="prefill-monitor">monitor</a>
-              <a class="dropdown-item" href="#" id="prefill-computer">computer</a>
-              <a class="dropdown-item" href="#" id="prefill-software">software</a>
-              <a class="dropdown-item" href="#" id="prefill-security-exemption">IT security exemption</a>
-            </div>
-          </div>
+            {% if not object %}
+                <div class="dropdown ">
+                    <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        Load template
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#" id="prefill-monitor">monitor</a>
+                        <a class="dropdown-item" href="#" id="prefill-computer">computer</a>
+                        <a class="dropdown-item" href="#" id="prefill-software">software</a>
+                        <a class="dropdown-item" href="#" id="prefill-security-exemption">IT security exemption</a>
+                    </div>
+                </div>
 
-        {% endif %}
+            {% endif %}
 
         </div>
 
-    
 
         <form method="post" class="form">
             {% csrf_token %}
             {# {% bootstrap_form form %} #}
-            {% for field in form  %}
+            {% for field in form %}
 
 
                 {% if field.name == 'primary_contact' %}
@@ -56,7 +68,7 @@
 
 
                 {% else %}
-                    {% bootstrap_field field%}
+                    {% bootstrap_field field %}
                 {% endif %}
 
             {% endfor %}
@@ -81,63 +93,63 @@
 
 
 
-<script type="text/javascript">
-  //
-  var updatePrimaryContactEmail = function () {
-    //retrieve the PC email address
-    var emailLookup = '{{email_json|safe}}';
-    var obj = JSON.parse(emailLookup);
-    var userId = $("#id_primary_contact").val();
-    $("#id_primary_contact_email").val(obj[userId]);
-  }
+    <script type="text/javascript">
+        //
+        var updatePrimaryContactEmail = function () {
+            //retrieve the PC email address
+            var emailLookup = '{{email_json|safe}}';
+            var obj = JSON.parse(emailLookup);
+            var userId = $("#id_primary_contact").val();
+            $("#id_primary_contact_email").val(obj[userId]);
+        }
 
-  // when the doc is loaded.. call updatePrimaryContactEmail()
-  $(document).ready(updatePrimaryContactEmail)
+        // when the doc is loaded.. call updatePrimaryContactEmail()
+        $(document).ready(updatePrimaryContactEmail)
 
-  // when the primary contact is changed
-  $("#id_primary_contact").change(updatePrimaryContactEmail)
+        // when the primary contact is changed
+        $("#id_primary_contact").change(updatePrimaryContactEmail)
 
-    $("#prefill-monitor").click(function () {
-        $("#id_title").val("Request for new monitor")
-        $("#id_description").val("Request for new monitor")
-        $("#id_sd_description").val("Request for new monitor; Please see attached documentation.")
-        $("#id_sd_primary_contact").val("50")
-        $("#id_financial_coding").val("xxx-xxx-xxx-0930-xxx")
-        $("#id_request_type").val("6")
-        $("#id_generic_file_to_load").val("monitor")
-    })
-
-
-    $("#prefill-computer").click(function () {
-        $("#id_title").val("Request for NEW / REPLACEMENT computer")
-        $("#id_description").val("Request for NEW / REPLACEMENT computer")
-        $("#id_sd_description").val("NEW / REPLACEMENT computer; Please see attached documentation.")
-        $("#id_sd_primary_contact").val("50")
-        $("#id_financial_coding").val("xxx-xxx-xxx-0930-xxx")
-        $("#id_request_type").val("6")
-        $("#id_generic_file_to_load").val("computer")
-    })
-
-    $("#prefill-software").click(function () {
-        $("#id_title").val("Request for software XXXXXXXXXXXXX")
-        $("#id_description").val("Request for software XXXXXXXXXXXXX")
-        $("#id_sd_description").val("SOFTWARE REQUEST; Please see attached documentation")
-        $("#id_sd_primary_contact").val("50")
-        $("#id_financial_coding").val("xxx-xxx-xxx-0931-xxx")
-        $("#id_request_type").val("1")
-        $("#id_generic_file_to_load").val("software")
-    })
-
-     $("#prefill-security-exemption").click(function () {
-        $("#id_title").val("Request for DFO IT security exemption")
-        $("#id_description").val("DFO IT security exemption being requested for XXXXXXXXXXXXXX")
-        $("#id_sd_description").val("Request for DFO IT security exemption. Please see attached documentation")
-        $("#id_sd_primary_contact").val("50")
-        $("#id_request_type").val("15")
-        $("#id_generic_file_to_load").val("security_exemption")
-    })
+        $("#prefill-monitor").click(function () {
+            $("#id_title").val("Request for new monitor")
+            $("#id_description").val("Request for new monitor")
+            $("#id_sd_description").val("Request for new monitor; Please see attached documentation.")
+            $("#id_sd_primary_contact").val("50")
+            $("#id_financial_coding").val("xxx-xxx-xxx-0930-xxx")
+            $("#id_request_type").val("6")
+            $("#id_generic_file_to_load").val("monitor")
+        })
 
 
-</script>
+        $("#prefill-computer").click(function () {
+            $("#id_title").val("Request for NEW / REPLACEMENT computer")
+            $("#id_description").val("Request for NEW / REPLACEMENT computer")
+            $("#id_sd_description").val("NEW / REPLACEMENT computer; Please see attached documentation.")
+            $("#id_sd_primary_contact").val("50")
+            $("#id_financial_coding").val("xxx-xxx-xxx-0930-xxx")
+            $("#id_request_type").val("6")
+            $("#id_generic_file_to_load").val("computer")
+        })
+
+        $("#prefill-software").click(function () {
+            $("#id_title").val("Request for software XXXXXXXXXXXXX")
+            $("#id_description").val("Request for software XXXXXXXXXXXXX")
+            $("#id_sd_description").val("SOFTWARE REQUEST; Please see attached documentation")
+            $("#id_sd_primary_contact").val("50")
+            $("#id_financial_coding").val("xxx-xxx-xxx-0931-xxx")
+            $("#id_request_type").val("1")
+            $("#id_generic_file_to_load").val("software")
+        })
+
+        $("#prefill-security-exemption").click(function () {
+            $("#id_title").val("Request for DFO IT security exemption")
+            $("#id_description").val("DFO IT security exemption being requested for XXXXXXXXXXXXXX")
+            $("#id_sd_description").val("Request for DFO IT security exemption. Please see attached documentation")
+            $("#id_sd_primary_contact").val("50")
+            $("#id_request_type").val("15")
+            $("#id_generic_file_to_load").val("security_exemption")
+        })
+
+
+    </script>
 
 {% endblock content %}

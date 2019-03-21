@@ -229,12 +229,12 @@ class MySectionListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MySectionFilter
 
     def get_queryset(self):
-        return models.Project.objects.filter(section__section_head=self.request.user)
+        return models.Project.objects.filter(section__head=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['has_section'] = models.Project.objects.filter(section__section_head=self.request.user).count() > 0
+        context['has_section'] = models.Project.objects.filter(section__head=self.request.user).count() > 0
         return context
 
 
@@ -875,7 +875,7 @@ class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
         context["report_mode"] = True
         context["object_list"] = project_list
         context["field_list"] = project_field_list
-        context["division_list"] = [models.Division.objects.get(pk=item["section__division"]) for item in
+        context["division_list"] = [shared_models.Division.objects.get(pk=item["section__division"]) for item in
                                     project_list.values("section__division").order_by("section__division").distinct()]
         # bring in financial summary data for each project:
         context["financial_summary_data"] = {}
@@ -977,9 +977,9 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
 
         sections = self.kwargs["sections"]
         if sections != "None":
-            section_list = [models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
+            section_list = [shared_models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
         else:
-            section_list = [s for s in models.Section.objects.all()]
+            section_list = [s for s in shared_models.Section.objects.filter(division__branch=1)]
 
         project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("section__division",
                                                                                                                    "section",
