@@ -89,7 +89,7 @@
             <tbody>
             {% for obj in filter_list %}
                 <tr href="{% url 'inventory:resource_detail' obj.id %}">
-                    <td>{{ obj.section.get_region_display }}</td>
+                    <td>{{ obj.section.division.branch.region }}</td>
                     <td>{{ obj.title_eng }}</td>
 
                     {% if obj.status.id == 3 %}
@@ -105,7 +105,7 @@
                     </td>
 
 
-                    <td>{{ obj.section.section }}</td>
+                    <td>{{ obj.section.name }}</td>
 
                     <td>
                         {% if obj.certification_history.count > 0 %}

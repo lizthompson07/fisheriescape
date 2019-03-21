@@ -3,15 +3,24 @@
 {% load bootstrap4 %}
 {% load humanize %}
 {% load custom_filters %}
+{% load verbose_names %}
+
 {% block content %}
 
+
     <style>
-    table,td{
-        font-size: small;
-    }
+        table, td {
+            font-size: small;
+        }
     </style>
 
-    <div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">Tickets</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
         <br>
         <h1 class="text-center font-weight-bold ">
             Data Management Tickets
@@ -19,103 +28,60 @@
         <br><br>
         {# <p>TOTAL: {{object_list.count}}</p><br> #}
 
-        <form action="." method="get">
-            {% for field in filter.form %}
-                {% if field.name == "title__icontains" or field.name == "id" %}
-                    {{ field.label }}: {{ field }}
-                {% endif %}
-            {% endfor %}
+        <form class="form" action="." method="get" id="filter-form" style="width: 85%">
+            <div class="row">
 
-            <input class="btn btn-sm btn-primary" type="submit" value="Filter"/>
-            <a href="#" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#more_filter_options">More
-                Filter Options</a>
-
-
-            <a class="btn btn-sm btn-outline-primary" href="."> Clear Filter</a>
-
-            <a class="btn btn-warning float-right" href="{% url 'tickets:create' %}">New Ticket</a>
-
-
-        </form>
-
-
-        {# </div> #}
-
-
-        {#<!-- More Filter Options MODAL -->#}
-        <div class="modal fade" id="more_filter_options" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Filter options </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
                     </div>
-                    <div class="modal-body">
-                        {% include "dm_tickets/_filter_ticket.html" %}
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <div class="btn-group">
+                        <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                        <a href="." class="btn btn-success btn-sm">Clear</a>
                     </div>
                 </div>
             </div>
+        </form>
+        <br><br>
+
+        <div class="row">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: center">
+                <em>displaying {{ filter.qs.count }} of {{ filter.qs.count }}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'tickets:create' %}" class="btn btn-sm btn-primary">New Ticket</a>
+            </div>
         </div>
-
-
-        {# </div> #}
-        {# </div> #}
-        <br><span style="font-size: small">(click on a header to sort the table)</span>
         <table class="table table-hover table-sm sortable">
             <thead>
             <tr>
-                <th scope="col" width='150px'>Ticket Id</th>
-                <th scope="col" width='150px'>Date modified</th>
-                <th scope="col" width='150px'>Section</th>
-                <th scope="col" width='450px'>Title</th>
-                <th scope="col" width='200px'>Request Type</th>
-                <th scope="col" width='100px'>Status</th>
-                <th scope="col" width='250px'>People</th>
-                {# <th scope="col" width='200px'>Tags</th> #}
-                <th scope="col" width='200px'>Service Desk #</th>
-
+                {% for field in field_list %}
+                    <th scope="col">{% get_verbose_label my_object field %}</th>
+                {% endfor %}
             </tr>
             </thead>
 
             <tbody>
             {% for ticket in filter.qs %}
-                <tr>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.date_modified|naturaltime }}</td>
-                    <td>{{ ticket.section }}</td>
-                    <td><a href="{% url 'tickets:detail' pk=ticket.id %}">{{ ticket.title }}</a></td>
-                    <td>{{ ticket.request_type }}</td>
-
-                    {% if ticket.status == '5' %}
-                        <td class="active1">
-                            {% elif ticket.status == '2' %}
-                        <td class="resolved">
-                            {% elif ticket.status == '6' %}
-                        <td class="idle">
-                            {% elif ticket.status == '7' %}
-                        <td class="unresolved">
-                    {% endif %}
-                    {{ ticket.get_status_display }}
-                    </td>
-
-                    <td>{{ ticket.people_pretty|safe }}</td>
-                    {# <td>{{ticket.tags_pretty}}</td> #}
-                    <td>{{ ticket.sd_ref_number|nz:"" }}</td>
-
-
-                    {# <td>{{ticket.title}}</td> #}
-                    {# <td>{{ticket.description}}</td> #}
+                {% url 'tickets:detail' ticket.id as my_url %}
+                <tr href="{{ my_url }}">
+                    {% for field in field_list %}
+                        {% if field == "status" %}
+                            <td style="background-color: {{ ticket.status.color }}">{% get_field_value ticket field %}</td>
+                        {% else %}
+                            <td>{% get_field_value ticket field %}</td>
+                        {% endif %}
+                    {% endfor %}
                 </tr>
             {% endfor %}
-            <br>
-
             </tbody>
         </table>
     </div>
