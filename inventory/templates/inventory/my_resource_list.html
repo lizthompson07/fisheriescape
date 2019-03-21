@@ -55,7 +55,7 @@
                     {% endif %}
                     {{ obj.resource.status }}
                     </td>
-                    <td>{{ obj.resource.section.section }}</td>
+                    <td>{{ obj.resource.section.name }}</td>
                     <td>
                         {% for person in obj.resource.resource_people.all %}
                             {% if person.person.user_id == user.id %}
