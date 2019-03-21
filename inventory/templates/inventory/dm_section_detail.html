@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load i18n %}
 {% block content %}
 
 
@@ -17,10 +18,10 @@
             <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'inventory:dm_section_list' %}">Section List</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object.section }}</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
-    <div class="container">
+    <div class="container-fluid">
 
         <p>
         <h1>
@@ -29,10 +30,10 @@
         </p>
 
         <div class="btn-group">
-            <a class="btn btn-warning" href="{% url "inventory:dm_section_edit" object.id %}">Edit</a>
+            <a class="btn btn-warning" href="#" pop-href="{% url "shared_models:section_edit" object.id %}">Edit</a>
             <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#send-email"> Send Report to Section
                 Head </a>
-            <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#delete"> Delete </a>
+            <a href="#" pop-href="{% url 'shared_models:section_delete' object.id  %}" class="btn btn-danger"> Delete </a>
 
 
         </div>
@@ -41,41 +42,24 @@
         <div class="row">
             <div class="col">
                 <h3>Section Info:</h3>
+
                 <p><b>
-                    {% get_verbose_field_name object "section" %}:
+                    {% trans "Section:" %}
                 </b><br>
-                    {{ object.section }}
+                    {{ object.full_name }}
                 </p>
 
                 <p><b>
-                    {% get_verbose_field_name object "division" %}:
+                    {% get_verbose_field_name object "head" %}:
                 </b><br>
-                    {{ object.division }}
-                </p>
-
-                <p><b>
-                    {% get_verbose_field_name object "branch" %}:
-                </b><br>
-                    {{ object.branch }}
-                </p>
-
-                <p><b>
-                    {% get_verbose_field_name object "unit_head" %}:
-                </b><br>
-                    {{ object.unit_head }}
-                </p>
-
-                <p><b>
-                    {% get_verbose_field_name object "manager" %}:
-                </b><br>
-                    {{ object.manager }}
+                    {{ object.head.first_name }} {{ object.head.last_name }}
                 </p>
 
             </div>
             <div class="col">
                 <h3>Correspondences:</h3>
                 <ul>
-                    {% for obj in object.unit_head.user.correspondences.all %}
+                    {% for obj in object.head.user.correspondences.all %}
                         <li>
                             {{ obj.date }} UTC- {{ obj.subject }}
                         </li>
@@ -105,10 +89,10 @@
                 </thead>
                 <tbody>
                 {% for obj in object.resources.all %}
-                    <tr>
+                    <tr href="{% url 'inventory:resource_detail' obj.id %}">
                         <td>{{ obj.id }}</td>
 
-                        <td><a href="{% url 'inventory:resource_detail' obj.id %}">{{ obj.title_eng }}</a></td>
+                        <td>{{ obj.title_eng }}</td>
 
                         <td>
                             {% for resource_person in obj.resource_people.all %}
@@ -186,28 +170,6 @@
             </div>
         </div>
     </div>
-
-    {#<!-- Delete MODAL -->#}
-    <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle"> Confirm Delete </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    This has not yet been developped.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
 
 {% endblock content %}
