@@ -7,6 +7,7 @@ from django.utils import timezone
 import os
 import uuid
 from django.utils.translation import gettext as _
+from shared_models import models as shared_models
 
 # Choices for language
 ENG = 1
@@ -327,7 +328,8 @@ class Resource(models.Model):
 
     uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
     resource_type = models.ForeignKey(ResourceType, on_delete=models.DO_NOTHING, blank=True, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
+    # section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
     title_eng = models.TextField(verbose_name="Title (English)")
     title_fre = models.TextField(blank=True, null=True, verbose_name="Title (French)")
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True)

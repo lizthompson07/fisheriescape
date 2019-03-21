@@ -70,16 +70,16 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
                 gc_list = [gc for gc in gc_list if gc.project.section in section_list]
 
     else:
-        project_list = models.Project.objects.filter(year=fiscal_year).filter(section__section_head__id=user)
+        project_list = models.Project.objects.filter(year=fiscal_year).filter(section__head__id=user)
         staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1).filter(
-            project__section__section_head__id=user)
-        collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year).filter(project__section__section_head__id=user)
+            project__section__head__id=user)
+        collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year).filter(project__section__head__id=user)
         agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year).filter(
-            project__section__section_head__id=user)
+            project__section__head__id=user)
         om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0).filter(
-            project__section__section_head__id=user)
-        capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year).filter(project__section__section_head__id=user)
-        gc_list = models.GCCost.objects.filter(project__year=fiscal_year).filter(project__section__section_head__id=user)
+            project__section__head__id=user)
+        capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year).filter(project__section__head__id=user)
+        gc_list = models.GCCost.objects.filter(project__year=fiscal_year).filter(project__section__head__id=user)
 
     # spreadsheet: Project List #
     #############################
