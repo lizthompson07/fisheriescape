@@ -42,7 +42,15 @@ def zero2val(value, arg):
 
 @register.filter
 def divide(value, arg):
-    return float(nz(value,0)) / float(arg)
+    try:
+        float(value)
+    except (TypeError, ValueError):
+        return 0
+    else:
+        try:
+            return float(nz(value, 0)) / float(arg)
+        except (ZeroDivisionError):
+            return 0
 
 
 @register.filter
@@ -57,7 +65,7 @@ def percentage(value, arg=2):
 
 @register.filter
 def subtract(value, arg):
-    return float(value)-float(arg)
+    return float(value) - float(arg)
 
 
 @register.filter
@@ -70,7 +78,6 @@ def timedelta(value, arg):
 def tostring(value):
     """casts 'value' into a str """
     return str(value)
-
 
 
 @register.filter
@@ -86,6 +93,7 @@ def currency(value, with_sign=False):
             return "$ {0:,.2f}".format(value)
         else:
             return "{0:,.2f}".format(value)
+
 
 @register.filter(name='lookup')
 def lookup(my_dict, key):
