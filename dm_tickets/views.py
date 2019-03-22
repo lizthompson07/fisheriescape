@@ -59,7 +59,7 @@ class TicketListView(FilterView):
     #     return kwargs
 
 
-class TicketDetailView(DetailView):
+class TicketDetailView(LoginRequiredMixin, DetailView):
     model = models.Ticket
     template_name = "dm_tickets/ticket_detail.html"
 
@@ -79,7 +79,7 @@ class TicketDetailView(DetailView):
         context["field_group_1"] = [
             # "id",
             "primary_contact",
-            "title",
+            # "title",
             "section",
             "status",
             "priority",
@@ -90,6 +90,7 @@ class TicketDetailView(DetailView):
             "financial_coding",
             "description",
             "notes_html",
+            "people_notes",
         ]
 
         context["field_group_3"] = [
@@ -149,20 +150,9 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # produce a dictionary of people
-        email_dict = {}
-        for person in models.Person.objects.all():
-            email_dict[person.id] = person.email
-        # convert dict to JSON
-        email_json = json.dumps(email_dict)
-        # send JSON file to template so that it can be used by js script
-        context['email_json'] = email_json
         return context
 
     def form_valid(self, form):
-        self.object = form.save()
-        self.object.primary_contact.email = form.cleaned_data["primary_contact_email"]
-        self.object.primary_contact.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -172,32 +162,20 @@ class TicketDeleteView(LoginRequiredMixin, DeleteView):
     login_url = '/accounts/login_required/'
 
 
-class TicketCreateView(CreateView):
+class TicketCreateView(LoginRequiredMixin, CreateView):
     model = models.Ticket
     login_url = '/accounts/login_required/'
     form_class = forms.TicketForm
 
+    def get_initial(self):
+        return {'primary_contact': self.request.user}
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # produce a dictionary of people
-        email_dict = {}
-        for person in models.Person.objects.all():
-            email_dict[person.id] = person.email
-        # convert dict to JSON
-        email_json = json.dumps(email_dict)
-        # send JSON file to template so that it can be used by js script
-        context['email_json'] = email_json
         return context
 
     def form_valid(self, form):
         self.object = form.save()
-        # do something with self.object #
-        #################################
-        self.object.people.add(self.object.primary_contact)
-        # update the primary contact email with the form data
-        self.object.primary_contact.email = form.cleaned_data["primary_contact_email"]
-        self.object.primary_contact.save()
 
         # create a new email object
         email = emails.NewTicketEmail(self.object)
@@ -227,54 +205,11 @@ class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.TicketNoteForm
 
 
-# Tags #
-########
-
-class TagDetailView(UpdateView):
-    model = models.Tag
-    template_name = 'dm_tickets/tag_detail_popout.html'
-    form_class = forms.TagForm
-
-
-class TagUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Tag
-    template_name = 'dm_tickets/tag_form_popout.html'
-    login_url = '/accounts/login_required/'
-    form_class = forms.TagForm
-
-
-class TagCreateView(CreateView):
-    model = models.Tag
-    template_name = 'dm_tickets/tag_form_popout.html'
-    form_class = forms.TagForm
-
-    def form_valid(self, form):
-        self.object = form.save()
-        ticket = self.kwargs['ticket']
-        return HttpResponseRedirect(reverse_lazy('tickets:add_tag', kwargs={'ticket': ticket, 'tag': self.object.id}))
-
-
-class TagListView(FilterView):
-    filterset_class = filters.TagFilter
-    template_name = "dm_tickets/tag_insert_list.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(TagListView, self).get_context_data(**kwargs)
-        ticket = self.kwargs['ticket']
-        context['ticket'] = ticket
-        return context
-
-
-def add_tag_to_ticket(request, ticket, tag):
-    my_ticket = models.Ticket.objects.get(id=ticket)
-    my_ticket.tags.add(tag)
-    return HttpResponseRedirect(reverse('tickets:tag_insert', kwargs={'ticket': ticket}))
-
 
 # Files #
 #########
 
-class FileCreateView(CreateView):
+class FileCreateView(LoginRequiredMixin, CreateView):
     model = models.File
     # fields = '__all__'
     template_name = 'dm_tickets/file_form_popout.html'
@@ -305,7 +240,7 @@ class FileCreateView(CreateView):
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
 
-class FileUpdateView(UpdateView):
+class FileUpdateView(LoginRequiredMixin, UpdateView):
     model = models.File
     fields = '__all__'
     template_name = 'dm_tickets/file_form_popout.html'
@@ -379,58 +314,10 @@ def add_generic_file(request, ticket, type):
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
 
 
-# People #
-##########
-
-class PersonDetailView(UpdateView):
-    model = models.Person
-    template_name = 'dm_tickets/person_detail_popout.html'
-    fields = '__all__'
-
-
-class PersonUpdateView(UpdateView):
-    model = models.Person
-    template_name = 'dm_tickets/person_form_popout.html'
-    login_url = '/accounts/login_required/'
-    fields = '__all__'
-
-
-class PersonCreateView(CreateView):
-    model = models.Person
-    template_name = 'dm_tickets/person_form_popout.html'
-    fields = '__all__'
-
-    def form_valid(self, form):
-        self.object = form.save()
-        try:
-            ticket = self.kwargs['ticket']
-        except:
-            return HttpResponseRedirect(reverse('tickets:close_me'))
-        else:
-            return HttpResponseRedirect(reverse_lazy('tickets:add_person', kwargs={'ticket': ticket, 'person': self.object.id}))
-
-
-class PersonListView(FilterView):
-    filterset_class = filters.PersonFilter
-    template_name = "dm_tickets/person_insert_list.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(PersonListView, self).get_context_data(**kwargs)
-        ticket = self.kwargs['ticket']
-        context['ticket'] = ticket
-        return context
-
-
-def add_person_to_ticket(request, ticket, person):
-    my_ticket = models.Ticket.objects.get(id=ticket)
-    my_ticket.people.add(person)
-    return HttpResponseRedirect(reverse('tickets:person_insert', kwargs={'ticket': ticket}))
-
-
 # REPORTS #
 ###########
 
-class FinanceReportListView(FilterView):
+class FinanceReportListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.FiscalFilter
     template_name = "dm_tickets/finance_report.html"
     queryset = models.Ticket.objects.filter(financial_follow_up_needed=True).filter(sd_ref_number__isnull=False).order_by("-date_opened")
