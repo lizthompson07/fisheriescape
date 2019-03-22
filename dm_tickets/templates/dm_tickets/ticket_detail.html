@@ -30,12 +30,11 @@
         </ol>
     </nav>
 
-    <div class="indent-med">
+    <div class="container-fluid">
 
         <div class="title-block">
 
             <h1>{{ object.title }} ({{ object.id }})</h1>
-            <a href="{% url 'tickets:list' %}" class="btn btn-dark">Back to List</a>
             <div class="btn-group">
 
                 <a href="{% url 'tickets:update' object.id %}" class="btn btn-warning">Edit</a>
@@ -91,38 +90,7 @@
 
 
             </div>
-            <div class="col-4">
-                <p>
-                    <b>People:</b>
-                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-                    <a class="btn btn-sm btn-light"
-                       onclick="return popitup('{% url 'tickets:person_insert' ticket=object.id %}','Personinsert')"> <i
-                            class="material-icons">add</i></a>
-                </p>
-                <ul>
-                    {% for person in object.people.all %}
-                        <li><a href="."
-                               onclick="return popitup('{% url 'tickets:person_detail' person.id %}','Detail',500,1000)">{{ person.full_name }} </a>
-                        </li>
-                    {% empty %}
-                        <span class="draw-attention"><em>There are no people attached to this ticket.</em></span>
-                    {% endfor %}
-                </ul>
-
-                <p>
-                    <b>Tags:</b>
-                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-                    <a class="btn btn-sm btn-light" onclick="return popitup('{% url 'tickets:tag_insert' ticket=object.id %}','TagInsert')">
-                        <i class="material-icons">add</i></a>
-                <ul>
-                    {% for tag in object.tags.all %}
-                        <li><a href="."
-                               onclick="return popitup('{% url 'tickets:tag_detail' tag.id %}','Detail',500,1000)">{{ tag.tag }} </a></li>
-                    {% empty %}
-                        <span><em>There are no tags attached to this ticket.</em></span>
-                    {% endfor %}
-                </ul>
-                </p>
+            <div class="col-3">
 
                 <p>
                 <div class="neighbours">
@@ -159,13 +127,13 @@
                             (uploaded on: {{ file.date_created|date:"F d Y" }})
                         </li>
                     {% empty %}
+                        <br>
                         <span class="draw-attention">  <em>There are no files attached to this ticket.</em></span>
 
                     {% endfor %}
                 </ul>
-                </p>
             </div>
-            <div class="col-2">
+            <div class="col">
                 {% for field in field_group_3 %}
                     {% verbose_field_display object field %}
                 {% endfor %}
