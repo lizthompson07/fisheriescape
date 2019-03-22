@@ -58,19 +58,7 @@
             {% csrf_token %}
             {# {% bootstrap_form form %} #}
             {% for field in form %}
-
-
-                {% if field.name == 'primary_contact' %}
-                    {% bootstrap_label field.label %}
-                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-                    (<a href="#" onclick="return popitup('{% url 'tickets:person_create' %}','RequestTypeCreate',300,500)">new person</a>)
-                    {% bootstrap_field field show_label=False %}
-
-
-                {% else %}
-                    {% bootstrap_field field %}
-                {% endif %}
-
+                {% bootstrap_field field %}
             {% endfor %}
 
             <script type="text/javascript">

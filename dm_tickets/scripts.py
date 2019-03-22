@@ -1,14 +1,18 @@
-from .import models
+from django.contrib.auth.models import User
+
+from . import models
 
 
-def resave_all_tickets(tickets = models.Ticket.objects.all()):
+def resave_all_tickets(tickets=models.Ticket.objects.all()):
     for t in tickets:
-       t.save()
+        t.save()
 
-def resave_all_tickets2(tickets = models.Ticket.objects.all()):
 
+def resave_all_tickets2(tickets=models.Ticket.objects.all()):
     for t in tickets:
-        if t.notes:
-            my_ticket = models.Ticket.objects.get(id=t.id)
-            my_ticket.notes = my_ticket.notes.replace("**","`")
-            my_ticket.save()
+        if t.people.count() > 1:
+            t.people_notes = ""
+            for p in t.people.all():
+                t.people_notes += "{} (email={}, phone={}, notes={}); ".format(p.full_name, p.email, p.phone, p.notes)
+
+            t.save()
