@@ -160,6 +160,108 @@ class Section(models.Model):
         return my_str
 
 
+
+class AllotmentCategory(models.Model):
+    name = models.CharField(max_length=25)
+    color = models.CharField(max_length=25, blank=True, null=True)
+
+    def __str__(self):
+        return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
+# CONNECTED APPS: projects
+# STILL NEED TO CONNECT: scifi
+class AllotmentCode(models.Model):
+    # choices for category
+    SAL = "salary"
+    CAP = "capital"
+    OM = "om"
+    GC = "gc"
+    CBASE = "cbase"
+    CATEGORY_CHOICES = (
+        (SAL, "Salary"),
+        (CAP, "Capital"),
+        (OM, "O&M"),
+        (CBASE, "Cbase"),
+        (GC, "G&C"),
+    )
+    code = models.CharField(max_length=50, unique=True)
+    name = models.TextField(blank=True, null=True)
+    # category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, default="other")
+    allotment_category = models.ForeignKey(AllotmentCategory, on_delete=models.DO_NOTHING, related_name="allotment_codes", blank=True,
+                                           null=True)
+
+    def __str__(self):
+        return "{} ({})".format(self.code, self.name)
+
+    class Meta:
+        ordering = ['code', ]
+
+
+# CONNECTED APPS:
+# STILL NEED TO CONNECT: scifi
+class BusinessLine(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    name = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{} ({})".format(self.code, self.name)
+
+    class Meta:
+        ordering = ['code', ]
+
+
+# CONNECTED APPS:
+# STILL NEED TO CONNECT: scifi
+class LineObject(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    name_eng = models.CharField(max_length=1000)
+    description_eng = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{} ({})".format(self.code, self.name_eng)
+
+    class Meta:
+        ordering = ['code', ]
+
+
+# CONNECTED APPS: projects
+# STILL NEED TO CONNECT: scifi
+class ResponsibilityCenter(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    name = models.TextField(blank=True, null=True)
+    manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,)
+
+    def __str__(self):
+        return "{} ({})".format(self.code, self.name)
+
+    class Meta:
+        ordering = ['code', ]
+
+
+# CONNECTED APPS: projects
+# STILL NEED TO CONNECT: scifi
+class Project(models.Model):
+    name = models.CharField(max_length=1000)
+    code = models.CharField(max_length=50)
+    description = models.TextField(blank=True, null=True)
+    project_lead = models.CharField(max_length=500, blank=True, null=True)
+    default_responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
+                                                      null=True, related_name='projects')
+    default_allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True)
+    default_business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True)
+    default_line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    def __str__(self):
+        return "{} ({})".format(self.code, self.name)
+
+    class Meta:
+        ordering = ['code', ]
+
+
 ########################
 
 

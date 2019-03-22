@@ -30,7 +30,7 @@
                         <tr href="{% url 'scifi:rc_edit' object.id %}">
                             <td>{{ object.code }}</td>
                             <td>{{ object.name }}</td>
-                            <td>{{ object.responsible_manager.first_name }} {{ object.responsible_manager.last_name }}</td>
+                            <td>{{ object.manager.first_name }} {{ object.manager.last_name }}</td>
                             <td>
                                 <a class="delete-me" href="{% url 'scifi:rc_delete' object.id %}">
                                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"

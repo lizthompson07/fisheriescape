@@ -18,7 +18,7 @@ class ProjectFilter(django_filters.FilterSet):
 
 class TransactionFilter(django_filters.FilterSet):
     FY_CHOICES = [(obj.id, "{}".format(obj.full)) for obj in shared_models.FiscalYear.objects.all()]
-    RC_CHOICES = [(obj.id, "{} ({})".format(obj.code, obj.name)) for obj in models.ResponsibilityCenter.objects.all()]
+    RC_CHOICES = [(obj.id, "{} ({})".format(obj.code, obj.name)) for obj in shared_models.ResponsibilityCenter.objects.all()]
 
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=FY_CHOICES)
     supplier_description = django_filters.CharFilter(field_name='supplier_description', lookup_expr='icontains', label="Supplier description")
