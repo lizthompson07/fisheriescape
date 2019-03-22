@@ -16,19 +16,19 @@ from django.utils.translation import gettext_lazy as _
 
 # Custom variables
 WEB_APP_NAME = "ScienceDataManagement"
-# This should always be set to false
-FORCE_DEV_MODE = False
-LOCAL_CONF_FILE_FOUND = False
 
-# check to see if there is a local configuration file
-# if there is, we can override some above variables, if desired
-# THE PRODUCTION WEB SERVER SHOULD NEVER HAVE THIS FILE
+# check to see if there is a user-defined local configuration file
+# if there is, we we use this as our local configuration, otherwise we use the default
 try:
-    from . import local_conf
-    FORCE_DEV_MODE = local_conf.FORCE_DEV_MODE
-    LOCAL_CONF_FILE_FOUND = True
+    from . import my_conf as local_conf
 except ModuleNotFoundError and ImportError:
-    print("no local configuration file found.")
+    from . import default_conf as local_conf
+    print("`my_conf.py' not found. using default configuration file.")
+else:
+    print("using custom configuration file: 'my_conf.py'.")
+
+PRODUCTION_SERVER = local_conf.PRODUCTION_SERVER
+USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
 
 # check to see if there is a file containing the google api key
 # if there is not, set this to a null string and maps will open in dev mode
@@ -45,32 +45,6 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
-# This is the name of the production database connection file
-MY_CNF = os.path.join(BASE_DIR, 'prod.cnf')
-
-# check to see if the MY_CNF file is present
-# if it is, we are in prod mode...
-if os.path.isfile(MY_CNF) and not FORCE_DEV_MODE:
-    # however, if there is a local configuration file, it means the app is running on the dev server
-    # in this case, static and mediafiles need to be served as if in dev mode
-    if LOCAL_CONF_FILE_FOUND:
-        MY_ENVR = "dev"
-    else:
-        MY_ENVR = "prod"
-    # this file is used in base.html to indicate which database you are connected to
-    PROD_CNF = True
-
-# otherwise we are in dev mode
-else:
-    if os.path.isfile(MY_CNF):
-        print("production connection string is present however running dev mode since FORCE_DEV_MODE setting is set to True")
-    MY_ENVR = "dev"
-    # overwrite MY_CNF var so that it points to the dev db
-    MY_CNF = os.path.join(BASE_DIR, 'dev.cnf')
-    # this file is used in base.html to indicate which database you are connected to
-    PROD_CNF = False
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -79,12 +53,13 @@ SECRET_KEY = 'dekdlvbhtlbo_wg_x32ovt9umh3ysbfa$+f@h7i8oe-45$c)pl'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-if MY_ENVR == "dev":
-    DEBUG = True
-else:
+# If in production mode, turn off debugging
+if PRODUCTION_SERVER:
     DEBUG = False
+else:
+    DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'glf-sci-dm', '142.130.6.69']
+ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'accounts/login/'
@@ -102,25 +77,10 @@ INSTALLED_APPS = [
     'el_pagination',
     'easy_pdf',
     'accounts',
-    'dm_tickets',
-    'inventory',
-    'bugs',
-    'grais',
-    'oceanography',
-    'herring',
-    'camp',
     'lib',
-    'snowcrab',
-    'meq',
-    'diets',
-    'projects',
-    'ihub',
-    'scifi',
-    'masterlist',
-    'shares',
-    'travel',
     'shared_models',
-]
+    'bugs',
+] + local_conf.MY_INSTALLED_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -158,18 +118,7 @@ WSGI_APPLICATION = 'glf_sci_site.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 # DATABASE_ROUTERS = ['glf_sci_site.routers.DevDatabaseRouter', ]
-
-# for mysql
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'TIME_ZONE': 'America/Halifax',
-        'OPTIONS': {
-            'read_default_file': MY_CNF,
-            'init_command': 'SET default_storage_engine=INNODB',
-        },
-    },
-}
+DATABASES = local_conf.DATABASES
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -229,9 +178,9 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 # STATIC_ROOT = STATIC_DIR
 
-if MY_ENVR == "dev":
+if PRODUCTION_SERVER:
+    STATIC_ROOT = STATIC_DIR
+else:
     STATICFILES_DIRS = [
         STATIC_DIR,
     ]
-else:
-    STATIC_ROOT = STATIC_DIR

@@ -91,6 +91,8 @@ class Ticket(models.Model):
         (URGENT, 'Urgent'),
     )
 
+    # Choices for application
+
     title = models.CharField(max_length=255)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
     status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
