@@ -10,7 +10,7 @@ from shared_models import models as shared_models
 class ResourceFilter(django_filters.FilterSet):
     STATUS_CHOICES = [(s.id, str(s)) for s in models.Status.objects.all()]
     SECTION_CHOICES = [(s.id, s.full_name) for s in
-                       shared_models.Section.objects.all().order_by("division__branch__reigon", "division__branch", "division", "name")]
+                       shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
 
     search_term = django_filters.CharFilter(field_name='search_term', label=_("Search term"), lookup_expr='icontains',
                                             widget=forms.TextInput())
