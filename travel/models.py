@@ -3,7 +3,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from projects import models as projects_models
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz
 from lib.functions.fiscal_year import fiscal_year
