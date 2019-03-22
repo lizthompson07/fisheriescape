@@ -53,7 +53,7 @@ class BugCreateView(LoginRequiredMixin,CreateView):
         # create a new email object
         email = emails.NewBugNotificationEmail(self.object, self.kwargs['application'])
         # send the email object
-        if settings.MY_ENVR != 'dev':
+        if settings.PRODUCTION_SERVER:
             send_mail( message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,fail_silently=False,)
         else:
             print('not sending email since in dev mode')

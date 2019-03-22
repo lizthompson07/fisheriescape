@@ -116,7 +116,7 @@ def send_resolved_email(request, ticket):
     # create a new email object
     email = emails.TicketResolvedEmail(my_ticket)
     # send the email object
-    if settings.MY_ENVR != 'dev':
+    if settings.PRODUCTION_SERVER:
         send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,
                   fail_silently=False, )
     else:
@@ -177,7 +177,7 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewTicketEmail(self.object)
         # send the email object
-        if settings.MY_ENVR != 'dev':
+        if settings.PRODUCTION_SERVER:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
@@ -223,7 +223,7 @@ class FileCreateView(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewFileAddedEmail(self.object)
         # send the email object
-        if settings.MY_ENVR != 'dev':
+        if settings.PRODUCTION_SERVER:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
@@ -276,10 +276,6 @@ class FileDeleteView(LoginRequiredMixin, DeleteView):
 
 
 def add_generic_file(request, ticket, type):
-    # if settings.MY_ENVR == "dev":
-    #     print("cannot do transfer file from dev")
-    # else:
-
     if type == "monitor":
         filename = "5166_Hardware_Request_Monitor.pdf"
     elif type == "computer":
