@@ -15,14 +15,14 @@ def get_app_dict(request):
     :param request:
     :return: ordered dictionary containing all connected apps
     """
-    if request.user.is_authenticated:
-        inventory_url = reverse('inventory:my_resource_list')
-    else:
-        inventory_url = reverse('inventory:resource_list')
 
     app_dict = {}
 
     try:
+        if request.user.is_authenticated:
+            inventory_url = reverse('inventory:my_resource_list')
+        else:
+            inventory_url = reverse('inventory:resource_list')
         app_dict["inventory"] = {
             "title": _("Metadata Inventory"),
             "description": _("Tool for organizing and managing regional data resources."),

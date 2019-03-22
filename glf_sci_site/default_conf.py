@@ -35,7 +35,7 @@ else:
 
 
 # Specific which mode you are running in. If this file is on the production server, this setting should be True
-# if this setting = False, static and mediafiles will be servered by the development server.
+# if this setting = False, static and mediafiles will be served by the development server.
 PRODUCTION_SERVER = False
 
 
@@ -56,7 +56,7 @@ APP_DICT = {
     'snowcrab': 'Snowcrab',
     'meq': 'Marine environmental quality (MEQ)',
     'diets': 'Marine diets',
-    'projects': 'Science project planning',  # dependency on scifi
+    'projects': 'Science project planning',
     'ihub': 'iHub',  # dependency on masterlist
     'scifi': 'SciFi',
     'masterlist': 'Masterlist',

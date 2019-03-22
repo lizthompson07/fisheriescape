@@ -21,7 +21,7 @@ from . import models
 import numpy as np
 import os
 import pandas as pd
-
+from shared_models import models as shared_models
 
 def generate_master_spreadsheet(fiscal_year, user=None):
     # figure out the filename
@@ -53,10 +53,9 @@ def generate_master_spreadsheet(fiscal_year, user=None):
 
     # get a project list for the year
     if not user:
-        project_list = models.Project.objects.filter(fiscal_year=fiscal_year)
+        project_list = shared_models.Project.objects.filter(fiscal_year=fiscal_year)
     else:
-        project_list = models.Project.objects.filter(fiscal_year=fiscal_year).filter(section__section_head__id=user)
-    print(project_list.count())
+        project_list = shared_models.Project.objects.filter(fiscal_year=fiscal_year).filter(section__section_head__id=user)
     header = [
         "Project ID",
         verbose_field_name(project_list.first(), 'project_title'),
