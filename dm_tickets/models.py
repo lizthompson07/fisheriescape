@@ -1,4 +1,6 @@
 import os
+
+from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
 from django.utils import timezone
@@ -8,6 +10,7 @@ import markdown
 
 from lib.functions.fiscal_year import fiscal_year
 from shared_models import models as shared_models
+
 
 # Create your models here.
 
@@ -74,7 +77,6 @@ class Status(models.Model):
 
 
 class Ticket(models.Model):
-
     # Choices for priority
     HIGH = '1'
     MED = '2'
@@ -91,8 +93,8 @@ class Ticket(models.Model):
 
     title = models.CharField(max_length=255)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING)
-    priority = models.CharField(default=HIGH, max_length=1, choices=PRIORITY_CHOICES)
+    status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
+    priority = models.CharField(default='2', max_length=1, choices=PRIORITY_CHOICES)
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     description = models.TextField(blank=True, null=True)
     financial_coding = models.CharField(max_length=100, blank=True, null=True)
@@ -101,15 +103,16 @@ class Ticket(models.Model):
     date_opened = models.DateTimeField(default=timezone.now)
     date_closed = models.DateTimeField(null=True, blank=True)
     date_modified = models.DateTimeField(default=timezone.now)
-    people = models.ManyToManyField(Person, related_name='tickets')
-    tags = models.ManyToManyField(Tag)
-    primary_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
+    people_notes = models.TextField(blank=True, null=True)
+    primary_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     resolved_email_date = models.DateTimeField(null=True, blank=True,
                                                verbose_name="Notification sent to primary contact")
     # SERVICE DESK FIELDS
     sd_ref_number = models.CharField(max_length=8, null=True, blank=True, verbose_name="Service desk reference #")
     sd_ticket_url = models.URLField(null=True, blank=True, verbose_name="Service desk ticket URL")
-    sd_primary_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sd_tickets_persons",
+    # sd_primary_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sd_tickets_persons",
+    #                                        null=True, blank=True, verbose_name="Service desk primary contact")
+    sd_primary_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="sd_tickets_persons",
                                            null=True, blank=True, verbose_name="Service desk primary contact")
     sd_description = models.TextField(null=True, blank=True, verbose_name="Service desk ticket description")
     sd_date_logged = models.DateTimeField(null=True, blank=True, verbose_name="Service desk date logged")
@@ -134,7 +137,7 @@ class Ticket(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ['-date_modified']
+        ordering = ['status', '-date_modified']
 
     def __str__(self):
         return self.title
