@@ -152,9 +152,6 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         return context
 
-    def form_valid(self, form):
-        return HttpResponseRedirect(self.get_success_url())
-
 
 class TicketDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Ticket
