@@ -444,7 +444,8 @@ def generate_sub_species_richness_1(site, target_file):
         counts.append(len(species_set))
         # sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
         sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
-                                                                      species__sav=False).values('sample_id', ).distinct().count())
+                                                                      species__sav=False).values('sample_id', ).filter(
+            Q(sample__month=6)).distinct().count())
 
     legend_title = "Entire site / ensemble du site"
 
