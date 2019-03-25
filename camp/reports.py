@@ -787,7 +787,7 @@ def generate_sub_do_2(site, target_file):
         for obj in qs_years:
             y = obj['year']
             do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station=station).filter(
-                Q(sample__month=6) | Q(sample__month=7) | Q(sample__month=8)) if obj.dissolved_o2 is not None]
+                Q(month=6) | Q(month=7) | Q(month=8)) if obj.dissolved_o2 is not None]
             try:
                 do_max.append(max(do_readings))
                 do_min.append(min(do_readings))
