@@ -533,6 +533,8 @@ def generate_sub_do_1(site, target_file):
     ).distinct()
 
     years = []
+    do_max = []
+    do_min = []
     do_avg = []
     sample_counts = []
 
@@ -540,6 +542,8 @@ def generate_sub_do_1(site, target_file):
         y = obj['year']
         do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station__site_id=site).filter(Q(month=6)) if
                        obj.dissolved_o2 is not None]
+        do_max.append(max(do_readings))
+        do_min.append(min(do_readings))
         do_avg.append(statistics.mean(do_readings))
         years.append(y)
         sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
@@ -548,12 +552,14 @@ def generate_sub_do_1(site, target_file):
 
     source = ColumnDataSource(data={
         'years': years,
+        'do_max': do_max,
+        'do_min': do_min,
         'do_avg': do_avg,
         'sample_count': sample_counts,
     })
 
     p.legend.label_text_font_size = LEGEND_FONT_SIZE
-    labels = LabelSet(x='years', y='do_avg', text='sample_count', level='glyph',
+    labels = LabelSet(x='years', y='do_max', text='sample_count', level='glyph',
                       x_offset=-10, y_offset=5, source=source, render_mode='canvas')
     p.add_layout(labels)
     export_png(p, filename=target_file)
