@@ -29,16 +29,16 @@
 
     <title>{% block title %}{% endblock title %}</title>
     {% block header %}{% endblock header %}
-    {% if not PROD_CNF %}
+    {% if not USING_PRODUCTION_DB %}
         <div style="text-align: center; background-color: #ffaa06">
-            WORKING IN DEV MODE
+            WORKING IN DEV MODE: you are connected to [glf_sci_site_dev] on host [glf-sci-dm]
         </div>
     {% endif %}
 
     <div class="gone" id="browser-warning">
         <div class="alert alert-danger " role="alert">
-            <span style="font-weight: bold; font-size: x-large">
-                {% trans "WARNING: You are using Internet Explorer. Please switch to Google Chrome or Microsoft Edge." %}
+            <span style="font-weight: bold; font-size: xx-large">
+                {% trans "WARNING: You will have limited functionality for this site due to the browser you are using. Please switch to Google Chrome or Microsoft Edge." %}
             </span>
         </div>
     </div>
@@ -87,26 +87,15 @@
             {% if user.is_authenticated %}
                 {% block right_auth %}{% endblock right_auth %}
 
-                {# Bugs #}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {% trans 'Bugs' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="tooltip" title="Complete this form to provide feedback about the system.">
+                        {% trans "Feedback" %}
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#"
-                           onclick="return popitup('{% block bug_create %}{% endblock bug_create %}','popWindow')">
-                            {% trans 'New Report' %}
-                        </a>
-                        {% block bug_list_4_app %}{% endblock bug_list_4_app %}
-
-                        <a class="dropdown-item" href="{% url 'bugs:bug_list' %}">{% trans 'All Bugs' %}</a>
-                    </div>
                 </li>
-
-                <li class="nav-item wide-left"><a class="btn btn-dark "
-                                                  href="{% url 'accounts:logout' %}">  {% trans 'Logout' %}  </a>
-
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'accounts:logout' %}" data-toggle="tooltip" title="">
+                        {% trans 'Logout' %}
+                    </a>
                 </li>
 
             {% else %}

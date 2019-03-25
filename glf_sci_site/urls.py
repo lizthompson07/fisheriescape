@@ -31,31 +31,81 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
-    path('inventory/', include('inventory.urls')),
-    path('dm-tickets/', include('dm_tickets.urls')),
-    path('oceanography/', include('oceanography.urls')),
-    path('grais/', include('grais.urls')),
-    path('hermorrhage/', include('herring.urls')),
     path('bugs/', include('bugs.urls')),
-    path('camp/', include('camp.urls')),
-    path('snowcrab/', include('snowcrab.urls')),
-    path('diets/', include('diets.urls')),
-    path('projects/', include('projects.urls')),
-    path('ihub/', include('ihub.urls')),
-    path('scifi/', include('scifi.urls')),
-    path('master-list/', include('masterlist.urls')),
-    path('gulf-shares/', include('shares.urls')),
-    path('travel-plans/', include('travel.urls')),
     path('shared/', include('shared_models.urls')),
 
     # Password reset views. Views are part of accounts app #
     ########################################################
-
     path('password-reset/', acc_views.UserPassWordResetView.as_view(), name='password_reset'),
     path('reset/<str:uidb64>/<str:token>/', acc_views.UserPasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
-    # path('reset/done/', acc_views.IndexView.as_view(), name='password_reset_complete'),
     prefix_default_language=True)
 
-if settings.MY_ENVR == "dev":
+try:
+    urlpatterns += i18n_patterns(path('inventory/', include('inventory.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting inventory app")
+try:
+    urlpatterns += i18n_patterns(path('dm-tickets/', include('dm_tickets.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting ticket app")
+try:
+    urlpatterns += i18n_patterns(path('oceanography/', include('oceanography.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting oceanography app")
+
+try:
+    urlpatterns += i18n_patterns(path('grais/', include('grais.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting grais app")
+
+try:
+    urlpatterns += i18n_patterns(path('hermorrhage/', include('herring.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting hermorrhage app")
+
+try:
+    urlpatterns += i18n_patterns(path('camp/', include('camp.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting camp app")
+
+try:
+    urlpatterns += i18n_patterns(path('snowcrab/', include('snowcrab.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting snowcrab app")
+
+try:
+    urlpatterns += i18n_patterns(path('diets/', include('diets.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting diets app")
+
+try:
+    urlpatterns += i18n_patterns(path('projects/', include('projects.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting projects app")
+
+try:
+    urlpatterns += i18n_patterns(path('ihub/', include('ihub.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting ihub app")
+
+try:
+    urlpatterns += i18n_patterns(path('scifi/', include('scifi.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting scifi app")
+try:
+    urlpatterns += i18n_patterns(path('master-list/', include('masterlist.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting masterlist app")
+try:
+    urlpatterns += i18n_patterns(path('gulf-shares/', include('shares.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting shares app")
+try:
+    urlpatterns += i18n_patterns(path('travel-plans/', include('travel.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting travel app")
+
+
+if not settings.PRODUCTION_SERVER:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
