@@ -267,7 +267,8 @@ def generate_annual_watershed_report(site, year):
     # os.mkdir(target_dir)
 
     generate_sub_pie_chart(site, year, target_file_pie)
-    generate_sub_species_richness(site, target_file_richness)
+    generate_sub_species_richness_1(site, target_file_richness)
+    generate_sub_species_richness_2(site, target_file_richness)
     generate_sub_do(site, target_file_do)
     generate_sub_green_crab(site, target_file_greeb_crab)
 
@@ -348,7 +349,123 @@ def generate_sub_pie_chart(site, year, target_file):
     return None
 
 
-def generate_sub_species_richness(site, target_file):
+def generate_sub_species_richness_1(site, target_file):
+    """
+    Species richness plot:  will show all sites sampled in the month of June ONLY
+    """
+    # create a new plot
+    site_name = str(models.Site.objects.get(pk=site))
+    site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
+
+    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}.".format(site_name_fre)
+    sub_title_fre = "L’abondance d’espèces cumulative et le nombre d'échantillons par année sont aussi indiqués."
+    title_eng = "Species richness at each CAMP sampling station in {}.".format(site_name)
+    sub_title_eng = "Cumulative species richness and number of samples per year are also indicated."
+
+    p = figure(
+        x_axis_label='Year / année',
+        y_axis_label="Species count / nombre d'espèces",
+        plot_width=WIDTH, plot_height=HEIGHT,
+        x_axis_type="linear",
+        toolbar_location=None,
+
+    )
+    ticker = SingleIntervalTicker(interval=1)
+    p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
+    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
+
+    # p.title.text_font_size = TITLE_FONT_SIZE
+    p.grid.grid_line_alpha = 1
+    p.background_fill_color = "white"
+    p.xaxis.minor_tick_line_color = None
+    p.xaxis.ticker = ticker
+
+    # first we need a list of stations
+    stations = models.Station.objects.filter(site_id=site).order_by("name")
+
+    # generate color palette
+    if len(stations) <= 10:
+        colors = palettes.Category10[len(stations)]
+    else:
+        colors = palettes.Category20[len(stations)]
+
+    i = 0
+    for station in stations:
+        qs_years = models.Sample.objects.filter(station=station).order_by("year").values(
+            'year',
+        ).distinct()
+
+        years = []
+        counts = []
+
+        for obj in qs_years:
+            y = obj['year']
+            annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station=station,
+                                                                  species__sav=False).filter(Q(sample__month=6)).values(
+                'species_id',
+            ).distinct()
+            species_set = set([i["species_id"] for i in annual_obs])
+            years.append(y)
+            counts.append(len(species_set))
+
+        legend_title = str(station)
+
+        source = ColumnDataSource(data={
+            'year': years,
+            'count': counts,
+            'station': list(np.repeat(str(station), len(years)))
+        })
+
+        p.line("year", "count", legend=legend_title, line_width=1, line_color=colors[i], source=source)
+        p.circle("year", "count", legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3,
+                 source=source)
+        i += 1
+
+    # Show a line for entire site
+    qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values(
+        'year',
+    ).distinct()
+
+    years = []
+    counts = []
+    sample_counts = []
+
+    for obj in qs_years:
+        y = obj['year']
+        annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
+                                                              species__sav=False).filter(Q(sample__month=6)).values(
+            'species_id',
+        ).distinct()
+        species_set = set([i["species_id"] for i in annual_obs])
+        years.append(y)
+        counts.append(len(species_set))
+        # sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
+        sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
+                                                                      species__sav=False).values('sample_id', ).distinct().count())
+
+    legend_title = "Entire site / ensemble du site"
+
+    source = ColumnDataSource(data={
+        'year': years,
+        'count': counts,
+        'station': list(np.repeat("all stations", len(years))),
+        'sample_count': sample_counts,
+    })
+
+    p.line("year", "count", legend=legend_title, line_width=3, line_color='black', line_dash="4 4", source=source)
+    p.circle("year", "count", legend=legend_title, fill_color='black', line_color="black", size=8, source=source)
+    p.legend.label_text_font_size = LEGEND_FONT_SIZE
+    p.legend.location = "bottom_left"
+    labels = LabelSet(x='year', y='count', text='sample_count', level='glyph',
+                      x_offset=-10, y_offset=5, source=source, render_mode='canvas')
+    p.add_layout(labels)
+
+    export_png(p, filename=target_file)
+
+
+def generate_sub_species_richness_2(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
