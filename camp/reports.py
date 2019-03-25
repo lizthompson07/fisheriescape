@@ -256,7 +256,8 @@ def generate_annual_watershed_report(site, year):
     # base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(settings.BASE_DIR, 'static', 'img', 'camp', 'temp')
     target_file_pie = os.path.join(target_dir, 'pie_chart.png')
-    target_file_richness = os.path.join(target_dir, 'species_richness.png')
+    target_file_richness1 = os.path.join(target_dir, 'species_richness1.png')
+    target_file_richness2 = os.path.join(target_dir, 'species_richness2.png')
     target_file_do = os.path.join(target_dir, 'do.png')
     target_file_greeb_crab = os.path.join(target_dir, 'green_crab.png')
 
@@ -267,8 +268,8 @@ def generate_annual_watershed_report(site, year):
     # os.mkdir(target_dir)
 
     generate_sub_pie_chart(site, year, target_file_pie)
-    generate_sub_species_richness_1(site, target_file_richness)
-    generate_sub_species_richness_2(site, target_file_richness)
+    generate_sub_species_richness_1(site, target_file_richness1)
+    generate_sub_species_richness_2(site, target_file_richness2)
     generate_sub_do(site, target_file_do)
     generate_sub_green_crab(site, target_file_greeb_crab)
 
