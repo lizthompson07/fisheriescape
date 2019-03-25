@@ -524,7 +524,7 @@ def generate_sub_species_richness_2(site, target_file):
         for obj in qs_years:
             y = obj['year']
             annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station=station,
-                                                                  species__sav=False).filter(Q(sample__month=6), Q(sample__month=7),
+                                                                  species__sav=False).filter(Q(sample__month=6) | Q(sample__month=7) |
                                                                                              Q(sample__month=8)).values(
                 'species_id',
             ).distinct()
@@ -557,7 +557,7 @@ def generate_sub_species_richness_2(site, target_file):
     for obj in qs_years:
         y = obj['year']
         annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
-                                                              species__sav=False).filter(Q(sample__month=6), Q(sample__month=7),
+                                                              species__sav=False).filter(Q(sample__month=6) | Q(sample__month=7) |
                                                                                          Q(sample__month=8)).values(
             'species_id',
         ).distinct()
@@ -566,8 +566,8 @@ def generate_sub_species_richness_2(site, target_file):
         counts.append(len(species_set))
         # sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
         sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
-                                                                      species__sav=False).filter(Q(sample__month=6), Q(sample__month=7),
-                                                                                                 Q(sample__month=8)).values(
+                                                                      species__sav=False).filter(
+            Q(sample__month=6) | Q(sample__month=7) | Q(sample__month=8)).values(
             'sample_id', ).distinct().count())
 
     legend_title = "Entire site / ensemble du site"
