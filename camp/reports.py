@@ -491,8 +491,8 @@ def generate_sub_do_1(site, target_file):
         ).distinct()
 
         years = []
-        do_max = []
-        do_min = []
+        # do_max = []
+        # do_min = []
         do_avg = []
 
         for obj in qs_years:
@@ -500,22 +500,26 @@ def generate_sub_do_1(site, target_file):
             do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station=station).filter(Q(month=6)) if
                            obj.dissolved_o2 is not None]
             try:
-                do_max.append(max(do_readings))
-                do_min.append(min(do_readings))
+                # do_max.append(max(do_readings))
+                # do_min.append(min(do_readings))
                 do_avg.append(statistics.mean(do_readings))
             except ValueError:
-                do_max.append(None)
-                do_max.append(None)
-                do_avg.append(None)
+                # do_max.append(None)
+                # do_max.append(None)
+                # do_avg.append(None)
+                pass
 
             years.append(y)
         legend_title = str(station)
-
+        print(station)
+        print(do_avg)
+        # print(do_max)
+        # print(do_min)
         source = ColumnDataSource(data={
             'stations': list(np.repeat(str(station), len(years))),
             'years': years,
-            'do_max': do_max,
-            'do_min': do_min,
+            # 'do_max': do_max,
+            # 'do_min': do_min,
             'do_avg': do_avg,
         })
 
@@ -785,9 +789,6 @@ def generate_sub_green_crab_2(site, target_file):
                     station__site_id=site, year=y['year'], month=7).count() > 0 and models.Sample.objects.filter(station__site_id=site,
                                                                                                            year=y['year'],
                                                                                                            month=8).count() > 0]
-
-    print(years)
-
     counts = []
     sample_counts = []
 
