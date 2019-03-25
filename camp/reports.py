@@ -774,11 +774,19 @@ def generate_sub_green_crab_2(site, target_file):
 
     color = palettes.BuGn[5][2]
 
-    years = [obj["year"] for obj in models.Sample.objects.order_by("year").values('year').distinct()]
+    # years = [obj["year"] for obj in models.Sample.objects.order_by("year").values('year').distinct()]
+    # # Only keep a year if there is sampling in June, July AND August
+    # years = [y for y in years if models.Sample.objects.filter(year=y, month=6).count() > 0 and models.Sample.objects.filter(year=y, month=7).count() > 0 and models.Sample.objects.filter( year=y, month=8).count() > 0]
+
+    qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values('year',).distinct()
     # Only keep a year if there is sampling in June, July AND August
-    years = [y for y in years if models.Sample.objects.filter(year=y, month=6).count() > 0 and models.Sample.objects.filter(year=y,
-                                                                                                                            month=7).count() > 0 and models.Sample.objects.filter(
-        year=y, month=8).count() > 0]
+    years = [y["year"] for y in qs_years if
+                models.Sample.objects.filter(station__site_id=site, year=y['year'], month=6).count() > 0 and models.Sample.objects.filter(
+                    station__site_id=site, year=y['year'], month=7).count() > 0 and models.Sample.objects.filter(station__site_id=site,
+                                                                                                           year=y['year'],
+                                                                                                           month=8).count() > 0]
+
+    print(years)
 
     counts = []
     sample_counts = []
