@@ -606,7 +606,8 @@ def generate_sub_do_1(site, target_file):
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
     title_eng = "Annual comparison of dissolved oxygen concentrations at each CAMP sampling station in {} for June only".format(site_name)
-    title_fre = "Comparaison annuelle de la concentration d’oxygène dissous à chaque station du PSCA à {} pour le mois de juin seulement".format(site_name_fre)
+    title_fre = "Comparaison annuelle de la concentration d’oxygène dissous à chaque station du PSCA à {}".format(site_name_fre)
+    title_fre1 = "pour le mois de juin seulement"
 
     p = figure(
         x_axis_label='Year / année',
@@ -616,6 +617,7 @@ def generate_sub_do_1(site, target_file):
         toolbar_location=None,
     )
     ticker = SingleIntervalTicker(interval=1)
+    p.add_layout(Title(text=title_fre1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
@@ -668,9 +670,9 @@ def generate_sub_do_1(site, target_file):
             'do_avg': do_avg,
         })
 
-        p.segment("years", "do_max", "years", "do_min", color=colors[i], source=source)
-        p.dash(x="years", y="do_max", size=15, color=colors[i], source=source)
-        p.dash(x="years", y="do_min", size=15, color=colors[i], source=source)
+        # p.segment("years", "do_max", "years", "do_min", color=colors[i], source=source)
+        # p.dash(x="years", y="do_max", size=15, color=colors[i], source=source)
+        # p.dash(x="years", y="do_min", size=15, color=colors[i], source=source)
         p.line("years", "do_avg", legend=legend_title, line_width=1, line_color=colors[i], source=source)
         p.circle("years", "do_avg", legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3,
                  source=source)
