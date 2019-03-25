@@ -22,6 +22,7 @@ from . import reports
 from . import emails
 from shared_models import models as shared_models
 
+
 # Create your views here.
 class CloserTemplateView(TemplateView):
     template_name = 'scifi/close_me.html'
@@ -69,7 +70,7 @@ class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_user = self.request.user
-        rc_list = models.ResponsibilityCenter.objects.filter(responsible_manager=my_user)
+        rc_list = shared_models.ResponsibilityCenter.objects.filter(manager=my_user)
         context["rc_list"] = rc_list
         context["fy"] = fiscal_year(sap_style=True)
 
@@ -80,25 +81,29 @@ class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
 ##################
 
 class AllotmentCodeListView(SciFiAccessRequiredMixin, ListView):
-    queryset = models.AllotmentCode.objects.all().order_by("allotment_category", "code")
+    queryset = shared_models.AllotmentCode.objects.all().order_by("allotment_category", "code")
+    template_name = 'scifi/allotmentcode_list.html'
 
 
 class AllotmentCodeUpdateView(SciFiAdminRequiredMixin, UpdateView):
-    model = models.AllotmentCode
+    model = shared_models.AllotmentCode
     form_class = forms.AllotmentCodeForm
     success_url = reverse_lazy('scifi:allotment_list')
+    template_name = 'scifi/allotmentcode_form.html'
 
 
 class AllotmentCodeCreateView(SciFiAdminRequiredMixin, CreateView):
-    model = models.AllotmentCode
+    model = shared_models.AllotmentCode
     form_class = forms.AllotmentCodeForm
     success_url = reverse_lazy('scifi:digestion_list')
+    template_name = 'scifi/allotmentcode_form.html'
 
 
 class AllotmentCodeDeleteView(SciFiAdminRequiredMixin, DeleteView):
-    model = models.AllotmentCode
+    model = shared_models.AllotmentCode
     success_url = reverse_lazy('scifi:digestion_list')
     success_message = 'The allotment code was successfully deleted!'
+    template_name = 'scifi/allotmentcode_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -106,7 +111,8 @@ class AllotmentCodeDeleteView(SciFiAdminRequiredMixin, DeleteView):
 
 
 class AllotmentCodeDetailView(SciFiAccessRequiredMixin, DetailView):
-    model = models.AllotmentCode
+    model = shared_models.AllotmentCode
+    template_name = 'scifi/allotmentcode_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -122,25 +128,29 @@ class AllotmentCodeDetailView(SciFiAccessRequiredMixin, DetailView):
 #################
 
 class BusinessLineListView(SciFiAccessRequiredMixin, ListView):
-    model = models.BusinessLine
+    model = shared_models.BusinessLine
+    template_name = 'scifi/businessline_list.html'
 
 
 class BusinessLineUpdateView(SciFiAdminRequiredMixin, UpdateView):
-    model = models.BusinessLine
+    model = shared_models.BusinessLine
     form_class = forms.BusinessLineForm
     success_url = reverse_lazy('scifi:business_list')
+    template_name = 'scifi/businessline_form.html'
 
 
 class BusinessLineCreateView(SciFiAdminRequiredMixin, CreateView):
-    model = models.BusinessLine
+    model = shared_models.BusinessLine
     form_class = forms.BusinessLineForm
     success_url = reverse_lazy('scifi:business_list')
+    template_name = 'scifi/businessline_form.html'
 
 
 class BusinessLineDeleteView(SciFiAdminRequiredMixin, DeleteView):
-    model = models.BusinessLine
+    model = shared_models.BusinessLine
     success_url = reverse_lazy('scifi:business_list')
     success_message = 'The business line was successfully deleted!'
+    template_name = 'scifi/businessline_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -148,7 +158,8 @@ class BusinessLineDeleteView(SciFiAdminRequiredMixin, DeleteView):
 
 
 class BusinessLineDetailView(SciFiAccessRequiredMixin, DetailView):
-    model = models.BusinessLine
+    model = shared_models.BusinessLine
+    template_name = 'scifi/businessline_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -165,27 +176,30 @@ class BusinessLineDetailView(SciFiAccessRequiredMixin, DetailView):
 class LineObjectListView(SciFiAccessRequiredMixin, FilterView):
     template_name = 'scifi/lineobject_list.html'
     filterset_class = filters.LineObjectFilter
-    model = models.LineObject
-    queryset = models.LineObject.objects.annotate(
+    model = shared_models.LineObject
+    queryset = shared_models.LineObject.objects.annotate(
         search_term=Concat('code', 'name_eng', 'description_eng', output_field=TextField()))
 
 
 class LineObjectUpdateView(SciFiAdminRequiredMixin, UpdateView):
-    model = models.LineObject
+    model = shared_models.LineObject
     form_class = forms.LineObjectForm
     success_url = reverse_lazy('scifi:lo_list')
+    template_name = 'scifi/lineobject_form.html'
 
 
 class LineObjectCreateView(SciFiAdminRequiredMixin, CreateView):
-    model = models.LineObject
+    model = shared_models.LineObject
     form_class = forms.LineObjectForm
     success_url = reverse_lazy('scifi:lo_list')
+    template_name = 'scifi/lineobject_form.html'
 
 
 class LineObjectDeleteView(SciFiAdminRequiredMixin, DeleteView):
-    model = models.LineObject
+    model = shared_models.LineObject
     success_url = reverse_lazy('scifi:lo_list')
     success_message = 'The line object was successfully deleted!'
+    template_name = 'scifi/lineobject_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -193,7 +207,8 @@ class LineObjectDeleteView(SciFiAdminRequiredMixin, DeleteView):
 
 
 class LineObjectDetailView(SciFiAdminRequiredMixin, DetailView):
-    model = models.LineObject
+    model = shared_models.LineObject
+    template_name = 'scifi/lineobject_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -209,25 +224,29 @@ class LineObjectDetailView(SciFiAdminRequiredMixin, DetailView):
 ######
 
 class ResponsibilityCentreListView(SciFiAccessRequiredMixin, ListView):
-    model = models.ResponsibilityCenter
+    model = shared_models.ResponsibilityCenter
+    template_name = 'scifi/responsibilitycenter_list.html'
 
 
 class ResponsibilityCentreUpdateView(SciFiAdminRequiredMixin, UpdateView):
-    model = models.ResponsibilityCenter
+    model = shared_models.ResponsibilityCenter
     form_class = forms.ResponsibilityCentreForm
     success_url = reverse_lazy('scifi:rc_list')
+    template_name = 'scifi/responsibilitycenter_form.html'
 
 
 class ResponsibilityCentreCreateView(SciFiAdminRequiredMixin, CreateView):
-    model = models.ResponsibilityCenter
+    model = shared_models.ResponsibilityCenter
     form_class = forms.ResponsibilityCentreForm
     success_url = reverse_lazy('scifi:rc_list')
+    template_name = 'scifi/responsibilitycenter_form.html'
 
 
 class ResponsibilityCentreDeleteView(SciFiAdminRequiredMixin, DeleteView):
-    model = models.ResponsibilityCenter
+    model = shared_models.ResponsibilityCenter
     success_url = reverse_lazy('scifi:rc_list')
     success_message = 'The RC was successfully deleted!'
+    template_name = 'scifi/responsibilitycenter_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -235,14 +254,15 @@ class ResponsibilityCentreDeleteView(SciFiAdminRequiredMixin, DeleteView):
 
 
 class ResponsibilityCentreDetailView(SciFiAccessRequiredMixin, DetailView):
-    model = models.ResponsibilityCenter
+    model = shared_models.ResponsibilityCenter
+    template_name = 'scifi/responsibilitycenter_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'code',
             'name',
-            'responsible_manager',
+            'manager',
         ]
         return context
 
@@ -253,7 +273,7 @@ class ResponsibilityCentreDetailView(SciFiAccessRequiredMixin, DetailView):
 class ProjectListView(SciFiAccessRequiredMixin, FilterView):
     filterset_class = filters.LineObjectFilter
     template_name = 'scifi/project_list.html'
-    queryset = models.Project.objects.annotate(
+    queryset = shared_models.Project.objects.annotate(
         search_term=Concat('code', 'name', 'description', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
@@ -272,21 +292,24 @@ class ProjectListView(SciFiAccessRequiredMixin, FilterView):
 
 
 class ProjectUpdateView(SciFiAdminRequiredMixin, UpdateView):
-    model = models.Project
+    model = shared_models.Project
     form_class = forms.ProjectForm
     success_url = reverse_lazy('scifi:project_list')
+    template_name = 'scifi/project_form.html'
 
 
 class ProjectCreateView(SciFiAdminRequiredMixin, CreateView):
-    model = models.Project
+    model = shared_models.Project
     form_class = forms.ProjectForm
     success_url = reverse_lazy('scifi:project_list')
+    template_name = 'scifi/project_form.html'
 
 
 class ProjectDeleteView(SciFiAdminRequiredMixin, DeleteView):
-    model = models.Project
+    model = shared_models.Project
     success_url = reverse_lazy('scifi:project_list')
     success_message = 'The project was successfully deleted!'
+    template_name = 'scifi/project_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -294,7 +317,8 @@ class ProjectDeleteView(SciFiAdminRequiredMixin, DeleteView):
 
 
 class ProjectDetailView(SciFiAccessRequiredMixin, DetailView):
-    model = models.Project
+    model = shared_models.Project
+    template_name = 'scifi/project_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -451,24 +475,24 @@ class TransactionUpdateView(SciFiAdminRequiredMixin, UpdateView):
 
         # get lists
         rc_list = ['<a href="#" class="rc_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.ResponsibilityCenter.objects.all()]
+                   shared_models.ResponsibilityCenter.objects.all()]
         context['rc_list'] = rc_list
 
         bl_list = ['<a href="#" class="bl_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.BusinessLine.objects.all()]
+                   shared_models.BusinessLine.objects.all()]
         context['bl_list'] = bl_list
 
         ac_list = ['<a href="#" class="ac_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.AllotmentCode.objects.all()]
+                   shared_models.AllotmentCode.objects.all()]
         context['ac_list'] = ac_list
 
         lo_list = ['<a href="#" class="lo_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.LineObject.objects.all()]
+                   shared_models.LineObject.objects.all()]
         context['lo_list'] = lo_list
 
         project_list = ['<a href="#" class="project_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for
                         obj in
-                        models.Project.objects.all()]
+                        shared_models.Project.objects.all()]
         context['project_list'] = project_list
 
         return context
@@ -489,24 +513,24 @@ class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
 
         # get lists
         rc_list = ['<a href="#" class="rc_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.ResponsibilityCenter.objects.all()]
+                   shared_models.ResponsibilityCenter.objects.all()]
         context['rc_list'] = rc_list
 
         bl_list = ['<a href="#" class="bl_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.BusinessLine.objects.all()]
+                   shared_models.BusinessLine.objects.all()]
         context['bl_list'] = bl_list
 
         ac_list = ['<a href="#" class="ac_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.AllotmentCode.objects.all()]
+                   shared_models.AllotmentCode.objects.all()]
         context['ac_list'] = ac_list
 
         lo_list = ['<a href="#" class="lo_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.LineObject.objects.all()]
+                   shared_models.LineObject.objects.all()]
         context['lo_list'] = lo_list
 
         project_list = ['<a href="#" class="project_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for
                         obj in
-                        models.Project.objects.all()]
+                        shared_models.Project.objects.all()]
         context['project_list'] = project_list
 
         return context
@@ -550,29 +574,29 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
 
         # get lists
         rc_list = ['<a href="#" class="rc_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.ResponsibilityCenter.objects.all()]
+                   shared_models.ResponsibilityCenter.objects.all()]
         context['rc_list'] = rc_list
 
         bl_list = ['<a href="#" class="bl_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.BusinessLine.objects.all()]
+                   shared_models.BusinessLine.objects.all()]
         context['bl_list'] = bl_list
 
         ac_list = ['<a href="#" class="ac_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.AllotmentCode.objects.all()]
+                   shared_models.AllotmentCode.objects.all()]
         context['ac_list'] = ac_list
 
         lo_list = ['<a href="#" class="lo_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
-                   models.LineObject.objects.all()]
+                   shared_models.LineObject.objects.all()]
         context['lo_list'] = lo_list
 
         project_list = ['<a href="#" class="project_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for
                         obj in
-                        models.Project.objects.all()]
+                        shared_models.Project.objects.all()]
         context['project_list'] = project_list
 
         # project dict for default coding
         project_dict = {}
-        for project in models.Project.objects.all():
+        for project in shared_models.Project.objects.all():
             project_dict[project.id] = {}
             project_dict[project.id]["rc"] = project.default_responsibility_center_id
             project_dict[project.id]["bl"] = project.default_business_line_id
@@ -591,7 +615,7 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewEntryEmail(self.object)
         # send the email object
-        if settings.MY_ENVR != 'dev':
+        if settings.PRODUCTION_SERVER:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
@@ -622,7 +646,6 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
         my_dict = {
             "fiscal_year": fiscal_year(sap_style=True),
         }
-
 
         try:
             self.kwargs["report_number"]
@@ -671,7 +694,7 @@ class BranchSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         fiscal_year = self.kwargs['fiscal_year']
         context["fiscal_year"] = fiscal_year
 
-        rc_list = [models.ResponsibilityCenter.objects.get(pk=rc["responsibility_center"]) for rc in
+        rc_list = [shared_models.ResponsibilityCenter.objects.get(pk=rc["responsibility_center"]) for rc in
                    models.Transaction.objects.filter(fiscal_year=fiscal_year).values(
                        "responsibility_center").order_by("responsibility_center").distinct() if
                    rc["responsibility_center"] is not None]
@@ -762,17 +785,17 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
         fy = shared_models.FiscalYear.objects.get(pk=self.kwargs['fiscal_year'])
         context["fiscal_year"] = fy
 
-        rc = models.ResponsibilityCenter.objects.get(pk=self.kwargs['rc'])
+        rc = shared_models.ResponsibilityCenter.objects.get(pk=self.kwargs['rc'])
         context["rc"] = rc
 
-        project_list = [models.Project.objects.get(pk=rc["project"]) for rc in
+        project_list = [shared_models.Project.objects.get(pk=rc["project"]) for rc in
                         models.Transaction.objects.filter(fiscal_year=fy).filter(
                             responsibility_center=rc.id).values(
                             "project").order_by("project").distinct() if
                         rc["project"] is not None]
         context["project_list"] = project_list
 
-        ac_list = [models.AllotmentCode.objects.get(pk=t["allotment_code"]) for t in
+        ac_list = [shared_models.AllotmentCode.objects.get(pk=t["allotment_code"]) for t in
                    models.Transaction.objects.filter(fiscal_year=fy).filter(
                        responsibility_center=rc.id).values(
                        "allotment_code").order_by("allotment_code").distinct()]
@@ -892,7 +915,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         fy = shared_models.FiscalYear.objects.get(pk=self.kwargs['fiscal_year'])
         context["fiscal_year"] = fy
 
-        project = models.Project.objects.get(pk=self.kwargs['project'])
+        project = shared_models.Project.objects.get(pk=self.kwargs['project'])
         context["project"] = project
 
         context["field_list"] = [
@@ -916,7 +939,7 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
 
         qs = models.Transaction.objects.filter(project_id=self.kwargs["project"]).filter(exclude_from_rollup=False).filter(fiscal_year=fy)
 
-        ac_list = [models.AllotmentCode.objects.get(pk=t["allotment_code"]) for t in
+        ac_list = [shared_models.AllotmentCode.objects.get(pk=t["allotment_code"]) for t in
                    qs.values("allotment_code").order_by("allotment_code").distinct()]
         context["ac_list"] = ac_list
 

@@ -7,7 +7,7 @@ from . import models
 
 class ResponsibilityCentreForm(forms.ModelForm):
     class Meta:
-        model = models.ResponsibilityCenter
+        model = shared_models.ResponsibilityCenter
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
@@ -16,30 +16,30 @@ class ResponsibilityCentreForm(forms.ModelForm):
         USER_CHOICES.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
-        self.fields['responsible_manager'].choices = USER_CHOICES
+        self.fields['manager'].choices = USER_CHOICES
 
 
 class LineObjectForm(forms.ModelForm):
     class Meta:
-        model = models.LineObject
+        model = shared_models.LineObject
         fields = "__all__"
 
 
 class BusinessLineForm(forms.ModelForm):
     class Meta:
-        model = models.BusinessLine
+        model = shared_models.BusinessLine
         fields = "__all__"
 
 
 class AllotmentCodeForm(forms.ModelForm):
     class Meta:
-        model = models.AllotmentCode
+        model = shared_models.AllotmentCode
         fields = "__all__"
 
 
 class ProjectForm(forms.ModelForm):
     class Meta:
-        model = models.Project
+        model = shared_models.Project
         fields = "__all__"
 
 
@@ -102,9 +102,9 @@ class CustomTransactionForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     FY_CHOICES = [(obj.id, "{}".format(obj.full)) for obj in shared_models.FiscalYear.objects.all()]
     FY_CHOICES.insert(0, (None, "------"))
-    RC_CHOICES = [(obj.id, obj) for obj in models.ResponsibilityCenter.objects.all()]
+    RC_CHOICES = [(obj.id, obj) for obj in shared_models.ResponsibilityCenter.objects.all()]
     RC_CHOICES.insert(0, (None, "------"))
-    PROJECT_CHOICES = [(obj.id, "{} - {}".format(obj.code, obj.name)) for obj in models.Project.objects.all()]
+    PROJECT_CHOICES = [(obj.id, "{} - {}".format(obj.code, obj.name)) for obj in shared_models.Project.objects.all()]
     PROJECT_CHOICES.insert(0, (None, "------"))
     REPORT_CHOICES = [
         # (1, "Branch Summary"),
