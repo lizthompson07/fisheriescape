@@ -358,10 +358,11 @@ def generate_sub_species_richness_1(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à {} pour le mois de juin seulement".format(
-        site_name_fre)
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA"
+    title_fre1 = "à {} pour le mois de juin seulement".format(site_name_fre)
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
-    title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for June only".format(site_name)
+    title_eng = "Annual comparison of species richness at each CAMP sampling station in {}".format(site_name)
+    title_eng1 = "for June only"
     sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
 
     p = figure(
@@ -374,8 +375,10 @@ def generate_sub_species_richness_1(site, target_file):
     )
     ticker = SingleIntervalTicker(interval=1)
     p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
+    p.add_layout(Title(text=title_fre1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
+    p.add_layout(Title(text=title_eng1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     # p.title.text_font_size = TITLE_FONT_SIZE
@@ -552,10 +555,7 @@ def generate_sub_species_richness_2(site, target_file):
         'year',
     ).distinct()
     # Only keep a year if there is sampling in June, July AND August
-    qs_years = [y for y in qs_years if
-                models.Sample.objects.filter(year=y['year'], month=6).count() > 0 and models.Sample.objects.filter(year=y['year'],
-                                                                                                                   month=7).count() > 0 and models.Sample.objects.filter(
-                    year=y['year'], month=8).count() > 0]
+    qs_years = [y for y in qs_years if models.Sample.objects.filter(station__site_id=site, year=y['year'], month=6).count() > 0 and models.Sample.objects.filter(station__site_id=site, year=y['year'], month=7).count() > 0 and models.Sample.objects.filter(station__site_id=site, year=y['year'], month=8).count() > 0]
     years = []
     counts = []
     sample_counts = []
