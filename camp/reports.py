@@ -479,11 +479,12 @@ def generate_sub_species_richness_2(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à {} pour les années durant lesquelles l’échantillonnage fut effectué en juin, juillet et août".format(
-        site_name_fre)
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA"
+    title_fre1 = "à {} pour les années durant lesquelles l’échantillonnage".format(site_name_fre)
+    title_fre2 = "fut effectué en juin, juillet et août"
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
-    title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for years in which sampling was conducted in June, July and August".format(
-        site_name)
+    title_eng = "Annual comparison of species richness at each CAMP sampling station in {}".format(site_name)
+    title_eng1 = "for years in which sampling was conducted in June, July and August"
     sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
 
     p = figure(
@@ -496,8 +497,11 @@ def generate_sub_species_richness_2(site, target_file):
     )
     ticker = SingleIntervalTicker(interval=1)
     p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
+    p.add_layout(Title(text=title_fre2, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_fre1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
+    p.add_layout(Title(text=title_eng1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     # p.title.text_font_size = TITLE_FONT_SIZE

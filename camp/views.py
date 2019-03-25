@@ -158,23 +158,6 @@ class SampleDetailView(CampAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
 
-        # context["field_list"] = [
-        #     "station",
-        #     "start_date",
-        #     "end_date",
-        #     "temperature_c",
-        #     "salinity",
-        #     "dissolved_o2",
-        #     "per_sediment_water_cont",
-        #     "per_sediment_organic_cont",
-        #     "mean_sediment_grain_size",
-        #     "silicate",
-        #     "phosphate",
-        #     "nitrates",
-        #     "nitrite",
-        #     "ammonia" ,
-        # ]
-
         context["field_list"] = [
             'nutrient_sample_id',
             'station',
