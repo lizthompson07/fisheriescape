@@ -3,12 +3,10 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from textile import textile
-
 from lib.functions.fiscal_year import fiscal_year
-from scifi import models as scifi_models
 from django.utils.translation import gettext_lazy as _
-import markdown
 from shared_models import models as shared_models
+
 
 # Choices for language
 ENG = 1
@@ -18,8 +16,6 @@ LANGUAGE_CHOICES = (
     (FRE, 'French'),
 )
 
-
-# Create your models here.
 
 class BudgetCode(models.Model):
     code = models.CharField(max_length=255, blank=True, null=True)
@@ -65,12 +61,12 @@ class Project(models.Model):
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("program"))
 
     # coding
-    responsibility_center = models.ForeignKey(scifi_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
+    responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
                                               null=True, related_name='projects_projects',
                                               verbose_name=_("responsibility center (if known)"))
-    allotment_code = models.ForeignKey(scifi_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
+    allotment_code = models.ForeignKey(shared_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
                                        related_name='projects_projects', verbose_name=_("allotment code (if known)"))
-    existing_project_code = models.ForeignKey(scifi_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
+    existing_project_code = models.ForeignKey(shared_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
                                               related_name='projects_projects', verbose_name=_("existing project code (if known)"))
 
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
