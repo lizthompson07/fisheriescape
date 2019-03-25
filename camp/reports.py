@@ -506,8 +506,7 @@ def generate_sub_do_1(site, target_file):
             except ValueError:
                 # do_max.append(None)
                 # do_max.append(None)
-                # do_avg.append(None)
-                pass
+                do_avg.append(None)
 
             years.append(y)
         legend_title = str(station)
