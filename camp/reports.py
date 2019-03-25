@@ -358,10 +358,11 @@ def generate_sub_species_richness_1(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}.".format(site_name_fre)
-    sub_title_fre = "L’abondance d’espèces cumulative et le nombre d'échantillons par année sont aussi indiqués."
-    title_eng = "Species richness at each CAMP sampling station in {}.".format(site_name)
-    sub_title_eng = "Cumulative species richness and number of samples per year are also indicated."
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à {} pour le mois de juin seulement".format(
+        site_name_fre)
+    sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
+    title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for June only".format(site_name)
+    sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
 
     p = figure(
         x_axis_label='Year / année',
@@ -444,8 +445,8 @@ def generate_sub_species_richness_1(site, target_file):
         counts.append(len(species_set))
         # sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
         sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
-                                                                      species__sav=False).values('sample_id', ).filter(
-            Q(sample__month=6)).distinct().count())
+                                                                      species__sav=False).filter(
+            Q(sample__month=6)).values('sample_id', ).distinct().count())
 
     legend_title = "Entire site / ensemble du site"
 
@@ -461,21 +462,26 @@ def generate_sub_species_richness_1(site, target_file):
     p.legend.label_text_font_size = LEGEND_FONT_SIZE
     p.legend.location = "bottom_left"
     labels = LabelSet(x='year', y='count', text='sample_count', level='glyph',
-                      x_offset=0, y_offset=10, source=source, render_mode='canvas')
+                      x_offset=-5, y_offset=10, source=source, render_mode='canvas')
     p.add_layout(labels)
 
     export_png(p, filename=target_file)
 
 
 def generate_sub_species_richness_2(site, target_file):
+    """
+    Species richness plot:  will show all sites sampled in the month of June, July and Aug. Months without all three months will be excluded
+    """
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Abondance d’espèces pour chaque station d’échantillonnage du PSCA à {}.".format(site_name_fre)
-    sub_title_fre = "L’abondance d’espèces cumulative et le nombre d'échantillons par année sont aussi indiqués."
-    title_eng = "Species richness at each CAMP sampling station in {}.".format(site_name)
-    sub_title_eng = "Cumulative species richness and number of samples per year are also indicated."
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à {} pour les années durant lesquelles l’échantillonnage fut effectué en juin, juillet et août".format(
+        site_name_fre)
+    sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
+    title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for years in which sampling was conducted in June, July and August".format(
+        site_name)
+    sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
 
     p = figure(
         x_axis_label='Year / année',
@@ -518,7 +524,8 @@ def generate_sub_species_richness_2(site, target_file):
         for obj in qs_years:
             y = obj['year']
             annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station=station,
-                                                                  species__sav=False).values(
+                                                                  species__sav=False).filter(Q(sample__month=6), Q(sample__month=7),
+                                                                                             Q(sample__month=8)).values(
                 'species_id',
             ).distinct()
             species_set = set([i["species_id"] for i in annual_obs])
@@ -550,7 +557,8 @@ def generate_sub_species_richness_2(site, target_file):
     for obj in qs_years:
         y = obj['year']
         annual_obs = models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
-                                                              species__sav=False).values(
+                                                              species__sav=False).filter(Q(sample__month=6), Q(sample__month=7),
+                                                                                         Q(sample__month=8)).values(
             'species_id',
         ).distinct()
         species_set = set([i["species_id"] for i in annual_obs])
@@ -558,7 +566,9 @@ def generate_sub_species_richness_2(site, target_file):
         counts.append(len(species_set))
         # sample_counts.append(models.Sample.objects.filter(year=y, station__site_id=site).count())
         sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
-                                                                      species__sav=False).values('sample_id', ).distinct().count())
+                                                                      species__sav=False).filter(Q(sample__month=6), Q(sample__month=7),
+                                                                                                 Q(sample__month=8)).values(
+            'sample_id', ).distinct().count())
 
     legend_title = "Entire site / ensemble du site"
 
@@ -574,7 +584,7 @@ def generate_sub_species_richness_2(site, target_file):
     p.legend.label_text_font_size = LEGEND_FONT_SIZE
     p.legend.location = "bottom_left"
     labels = LabelSet(x='year', y='count', text='sample_count', level='glyph',
-                      x_offset=-10, y_offset=5, source=source, render_mode='canvas')
+                      x_offset=-5, y_offset=10, source=source, render_mode='canvas')
     p.add_layout(labels)
 
     export_png(p, filename=target_file)
