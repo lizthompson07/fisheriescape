@@ -19,6 +19,7 @@ python-dateutil==2.8.0
 pytz==2018.9
 PyYAML==3.13
 reportlab==3.5.13
+selenium==3.141.0
 six==1.12.0
 tornado==5.1.1
 unicodecsv==0.14.1
