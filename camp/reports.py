@@ -506,14 +506,11 @@ def generate_sub_do_1(site, target_file):
             except ValueError:
                 # do_max.append(None)
                 # do_max.append(None)
-                do_avg.append(None)
+                pass
+            else:
+                years.append(y)
 
-            years.append(y)
         legend_title = str(station)
-        print(station)
-        print(do_avg)
-        # print(do_max)
-        # print(do_min)
         source = ColumnDataSource(data={
             'stations': list(np.repeat(str(station), len(years))),
             'years': years,
