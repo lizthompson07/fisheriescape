@@ -258,8 +258,10 @@ def generate_annual_watershed_report(site, year):
     target_file_pie = os.path.join(target_dir, 'pie_chart.png')
     target_file_richness1 = os.path.join(target_dir, 'species_richness1.png')
     target_file_richness2 = os.path.join(target_dir, 'species_richness2.png')
-    target_file_do = os.path.join(target_dir, 'do.png')
-    target_file_greeb_crab = os.path.join(target_dir, 'green_crab.png')
+    target_file_do1 = os.path.join(target_dir, 'do1.png')
+    target_file_do2 = os.path.join(target_dir, 'do2.png')
+    target_file_greeb_crab1 = os.path.join(target_dir, 'green_crab1.png')
+    target_file_greeb_crab2 = os.path.join(target_dir, 'green_crab2.png')
 
     # try:
     #     rmtree(target_dir)
@@ -270,8 +272,10 @@ def generate_annual_watershed_report(site, year):
     generate_sub_pie_chart(site, year, target_file_pie)
     generate_sub_species_richness_1(site, target_file_richness1)
     generate_sub_species_richness_2(site, target_file_richness2)
-    generate_sub_do(site, target_file_do)
-    generate_sub_green_crab(site, target_file_greeb_crab)
+    generate_sub_do_1(site, target_file_do1)
+    generate_sub_do_2(site, target_file_do2)
+    # generate_sub_green_crab_1(site, target_file_greeb_crab1)
+    # generate_sub_green_crab_2(site, target_file_greeb_crab2)
 
     return None
 
@@ -361,8 +365,7 @@ def generate_sub_species_richness_1(site, target_file):
     title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA"
     title_fre1 = "à {} pour le mois de juin seulement".format(site_name_fre)
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
-    title_eng = "Annual comparison of species richness at each CAMP sampling station in {}".format(site_name)
-    title_eng1 = "for June only"
+    title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for June only".format(site_name)
     sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
 
     p = figure(
@@ -378,7 +381,6 @@ def generate_sub_species_richness_1(site, target_file):
     p.add_layout(Title(text=title_fre1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
-    p.add_layout(Title(text=title_eng1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     # p.title.text_font_size = TITLE_FONT_SIZE
@@ -479,9 +481,8 @@ def generate_sub_species_richness_2(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA"
-    title_fre1 = "à {} pour les années durant lesquelles l’échantillonnage".format(site_name_fre)
-    title_fre2 = "fut effectué en juin, juillet et août"
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à"
+    title_fre1 = "{} pour les années durant lesquelles l’échantillonnage fut effectué en juin, juillet et août".format(site_name_fre)
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
     title_eng = "Annual comparison of species richness at each CAMP sampling station in {}".format(site_name)
     title_eng1 = "for years in which sampling was conducted in June, July and August"
@@ -497,7 +498,6 @@ def generate_sub_species_richness_2(site, target_file):
     )
     ticker = SingleIntervalTicker(interval=1)
     p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
-    p.add_layout(Title(text=title_fre2, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
@@ -600,7 +600,120 @@ def generate_sub_species_richness_2(site, target_file):
     export_png(p, filename=target_file)
 
 
-def generate_sub_do(site, target_file):
+def generate_sub_do_1(site, target_file):
+    # create a new plot
+    site_name = str(models.Site.objects.get(pk=site))
+    site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
+
+    title_eng = "Annual comparison of dissolved oxygen concentrations at each CAMP sampling station in {} for June only".format(site_name)
+    title_fre = "Comparaison annuelle de la concentration d’oxygène dissous à chaque station du PSCA à {} pour le mois de juin seulement".format(site_name_fre)
+
+    p = figure(
+        x_axis_label='Year / année',
+        y_axis_label='Dissolved oxygen / oxygène dissous (mg/l)',
+        plot_width=WIDTH, plot_height=HEIGHT,
+        x_axis_type="linear",
+        toolbar_location=None,
+    )
+    ticker = SingleIntervalTicker(interval=1)
+    p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
+
+    p.grid.grid_line_alpha = 1
+    p.background_fill_color = "white"
+    p.xaxis.minor_tick_line_color = None
+    p.xaxis.ticker = ticker
+
+    # first we need a list of stations
+    stations = models.Station.objects.filter(site_id=site).order_by("name")
+
+    # generate color palette
+    if len(stations) <= 10:
+        colors = palettes.Category10[len(stations)]
+    else:
+        colors = palettes.Category20[len(stations)]
+
+    i = 0
+    for station in stations:
+        qs_years = models.Sample.objects.filter(station=station).order_by("year").values(
+            'year',
+        ).distinct()
+
+        years = []
+        do_max = []
+        do_min = []
+        do_avg = []
+
+        for obj in qs_years:
+            y = obj['year']
+            do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station=station).filter(Q(month=6)) if
+                           obj.dissolved_o2 is not None]
+            try:
+                do_max.append(max(do_readings))
+                do_min.append(min(do_readings))
+                do_avg.append(statistics.mean(do_readings))
+            except ValueError:
+                do_max.append(None)
+                do_max.append(None)
+                do_avg.append(None)
+
+            years.append(y)
+        legend_title = str(station)
+
+        source = ColumnDataSource(data={
+            'stations': list(np.repeat(str(station), len(years))),
+            'years': years,
+            'do_max': do_max,
+            'do_min': do_min,
+            'do_avg': do_avg,
+        })
+
+        p.segment("years", "do_max", "years", "do_min", color=colors[i], source=source)
+        p.dash(x="years", y="do_max", size=15, color=colors[i], source=source)
+        p.dash(x="years", y="do_min", size=15, color=colors[i], source=source)
+        p.line("years", "do_avg", legend=legend_title, line_width=1, line_color=colors[i], source=source)
+        p.circle("years", "do_avg", legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3,
+                 source=source)
+        i += 1
+
+    # redo the whole process at the site level for total number of samples
+    qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values(
+        'year',
+    ).distinct()
+
+    years = []
+    do_max = []
+    do_min = []
+    do_avg = []
+    sample_counts = []
+
+    for obj in qs_years:
+        y = obj['year']
+        do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station__site_id=site).filter(Q(month=6)) if
+                       obj.dissolved_o2 is not None]
+        do_max.append(max(do_readings))
+        do_min.append(min(do_readings))
+        do_avg.append(statistics.mean(do_readings))
+        years.append(y)
+        sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
+                                                                      species__sav=False).filter(Q(sample__month=6)).values('sample_id', ).distinct().count())
+
+    source = ColumnDataSource(data={
+        'years': years,
+        'do_max': do_max,
+        'do_min': do_min,
+        'do_avg': do_avg,
+        'sample_count': sample_counts,
+    })
+
+    p.legend.label_text_font_size = LEGEND_FONT_SIZE
+    labels = LabelSet(x='years', y='do_max', text='sample_count', level='glyph',
+                      x_offset=-10, y_offset=5, source=source, render_mode='canvas')
+    p.add_layout(labels)
+    export_png(p, filename=target_file)
+
+
+def generate_sub_do_2(site, target_file):
     # create a new plot
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
