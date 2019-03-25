@@ -518,7 +518,10 @@ def generate_sub_species_richness_2(site, target_file):
             'year',
         ).distinct()
         # Only keep a year if there is sampling in June, July AND August
-        qs_years = [y for y in qs_years if models.Sample.objects.filter(year=y['year'], month=7).count() > 0 and models.Sample.objects.filter(year=y['year'], month=8).count() > 0 and models.Sample.objects.filter(year=y['year'], month=9).count() > 0]
+        qs_years = [y for y in qs_years if
+                    models.Sample.objects.filter(year=y['year'], month=6).count() > 0 and models.Sample.objects.filter(year=y['year'],
+                                                                                                                       month=7).count() > 0 and models.Sample.objects.filter(
+                        year=y['year'], month=8).count() > 0]
 
         years = []
         counts = []
@@ -551,7 +554,11 @@ def generate_sub_species_richness_2(site, target_file):
     qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values(
         'year',
     ).distinct()
-
+    # Only keep a year if there is sampling in June, July AND August
+    qs_years = [y for y in qs_years if
+                models.Sample.objects.filter(year=y['year'], month=6).count() > 0 and models.Sample.objects.filter(year=y['year'],
+                                                                                                                   month=7).count() > 0 and models.Sample.objects.filter(
+                    year=y['year'], month=8).count() > 0]
     years = []
     counts = []
     sample_counts = []

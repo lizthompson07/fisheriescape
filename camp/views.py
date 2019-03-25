@@ -114,16 +114,27 @@ class SampleListView(CampAccessRequiredMixin, ListView):
         species = nz(self.kwargs["species"])
 
         qs = models.Sample.objects.all()
-        if year:
+        try:
             qs = qs.filter(year=year)
-        if month:
+        except ValueError:
+            pass
+        try:
             qs = qs.filter(month=month)
-        if station:
+        except ValueError:
+            pass
+        try:
             qs = qs.filter(station=station)
-        if site and not station:
+        except ValueError:
+            pass
+        try:
             qs = qs.filter(station__site=site)
-        if species:
+        except ValueError:
+            pass
+        try:
             qs = qs.filter(sample_spp__species=species)
+        except ValueError:
+            pass
+
         return qs
 
 
