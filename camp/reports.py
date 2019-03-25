@@ -461,7 +461,7 @@ def generate_sub_species_richness_1(site, target_file):
     p.legend.label_text_font_size = LEGEND_FONT_SIZE
     p.legend.location = "bottom_left"
     labels = LabelSet(x='year', y='count', text='sample_count', level='glyph',
-                      x_offset=-10, y_offset=5, source=source, render_mode='canvas')
+                      x_offset=0, y_offset=10, source=source, render_mode='canvas')
     p.add_layout(labels)
 
     export_png(p, filename=target_file)
