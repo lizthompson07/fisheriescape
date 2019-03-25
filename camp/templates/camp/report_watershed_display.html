@@ -1,15 +1,39 @@
 {% extends "easy_pdf/base.html" %}
 {% load static %}
 
- <style>
-  @page {
-    margin: 1cm 1.50cm;
+ {% block style_base %}
+        {% comment %}
+            See DEFAULT_CSS in https://github.com/chrisglass/xhtml2pdf/blob/master/xhtml2pdf/default.py
+            for base style.
+        {% endcomment %}
 
-  }
-  h1 {
-    font-family: sans-serif;
-  }
-  </style>
+        {% block layout_style %}
+            <style type="text/css">
+                @page {
+                    size: {{ pagesize|default:"A4" }};
+                    margin-left: 1.5cm;
+                    margin-right: 1.5cm;
+                    margin-top: 1.5cm;
+                    margin-bottom: 1cm;
+                    @frame header {
+                        -pdf-frame-content: page-header;
+                        margin-top: 0.5cm;
+                        margin-right: 0.5mm;
+                        margin-bottom: 0.5cm;
+                        margin-left: 0.5cm;
+                    }
+                    @frame footer {
+                        -pdf-frame-content: page-footer;
+                        bottom: 0cm;
+                        margin-left: 0.5cm;
+                        margin-right: 0.5cm;
+                        height: 0.5cm;
+                    }
+                }
+            </style>
+        {%endblock%}
+        {% block extra_style %}{% endblock %}
+    {% endblock %}
 
 {% block content %}
     <div id="content">
