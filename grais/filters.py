@@ -23,8 +23,8 @@ class StationFilter(django_filters.FilterSet):
     class Meta:
         model = models.Station
         fields = {
-            'station_name':['icontains'],
-            'province':['exact'],
+            'station_name': ['icontains'],
+            'province': ['exact'],
         }
 
 
