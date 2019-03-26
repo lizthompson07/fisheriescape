@@ -1,7 +1,4 @@
-import csv
-import os
-
-from django.conf import settings
+from shared_models import models as shared_models
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -11,12 +8,8 @@ from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
-from easy_pdf.views import PDFTemplateView
 from django_filters.views import FilterView
-
-from lib.functions.nz import nz
 from . import models
 from . import forms
 from . import filters
@@ -100,21 +93,17 @@ class PredatorFilterView(LoginRequiredMixin, FilterView):
         search_term=Concat('species__common_name_eng', 'species__common_name_fre', 'species__scientific_name',
                            'species__id', output_field=TextField()))
 
-
-class PredatorListView(LoginRequiredMixin, ListView):
-    template_name = "diets/predator_list.html"
-    login_url = '/accounts/login_required/'
-
-    def get_queryset(self):
-        cruise = nz(self.kwargs["cruise"])
-        species = nz(self.kwargs["species"])
-
-        qs = models.Predator.objects.all()
-        if cruise:
-            qs = qs.filter(cruise_id=cruise)
-        if species:
-            qs = qs.filter(species_id=species)
-        return qs
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Predator.objects.first()
+        context["field_list"] = [
+            'id',
+            'stomach_id',
+            'species.common_name_eng',
+            'cruise',
+            'processing_date',
+        ]
+        return context
 
 
 class PredatorDetailView(LoginRequiredMixin, DetailView):
@@ -125,18 +114,19 @@ class PredatorDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'cruise',
-            'set',
-            'stratum',
-            'fish_number',
             'processing_date',
             'samplers',
+            'set',
+            'fish_number',
+            'stomach_id',
             'somatic_length_cm',
-            'somatic_wt_g',
             'stomach_wt_g',
             'content_wt_g',
             'comments',
             'last_modified_by',
             'date_last_modified',
+            # 'somatic_wt_g',
+            # 'stratum',
         ]
 
         species_list = []
@@ -179,7 +169,15 @@ class PredatorCreateView(LoginRequiredMixin, CreateView):
     form_class = forms.PredatorForm
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user, }
+        initial_dict ={'last_modified_by': self.request.user,}
+
+        # if this view is being called with a cruise number, cruise field should auto populate
+        try:
+            initial_dict["cruise"] = shared_models.Cruise.objects.get(pk=self.kwargs["cruise"])
+        except KeyError:
+            pass
+
+        return initial_dict
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -260,46 +258,74 @@ def prey_delete(request, pk):
 
 class CruiseListView(LoginRequiredMixin, ListView):
     login_url = '/accounts/login_required/'
-    model = models.Cruise
+    queryset = shared_models.Cruise.objects.all().order_by("-season", "mission_number")
+    template_name = 'diets/cruise_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = shared_models.Cruise.objects.first()
+        context["field_list"] = [
+            'season',
+            'mission_name',
+            'mission_number',
+            'vessel',
+            'chief_scientist',
+            'samplers',
+            'start_date',
+            'end_date',
+        ]
+        return context
 
 
 class CruiseDetailView(LoginRequiredMixin, DetailView):
-    model = models.Cruise
+    model = shared_models.Cruise
     login_url = '/accounts/login_required/'
+    template_name = 'diets/cruise_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'cruise_number',
+            'season',
+            'mission_name',
+            'mission_number',
             'description',
             'chief_scientist',
             'samplers',
             'start_date',
             'end_date',
             'notes',
-            'season',
             'vessel',
         ]
         return context
 
 
 class CruiseUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Cruise
+    model = shared_models.Cruise
     login_url = '/accounts/login_required/'
     form_class = forms.CruiseForm
+    template_name = 'diets/cruise_form.html'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy('diets:cruise_detail', kwargs={"pk": object.id}))
 
 
 class CruiseCreateView(LoginRequiredMixin, CreateView):
-    model = models.Cruise
+    model = shared_models.Cruise
     login_url = '/accounts/login_required/'
     form_class = forms.CruiseForm
     success_url = reverse_lazy('diets:cruise_list')
+    template_name = 'diets/cruise_form.html'
 
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy('diets:cruise_detail', kwargs={"pk": object.id}))
 
 class CruiseDeleteView(LoginRequiredMixin, DeleteView):
-    model = models.Cruise
+    model = shared_models.Cruise
     success_url = reverse_lazy('diets:cruise_list')
     success_message = 'The cruise was successfully deleted!'
+    template_name = 'diets/cruise_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

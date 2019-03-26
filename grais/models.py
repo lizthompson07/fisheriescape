@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import auth
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from shared_models import models as shared_models
 
 # Create your models here.
 class Sampler(models.Model):
@@ -38,6 +38,7 @@ class Province(models.Model):
 class Station(models.Model):
     station_name = models.CharField(max_length=255, blank=True, null=True)
     province = models.ForeignKey('Province', on_delete=models.DO_NOTHING, related_name='stations')
+    province2 = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='stations')
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
     depth = models.FloatField(blank=True, null=True)
@@ -139,8 +140,6 @@ class SampleSpecies(models.Model):
 
     class Meta:
         unique_together = (('species', 'sample'),)
-
-
 
 
 class SampleNote(models.Model):

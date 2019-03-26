@@ -2,6 +2,7 @@ from django import forms
 from django.core import validators
 from . import models
 from django.utils.safestring import mark_safe
+from shared_models import models as shared_models
 
 
 class DocForm(forms.ModelForm):
@@ -20,7 +21,7 @@ class DocForm(forms.ModelForm):
 
 class MissionForm(forms.ModelForm):
     class Meta:
-        model = models.Mission
+        model = shared_models.Cruise
         exclude = ["season",]
         # labels={
         #     'district':mark_safe("District (<a href='#' >search</a>)"),
