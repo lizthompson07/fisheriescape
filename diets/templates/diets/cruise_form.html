@@ -8,7 +8,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'diets:cruise_list' %}">Species List</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'diets:cruise_list' %}">Cruises</a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'diets:cruise_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
@@ -20,12 +20,13 @@
 
     <div class="container">
 
-        {% if object.id %}
-            <h1>{{ object }}</h1>
-        {% else %}
-            New Cruise
-        {% endif %}
-
+        <h1>
+            {% if object.id %}
+                {{ object }}
+            {% else %}
+                New Cruise
+            {% endif %}
+        </h1>
         <br><br>
 
         <form method="post" class="form">
