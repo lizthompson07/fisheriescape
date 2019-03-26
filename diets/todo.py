@@ -1,7 +1,5 @@
 # these should all be bilingual exports
-
 # TODO: QC elements... for example, the weight of a prey item should never = fraction x of predator... etc
-
 
 #cruise
 #samplers
@@ -14,8 +12,6 @@
 #stom wt
 #content wt
 
-# TODO: remove sylvie
-
 
 #dig level
 #prey leng
@@ -23,6 +19,3 @@
 #prey wt
 
 # TODO: from pred detail page, have keyboard shortcut (and button) to goto a new predator with cruise autopopulate
-# sample stomach id number to show on list view
-#sampler filter
-#stomach id filter

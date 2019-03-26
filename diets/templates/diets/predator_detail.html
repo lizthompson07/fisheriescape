@@ -29,6 +29,7 @@
             <a class="btn btn-warning" href="{% url 'diets:predator_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'diets:predator_delete' object.id %}">Delete</a>
         </div>
+        <a class="btn btn-success" href="{% url 'diets:predator_new' object.cruise.id %}" id="new">New Predator (Ctrl+A)</a>
 
         <br><br>
         <div class="row">
@@ -45,5 +46,14 @@
             </div>
         </div>
     </div>
+    <script type="application/javascript">
+        document.addEventListener("keydown", function (zEvent) {
+            if (zEvent.ctrlKey && zEvent.code === "KeyA") {
+                zEvent.preventDefault()
+                $("#new")[0].click();
+            }
+        });
+    </script>
 
 {% endblock content %}
+
