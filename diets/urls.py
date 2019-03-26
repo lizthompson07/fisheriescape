@@ -15,10 +15,9 @@ urlpatterns = [
 
     # PREDATORS #
     #############
-    path('predators/cruise=<str:cruise>/species=<str:species>/',
-         views.PredatorListView.as_view(), name="predator_list"),
     path('predators/', views.PredatorFilterView.as_view(), name="predator_filter"),
     path('predator/new/', views.PredatorCreateView.as_view(), name="predator_new"),
+    path('predator/new/cruise/<int:cruise>/', views.PredatorCreateView.as_view(), name="predator_new"),
     path('predator/<int:pk>/view/', views.PredatorDetailView.as_view(), name="predator_detail"),
     path('predator/<int:pk>/edit/', views.PredatorUpdateView.as_view(), name="predator_edit"),
     path('predator/<int:pk>/delete/', views.PredatorDeleteView.as_view(), name="predator_delete"),

@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from shared_models import models as shared_models
 
 # Create your models here.
 
@@ -26,60 +27,6 @@ class Doc(models.Model):
     def __str__(self):
         return self.item_name
 
-class Probe(models.Model):
-    probe_name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.probe_name
-
-class Institute(models.Model):
-    name = models.CharField(max_length=255)
-    abbrev = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-class Vessel(models.Model):
-    name = models.CharField(max_length=255)
-    call_sign = models.CharField(max_length=56, null=True, blank=True)
-
-    def __str__(self):
-        if self.call_sign:
-            return "{} {}".format(self.name, self.call_sign)
-        else:
-            return "{}".format(self.name)
-
-
-    class Meta:
-        ordering = ['name',]
-
-class Mission(models.Model):
-    institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
-    mission_name = models.CharField(max_length=255)
-    mission_number = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, null=True, blank=True)
-    # vessel_name = models.CharField(max_length=255)
-    # ship_call_sign = models.CharField(max_length=255, null=True, blank=True)
-    chief_scientist = models.CharField(max_length=255)
-    samplers = models.CharField(max_length=255, null=True, blank=True)
-    start_date = models.DateTimeField(null=True, blank=True)
-    end_date = models.DateTimeField(null=True, blank=True)
-    probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING)
-    area_of_operation = models.CharField(max_length=255, null=True, blank=True)
-    number_of_profiles = models.IntegerField()
-    meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="MEDS ID")
-    notes = models.CharField(max_length=255, null=True, blank=True)
-    season = models.IntegerField(null=True, blank=True)
-    vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="missions", blank=True, null=True)
-
-    def save(self,*args,**kwargs):
-        if self.start_date:
-            self.season = self.start_date.year
-        return super().save(*args,**kwargs)
-
-    def __str__(self):
-        return "{} - {}".format(self.mission_number, self.mission_name)
-
 class Bottle(models.Model):
 
     # Choices for sal_units
@@ -97,7 +44,7 @@ class Bottle(models.Model):
         ("UTC","Coordinated Universal Time"),
     )
 
-    mission = models.ForeignKey(Mission, related_name="bottles", on_delete=models.CASCADE)
+    mission = models.ForeignKey(shared_models.Cruise, related_name="bottles", on_delete=models.CASCADE)
     bottle_uid = models.CharField(max_length=10, unique=True)
     station = models.CharField(null=True, blank=True, max_length=25, verbose_name="Station")
     stratum = models.IntegerField(null=True, blank=True, verbose_name="Stratum")
@@ -141,7 +88,7 @@ def file_directory_path(instance, filename):
 
 class File(models.Model):
     caption = models.CharField(max_length=255)
-    mission = models.ForeignKey(Mission, related_name="files", on_delete=models.CASCADE)
+    mission = models.ForeignKey(shared_models.Cruise, related_name="files", on_delete=models.CASCADE)
     file = models.FileField(upload_to=file_directory_path)
     date_created = models.DateTimeField(default=timezone.now)
 
