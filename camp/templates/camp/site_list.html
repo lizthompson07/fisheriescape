@@ -30,8 +30,8 @@
     </thead>
     <tbody>
       {% for obj in filter.qs  %}
-        <tr>
-          <td><a href="{% url 'camp:site_detail' obj.id %}">{{obj.id}}</a></td>
+        <tr href="{% url 'camp:site_detail' obj.id %}">
+          <td>{{obj.id}}</td>
           <td>{{obj.site}}</td>
           <td>{{obj.code}}</td>
           <td>{{obj.province.abbrev}}</td>

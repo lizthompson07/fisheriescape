@@ -64,6 +64,10 @@
                         {% bootstrap_field field %}
 
                     </div>
+                {% elif field.name == "ais_species" %}
+                    <div class="ais_species_div">
+                        {% bootstrap_field field %}
+                    </div>
                 {% elif field.name == "site" %}
                     <div class="site_div">
                         {% bootstrap_field field %}
@@ -78,7 +82,7 @@
                     {% bootstrap_field field %}
                 {% endif %}
             {% endfor %}
-            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search"><br><br>
+            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
 
 
         </form>
@@ -94,11 +98,13 @@
 
         function hideAll() {
             $(".species_div").addClass("gone");
+            $(".ais_species_div").addClass("gone");
             $(".site_div").addClass("gone");
             $(".year_div").addClass("gone");
 
             $("#id_report").prop('required', true);
             $("#id_species").prop('required', false);
+            $("#id_ais_species").prop('required', false);
             $("#id_year").prop('required', false);
             $("#id_site").prop('required', false);
 
@@ -111,7 +117,6 @@
                 $(".species_div").removeClass("gone");
                 $("#id_species").prop('required', true);
                 $("#id_species").multiSelect()
-
             }
             // species richness report
             else if (reportChoice == 2) {
@@ -132,6 +137,12 @@
                 $(".site_div").removeClass("gone");
                 $(".year_div").removeClass("gone")
             }
+            // ais csv
+            else if (reportChoice == 6) {
+                $(".ais_species_div").removeClass("gone");
+                $("#id_ais_species").prop('required', true);
+                $("#id_ais_species").multiSelect();
+            }
         }
 
         $(document).ready(function () {
@@ -143,7 +154,6 @@
         $("#id_report").change(function () {
             hideAll()
             configureForm()
-            console.log("test")
         })
 
         $("form").submit(function () {

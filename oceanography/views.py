@@ -9,6 +9,7 @@ from django.utils.text import slugify
 from django.urls import reverse_lazy
 from . import models
 from . import forms
+from shared_models import models as shared_models
 
 
 class IndexTemplateView(TemplateView):
@@ -55,10 +56,7 @@ class MissionYearListView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # create a reference list of years
-        season_list = []
-        for item in models.Mission.objects.values("season").distinct():
-            season_list.append(item["season"])
-
+        season_list = [item["season"] for item in shared_models.Cruise.objects.order_by("season").values("season").distinct()]
         context["season_list"] = season_list
         return context
 
@@ -67,12 +65,12 @@ class MissionListView(ListView):
     template_name = "oceanography/mission_list.html"
 
     def get_queryset(self):
-        return models.Mission.objects.filter(season=self.kwargs["year"])
+        return shared_models.Cruise.objects.filter(season=self.kwargs["year"])
 
 
 class MissionDetailView(DetailView):
     template_name = "oceanography/mission_detail.html"
-    model = models.Mission
+    model = shared_models.Cruise
 
     def get_context_data(self, **kwargs):
         # get context
@@ -100,7 +98,7 @@ class MissionDetailView(DetailView):
 
 class MissionUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "oceanography/mission_form.html"
-    model = models.Mission
+    model = shared_models.Cruise
     form_class = forms.MissionForm
     login_url = '/accounts/login_required/'
 
@@ -117,7 +115,7 @@ class MissionUpdateView(LoginRequiredMixin, UpdateView):
 
 class MissionCreateView(LoginRequiredMixin, CreateView):
     template_name = "oceanography/mission_form.html"
-    model = models.Mission
+    model = shared_models.Cruise
     form_class = forms.MissionForm
     login_url = '/accounts/login_required/'
 
@@ -182,7 +180,7 @@ class BottleUpdateView(LoginRequiredMixin, UpdateView):
 ########
 def export_mission_csv(request, pk):
     # create instance of mission:
-    m = models.Mission.objects.get(pk=pk)
+    m = shared_models.Cruise.objects.get(pk=pk)
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')

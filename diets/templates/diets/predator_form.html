@@ -1,4 +1,4 @@
-{% extends "camp/camp_base.html" %}
+{% extends "diets/diets_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
@@ -106,7 +106,7 @@
 
     <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
     <script type="application/javascript">
-        $("#id_samplers").multiSelect()
+        {#$("#id_samplers").multiSelect()#}
     </script>
 
     <script type="text/javascript">
@@ -147,7 +147,7 @@
         // PROJECT
         $("#species_interpreter").keyup(function (e) {
             $("#species_list").html("")
-            if (this.value.length >= 3) {
+            if (this.value.length >= 2) {
                 for (var i = 0; i < speciesList.length; i++) {
                     var re = new RegExp(this.value, 'gi');
 
@@ -163,7 +163,7 @@
                     $("#id_species").val(code)
 
                     // where to go next
-                    $("#id_set")[0].focus()
+                    $("#id_fish_number")[0].focus()
 
                 });
 

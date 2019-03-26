@@ -15,26 +15,26 @@
     <div class="container-fluid">
 
 
-    <h1>Select a Year:</h1>
-    <br><br>
-    {# <h2>Please select from the following:</h2> #}
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th scope="col">Year</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        {% for year in season_list %}
-            <tr href="{% url "oceanography:mission_list" year %}">
-                <td><a>{{ year }}</a></td>
+        <h1>Select a Year:</h1>
+        <br><br>
+        {# <h2>Please select from the following:</h2> #}
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Year</th>
             </tr>
-        {% endfor %}
+            </thead>
+            <tbody>
+
+            {% for year in season_list %}
+                <tr href="{% url "oceanography:mission_list" year %}">
+                    <td><a>{{ year }}</a></td>
+                </tr>
+            {% endfor %}
 
 
-        </tbody>
-    </table>
-
+            </tbody>
+        </table>
+    </div>
 
 {% endblock content %}
