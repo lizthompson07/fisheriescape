@@ -23,44 +23,21 @@
 {% endblock left_unauth %}
 
 {% block left_auth %}
-    {# Biofouling Dropdown #}
+    {# Settings #}
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
            aria-haspopup="true" aria-expanded="false">
-            Biofouling
+            Settings
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-            <a class="dropdown-item" href="{% url "grais:sample_list" %}">Samples</a>
-            <a class="dropdown-item" href="{% url 'grais:station_list' %}">Stations</a>
             <a class="dropdown-item" href="{% url 'grais:species_list' %}">Species</a>
+            <a class="dropdown-item" href="{% url 'grais:station_list' %}">Biofouling Stations</a>
         </div>
     </li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'grais:sample_list' %}">Biofouling</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'grais:report_list' %}">Incidental Reports</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'grais:report_list' %}">Green Crab Monitoring</a></li>
 
-    {# Incidental Dropdown #}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-            Incidental Reports
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{% url "grais:report_new" %}">New</a>
-            <a class="dropdown-item" href="{% url "grais:report_list" %}">List</a>
-        </div>
-    </li>
-
-    {# Green Crab Dropdown #}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle under-dev" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-            Green Crab Monitoring
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Samples (NOT DEVELOPED)</a>
-        </div>
-    </li>
     <li class="nav-item"><a class="nav-link" href="{% url 'grais:report_search' %}">Reports</a></li>
 
 

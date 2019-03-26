@@ -83,7 +83,7 @@ class ProbeMeasurementForm(forms.ModelForm):
             'probe': "Probe name",
             'temp_c': "Temp (°C)",
             'sal_ppt': "Salinity (ppt)",
-            'o2_percent': " Disolved oxygen (%)",
+            'o2_percent': "Disolved oxygen (%)",
             'o2_mgl': "Disolved oxygen (mg/l)",
             'sp_cond_ms': "Specific conductance (mS)",
             'spc_ms': "Conductivity (mS)",
