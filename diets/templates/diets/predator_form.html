@@ -147,7 +147,7 @@
         // PROJECT
         $("#species_interpreter").keyup(function (e) {
             $("#species_list").html("")
-            if (this.value.length >= 3) {
+            if (this.value.length >= 2) {
                 for (var i = 0; i < speciesList.length; i++) {
                     var re = new RegExp(this.value, 'gi');
 
