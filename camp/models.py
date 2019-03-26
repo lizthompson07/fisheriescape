@@ -57,6 +57,7 @@ class Species(models.Model):
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     sav = models.BooleanField(default=False, verbose_name="Submerged aquatic vegetation (SAV)")
+    ais = models.BooleanField(default=False, verbose_name="Aquatic invasive species")
     notes = models.TextField(max_length=255, null=True, blank=True)
 
     def __str__(self):

@@ -398,6 +398,7 @@ class SpeciesDetailView(CampAccessRequiredMixin, DetailView):
             'common_name_eng',
             'common_name_fre',
             'scientific_name',
+            'ais',
             'code',
             'tsn',
             'aphia_id',
@@ -584,6 +585,7 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
 
     def form_valid(self, form):
         species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
+        ais_species_list = str(form.cleaned_data["ais_species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'","").replace('"',"")
         report = int(form.cleaned_data["report"])
 
         if report == 1:
@@ -611,6 +613,14 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
 
         elif report == 5:
             return HttpResponseRedirect(reverse("camp:watershed_csv"))
+
+        elif report == 6:
+            return HttpResponseRedirect(reverse("camp:ais_export", kwargs={
+                'species_list': ais_species_list,
+            }))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("ihub:report_search"))
 
 
 def report_species_count(request, species_list):
@@ -665,7 +675,10 @@ def annual_watershed_spreadsheet(request, site, year):
 
 
 def fgp_export(request):
-
     response = reports.generate_fgp_export()
     return response
 
+
+def ais_export(request, species_list):
+    response = reports.generate_ais_spreadsheet(species_list)
+    return response

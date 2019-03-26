@@ -1250,3 +1250,53 @@ def generate_fgp_export():
                 obs.total_sav,
             ])
     return response
+
+
+
+def generate_ais_spreadsheet(species_list):
+    # figure out the filename
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="CAMP AIS data export ({}).csv"'.format(timezone.now().strftime("%Y-%m-%d"))
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+    # write the header
+    writer.writerow([
+        "Date Observed",
+        "Site",
+        "Station",
+        "Province",
+        "Latitude (N)",
+        "Longitude (W)",
+        "Species (TSN)",
+        "Species (Common Name)",
+        "Species (Scientific Name)",
+        "Count",
+    ])
+
+    species_list = [models.Species.objects.get(pk=int(obj)) for obj in species_list.split(",")]
+    q_objects = Q()  # Create an empty Q object to start with
+    for s in species_list:
+        q_objects |= Q(species=s)  # 'or' the Q objects together
+
+    sp_observations = models.SpeciesObservation.objects.filter(q_objects)
+
+    for obs in sp_observations:
+        if obs.species.sav:
+            count = obs.total_sav
+        else:
+            count = obs.total_non_sav
+
+        writer.writerow(
+            [
+                obs.sample.start_date.strftime("%Y-%m-%d"),
+                obs.sample.station.site.site,
+                obs.sample.station.name,
+                obs.sample.station.site.province.abbrev,
+                obs.sample.station.latitude_n,
+                obs.sample.station.longitude_w,
+                obs.species.tsn,
+                obs.species.common_name_eng,
+                obs.species.scientific_name,
+                count,
+            ])
+    return response
