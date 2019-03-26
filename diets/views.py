@@ -173,7 +173,7 @@ class PredatorCreateView(LoginRequiredMixin, CreateView):
 
         # if this view is being called with a cruise number, cruise field should auto populate
         try:
-            initial_dict["cruise"] = models.Predator.objects.get(pk=self.kwargs["cruise"])
+            initial_dict["cruise"] = shared_models.Cruise.objects.get(pk=self.kwargs["cruise"])
         except KeyError:
             pass
 
@@ -186,8 +186,6 @@ class PredatorCreateView(LoginRequiredMixin, CreateView):
                         obj in models.Species.objects.all()]
         context['species_list'] = species_list
         return context
-
-
 
 
 class PredatorDeleteView(LoginRequiredMixin, DeleteView):
