@@ -24,12 +24,14 @@ from django.utils.encoding import smart_str
 
 
 class CloserTemplateView(TemplateView):
-    template_name = 'grais/close_me.html'
+    template_name = 'camp/close_me.html'
 
 
+# open basic access up to anybody who is logged in
 def in_camp_group(user):
     if user:
-        return user.groups.filter(name='camp_access').count() != 0
+        # return user.groups.filter(name='camp_access').count() != 0
+        return True
 
 
 class CampAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -37,6 +39,25 @@ class CampAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
         return in_camp_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+
+def in_camp_admin_group(user):
+    if user:
+        return user.groups.filter(name='camp_admin').count() != 0
+
+
+class CampAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_camp_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -192,7 +213,7 @@ class SampleDetailView(CampAccessRequiredMixin, DetailView):
         return context
 
 
-class SampleUpdateView(CampAccessRequiredMixin, UpdateView):
+class SampleUpdateView(CampAdminRequiredMixin, UpdateView):
     model = models.Sample
     form_class = forms.SampleForm
 
@@ -209,7 +230,7 @@ class SampleUpdateView(CampAccessRequiredMixin, UpdateView):
         return context
 
 
-class SampleCreateView(CampAccessRequiredMixin, CreateView):
+class SampleCreateView(CampAdminRequiredMixin, CreateView):
     model = models.Sample
     form_class = forms.SampleCreateForm
 
@@ -231,7 +252,7 @@ class SampleCreateView(CampAccessRequiredMixin, CreateView):
     #         return HttpResponseRedirect(reverse_lazy(""))
 
 
-class SampleDeleteView(CampAccessRequiredMixin, DeleteView):
+class SampleDeleteView(CampAdminRequiredMixin, DeleteView):
     model = models.Sample
     success_url = reverse_lazy('camp:sample_filter')
     success_message = 'The sample was successfully deleted!'
@@ -250,7 +271,7 @@ class SiteListView(CampAccessRequiredMixin, FilterView):
 
 
 
-class SiteUpdateView(CampAccessRequiredMixin, UpdateView):
+class SiteUpdateView(CampAdminRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
 
@@ -261,7 +282,7 @@ class SiteUpdateView(CampAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class SiteCreateView(CampAccessRequiredMixin, CreateView):
+class SiteCreateView(CampAdminRequiredMixin, CreateView):
     model = models.Site
 
     form_class = forms.SiteForm
@@ -297,7 +318,7 @@ class SiteDetailView(CampAccessRequiredMixin, DetailView):
         return context
 
 
-class SiteDeleteView(CampAccessRequiredMixin, DeleteView):
+class SiteDeleteView(CampAdminRequiredMixin, DeleteView):
     model = models.Site
     success_url = reverse_lazy('camp:site_list')
     success_message = 'The site was successfully deleted!'
@@ -310,7 +331,7 @@ class SiteDeleteView(CampAccessRequiredMixin, DeleteView):
 # STATION #
 ###########
 
-class StationUpdateView(CampAccessRequiredMixin, UpdateView):
+class StationUpdateView(CampAdminRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
 
@@ -321,7 +342,7 @@ class StationUpdateView(CampAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class StationCreateView(CampAccessRequiredMixin, CreateView):
+class StationCreateView(CampAdminRequiredMixin, CreateView):
     model = models.Station
 
     form_class = forms.StationForm
@@ -343,7 +364,7 @@ class NoSiteStationCreateView(CampAccessRequiredMixin, CreateView):
     success_url = reverse_lazy("camp:close_me")
 
 
-class StationDetailView(CampAccessRequiredMixin, DetailView):
+class StationDetailView(CampAdminRequiredMixin, DetailView):
     model = models.Station
 
 
@@ -364,7 +385,7 @@ class StationDetailView(CampAccessRequiredMixin, DetailView):
         return context
 
 
-class StationDeleteView(CampAccessRequiredMixin, DeleteView):
+class StationDeleteView(CampAdminRequiredMixin, DeleteView):
     model = models.Station
     success_message = 'The station was successfully deleted!'
 
@@ -439,7 +460,7 @@ class SpeciesDetailView(CampAccessRequiredMixin, DetailView):
         return context
 
 
-class SpeciesUpdateView(CampAccessRequiredMixin, UpdateView):
+class SpeciesUpdateView(CampAdminRequiredMixin, UpdateView):
     model = models.Species
 
     form_class = forms.SpeciesForm
@@ -448,7 +469,7 @@ class SpeciesUpdateView(CampAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class SpeciesCreateView(CampAccessRequiredMixin, CreateView):
+class SpeciesCreateView(CampAdminRequiredMixin, CreateView):
     model = models.Species
 
     form_class = forms.SpeciesForm
@@ -457,7 +478,7 @@ class SpeciesCreateView(CampAccessRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-class SpeciesDeleteView(PermissionRequiredMixin, CampAccessRequiredMixin, DeleteView):
+class SpeciesDeleteView(CampAdminRequiredMixin, CampAccessRequiredMixin, DeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('camp:species_list')
@@ -471,7 +492,7 @@ class SpeciesDeleteView(PermissionRequiredMixin, CampAccessRequiredMixin, Delete
 # SPECIES OBSERVATIONS #
 ########################
 
-class SpeciesObservationInsertView(TemplateView):
+class SpeciesObservationInsertView(CampAdminRequiredMixin, TemplateView):
     template_name = "camp/species_obs_insert.html"
 
     def get_context_data(self, **kwargs):
@@ -508,7 +529,7 @@ class SpeciesObservationInsertView(TemplateView):
         return context
 
 
-class SpeciesObservationCreateView(CampAccessRequiredMixin, CreateView):
+class SpeciesObservationCreateView(CampAdminRequiredMixin, CreateView):
     model = models.SpeciesObservation
     template_name = 'camp/species_obs_form_popout.html'
 
