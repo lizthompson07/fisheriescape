@@ -106,6 +106,11 @@ try:
 except RuntimeError:
     print("not connecting travel app")
 
+try:
+    urlpatterns += i18n_patterns(path('polls/', include('polls.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting travel app")
+
 
 if not settings.PRODUCTION_SERVER:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

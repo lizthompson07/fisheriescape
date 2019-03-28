@@ -90,6 +90,7 @@ class DeploymentForm(forms.ModelForm):
         ]
 
         widgets = {
+            # 'description':model.instrument.purchase_date,
         #     # 'last_modified_by': forms.HiddenInput(),
         #     'purchase_date': forms.DateInput( attrs={"type": "date",'placeholder':'2015-01-01'}),
         #     # 'instrument_type': forms.Textarea(attrs={"rows": 1},  choices=TYPE_CHOICES),
