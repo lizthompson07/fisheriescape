@@ -25,7 +25,7 @@ from lib.functions.fiscal_year import fiscal_year
 from lib.functions.nz import nz
 from . import models
 from . import forms
-# from . import filters
+from . import filters
 # from . import reports
 from shared_models import models as shared_models
 
@@ -37,11 +37,16 @@ from shared_models import models as shared_models
 #         'latest_question_list': latest_question_list,
 #     }
 #     return HttpResponse(template.render(context, request))
+# TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP')]
 
 instrument_field_list = [
     'id',
+    'instrument_type',
+    'serial_number',
     'purchase_date',
     'project_title',
+    'date_of_last_service',
+    'date_of_next_service',
     # 'section',
     # 'program',
     # 'responsibility_center',
@@ -79,7 +84,7 @@ class InstrumentListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'polls/instrument_list.html'
     model = models.Instrument
-    # filterset_class = filters.ProjectFilter
+    filterset_class = filters.InstrumentFilter
 
 
 class InstrumentCreateView(LoginRequiredMixin, CreateView):
@@ -101,7 +106,6 @@ class InstrumentCreateView(LoginRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-
 class InstrumentDetailView(LoginRequiredMixin, DetailView):
     model = models.Instrument
     login_url = '/accounts/login_required/'
@@ -110,9 +114,13 @@ class InstrumentDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         instrument = self.object
         context["field_list"] = [
-            'id',
+            # 'id',
+            'instrument_type',
+            'serial_number',
             'purchase_date',
             'project_title',
+            'date_of_last_service',
+            'date_of_next_service',
             # 'section',
             # 'program',
             # 'coding|' + _("budget code"),
@@ -134,39 +142,6 @@ class InstrumentDetailView(LoginRequiredMixin, DetailView):
         #     context["report_mode"] = True
         context["report_mode"] = False
         return context
-
-
-# class InstrumentDetailView(LoginRequiredMixin, DetailView):
-#     model = models.Instrument
-#     login_url = '/accounts/login_required/'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         project = self.object
-#         context["field_list"] = [
-#             'id',
-#             'purchase_date',
-#             'project_title',
-#             # 'section',
-#             # 'program',
-#             # 'coding|' + _("budget code"),
-#             'date_last_modified',
-#             'last_modified_by',
-#         ]
-#
-#         # context["field_list_1"] = [
-#         #     'description_html',
-#         #     'priorities_html',
-#         #     'deliverables_html',
-#         # ]
-#
-#         # bring in financial summary data
-#         # my_context = financial_summary_data(project)
-#         # context = {**my_context, **context}
-#
-#         # if not can_delete(self.request.user, project):
-#         #     context["report_mode"] = True
-#         return context
 
 
 class InstrumentSubmitUpdateView(LoginRequiredMixin, UpdateView):
@@ -265,4 +240,81 @@ class InstrumentUpdateView(LoginRequiredMixin, UpdateView):
             print("no end date...")
 
         return my_dict
+
+
+
+
+# Deployments #
+############
+
+class DeploymentCreateView(LoginRequiredMixin, CreateView):
+    model = models.Deployment
+    template_name = 'polls/deployment_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.DeploymentForm
+
+    # def get_initial(self):
+    #     project = models.Project.objects.get(pk=self.kwargs['project'])
+    #     return {
+    #         'project': project,
+    #     }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instrument = models.Instrument.objects.get(id=self.kwargs['project'])
+        context['instrument'] = instrument
+        context['cost_type'] = "deployment"
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('polls:close_me'))
+
+
+class DeploymentUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Deployment
+    template_name = 'projects/cost_form_popout.html'
+    form_class = forms.DeploymentForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cost_type'] = _("O&M")
+        return context
+
+
+def deployment_delete(request, pk):
+    object = models.Deployment.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, _("The cost has been successfully deleted."))
+    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
+
+def deployment_clear(request, instrument):
+    instrument = models.Instrument.objects.get(pk=instrument)
+    # for obj in models.Deployment.objects.all():
+        # for cost in models.Deployment.objects.filter(project=project, om_category=obj):
+        #     print(cost)
+        #     if (cost.budget_requested is None or cost.budget_requested == 0) and not cost.description:
+        #         cost.delete()
+
+    messages.success(request, _("All empty O&M lines have been cleared."))
+    return HttpResponseRedirect(reverse_lazy("polls:instrument_detail", kwargs={"pk": instrument.id}))
+
+
+def deployment_populate(request, instrument):
+    instrument = models.Instrument.objects.get(pk=instrument)
+    # for obj in models.OMCategory.objects.all():
+    #     if not models.OMCost.objects.filter(project=project, om_category=obj).count():
+    #         new_item = models.OMCost.objects.create(project=project, om_category=obj)
+    #         new_item.save()
+
+    messages.success(request, _("All O&M categories have been added to this project."))
+    return HttpResponseRedirect(reverse_lazy("polls:instrument_detail", kwargs={"pk": instrument.id}))
+
+
 
