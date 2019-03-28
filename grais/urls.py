@@ -105,6 +105,61 @@ urlpatterns = [
     path('follow-up/<int:pk>/edit/', views.FollowUpUpdateView.as_view(), name="follow_up_edit"),
     path('follow-up/<int:pk>/delete/', views.follow_up_delete, name="follow_up_delete"),
 
+    # ESTUARY #
+    ###########
+    path('estuaries/', views.EstuaryListView.as_view(), name="estuary_list"),
+    path('estuary/new/', views.EstuaryCreateView.as_view(), name="estuary_new"),
+    path('estuary/<int:pk>/view/', views.EstuaryDetailView.as_view(), name="estuary_detail"),
+    path('estuary/<int:pk>/edit/', views.EstuaryUpdateView.as_view(), name="estuary_edit"),
+    path('estuary/<int:pk>/delete/', views.EstuaryDeleteView.as_view(), name="estuary_delete"),
+
+    # SITE #
+    ###########
+    path('estuary/<int:estuary>/new/site/', views.SiteCreateView.as_view(), name="site_new"),
+    # path('site/new/', views.NoEstuarySiteCreateView.as_view(), name="site_new"),
+    path('site/<int:pk>/view/', views.SiteDetailView.as_view(), name="site_detail"),
+    path('site/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),
+    path('site/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),
+
+    # GC SAMPLE #
+    ##########
+    path('green-crab-samples/', views.GCSampleListView.as_view(), name="gcsample_list"),
+    path('green-crab-sample/new/', views.GCSampleCreateView.as_view(), name="gcsample_new"),
+    path('green-crab-sample/<int:pk>/view/', views.GCSampleDetailView.as_view(), name="gcsample_detail"),
+    path('green-crab-sample/<int:pk>/edit/', views.GCSampleUpdateView.as_view(), name="gcsample_edit"),
+    path('green-crab-sample/<int:pk>/delete/', views.GCSampleDeleteView.as_view(), name="gcsample_delete"),
+
+    # PROBE MEASUREMENT #
+    #####################
+    path('green-crab-sample/<int:gcsample>/gc-probe-data/new/', views.GCProbeMeasurementCreateView.as_view(),
+         name="gcprobe_measurement_new"),
+    path('gc-probe-data/<int:pk>/view/', views.GCProbeMeasurementDetailView.as_view(), name="gcprobe_measurement_detail"),
+    path('gc-probe-data/<int:pk>/edit/', views.GCProbeMeasurementUpdateView.as_view(), name="gcprobe_measurement_edit"),
+    path('gc-probe-data/<int:pk>/delete/', views.GCProbeMeasurementDeleteView.as_view(), name="gcprobe_measurement_delete"),
+
+    # TRAP #
+    ########
+    path('green-crab-sample/<int:gcsample>/trap/new/', views.TrapCreateView.as_view(), name="trap_new"),
+    path('trap/<int:pk>/view/', views.TrapDetailView.as_view(), name="trap_detail"),
+    path('trap/<int:pk>/edit/', views.TrapUpdateView.as_view(), name="trap_edit"),
+    path('trap/<int:pk>/delete/', views.TrapDeleteView.as_view(), name="trap_delete"),
+
+    path('bycatch/<int:pk>/delete/', views.bycatch_delete, name="bycatch_delete"),
+    # path('trap/<int:trap>/crab/<int:species>/add/', views.report_species_observation_add, name="crab_add"),
+    # path('trap/<int:trap>/bycatch/<int:species>/add/', views.report_species_observation_add, name="bycatch_add"),
+
+    # CRAB #
+    ########
+    path('trap/<int:trap>/crab/<int:species>/new/', views.CrabCreateViewPopout.as_view(), name="crab_new_pop"),
+    path('crab/<int:pk>/edit/', views.CrabUpdateViewPopout.as_view(), name="crab_edit_pop"),
+    path('crab/<int:pk>/delete/', views.crab_delete, name="crab_delete"),
+
+    # BYCATCH #
+    ########
+    path('trap/<int:trap>/bycatch/<int:species>/new/', views.BycatchCreateViewPopout.as_view(), name="bycatch_new_pop"),
+    path('bycatch/<int:pk>/edit/', views.BycatchUpdateViewPopout.as_view(), name="bycatch_edit_pop"),
+    path('bycatch/<int:pk>/delete/', views.bycatch_delete, name="bycatch_delete"),
+
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),

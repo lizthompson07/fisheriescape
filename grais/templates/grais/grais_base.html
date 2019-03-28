@@ -32,11 +32,12 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="{% url 'grais:species_list' %}">Species</a>
             <a class="dropdown-item" href="{% url 'grais:station_list' %}">Biofouling Stations</a>
+            <a class="dropdown-item" href="{% url 'grais:estuary_list' %}">Green Crab Estuaries</a>
         </div>
     </li>
     <li class="nav-item"><a class="nav-link" href="{% url 'grais:sample_list' %}">Biofouling</a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'grais:report_list' %}">Incidental Reports</a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'grais:report_list' %}">Green Crab Monitoring</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'grais:gcsample_list' %}">Green Crab Monitoring</a></li>
 
     <li class="nav-item"><a class="nav-link" href="{% url 'grais:report_search' %}">Reports</a></li>
 
