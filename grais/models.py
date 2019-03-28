@@ -76,6 +76,7 @@ class Species(models.Model):
     invasive = models.BooleanField(verbose_name="is invasive?")
     # biofouling = models.BooleanField()
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    green_crab_monitoring = models.BooleanField(default=False)
 
     def __str__(self):
         return self.common_name
@@ -433,7 +434,7 @@ class Estuary(models.Model):
 
 
 class Site(models.Model):
-    estuary = models.ForeignKey(Estuary, on_delete=models.DO_NOTHING, related_name='stations', blank=True, null=True)
+    estuary = models.ForeignKey(Estuary, on_delete=models.DO_NOTHING, related_name='sites', blank=True, null=True)
     code = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
     latitude_n = models.FloatField(blank=True, null=True)
@@ -449,18 +450,16 @@ class Site(models.Model):
 
 class GCSample(models.Model):
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING)
-    trap_set = models.DateTimeField()
-    trap_fished = models.DateTimeField(blank=True, null=True)
+    traps_set = models.DateTimeField()
+    traps_fished = models.DateTimeField(blank=True, null=True)
     samplers = models.ManyToManyField(Sampler)
     season = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        ordering = ['-date_deployed']
+    notes = models.TextField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.season = self.trap_set.year
+        self.season = self.traps_set.year
         self.last_modified = timezone.now()
         super().save(*args, **kwargs)
 
@@ -468,11 +467,14 @@ class GCSample(models.Model):
         return "Sample {}".format(self.id)
 
     class Meta:
-        ordering = ['-trap_set', 'site']
+        ordering = ['traps_set', 'site']
 
 
 class WeatherConditions(models.Model):
     name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return "{}".format(self.name)
 
 
 class GCProbeMeasurement(models.Model):
@@ -506,7 +508,7 @@ class GCProbeMeasurement(models.Model):
 
     sample = models.ForeignKey(GCSample, on_delete=models.CASCADE, related_name="probe_data")
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
-    time_date = models.DateTimeField(blank=True, null=True)
+    time_date = models.DateTimeField(blank=True, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
     temp_c = models.FloatField(blank=True, null=True, verbose_name="temperature (°C)")
     sal = models.FloatField(blank=True, null=True, verbose_name="salinity")
@@ -516,8 +518,9 @@ class GCProbeMeasurement(models.Model):
     cond_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (mS)")
     tide_state = models.CharField(max_length=5, choices=TIDE_STATE_CHOICES, blank=True, null=True)
     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
-    cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)")
-    weather_conditions = models.ManyToManyField(WeatherConditions)
+    cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)")
+    # notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return "Probe measurement {}".format(self.id)
@@ -543,7 +546,7 @@ class Trap(models.Model):
     longitude_w = models.FloatField(blank=True, null=True)
     gps_waypoint = models.IntegerField(blank=True, null=True, verbose_name="GPS waypoint")
     notes = models.TextField(blank=True, null=True)
-    total_green_crab_wt_kg = models.FloatField(blank=True, null=True, verbose_name="Total weight of green crabs (kg))")
+    total_green_crab_wt_kg = models.FloatField(blank=True, null=True, verbose_name="Total weight of green crabs (kg)")
 
     def __str__(self):
         return "Trap #{}".format(self.trap_number)
@@ -552,7 +555,7 @@ class Trap(models.Model):
         ordering = ['sample', 'trap_number']
 
 
-class TrapSpecies(models.Model):
+class Crab(models.Model):
     # Choices for sex
     MALE = 1
     FEMALE = 2
@@ -560,16 +563,37 @@ class TrapSpecies(models.Model):
         (MALE, 'Male'),
         (FEMALE, 'Female'),
     )
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="trap_spp")
-    trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="trap_spp")
-    # should this field be removed and bicatch placed into a separate table?
-    count = models.IntegerField()
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
+    trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="crabs")
     width = models.FloatField(blank=True, null=True)
+    sex = models.IntegerField(blank=True, null=True, choices=SEX_CHOICES)
     carapace_color = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(4)])
     abdomen_color = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(4)])
     egg_color = models.CharField(max_length=25, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
+    # class Meta:
+    #     unique_together = (('species', 'trap'),)
+
+    def __str__(self):
+        return "{}".format(self.species)
+
+    class Meta:
+        ordering = ['trap', 'species', 'id']
+
+class Bycatch(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
+    trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="bycatch")
+    count = models.IntegerField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+
     class Meta:
         unique_together = (('species', 'trap'),)
+
+    def __str__(self):
+        return "{}".format(self.species)
+
+    class Meta:
+        ordering = ['trap', 'species', 'id']
