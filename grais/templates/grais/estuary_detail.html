@@ -1,6 +1,7 @@
-{% extends "camp/camp_base.html" %}
+{% extends "grais/grais_base.html" %}
 {% load static %}
 {% load verbose_names %}
+
 
 {% block header %}
     <style>
@@ -12,19 +13,17 @@
 
         .label {
             font-weight: bold;
-
         }
     </style>
-
 {% endblock header %}
 
 
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'camp:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'camp:site_list' %}"> All Sites </a></li>
-            <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:estuary_list' %}"> All Estuaries </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
 
@@ -32,21 +31,19 @@
 
         <br>
         <h1>{{ object }}</h1>
-        <p>
-            {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
-            <a class="btn btn-warning" href="{% url 'camp:site_edit' object.id %}">Edit</a>
-            <a href="{% url 'camp:station_new' object.id %}" class="btn btn btn-success ">New Station</a>
-
-            {% if object.stations.count == 0 %}
-                <a class="btn btn-danger" href="{% url 'camp:site_delete' object.id %}">Delete</a>
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'grais:estuary_edit' object.id %}">Edit</a>
+            <a href="{% url 'grais:site_new' object.id %}" class="btn btn btn-primary ">New Site</a>
+            {% if object.sites.count == 0 %}
+                <a class="btn btn-danger" href="{% url 'grais:estuary_delete' object.id %}">Delete</a>
             {% else %}
-                <a class="btn btn-danger disabled" href="{% url 'camp:site_delete' object.id %}">Delete</a>
+                <a class="btn btn-danger disabled" href="{% url 'grais:estuary_delete' object.id %}">Delete</a>
             {% endif %}
-        </p>
+        </div>
 
         <br><br>
         <div class="row">
-            <div class="col">
+            <div class="col-4">
                 {# Detail about the site #}
                 {% for field in field_list %}
                     {% verbose_field_display object field %}
@@ -60,11 +57,12 @@
         {#  Station list  #}
         <br><br>
         <h4>
-            <b>Station List:</b>
+            <b>Site List:</b>
 
         </h4>
         <table class="table table-hover table-sm ">
             <thead class="full-table">
+            <th>Code</th>
             <th>Name</th>
             <th>Latitude</th>
             <th>Longitude</th>
@@ -72,8 +70,9 @@
             <th>Collection Period</th>
             </thead>
             <tbody>
-            {% for obj in object.stations.all %}
-                <tr href="{% url 'camp:station_detail' obj.id %}">
+            {% for obj in object.sites.all %}
+                <tr href="{% url 'grais:site_detail' obj.id %}">
+                    <td>{{ obj.code }}</td>
                     <td>{{ obj.name }}</td>
 
                     {% if not obj.latitude_n %}
@@ -90,7 +89,7 @@
                     {% endif %}
                     {{ obj.longitude_w }}</td>
                     <td>{{ obj.samples.count }}</td>
-                    <td>{{ obj.samples.last.year }} to {{ obj.samples.first.year }}</td>
+                    <td>{{ obj.samples.last.season }} to {{ obj.samples.first.season }}</td>
                 </tr>
 
             {% endfor %}
@@ -99,10 +98,10 @@
     </div>
     <script>
         function initialize() {
-            var locations = {{ station_list | safe }}
+            var locations = {{ site_list | safe }}
 
                 window.map = new google.maps.Map(document.getElementById('map'), {
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                    mapTypeId: google.maps.MapTypeId.SATELLITE
                 });
 
             var infowindow = new google.maps.InfoWindow();
@@ -139,6 +138,7 @@
         window.onload = loadScript();
 
     </script>
+
 
 
 {% endblock content %}

@@ -2,15 +2,17 @@ import django_filters
 from . import models
 from django import forms
 
+
 class SampleFilter(django_filters.FilterSet):
-    SeasonExact = django_filters.NumberFilter(field_name='season', label="Year", lookup_expr='exact', widget= forms.NumberInput(attrs={'style':"width: 4em"}))
+    SeasonExact = django_filters.NumberFilter(field_name='season', label="Year", lookup_expr='exact',
+                                              widget=forms.NumberInput(attrs={'style': "width: 4em"}))
 
     class Meta:
         model = models.Sample
         fields = {
-            'id':['exact'],
-            'station':['exact'],
-            # 'sampler':['exact'],
+            # 'id': ['exact'],
+            'season': ['exact'],
+            'station': ['exact'],
         }
 
         def __init__(self, *args, **kwargs):
@@ -28,32 +30,53 @@ class StationFilter(django_filters.FilterSet):
         }
 
 
+class EstuaryFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Estuary
+        fields = {
+            'name': ['icontains'],
+            'province': ['exact'],
+        }
+
+
+class GCSampleFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.GCSample
+        fields = {
+            'season': ['exact'],
+            'site__estuary': ['exact'],
+            'site': ['exact'],
+        }
+
+
 class ReportFilter(django_filters.FilterSet):
     class Meta:
         model = models.IncidentalReport
         fields = {
-            'season':['exact'],
-            'report_source':['exact'],
+            'season': ['exact'],
+            'report_source': ['exact'],
         }
 
 
 class SpeciesFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains', widget= forms.TextInput())
-
+    search_term = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains',
+                                            widget=forms.TextInput())
 
 
 class SpeciesFilterFull(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains', widget= forms.TextInput())
+    search_term = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains',
+                                            widget=forms.TextInput())
+
     class Meta:
         model = models.Species
         fields = {
-            'tsn':['exact'],
-            'aphia_id':['exact'],
-            'epibiont_type':['exact'],
-            'invasive':['exact'],
-            'color_morph':['exact'],
+            'tsn': ['exact'],
+            'aphia_id': ['exact'],
+            'epibiont_type': ['exact'],
+            'invasive': ['exact'],
+            'color_morph': ['exact'],
         }
         labels = {
-            'tsn':"TSN",
-            
+            'tsn': "TSN",
+
         }

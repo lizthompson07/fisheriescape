@@ -9,7 +9,6 @@
           type="text/css">
 {% endblock %}
 
-
 {% block content %}
 
     <style>
@@ -21,13 +20,12 @@
             font-weight: bold;
         }
     </style>
-
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'grais:sample_list' %}"> All samples </a></li>
-            {% if object.id %}
-                <li class="breadcrumb-item"><a href="{% url 'grais:sample_detail' object.id %}"> {{ object }} </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:gcsample_list' %}"> Green Crab Samples </a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a href="{% url 'grais:gcsample_detail' object.id %}"> {{ object }} </a></li>
                 <li class="breadcrumb-item active" aria-current="page"> Edit</li>
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">New</li>
@@ -36,17 +34,14 @@
         </ol>
     </nav>
 
-
     <div class="container">
-
-        {% load static %}
-        {# Load js file to allow for popout window #}
-        {% if object.id %}
-            <h1>Sample {{ object.id }}</h1><br>
-        {% else %}
-            <h1>New Sample</h1>
-        {% endif %}
-
+        <h1>
+            {% if object.id %}
+                {{ object }}
+            {% else %}
+                New Sample
+            {% endif %}
+        </h1>
 
         <form method="post" class="form">
             {% csrf_token %}
@@ -65,31 +60,12 @@
             <p>
                 <button type="submit" class="btn btn-primary">Submit</button>
                 {% if object.id %}
-                    <a class="btn btn-secondary" href="{% url 'grais:sample_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'grais:gcsample_detail' object.id %}">Cancel</a>
                 {% else %}
-                    <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'grais:gcsample_list' %}">Cancel</a>
                 {% endif %}
             </p>
         </form>
-        <script type="text/javascript">
-            // js script to add date to notes field
-            $("#insertDate").click(function () {
-
-                var today = new Date();
-                var strDate = today.toDateString()
-                var strInjection = ""
-
-                if ($("#id_notes").val() === "") {
-                    strInjection = strDate + ": ";
-                } else {
-                    strInjection = "\n\n" + strDate + ": ";
-                }
-
-                $("#id_notes").val($("#id_notes").val() + strInjection)
-
-            })
-
-        </script>
     </div>
 
     <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
