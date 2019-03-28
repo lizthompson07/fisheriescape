@@ -111,7 +111,7 @@
 
             }
             if (userInput === "y") {
-                $("#secrect-crab-delete-btn-" + objectId)[0].click();
+                document.location.href = $("#secrect-crab-delete-btn-" + objectId)[0].getAttribute('href');
             }
         });
         $(".bycatch-delete-me").click(function (e) {
@@ -124,7 +124,7 @@
 
             }
             if (userInput === "y") {
-                $("#secrect-bycatch-delete-btn-" + objectId)[0].click();
+                document.location.href = $("#secrect-bycatch-delete-btn-" + objectId)[0].getAttribute('href');
             }
         });
 
