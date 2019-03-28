@@ -25,4 +25,12 @@ urlpatterns = [
     path('polls/<int:pk>/print', views.InstrumentPrintDetailView.as_view(), name="instrument_print"),
     path('polls/<int:pk>/delete', views.InstrumentDeleteView.as_view(), name="instrument_delete"),
     path('polls/<int:pk>/edit', views.InstrumentUpdateView.as_view(), name="instrument_edit"),
+
+    # Deployments #
+    ############
+    path('polls/<int:instrument>/deployment/new/', views.DeploymentCreateView.as_view(), name="deploy_new"),
+    path('polls/<int:instrument>/populate-all/', views.deployment_populate, name="deployment_populate"),
+    path('polls/<int:instrument>/edit/', views.DeploymentUpdateView.as_view(), name="deployment_edit"),
+    path('polls/<int:instrument>/delete/', views.deployment_delete, name="deployment_delete"),
+    path('polls/<int:instrument>/clear-empty/', views.deployment_clear, name="deployment_clear"),
 ]

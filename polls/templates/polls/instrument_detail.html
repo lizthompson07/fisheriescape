@@ -40,24 +40,24 @@
             {% if not report_mode %}
                 {% if object.submitted %}
                     <a class="btn btn-secondary btn-sm" href="{% url 'polls:instrument_submit' object.id %}">
-                        {% trans "Unsubmit Project" %}
+                        {% trans "Unsubmit Instrument" %}
                     </a>
                 {% else %}
                     <a class="btn btn-success btn-sm" href="{% url 'polls:instrument_submit' object.id %}">
-                        {% trans "Submit Project" %}
+                        {% trans "Submit Instrument" %}
                     </a>
                 {% endif %}
             {% else %}
                 <span data-toggle="tooltip"
-                      title="{% trans "Cannot submit/unsumbit projects that do not belong to you or your section." %}">
+                      title="{% trans "Cannot submit/unsumbit instruments that do not belong to you or your section." %}">
 
                 {% if object.submitted %}
                     <a class="btn btn-secondary btn-sm disabled" href="{% url 'polls:instrument_submit' object.id %}">
-                        {% trans "Unsubmit Project" %}
+                        {% trans "Unsubmit Instrument" %}
                     </a>
                 {% else %}
                     <a class="btn btn-success btn-sm disabled" href="{% url 'polls:instrument_submit' object.id %}">
-                        {% trans "Submit Project" %}
+                        {% trans "Submit Instrument" %}
                     </a>
                 {% endif %}
                 </span>
@@ -66,19 +66,19 @@
 
 
 
-            <!--{% if not report_mode %}-->
-                <!--<a class="btn btn-danger btn-sm" href="{% url 'polls:instrument_delete' object.id %}">-->
-                    <!--{% trans "Delete" %}-->
-                <!--</a>-->
-            <!--{% else %}-->
-                <!--<span data-toggle="tooltip" title="{% trans "Cannot delete projects that do not belong to you or your section." %}">-->
-                    <!--<a class="btn btn-danger btn-sm disabled" href="#">{% trans "Delete" %}</a>-->
-                <!--</span>-->
-            <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
+            {% if not report_mode %}
+                <a class="btn btn-danger btn-sm" href="{% url 'polls:instrument_delete' object.id %}">
+                    {% trans "Delete" %}
+                </a>
+            {% else %}
+                <span data-toggle="tooltip" title="{% trans "Cannot delete projects that do not belong to you or your section." %}">
+                    <a class="btn btn-danger btn-sm disabled" href="#">{% trans "Delete" %}</a>
+                </span>
+            {% endif %}
 
-            <!--<a class="btn btn-dark btn-sm" href="{% url 'polls:instrument_print' object.id %}">-->
-                <!--{% trans "Export PDF" %}-->
-            <!--</a>-->
+<!--            <a class="btn btn-dark btn-sm" href="{% url 'polls:instrument_print' object.id %}">-->
+<!--                {% trans "Export PDF" %}-->
+<!--            </a>-->
 
         </div>
 
@@ -116,7 +116,7 @@
 
 
         <!--{% include "projects/_staff.html" %}-->
-        <!--{% include "projects/_om_costs.html" %}-->
+        {% include "polls/_deployments.html" %}
         <!--{% include "projects/_capital_costs.html" %}-->
         <!--{% include "projects/_gc_costs.html" %}-->
         <!--{% include "projects/_collaborators.html" %}-->
