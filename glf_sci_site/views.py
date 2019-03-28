@@ -190,6 +190,18 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
+        app_dict["polls"] = {
+            "title": _("Instruments"),
+            "description": _("instruments."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('polls:index'),
+            "icon_path": 'img/icons/paper-plane.svg',
+        }
+    except NoReverseMatch:
+        pass
+
     # try:
     #     app_dict["meq"] = {
     #         "title": _("MEQ"),

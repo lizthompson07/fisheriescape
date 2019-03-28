@@ -253,15 +253,15 @@ class DeploymentCreateView(LoginRequiredMixin, CreateView):
     login_url = '/accounts/login_required/'
     form_class = forms.DeploymentForm
 
-    # def get_initial(self):
-    #     project = models.Project.objects.get(pk=self.kwargs['project'])
-    #     return {
-    #         'project': project,
-    #     }
+    def get_initial(self):
+        instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
+        return {
+            'instrument': instrument,
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        instrument = models.Instrument.objects.get(id=self.kwargs['project'])
+        instrument = models.Instrument.objects.get(id=self.kwargs['instrument'])
         context['instrument'] = instrument
         context['cost_type'] = "deployment"
         return context
@@ -273,13 +273,13 @@ class DeploymentCreateView(LoginRequiredMixin, CreateView):
 
 class DeploymentUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Deployment
-    template_name = 'projects/cost_form_popout.html'
+    template_name = 'projects/deployment_form_popout.html'
     form_class = forms.DeploymentForm
     login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse('projects:close_me'))
+        return HttpResponseRedirect(reverse('polls:close_me'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -291,7 +291,7 @@ def deployment_delete(request, pk):
     object = models.Deployment.objects.get(pk=pk)
     object.delete()
     messages.success(request, _("The cost has been successfully deleted."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    return HttpResponseRedirect(reverse_lazy("polls:instrument_detail", kwargs={"pk": object.project.id}))
 
 
 def deployment_clear(request, instrument):
