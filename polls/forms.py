@@ -91,7 +91,7 @@ class DeploymentForm(forms.ModelForm):
             'depth': forms.Textarea(attrs={"rows": 1}),
             'lat': forms.Textarea(attrs={"rows": 1}),
             'lon': forms.Textarea(attrs={"rows": 1}),
-            'description': forms.Textarea(attrs={"rows": 1}),
+            'comments': forms.Textarea(attrs={"rows": 2}),
         #     # "description": forms.Textarea(attrs={"rows": 8}),
         #     # "notes": forms.Textarea(attrs={"rows": 5}),
         }
