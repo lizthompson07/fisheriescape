@@ -17,7 +17,6 @@ class NewInstrumentForm(forms.ModelForm):
             'date_of_last_service',
             'date_of_next_service',
             'project_title',
-            # 'section',
             # 'last_modified_by',
         ]
         widgets = {
@@ -83,23 +82,15 @@ class DeploymentForm(forms.ModelForm):
         exclude = [
             'submitted',
             'date_last_modified',
-            # 'section_head_approved',
-            # 'description_html',
-            # 'priorities_html',
-            # 'deliverables_html',
+
         ]
 
         widgets = {
-            # 'description':model.instrument.purchase_date,
-        #     # 'last_modified_by': forms.HiddenInput(),
-        #     'purchase_date': forms.DateInput( attrs={"type": "date",'placeholder':'2015-01-01'}),
-        #     # 'instrument_type': forms.Textarea(attrs={"rows": 1},  choices=TYPE_CHOICES),
-        #     # 'instrument_type': forms.Select(choices=TYPE_CHOICES),
-        #     'serial_number': forms.Textarea(attrs={"rows": 1}),
-        #     'date_of_last_service': forms.DateInput( attrs={"type": "date",'placeholder':'2015-01-01'}),
-        #     'date_of_next_service': forms.DateInput(attrs={"type": "date", 'placeholder': '2015-01-01'}),
-        #     # 'end_date': forms.DateInput(attrs={"type": "date"}),
-        #     # 'last_modified_by': forms.HiddenInput(),
+            'mooring': forms.Textarea(attrs={"rows": 1}),
+            'mooring_number': forms.Textarea(attrs={"rows": 1}),
+            'depth': forms.Textarea(attrs={"rows": 1}),
+            'lat': forms.Textarea(attrs={"rows": 1}),
+            'lon': forms.Textarea(attrs={"rows": 1}),
             'description': forms.Textarea(attrs={"rows": 1}),
         #     # "description": forms.Textarea(attrs={"rows": 8}),
         #     # "notes": forms.Textarea(attrs={"rows": 5}),
