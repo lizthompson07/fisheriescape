@@ -17,15 +17,9 @@
     <div class="btn-group">
         <a class="btn btn-sm btn-primary" href="#"
            onclick="return popitup('{% url 'polls:deploy_new' object.id %}','popoutWindow')">
-            {% trans "Deployment" %}
+            {% trans "Add Deployment" %}
         </a>
-<!--        <a class="btn btn-sm btn-success" href="{% url 'polls:deployment_populate' object.id %}">-->
-<!--            {% trans "Add all categories" %}-->
-<!--        </a>-->
 
-<!--        <a class="btn btn-sm btn-warning" href="{% url 'polls:deployment_clear' object.id %}">-->
-<!--            {% trans "Clear empty lines" %}-->
-<!--        </a>-->
     </div>
     <br><br>
 {% endif %}
@@ -44,25 +38,36 @@
             <th></th>
         {% endif %}
         <th>
-            {% trans "Category Type" %}
+            {% trans "Instrument Type" %}
         </th>
         <th>
-            {% trans "Category" %}
+            {% trans "Serial ID" %}
         </th>
         <th>
-            {% trans "Description" %}
+            {% trans "Mooring" %}
         </th>
-        <th {% if not report_mode %} colspan="2" {% endif %} style="text-align: center">
-            {% trans "Funding Source" %}
+        <th>
+            {% trans "Mooring #" %}
         </th>
-        <th style="text-align: center">
-            {% trans "Budget Amount" %}
+        <th>
+            {% trans "Lat" %}
         </th>
-
+        <th>
+            {% trans "Lon" %}
+        </th>
+        <th>
+            {% trans "Depth (m)" %}
+        </th>
+         <th>
+            {% trans "Deploy Time" %}
+        </th>
+         <th>
+            {% trans "Recover Time" %}
+        </th>
         </thead>
         <tbody>
         {% for obj in object.deployments.all %}
-            <tr id="om-{{ obj.id }}"
+            <tr id="{{ obj.id }}"
                     {% if not object.submitted and not report_mode %}
                 href="{% url 'polls:deployment_edit' obj.id %}" pop
                 data-toggle="tooltip" title="Edit"
@@ -81,28 +86,32 @@
                         {% endif %}
                     </td>
                 {% endif %}
-                <td>{{ obj.om_category.get_group_display }}</td>
+                <td>{{ obj.instrument.instrument_type }}</td>
 
-                {% if LANG == "fr" %}
-                    <td>{{ obj.om_category.nom }}</td>
-                {% else %}
-                    <td>{{ obj.om_category.name }}</td>
-                {% endif %}
+                    <td>{{ obj.instrument.serial_number }}</td>
+                <td> {{ obj.mooring }}</td>
+                <td> {{ obj.mooring_number }}</td>
+
+                <td> {{ obj.lat }}</td>
+                <td> {{ obj.lon }}</td>
+                <td> {{ obj.depth }}</td>
+                <td> {{ obj.deploy_time }}</td>
+                <td> {{ obj.recover_time }}</td>
                 <td> {{ obj.description }}</td>
 
                 <td style="text-align: center">
                     {{ obj.funding_source }}
                 </td>
-                {% if not report_mode %}
+                {% if  report_mode %}
                     <td>
-                        {% if not object.submitted %}
-                            <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">
-                                <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
-                                     title="click to toggle funding source">
-                            </a>
-                            <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'polls:toggle_source' "om" obj.id %}"
-                               class="hidden"></a>
-                        {% endif %}
+<!--                        {% if not object.submitted %}-->
+<!--                            <a class="toggle-source" href="#" type="om" pk="{{ obj.id }}">-->
+<!--                                <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"-->
+<!--                                     title="click to toggle funding source">-->
+<!--                            </a>-->
+<!--                            <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'polls:instrument_list'  obj.id %}"-->
+<!--                               class="hidden"></a>-->
+<!--                        {% endif %}-->
                     </td>
                 {% endif %}
 

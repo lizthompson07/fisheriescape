@@ -75,6 +75,12 @@ instrument_field_list = [
     # 'last_modified_by',
 ]
 
+# Create your views here.
+
+
+class CloserTemplateView(TemplateView):
+    template_name = 'polls/close_me.html'
+
 
 class IndexTemplateView(TemplateView):
     template_name = 'polls/index.html'
