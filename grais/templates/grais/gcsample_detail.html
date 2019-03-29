@@ -67,63 +67,63 @@
         </div>
     </div>
 
-        <script>
-            function initialize() {
-                var locations = [
-                    {% if object.site.latitude_n and object.site.longitude_w %}
-                        ['<a href="{% url 'grais:site_detail' object.site.id %}">Site {{object.site.id}}</a>', {{object.site.latitude_n}}, {{object.site.longitude_w}}, '{% static "/img/grais/blue_MarkerS.png" %}'],
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>
+    <script>
+
+        function initialize() {
+            var locations = [
+                {% if object.site.latitude_n and object.site.longitude_w %}
+                    ['<a href="{% url 'grais:site_detail' object.site.id %}">Site {{object.site.id}}</a>', {{object.site.latitude_n}}, {{object.site.longitude_w}}, '{% static "/img/grais/blue_MarkerS.png" %}'],
+                {% endif %}
+
+                {% for trap in object.traps.all %}
+                    {% if trap.latitude_n and trap.longitude_w %}
+                        ['<a href="{% url 'grais:trap_detail' trap.id %}"> {{trap}}</a>', {{trap.latitude_n}}, {{trap.longitude_w}}, '{% static "img/grais/crab_small.png" %}'],
                     {% endif %}
+                {% endfor %}
+            ];
+            var mapElement = document.getElementById('map');
+            var map = new google.maps.Map(mapElement, {mapTypeId: google.maps.MapTypeId.SATELLITE});
+            var iw = new google.maps.InfoWindow();
+            var bounds = new google.maps.LatLngBounds();
 
-                    {% for trap in object.traps.all %}
-                        {% if trap.latitude_n and trap.longitude_w %}
-                            ['<a href="{% url 'grais:trap_detail' trap.id %}"> {{trap}}</a>', {{trap.latitude_n}}, {{trap.longitude_w}}, '{% static "img/grais/crab_small.png" %}'],
-                        {% endif %}
-                    {% endfor %}
-                ];
-                console.log(locations)
-                window.map = new google.maps.Map(document.getElementById('map'), {
-                    mapTypeId: google.maps.MapTypeId.SATELLITE
-                });
+            var oms = new OverlappingMarkerSpiderfier(map, {
+                markersWontMove: true,
+                markersWontHide: true,
+                basicFormatEvents: true
+            });
 
-                var infowindow = new google.maps.InfoWindow();
-
-                var bounds = new google.maps.LatLngBounds();
-
-                for (i = 0; i < locations.length; i++) {
-                    marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-                        map: map,
-                        icon: locations[i][3]
+            for (var i = 0; i < locations.length; i++) {
+                (function () {  // make a closure over the marker and marker data
+                    var markerData = locations[i];  // e.g. { lat: 50.123, lng: 0.123, text: 'XYZ' }
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(markerData[1], markerData[2]),
+                        icon: markerData[3]
+                    });  // markerData works here as a LatLngLiteral
+                    google.maps.event.addListener(marker, 'spider_click', function (e) {  // 'spider_click', not plain 'click'
+                        iw.setContent(markerData[0]);
+                        iw.open(map, marker);
                     });
-
+                    oms.addMarker(marker);  // adds the marker to the spiderfier _and_ the map
                     bounds.extend(marker.position);
+                })();
 
-                    google.maps.event.addListener(marker, 'click', (function (marker, i) {
-                        return function () {
-                            infowindow.setContent(locations[i][0]);
-                            infowindow.open(map, marker);
-                        }
-                    })(marker, i));
-                }
-
-                map.fitBounds(bounds);
-
-                // var listener = google.maps.event.addListener(map, "idle", function () {
-                //     map.setZoom(10);
-                //     google.maps.event.removeListener(listener);
-                // });
             }
+            map.fitBounds(bounds);
+        }
 
-            function loadScript() {
-                var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-                document.body.appendChild(script);
-            }
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+        }
 
-            window.onload = loadScript();
+        window.onload = loadScript();
 
-        </script>
+    </script>
+
 
     {#    {% include "grais/_sample_modals.html" %}#}
 
