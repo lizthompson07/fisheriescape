@@ -64,6 +64,9 @@
          <th>
             {% trans "Recover Time" %}
         </th>
+         <th>
+            {% trans "Comments" %}
+        </th>
         </thead>
         <tbody>
         {% for obj in object.deployments.all %}
@@ -97,7 +100,7 @@
                 <td> {{ obj.depth }}</td>
                 <td> {{ obj.deploy_time }}</td>
                 <td> {{ obj.recover_time }}</td>
-                <td> {{ obj.description }}</td>
+                <td> {{ obj.comments }}</td>
 
                 <td style="text-align: center">
                     {{ obj.funding_source }}

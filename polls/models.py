@@ -65,11 +65,12 @@ class Deployment(models.Model):
     lat = models.TextField(blank=True, null=True, verbose_name=_("lat"))
     lon = models.TextField(blank=True, null=True, verbose_name=_("lon"))
     depth = models.TextField(blank=True, null=True, verbose_name=_("depth"))
-    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+    # comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
     # budget_requested = models.FloatField(default=0, verbose_name=_("budget requested"))
 
     def __str__(self):
-        return "{}".format(self.description)
+        return "{}".format(self.mooring)
 
     class Meta:
-        ordering = ['instrument', 'description']
+        ordering = ['instrument', 'mooring']
