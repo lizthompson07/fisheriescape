@@ -11,7 +11,7 @@ from django.contrib.auth import views as auth_views
 app_name = 'polls'
 
 urlpatterns = [
-    # path('close/', views.CloserTemplateView.as_view(), name="close_me"),
+    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # PROJECTS #
