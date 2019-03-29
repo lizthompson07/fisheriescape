@@ -57,7 +57,7 @@
         </div>
         <hr>
         <div class="row">
-            <div class="col">
+            <div class="col-4">
                 {% include "grais/_gcprobes.html" %}
             </div>
             <div class="col">
@@ -76,7 +76,7 @@
 
                     {% for trap in object.traps.all %}
                         {% if trap.latitude_n and trap.longitude_w %}
-                            ['<a href="{% url 'grais:trap_detail' trap.id %}"> {{trap}}</a>', {{trap.latitude_n}}, {{trap.longitude_w}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+                            ['<a href="{% url 'grais:trap_detail' trap.id %}"> {{trap}}</a>', {{trap.latitude_n}}, {{trap.longitude_w}}, '{% static "img/grais/crab_small.png" %}'],
                         {% endif %}
                     {% endfor %}
                 ];
