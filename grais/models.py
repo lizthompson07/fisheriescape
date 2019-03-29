@@ -453,6 +453,8 @@ class GCSample(models.Model):
     traps_set = models.DateTimeField()
     traps_fished = models.DateTimeField(blank=True, null=True)
     samplers = models.ManyToManyField(Sampler)
+    bottom_type = models.CharField(max_length=100, blank=True, null=True)
+    percent_vegetation_cover = models.IntegerField(blank=True, null=True, verbose_name="vegetation cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
     season = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)

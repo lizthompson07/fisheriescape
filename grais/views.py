@@ -928,6 +928,8 @@ class SiteUpdateView(GraisAccessRequiredMixin, UpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+    def get_success_url(self):
+        return reverse_lazy('grais:estuary_detail', kwargs={'pk': self.object.estuary.id})
 
 class SiteCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.Site
@@ -948,6 +950,8 @@ class SiteCreateView(GraisAccessRequiredMixin, CreateView):
             pass
         return context
 
+    def get_success_url(self):
+        return reverse_lazy('grais:estuary_detail', kwargs={'pk': self.object.estuary.id})
 
 class SiteDetailView(GraisAccessRequiredMixin, DetailView):
     model = models.Site
@@ -975,6 +979,8 @@ class SiteDeleteView(GraisAccessRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('grais:estuary_detail', kwargs={'pk': self.object.estuary.id})
 
 # SAMPLE #
 ##########
@@ -1004,6 +1010,8 @@ class GCSampleDetailView(GraisAccessRequiredMixin, DetailView):
             'site',
             'traps_set',
             'traps_fished',
+            'bottom_type',
+            'percent_vegetation_cover',
             'samplers',
             'season',
             'last_modified',
@@ -1020,6 +1028,9 @@ class GCSampleUpdateView(GraisAccessRequiredMixin, UpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy("grais:gcsample_detail", kwargs={"pk": object.id}))
 
 class GCSampleCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.GCSample
@@ -1027,6 +1038,10 @@ class GCSampleCreateView(GraisAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy("grais:gcsample_detail", kwargs={"pk": object.id}))
 
 
 class GCSampleDeleteView(GraisAccessRequiredMixin, DeleteView):

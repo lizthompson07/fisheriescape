@@ -10,6 +10,7 @@
     <th>Longitude (W)</th>
     <th>Crab count</th>
     <th>Bycatch species count</th>
+    <th>Total green crab weight (kg)</th>
     </thead>
     <tbody>
     {% for trap in object.traps.all %}
@@ -28,6 +29,7 @@
             {% endif %}
             <td>{{ trap.crabs.count }}</td>
             <td>{{ trap.bycatch.count }}</td>
+            <td>{{ trap.total_green_crab_wt_kg }}</td>
             {#            <td>{{ l.surfaces.count }}</td>#}
 
         </tr>
