@@ -2,30 +2,17 @@
 
 ### Prerequisite to running the application
 1. Install Python (<https://www.python.org>), and make sure that Python is added to your PATH variable.
-
-2. Create a Python virtual environment and activate it. 
+1. Create a Python virtual environment and activate it. 
 To do so, create a directory on your computer where the virtual environment will live 
 (called 'glf_sci_site_venv' in the example below), 
 create the virtual environment in that directory and activate the virtual environment:
-
+    1. To activate the venv on windows: `python -m venv glf_sci_site_venv`
+    1. To activate the venv on linux: `source .\glf_sci_site_venv\bin\activate`
+1. Clone the glf_sci_site repository
 ```
-python -m venv glf_sci_site_venv
+git clone https://github.com/dfo-mar-odis/dfo_sci_dm_site
 ```
-To activate the venv on windows:
-```
-.\glf_sci_site_venv\Scripts\activate
-```
-To activate the venv on linux:
-```
-source .\glf_sci_site_venv\bin\activate
-```
-
-3. Clone the glf_sci_site repository
-```
-git clone https://gccode.ssc-spc.gc.ca/dfo-gulf-science/glf_sci_site
-```
-
-4. Install the Python packages required by the glf_sci_site application
+1. Install the Python packages required by the glf_sci_site application
 ```
 pip install -r stable_reqs.txt
 ```
