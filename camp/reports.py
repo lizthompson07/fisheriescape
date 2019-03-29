@@ -104,13 +104,18 @@ def generate_annual_watershed_report(site, year):
     target_file_greeb_crab1 = os.path.join(target_dir, 'green_crab1.png')
     target_file_greeb_crab2 = os.path.join(target_dir, 'green_crab2.png')
 
-    # try:
-    #     rmtree(target_dir)
-    # except:
-    #     print("no such dir.")
-    # os.mkdir(target_dir)
+    try:
+        rmtree(target_dir)
+    except:
+        print("no such dir.")
+    finally:
+        os.mkdir(target_dir)
 
-    generate_sub_pie_chart(site, year, target_file_pie)
+    try:
+        generate_sub_pie_chart(site, year, target_file_pie)
+    except IndexError:
+        pass
+
     generate_sub_species_richness_1(site, target_file_richness1)
     generate_sub_species_richness_2(site, target_file_richness2)
     generate_sub_do_1(site, target_file_do1)
@@ -203,8 +208,8 @@ def generate_sub_species_richness_1(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA"
-    title_fre1 = "à {} pour le mois de juin seulement".format(site_name_fre)
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à {} pour le".format(site_name_fre)
+    title_fre1 = " mois de juin seulement"
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
     title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for June only".format(site_name)
     sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
@@ -244,6 +249,8 @@ def generate_sub_species_richness_1(site, target_file):
         qs_years = models.Sample.objects.filter(station=station).order_by("year").values(
             'year',
         ).distinct()
+        # Only keep a year if there was june sampling
+        qs_years = [y for y in qs_years if models.Sample.objects.filter(station=station, year=y['year'], month=6).count() > 0]
 
         years = []
         counts = []
@@ -275,6 +282,8 @@ def generate_sub_species_richness_1(site, target_file):
     qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values(
         'year',
     ).distinct()
+    # Only keep a year if there was june sampling
+    qs_years = [y for y in qs_years if models.Sample.objects.filter(station__site_id=site, year=y['year'], month=6).count() > 0]
 
     years = []
     counts = []
@@ -322,11 +331,11 @@ def generate_sub_species_richness_2(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à"
-    title_fre1 = "{} pour les années durant lesquelles l’échantillonnage fut effectué en juin, juillet et août".format(site_name_fre)
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à {} pour les années durant lesquelles".format(site_name_fre)
+    title_fre1 = "l’échantillonnage fut effectué en juin, juillet et août"
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
-    title_eng = "Annual comparison of species richness at each CAMP sampling station in {}".format(site_name)
-    title_eng1 = "for years in which sampling was conducted in June, July and August"
+    title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for years in which sampling was".format(site_name)
+    title_eng1 = "conducted in June, July and August"
     sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
 
     p = figure(
@@ -455,8 +464,10 @@ def generate_sub_do_1(site, target_file):
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
     title_eng = "Annual comparison of dissolved oxygen concentrations at each CAMP sampling station in {} for June only".format(site_name)
-    title_fre = "Comparaison annuelle de la concentration d’oxygène dissous à chaque station du PSCA à {}".format(site_name_fre)
-    title_fre1 = "pour le mois de juin seulement"
+    sub_title_eng = "Number of stations sampled is indicated."
+    title_fre = "Comparaison annuelle de la concentration d’oxygène dissous à chaque station du PSCA à {} pour le mois de".format(site_name_fre)
+    title_fre1 = "juin seulement"
+    sub_title_fre = "Le nombre de stations échantillonnées est indiqué."
 
     p = figure(
         x_axis_label='Year / année',
@@ -466,8 +477,10 @@ def generate_sub_do_1(site, target_file):
         toolbar_location=None,
     )
     ticker = SingleIntervalTicker(interval=1)
+    p.add_layout(Title(text=sub_title_fre, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
     p.add_layout(Title(text=title_fre1, text_font_size=TITLE_FONT_SIZE), 'above')
     p.add_layout(Title(text=title_fre, text_font_size=TITLE_FONT_SIZE), 'above')
+    p.add_layout(Title(text=sub_title_eng, text_font_size=SUBTITLE_FONT_SIZE, text_font_style="italic"), 'above')
     p.add_layout(Title(text=title_eng, text_font_size=TITLE_FONT_SIZE), 'above')
 
     p.grid.grid_line_alpha = 1
@@ -551,10 +564,9 @@ def generate_sub_do_1(site, target_file):
             pass
         else:
             years.append(y)
-
-        sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
-                                                                      species__sav=False).filter(Q(sample__month=6)).values(
-            'sample_id', ).distinct().count())
+            sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
+                                                                          species__sav=False).filter(Q(sample__month=6)).values(
+                'sample_id', ).distinct().count())
 
     source = ColumnDataSource(data={
         'years': years,
@@ -576,13 +588,13 @@ def generate_sub_do_2(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_eng = "Annual comparison of dissolved oxygen concentrations (mean and range) at each CAMP sampling station in {}".format(
+    title_eng = "Annual comparison of dissolved oxygen concentrations (mean and range) at each CAMP sampling station in {} for years in which".format(
         site_name)
-    title_eng1 = "for years in which sampling was conducted in June, July and August"
+    title_eng1 = "sampling was conducted in June, July and August"
     sub_title_eng = "Number of stations sampled is indicated above error bars."
-    title_fre = "Comparaison annuelle des concentrations d’oxygène dissous (moyenne et intervalle) à chaque station du PSCA à {}".format(
+    title_fre = "Comparaison annuelle des concentrations d’oxygène dissous (moyenne et intervalle) à chaque station du PSCA à {} pour les années durant".format(
         site_name_fre)
-    title_fre1 = "pour les années durant lesquelles l’échantillonnage fut effectué en juin, juillet et août"
+    title_fre1 = "lesquelles l’échantillonnage fut effectué en juin, juillet et août"
     sub_title_fre = "Le nombre de stations échantillonnées est indiqué au-dessus des barres d’erreur."
 
     p = figure(
@@ -713,13 +725,15 @@ def generate_sub_green_crab_1(site, target_file):
 
     title_eng = "Annual comparison of Green Crab abundance observed during CAMP sampling in {} for June only".format(site_name)
     sub_title_eng = "Number of stations sampled is indicated above columns."
-    title_fre = "Comparaison annuelle de l’abondance de Crabes verts observée durant l’échantillonnage du PSCA à {}".format(site_name_fre)
-    title_fre1 = "pour le mois de juin seulement"
+    title_fre = "Comparaison annuelle de l’abondance de Crabes verts observée durant l’échantillonnage du PSCA à {} pour le mois".format(site_name_fre)
+    title_fre1 = "de juin seulement"
     sub_title_fre = "Le nombre de stations échantillonnées est indiqué au-dessus des colonnes."
 
     color = palettes.BuGn[5][2]
 
-    years = [obj["year"] for obj in models.Sample.objects.order_by("year").values('year').distinct()]
+    qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values('year', ).distinct()
+    # Only keep a year if there is sampling in June
+    years = [y["year"] for y in qs_years if models.Sample.objects.filter(station__site_id=site, year=y['year'], month=6).count() > 0]
     counts = []
     sample_counts = []
 
@@ -771,11 +785,11 @@ def generate_sub_green_crab_2(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_eng = "Annual comparison of Green Crab abundance observed during CAMP sampling in {}".format(site_name)
-    title_eng1 = " for years in which sampling was conducted in June, July and August"
+    title_eng = "Annual comparison of Green Crab abundance observed during CAMP sampling in {} for years in which sampling".format(site_name)
+    title_eng1 = "was conducted in June, July and August"
     sub_title_eng = "Number of stations sampled is indicated above columns."
-    title_fre = "Comparaison annuelle de l’abondance de Crabes verts observée durant l’échantillonnage du PSCA à {}".format(site_name_fre)
-    title_fre1 = "pour les années durant lesquelles l’échantillonnage fut effectué en juin, juillet et août"
+    title_fre = "Comparaison annuelle de l’abondance de Crabes verts observée durant l’échantillonnage du PSCA à {} pour les années durant lesquelles".format(site_name_fre)
+    title_fre1 = "l’échantillonnage fut effectué en juin, juillet et août"
     sub_title_fre = "Le nombre de stations échantillonnées est indiqué au-dessus des colonnes."
 
     color = palettes.BuGn[5][2]
@@ -784,13 +798,13 @@ def generate_sub_green_crab_2(site, target_file):
     # # Only keep a year if there is sampling in June, July AND August
     # years = [y for y in years if models.Sample.objects.filter(year=y, month=6).count() > 0 and models.Sample.objects.filter(year=y, month=7).count() > 0 and models.Sample.objects.filter( year=y, month=8).count() > 0]
 
-    qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values('year',).distinct()
+    qs_years = models.Sample.objects.filter(station__site_id=site).order_by("year").values('year', ).distinct()
     # Only keep a year if there is sampling in June, July AND August
     years = [y["year"] for y in qs_years if
-                models.Sample.objects.filter(station__site_id=site, year=y['year'], month=6).count() > 0 and models.Sample.objects.filter(
-                    station__site_id=site, year=y['year'], month=7).count() > 0 and models.Sample.objects.filter(station__site_id=site,
-                                                                                                           year=y['year'],
-                                                                                                           month=8).count() > 0]
+             models.Sample.objects.filter(station__site_id=site, year=y['year'], month=6).count() > 0 and models.Sample.objects.filter(
+                 station__site_id=site, year=y['year'], month=7).count() > 0 and models.Sample.objects.filter(station__site_id=site,
+                                                                                                              year=y['year'],
+                                                                                                              month=8).count() > 0]
     counts = []
     sample_counts = []
 
@@ -1256,7 +1270,6 @@ def generate_fgp_export():
                 obs.total_sav,
             ])
     return response
-
 
 
 def generate_ais_spreadsheet(species_list):
