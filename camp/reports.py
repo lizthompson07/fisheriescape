@@ -542,10 +542,16 @@ def generate_sub_do_1(site, target_file):
         y = obj['year']
         do_readings = [obj.dissolved_o2 for obj in models.Sample.objects.filter(year=y).filter(station__site_id=site).filter(Q(month=6)) if
                        obj.dissolved_o2 is not None]
-        do_max.append(max(do_readings))
-        do_min.append(min(do_readings))
-        do_avg.append(statistics.mean(do_readings))
-        years.append(y)
+
+        try:
+            do_max.append(max(do_readings))
+            do_min.append(min(do_readings))
+            do_avg.append(statistics.mean(do_readings))
+        except ValueError:
+            pass
+        else:
+            years.append(y)
+
         sample_counts.append(models.SpeciesObservation.objects.filter(sample__year=y, sample__station__site_id=site,
                                                                       species__sav=False).filter(Q(sample__month=6)).values(
             'sample_id', ).distinct().count())
