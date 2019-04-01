@@ -22,5 +22,5 @@ In order to proceed, you will either need to install the `mysqlclient` prerequis
 ### Notes
 - Without any additional configuration, the app will connect to the Gulf Region's development database called [glf_sci_site_dev] (see file `dev.cnf` for database connection details)
 - The development server is essentially a slave of the production database. There is currently no script to automate the syncing 
-so it will be done on an as needed basis. **The development database is overwritten each time it is synced with the production database.** 
+so it will be done on an as needed basis. **The development database is overwritten each time it is synced with the production database.** So don't store any valuable data on there! 
 - For more elaborate details about getting setup, please visit the site's [wiki](https://github.com/dfo-mar-odis/dfo_sci_dm_site/wiki).
