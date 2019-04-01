@@ -6,3 +6,4 @@
 
 
 
+# probelms: confirm trapid 125 bycatch, 102 bycatch, 319, 320, 321
