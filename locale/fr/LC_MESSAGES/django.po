@@ -69,128 +69,128 @@ msgstr "S'inscrire"
 msgid "Sign Up"
 msgstr "S'inscrire"
 
-#: .\glf_sci_site\settings.py:219 .\masterlist\models.py:81
+#: .\dfo_sci_dm_site\settings.py:219 .\masterlist\models.py:81
 msgid "English"
 msgstr "anglais"
 
-#: .\glf_sci_site\settings.py:220 .\masterlist\models.py:82
+#: .\dfo_sci_dm_site\settings.py:220 .\masterlist\models.py:82
 msgid "French"
 msgstr "français"
 
-#: .\glf_sci_site\views.py:17
+#: .\dfo_sci_dm_site\views.py:17
 #, fuzzy
 #| msgid "Regional Metadata Inventory"
 msgid "Metadata Inventory"
 msgstr "Inventaire régional de métadonnées"
 
-#: .\glf_sci_site\views.py:18
+#: .\dfo_sci_dm_site\views.py:18
 msgid "Tool for organizing and managing regional data resources."
 msgstr ""
 
-#: .\glf_sci_site\views.py:24
+#: .\dfo_sci_dm_site\views.py:24
 #, fuzzy
 #| msgid "Data Management Ticketing System"
 msgid "Data Management Tickets"
 msgstr "Système de billetterie de gestion de données"
 
-#: .\glf_sci_site\views.py:25
+#: .\dfo_sci_dm_site\views.py:25
 msgid "Submit and track data management service requests."
 msgstr ""
 
-#: .\glf_sci_site\views.py:31 .\templates\old_index.html:92
+#: .\dfo_sci_dm_site\views.py:31 .\templates\old_index.html:92
 msgid "grAIS"
 msgstr ""
 
-#: .\glf_sci_site\views.py:32
+#: .\dfo_sci_dm_site\views.py:32
 msgid "Gulf Region Aquatic Invasive Species data entry and archiving tool."
 msgstr ""
 
-#: .\glf_sci_site\views.py:38
+#: .\dfo_sci_dm_site\views.py:38
 msgid "HERmorrhage"
 msgstr ""
 
-#: .\glf_sci_site\views.py:39
+#: .\dfo_sci_dm_site\views.py:39
 msgid "The herring sampling and ageing application."
 msgstr ""
 
-#: .\glf_sci_site\views.py:45 .\ihub\templates\ihub\ihub_base.html:17
+#: .\dfo_sci_dm_site\views.py:45 .\ihub\templates\ihub\ihub_base.html:17
 #: .\templates\old_index.html:173
 msgid "iHub"
 msgstr "iHub"
 
-#: .\glf_sci_site\views.py:46
+#: .\dfo_sci_dm_site\views.py:46
 msgid "Indigenous Hub entry management and reporting tool."
 msgstr ""
 
-#: .\glf_sci_site\views.py:52 .\templates\old_index.html:134
+#: .\dfo_sci_dm_site\views.py:52 .\templates\old_index.html:134
 msgid "CAMP db"
 msgstr ""
 
-#: .\glf_sci_site\views.py:53
+#: .\dfo_sci_dm_site\views.py:53
 msgid ""
 "Community Aquatic Monitoring Program (CAMP) data entry and archiving tool."
 msgstr ""
 
-#: .\glf_sci_site\views.py:59 .\projects\templates\projects\index.html:11
+#: .\dfo_sci_dm_site\views.py:59 .\projects\templates\projects\index.html:11
 #: .\templates\old_index.html:147
 msgid "Science Project Planning"
 msgstr "Planification de projets (Science)"
 
-#: .\glf_sci_site\views.py:60
+#: .\dfo_sci_dm_site\views.py:60
 msgid ""
 "Tool for the tracking, development and coordination of project work-planning."
 msgstr ""
 
-#: .\glf_sci_site\views.py:66 .\scifi\templates\scifi\scifi_base.html:17
+#: .\dfo_sci_dm_site\views.py:66 .\scifi\templates\scifi\scifi_base.html:17
 #: .\templates\old_index.html:160
 msgid "SciFi"
 msgstr ""
 
-#: .\glf_sci_site\views.py:67
+#: .\dfo_sci_dm_site\views.py:67
 msgid "Gulf Science finance tracking and reporting tool."
 msgstr ""
 
-#: .\glf_sci_site\views.py:73
+#: .\dfo_sci_dm_site\views.py:73
 msgid "MasterList"
 msgstr ""
 
-#: .\glf_sci_site\views.py:74
+#: .\dfo_sci_dm_site\views.py:74
 msgid "Regional master list and consultation instructions."
 msgstr ""
 
-#: .\glf_sci_site\views.py:87
+#: .\dfo_sci_dm_site\views.py:87
 #, fuzzy
 #| msgid "Gulf Region Oceanographic Archive"
 msgid "Regional Oceanographic Archive"
 msgstr "Archives océanographiques de la région du Golfe"
 
-#: .\glf_sci_site\views.py:88
+#: .\dfo_sci_dm_site\views.py:88
 msgid "Collection, processing and storage of regional oceanographic data."
 msgstr ""
 
-#: .\glf_sci_site\views.py:94
+#: .\dfo_sci_dm_site\views.py:94
 #, fuzzy
 #| msgid "Marine Diets db"
 msgid "Marine Diets"
 msgstr "Marine Diets db"
 
-#: .\glf_sci_site\views.py:95
+#: .\dfo_sci_dm_site\views.py:95
 msgid "Stomach contents analysis database / application."
 msgstr ""
 
-#: .\glf_sci_site\views.py:101 .\shares\templates\shares\shares_base.html:15
+#: .\dfo_sci_dm_site\views.py:101 .\shares\templates\shares\shares_base.html:15
 msgid "Gulf Shares"
 msgstr ""
 
-#: .\glf_sci_site\views.py:102
+#: .\dfo_sci_dm_site\views.py:102
 msgid "Administrative tool for managing gulf region shares."
 msgstr ""
 
-#: .\glf_sci_site\views.py:108 .\travel\templates\travel\travel_base.html:15
+#: .\dfo_sci_dm_site\views.py:108 .\travel\templates\travel\travel_base.html:15
 msgid "Travel Plans"
 msgstr ""
 
-#: .\glf_sci_site\views.py:109
+#: .\dfo_sci_dm_site\views.py:109
 msgid "Gulf region travel plans management tool."
 msgstr ""
 
