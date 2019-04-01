@@ -9,7 +9,7 @@
     }
 </style>
 
-<div style="font-size: .9em">
+<div style="font-size: .9em; width: 50%">
 
     <label for="user_input">What prey species would you like to add? (enter any part of name)</label>
     <input type="text" id="user_input" class="form-control"></input>
@@ -30,17 +30,19 @@
 
 
 <h4>
-    <b style="padding-right: 1.1em">Prey Items:</b>
+    <b style="padding-right: 1.1em">Prey Items for Stomach {{ object.stomach_id }}:</b>
 </h4>
 
 <table class="table table-hover table-sm sortable">
     <thead>
     <th></th>
-    <th>Species</th>
+    <th>Species Code</th>
+    <th>Scientific Name</th>
     <th>Digestion Level</th>
     <th>Number of prey</th>
     <th>Body Weight (g)</th>
     <th>Body Length (mm)</th>
+    <th>Length Comment</th>
     <th>Comments</th>
     </thead>
     <tbody>
@@ -53,12 +55,14 @@
                 </a>
                 <a id="secrect-delete-btn-{{ obj.id }}" href="{% url 'diets:prey_delete' obj.id %}" class="hidden"></a>
             </td>
-            <td>{{ obj.species.common_name_eng }}</td>
-            <td>{{ obj.digestion_level.code }}</td>
-            <td>{{ obj.number_of_prey|nz:"" }}</td>
-            <td>{{ obj.somatic_wt_g|nz:"" }}</td>
-            <td>{{ obj.somatic_length_mm|nz:"" }}</td>
-            <td>{{ obj.comments|nz:"" }}</td>
+            <td>{{ obj.species.id }}</td>
+            <td>{{ obj.species.scientific_name }}</td>
+            <td>{{ obj.digestion_level.code|nz:"n/a" }}</td>
+            <td>{{ obj.number_of_prey|nz:"n/a" }}</td>
+            <td>{{ obj.somatic_wt_g|nz:"n/a" }}</td>
+            <td>{{ obj.somatic_length_mm|nz:"n/a" }}</td>
+            <td>{{ obj.length_comment|nz:"n/a" }}</td>
+            <td>{{ obj.comments|nz:"n/a" }}</td>
         </tr>
     {% endfor %}
     </tbody>
