@@ -17,11 +17,41 @@ class StationForm(forms.ModelForm):
         }
 
 
+class EstuaryForm(forms.ModelForm):
+    class Meta:
+        model = models.Estuary
+        fields = "__all__"
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
+class SiteForm(forms.ModelForm):
+    class Meta:
+        model = models.Site
+        fields = "__all__"
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'estuary': forms.HiddenInput(),
+        }
+
+
 class SpeciesForm(forms.ModelForm):
     class Meta:
         model = models.Species
         fields = "__all__"
         widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
+class GCSampleForm(forms.ModelForm):
+    class Meta:
+        model = models.GCSample
+        exclude = ['last_modified', 'season']
+        widgets = {
+            'traps_set': forms.DateInput(attrs={'type': 'date'}),
+            'traps_fished': forms.DateInput(attrs={'type': 'date'}),
             'last_modified_by': forms.HiddenInput(),
         }
 
@@ -73,6 +103,7 @@ class FollowUpForm(forms.ModelForm):
         self.fields['author'].queryset = User.objects.all().order_by("last_name", "first_name")
         self.fields['author'].choices = USER_CHOICES
 
+
 class ProbeMeasurementForm(forms.ModelForm):
     class Meta:
         fields = ("__all__")
@@ -83,7 +114,7 @@ class ProbeMeasurementForm(forms.ModelForm):
             'probe': "Probe name",
             'temp_c': "Temp (°C)",
             'sal_ppt': "Salinity (ppt)",
-            'o2_percent': " Disolved oxygen (%)",
+            'o2_percent': "Disolved oxygen (%)",
             'o2_mgl': "Disolved oxygen (mg/l)",
             'sp_cond_ms': "Specific conductance (mS)",
             'spc_ms': "Conductivity (mS)",
@@ -99,6 +130,16 @@ class ProbeMeasurementForm(forms.ModelForm):
             # 'sp_cond_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
             # 'spc_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
             # 'probe_depth':forms.NumberInput(attrs={'placeholder':'m'}),
+            'last_modified_by': forms.HiddenInput(),
+
+        }
+
+
+class GCProbeMeasurementForm(forms.ModelForm):
+    class Meta:
+        fields = ("__all__")
+        model = models.GCProbeMeasurement
+        widgets = {
             'last_modified_by': forms.HiddenInput(),
 
         }
@@ -234,13 +275,56 @@ class ReportForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    SPECIES_CHOICES = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
-                       models.Species.objects.all().order_by("scientific_name")]
     REPORT_CHOICES = (
         (None, "---"),
         (1, "Biofouling: Species observations by sample"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    species = forms.MultipleChoiceField(required=False, choices=SPECIES_CHOICES)
+    species = forms.MultipleChoiceField(required=False)
     year = forms.CharField(required=False, widget=forms.NumberInput())
+
+    def __init__(self, *args, **kwargs):
+        SPECIES_CHOICES = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
+                           models.Species.objects.all().order_by("scientific_name")]
+        super().__init__(*args, **kwargs)
+        self.fields['species'].choices = SPECIES_CHOICES
+
+
+class TrapForm(forms.ModelForm):
+    class Meta:
+        model = models.Trap
+        fields = "__all__"
+        widgets = {
+            'latitude_n': forms.NumberInput(attrs={'placeholder': 'decimal degrees'}),
+            'longitude_w': forms.NumberInput(attrs={'placeholder': 'decimal degrees'}),
+            'notes': forms.Textarea(attrs={'rows': '5'}),
+            'last_modified_by': forms.HiddenInput(),
+            'sample': forms.HiddenInput(),
+        }
+
+
+class CrabForm(forms.ModelForm):
+    class Meta:
+        model = models.Crab
+        fields = "__all__"
+        widgets = {
+            'species': forms.HiddenInput(),
+            'trap': forms.HiddenInput(),
+            # 'percent_coverage': forms.TextInput(attrs={'placeholder': "Value bewteen 0 and 1"}),
+            'notes': forms.Textarea(attrs={"rows": "3", "placeholder": ""}),
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
+class BycatchForm(forms.ModelForm):
+    class Meta:
+        model = models.Bycatch
+        fields = "__all__"
+        widgets = {
+            'species': forms.HiddenInput(),
+            'trap': forms.HiddenInput(),
+            # 'percent_coverage': forms.TextInput(attrs={'placeholder': "Value bewteen 0 and 1"}),
+            'notes': forms.Textarea(attrs={"rows": "3", "placeholder": ""}),
+            'last_modified_by': forms.HiddenInput(),
+        }

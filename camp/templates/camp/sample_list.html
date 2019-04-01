@@ -12,21 +12,19 @@
 
   <a href="{% url 'camp:sample_search' %}" class="btn btn-sm btn-warning">Back to Search</a>
   <br>
-  <table class="table table-hover table-sm">
+  <table class="table table-hover table-sm sortable">
     <thead>
-      <tr>
         <th scope="col">Sample #</th>
         <th scope="col">Nutrient Sample ID</th>
         <th scope="col">Site</th>
         <th scope="col">Station</th>
         <th scope="col">Sample Date</th>
         <th scope="col">Number of spp.</th>
-      </tr>
     </thead>
     <tbody>
       {% for sample in object_list  %}
-        <tr>
-          <td><a href="{% url 'camp:sample_detail' sample.id %}">{{sample.id}}</a></td>
+        <tr href="{% url 'camp:sample_detail' sample.id %}">
+          <td>{{sample.id}}</td>
           <td>{{sample.nutrient_sample_id}}</td>
           <td>{{sample.station.site}}</td>
           <td>{{sample.station}}</td>
