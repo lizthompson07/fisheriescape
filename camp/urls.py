@@ -62,6 +62,7 @@ urlpatterns = [
     path('reports/annual-watershed-spreadsheet/site/<int:site>/year/<int:year>', views.annual_watershed_spreadsheet,
          name="watershed_xlsx"),
     path('reports/fgp-csv-export/', views.fgp_export, name="watershed_csv"),
+    path('reports/ais-export/species-list/<str:species_list>/', views.ais_export, name="ais_export"),
 
 ]
 

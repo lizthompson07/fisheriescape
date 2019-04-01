@@ -87,7 +87,7 @@ def get_app_dict(request):
             "title": _("CAMP db"),
             "description": _("Community Aquatic Monitoring Program (CAMP) data entry and archiving tool."),
             "status": "production",
-            "access": "permission-required",
+            "access": "login-required",
             "url": reverse('camp:index'),
             "icon_path": 'img/icons/coral.svg',
         }

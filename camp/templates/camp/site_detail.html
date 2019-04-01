@@ -63,7 +63,7 @@
             <b>Station List:</b>
 
         </h4>
-        <table class="table table-bordered ">
+        <table class="table table-hover table-sm ">
             <thead class="full-table">
             <th>Name</th>
             <th>Latitude</th>
@@ -73,8 +73,8 @@
             </thead>
             <tbody>
             {% for obj in object.stations.all %}
-                <tr>
-                    <td><a href="{% url 'camp:station_detail' obj.id %}">{{ obj.name }}</a></td>
+                <tr href="{% url 'camp:station_detail' obj.id %}">
+                    <td>{{ obj.name }}</td>
 
                     {% if not obj.latitude_n %}
                         <td class="bad">
@@ -136,7 +136,7 @@
             document.body.appendChild(script);
         }
 
-        window.onload = loadScript;
+        window.onload = loadScript();
 
     </script>
 

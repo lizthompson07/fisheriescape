@@ -45,8 +45,8 @@
     </thead>
     <tbody>
       {% for object in filter.qs  %}
-        <tr>
-          <td><a href="{% url 'camp:species_detail' object.id %}">{{object.common_name_eng}}</a></td>
+        <tr href="{% url 'camp:species_detail' object.id %}">
+          <td>{{object.common_name_eng}}</td>
           <td>{{object.common_name_fre}}</td>
           <td><em>{{object.scientific_name}}</em></td>
           <td>{{object.code}}</td>

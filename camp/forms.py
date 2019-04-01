@@ -1,5 +1,6 @@
 from django import forms
 from django.core import validators
+
 from . import models
 
 
@@ -59,6 +60,7 @@ class SearchForm(forms.Form):
     species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
 
     field_order = ["year", "month", "site", "station", "species"]
+
 
 class SampleForm(forms.ModelForm):
     do_another = forms.BooleanField(widget=forms.HiddenInput(), required=False)
@@ -150,23 +152,40 @@ class SAVObservationForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    SPECIES_CHOICES = ((None, "---"),)
-    for obj in models.Species.objects.all().order_by("common_name_eng"):
-        SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
-
-    SITE_CHOICES = ((None, "All Stations"),)
-    for obj in models.Site.objects.all():
-        SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
-
     REPORT_CHOICES = (
         (None, "---"),
         (1, "Species counts by year"),
         (3, "Annual watershed report (PDF)"),
         (4, "Annual watershed spreadsheet (XLSX)"),
         (5, "Dataset export for FGP (CSV)"),
+        (6, "AIS export (CSV)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    species = forms.MultipleChoiceField(required=False, choices=SPECIES_CHOICES)
+    species = forms.MultipleChoiceField(required=False)
+    ais_species = forms.MultipleChoiceField(required=False, label="AIS species")
     year = forms.CharField(required=False, widget=forms.NumberInput())
-    site = forms.ChoiceField(required=False, choices=SITE_CHOICES)
+    site = forms.ChoiceField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        SITE_CHOICES = [(obj.id, str(obj)) for obj in models.Site.objects.all()]
+        SITE_CHOICES.insert(0, tuple((None, "All Sites")))
+
+        SPECIES_CHOICES = [(obj.id, str(obj)) for obj in models.Species.objects.all().order_by("common_name_eng")]
+        SPECIES_CHOICES.insert(0, tuple((None, "-------")))
+
+        AIS_CHOICES = [(obj.id, "{} - {}".format(obj.common_name_eng, obj.scientific_name)) for obj in
+                       models.Species.objects.filter(ais=True).order_by("common_name_eng")]
+
+        super().__init__(*args, **kwargs)
+        self.fields['site'].choices = SITE_CHOICES
+        self.fields['species'].choices = SPECIES_CHOICES
+        self.fields['ais_species'].choices = AIS_CHOICES
+
+        # SPECIES_CHOICES = ((None, "---"),)
+        # for obj in models.Species.objects.all().order_by("common_name_eng"):
+        #     SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
+        #
+        # SITE_CHOICES = ((None, "All Stations"),)
+        # for obj in models.Site.objects.all():
+        #     SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))

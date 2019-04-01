@@ -326,11 +326,17 @@ class Cruise(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
     probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING)
     area_of_operation = models.CharField(max_length=255, null=True, blank=True)
-    number_of_profiles = models.IntegerField()
+    number_of_profiles = models.IntegerField(blank=True, null=True)
     meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="MEDS ID")
     notes = models.CharField(max_length=255, null=True, blank=True)
     season = models.IntegerField(null=True, blank=True)
     vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="missions", blank=True, null=True)
+
+    class Meta:
+        ordering = ['mission_number', ]
+
+    def __str__(self):
+        return "{}".format(self.mission_number)
 
     def save(self, *args, **kwargs):
         if self.start_date:
