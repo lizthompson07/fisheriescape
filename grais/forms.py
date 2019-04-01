@@ -285,10 +285,12 @@ class ReportSearchForm(forms.Form):
     year = forms.CharField(required=False, widget=forms.NumberInput())
 
     def __init__(self, *args, **kwargs):
-        SPECIES_CHOICES = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
-                           models.Species.objects.all().order_by("scientific_name")]
         super().__init__(*args, **kwargs)
-        self.fields['species'].choices = SPECIES_CHOICES
+
+        species_choices = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
+                           models.Species.objects.all().order_by("scientific_name")]
+        
+        self.fields['species'].choices = species_choices
 
 
 class TrapForm(forms.ModelForm):
