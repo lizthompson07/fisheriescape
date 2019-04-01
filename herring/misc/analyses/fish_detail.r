@@ -1,7 +1,7 @@
 rm(list = ls())
 
 # Import file from local dir
-detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\analyses\\raw_data\\GLF_HERRING_HERRING_DETAIL.txt", header=T)
+detail = read.csv("C:\\Users\\fishmand\\Projects\\dfo_sci_dm_site\\herring\\misc\\analyses\\raw_data\\GLF_HERRING_HERRING_DETAIL.txt", header=T)
 
 ######################################
 # legth frequ distribution ###########
@@ -9,7 +9,7 @@ detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\a
 
 rm(list = ls())
 # Import file from local dir
-detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\analyses\\raw_data\\length_freq.csv", header=T)
+detail = read.csv("C:\\Users\\fishmand\\Projects\\dfo_sci_dm_site\\herring\\misc\\analyses\\raw_data\\length_freq.csv", header=T)
 plot(detail, type = 'h')
 abline(v = 19.5, col = 'blue', lty = 2)
 abline(v = 37, col = 'blue', lty = 2)
@@ -28,7 +28,7 @@ title("Length Frequency Distribution")
 # Fish Length  #
 ################
 rm(list=ls())
-detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\analyses\\raw_data\\GLF_HERRING_HERRING_DETAIL.txt", header=T)
+detail = read.csv("C:\\Users\\fishmand\\Projects\\dfo_sci_dm_site\\herring\\misc\\analyses\\raw_data\\GLF_HERRING_HERRING_DETAIL.txt", header=T)
 
 fish_length = detail$FISH_LENGTH
 total_obs = length(fish_length)
@@ -119,7 +119,7 @@ legend(locator(1),c("mean","sd x 1","sd x 2"), fill = c('red','blue','green'))
 ##################################
 
 rm(list=ls())
-detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\analyses\\raw_data\\GLF_HERRING_HERRING_DETAIL.txt", header=T)
+detail = read.csv("C:\\Users\\fishmand\\Projects\\dfo_sci_dm_site\\herring\\misc\\analyses\\raw_data\\GLF_HERRING_HERRING_DETAIL.txt", header=T)
 
 my_df = data.frame(Sample = detail$SAMPLING_INFORMATION_ID, length = detail$FISH_LENGTH, weight = detail$FISH_WEIGHT)
 # clean up NAs
@@ -165,7 +165,7 @@ text(locator(1),"log(weight) ~ log(length)")
 #########################################################
 
 rm(list=ls())
-detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\analyses\\raw_data\\gonad_past_5_yr.csv", header=T)
+detail = read.csv("C:\\Users\\fishmand\\Projects\\dfo_sci_dm_site\\herring\\misc\\analyses\\raw_data\\gonad_past_5_yr.csv", header=T)
 
 my_df = data.frame( fish_wt = detail$FISH_WEIGHT, gonad_wt = detail$GONAD_WEIGHT, mat_level = detail$MATURITY_CODE)
 
@@ -454,7 +454,7 @@ upper.limit = exp(-5.52714180205898 + log(fish_wt) * 1.39515770753421)
 #################
 
 rm(list=ls())
-detail = read.csv("C:\\Users\\fishmand\\Projects\\glf_sci_site\\herring\\misc\\analyses\\raw_data\\gonad_past_5_yr.csv", header=T)
+detail = read.csv("C:\\Users\\fishmand\\Projects\\dfo_sci_dm_site\\herring\\misc\\analyses\\raw_data\\gonad_past_5_yr.csv", header=T)
 # detail = read.csv("C:\\Users\\fishmand\\Projects\\HERmorrhage\\raw data\\GLF_HERRING_HERRING_DETAIL.txt", header=T)
 my_df = data.frame(fish_len = detail$FISH_LENGTH, fish_wt = detail$FISH_WEIGHT, ring_count = detail$NUMBER_OF_ANNULI)
 
