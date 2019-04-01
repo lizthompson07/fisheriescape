@@ -1,5 +1,5 @@
 """
-WSGI config for glf_sci_site project.
+WSGI config for dfo_sci_dm_site project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "glf_sci_site.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dfo_sci_dm_site.settings")
 
 application = get_wsgi_application()
