@@ -59,10 +59,14 @@ class PreyForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    CRUISE_CHOICES = [(obj.id, str(obj)) for obj in shared_models.Cruise.objects.all()]
-    SPECIES_CHOICES = [(obj.id, str(obj)) for obj in models.Species.objects.all()]
-
-    cruise = forms.ChoiceField(required=False, choices=CRUISE_CHOICES)
-    species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
 
     field_order = ["cruise", "species"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cruise_choices = [(obj.id, str(obj)) for obj in shared_models.Cruise.objects.all()]
+        species_choices = [(obj.id, str(obj)) for obj in models.Species.objects.all()]
+
+        self.fields['cruise'].choice = cruise_choices
+        self.fields['species'].choice = species_choices
