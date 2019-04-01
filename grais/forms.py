@@ -289,7 +289,7 @@ class ReportSearchForm(forms.Form):
 
         species_choices = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
                            models.Species.objects.all().order_by("scientific_name")]
-        
+
         self.fields['species'].choices = species_choices
 
 
