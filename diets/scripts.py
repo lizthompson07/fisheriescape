@@ -3,9 +3,9 @@ from .import models
 import os
 import csv
 
-def resave_all_samples(samples = models.Sample.objects.all()):
-    for s in samples:
-        s.save()
+def resave_all():
+    for predator in models.Predator.objects.all():
+        predator.save()
 
 def resave_all_obs():
     species_obs = models.SpeciesObservation.objects.filter(species__sav=True)
