@@ -1,0 +1,83 @@
+{% extends "ios2/instrument_base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+    <div class="container">
+        <!--aaaa-->
+        <br>
+        <div class="container">
+            <div class="jumbotron">
+                <h1 class="three-em">
+                    {% trans "Instrument Tracking" %}
+                </h1>
+                <hr>
+                <h3>
+                    {% trans "IOS" %}
+                </h3>
+                {% if user.is_authenticated %}
+                    <br>
+                    <p></p>
+                {% else %}
+                    <br>
+
+                    {% url 'accounts:login' as sign_in_url %}
+                    {% url 'ios2:index' as next_url %}
+                    {% url 'accounts:signup' as sign_up_url %}
+
+                    <p>
+                        {% blocktrans %}
+                            You must be <a href="{{ sign_in_url }}?next={{ next_url }}">signed in</a> to use this
+                            application.
+                        {% endblocktrans %}
+                    <p>
+                        {% blocktrans %}
+                            If you do not have an account, you can create one <a href="{{ sign_up_url }}">here</a>.
+                        {% endblocktrans %}
+
+                    </p>
+                {% endif %}
+                <br>
+                <div style="text-align: center">
+                    <h4>
+                        {% trans "Please use <u>Microsoft Edge</u> or <u>Google Chrome</u> to view this page." %}
+                        <br><br><b>
+                        <span class="highlight">
+                            {% trans "DO NOT USE Internet Explorer." %}
+                        </span>
+                    </b>
+
+                    </h4>
+                </div>
+
+            </div>
+
+        </div>
+
+        {% if user.is_authenticated %}
+            <div align="center">
+                {% url 'ios2:instrument_new' as new_proj_url %}
+                {% url 'ios2:instrument_list' as all_proj_url %}
+
+
+                <h4>
+                    {% blocktrans %}
+                        Click
+                        <a href="{{ new_proj_url }}">HERE</a> to create a new instrument.
+<br><br>
+                        For a list of all instrument in the branch, go to <a href="{{ all_proj_url }}">All
+                        Instruments</a>.
+
+                    {% endblocktrans %}
+
+                    <br><br>
+
+
+                </h4>
+            </div>
+        {% endif %}
+
+
+    </div>
+
+{% endblock content %}
