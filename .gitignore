@@ -66,6 +66,7 @@ my_conf.py
 # prod.cnf file should not be in the repo since it has the credentials + connection strings for the production db #
 ###################################################################################################################
 prod.cnf
+my_stable_reqs.txt
 
 # Google API key #
 ##################

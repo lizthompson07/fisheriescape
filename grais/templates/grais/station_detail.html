@@ -78,15 +78,15 @@
             <b>Sample History:</b>
 
         </h4>
-        <table class="table table-bordered ">
+        <table class="table table-sm table-hover" style="width: 25%">
             <thead class="full-table">
             <th>Id</th>
             <th>season</th>
             </thead>
             <tbody>
             {% for sample in object.samples.all %}
-                <tr>
-                    <td><a href="{% url 'grais:sample_detail' sample.id %}">{{ sample.id }}</a></td>
+                <tr href="{% url 'grais:sample_detail' sample.id %}">
+                    <td>{{ sample.id }}</td>
                     <td>{{ sample.season }}</td>
                 </tr>
             {% empty %}

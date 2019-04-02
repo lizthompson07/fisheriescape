@@ -9,17 +9,14 @@
 
 import os
 
-
 # DO NOT CHANGE THESE VARIABLES
 FORCE_DEV_DB = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # This is the name of the production database connection file; if missing, we will use dev.cnf with is included in the repo
 MY_CNF = os.path.join(BASE_DIR, 'prod.cnf')
 
-
-
 # uncomment this line if you want to connect to the production database instead of the default dev database (assuming prod.cnf is present)
-# FORCE_DEV_DB = True
+FORCE_DEV_DB = True
 
 # checking to see if the which database to connect to:
 # if prod.cnf exists and we are not forcing dev mode...
