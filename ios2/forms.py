@@ -107,7 +107,7 @@ class DeploymentForm(forms.ModelForm):
 
         widgets = {
             # 'instrument': forms.HiddenInput(),
-            # 'instruments': forms.HiddenInput(),
+            'instruments': forms.HiddenInput(),
             'mooring': forms.Textarea(attrs={"rows": 1}),
             'mooring_number': forms.Textarea(attrs={"rows": 1}),
             'deploy_time': forms.DateTimeInput(attrs={"type": "date",
@@ -124,31 +124,31 @@ class DeploymentForm(forms.ModelForm):
         #     # "notes": forms.Textarea(attrs={"rows": 5}),
         }
 
-
-class InstrumentDeploymentForm(forms.ModelForm):
-    class Meta:
-        model = models.InstrumentDeployment
-        exclude = [
-            'submitted',
-            'date_last_modified',
-
-        ]
-
-        widgets = {
-            # 'instrument': forms.HiddenInput(),
-            # 'instruments': forms.HiddenInput(),
-            'mooring': forms.Textarea(attrs={"rows": 1}),
-            'mooring_number': forms.Textarea(attrs={"rows": 1}),
-            'deploy_time': forms.DateTimeInput(attrs={"type": "date",
-                                                'input_formats': ['%Y-%m-%d %H:%M:%S'],
-                                                           'placeholder': (timezone.now()+ timedelta(days=365)).strftime("%Y-%b-%d")}),
-            'recover_time': forms.DateTimeInput(attrs={"type": "date",
-                                                           'value': (timezone.now() + timedelta(days=365)).strftime(
-                                                               "%Y-%b-%d %T")}),
-            'depth': forms.Textarea(attrs={"rows": 1}),
-            'lat': forms.Textarea(attrs={"rows": 1}),
-            'lon': forms.Textarea(attrs={"rows": 1}),
-            'comments': forms.Textarea(attrs={"rows": 2}),
-        #     # "description": forms.Textarea(attrs={"rows": 8}),
-        #     # "notes": forms.Textarea(attrs={"rows": 5}),
-        }
+#
+# class InstrumentDeploymentForm(forms.ModelForm):
+#     class Meta:
+#         model = models.InstrumentDeployment
+#         exclude = [
+#             'submitted',
+#             'date_last_modified',
+#
+#         ]
+#
+#         widgets = {
+#             # 'instrument': forms.HiddenInput(),
+#             # 'instruments': forms.HiddenInput(),
+#             'mooring': forms.Textarea(attrs={"rows": 1}),
+#             'mooring_number': forms.Textarea(attrs={"rows": 1}),
+#             'deploy_time': forms.DateTimeInput(attrs={"type": "date",
+#                                                 'input_formats': ['%Y-%m-%d %H:%M:%S'],
+#                                                            'placeholder': (timezone.now()+ timedelta(days=365)).strftime("%Y-%b-%d")}),
+#             'recover_time': forms.DateTimeInput(attrs={"type": "date",
+#                                                            'value': (timezone.now() + timedelta(days=365)).strftime(
+#                                                                "%Y-%b-%d %T")}),
+#             'depth': forms.Textarea(attrs={"rows": 1}),
+#             'lat': forms.Textarea(attrs={"rows": 1}),
+#             'lon': forms.Textarea(attrs={"rows": 1}),
+#             'comments': forms.Textarea(attrs={"rows": 2}),
+#         #     # "description": forms.Textarea(attrs={"rows": 8}),
+#         #     # "notes": forms.Textarea(attrs={"rows": 5}),
+#         }

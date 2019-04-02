@@ -297,11 +297,11 @@ class DeploymentUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.DeploymentForm
     login_url = '/accounts/login_required/'
 
-    # def get_initial(self):
-    #     instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
-    #     return {
-    #         'instrument': instrument,
-    #     }
+    def get_initial(self):
+        instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
+        return {
+            'instrument': instrument,
+        }
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # instrument = models.Instrument.objects.get(id=self.kwargs['instrument'])
@@ -403,142 +403,142 @@ class DeploymentDetailView(LoginRequiredMixin, DetailView):
 
 # Deployments #
 ############
-
-class InstrumentDeploymentCreateView(LoginRequiredMixin, CreateView):
-    model = models.InstrumentDeployment
-    template_name = 'ios2/instrudeployment_form_popout.html'
-    login_url = '/accounts/login_required/'
-    form_class = forms.InstrumentDeploymentForm
-
-    def get_initial(self):
-        instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
-        return {
-            'instrument': instrument,
-        }
-
-    def get_context_data(self, **kwargs):
-        print(self.kwargs)
-        # input('aaa?')
-        context = super().get_context_data(**kwargs)
-        # instrument = models.Instrument.objects.get(id=self.kwargs['instrument_type'])
-        instrument = models.Instrument.objects.get(id=self.kwargs['instrument'])
-        # instrument = models.Instrument.objects.all
-        context['instrument'] = instrument.serial_number
-        # context['object'] = self.object
-        # context["field_list"] = ['mooring', 'mooring_number']
-        context['cost_type'] = "deployment"
-        context['field_list'] = ['instrument', 'deployment']
-        return context
-
-    def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('ios2:close_me'))
-
-
-class InstrumentDeploymentUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Deployment
-    template_name = 'ios2/deployment_form_popout.html'
-    form_class = forms.DeploymentForm
-    login_url = '/accounts/login_required/'
-
-    # def get_initial(self):
-    #     instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
-    #     return {
-    #         'instrument': instrument,
-    #     }
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # instrument = models.Instrument.objects.get(id=self.kwargs['instrument'])
-        context['instrument'] = self.object.instruments
-        context['mooring_number'] = self.object.mooring_number
-        context["field_list"] = ['mooring', 'mooring_number']
-        context['cost_type'] = "deployment"
-        # instrument = models.Instrument.objects.get(kwargs={"pk": pk})
-        # context['instrument'] = instrument
-        # context['object'] = self.object
-        # context['cost_type'] = _("O&M")
-        return context
-
-    def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('ios2:close_me'))
-
-
-def instrudeployment_delete(request, pk):
-    object = models.Deployment.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The deployment has been successfully deleted."))
-    return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": object.instrument.id}))
-
-
-def instrudeployment_clear(request, instrument):
-    instrument = models.Instrument.objects.get(pk=instrument)
-    # for obj in models.Deployment.objects.all():
-        # for cost in models.Deployment.objects.filter(project=project, om_category=obj):
-        #     print(cost)
-        #     if (cost.budget_requested is None or cost.budget_requested == 0) and not cost.description:
-        #         cost.delete()
-
-    messages.success(request, _("All empty O&M lines have been cleared."))
-    return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": instrument.id}))
-
-
-def instrudeployment_populate(request, instrument):
-    instrument = models.Instrument.objects.get(pk=instrument)
-    # for obj in models.OMCategory.objects.all():
-    #     if not models.OMCost.objects.filter(project=project, om_category=obj).count():
-    #         new_item = models.OMCost.objects.create(project=project, om_category=obj)
-    #         new_item.save()
-
-    messages.success(request, _("All O&M categories have been added to this project."))
-    return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": instrument.id}))
-
-
-
-
-class InstrumentDeploymentDetailView(LoginRequiredMixin, DetailView):
-    model = models.Deployment
-    login_url = '/accounts/login_required/'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        instrument = self.object
-        context["field_list"] = [
-            # 'id',
-            'instrument',
-            'instruments',
-            'mooring',
-            'mooring_number',
-            'deploy_time',
-            'recover_time',
-            'depth',
-            'lat',
-            'lon',
-            'comments'
-            # 'instrument_type',
-            # 'serial_number',
-            # 'purchase_date',
-            # 'project_title',
-            # 'date_of_last_service',
-            # 'date_of_next_service',
-            # 'section',
-            # 'program',
-            # 'coding|' + _("budget code"),
-            # 'date_last_modified',
-            # 'last_modified_by',
-        ]
-
-        # context["field_list_1"] = [
-        #     'description_html',
-        #     'priorities_html',
-        #     'deliverables_html',
-        # ]
-
-        # bring in financial summary data
-        # my_context = financial_summary_data(project)
-        # context = {**my_context, **context}
-        #
-        # if not can_delete(self.request.user, project):
-        #     context["report_mode"] = True
-        context["report_mode"] = False
-        return context
+#
+# class InstrumentDeploymentCreateView(LoginRequiredMixin, CreateView):
+#     model = models.InstrumentDeployment
+#     template_name = 'ios2/instrudeployment_form_popout.html'
+#     login_url = '/accounts/login_required/'
+#     form_class = forms.InstrumentDeploymentForm
+#
+#     def get_initial(self):
+#         instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
+#         return {
+#             'instrument': instrument,
+#         }
+#
+#     def get_context_data(self, **kwargs):
+#         print(self.kwargs)
+#         # input('aaa?')
+#         context = super().get_context_data(**kwargs)
+#         # instrument = models.Instrument.objects.get(id=self.kwargs['instrument_type'])
+#         instrument = models.Instrument.objects.get(id=self.kwargs['instrument'])
+#         # instrument = models.Instrument.objects.all
+#         context['instrument'] = instrument.serial_number
+#         # context['object'] = self.object
+#         # context["field_list"] = ['mooring', 'mooring_number']
+#         context['cost_type'] = "deployment"
+#         context['field_list'] = ['instrument', 'deployment']
+#         return context
+#
+#     def form_valid(self, form):
+#         object = form.save()
+#         return HttpResponseRedirect(reverse('ios2:close_me'))
+#
+#
+# class InstrumentDeploymentUpdateView(LoginRequiredMixin, UpdateView):
+#     model = models.Deployment
+#     template_name = 'ios2/deployment_form_popout.html'
+#     form_class = forms.DeploymentForm
+#     login_url = '/accounts/login_required/'
+#
+#     # def get_initial(self):
+#     #     instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
+#     #     return {
+#     #         'instrument': instrument,
+#     #     }
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         # instrument = models.Instrument.objects.get(id=self.kwargs['instrument'])
+#         context['instrument'] = self.object.instruments
+#         context['mooring_number'] = self.object.mooring_number
+#         context["field_list"] = ['mooring', 'mooring_number']
+#         context['cost_type'] = "deployment"
+#         # instrument = models.Instrument.objects.get(kwargs={"pk": pk})
+#         # context['instrument'] = instrument
+#         # context['object'] = self.object
+#         # context['cost_type'] = _("O&M")
+#         return context
+#
+#     def form_valid(self, form):
+#         object = form.save()
+#         return HttpResponseRedirect(reverse('ios2:close_me'))
+#
+#
+# def instrudeployment_delete(request, pk):
+#     object = models.Deployment.objects.get(pk=pk)
+#     object.delete()
+#     messages.success(request, _("The deployment has been successfully deleted."))
+#     return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": object.instrument.id}))
+#
+#
+# def instrudeployment_clear(request, instrument):
+#     instrument = models.Instrument.objects.get(pk=instrument)
+#     # for obj in models.Deployment.objects.all():
+#         # for cost in models.Deployment.objects.filter(project=project, om_category=obj):
+#         #     print(cost)
+#         #     if (cost.budget_requested is None or cost.budget_requested == 0) and not cost.description:
+#         #         cost.delete()
+#
+#     messages.success(request, _("All empty O&M lines have been cleared."))
+#     return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": instrument.id}))
+#
+#
+# def instrudeployment_populate(request, instrument):
+#     instrument = models.Instrument.objects.get(pk=instrument)
+#     # for obj in models.OMCategory.objects.all():
+#     #     if not models.OMCost.objects.filter(project=project, om_category=obj).count():
+#     #         new_item = models.OMCost.objects.create(project=project, om_category=obj)
+#     #         new_item.save()
+#
+#     messages.success(request, _("All O&M categories have been added to this project."))
+#     return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": instrument.id}))
+#
+#
+#
+#
+# class InstrumentDeploymentDetailView(LoginRequiredMixin, DetailView):
+#     model = models.Deployment
+#     login_url = '/accounts/login_required/'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         instrument = self.object
+#         context["field_list"] = [
+#             # 'id',
+#             'instrument',
+#             'instruments',
+#             'mooring',
+#             'mooring_number',
+#             'deploy_time',
+#             'recover_time',
+#             'depth',
+#             'lat',
+#             'lon',
+#             'comments'
+#             # 'instrument_type',
+#             # 'serial_number',
+#             # 'purchase_date',
+#             # 'project_title',
+#             # 'date_of_last_service',
+#             # 'date_of_next_service',
+#             # 'section',
+#             # 'program',
+#             # 'coding|' + _("budget code"),
+#             # 'date_last_modified',
+#             # 'last_modified_by',
+#         ]
+#
+#         # context["field_list_1"] = [
+#         #     'description_html',
+#         #     'priorities_html',
+#         #     'deliverables_html',
+#         # ]
+#
+#         # bring in financial summary data
+#         # my_context = financial_summary_data(project)
+#         # context = {**my_context, **context}
+#         #
+#         # if not can_delete(self.request.user, project):
+#         #     context["report_mode"] = True
+#         context["report_mode"] = False
+#         return context

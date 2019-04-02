@@ -59,11 +59,11 @@ class Instrument(models.Model):
 
 
 class Deployment(models.Model):
-    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE,
-                                   related_name="deployments", verbose_name=_("instrument"))
+    # instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE,
+    #                                related_name="deployments", verbose_name=_("instrument"))
     # test2 = models.ManyToManyField(Instrument)
-    # instruments = models.ManyToManyField(Instrument,
-    #                                related_name="ins2", verbose_name=_("instruments"))
+    instruments = models.ManyToManyField(Instrument,
+                                   related_name="ins2", verbose_name=_("instruments"))
     # om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
     # funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="om_costs",
     #                                    verbose_name=_("funding source"), default=1)
@@ -89,12 +89,12 @@ class Deployment(models.Model):
         unique_together = ['mooring', 'mooring_number']
 
 
-
-class InstrumentDeployment(models.Model):
-    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING,
-                                   related_name="instrumentdeployments", verbose_name=_("instrument"))
-    deployment = models.ForeignKey(Deployment, on_delete=models.DO_NOTHING,
-                                   related_name="deploymentinstruments", verbose_name=_("deployment"))
+#
+# class InstrumentDeployment(models.Model):
+#     instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING,
+#                                    related_name="instrumentdeployments", verbose_name=_("instrument"))
+#     deployment = models.ForeignKey(Deployment, on_delete=models.DO_NOTHING,
+#                                    related_name="deploymentinstruments", verbose_name=_("deployment"))
 
 
 # experiment1 = Experiment (location ='A1', instrument='CTD1')
