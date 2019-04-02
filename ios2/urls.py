@@ -30,13 +30,13 @@ urlpatterns = [
 
     # InstrumentDeployments #
     ############
-    path('ios2/<int:instrument>/instrudeployment/new/', views.InstrumentDeploymentCreateView.as_view(),
-         name="instrudeploy_new"),
-    path('instrudeployment/<int:pk>/populate-all/', views.deployment_populate, name="deployment_populate"),
-    path('instrudeployment/<int:pk>/edit/', views.DeploymentUpdateView.as_view(), name="deployment_edit"),
-    path('instrudeployment/<int:pk>/delete/', views.deployment_delete, name="deployment_delete"),
-    path('ios2/<int:instrument>/clear-empty/', views.deployment_clear, name="deployment_clear"),
-    path('instrudeployment/<int:pk>/view', views.DeploymentDetailView.as_view(), name="deployment_detail"),
+    # path('ios2/<int:instrument>/instrudeployment/new/', views.InstrumentDeploymentCreateView.as_view(),
+    #      name="instrudeploy_new"),
+    # path('instrudeployment/<int:pk>/populate-all/', views.deployment_populate, name="deployment_populate"),
+    # path('instrudeployment/<int:pk>/edit/', views.DeploymentUpdateView.as_view(), name="deployment_edit"),
+    # path('instrudeployment/<int:pk>/delete/', views.deployment_delete, name="deployment_delete"),
+    # path('ios2/<int:instrument>/clear-empty/', views.deployment_clear, name="deployment_clear"),
+    # path('instrudeployment/<int:pk>/view', views.DeploymentDetailView.as_view(), name="deployment_detail"),
     # path('staff/<int:pk>/edit/', views.StaffUpdateView.as_view(), name="staff_edit"),
 
     # # Deployments #
