@@ -5,6 +5,7 @@ from django.contrib import auth
 from django.core.validators import MaxValueValidator, MinValueValidator
 from shared_models import models as shared_models
 
+
 # Create your models here.
 class Sampler(models.Model):
     first_name = models.CharField(max_length=255, blank=True, null=True)
@@ -27,18 +28,17 @@ class Sampler(models.Model):
         return "{} {}".format(self.first_name, self.last_name)
 
 
-class Province(models.Model):
-    province = models.CharField(max_length=255, blank=True, null=True)
-    abbrev = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        return "{} ({})".format(self.province, self.abbrev)
+# class Province(models.Model):
+#     province = models.CharField(max_length=255, blank=True, null=True)
+#     abbrev = models.CharField(max_length=10, blank=True, null=True)
+#
+#     def __str__(self):
+#         return "{} ({})".format(self.province, self.abbrev)
 
 
 class Station(models.Model):
     station_name = models.CharField(max_length=255, blank=True, null=True)
-    province = models.ForeignKey('Province', on_delete=models.DO_NOTHING, related_name='stations')
-    province2 = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='stations')
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='stations')
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
     depth = models.FloatField(blank=True, null=True)
@@ -46,7 +46,7 @@ class Station(models.Model):
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
-        return "{}, {}".format(self.station_name, self.province.abbrev)
+        return "{}, {}".format(self.station_name, self.province.abbrev_eng)
 
     def get_absolute_url(self):
         return reverse('grais:station_detail', kwargs={'pk': self.id})
@@ -66,7 +66,6 @@ class Species(models.Model):
         (MOB, "mobile"),
     )
 
-
     common_name = models.CharField(max_length=255, blank=True, null=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name="abbreviation")
@@ -77,6 +76,7 @@ class Species(models.Model):
     invasive = models.BooleanField(verbose_name="is invasive?")
     # biofouling = models.BooleanField()
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    green_crab_monitoring = models.BooleanField(default=False)
 
     def __str__(self):
         return self.common_name
@@ -152,7 +152,7 @@ class SampleNote(models.Model):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('grais:sample_detail', kwargs={'pk': self.sample.id,})
+        return reverse('grais:sample_detail', kwargs={'pk': self.sample.id, })
 
     class Meta:
         ordering = ["-date"]
@@ -346,11 +346,11 @@ class IncidentalReport(models.Model):
     PROV = 4
     FED = 5
     REQUESTOR_TYPE_CHOICES = (
-        (PUB,"public"),
-        (ACAD,"academia"),
-        (PRIV,"private sector"),
-        (PROV,"provincial government"),
-        (FED,"federal government"),
+        (PUB, "public"),
+        (ACAD, "academia"),
+        (PRIV, "private sector"),
+        (PROV, "provincial government"),
+        (FED, "federal government"),
     )
 
     # basic details
@@ -394,14 +394,14 @@ class IncidentalReport(models.Model):
         return super().save()
 
     def get_absolute_url(self):
-        return reverse("grais:report_detail", kwargs={"pk":self.pk})
+        return reverse("grais:report_detail", kwargs={"pk": self.pk})
 
     def __str__(self):
         return "Incidental Report #{}".format(self.id)
 
     class Meta:
         ordering = ["-report_date"]
-        
+
 
 class FollowUp(models.Model):
     incidental_report = models.ForeignKey(IncidentalReport, related_name='followups', on_delete=models.CASCADE)
@@ -413,10 +413,189 @@ class FollowUp(models.Model):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('grais:sample_detail', kwargs={'pk': self.sample.id,})
+        return reverse('grais:sample_detail', kwargs={'pk': self.sample.id, })
 
     class Meta:
         ordering = ["-date"]
 
 
+#########  GREEN CRAB ##########
 
+class Estuary(models.Model):
+    name = models.CharField(max_length=255, blank=True, null=True)
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='estuaries', blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{} ({})".format(self.name, self.province.abbrev_eng)
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class Site(models.Model):
+    estuary = models.ForeignKey(Estuary, on_delete=models.DO_NOTHING, related_name='sites', blank=True, null=True)
+    code = models.CharField(max_length=10)
+    name = models.CharField(max_length=100)
+    latitude_n = models.FloatField(blank=True, null=True)
+    longitude_w = models.FloatField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{} - {} ({})".format(self.code, self.name, self.estuary.name)
+
+    class Meta:
+        ordering = ['code', ]
+
+
+class GCSample(models.Model):
+    site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING)
+    traps_set = models.DateTimeField()
+    traps_fished = models.DateTimeField(blank=True, null=True)
+    samplers = models.ManyToManyField(Sampler)
+    bottom_type = models.CharField(max_length=100, blank=True, null=True)
+    percent_vegetation_cover = models.IntegerField(blank=True, null=True, verbose_name="vegetation cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    season = models.IntegerField(null=True, blank=True)
+    last_modified = models.DateTimeField(blank=True, null=True)
+    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.season = self.traps_set.year
+        self.last_modified = timezone.now()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "Sample {}".format(self.id)
+
+    class Meta:
+        ordering = ['traps_set', 'site']
+
+
+class WeatherConditions(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return "{}".format(self.name)
+
+
+class GCProbeMeasurement(models.Model):
+    # choice for tide_state
+    LOW = 'l'
+    MID = 'm'
+    HIGH = 'h'
+    TIDE_STATE_CHOICES = (
+        (HIGH, "High"),
+        (MID, "Mid"),
+        (LOW, "Low"),
+    )
+
+    # choice for tide_direction
+    INCOMING = 'in'
+    OUTGOING = 'out'
+    TIDE_DIR_CHOICES = (
+        (INCOMING, "Incoming"),
+        (OUTGOING, "Outgoing"),
+    )
+
+    # Choices for timezone
+    AST = 'AST'
+    ADT = 'ADT'
+    UTC = 'UTC'
+    TIMEZONE_CHOICES = (
+        (AST, 'AST'),
+        (ADT, 'ADT'),
+        (UTC, 'UTC'),
+    )
+
+    sample = models.ForeignKey(GCSample, on_delete=models.CASCADE, related_name="probe_data")
+    probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
+    time_date = models.DateTimeField(blank=True, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
+    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
+    temp_c = models.FloatField(blank=True, null=True, verbose_name="temperature (°C)")
+    sal = models.FloatField(blank=True, null=True, verbose_name="salinity")
+    o2_percent = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (%)")
+    o2_mgl = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (mg/L)")
+    sp_cond_ms = models.FloatField(blank=True, null=True, verbose_name="Specific conductance (mS)")
+    cond_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (mS)")
+    tide_state = models.CharField(max_length=5, choices=TIDE_STATE_CHOICES, blank=True, null=True)
+    tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
+    cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)")
+    # notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "Probe measurement {}".format(self.id)
+
+
+class Trap(models.Model):
+    # Choices for trap_type
+    FUKUI = 1
+    TRAP_TYPE_CHOICES = (
+        (FUKUI, 'Fukui'),
+    )
+    # Choices for bait_type
+    HERR = 1
+    BAIT_TYPE_CHOICES = (
+        (HERR, 'Herring'),
+    )
+    sample = models.ForeignKey(GCSample, related_name='traps', on_delete=models.DO_NOTHING)
+    trap_number = models.IntegerField()
+    trap_type = models.IntegerField(default=1, choices=TRAP_TYPE_CHOICES)
+    bait_type = models.IntegerField(default=1, choices=BAIT_TYPE_CHOICES)
+    depth_at_set_m = models.FloatField(blank=True, null=True, verbose_name="depth at set (m)")
+    latitude_n = models.FloatField(blank=True, null=True)
+    longitude_w = models.FloatField(blank=True, null=True)
+    gps_waypoint = models.IntegerField(blank=True, null=True, verbose_name="GPS waypoint")
+    notes = models.TextField(blank=True, null=True)
+    total_green_crab_wt_kg = models.FloatField(blank=True, null=True, verbose_name="Total weight of green crabs (kg)")
+
+    def __str__(self):
+        return "Trap #{}".format(self.trap_number)
+
+    class Meta:
+        ordering = ['sample', 'trap_number']
+
+
+class Crab(models.Model):
+    # Choices for sex
+    MALE = 1
+    FEMALE = 2
+    SEX_CHOICES = (
+        (MALE, 'Male'),
+        (FEMALE, 'Female'),
+    )
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
+    trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="crabs")
+    width = models.FloatField(blank=True, null=True)
+    sex = models.IntegerField(blank=True, null=True, choices=SEX_CHOICES)
+    carapace_color = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(4)])
+    abdomen_color = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(4)])
+    egg_color = models.CharField(max_length=25, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    # class Meta:
+    #     unique_together = (('species', 'trap'),)
+
+    def __str__(self):
+        return "{}".format(self.species)
+
+    class Meta:
+        ordering = ['trap', 'species', 'id']
+
+class Bycatch(models.Model):
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
+    trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="bycatch")
+    count = models.IntegerField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        unique_together = (('species', 'trap'),)
+
+    def __str__(self):
+        return "{}".format(self.species)
+
+    class Meta:
+        ordering = ['trap', 'species', 'id']

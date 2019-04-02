@@ -21,6 +21,6 @@ urlpatterns = [
     path('login_required/', views.UserLoginRequiredView.as_view()),
     path('request-access/', views.RequestAccessFormView.as_view(), name='request_access')
 
-    ### NOTE: Password reset views are mapped in the glf_sci_site urls.py file. Views are still in the Accounts app views.py
+    ### NOTE: Password reset views are mapped in the dfo_sci_dm_site urls.py file. Views are still in the Accounts app views.py
 
 ]
