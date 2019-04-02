@@ -1,0 +1,56 @@
+{% extends "grais/grais_base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+
+{% block header %}
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 300px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+    </style>
+{% endblock header %}
+
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:gcsample_list' %}"> All green crab samples </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:gcsample_detail' object.sample.id %}"> {{ object.sample }} </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+
+        <br>
+        <h1>{{ object }}</h1>
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'grais:trap_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'grais:trap_delete' object.id %}">Delete</a>
+        </div>
+
+        <br><br>
+        <div class="row">
+            <div class="col-3">
+                {# Detail about the sample #}
+
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+
+            </div>
+            <div class="col">
+                {% include "grais/_trap_species.html" %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

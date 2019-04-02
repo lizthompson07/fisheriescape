@@ -84,7 +84,7 @@ class Sampler(models.Model):
 class Predator(models.Model):
     cruise = models.ForeignKey(shared_models.Cruise, related_name='predators', on_delete=models.DO_NOTHING)
     samplers = models.ManyToManyField(Sampler)
-    stomach_id = models.CharField(max_length=10, blank=True, null=True, verbose_name="stomach ID")
+    stomach_id = models.CharField(max_length=10, blank=True, null=True, verbose_name="stomach ID", unique=True)
     processing_date = models.DateTimeField(verbose_name="processing date", default=timezone.now)
     set = models.IntegerField(blank=True, null=True)
     species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING, verbose_name="predator species")
@@ -102,6 +102,8 @@ class Predator(models.Model):
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
+    # TODO: IN FUTURE YEARS COMBO OF YEAR AND STOMACH ID SHOULD BE UNIQUE
+
     class Meta:
         ordering = ['-processing_date', ]
 
@@ -113,6 +115,8 @@ class Predator(models.Model):
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
+        if self.stomach_id:
+            self.stomach_id = self.stomach_id.upper()
         return super().save(*args, **kwargs)
 
 
@@ -143,3 +147,4 @@ class Prey(models.Model):
     # meta
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
+
