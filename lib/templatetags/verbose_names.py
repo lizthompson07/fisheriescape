@@ -30,6 +30,13 @@ def get_verbose_label(instance, field_name):
         raw_string = "".join(str_list)
         return raw_string
 
+    # 2019/04/03 - P. Upson
+    # Added a test to see if the instance is 'null'. I was getting an issue on the diets/cruises page
+    # during the get_verbose_label method due to the instance being passed in here being "None"
+    # if the instance is null this method will return null.
+    if instance is None:
+        return None
+
     # check to see if there were any arguments passed in with the field name
     # this means the field is a foreign key so we will need to separate the first part preceding the "."
     if len(field_name.split(".")) > 1:
