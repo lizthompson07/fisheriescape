@@ -27,9 +27,10 @@
         </form>
 
 
-        <table class="table table-hover table-sm">
+        <table class="table table-hover table-sm sortable">
             <thead>
             <tr>
+                <th scope="col">Id</th>
                 <th scope="col">Common name</th>
                 <th scope="col">Scientific name</th>
                 <th scope="col">Abbreviation</th>
@@ -44,6 +45,7 @@
             <tbody>
             {% for object in filter.qs %}
                 <tr href="{% url 'grais:species_detail' object.id %}">
+                    <td>{{ object.id }}</td>
                     <td>{{ object.common_name }}</td>
                     <td><em>{{ object.scientific_name }}</em></td>
                     <td>{{ object.abbrev }}</td>
