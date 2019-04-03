@@ -68,5 +68,5 @@ class SearchForm(forms.Form):
         cruise_choices = [(obj.id, str(obj)) for obj in shared_models.Cruise.objects.all()]
         species_choices = [(obj.id, str(obj)) for obj in models.Species.objects.all()]
 
-        self.fields['cruise'].choice = cruise_choices
-        self.fields['species'].choice = species_choices
+        self.fields['cruise'] = forms.ChoiceField(required=False, choices=cruise_choices)
+        self.fields['species'] = forms.ChoiceField(required=False, choices=species_choices)

@@ -321,6 +321,7 @@ class CruiseCreateView(LoginRequiredMixin, CreateView):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy('diets:cruise_detail', kwargs={"pk": object.id}))
 
+
 class CruiseDeleteView(LoginRequiredMixin, DeleteView):
     model = shared_models.Cruise
     success_url = reverse_lazy('diets:cruise_list')
