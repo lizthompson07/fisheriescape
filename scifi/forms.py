@@ -101,17 +101,21 @@ class CustomTransactionForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
 
-    REPORT_CHOICES = [
-        # (1, "Branch Summary"),
-        (2, "RC Summary"),
-        (3, "Project Summary"),
-    ]
-    REPORT_CHOICES.insert(0, (None, "------"))
 
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    report = forms.ChoiceField(required=True)
+    fiscal_year = forms.ChoiceField(required=True)
+    rc = forms.ChoiceField(required=False, label="Responsibility centre")
+    project = forms.ChoiceField(required=False, label="Project")
 
     def __init__(self, *args, **kwargs):
-        super.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
+
+        report_choices = [
+            # (1, "Branch Summary"),
+            (2, "RC Summary"),
+            (3, "Project Summary"),
+        ]
+        report_choices.insert(0, (None, "------"))
 
         fy_choices = [(obj.id, "{}".format(obj.full)) for obj in shared_models.FiscalYear.objects.all()]
         fy_choices.insert(0, (None, "------"))
@@ -119,15 +123,12 @@ class ReportSearchForm(forms.Form):
         rc_choices = [(obj.id, obj) for obj in shared_models.ResponsibilityCenter.objects.all()]
         rc_choices.insert(0, (None, "------"))
 
-        project_choices = [(obj.id, "{} - {}".format(obj.code, obj.name)) for obj in shared_models.Project.objects.all()]
+        project_choices = [(obj.id, "{} - {}".format(obj.code, obj.name)) for obj in
+                           shared_models.Project.objects.all()]
         project_choices.insert(0, (None, "------"))
 
+
+        self.fields['report'].choices = report_choices
         self.fields['fiscal_year'].choices = fy_choices
-        self.fields['fiscal_year'].required = True
-
         self.fields['rc'].choices = rc_choices
-        self.fields['rc'].required = False
-
         self.fields['project'].choices = project_choices
-        self.fields['project'].required = False
-        self.fields['project'].label = "Project"
