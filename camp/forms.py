@@ -59,9 +59,9 @@ class SearchForm(forms.Form):
         species_choices = [(obj.id, str(obj)) for obj in models.Species.objects.all()]
         species_choices.insert(0, tuple((None, "---")))
 
-        self.fields['site'].choices = site_choices
-        self.fields['station'].choices = station_choices
-        self.fields['species'].choices = species_choices
+        self.fields['site'] = forms.ChoiceField(required=False, choices=site_choices)
+        self.fields['station'] = forms.ChoiceField(required=False, choices=station_choices)
+        self.fields['species'] = forms.ChoiceField(required=False, choices=species_choices)
 
 
 class SampleForm(forms.ModelForm):
