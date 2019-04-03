@@ -512,7 +512,7 @@ class GCProbeMeasurement(models.Model):
     sample = models.ForeignKey(GCSample, on_delete=models.DO_NOTHING, related_name="probe_data")
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
     time_date = models.DateTimeField(blank=True, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
-    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
+    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True, default="ADT")
     temp_c = models.FloatField(blank=True, null=True, verbose_name="temperature (°C)")
     sal = models.FloatField(blank=True, null=True, verbose_name="salinity")
     o2_percent = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (%)")
