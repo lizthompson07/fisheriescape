@@ -39,8 +39,8 @@ def can_delete(user, project):
 
             # finally, check to see if they are a section head
             if project.section:
-                if project.section.section_head:
-                    if project.section.section_head.id == user.id:
+                if project.section.head:
+                    if project.section.head.id == user.id:
                         return True
                     else:
                         return False
