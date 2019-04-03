@@ -1,10 +1,7 @@
-# from accounts import models as account_models
-from django.contrib.auth.models import User
 from django import forms
-from django.utils import timezone
 from shared_models import models as shared_models
-from . import models
 import django_filters
+
 
 class LineObjectFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search line object (code, term, etc...)",
@@ -24,7 +21,7 @@ class TransactionFilter(django_filters.FilterSet):
     in_mrs = django_filters.BooleanFilter(field_name='in_mrs', lookup_expr='exact', label="In MRS?")
 
     def __init__(self, *args, **kwargs):
-        super.__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         fy_choices = [(obj.id, "{}".format(obj.full)) for obj in shared_models.FiscalYear.objects.all()]
         rc_choices = [(obj.id, "{} ({})".format(obj.code, obj.name)) for obj in shared_models.ResponsibilityCenter.objects.all()]
