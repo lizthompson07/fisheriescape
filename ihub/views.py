@@ -24,6 +24,7 @@ from . import filters
 from . import emails
 from . import reports
 from masterlist import models as ml_models
+from shared_models import models as shared_models
 
 ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 
@@ -809,7 +810,7 @@ def manage_funding_purposes(request):
 
 
 def manage_regions(request):
-    qs = ml_models.Region.objects.all()
+    qs = shared_models.Region.objects.all()
     if request.method == 'POST':
         formset = forms.RegionFormSet(request.POST, )
         if formset.is_valid():
