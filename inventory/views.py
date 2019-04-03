@@ -107,7 +107,13 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        custodian_queryset = models.Person.objects.get(pk=self.request.user.id).resource_people.filter(role=1)
+
+        custodian_queryset = []
+        try:
+            custodian_queryset = models.Person.objects.get(pk=self.request.user.id).resource_people.filter(role=1)
+        except ObjectDoesNotExist:
+            print("Person " + str (self.request.user.id) + "does not exit, Database may be empty")
+
         context['custodian_list'] = custodian_queryset
 
         non_custodian_queryset = []
