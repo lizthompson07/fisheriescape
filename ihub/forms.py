@@ -55,11 +55,13 @@ class ReportSearchForm(forms.Form):
         (None, "------"),
         (1, "Capacity Report (Excel Spreadsheet)"),
         (2, "Organizational Report / Cue Card (PDF)"),
+        (3, "iHub Summary Report (Excel Spreadsheet)"),
+        (4, "iHub Summary Report (PDF)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, choices=FY_CHOICES, label='Fiscal year')
-    organizations = forms.MultipleChoiceField(required=False, label='Organizations (Leave blank for all)')
+    organizations = forms.MultipleChoiceField(required=False, label='List of organizations (w/ entries) - Leave blank for all')
     single_org = forms.ChoiceField(required=False, label='Organization')
 
     def __init__(self, *args, **kwargs):

@@ -38,7 +38,7 @@
           type="text/css">
     <style>
         .ms-container {
-            width: 700px;
+            width: 100%;
         }
     </style>
 
@@ -99,16 +99,26 @@
         }
 
         function configureForm() {
-            var reportChoice = $("#id_report")[0].value;
+            let reportChoice = $("#id_report")[0].value;
             // species count report
             if (reportChoice == 1) {
                 $(".org_div").removeClass("gone");
                 $(".year_div").removeClass("gone");
                 $("#id_organizations").multiSelect()
             }
-            if (reportChoice == 2) {
+            else if (reportChoice == 2) {
                 $(".single_org_div").removeClass("gone");
                 $("#id_single_org").prop('required', true);
+            }
+            else if (reportChoice == 4) {
+                $(".org_div").removeClass("gone");
+                $(".year_div").removeClass("gone");
+                $("#id_organizations").multiSelect()
+            }
+            else if (reportChoice == 3) {
+                $(".org_div").removeClass("gone");
+                $(".year_div").removeClass("gone");
+                $("#id_organizations").multiSelect()
             }
 
         }
