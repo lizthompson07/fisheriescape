@@ -6,6 +6,7 @@
 <table class="table table-hover table-sm">
     <thead>
     <th>Trap #</th>
+    <th>Type</th>
     <th>Latitude (N)</th>
     <th>Longitude (W)</th>
     <th>Crab count</th>
@@ -16,6 +17,7 @@
     {% for trap in object.traps.all %}
         <tr href="{% url 'grais:trap_detail' trap.id %}">
             <td>{{ trap.trap_number }}</td>
+            <td>{{ trap.get_trap_type_display }}</td>
 
             {% if trap.latitude_n %}
                 <td>{{ trap.latitude_n|floatformat:6 }}</td>

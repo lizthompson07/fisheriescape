@@ -459,6 +459,7 @@ class GCSample(models.Model):
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+    # temp_notes = models.CharField(max_length=1000, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.season = self.traps_set.year
@@ -466,7 +467,7 @@ class GCSample(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return "Sample {}".format(self.id)
+        return "Sample {} - {}".format(self.id, self.site)
 
     class Meta:
         ordering = ['traps_set', 'site']
@@ -508,10 +509,10 @@ class GCProbeMeasurement(models.Model):
         (UTC, 'UTC'),
     )
 
-    sample = models.ForeignKey(GCSample, on_delete=models.CASCADE, related_name="probe_data")
+    sample = models.ForeignKey(GCSample, on_delete=models.DO_NOTHING, related_name="probe_data")
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
     time_date = models.DateTimeField(blank=True, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
-    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
+    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True, default="ADT")
     temp_c = models.FloatField(blank=True, null=True, verbose_name="temperature (°C)")
     sal = models.FloatField(blank=True, null=True, verbose_name="salinity")
     o2_percent = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (%)")
@@ -522,7 +523,8 @@ class GCProbeMeasurement(models.Model):
     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
     cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
     weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)")
-    # notes = models.TextField(blank=True, null=True)
+    # notes = models.TextField(blank=True, null=True)  # this field should be delete once all data has been entered
+
 
     def __str__(self):
         return "Probe measurement {}".format(self.id)
@@ -531,8 +533,10 @@ class GCProbeMeasurement(models.Model):
 class Trap(models.Model):
     # Choices for trap_type
     FUKUI = 1
+    MINNOW = 2
     TRAP_TYPE_CHOICES = (
         (FUKUI, 'Fukui'),
+        (MINNOW, 'Minnow'),
     )
     # Choices for bait_type
     HERR = 1
@@ -561,9 +565,11 @@ class Crab(models.Model):
     # Choices for sex
     MALE = 1
     FEMALE = 2
+    UNK = 9
     SEX_CHOICES = (
         (MALE, 'Male'),
         (FEMALE, 'Female'),
+        (UNK, 'Unknown'),
     )
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
     trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="crabs")
@@ -599,3 +605,4 @@ class Bycatch(models.Model):
 
     class Meta:
         ordering = ['trap', 'species', 'id']
+        unique_together = ['trap', 'species']
