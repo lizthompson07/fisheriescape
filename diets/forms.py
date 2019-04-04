@@ -66,3 +66,14 @@ class SearchForm(forms.Form):
     species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
 
     field_order = ["cruise", "species"]
+
+
+class ReportSearchForm(forms.Form):
+    YEAR_CHOICES = [(y["season"], y["season"]) for y in shared_models.Cruise.objects.order_by("-season").values('season').distinct()]
+    REPORT_CHOICES = [
+        (1, "Summary of Prey Species"),
+    ]
+    REPORT_CHOICES.insert(0, (None, "------"))
+
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
