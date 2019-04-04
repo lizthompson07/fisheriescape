@@ -1142,6 +1142,7 @@ class TrapDetailView(GraisAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
         context["field_list"] = [
+            'sample',
             'trap_number',
             'trap_type',
             'bait_type',

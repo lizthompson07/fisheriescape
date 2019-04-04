@@ -117,67 +117,68 @@ def seed_crabs_db():
 
         i = 0
         for row in my_csv:
-            # prep some vars
-            my_site = models.Site.objects.get(code=row["site_code"])
-            traps_set = datetime.datetime.strptime(row["td1"], "%d/%m/%Y %H:%M")
-            traps_set_tzaware = timezone.make_aware(traps_set, timezone.get_current_timezone())
-            try:
-                my_sample = models.GCSample.objects.get(site=my_site, traps_set=traps_set_tzaware)
-            except models.GCSample.DoesNotExist:
-                print(row)
-                print(i)
-                print(my_site)
-                print(traps_set_tzaware)
-                break
-            # green crabs
-            my_trap = models.Trap.objects.get(
-                sample=my_sample,
-                trap_number=row['trap_number'],
-            )
-            if nz(row['gc_no'], None):
-                my_crab = models.Crab.objects.create(
-                    species_id=26,
-                    trap=my_trap,
-                    width=nz(row['gc_width'], None),
-                    sex=nz(row['gc_sex'], None),
-                    carapace_color=nz(row['gc_carapace'], None),
-                    abdomen_color=nz(row['gc_adbomen'], None),
-                    egg_color=nz(row['gc_egg'], None),
-                    notes=nz(row['notes'], None),
+            if row['type']=="Crab":
+                # prep some vars
+                my_site = models.Site.objects.get(code=row["site_code"])
+                traps_set = datetime.datetime.strptime(row["td1"], "%d/%m/%Y %H:%M")
+                traps_set_tzaware = timezone.make_aware(traps_set, timezone.get_current_timezone())
+                try:
+                    my_sample = models.GCSample.objects.get(site=my_site, traps_set=traps_set_tzaware)
+                except models.GCSample.DoesNotExist:
+                    print(row)
+                    print(i)
+                    print(my_site)
+                    print(traps_set_tzaware)
+                    break
+                # green crabs
+                my_trap = models.Trap.objects.get(
+                    sample=my_sample,
+                    trap_number=row['trap_number'],
                 )
-                my_crab.save()
-                print("adding green crab from line {} - sample {} - trap {}".format(i, my_sample.id, my_trap.id))
+                if nz(row['gc_no'], None):
+                    my_crab = models.Crab.objects.create(
+                        species_id=26,
+                        trap=my_trap,
+                        width=nz(row['gc_width'], None),
+                        sex=nz(row['gc_sex'], None),
+                        carapace_color=nz(row['gc_carapace'], None),
+                        abdomen_color=nz(row['gc_adbomen'], None),
+                        egg_color=nz(row['gc_egg'], None),
+                        notes=nz(row['notes'], None),
+                    )
+                    my_crab.save()
+                    print("adding green crab from line {} - sample {} - trap {}".format(i, my_sample.id, my_trap.id))
 
-            if nz(row['rc_no'], None):
-                my_crab = models.Crab.objects.create(
-                    species_id=96,
-                    trap=my_trap,
-                    width=nz(row['rc_width'], None),
-                    sex=nz(row['rc_sex'], None),
-                )
-                my_crab.save()
-                print("adding rock crab from line {} - sample {} - trap {}".format(i, my_sample.id, my_trap.id))
+                if nz(row['rc_no'], None):
+                    my_crab = models.Crab.objects.create(
+                        species_id=96,
+                        trap=my_trap,
+                        width=nz(row['rc_width'], None),
+                        sex=nz(row['rc_sex'], None),
+                    )
+                    my_crab.save()
+                    print("adding rock crab from line {} - sample {} - trap {}".format(i, my_sample.id, my_trap.id))
 
-            if nz(row['bm_no'], None):
-                my_crab = models.Crab.objects.create(
-                    species_id=98,
-                    trap=my_trap,
-                    width=nz(row['bm_width'], None),
-                    sex=nz(row['bm_sex'], None),
-                )
-                my_crab.save()
-                print("adding white crab from line {} - sample {} - trap {}".format(i, my_sample.id, my_trap.id))
+                if nz(row['bm_no'], None):
+                    my_crab = models.Crab.objects.create(
+                        species_id=98,
+                        trap=my_trap,
+                        width=nz(row['bm_width'], None),
+                        sex=nz(row['bm_sex'], None),
+                    )
+                    my_crab.save()
+                    print("adding white crab from line {} - sample {} - trap {}".format(i, my_sample.id, my_trap.id))
 
 
-            if nz(row['wm_no'], None):
-                my_crab = models.Crab.objects.create(
-                    species_id=27,
-                    trap=my_trap,
-                    width=nz(row['wm_width'], None),
-                    sex=nz(row['wm_sex'], None),
-                )
-                my_crab.save()
-                print("adding black crab from line {} - sample {} - trap {}".format(i, my_sample.id, my_trap.id))
+                if nz(row['wm_no'], None):
+                    my_crab = models.Crab.objects.create(
+                        species_id=27,
+                        trap=my_trap,
+                        width=nz(row['wm_width'], None),
+                        sex=nz(row['wm_sex'], None),
+                    )
+                    my_crab.save()
+                    print("adding black crab from line {} - sample {} - trap {}".format(i, my_sample.id, my_trap.id))
 
             i += 1
 
@@ -189,49 +190,61 @@ def seed_bycatch():
 
         i = 0
         for row in my_csv:
-            # prep some vars
-            my_site = models.Site.objects.get(code=row["site_code"])
-            traps_set = datetime.datetime.strptime(row["td1"], "%d/%m/%Y %H:%M")
-            traps_set_tzaware = timezone.make_aware(traps_set, timezone.get_current_timezone())
-            try:
-                my_sample = models.GCSample.objects.get(site=my_site, traps_set=traps_set_tzaware)
-            except models.GCSample.DoesNotExist:
-                print(i)
-                print(my_site)
-                print(traps_set_tzaware)
-                break
-            # green crabs
-            my_trap = models.Trap.objects.get(
-                sample=my_sample,
-                trap_number=row['trap_number'],
-            )
+            if i > 8100:
+                # prep some vars
+                my_site = models.Site.objects.get(code=row["site_code"])
+                traps_set = datetime.datetime.strptime(row["td1"], "%d/%m/%Y %H:%M")
+                traps_set_tzaware = timezone.make_aware(traps_set, timezone.get_current_timezone())
+                try:
+                    my_sample = models.GCSample.objects.get(site=my_site, traps_set=traps_set_tzaware)
+                except models.GCSample.DoesNotExist:
+                    print(i)
+                    print(my_site)
+                    print(traps_set_tzaware)
+                    break
 
-            spp_list = [
-                85,
-                86,
-                87,
-                81,
-                89,
-                90,
-                33,
-                91,
-                102,
-                92,
-                93,
-                94,
-                95,
-                103,
-            ]
-            for s in spp_list:
-                my_spp = models.Species.objects.get(pk=s)
-                if nz(row['sp_{}'.format(s)], None):
-                    my_bycatch = models.Bycatch.objects.create(
-                        species=my_spp,
-                        trap=my_trap,
-                        count=int(row['sp_{}'.format(s)]),
+                # bycatch
+                try:
+                    my_trap = models.Trap.objects.get(
+                        sample=my_sample,
+                        trap_number=row['trap_number'],
                     )
-                    my_bycatch.save()
-                    print("adding {} from line {} - sample {} - trap {}".format(my_spp, i, my_sample.id, my_trap.id))
+                except (models.Trap.DoesNotExist, models.Trap.MultipleObjectsReturned):
+                    print(i)
+                    print(my_sample)
+                    print("trap_number={}".format(row['trap_number']))
+                    break
+
+                spp_list = [
+                    85,
+                    86,
+                    87,
+                    81,
+                    89,
+                    90,
+                    33,
+                    91,
+                    102,
+                    92,
+                    93,
+                    94,
+                    95,
+                    103,
+                ]
+                for s in spp_list:
+                    my_spp = models.Species.objects.get(pk=s)
+                    if nz(row['sp_{}'.format(s)], None):
+                        try:
+                            my_bycatch = models.Bycatch.objects.create(
+                                species=my_spp,
+                                trap=my_trap,
+                                count=int(row['sp_{}'.format(s)]),
+                            )
+                        except IntegrityError:
+                            print("skipping...")
+                        else:
+                            my_bycatch.save()
+                            print("adding {} from line {} - sample {} - trap {}".format(my_spp, i, my_sample.id, my_trap.id))
 
             i += 1
 
