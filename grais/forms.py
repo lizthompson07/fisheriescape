@@ -132,6 +132,7 @@ class ProbeMeasurementForm(forms.ModelForm):
             # 'spc_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
             # 'probe_depth':forms.NumberInput(attrs={'placeholder':'m'}),
             'last_modified_by': forms.HiddenInput(),
+            'sample': forms.HiddenInput(),
 
         }
 
@@ -142,7 +143,7 @@ class GCProbeMeasurementForm(forms.ModelForm):
         model = models.GCProbeMeasurement
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-
+            'sample': forms.HiddenInput(),
         }
 
 
