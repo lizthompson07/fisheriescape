@@ -459,7 +459,7 @@ class GCSample(models.Model):
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
-    temp_notes = models.CharField(max_length=1000, blank=True, null=True)
+    # temp_notes = models.CharField(max_length=1000, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.season = self.traps_set.year
@@ -467,7 +467,7 @@ class GCSample(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return "Sample {}".format(self.id)
+        return "Sample {} - {}".format(self.id, self.site)
 
     class Meta:
         ordering = ['traps_set', 'site']
@@ -523,7 +523,7 @@ class GCProbeMeasurement(models.Model):
     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
     cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
     weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)")
-    notes = models.TextField(blank=True, null=True)  # this field should be delete once all data has been entered
+    # notes = models.TextField(blank=True, null=True)  # this field should be delete once all data has been entered
 
 
     def __str__(self):
@@ -533,7 +533,7 @@ class GCProbeMeasurement(models.Model):
 class Trap(models.Model):
     # Choices for trap_type
     FUKUI = 1
-    MINNOW = 1
+    MINNOW = 2
     TRAP_TYPE_CHOICES = (
         (FUKUI, 'Fukui'),
         (MINNOW, 'Minnow'),
@@ -605,3 +605,4 @@ class Bycatch(models.Model):
 
     class Meta:
         ordering = ['trap', 'species', 'id']
+        unique_together = ['trap', 'species']
