@@ -2,6 +2,7 @@
 {% load static %}
 {% load el_pagination_tags %}
 {% load verbose_names %}
+{% load bootstrap4 %}
 {% block content %}
 
     <nav aria-label="breadcrumb">
@@ -16,12 +17,17 @@
 
         <h1 class="big-header">Green Crab Monitoring Samples </h1>
 
-        <form class="form" action="." method="get">
-
-            {% for field in filter.form %}
-                {{ field.label }}: &nbsp; {{ field }}&nbsp;&nbsp;
-            {% endfor %}
-            <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+        <form class="form" action="." method="get" id="filter-form">
+            <div class="row">
+                {% for field in filter.form %}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+                {% endfor %}
+                <div class="col">
+                    <br><input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                </div>
+            </div>
         </form>
         <br><br>
         {% paginate 50 filter.qs as filter_list %}
