@@ -82,7 +82,8 @@ ORACLE_DATABASES = {
         'USER': '[YOUR_DB_USER_NAME_HERE]',
         'PASSWORD': '[YOUR_DB_PASSWORD_HERE]',
         'HOST': '[YOUR_DB_HOST_ADDRESS_HERE]',
-        'PORT': '1521',
+        'PORT': '1521'
+    }
 }
 
 DATABASES = MYSQL_DATABASES
