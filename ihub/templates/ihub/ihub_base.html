@@ -4,11 +4,6 @@
 {% load bootstrap4 %}
 {% block bug_create %}{% url 'tickets:bug_create' 'ihub' %}{% endblock bug_create %}
 
-{% block bug_list_4_app %}
-    <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 11 %}">
-        {% trans "View bugs for this app" %}
-    </a>
-{% endblock bug_list_4_app %}
 
 
 

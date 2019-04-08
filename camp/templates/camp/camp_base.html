@@ -2,9 +2,6 @@
 {% load static %}
 {% load bootstrap4 %}
 {% block bug_create %}{% url 'tickets:bug_create' 'camp' %}{% endblock bug_create %}
-{% block bug_list_4_app %}
-  <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 7 %}">CAMP Bugs</a>
-{% endblock bug_list_4_app %}
 
 {% block title %}CAMP{% endblock title %}
 
