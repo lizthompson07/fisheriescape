@@ -32,16 +32,17 @@
             <div class="btn-group">
 
                 <a href="{% url 'tickets:update' object.id %}" class="btn btn-warning">Edit</a>
-                <a href="{% url 'tickets:delete' object.id %}" class="btn btn-danger">Delete</a>
+                {% if user.is_staff %}
+                    <a href="{% url 'tickets:delete' object.id %}" class="btn btn-danger">Delete</a>
+                {% endif %}
                 <a href="{% url 'tickets:new_note' object.id %}" class="btn btn-primary">Edit Notes</a>
                 {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-                {% if user.is_superuser %}
+                {% if user.is_staff %}
                     {% if object.status.id == 2 %}
                         <a href="{% url "tickets:ticket_resolved" object.id %}" class="btn btn-success">Mark resolved</a>
                     {% else %}
                         <a href="{% url "tickets:ticket_reopened"  object.id %}" class="btn btn-secondary">Re-open ticket</a>
                     {% endif %}
-
 
                     {% if object.status.id == 1 and object.resolved_email_date == None %}
                         <a href="#" class="btn btn-outline-dark" data-toggle="modal" data-target="#notify-client">Notify Client</a>
