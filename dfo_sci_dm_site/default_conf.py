@@ -30,21 +30,17 @@ else:
     # this variable is used in base.html to indicate which database you are connected to
     USING_PRODUCTION_DB = False
 
-
 # Specific which mode you are running in. If this file is on the production server, this setting should be True
 # if this setting = False, static and mediafiles will be served by the development server.
 PRODUCTION_SERVER = False
 
-
 # add your hostname here.
 ALLOWED_HOSTS = ['127.0.0.1', ]
-
 
 # add new applications to this dictionary; grey out any app you do not want
 # the dict key should be the actual name of the app
 # if there is a verbose name, it should be the key value, otherwise None
 APP_DICT = {
-    'dm_tickets': 'Data management tickets',
     'inventory': 'metadata inventory',
     'grais': 'grAIS',
     'oceanography': 'Oceanography',
@@ -61,7 +57,6 @@ APP_DICT = {
     'travel': 'Travel Plans',
 }
 MY_INSTALLED_APPS = [app for app in APP_DICT]
-
 
 # Specify your database connection details
 MYSQL_DATABASES = {
@@ -87,5 +82,3 @@ ORACLE_DATABASES = {
 }
 
 DATABASES = MYSQL_DATABASES
-
-
