@@ -1,5 +1,6 @@
 import os
 
+from dfo_sci_dm_site import my_conf
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
@@ -14,25 +15,25 @@ from shared_models import models as shared_models
 
 # Create your models here.
 
-class Person(models.Model):
-    first_name = models.CharField(max_length=225)
-    last_name = models.CharField(max_length=225, null=True, blank=True)
-    phone = models.CharField(max_length=50, null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    notes = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        return "{} {}".format(self.first_name, self.last_name)
-
-    class Meta:
-        ordering = ['first_name', 'last_name']
-
-    @property
-    def full_name(self):
-        return "{} {}".format(self.first_name, self.last_name)
-
-    def get_absolute_url(self):
-        return reverse('tickets:person_detail', kwargs={'pk': self.id})
+# class Person(models.Model):
+#     first_name = models.CharField(max_length=225)
+#     last_name = models.CharField(max_length=225, null=True, blank=True)
+#     phone = models.CharField(max_length=50, null=True, blank=True)
+#     email = models.EmailField(null=True, blank=True)
+#     notes = models.TextField(null=True, blank=True)
+#
+#     def __str__(self):
+#         return "{} {}".format(self.first_name, self.last_name)
+#
+#     class Meta:
+#         ordering = ['first_name', 'last_name']
+#
+#     @property
+#     def full_name(self):
+#         return "{} {}".format(self.first_name, self.last_name)
+#
+#     def get_absolute_url(self):
+#         return reverse('tickets:person_detail', kwargs={'pk': self.id})
 
 
 class RequestType(models.Model):
@@ -77,6 +78,10 @@ class Status(models.Model):
 
 
 class Ticket(models.Model):
+    # choices for app
+    APP_CHOICES = [(app_key, my_conf.APP_DICT[app_key]) for app_key in my_conf.APP_DICT]
+    APP_CHOICES.insert(0, ("general", "General Issue"))
+
     # Choices for priority
     HIGH = '1'
     MED = '2'
@@ -96,6 +101,10 @@ class Ticket(models.Model):
     title = models.CharField(max_length=255)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
     status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
+    app = models.CharField(max_length=25, default="general", choices=APP_CHOICES)
+    assign_to = models.ForeignKey(User, on_delete=models.DO_NOTHING, limit_choices_to={"is_staff": True},
+                                  verbose_name=_("assign ticket to (leave blank if unsure)"), blank=True, null=True,
+                                  related_name="assigned_tickets")
     priority = models.CharField(default='2', max_length=1, choices=PRIORITY_CHOICES)
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     description = models.TextField(blank=True, null=True)
