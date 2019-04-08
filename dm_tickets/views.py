@@ -199,6 +199,7 @@ class TicketCreateViewPopout(LoginRequiredMixin, CreateView):
     def get_initial(self):
         my_dict = {
             'primary_contact': self.request.user,
+            'request_type': 19,
         }
         try:
             self.kwargs['app']
@@ -221,8 +222,8 @@ class TicketCreateViewPopout(LoginRequiredMixin, CreateView):
         else:
             print('not sending email since in dev mode')
             print(email)
-        messages.success(self.request,
-                         _("The feedback form has been successfully submitted. You should receive an email confirmation momentarily!"))
+        # messages.success(self.request,
+        #                  _("The feedback form has been successfully submitted. You should receive an email confirmation momentarily!"))
         return HttpResponseRedirect(reverse_lazy('tickets:detail_pop', kwargs={"pk": self.object.id}))
 
 
@@ -234,11 +235,7 @@ class TicketDetailViewPopout(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['email'] = emails.TicketResolvedEmail(self.object)
         context["field_group_1"] = [
-            "primary_contact",
-            "assigned_to",
             "app",
-            "section",
-            "status",
             "priority",
             "request_type",
         ]
