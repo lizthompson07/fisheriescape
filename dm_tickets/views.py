@@ -60,6 +60,7 @@ class TicketListView(FilterView):
 
 class TicketDetailView(LoginRequiredMixin, DetailView):
     model = models.Ticket
+    login_url = '/accounts/login_required/'
     template_name = "dm_tickets/ticket_detail.html"
 
     # form_class = forms.TicketDetailForm
