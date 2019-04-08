@@ -4,6 +4,18 @@ from django.urls import reverse, NoReverseMatch
 from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
 
+# check to see if there is a user-defined local configuration file
+# if there is, we we use this as our local configuration, otherwise we use the default
+try:
+    from . import my_conf as local_conf
+except ModuleNotFoundError and ImportError:
+    from . import default_conf as local_conf
+
+try:
+    SHOW_TICKETS_APP = local_conf.SHOW_TICKETS_APP
+except AttributeError:
+    SHOW_TICKETS_APP = True
+
 
 # Create your views here.
 def get_app_dict(request):
@@ -34,17 +46,18 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-    try:
-        app_dict["tickets"] = {
-            "title": _("Data Management Tickets"),
-            "description": _("Submit and track data management service requests."),
-            "status": "production",
-            "access": "open",
-            "url": reverse('tickets:list'),
-            "icon_path": 'img/icons/tickets.svg',
-        }
-    except NoReverseMatch:
-        pass
+    if SHOW_TICKETS_APP:
+        try:
+            app_dict["tickets"] = {
+                "title": _("Data Management Tickets"),
+                "description": _("Submit and track data management service requests."),
+                "status": "production",
+                "access": "open",
+                "url": reverse('tickets:list'),
+                "icon_path": 'img/icons/tickets.svg',
+            }
+        except NoReverseMatch:
+            pass
 
     try:
         app_dict["grais"] = {
