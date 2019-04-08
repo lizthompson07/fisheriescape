@@ -80,6 +80,7 @@ class Status(models.Model):
 class Ticket(models.Model):
     # choices for app
     APP_CHOICES = [(app_key, my_conf.APP_DICT[app_key]) for app_key in my_conf.APP_DICT]
+    APP_CHOICES.sort()
     APP_CHOICES.insert(0, ("general", "General Issue"))
 
     # Choices for priority
@@ -98,14 +99,14 @@ class Ticket(models.Model):
 
     title = models.CharField(max_length=255)
     primary_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
-    request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
-    status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
     app = models.CharField(max_length=25, default="general", choices=APP_CHOICES, verbose_name=_("application name"),
                            blank=True, null=True)
     assigned_to = models.ForeignKey(User, on_delete=models.DO_NOTHING, limit_choices_to={"is_staff": True},
                                   verbose_name=_("ticket assigned to"), blank=True, null=True,
                                   related_name="assigned_tickets")
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
+    request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
+    status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
     priority = models.CharField(default='2', max_length=1, choices=PRIORITY_CHOICES)
     description = models.TextField(blank=True, null=True)
     financial_coding = models.CharField(max_length=100, blank=True, null=True)
