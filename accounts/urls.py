@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views
 app_name = 'accounts'
 
 urlpatterns = [
-
+    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('login/', views.UserLoginView.as_view(), name='login'),
     path('denied/', views.access_denied, name='denied_access'),
     path('denied/custodians-only/', views.access_denied_custodian, name='denied_access_custodian'),
