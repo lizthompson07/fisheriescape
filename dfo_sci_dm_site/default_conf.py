@@ -57,6 +57,7 @@ APP_DICT = {
     'travel': 'Travel Plans',
 }
 MY_INSTALLED_APPS = [app for app in APP_DICT]
+SHOW_TICKETS_APP = True
 
 # Specify your database connection details
 MYSQL_DATABASES = {

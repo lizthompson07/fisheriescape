@@ -23,7 +23,7 @@ try:
     from . import my_conf as local_conf
 except ModuleNotFoundError and ImportError:
     from . import default_conf as local_conf
-    print("`my_conf.py' not found. using default configuration file 'default_conf.py' instead.")
+    print("my_conf.py' not found. using default configuration file 'default_conf.py' instead.")
 else:
     print("using custom configuration file: 'my_conf.py'.")
 
