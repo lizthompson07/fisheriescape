@@ -43,6 +43,7 @@ class GCSampleFilter(django_filters.FilterSet):
     class Meta:
         model = models.GCSample
         fields = {
+            'id': ['exact'],
             'season': ['exact'],
             'site__estuary': ['exact'],
             'site': ['exact'],

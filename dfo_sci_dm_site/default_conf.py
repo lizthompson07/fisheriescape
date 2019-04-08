@@ -66,7 +66,7 @@ MY_INSTALLED_APPS = [app for app in APP_DICT]
 
 
 # Specify your database connection details
-DATABASES = {
+MYSQL_DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
@@ -76,5 +76,18 @@ DATABASES = {
         },
     },
 }
+
+ORACLE_DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': '[YOUR_DB_NAME_HERE]',
+        'USER': '[YOUR_DB_USER_NAME_HERE]',
+        'PASSWORD': '[YOUR_DB_PASSWORD_HERE]',
+        'HOST': '[YOUR_DB_HOST_ADDRESS_HERE]',
+        'PORT': '1521'
+    }
+}
+
+DATABASES = MYSQL_DATABASES
 
 
