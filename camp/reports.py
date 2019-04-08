@@ -208,8 +208,8 @@ def generate_sub_species_richness_1(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à {} pour le mois de".format(site_name_fre)
-    title_fre1 = "juin seulement"
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à"
+    title_fre1 = "{} pour le mois de juin seulement".format(site_name_fre)
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
     title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for June only".format(site_name)
     sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
@@ -331,8 +331,8 @@ def generate_sub_species_richness_2(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à {}".format(site_name_fre)
-    title_fre1 = "pour les années durant lesquelles l’échantillonnage fut effectué en juin, juillet et août"
+    title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à"
+    title_fre1 = "{} pour les années durant lesquelles l’échantillonnage fut effectué en juin, juillet et août".format(site_name_fre)
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
     title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for years in which".format(site_name)
     title_eng1 = "sampling was conducted in June, July and August"
