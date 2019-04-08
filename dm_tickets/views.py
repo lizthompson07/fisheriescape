@@ -115,6 +115,8 @@ def send_resolved_email(request, ticket):
                   fail_silently=False, )
     else:
         print('not sending email since in dev mode')
+        print(email)
+
     my_ticket.resolved_email_date = timezone.now()
     my_ticket.save()
     messages.success(request, "the email has been sent!")
