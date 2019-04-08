@@ -48,6 +48,7 @@ Thumbs.db
 #######################
 local_conf.py
 my_conf.py
+my_wsgi.py
 
 # access files dir #
 ####################
