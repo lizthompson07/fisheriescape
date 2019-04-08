@@ -1,9 +1,9 @@
 {% load bootstrap4 %}
-
+{% bootstrap_form_errors form %}
 <h3>Metadata:</h3>
 {# Metadata fields #}
 {% for field in form %}
-    {% if field.name == "probe" or field.name == "time_date" or field.name == "timezone" or field.name == "tide_state" or field.name == "tide_direction" or field.name == "weather_conditions" %}
+    {% if field.name == "sample" or field.name == "probe" or field.name == "time_date" or field.name == "timezone" or field.name == "tide_state" or field.name == "tide_direction" or field.name == "weather_conditions" %}
         {% bootstrap_field field layout='horizontal' placeholder="" size='small' %}
     {% endif %}
 {% endfor %}
