@@ -9,7 +9,7 @@ class InstrumentFilter(django_filters.FilterSet):
     # FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
     # DIVISION_CHOICES = [(d.id, str(d)) for d in shared_models.Division.objects.filter(branch=1)]
     # SECTION_CHOICES = [(s.id, str(s)) for s in shared_models.Section.objects.filter(division__branch=1)]
-    TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP')]
+    TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP'), ('OXY', 'OXY')]
     YES_NO_CHOICES = [(True, "Yes"), (False, "No"), ]
 
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
@@ -20,11 +20,11 @@ class InstrumentFilter(django_filters.FilterSet):
     submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', label="Submitted?", choices=YES_NO_CHOICES)
 
 
-class DeploymentFilter(django_filters.FilterSet):
+class MooringFilter(django_filters.FilterSet):
     # FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
     # DIVISION_CHOICES = [(d.id, str(d)) for d in shared_models.Division.objects.filter(branch=1)]
     # SECTION_CHOICES = [(s.id, str(s)) for s in shared_models.Section.objects.filter(division__branch=1)]
-    TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP')]
+    # TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP')]
     YES_NO_CHOICES = [(True, "Yes"), (False, "No"), ]
 
     mooring = django_filters.CharFilter(field_name='mooring', lookup_expr='icontains')

@@ -16,7 +16,7 @@
 {% if not object.submitted and not report_mode %}
     <div class="btn-group">
         <a class="btn btn-sm btn-primary" href="#"
-           onclick="return popitup('{% url 'ios2:deploy_new' object.id %}','popoutWindow')">
+           onclick="return popitup('{% url 'ios2:add_deployment' object.id %}','popoutWindow')">
             {% trans "Add Deployment" %}
         </a>
 
@@ -26,7 +26,7 @@
 
 
 
-{% if object.deployments.count == 0 %}
+{% if object.instrudeploy.count == 0 %}
     <em>
         {% trans "No Deployment" %}
     </em><br>
@@ -41,7 +41,7 @@
             {% trans "Instrument Type" %}
         </th>
         <th>
-            {% trans "Serial ID" %}
+            {% trans "Serial #" %}
         </th>
         <th>
             {% trans "Mooring" %}
@@ -69,11 +69,11 @@
         </th>
         </thead>
         <tbody>
-        {% for obj in object.deployments.all %}
+        {% for obj in object.instrudeploy.all %}
 
             <tr id="om-{{ obj.id }}"
                     {% if not object.submitted and not report_mode %}
-                href="{% url 'ios2:deployment_edit' obj.id %}" pop
+                href="{% url 'ios2:instrumentmooring_edit' obj.id %}" pop
                 data-toggle="tooltip" title="Edit"
                     {% endif %}
                 style="background-color: {{ obj.funding_source.color }}">
@@ -86,26 +86,24 @@
                                      title="Delete">
                             </a>
                             <a id="om-secrect-delete-btn-{{ obj.id }}"
-                               href="{% url 'ios2:deployment_delete' obj.id %}" class="hidden"></a>
+                               href="{% url 'ios2:mooringtoinstrument_delete' obj.id %}" class="hidden"></a>
                         {% endif %}
                     </td>
                 {% endif %}
-                <td>{{ obj.instruments.instrument_type }}</td>
+                <td>{{ obj.instrument.instrument_type }}</td>
 
-                    <td>{{ obj.instruments.serial_number }}</td>
-                <td> {{ obj.mooring }}</td>
-                <td> {{ obj.mooring_number }}</td>
+                    <td>{{ obj.instrument.serial_number }}</td>
+                <td> {{ obj.mooring.mooring }}</td>
+                <td> {{ obj.mooring.mooring_number }}</td>
 
-                <td> {{ obj.lat }}</td>
-                <td> {{ obj.lon }}</td>
+                <td> {{ obj.mooring.lat }}</td>
+                <td> {{ obj.mooring.lon }}</td>
                 <td> {{ obj.depth }}</td>
-                <td> {{ obj.deploy_time }}</td>
-                <td> {{ obj.recover_time }}</td>
+                <td> {{ obj.mooring.deploy_time }}</td>
+                <td> {{ obj.mooring.recover_time }}</td>
                 <td> {{ obj.comments }}</td>
 
-                <td style="text-align: center">
-                    {{ obj.funding_source }}
-                </td>
+
                 {% if  report_mode %}
                     <td>
                         {% if not object.submitted %}
@@ -113,7 +111,7 @@
                                 <img src="{% static "/lou-multi-select-e052211/img/switch.png" %}" data-toggle="tooltip"
                                      title="click to toggle funding source">
                             </a>
-                            <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'ios2:instrument_list'  obj.id %}"
+                            <a id="om-secrect-toggle-btn-{{ obj.id }}" href="{% url 'ios2:mooring_detail'  obj.id %}"
                                class="hidden"></a>
                         {% endif %}
                     </td>

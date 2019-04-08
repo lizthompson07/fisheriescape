@@ -23,15 +23,17 @@
     </script>
 
     <div class="container">
-        <h3> {{object}}
+
+        <h3>
+
             {% if object %}
-                {% blocktrans with ct=object.cost_type %}
-                    Editing deployment for {{instrument}}333{{instruments}}22{{object.ins2}}
+                {% blocktrans with instrument=object.instrument  mooring=object.deployment%}
+                    Editing {{instrument}} on {{mooring}}
                 {% endblocktrans %}
             {% else %}
 
-                {% blocktrans with ct=cost_type %}
-                  {{object}}  Adding {{ ct }} to {{instrument}}
+                {% blocktrans with ob1=object.adding ob2=object.adding_to %}
+                  {{object}}  Adding {{ adding }} for {{adding_to}} {{name}}
                 {% endblocktrans %}
             {% endif %}
         </h3>
@@ -39,12 +41,12 @@
 
         <form method="post" class="form">
             {% csrf_token %}
+            {{ form.non_field_errors }}
 
             {% for field in form %}
+
                 {% bootstrap_field field placeholder="" size="small" %}
             {% endfor %}
-
-
 
             {% buttons %}
                 <button type="submit" class="btn btn-success" onclick="refreshParent()">
