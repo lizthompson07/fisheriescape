@@ -1,7 +1,7 @@
 {% extends "accounts/accounts_base.html" %}
 {% load static %}
 {% load i18n %}
-{% block bug_create %}{% url 'bugs:bug_create' 1 %}{% endblock bug_create %}
+{% block bug_create %}{% url 'tickets:bug_create' 1 %}{% endblock bug_create %}
 
 {% block title %}
     {% trans 'Data Management Home' %}

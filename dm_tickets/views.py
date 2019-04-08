@@ -1,4 +1,3 @@
-from django.core.files import File
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
@@ -6,14 +5,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
-from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView, ListView
+from django.utils.translation import gettext as _
+from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView
 from django_filters.views import FilterView
-
 from shutil import copyfile
-import json
 import os
 
 from . import models
@@ -192,12 +189,88 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
             return HttpResponseRedirect(self.get_success_url())
 
 
+class TicketCreateViewPopout(LoginRequiredMixin, CreateView):
+    model = models.Ticket
+    login_url = '/accounts/login_required/'
+    form_class = forms.FeedbackForm
+    template_name = "dm_tickets/ticket_form_popout.html"
+
+    def get_initial(self):
+        my_dict = {
+            'primary_contact': self.request.user,
+        }
+        try:
+            self.kwargs['app']
+        except KeyError:
+            pass
+        else:
+            my_dict["app"] = self.kwargs['app']
+
+        return my_dict
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        # create a new email object
+        email = emails.NewTicketEmail(self.object)
+        # send the email object
+        if settings.PRODUCTION_SERVER:
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
+        else:
+            print('not sending email since in dev mode')
+            print(email)
+        messages.success(self.request,
+                         _("The feedback form has been successfully submitted. You should receive an email confirmation momentarily!"))
+        return HttpResponseRedirect(reverse_lazy('tickets:detail_pop', kwargs={"pk": self.object.id}))
+
+
+class TicketDetailViewPopout(LoginRequiredMixin, DetailView):
+    model = models.Ticket
+    template_name = "dm_tickets/ticket_detail_popout.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['email'] = emails.TicketResolvedEmail(self.object)
+        context["field_group_1"] = [
+            "primary_contact",
+            "assigned_to",
+            "app",
+            "section",
+            "status",
+            "priority",
+            "request_type",
+        ]
+
+        context["field_group_2"] = [
+            "financial_coding",
+            "description",
+            "notes_html",
+            "people_notes",
+        ]
+
+        context["field_group_3"] = [
+            "date_opened",
+            "date_modified",
+            "date_closed",
+            "resolved_email_date",
+        ]
+
+        context["field_group_4"] = [
+            "sd_ref_number",
+            "sd_ticket_url",
+            "sd_primary_contact",
+            "sd_description",
+            "sd_date_logged",
+        ]
+        return context
+
+
 class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Ticket
     template_name = "dm_tickets/ticket_note_form.html"
     login_url = '/accounts/login_required/'
     form_class = forms.TicketNoteForm
-
 
 
 # Files #
@@ -225,7 +298,6 @@ class FileCreateView(LoginRequiredMixin, CreateView):
                       recipient_list=email.to_list, fail_silently=False, )
         else:
             print('not sending email since in dev mode')
-
 
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
