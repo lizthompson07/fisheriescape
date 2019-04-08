@@ -104,7 +104,7 @@ class Ticket(models.Model):
     assigned_to = models.ForeignKey(User, on_delete=models.DO_NOTHING, limit_choices_to={"is_staff": True},
                                   verbose_name=_("ticket assigned to"), blank=True, null=True,
                                   related_name="assigned_tickets")
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True)
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
     priority = models.CharField(default='2', max_length=1, choices=PRIORITY_CHOICES)

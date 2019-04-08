@@ -3,7 +3,7 @@
 {% load bootstrap4 %}
 {% load i18n %}
 
-{% block bug_create %}{% url 'bugs:bug_create' 3 %}{% endblock bug_create %}
+{% block bug_create %}{% url 'tickets:bug_create' 'inventory' %}{% endblock bug_create %}
 
 {% block bug_list_4_app %}
     <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 3 %}">

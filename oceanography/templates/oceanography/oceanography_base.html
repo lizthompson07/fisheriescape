@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load bootstrap4 %}
-{% block bug_create %}{% url 'bugs:bug_create' 5 %}{% endblock bug_create %}
+{% block bug_create %}{% url 'tickets:bug_create' 'oceanography' %}{% endblock bug_create %}
 {% block bug_list_4_app %}
   <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 5 %}">Oceanography Bugs</a>
 {% endblock bug_list_4_app %}
