@@ -76,6 +76,18 @@
                     {% for field in field_list %}
                         {% if field == "status" %}
                             <td style="background-color: {{ ticket.status.color }}">{% get_field_value ticket field %}</td>
+                        {% elif field == "assigned_to" %}
+                            {% if ticket.assigned_to %}
+                                <td>{{ ticket.assigned_to.first_name }} {{ ticket.assigned_to.last_name }}</td>
+                            {% else %}
+                                <td>{% get_field_value ticket field %}</td>
+                            {% endif %}
+                        {% elif field == "primary_contact" %}
+                            {% if ticket.primary_contact %}
+                                <td>{{ ticket.primary_contact.first_name }} {{ ticket.primary_contact.last_name }}</td>
+                            {% else %}
+                                <td>{% get_field_value ticket field %}</td>
+                            {% endif %}
                         {% else %}
                             <td>{% get_field_value ticket field %}</td>
                         {% endif %}

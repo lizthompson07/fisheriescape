@@ -43,9 +43,11 @@ class TicketListView(FilterView):
         context["field_list"] = [
             'id',
             'date_modified',
-            'section',
+            'assigned_to',
+            'app',
             'title',
             'request_type',
+            'section',
             'status',
             'primary_contact',
             'sd_ref_number',
@@ -67,19 +69,11 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
-
-        try:
-            extra_context = {'temp_msg': self.request.session['temp_msg']}
-            context.update(extra_context)
-            del self.request.session['temp_msg']
-        except Exception as e:
-            print("type error: " + str(e))
-            # pass
         context['email'] = emails.TicketResolvedEmail(self.object)
         context["field_group_1"] = [
-            # "id",
             "primary_contact",
-            # "title",
+            "assigned_to",
+            "app",
             "section",
             "status",
             "priority",
@@ -182,6 +176,7 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
                       recipient_list=email.to_list, fail_silently=False, )
         else:
             print('not sending email since in dev mode')
+            print(email)
 
         messages.success(self.request, "The new ticket has been logged and a confirmation email has been sent!")
 
@@ -229,10 +224,6 @@ class FileCreateView(LoginRequiredMixin, CreateView):
         else:
             print('not sending email since in dev mode')
 
-        # store a temporary message is the sessions middleware
-        self.request.session['temp_msg'] = "The new file has been added and a notification email has been sent to the site administrator."
-
-        # determine if we should attach a generic file
 
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
@@ -253,15 +244,6 @@ class FileDetailView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        try:
-            extra_context = {'temp_msg': self.request.session['temp_msg']}
-            context.update(extra_context)
-            del self.request.session['temp_msg']
-        except Exception as e:
-            print("type error: " + str(e))
-            # pass
-
         return context
 
 
