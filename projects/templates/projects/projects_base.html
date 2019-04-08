@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load bootstrap4 %}
-{% block bug_create %}{% url 'bugs:bug_create' 10 %}{% endblock bug_create %}
+{% block bug_create %}{% url 'tickets:bug_create' 'projects' %}{% endblock bug_create %}
 
 {% block bug_list_4_app %}
     <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 10 %}">
