@@ -58,7 +58,7 @@
                 <em>{% trans "displaying all records" %}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'ios2:instrument_new' %}" class="btn btn-sm btn-primary">{% trans "New Instrument" %}</a>
+                <a href="{% url 'ios2:mooring_new' %}" class="btn btn-sm btn-primary">{% trans "New Mooring" %}</a>
             </div>
         </div>
 
@@ -77,30 +77,33 @@
 <!--                {% trans "Section" %}-->
 <!--            </th>-->
 <!--            <th scope="col" style="width: 50%">-->
-                <th scope="col">
-                {% trans "Instrument Type" %}
-            </th>
-            <th scope="col">
-                {% trans "Serial ID" %}
-            </th>
+<!--                <th scope="col">-->
+<!--                {% trans "Instrument Type" %}-->
+<!--            </th>-->
+<!--            <th scope="col">-->
+<!--                {% trans "Serial ID" %}-->
+<!--            </th>-->
             <th scope="col">
                 {% trans "Deploy time" %}
             </th>
             <th scope="col">
                 {% trans "Recover time" %}
             </th>
+                        <th scope="col">
+                {% trans "Submitted" %}
+            </th>
             </thead>
             <tbody>
 
             {% for obj in filter.qs %}
-                <tr href="{% url 'ios2:deployment_detail' obj.id %}">
+                <tr href="{% url 'ios2:mooring_detail' obj.id %}">
 <!--                    <td>{{ obj.year }}</td>-->
 <!--                    <td>{{ obj.purchase_date|date:"Y-M-d"}}</td>-->
                     <td>{{ obj.mooring }}</td>
                     <td>{{ obj.mooring_number }}</td>
 
-                    <td>{{ obj.instrument.instrument_type }}</td>
-                    <td>{{ obj.instrument.serial_number }}</td>
+<!--                    <td>{{ obj.instruments.instrument_type }}</td>-->
+<!--                    <td>{{ obj.instruments.serial_number }}</td>-->
                     <td>{{ obj.deploy_time |date:"Y-M-d"}}</td>
                     <td>{{ obj.recover_time |date:"Y-M-d"}}</td>
 
@@ -112,9 +115,9 @@
 <!--                        <td>{{ obj.section.division.name }}</td>-->
 <!--                        <td>{{ obj.section.name }}</td>-->
 <!--                    {% endif %}-->
-                    <td>
+<!--                    <td>-->
 <!--                        {{ obj.project_title }}-->
-                    </td>
+<!--                    </td>-->
 <!--                    <td>{{ obj.date_of_last_service |date:"Y-M-d"}}</td>-->
 <!--                    <td>{{ obj.date_of_next_service |date:"Y-M-d"}}</td>-->
 <!--                    <td>-->

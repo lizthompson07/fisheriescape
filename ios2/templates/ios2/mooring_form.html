@@ -11,18 +11,18 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'ios2:instrument_list' %}">
-                {% trans "All Instruments" %}
+            <li class="breadcrumb-item"><a href="{% url 'ios2:mooring_list' %}">
+                {% trans "All Moorings" %}
             </a></li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'ios2:instrument_detail' object.id %}">{{ object }}</a>
+                <li class="breadcrumb-item"><a href="{% url 'ios2:mooring_detail' object.id %}">{{ object }}</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">
                     {% trans "Edit" %}
                 </li>
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">
-                    {% trans "New Instrument" %}
+                    {% trans "New Mooring" %}
                 </li>
             {% endif %}
         </ol>
@@ -34,7 +34,7 @@
             {% if object.id %}
                 {{ object }}
             {% else %}
-                {% trans "New Instrument" %}
+                {% trans "New Mooring" %}
             {% endif %}
         </h1>
         <br><br>
@@ -42,8 +42,10 @@
         <form method="post" class="form">
             {% csrf_token %}
             {{ form.non_field_errors }}
+            {{ form.errors }}
             {% buttons %}
                 <div class="btn-group">
+                    {{ form.description.errors }}
                     {% if object.id %}
                         <button type="submit" class="btn btn-primary">
                             {% trans "Update" %}
@@ -55,17 +57,18 @@
                     {% endif %}
 
                     {% if object.id %}
-                        <a class="btn btn-secondary" href="{% url 'ios2:instrument_detail' object.id %}">
+                        <a class="btn btn-secondary" href="{% url 'ios2:mooring_detail' object.id %}">
                             {% trans "Cancel" %}
                         </a>
                     {% else %}
-                        <a class="btn btn-secondary" href="{% url 'ios2:instrument_list' %}">
+                        <a class="btn btn-secondary" href="{% url 'ios2:mooring_list' %}">
                             {% trans "Cancel" %}
                         </a>
                     {% endif %}
                 </div>
             {% endbuttons %}
-
+            333333
+            {{ form.non_field_errors }}
             {% for field in form %}
                 {#                {% if field.name == "cruise" %}#}
                 {#                    {% bootstrap_field field placeholder="" %}#}
@@ -78,6 +81,7 @@
 
 
             {% buttons %}
+            {{ form.non_field_errors }}
                 <div class="btn-group">
                     {% if object.id %}
                         <button type="submit" class="btn btn-primary">
@@ -90,11 +94,11 @@
                     {% endif %}
 
                     {% if object.id %}
-                        <a class="btn btn-secondary" href="{% url 'ios2:instrument_detail' object.id %}">
+                        <a class="btn btn-secondary" href="{% url 'ios2:mooring_detail' object.id %}">
                             {% trans "Cancel" %}
                         </a>
                     {% else %}
-                        <a class="btn btn-secondary" href="{% url 'ios2:instrument_list' %}">
+                        <a class="btn btn-secondary" href="{% url 'ios2:mooring_list' %}">
                             {% trans "Cancel" %}
                         </a>
                     {% endif %}
