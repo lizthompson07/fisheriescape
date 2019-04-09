@@ -1,5 +1,6 @@
 import os
 
+from dfo_sci_dm_site import my_conf
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
@@ -14,25 +15,25 @@ from shared_models import models as shared_models
 
 # Create your models here.
 
-class Person(models.Model):
-    first_name = models.CharField(max_length=225)
-    last_name = models.CharField(max_length=225, null=True, blank=True)
-    phone = models.CharField(max_length=50, null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    notes = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        return "{} {}".format(self.first_name, self.last_name)
-
-    class Meta:
-        ordering = ['first_name', 'last_name']
-
-    @property
-    def full_name(self):
-        return "{} {}".format(self.first_name, self.last_name)
-
-    def get_absolute_url(self):
-        return reverse('tickets:person_detail', kwargs={'pk': self.id})
+# class Person(models.Model):
+#     first_name = models.CharField(max_length=225)
+#     last_name = models.CharField(max_length=225, null=True, blank=True)
+#     phone = models.CharField(max_length=50, null=True, blank=True)
+#     email = models.EmailField(null=True, blank=True)
+#     notes = models.TextField(null=True, blank=True)
+#
+#     def __str__(self):
+#         return "{} {}".format(self.first_name, self.last_name)
+#
+#     class Meta:
+#         ordering = ['first_name', 'last_name']
+#
+#     @property
+#     def full_name(self):
+#         return "{} {}".format(self.first_name, self.last_name)
+#
+#     def get_absolute_url(self):
+#         return reverse('tickets:person_detail', kwargs={'pk': self.id})
 
 
 class RequestType(models.Model):
@@ -77,6 +78,11 @@ class Status(models.Model):
 
 
 class Ticket(models.Model):
+    # choices for app
+    APP_CHOICES = [(app_key, my_conf.APP_DICT[app_key]) for app_key in my_conf.APP_DICT]
+    APP_CHOICES.sort()
+    APP_CHOICES.insert(0, ("general", "General Issue"))
+
     # Choices for priority
     HIGH = '1'
     MED = '2'
@@ -91,13 +97,17 @@ class Ticket(models.Model):
         (URGENT, 'Urgent'),
     )
 
-    # Choices for application
-
     title = models.CharField(max_length=255)
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING)
+    primary_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    app = models.CharField(max_length=25, default="general", choices=APP_CHOICES, verbose_name=_("application name"),
+                           blank=True, null=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.DO_NOTHING, limit_choices_to={"is_staff": True},
+                                  verbose_name=_("ticket assigned to"), blank=True, null=True,
+                                  related_name="assigned_tickets")
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True)
+    request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
     priority = models.CharField(default='2', max_length=1, choices=PRIORITY_CHOICES)
-    request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     description = models.TextField(blank=True, null=True)
     financial_coding = models.CharField(max_length=100, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
@@ -106,21 +116,17 @@ class Ticket(models.Model):
     date_closed = models.DateTimeField(null=True, blank=True)
     date_modified = models.DateTimeField(default=timezone.now)
     people_notes = models.TextField(blank=True, null=True)
-    primary_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     resolved_email_date = models.DateTimeField(null=True, blank=True,
                                                verbose_name="Notification sent to primary contact")
     # SERVICE DESK FIELDS
     sd_ref_number = models.CharField(max_length=8, null=True, blank=True, verbose_name="Service desk reference #")
     sd_ticket_url = models.URLField(null=True, blank=True, verbose_name="Service desk ticket URL")
-    # sd_primary_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sd_tickets_persons",
-    #                                        null=True, blank=True, verbose_name="Service desk primary contact")
     sd_primary_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="sd_tickets_persons",
                                            null=True, blank=True, verbose_name="Service desk primary contact")
     sd_description = models.TextField(null=True, blank=True, verbose_name="Service desk ticket description")
     sd_date_logged = models.DateTimeField(null=True, blank=True, verbose_name="Service desk date logged")
     financial_follow_up_needed = models.BooleanField(default=False)
     estimated_cost = models.FloatField(blank=True, null=True)
-    # fiscal_year = models.CharField(blank=True, null=True, max_length=20) # THIS FIELD SHOULD BE DELETED
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     def save(self, *args, **kwargs):
