@@ -1,0 +1,131 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+{% block extra_style %}
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    table, td, th {
+        font-size: small;
+        border: 1px solid black;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    td, th {
+        padding-top: 1px;
+    }
+
+    th {
+        background-color: lightblue;
+    {#color: white;#} border: 1px solid black;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+    }
+
+
+    h1 {
+        font-size: 24px;
+    }
+
+    @page {
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+
+
+{# list of entries by organization #}
+<h1>List of iHub Entries by Organization {% if fy != "None" %} ({{ fy }}) {% endif %}</h1>
+
+{% for org in org_list %}
+    <h2>
+        <u>
+            {{ org }}
+        </u>
+    </h2>
+    <ol>
+        {% for entry in my_dict|lookup:org.id %}
+            <li>{{ entry }}</li>
+        {% endfor %}
+    </ol>
+{% endfor %}
+<h2>
+    TOTAL COUNT OF UNIQUE ENTRIES: {{ entry_list.count }}
+</h2>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+{% for entry in entry_list %}
+    <h2>{{ entry.title }}</h2>
+    {% for field in field_list %}
+        {% verbose_field_display entry field %}
+    {% endfor %}
+    <h3>People:</h3>
+    <ul>
+        {% for person in entry.people.all %}
+            <li>{{ person.get_role_display|nz:"<em>(no role assigned)</em>"|safe }} - {{ person }} ({{ person.organization }})</li>
+        {% empty %}
+            <em>No people have been assigned to this entry.</em>
+        {% endfor %}
+    </ul>
+
+    <h3>Notes:</h3>
+    <ul>
+        {% for note in entry.notes.all %}
+            <li>
+                {{ note.get_type_display|upper }} - {{ note.note }} [STATUS: {{ note.status }}] (Created
+                by {{ note.author.first_name }} {{ note.author.last_name }} on {{ note.date }})
+            </li>
+        {% empty %}
+            <em>No notes have been added to this entry.</em>
+        {% endfor %}
+    </ul>
+
+    <h3>Funding Details:</h3>
+    <table>
+        {% for field in field_list_1 %}
+            <tr>
+                <td style="width: 150px;">{% get_verbose_label entry field %}</td>
+                <td style="width: 150px;">{% get_field_value entry field format="currency" %}</td>
+            </tr>
+        {% endfor %}
+
+    </table>
+
+    <div>
+        <pdf:nextpage/>
+    </div>
+{% endfor %}
+
+

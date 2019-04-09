@@ -1205,11 +1205,10 @@ class MySectionDetailView(LoginRequiredMixin, TemplateView):
 ##########################
 
 
-class ResourceCertificationCreateView(LoginRequiredMixin, CreateView):
+class ResourceCertificationCreateView(CustodianRequiredMixin, CreateView):
     model = models.ResourceCertification
     template_name = 'inventory/resource_certification_form.html'
     form_class = forms.ResourceCertificationForm
-    login_url = '/accounts/login_required/'
     success_message = "Certification successful!"
 
     def get_context_data(self, **kwargs):
@@ -1236,10 +1235,9 @@ class ResourceCertificationCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ResourceCertificationDeleteView(LoginRequiredMixin, DeleteView):
+class ResourceCertificationDeleteView(CustodianRequiredMixin, DeleteView):
     model = models.ResourceCertification
     template_name = 'inventory/resource_certification_confirm_delete.html'
-    login_url = '/accounts/login_required/'
     success_message = "The certification event has been removed."
 
     def get_success_url(self):
@@ -1255,7 +1253,7 @@ class ResourceCertificationDeleteView(LoginRequiredMixin, DeleteView):
 # FILES #
 #########
 
-class FileCreateView(CreateView):
+class FileCreateView(CustodianRequiredMixin, CreateView):
     template_name = "inventory/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1277,7 +1275,7 @@ class FileCreateView(CreateView):
         return {'resource': resource}
 
 
-class FileDetailView(UpdateView):
+class FileDetailView(LoginRequiredMixin, UpdateView):
     template_name = "inventory/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1289,7 +1287,7 @@ class FileDetailView(UpdateView):
         return context
 
 
-class FileUpdateView(UpdateView):
+class FileUpdateView(CustodianRequiredMixin, UpdateView):
     template_name = "inventory/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1304,7 +1302,7 @@ class FileUpdateView(UpdateView):
         return context
 
 
-class FileDeleteView(DeleteView):
+class FileDeleteView(CustodianRequiredMixin, DeleteView):
     template_name = "inventory/file_confirm_delete.html"
     model = models.File
 
@@ -1315,7 +1313,7 @@ class FileDeleteView(DeleteView):
 # DATA RESOURCE #
 #################
 
-class DataResourceCreateView(CreateView):
+class DataResourceCreateView(CustodianRequiredMixin, CreateView):
     template_name = "inventory/data_resource_form.html"
     model = models.DataResource
     form_class = forms.DataResourceForm
@@ -1336,7 +1334,7 @@ class DataResourceCreateView(CreateView):
         return {'resource': resource}
 
 
-class DataResourceUpdateView(UpdateView):
+class DataResourceUpdateView(CustodianRequiredMixin, UpdateView):
     template_name = "inventory/data_resource_form.html"
     model = models.DataResource
     form_class = forms.DataResourceForm
@@ -1350,7 +1348,7 @@ class DataResourceUpdateView(UpdateView):
         return context
 
 
-class DataResourceDeleteView(DeleteView):
+class DataResourceDeleteView(CustodianRequiredMixin, DeleteView):
     template_name = "inventory/data_resource_confirm_delete.html"
     model = models.DataResource
 
@@ -1361,7 +1359,7 @@ class DataResourceDeleteView(DeleteView):
 # WEB SERVICES #
 ################
 
-class WebServiceCreateView(CreateView):
+class WebServiceCreateView(CustodianRequiredMixin, CreateView):
     template_name = "inventory/data_resource_form.html"
     model = models.WebService
     form_class = forms.WebServiceForm
@@ -1382,7 +1380,7 @@ class WebServiceCreateView(CreateView):
         return {'resource': resource}
 
 
-class WebServiceUpdateView(UpdateView):
+class WebServiceUpdateView(CustodianRequiredMixin, UpdateView):
     template_name = "inventory/data_resource_form.html"
     model = models.WebService
     form_class = forms.WebServiceForm
@@ -1396,7 +1394,7 @@ class WebServiceUpdateView(UpdateView):
         return context
 
 
-class WebServiceDeleteView(DeleteView):
+class WebServiceDeleteView(CustodianRequiredMixin, DeleteView):
     template_name = "inventory/data_resource_confirm_delete.html"
     model = models.WebService
 

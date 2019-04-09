@@ -134,7 +134,7 @@ class DigestionLevel(models.Model):
 
 class Prey(models.Model):
     predator = models.ForeignKey(Predator, on_delete=models.DO_NOTHING, related_name="prey_items")
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, )
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="prey_items")
     digestion_level = models.ForeignKey(DigestionLevel, on_delete=models.DO_NOTHING, blank=True, null=True)
     somatic_length_mm = models.FloatField(null=True, blank=True, verbose_name="body length (mm)")
     length_comment = models.CharField(max_length=250, blank=True, null=True)

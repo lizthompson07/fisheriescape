@@ -20,8 +20,13 @@ class SectionForm(forms.ModelForm):
                         User.objects.all().order_by("last_name", "first_name")]
         USER_CHOICES.insert(0, tuple((None, "---")))
 
+        DIVISION_CHOICES = [(obj.id, "{} - {}".format(obj.branch, obj.name)) for obj in
+                        models.Division.objects.all().order_by("branch__region", "branch", "name")]
+        DIVISION_CHOICES .insert(0, tuple((None, "---")))
+
         super().__init__(*args, **kwargs)
         self.fields['head'].choices = USER_CHOICES
+        self.fields['division'].choices = DIVISION_CHOICES
 
 
 class DivisionForm(forms.ModelForm):
@@ -34,6 +39,14 @@ class DivisionForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
 
         }
+
+    def __init__(self, *args, **kwargs):
+        BRANCH_CHOICES = [(obj.id, "{} - {}".format(obj.region, obj.name)) for obj in
+                            models.Branch.objects.all().order_by("region", "name")]
+        BRANCH_CHOICES.insert(0, tuple((None, "---")))
+
+        super().__init__(*args, **kwargs)
+        self.fields['branch'].choices = BRANCH_CHOICES
 
 class BranchForm(forms.ModelForm):
     class Meta:
