@@ -105,7 +105,7 @@ except RuntimeError:
     print("not connecting travel app")
 
 try:
-    urlpatterns += i18n_patterns(path('polls/', include('polls.urls')), prefix_default_language=True)
+    urlpatterns += i18n_patterns(path('ios2/', include('ios2.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting travel app")
 
