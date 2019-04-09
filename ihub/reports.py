@@ -22,6 +22,7 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
     workbook = xlsxwriter.Workbook(target_file_path)
 
     # create formatting
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
@@ -69,14 +70,15 @@ def generate_capacity_spreadsheet(fy=None, orgs=None):
             # create the col_max column to store the length of each header
             # should be a maximum column width to 100
             col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-            my_ws.write_row(0, 0, header, header_format)
+            my_ws.write(0, 0, str(org), title_format)
+            my_ws.write_row(2, 0, header, header_format)
 
             tot_requested = 0
             tot_approved = 0
             tot_transferred = 0
             tot_lapsed = 0
             tot_outstanding = 0
-            i = 1
+            i = 3
             for e in entry_list.filter(organizations=org):
 
                 if e.organizations.count() > 0:
@@ -193,6 +195,7 @@ def generate_summary_spreadsheet(fy, orgs):
     workbook = xlsxwriter.Workbook(target_file_path)
 
     # create formatting
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
@@ -242,14 +245,15 @@ def generate_summary_spreadsheet(fy, orgs):
             # create the col_max column to store the length of each header
             # should be a maximum column width to 100
             col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-            my_ws.write_row(0, 0, header, header_format)
+            my_ws.write(0, 0, str(org), title_format)
+            my_ws.write_row(2, 0, header, header_format)
 
             tot_requested = 0
             tot_approved = 0
             tot_transferred = 0
             tot_lapsed = 0
             tot_outstanding = 0
-            i = 1
+            i = 3
             for e in entry_list.filter(organizations=org):
 
                 if e.organizations.count() > 0:
