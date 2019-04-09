@@ -88,8 +88,8 @@
                 {% block right_auth %}{% endblock right_auth %}
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#" data-toggle="tooltip" title="Complete this form to provide feedback about the system.">
-                        {% trans "Feedback" %}
+                    <a class="nav-link" href="#" pop-href="{% block bug_create %}{% endblock bug_create %}" data-toggle="tooltip" title="Complete this form to provide feedback about the system.">
+                        {% trans "Feedback / Bugs" %}
                     </a>
                 </li>
                 <li class="nav-item">

@@ -450,8 +450,8 @@ class Site(models.Model):
 
 class GCSample(models.Model):
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING)
-    traps_set = models.DateTimeField()
-    traps_fished = models.DateTimeField(blank=True, null=True)
+    traps_set = models.DateTimeField(verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
+    traps_fished = models.DateTimeField(blank=True, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
     samplers = models.ManyToManyField(Sampler)
     bottom_type = models.CharField(max_length=100, blank=True, null=True)
     percent_vegetation_cover = models.IntegerField(blank=True, null=True, verbose_name="vegetation cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
