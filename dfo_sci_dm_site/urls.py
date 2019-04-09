@@ -25,13 +25,11 @@ from accounts import views as acc_views
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
-
 ]
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
-    path('bugs/', include('bugs.urls')),
     path('shared/', include('shared_models.urls')),
 
     # Password reset views. Views are part of accounts app #
