@@ -106,7 +106,11 @@ class ResourceForm(forms.ModelForm):
             "additional_credit": forms.Textarea(attrs={"rows": 5}),
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
             "notes": forms.Textarea(attrs={"rows": 5}),
-
+            "parent": forms.NumberInput(),
+        }
+        labels = {
+            "section": "Section (Region / Branch / Division / Section)",
+            "parent": _("Parent Resource Id (click on field to find a parent resource)"),
         }
 
     def __init__(self, *args, **kwargs):
