@@ -179,6 +179,17 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
             'date_last_modified': timezone.now(),
         }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get lists
+        resource_list = ['<a href="#id_parent" class="resource_insert" code="{id}" url="{url}">{text}</a>'.format(id=obj.id, text=str(obj),
+                                                                                                         url=reverse('inventory:resource_detail',
+                                                                                                                     kwargs={'pk': obj.id}))
+                         for obj in models.Resource.objects.all()]
+        context['resource_list'] = resource_list
+        return context
+
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = models.Resource
@@ -207,7 +218,7 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
 
         # get lists
-        resource_list = ['<a href="#" class="resource_insert" code={id}>{text} ({id})</a>'.format(id=obj.id, text=str(obj)) for obj in
+        resource_list = ['<a href="#" class="resource_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
                          models.Resource.objects.all()]
         context['resource_list'] = resource_list
         return context
