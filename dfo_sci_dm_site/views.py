@@ -204,12 +204,12 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["polls"] = {
+        app_dict["ios2"] = {
             "title": _("Instruments"),
             "description": _("instruments."),
             "status": "dev",
             "access": "permission-required",
-            "url": reverse('polls:index'),
+            "url": reverse('ios2:index'),
             "icon_path": 'img/icons/paper-plane.svg',
         }
     except NoReverseMatch:
