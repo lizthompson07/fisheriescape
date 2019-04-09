@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core import validators
+from django.utils.translation import gettext as _
 from . import models
 from shared_models import models as shared_models
 
@@ -48,9 +49,11 @@ class ResourceCreateForm(forms.ModelForm):
             "additional_credit": forms.Textarea(attrs={"rows": 5}),
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
             "notes": forms.Textarea(attrs={"rows": 5}),
+            "parent": forms.NumberInput(),
         }
         labels = {
-            "section": "Section (Region / Branch / Division / Section)"
+            "section": "Section (Region / Branch / Division / Section)",
+            "parent": _("Parent Resource Id (click on field to find a parent resource)"),
         }
 
     def __init__(self, *args, **kwargs):
