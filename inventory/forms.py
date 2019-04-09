@@ -15,13 +15,16 @@ class ResourceCreateForm(forms.ModelForm):
             'file_identifier',
             'uuid',
             'date_verified',
-            # 'date_last_modified',
+            'date_last_modified',
             'fgp_publication_date',
             'citations',
             'keywords',
             'people',
             'flagged_4_publication',
             'flagged_4_deletion',
+            'completedness_report',
+            'completedness_rating',
+            'translation_needed',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
