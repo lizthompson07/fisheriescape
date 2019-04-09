@@ -16,6 +16,8 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
 from easy_pdf.views import PDFTemplateView
+from shared_models import models as shared_models
+
 
 from lib.functions.nz import nz
 from . import models
@@ -911,7 +913,7 @@ def manage_funding_purposes(request):
 
 
 def manage_regions(request):
-    qs = ml_models.Region.objects.all()
+    qs = shared_models.Region.objects.all()
     if request.method == 'POST':
         formset = forms.RegionFormSet(request.POST, )
         if formset.is_valid():

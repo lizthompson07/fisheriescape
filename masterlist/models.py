@@ -214,7 +214,6 @@ class OrganizationMember(models.Model):
         else:
             last_name = ""
 
-
         return "{} {}, {} ({})".format(first_name, last_name, self.role, self.organization)
 
 
