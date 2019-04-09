@@ -50,6 +50,12 @@ urlpatterns = [
     path('sampler/<int:pk>/edit/', views.SamplerUpdateView.as_view(), name="sampler_edit"),
     path('sampler/<int:pk>/delete/', views.SamplerDeleteView.as_view(), name="sampler_delete"),
 
+    # REPORT #
+    ###################
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('progress-report/<int:year>/', views.PreySummaryListView.as_view(), name="prey_summary_list"),
+    path('progress-report/<int:year>/export', views.export_prey_summary, name="export_prey_summary"),
+
 ]
 
 app_name = 'diets'

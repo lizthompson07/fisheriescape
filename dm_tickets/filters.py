@@ -10,7 +10,7 @@ class TicketFilter(django_filters.FilterSet):
     SECTION_CHOICES = [(s.id, s.full_name) for s in shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
 
     section = django_filters.ChoiceFilter(field_name="section", choices=SECTION_CHOICES)
-    search_term = django_filters.CharFilter(field_name='search_term', label="Key term (title, description, notes, Id):",
+    search_term = django_filters.CharFilter(field_name='search_term', label="Key term (title, description, Id):",
                                             lookup_expr='icontains', widget=forms.TextInput())
     class Meta:
         model = models.Ticket

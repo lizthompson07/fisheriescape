@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load custom_filters %}
 
-{% block bug_create %}{% url 'bugs:bug_create' 1 %}{% endblock bug_create %}
+{% block bug_create %}{% url 'tickets:bug_create' 'general' %}{% endblock bug_create %}
 {% block header %}
     <style>
         body {
