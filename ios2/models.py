@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from datetime import date, timedelta, datetime
 import os
-
+from django.db.models.signals import post_save
 
 class Instrument(models.Model):
     TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP'), ('OXY', 'OXY')]
@@ -44,9 +44,12 @@ class Instrument(models.Model):
         return reverse('ios2:instrument_detail', kwargs={'pk': self.pk})
 
 
+
+
+
 class Mooring(models.Model):
 
-    # instruments = models.ManyToManyField(Instrument, through='InstrumentMooring')
+    instruments = models.ManyToManyField(Instrument, blank=True, through='InstrumentMooring')
 
     mooring = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("mooring name"))
     mooring_number = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("mooring number"))
@@ -84,6 +87,39 @@ class InstrumentMooring(models.Model):
         # ordering = ['mooring', 'mooring_number']
         # auto_created = True
         unique_together = ['instrument', 'mooring']
+
+
+class ServiceHistory(models.Model):
+    # category choices:
+    CALIB = 1#'Calibration'
+    REPAIR = 2#'Repair'
+
+    CATEGORY_CHOICES = (
+        (CALIB, _("Calibration")),
+        (REPAIR, _("Repair")),
+    )
+    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE, related_name="service",
+                                   verbose_name=_("instrument"))
+
+    category = models.IntegerField(choices=CATEGORY_CHOICES, verbose_name=_("category"))
+
+    service_date = models.DateField(blank=True, null=True,
+                                    verbose_name=_("Service Date"))
+
+    comments = models.TextField(blank=True)
+    def __str__(self):
+        return "{}".format(self.get_category_display())
+
+
+@receiver(post_save, sender=ServiceHistory)
+def update_last_service_date(sender, instance, created, **kwargs):
+    if created:
+        # Instrument.objects.create(date_of_last_service=instance)
+        Instrument.objects.date_of_last_service = instance.service_date
+        # Instrument.objects.save()
+    # (date_of_last_service=instance)
+
+
 #
 # def file_directory_path(instance, filename):
 #     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>

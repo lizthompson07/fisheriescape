@@ -100,15 +100,11 @@
                     <td>{{ obj.serial_number }}</td>
 
 
-<!--                    {% if LANG == "fr" %}-->
-<!--                        <td>{{ obj.section.division.nom }}</td>-->
-<!--                        <td>{{ obj.section.nom }}</td>-->
-<!--                    {% else %}-->
-<!--                        <td>{{ obj.section.division.name }}</td>-->
-<!--                        <td>{{ obj.section.name }}</td>-->
-<!--                    {% endif %}-->
-                    <td>
-                        {{ obj.test1 }}
+                     <td>
+
+                         {% for service in obj.service.all %}
+                        {{ service.service_date }}
+                         {% endfor %}
                     </td>
                     <td>{{ obj.date_of_last_service |date:"Y-M-d"}}</td>
                     <td>{{ obj.date_of_next_service |date:"Y-M-d"}}</td>
