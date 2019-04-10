@@ -76,13 +76,12 @@ urlpatterns = [
     path('instrudeployment/<int:pk>/edit/', views.InstrumentMooringUpdateView.as_view(),
          name="instrumentmooring_edit"),
 
+    # Service History #
+    ############
+    path('instrument/<int:instrument>/service/new/', views.ServiceCreateView.as_view(), name="service_new"),
+    path('service/<int:pk>/edit/', views.ServiceUpdateView.as_view(), name="service_edit"),
+    path('service/<int:pk>/delete/', views.service_delete, name="service_delete"),
 
-    # # Moorings
-    # path('ios2/mooring/new/', views.MooringCreateView.as_view(), name="mooring_new"),
-    # path('ios2/mooring/<int:pk>/view', views.MooringDetailView.as_view(), name="deployment_detail"),
-    # path('ios2/mooring/<int:pk>/addinstrument', views.InstrumentMooringCreateView.as_view(), name="add_instrument"),
-    # path('ios2/mooring/<int:pk>/submit', views.MooringSubmitUpdateView.as_view(), name="mooring_submit"),
-    # path('ios2/mooring/<int:pk>/print', views.MooringPrintDetailView.as_view(), name="mooring_print"),
-    # path('ios2/mooring/<int:pk>/delete', views.MooringDeleteView.as_view(), name="mooring_delete"),
-    # path('ios2/mooring/<int:pk>/edit', views.DeploymentUpdateView.as_view(), name="mooring_edit"),
+
+
 ]

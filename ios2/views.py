@@ -85,6 +85,50 @@ class InstrumentListView(LoginRequiredMixin, FilterView):
     template_name = 'ios2/instrument_list.html'
     model = models.Instrument
     filterset_class = filters.InstrumentFilter
+    #
+    # def get_queryset(self, **kwargs):
+    #     queryset = (models.ServiceHistory.objects
+    #                        .all()
+    #                        .prefetch_related('instrument')
+    #                        .latest('service_date'))
+    #     print(self.kwargs)
+    #     # print(model.all)
+    #     # try:
+    #     #     queryset = models.ServiceHistory.objects. \
+    #     #         select_related().filter(instrument=models.Instrument.id).latest('service_date')
+    #     # except:
+    #     #     queryset = None
+    #     return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # instrument = self.object
+        context["field_list"] = [
+            # 'id',
+            'instrument_type',
+            'serial_number',
+            'purchase_date',
+            'project_title',
+            # 'date_of_last_service',
+            'date_of_next_service',
+            # 'last_modified_by',
+        ]
+
+        context["report_mode"] = False
+        print(self.kwargs, 'yay?')
+        # context['service_history'] = models.ServiceHistory.objects.get(pk=self.kwargs["pk"])#latest('service_date')\
+        try:
+            context['service_history'] = models.ServiceHistory.objects.\
+                select_related().filter(instrument=self.kwargs["pk"]).latest('service_date')
+        except:
+            print('no service recorded...')
+
+        # context["field_list_1"] = [
+        #     'service_history',
+            # 'priorities_html',
+            # 'deliverables_html',
+        # ]
+        return context
 
 
 class MooringListView(LoginRequiredMixin, FilterView):
@@ -132,13 +176,21 @@ class InstrumentDetailView(LoginRequiredMixin, DetailView):
             # 'last_modified_by',
         ]
 
-        # context["field_list_1"] = [
-        #     'description_html',
-        #     'priorities_html',
-        #     'deliverables_html',
-        # ]
 
         context["report_mode"] = False
+        print(self.kwargs, 'yay?')
+        # context['service_history'] = models.ServiceHistory.objects.get(pk=self.kwargs["pk"])#latest('service_date')\
+        try:
+            context['service_history'] = models.ServiceHistory.objects.\
+                select_related().filter(instrument=self.kwargs["pk"]).latest('service_date')
+        except:
+            print('no service recorded...')
+
+        # context["field_list_1"] = [
+        #     'service_history',
+            # 'priorities_html',
+            # 'deliverables_html',
+        # ]
         return context
 
 
@@ -307,6 +359,7 @@ class MooringDetailView(LoginRequiredMixin, DetailView):
         ]
 
         context["report_mode"] = False
+
         return context
 
 
@@ -521,6 +574,44 @@ class MooringInstrumentUpdateView(LoginRequiredMixin, UpdateView):
         object = form.save()
 
         return HttpResponseRedirect(reverse('ios2:close_me'))
+
+
+
+class ServiceCreateView(LoginRequiredMixin, CreateView):
+    model = models.ServiceHistory
+    login_url = '/accounts/login_required/'
+    form_class = forms.ServiceForm
+    template_name = 'ios2/service_form_popout.html'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ios2:close_me'))
+
+    # def get_initial(self):
+    #     return {'last_modified_by': self.request.user}
+
+    def get_initial(self):
+
+        instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
+        return {
+            'instrument': instrument,
+        }
+
+
+class ServiceUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.ServiceHistory
+    login_url = '/accounts/login_required/'
+    form_class = forms.ServiceForm
+    template_name = 'ios2/service_form_popout.html'
+
+
+def service_delete(request, pk):
+
+    object = models.ServiceHistory.objects.get(pk=pk)
+    # instrument_id = object.instrument.id
+    object.delete()
+    messages.success(request, _("The service record has been successfully deleted!!!"))
+    return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": object.instrument.id}))
 
 
 # class AddDeploymentCreateView(LoginRequiredMixin, CreateView):
