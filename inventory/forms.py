@@ -46,6 +46,17 @@ class ResourceCreateForm(forms.ModelForm):
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
             "notes": forms.Textarea(attrs={"rows": 5}),
         }
+        labels = {
+            "section": "Section (Region / Branch / Division / Section)"
+        }
+
+    def __init__(self, *args, **kwargs):
+        SECTION_CHOICES = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
+        SECTION_CHOICES.insert(0, tuple((None, "---")))
+
+        super().__init__(*args, **kwargs)
+        self.fields['section'].choices = SECTION_CHOICES
 
 
 class ResourceForm(forms.ModelForm):
@@ -91,6 +102,15 @@ class ResourceForm(forms.ModelForm):
             "notes": forms.Textarea(attrs={"rows": 5}),
 
         }
+
+    def __init__(self, *args, **kwargs):
+        SECTION_CHOICES = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division",
+                                                                        "name")]
+        SECTION_CHOICES.insert(0, tuple((None, "---")))
+
+        super().__init__(*args, **kwargs)
+        self.fields['section'].choices = SECTION_CHOICES
 
 
 class ResourcePersonForm(forms.ModelForm):

@@ -22,8 +22,8 @@ from . import forms
 from . import emails
 
 
-class IndexView(TemplateView):
-    template_name = 'accounts/index.html'
+class CloserTemplateView(TemplateView):
+    template_name = 'accounts/close_me.html'
 
 
 def access_denied(request):
@@ -272,4 +272,4 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
             print(email.message)
         messages.success(self.request,
                          message="your request has been sent to the site administrator")
-        return HttpResponseRedirect(reverse('bugs:close_me'))
+        return HttpResponseRedirect(reverse('accounts:close_me'))

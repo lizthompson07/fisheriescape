@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
-from django.db.models import TextField
+from django.db.models import TextField, Q
 from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils import timezone
@@ -27,6 +27,7 @@ from masterlist import models as ml_models
 from shared_models import models as shared_models
 
 ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
+
 
 # Create your views here.
 class CloserTemplateView(TemplateView):
@@ -128,7 +129,8 @@ class PersonUpdateView(iHubAccessRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk":object.id}))
+        return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk": object.id}))
+
 
 class PersonUpdateViewPopout(iHubAccessRequiredMixin, UpdateView):
     template_name = 'ihub/person_form_popout.html'
@@ -144,6 +146,7 @@ class PersonUpdateViewPopout(iHubAccessRequiredMixin, UpdateView):
             'last_modified_by': self.request.user,
         }
 
+
 class PersonCreateView(iHubAccessRequiredMixin, CreateView):
     model = ml_models.Organization
     template_name = 'ihub/person_form.html'
@@ -156,7 +159,8 @@ class PersonCreateView(iHubAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk":object.id}))
+        return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk": object.id}))
+
 
 class PersonCreateViewPopout(iHubAccessRequiredMixin, CreateView):
     model = ml_models.Person
@@ -171,6 +175,7 @@ class PersonCreateViewPopout(iHubAccessRequiredMixin, CreateView):
         return {
             'last_modified_by': self.request.user,
         }
+
 
 class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.Person
@@ -201,7 +206,7 @@ class OrganizationListView(iHubAccessRequiredMixin, FilterView):
             'name_ind',
             'province',
             'grouping',
-            'full_address|'+_("Full address"),
+            'full_address|' + _("Full address"),
         ]
         return context
 
@@ -324,6 +329,7 @@ class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
         return {
             'last_modified_by': self.request.user,
         }
+
 
 def member_delete(request, pk):
     object = ml_models.OrganizationMember.objects.get(pk=pk)
@@ -595,8 +601,26 @@ class ReportSearchFormView(iHubAccessRequiredMixin, FormView):
                 return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs={"orgs": orgs, }))
             else:
                 return HttpResponseRedirect(reverse("ihub:capacity_xlsx"))
-        if report == 2:
+        elif report == 2:
             return HttpResponseRedirect(reverse("ihub:report_q", kwargs={"org": org}))
+        elif report == 3:
+            if fy and orgs:
+                return HttpResponseRedirect(reverse("ihub:summary_xlsx", kwargs={"fy": fy, "orgs": orgs}))
+            elif fy:
+                return HttpResponseRedirect(reverse("ihub:summary_xlsx", kwargs={"fy": fy, "orgs": "None"}))
+            elif orgs:
+                return HttpResponseRedirect(reverse("ihub:summary_xlsx", kwargs={"fy": "None", "orgs": orgs}))
+            else:
+                return HttpResponseRedirect(reverse("ihub:summary_xlsx", kwargs={"fy": "None", "orgs": "None"}))
+        elif report == 4:
+            if fy and orgs:
+                return HttpResponseRedirect(reverse("ihub:summary_pdf", kwargs={"fy": fy, "orgs": orgs}))
+            elif fy:
+                return HttpResponseRedirect(reverse("ihub:summary_pdf", kwargs={"fy": fy, "orgs": "None"}))
+            elif orgs:
+                return HttpResponseRedirect(reverse("ihub:summary_pdf", kwargs={"fy": "None", "orgs": orgs}))
+            else:
+                return HttpResponseRedirect(reverse("ihub:summary_pdf", kwargs={"fy": "None", "orgs": "None"}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
@@ -608,7 +632,19 @@ def capacity_export_spreadsheet(request, fy=None, orgs=None):
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="iHub export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            response['Content-Disposition'] = 'inline; filename="iHub Capacity Report ({}).xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def summary_export_spreadsheet(request, fy, orgs):
+    file_url = reports.generate_summary_spreadsheet(fy, orgs)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="iHub Summary Report ({}).xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
 
@@ -677,6 +713,71 @@ class OrganizationCueCard(iHubAccessRequiredMixin, PDFTemplateView):
         return context
 
 
+class PDFSummaryReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "ihub/report_pdf_summary.html"
+
+    def get_pdf_filename(self):
+        pdf_filename = "iHub Summary Report ({}).pdf".format(timezone.now().strftime("%Y-%m-%d"))
+        return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # get an entry list for the fiscal year (if any)
+        if self.kwargs["orgs"] != "None":
+            org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in self.kwargs["orgs"].split(",")]
+        else:
+            org_list = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
+
+        # remove any orgs without entries
+        org_list = [org for org in org_list if org.entries.count() > 0]
+        context["org_list"] = org_list
+
+        my_dict = {}
+        for org in org_list:
+            if org.entries.count() > 0:
+                if self.kwargs["fy"] != "None":
+                    entry_list = org.entries.filter(fiscal_year=self.kwargs["fy"])
+                else:
+                    entry_list = org.entries.all()
+                my_dict[org.id] = entry_list.order_by("title")
+
+        context["my_dict"] = my_dict
+
+        q_objects = Q()  # Create an empty Q object to start with
+        for org in org_list:
+            q_objects |= Q(organizations=org)  # 'or' the Q objects together
+        entry_list = models.Entry.objects.filter(q_objects).order_by("title")
+
+        context["entry_list"] = entry_list
+
+        context["fy"] = self.kwargs["fy"]
+        context["field_list"] = [
+            'title',
+            'organizations',
+            'status',
+            'sectors',
+            'entry_type',
+            'initial_date',
+            'regions',
+            'created_by',
+        ]
+
+        context["field_list_1"] = [
+            'fiscal_year',
+            'funding_needed',
+            'funding_purpose',
+            'amount_requested',
+            'amount_approved',
+            'amount_transferred',
+            'amount_lapsed',
+            'amount_owing'
+        ]
+
+
+        return context
+
+
 # SETTINGS #
 ############
 
@@ -700,6 +801,7 @@ def manage_sectors(request):
         'nom',
     ]
     return render(request, 'ihub/manage_settings_small.html', context)
+
 
 #
 # def manage_roles(request):
