@@ -65,6 +65,8 @@ urlpatterns = [
     path('reports/capacity-report/fy/<str:fy>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     path('reports/capacity-report/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
+    path('reports/summary-report/fy/<str:fy>/orgs/<str:orgs>/', views.summary_export_spreadsheet, name="summary_xlsx"),
+    path('reports/summary-report-pdf/fy/<str:fy>/orgs/<str:orgs>/', views.PDFSummaryReport.as_view(), name="summary_pdf"),
 
     # SETTINGS #
     ############

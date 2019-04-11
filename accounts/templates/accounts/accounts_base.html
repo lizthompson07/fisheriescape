@@ -1,11 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block bug_create %}{% url 'bugs:bug_create' 6 %}{% endblock bug_create %}
-{% block bug_list_4_app %}
-  <a class="dropdown-item" href="{% url 'bugs:bug_list_4_app' 6 %}">
-  {% trans "Account Bugs" %}
-  </a>
-{% endblock bug_list_4_app %}
+{% block bug_create %}{% url 'tickets:bug_create' 'general' %}{% endblock bug_create %}
 {% block title %}DM-Accounts{% endblock title %}
 {% block right_auth %}
   <li class="nav-item"><a class="nav-link" href="{% url 'accounts:account' user.id %}">

@@ -50,8 +50,8 @@ class GCSampleForm(forms.ModelForm):
         model = models.GCSample
         exclude = ['last_modified', 'season']
         widgets = {
-            'traps_set': forms.DateInput(attrs={'type': 'date'}),
-            'traps_fished': forms.DateInput(attrs={'type': 'date'}),
+            # 'traps_set': forms.DateInput(attrs={'type': 'date'}),
+            # 'traps_fished': forms.DateInput(attrs={'type': 'date'}),
             'last_modified_by': forms.HiddenInput(),
         }
 
