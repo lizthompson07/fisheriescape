@@ -16,6 +16,10 @@ urlpatterns = [
     path('<int:pk>/new-note/', views.TicketNoteUpdateView.as_view(), name="new_note"),
     path('<int:ticket>/resolved/', views.mark_ticket_resolved, name="ticket_resolved"),
     path('<int:ticket>/re-opened/', views.mark_ticket_active, name="ticket_reopened"),
+    # feedback form
+    path('feedback-form/new/', views.TicketCreateViewPopout.as_view(), name="bug_create"),
+    path('feedback-form/new/application/<str:app>/', views.TicketCreateViewPopout.as_view(), name="bug_create"),
+    path('feedback-form/<int:pk>/view/', views.TicketDetailViewPopout.as_view(), name="detail_pop"),
 
     # EMAIL #
     #########

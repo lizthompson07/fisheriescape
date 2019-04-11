@@ -1,6 +1,6 @@
 from shared_models import models as shared_models
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import Count, TextField
@@ -13,6 +13,7 @@ from django_filters.views import FilterView
 from . import models
 from . import forms
 from . import filters
+from . import reports
 
 
 class CloserTemplateView(TemplateView):
@@ -24,6 +25,19 @@ def in_diets_group(user):
         return user.groups.filter(name='diets_access').count() != 0
 
 
+class DietsAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_diets_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_diets_group, login_url='/accounts/denied/')
 def index(request):
@@ -33,17 +47,15 @@ def index(request):
 # SPECIES #
 ###########
 
-class SpeciesListView(LoginRequiredMixin, FilterView):
+class SpeciesListView(DietsAccessRequired, FilterView):
     template_name = "diets/species_list.html"
     filterset_class = filters.SpeciesFilter
-    login_url = '/accounts/login_required/'
     queryset = models.Species.objects.annotate(
         search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'id', output_field=TextField()))
 
 
-class SpeciesDetailView(LoginRequiredMixin, DetailView):
+class SpeciesDetailView(DietsAccessRequired, DetailView):
     model = models.Species
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -58,19 +70,17 @@ class SpeciesDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class SpeciesUpdateView(LoginRequiredMixin, UpdateView):
+class SpeciesUpdateView(DietsAccessRequired, UpdateView):
     model = models.Species
-    login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
 
 
-class SpeciesCreateView(LoginRequiredMixin, CreateView):
+class SpeciesCreateView(DietsAccessRequired, CreateView):
     model = models.Species
-    login_url = '/accounts/login_required/'
     form_class = forms.SpeciesForm
 
 
-class SpeciesDeleteView(LoginRequiredMixin, DeleteView):
+class SpeciesDeleteView(DietsAccessRequired, DeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('diets:species_list')
@@ -85,10 +95,9 @@ class SpeciesDeleteView(LoginRequiredMixin, DeleteView):
 ############
 
 
-class PredatorFilterView(LoginRequiredMixin, FilterView):
+class PredatorFilterView(DietsAccessRequired, FilterView):
     template_name = "diets/predator_filter.html"
     filterset_class = filters.PredatorFilter
-    login_url = '/accounts/login_required/'
     queryset = models.Predator.objects.annotate(
         search_term=Concat('species__common_name_eng', 'species__common_name_fre', 'species__scientific_name',
                            'species__id', output_field=TextField()))
@@ -106,9 +115,8 @@ class PredatorFilterView(LoginRequiredMixin, FilterView):
         return context
 
 
-class PredatorDetailView(LoginRequiredMixin, DetailView):
+class PredatorDetailView(DietsAccessRequired, DetailView):
     model = models.Predator
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -146,9 +154,8 @@ class PredatorDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class PredatorUpdateView(LoginRequiredMixin, UpdateView):
+class PredatorUpdateView(DietsAccessRequired, UpdateView):
     model = models.Predator
-    login_url = '/accounts/login_required/'
     form_class = forms.PredatorForm
 
     def get_initial(self):
@@ -163,13 +170,12 @@ class PredatorUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class PredatorCreateView(LoginRequiredMixin, CreateView):
+class PredatorCreateView(DietsAccessRequired, CreateView):
     model = models.Predator
-    login_url = '/accounts/login_required/'
     form_class = forms.PredatorForm
 
     def get_initial(self):
-        initial_dict ={'last_modified_by': self.request.user,}
+        initial_dict = {'last_modified_by': self.request.user, }
 
         # if this view is being called with a cruise number, cruise field should auto populate
         try:
@@ -188,7 +194,7 @@ class PredatorCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class PredatorDeleteView(LoginRequiredMixin, DeleteView):
+class PredatorDeleteView(DietsAccessRequired, DeleteView):
     model = models.Predator
     permission_required = "__all__"
     success_url = reverse_lazy('diets:predator_filter')
@@ -203,10 +209,9 @@ class PredatorDeleteView(LoginRequiredMixin, DeleteView):
 ########
 
 
-class PreyCreateView(LoginRequiredMixin, CreateView):
+class PreyCreateView(DietsAccessRequired, CreateView):
     model = models.Prey
     template_name = 'diets/prey_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.PreyForm
 
     def get_initial(self):
@@ -231,7 +236,7 @@ class PreyCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('diets:close_me'))
 
 
-class PreyUpdateView(LoginRequiredMixin, UpdateView):
+class PreyUpdateView(DietsAccessRequired, UpdateView):
     model = models.Prey
     template_name = 'diets/prey_form_popout.html'
     form_class = forms.PreyForm
@@ -256,8 +261,7 @@ def prey_delete(request, pk):
 # CRUISE #
 ##########
 
-class CruiseListView(LoginRequiredMixin, ListView):
-    login_url = '/accounts/login_required/'
+class CruiseListView(DietsAccessRequired, ListView):
     queryset = shared_models.Cruise.objects.all().order_by("-season", "mission_number")
     template_name = 'diets/cruise_list.html'
 
@@ -277,9 +281,8 @@ class CruiseListView(LoginRequiredMixin, ListView):
         return context
 
 
-class CruiseDetailView(LoginRequiredMixin, DetailView):
+class CruiseDetailView(DietsAccessRequired, DetailView):
     model = shared_models.Cruise
-    login_url = '/accounts/login_required/'
     template_name = 'diets/cruise_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -299,9 +302,8 @@ class CruiseDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class CruiseUpdateView(LoginRequiredMixin, UpdateView):
+class CruiseUpdateView(DietsAccessRequired, UpdateView):
     model = shared_models.Cruise
-    login_url = '/accounts/login_required/'
     form_class = forms.CruiseForm
     template_name = 'diets/cruise_form.html'
 
@@ -310,9 +312,8 @@ class CruiseUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('diets:cruise_detail', kwargs={"pk": object.id}))
 
 
-class CruiseCreateView(LoginRequiredMixin, CreateView):
+class CruiseCreateView(DietsAccessRequired, CreateView):
     model = shared_models.Cruise
-    login_url = '/accounts/login_required/'
     form_class = forms.CruiseForm
     success_url = reverse_lazy('diets:cruise_list')
     template_name = 'diets/cruise_form.html'
@@ -322,7 +323,11 @@ class CruiseCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy('diets:cruise_detail', kwargs={"pk": object.id}))
 
 
+<<<<<<< HEAD
 class CruiseDeleteView(LoginRequiredMixin, DeleteView):
+=======
+class CruiseDeleteView(DietsAccessRequired, DeleteView):
+>>>>>>> 4d6a75843c97a9612bf2913ec8bf7c3a20183d38
     model = shared_models.Cruise
     success_url = reverse_lazy('diets:cruise_list')
     success_message = 'The cruise was successfully deleted!'
@@ -336,26 +341,23 @@ class CruiseDeleteView(LoginRequiredMixin, DeleteView):
 # DIGESTION #
 #############
 
-class DigestionListView(LoginRequiredMixin, ListView):
-    login_url = '/accounts/login_required/'
+class DigestionListView(DietsAccessRequired, ListView):
     model = models.DigestionLevel
 
 
-class DigestionUpdateView(LoginRequiredMixin, UpdateView):
+class DigestionUpdateView(DietsAccessRequired, UpdateView):
     model = models.DigestionLevel
-    login_url = '/accounts/login_required/'
     form_class = forms.DigestionForm
     success_url = reverse_lazy('diets:digestion_list')
 
 
-class DigestionCreateView(LoginRequiredMixin, CreateView):
+class DigestionCreateView(DietsAccessRequired, CreateView):
     model = models.DigestionLevel
-    login_url = '/accounts/login_required/'
     form_class = forms.DigestionForm
     success_url = reverse_lazy('diets:digestion_list')
 
 
-class DigestionDeleteView(LoginRequiredMixin, DeleteView):
+class DigestionDeleteView(DietsAccessRequired, DeleteView):
     model = models.DigestionLevel
     success_url = reverse_lazy('diets:digestion_list')
     success_message = 'The digestion level was successfully deleted!'
@@ -365,30 +367,26 @@ class DigestionDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-
 # SAMPLER #
 ###########
 
-class SamplerListView(LoginRequiredMixin, ListView):
-    login_url = '/accounts/login_required/'
+class SamplerListView(DietsAccessRequired, ListView):
     model = models.Sampler
 
 
-class SamplerUpdateView(LoginRequiredMixin, UpdateView):
+class SamplerUpdateView(DietsAccessRequired, UpdateView):
     model = models.Sampler
-    login_url = '/accounts/login_required/'
     form_class = forms.SamplerForm
     success_url = reverse_lazy('diets:sampler_list')
 
 
-class SamplerCreateView(LoginRequiredMixin, CreateView):
+class SamplerCreateView(DietsAccessRequired, CreateView):
     model = models.Sampler
-    login_url = '/accounts/login_required/'
     form_class = forms.SamplerForm
     success_url = reverse_lazy('diets:sampler_list')
 
 
-class SamplerDeleteView(LoginRequiredMixin, DeleteView):
+class SamplerDeleteView(DietsAccessRequired, DeleteView):
     model = models.Sampler
     success_url = reverse_lazy('diets:sampler_list')
     success_message = 'The samplers was successfully deleted!'
@@ -396,3 +394,55 @@ class SamplerDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+# REPORTS #
+###########
+
+
+class ReportSearchFormView(DietsAccessRequired, FormView):
+    template_name = 'diets/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    def get_initial(self):
+        # default the year to the year of the latest samples
+        return {
+            # "report": 1,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        year = int(form.cleaned_data["year"])
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("diets:prey_summary_list", kwargs={'year': year}))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("diet:report_search"))
+
+
+class PreySummaryListView(DietsAccessRequired, TemplateView):
+    template_name = 'diets/prey_summary_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        prey_spp_list = [models.Species.objects.get(pk=p["species_id"]) for p in
+                         models.Prey.objects.filter(predator__cruise__season=self.kwargs["year"]).order_by(
+                             "species__scientific_name").values("species_id").distinct()]
+        context["prey_spp_list"] = prey_spp_list
+        prey_dict = {}
+        for species in prey_spp_list:
+            # want to get a list of predators that ate this species
+            pred_list = [models.Predator.objects.get(pk=p["id"]) for p in models.Predator.objects.filter(cruise__season=self.kwargs["year"]).filter(prey_items__species=species).order_by("stomach_id").values("id").distinct()]
+            prey_dict[species.id] = pred_list
+        context["prey_dict"] = prey_dict
+        return context
+
+
+def export_prey_summary(request, year):
+    response = reports.generate_progress_report(year)
+    return response
