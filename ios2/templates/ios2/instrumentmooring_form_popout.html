@@ -1,6 +1,6 @@
 {% load bootstrap4 %}
 {% load i18n %}
-
+{% load verbose_names %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
 
@@ -33,7 +33,7 @@
             {% else %}
 
                 {% blocktrans with ob1=object.adding ob2=object.adding_to %}
-                  {{object}}  Adding {{ adding }} for {{adding_to}} {{name}}
+                  Adding {{ adding }} for {{adding_to}} {{name}}
                 {% endblocktrans %}
             {% endif %}
         </h3>
@@ -42,11 +42,25 @@
         <form method="post" class="form">
             {% csrf_token %}
             {{ form.non_field_errors }}
+<!--            {{instrument.all}}-->
 
             {% for field in form %}
 
                 {% bootstrap_field field placeholder="" size="small" %}
             {% endfor %}
+
+<!--            {{form.instrument}}333-->
+<!--            {{mooring}}-->
+
+<!--            {{instrumentformset}}-->
+<!--           {% for form in instrumentformset %}-->
+<!--            {{form.instance}} 66-->
+<!--            {{form.all}}77-->
+
+<!--&lt;!&ndash;                {% bootstrap_field form placeholder="" size="small" %}&ndash;&gt;-->
+<!--            {% endfor %}-->
+555
+            {{instrument}}
 
             {% buttons %}
                 <button type="submit" class="btn btn-success" onclick="refreshParent()">

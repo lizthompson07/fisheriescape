@@ -11,19 +11,23 @@ from datetime import date, timedelta, datetime
 import os
 from django.db.models.signals import post_save
 
+
 class Instrument(models.Model):
-    TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP'), ('OXY', 'OXY')]
+    TYPE_CHOICES = [('CTD', 'CTD'),
+                    ('ADCP', 'ADCP'),
+                    ('OXY', 'OXY')]
     # fiscal_year = models.CharField(max_length=50, default="2019-2020", verbose_name=_("fiscal year"))
     # year = models.TextField(verbose_name=("Instrument title"))
-    instrument_type = models.CharField(max_length=20, default='CTD', verbose_name=_("Instrument Type"), choices=TYPE_CHOICES)
+    instrument_type = models.CharField(max_length=20, default='CTD', verbose_name=_("Instrument Type"),
+                                       choices=TYPE_CHOICES)
     serial_number = models.CharField(max_length=20, default='0000', verbose_name=_("Serial ID"))
     purchase_date = models.DateField(blank=True, null=True, verbose_name=_("Purchase Date"))
     project_title = models.TextField(blank=True, null=True, verbose_name=_("Project title"))
     scientist = models.TextField(blank=True, null=True, verbose_name=_("Scientist"))
     # location = models..... (default=..)
 
-    date_of_last_service = models.DateField(blank=True, null=True,
-                                            verbose_name=_("Last Service Date"))
+    # date_of_last_service = models.DateField(blank=True, null=True,
+    #                                         verbose_name=_("Last Service Date"))
     date_of_next_service = models.DateField(blank=True, null=True,
                                             verbose_name=_("Next Service Date"))
     # last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
@@ -61,6 +65,7 @@ class Mooring(models.Model):
     lat = models.TextField(blank=True, null=True, verbose_name=_("lat"))
     lon = models.TextField(blank=True, null=True, verbose_name=_("lon"))
     depth = models.TextField(blank=True, null=True, verbose_name=_("depth"))
+    orientation = models.TextField(blank=True, null=True, verbose_name=_("Orientation"))
     # comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit moorings for review"))
@@ -74,7 +79,7 @@ class Mooring(models.Model):
 
 
 class InstrumentMooring(models.Model):
-    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING,
+    instrument = models.ForeignKey(Instrument, blank=True, on_delete=models.DO_NOTHING,
                                    related_name="instrudeploy", verbose_name=_("instrument"))
     mooring = models.ForeignKey(Mooring, on_delete=models.DO_NOTHING,
                                 related_name="instrudeploy", verbose_name=_("mooring"))
@@ -106,18 +111,28 @@ class ServiceHistory(models.Model):
     service_date = models.DateField(blank=True, null=True,
                                     verbose_name=_("Service Date"))
 
+    next_service_date = models.DateField(blank=True, null=True,
+                                    verbose_name=_("Next Service Date"))
+
     comments = models.TextField(blank=True)
+
     def __str__(self):
         return "{}".format(self.get_category_display())
 
+    class Meta:
+        get_latest_by = ['service_date']
 
-@receiver(post_save, sender=ServiceHistory)
-def update_last_service_date(sender, instance, created, **kwargs):
-    if created:
-        # Instrument.objects.create(date_of_last_service=instance)
-        Instrument.objects.date_of_last_service = instance.service_date
-        # Instrument.objects.save()
-    # (date_of_last_service=instance)
+
+@receiver(post_save, sender=ServiceHistory, dispatch_uid="update_next_service_date")
+def update_next_service_date(sender, instance, **kwargs):
+    if instance.instrument.date_of_next_service is not None:
+        if instance.instrument.date_of_next_service < instance.next_service_date:
+            instance.instrument.date_of_next_service = instance.next_service_date
+            instance.instrument.save()
+    else:
+        instance.instrument.date_of_next_service = instance.next_service_date
+        instance.instrument.save()
+
 
 
 #
