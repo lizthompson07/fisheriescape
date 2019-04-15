@@ -78,10 +78,10 @@
 <!--            </th>-->
 <!--            <th scope="col" style="width: 50%">-->
                 <th scope="col">
-                {% trans "Project Title" %}
+                {% trans "Last Service Type" %}
             </th>
             <th scope="col">
-                {% trans "Last Service" %}
+                {% trans "Last Service Date" %}
             </th>
             <th scope="col">
                 {% trans "Next Service" %}
@@ -99,14 +99,11 @@
                     <td>{{ obj.instrument_type }}</td>
                     <td>{{ obj.serial_number }}</td>
 
-
+                    <td>{{ obj.service.latest}}</td>
                      <td>
-
-                         {% for service in obj.service.all %}
-                        {{ service.service_date }}
-                         {% endfor %}
+                        {{obj.service.all.latest.service_date |date:"Y-M-d"}}
                     </td>
-                    <td>{{ obj.date_of_last_service |date:"Y-M-d"}}</td>
+<!--                    <td>{{ obj.date_of_last_service |date:"Y-M-d"}}</td>-->
                     <td>{{ obj.date_of_next_service |date:"Y-M-d"}}</td>
 <!--                    <td>-->
 <!--                        {% for staff in obj.staff_members.all %}-->

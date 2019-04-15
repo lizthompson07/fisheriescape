@@ -5,18 +5,10 @@ from django.contrib.auth.models import User
 from shared_models import models as shared_models
 from django.utils import timezone
 from datetime import date, timedelta, datetime
+from django.forms import modelformset_factory
 
 
 class NewInstrumentForm(forms.ModelForm):
-    purchase_date = forms.DateField(input_formats=["%Y-%b-%d"],
-                                    widget=forms.DateInput(format="%Y-%b-%d", attrs={"type": "datepicker",
-                                                   "value": timezone.now().strftime("%Y-%b-%d")}))
-    date_of_last_service = forms.DateField(input_formats=["%Y-%b-%d"],
-                                    widget=forms.DateInput(format="%Y-%b-%d", attrs={"type": "datepicker",
-                                                   "value": timezone.now().strftime("%Y-%b-%d")}))
-    date_of_next_service = forms.DateField(input_formats=["%Y-%b-%d"],
-                                    widget=forms.DateInput(format="%Y-%b-%d", attrs={"type": "datepicker",
-                                                   "value": (timezone.now()+ timedelta(days=365)).strftime("%Y-%b-%d")}))
 
     class Meta:
         # TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP')]
@@ -26,13 +18,14 @@ class NewInstrumentForm(forms.ModelForm):
             'instrument_type',
             'serial_number',
             'purchase_date',
-            'date_of_last_service',
-            'date_of_next_service',
+            # 'date_of_last_service',
+            # 'date_of_next_service',
             'project_title',
             # 'last_modified_by',
         ]
         widgets = {
             # 'last_modified_by': forms.HiddenInput(),
+            'purchase_date': forms.DateInput(attrs={"type": "date"}),
             # 'purchase_date' : forms.DateInput(attrs={"type": "datepicker",
             #                                        "value": timezone.now().strftime("%Y-%b-%d")},
             #                                 ),
@@ -76,6 +69,9 @@ class InstrumentForm(forms.ModelForm):
             # 'description_html',
             # 'priorities_html',
             # 'deliverables_html',
+            # 'date_of_last_service',
+            'date_of_next_service'
+
         ]
 
         widgets = {
@@ -97,32 +93,31 @@ class InstrumentForm(forms.ModelForm):
         }
 
 
+
+
 class MooringForm(forms.ModelForm):
     class Meta:
         model = models.Mooring
         exclude = [
             'submitted',
             'date_last_modified',
+            'instruments'
 
         ]
 
         widgets = {
             # 'instrument': forms.HiddenInput(),
-            'instruments': forms.HiddenInput(),
-            # 'mooring': forms.Textarea(attrs={"rows": 1}),
-            # 'mooring_number': forms.Textarea(attrs={"rows": 1}),
-            # 'deploy_time': forms.DateTimeInput(attrs={"type": "date",
-            #                                     'input_formats': ['%Y-%m-%d %H:%M:%S'],
-            #                                                'placeholder': (timezone.now()+ timedelta(days=365)).strftime("%Y-%b-%d")}),
-            # 'recover_time': forms.DateTimeInput(attrs={"type": "date",
-            #                                                'value': (timezone.now() + timedelta(days=365)).strftime(
-            #                                                    "%Y-%b-%d %T")}),
-            'depth': forms.Textarea(attrs={"rows": 1}),
+            # 'instruments': forms.HiddenInput(),
+            'deploy_time': forms.DateTimeInput(attrs={'placeholder': 'yyyy-mm-dd hh:mm:ss'}),
+
+            # 'deploy_time': forms.DateTimeInput(attrs={"type": "datetime-local"}),#"type": "date"}),
+            'recover_time': forms.DateTimeInput(attrs={'placeholder': 'yyyy-mm-dd hh:mm:ss'}),
+            'depth': forms.Textarea(attrs={"rows": 1,}),
+            'orientation': forms.Textarea(attrs={"rows": 1}),
             'lat': forms.Textarea(attrs={"rows": 1}),
             'lon': forms.Textarea(attrs={"rows": 1}),
-            'comments': forms.Textarea(attrs={"rows": 2}),
-        #     # "description": forms.Textarea(attrs={"rows": 8}),
-        #     # "notes": forms.Textarea(attrs={"rows": 5}),
+            'comments': forms.Textarea(attrs={"rows": 1}),
+
         }
 
 
@@ -154,8 +149,25 @@ class MooringForm(forms.ModelForm):
 #         #     # "notes": forms.Textarea(attrs={"rows": 5}),
 #         }
 
+class CustomModelFilter(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s %s" % (obj.column1, obj.column2)
+
+from django.forms import inlineformset_factory
+
 
 class AddInstrumentToMooringForm(forms.ModelForm):
+
+    # LANGUAGE_CHOICES = ((None, "---"),) + models.LANGUAGE_CHOICES
+
+    # INSTRUMENTTYPE_CHOICES = ((None, "---"),)
+    # for ins_types in models.Instrument.objects.all():
+    #     INSTRUMENTTYPE_CHOICES = INSTRUMENTTYPE_CHOICES.__add__(((ins_types.id, ins_types.instrument_type),))
+
+
+    # organization = forms.ChoiceField(choices=ORGANIZATION_CHOICES, required=False)
+    # instrument_type = forms.ChoiceField(choices=INSTRUMENTTYPE_CHOICES, required=False)
+    # instrument_type = CustomModelFilter(queryset=models.Instrument.objects.values('instrument_type').distinct())
     class Meta:
         model = models.InstrumentMooring
         exclude = [
@@ -163,6 +175,8 @@ class AddInstrumentToMooringForm(forms.ModelForm):
             'date_last_modified',
 
         ]
+        # fields = ['instrument_type', 'mooring', 'depth']
+
 
         widgets = {
             'mooring': forms.HiddenInput(),
@@ -173,6 +187,34 @@ class AddInstrumentToMooringForm(forms.ModelForm):
         #     # "description": forms.Textarea(attrs={"rows": 8}),
         #     # "notes": forms.Textarea(attrs={"rows": 5}),
         }
+    # instruments = models.Instrument.objects.all()
+
+    def __init__(self, *args, **kwargs):
+        #
+        # USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
+        #                 User.objects.all().order_by("last_name", "first_name")]
+        # USER_CHOICES.insert(0, tuple((None, "---")))
+        #
+        # super().__init__(*args, **kwargs)
+        # self.fields['user'].queryset = User.objects.all().order_by("last_name", "first_name")
+        # self.fields['user'].choices = USER_CHOICES
+        #
+        # self.fields['instrument_type'].queryset = models.Instrument.objects.values("instrument_type").distinct()
+        super().__init__(*args, **kwargs)
+        # print(self.instance)
+        # self.fields['instrument_type'].queryset = models.Instrument.objects.distinct().filter('instrument_type')
+    #     super().__init__(*args, **kwargs)
+    #     for instrument in self.instruments:
+    #         self.fields[instrument.instrument_type] = forms.CharField
+
+
+# from django.contrib.auth.models import User
+from masterlist import models as ml_models
+AddInstrumentToMooringFormSet = modelformset_factory(
+    model=models.InstrumentMooring,
+    form=AddInstrumentToMooringForm,
+    extra=1,
+)
 
 
 class AddMooringToInstrumentForm(forms.ModelForm):
@@ -254,6 +296,7 @@ class ServiceForm(forms.ModelForm):
         widgets = {
             'instrument': forms.HiddenInput(),
             'service_date': forms.DateInput( attrs={"type": "date"}),#,'placeholder':'2015-01-01'}),
+            'next_service_date': forms.DateInput(attrs={"type": "date"}),
         #     # 'instrument_type': forms.Textarea(attrs={"rows": 1},  choices=TYPE_CHOICES),
         #     # 'instrument_type': forms.Select(choices=TYPE_CHOICES),
         #     'serial_number': forms.Textarea(attrs={"rows": 1}),

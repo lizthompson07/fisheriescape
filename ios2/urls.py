@@ -4,12 +4,8 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 
-# urlpatterns = [
-#     url(r'^$', views.index, name='index'),
-# ]
-
 app_name = 'ios2'
-
+print('what?')
 urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),

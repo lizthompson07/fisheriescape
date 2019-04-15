@@ -41,6 +41,10 @@
         <th>
             {% trans "Service Date" %}
         </th>
+
+        <th>
+            {% trans "Next Service Date" %}
+        </th>
         <th>
             {% trans "Comments" %}
         </th>
@@ -69,9 +73,8 @@
                     </td>
                 {% endif %}
                 <td>{{ obj }}</td>
-
-
                 <td> {{ obj.service_date }}</td>
+                <td> {{ obj.next_service_date }}</td>
                 <td> {{ obj.comments }}</td>
 
                 {% if not report_mode %}
