@@ -39,7 +39,7 @@ instrument_field_list = [
     'serial_number',
     'purchase_date',
     'project_title',
-    'date_of_last_service',
+    # 'date_of_last_service',
     'date_of_next_service',
     # 'section',
     # 'program',
@@ -100,35 +100,35 @@ class InstrumentListView(LoginRequiredMixin, FilterView):
     #     #     queryset = None
     #     return queryset
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # instrument = self.object
-        context["field_list"] = [
-            # 'id',
-            'instrument_type',
-            'serial_number',
-            'purchase_date',
-            'project_title',
-            # 'date_of_last_service',
-            'date_of_next_service',
-            # 'last_modified_by',
-        ]
-
-        context["report_mode"] = False
-        print(self.kwargs, 'yay?')
-        # context['service_history'] = models.ServiceHistory.objects.get(pk=self.kwargs["pk"])#latest('service_date')\
-        try:
-            context['service_history'] = models.ServiceHistory.objects.\
-                select_related().filter(instrument=self.kwargs["pk"]).latest('service_date')
-        except:
-            print('no service recorded...')
-
-        # context["field_list_1"] = [
-        #     'service_history',
-            # 'priorities_html',
-            # 'deliverables_html',
-        # ]
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     # instrument = self.object
+    #     context["field_list"] = [
+    #         # 'id',
+    #         'instrument_type',
+    #         'serial_number',
+    #         'purchase_date',
+    #         'project_title',
+    #         # 'date_of_last_service',
+    #         'date_of_next_service',
+    #         # 'last_modified_by',
+    #     ]
+    #
+    #     context["report_mode"] = False
+    #     print(self.kwargs, 'yay?')
+    #     # context['service_history'] = models.ServiceHistory.objects.get(pk=self.kwargs["pk"])#latest('service_date')\
+    #     try:
+    #         context['service_history'] = models.ServiceHistory.objects.\
+    #             select_related().filter(instrument=self.kwargs["pk"]).latest('service_date')
+    #     except:
+    #         print('no service recorded...')
+    #
+    #     # context["field_list_1"] = [
+    #     #     'service_history',
+    #         # 'priorities_html',
+    #         # 'deliverables_html',
+    #     # ]
+    #     return context
 
 
 class MooringListView(LoginRequiredMixin, FilterView):
@@ -145,12 +145,6 @@ class InstrumentCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         object = form.save()
-
-        # models.Staff.objects.create(project=object, lead=True, employee_type_id=1, user_id=self.request.user.id)
-
-        # for obj in models.OMCategory.objects.all():
-        #     new_item = models.OMCost.objects.create(project=object, om_category=obj)
-        #     new_item.save()
 
         return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": object.id}))
 
@@ -171,7 +165,7 @@ class InstrumentDetailView(LoginRequiredMixin, DetailView):
             'serial_number',
             'purchase_date',
             'project_title',
-            'date_of_last_service',
+            # 'date_of_last_service',
             'date_of_next_service',
             # 'last_modified_by',
         ]
@@ -272,6 +266,7 @@ class InstrumentUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Instrument
     login_url = '/accounts/login_required/'
     form_class = forms.InstrumentForm
+    template_name = 'ios2/instrument_form_popout.html'
 
     def get_initial(self):
         my_dict = {
@@ -292,46 +287,30 @@ class InstrumentUpdateView(LoginRequiredMixin, UpdateView):
 
         return my_dict
 
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ios2:close_me'))
+
 
 
 
 # Moorings #
 ############
 
-
 class MooringCreateView(LoginRequiredMixin, CreateView):
-    print('am i here????')
+
     model = models.Mooring
     template_name = 'ios2/mooring_form.html'
     login_url = '/accounts/login_required/'
     form_class = forms.MooringForm
-    print('am i here?')
 
-    # def get_initial(self):
-    #     instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
-    #     return {
-    #         'instruments': instrument,
-    #     }
+
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
-    # def get_context_data(self, **kwargs):
-        # print(self.kwargs)
-        # input('aaa?')
-        # context = super().get_context_data(**kwargs)
-        # instrument = models.Instrument.objects.get(id=self.kwargs['instrument_type'])
-        # instrument = models.Instrument.objects.get(id=self.kwargs['instrument'])
-        # instrument = models.Instrument.objects.all
-        # context['instrument'] = instrument.serial_number
-        # context['object'] = self.object
-        # context["field_list"] = ['mooring', 'mooring_number']
-        # context['cost_type'] = "mooring"
-        # return context
 
     def form_valid(self, form):
         object = form.save()
-        # return HttpResponseRedirect(reverse('ios2:close_me'))
-        print('object', object.id, object)
         return HttpResponseRedirect(reverse_lazy("ios2:mooring_detail", kwargs={"pk": object.id}))
 
 
@@ -351,6 +330,7 @@ class MooringDetailView(LoginRequiredMixin, DetailView):
             'mooring_number',
             'deploy_time',
             'recover_time',
+            'orientation',
             'depth',
             'lat',
             'lon',
@@ -366,7 +346,12 @@ class MooringDetailView(LoginRequiredMixin, DetailView):
 class MooringUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Mooring
     login_url = '/accounts/login_required/'
+    template_name = 'ios2/mooring_form_popout.html'
     form_class = forms.MooringForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ios2:close_me'))
 
 
 # Does not work
@@ -441,6 +426,8 @@ class MooringDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # Instrument on Mooring
+from django.forms import modelformset_factory
+
 
 class InstrumentMooringCreateView(LoginRequiredMixin, CreateView):
     model = models.InstrumentMooring
@@ -448,25 +435,43 @@ class InstrumentMooringCreateView(LoginRequiredMixin, CreateView):
     login_url = '/accounts/login_required/'
     form_class = forms.AddInstrumentToMooringForm
 
+    # InstrumentFormSet = modelformset_factory(models.Instrument, form=forms.InstrumentForm)
+    # instrumentformset = InstrumentFormSet(queryset=models.Instrument.objects.values('instrument_type').distinct())
+
     def get_initial(self):
+        # InstrumentFormSet = modelformset_factory(models.InstrumentMooring, form=forms.InstrumentForm)
+        # instrumentformset = InstrumentFormSet(queryset=models.InstrumentMooring.objects.values('instrument').distinct())
 
         mooring = models.Mooring.objects.get(pk=self.kwargs['pk'])
         return {
             'mooring': mooring,
+            # 'instrumentformset': instrumentformset
         }
 
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
         mooring = models.Mooring.objects.get(pk=self.kwargs['pk'])
+        # self.instrument = models.Mooring.objects.get(pk=self.kwargs['pk'])
         context['name'] = mooring
 
         context['adding'] = "instrument"
 
         context['adding_to'] = "mooring"
+        # context['instrument'] = models.Instrument.objects
+        context["field_list"] = [
+            'instrument_type',
+            'purchase_date',
+        ]
+        # InstrumentFormSet = modelformset_factory(models.InstrumentMooring, form=forms.InstrumentForm)
+        # instrumentformset = InstrumentFormSet(queryset=models.InstrumentMooring.objects.values('instrument').distinct())
+        #
+        # context['instrumentformset'] = instrumentformset
         return context
 
     def form_valid(self, form):
+        # if request.POST:
+
 
         object = form.save()
 
@@ -603,6 +608,10 @@ class ServiceUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/accounts/login_required/'
     form_class = forms.ServiceForm
     template_name = 'ios2/service_form_popout.html'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('ios2:close_me'))
 
 
 def service_delete(request, pk):

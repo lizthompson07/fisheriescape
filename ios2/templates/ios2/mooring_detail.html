@@ -40,11 +40,11 @@
             {% if not report_mode %}
                 {% if object.submitted %}
                     <a class="btn btn-secondary btn-sm" href="{% url 'ios2:mooring_submit' object.id %}">
-                        {% trans "Unsubmit Instrument" %}
+                        {% trans "Unsubmit Mooring" %}
                     </a>
                 {% else %}
                     <a class="btn btn-success btn-sm" href="{% url 'ios2:mooring_submit' object.id %}">
-                        {% trans "Submit Instrument" %}
+                        {% trans "Submit Mooring" %}
                     </a>
                 {% endif %}
             {% else %}
