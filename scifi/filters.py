@@ -14,9 +14,11 @@ class ProjectFilter(django_filters.FilterSet):
 
 
 class TransactionFilter(django_filters.FilterSet):
-
+    fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     supplier_description = django_filters.CharFilter(field_name='supplier_description', lookup_expr='icontains', label="Supplier description")
     project_code = django_filters.CharFilter(field_name='project__code', lookup_expr='icontains', label="Project code")
+    responsibility_center = django_filters.ChoiceFilter(field_name='responsibility_center',
+                                                        lookup_expr='exact', label='Responsibility')
     ref_num = django_filters.CharFilter(field_name='reference_number', lookup_expr='icontains', label="Ref. num.")
     in_mrs = django_filters.BooleanFilter(field_name='in_mrs', lookup_expr='exact', label="In MRS?")
 
@@ -26,7 +28,6 @@ class TransactionFilter(django_filters.FilterSet):
         fy_choices = [(obj.id, "{}".format(obj.full)) for obj in shared_models.FiscalYear.objects.all()]
         rc_choices = [(obj.id, "{} ({})".format(obj.code, obj.name)) for obj in shared_models.ResponsibilityCenter.objects.all()]
 
-        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices)
-        self.filters['responsibility_center'] = django_filters.ChoiceFilter(field_name='responsibility_center',
-                                                                            lookup_expr='exact', choices=rc_choices,
-                                                                            label='Responsibility')
+        self.filters['fiscal_year'].choices = fy_choices
+        self.filters['responsibility_center'].choices = rc_choices
+

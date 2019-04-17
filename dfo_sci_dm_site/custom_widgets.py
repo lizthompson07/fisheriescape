@@ -6,4 +6,4 @@ class OracleTextField(models.TextField):
         if connection.settings_dict['ENGINE'] == 'django.db.backends.oracle':
             return 'NVARCHAR2(2000)'
         else:
-            return super.db_type(self, connection)
+            return super().db_type(connection)
