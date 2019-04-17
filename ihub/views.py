@@ -16,8 +16,6 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
 from easy_pdf.views import PDFTemplateView
-from shared_models import models as shared_models
-
 
 from lib.functions.nz import nz
 from . import models
