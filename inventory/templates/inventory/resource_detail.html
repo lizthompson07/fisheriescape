@@ -14,6 +14,19 @@
             background-color: wheat;
         {% endif %}
         }
+
+        #floating-panel {
+        {#position: absolute;#} left: 25%;
+            z-index: 5;
+            background-color: #ffffff;
+            padding: 5px;
+            border: 1px solid #ffffff;
+            text-align: center;
+            font-family: 'Roboto', 'sans-serif';
+            line-height: 30px;
+            padding-left: 10px;
+        }
+
     </style>
 
 
@@ -30,46 +43,64 @@
         </ol>
     </nav>
 
+    <div id="floating-panel">
+        {% with "btn btn-sm btn-outline-dark" as my_btn %}
 
-    <div class="indent-med">
+            <a class="{{ my_btn }}" href="{% url 'inventory:resource_edit' object.id %}">
+                Modify Record
+            </a>
+            <a class="{{ my_btn }}" href="{% url 'inventory:resource_full_detail' object.id %}">
+                Review Full Record
+            </a>
+            <a class="{{ my_btn }}" href="{% url 'inventory:resource_certify' object.id %}" data-toggle="tooltip"
+               title="Click here to add a certification event to this record.">
+                Certify Record
+            </a>
+
+            {% if object.flagged_4_deletion %}
+
+                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
+                   title="Unflag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
+                    Unflag for Deletion
+                </a>
+            {% else %}
+                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
+                   title="Flag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
+                    Flag for Deletion
+                </a>
+            {% endif %}
+
+            {% if object.flagged_4_publication %}
+                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
+                   title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
+                    Unflag for Open Data Publication
+                </a>
+            {% else %}
+                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
+                   title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
+                    Flag for Open Data Publication
+                </a>
+            {% endif %}
+
+            <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
+                View Completedness Report
+            </a>
+            <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap">
+                Export as XML (HNAP)
+            </a>
+            {% if user.is_superuser %}
+                <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">
+                    Delete
+                </a>
+            {% endif %}
+        {% endwith %}
+
+    </div>
+
+    <div class="container-fluid">
 
         <div class="text-center">
-            <h1>{{ object.title_eng }}</h1>
-            <p>
-
-            <div class="btn-group">
-                <a class="btn btn-sm btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
-                <a class="btn btn-sm btn-success" href="{% url 'inventory:resource_full_detail' object.id %}">Review Full
-                    Record</a>
-                <a class="btn btn-sm btn-primary" href="{% url 'inventory:resource_certify' object.id %}">Certify Record</a>
-
-
-
-
-                {% if object.flagged_4_deletion %}
-                    <a class="btn btn-sm btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Unflag for
-                        Deletion</a>
-                {% else %}
-                    <a class="btn btn-sm btn-danger" href="{% url 'inventory:resource_flag_delete' object.id %}">Flag for
-                        Deletion</a>
-                {% endif %}
-
-                {% if object.flagged_4_publication %}
-                    <a class="btn btn-sm btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Unflag for
-                        Open Data</a>
-                {% else %}
-                    <a class="btn btn-sm btn-info" href="{% url 'inventory:resource_flag_publication' object.id %}">Flag for
-                        Open Data</a>
-                {% endif %}
-
-                <a class="btn btn-sm btn-primary" href="#" data-toggle="modal" data-target="#completedness">Completedness Report</a>
-                <a class="btn btn-sm btn-dark" href="#" data-toggle="modal" data-target="#hnap">Export XML</a>
-
-            </div>
-
-            {% if user.is_superuser %}
-                <a class="btn btn-sm btn-danger" href="{% url 'inventory:resource_delete' object.id %}">Delete</a>
-            {% endif %}
+            <h2>{{ object.title_eng }}</h2>
         </div>
 
         {#<!-- HNAP MODAL -->#}
@@ -140,14 +171,12 @@
         </div>
 
 
-        </p>
-
         <br>
 
         <div class="row ">
             <div class="col-4">
                 {# Basic details #}
-                <h2>Basic Details</h2>
+                <h4>Basic Details</h4>
                 {% include "inventory/_resource_detail_basic.html" %}
             </div>
 
@@ -157,40 +186,43 @@
                 {# </a> #}
                 {# <br> #}
 
-                <h2 class="neighbours">People</h2>
-                <a class="btn btn-sm btn-outline-primary neighbours"
-                   href="{% url 'inventory:resource_person_filter' object.id %}">Add Person</a>
+                <h4 class="neighbours">People</h4>
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">
+                    Add a Person
+                </a>
 
                 {% include "inventory/_resource_detail_people.html" %}
                 <br>
 
-                <h2 class="neighbours">Storage Files</h2>
-                <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:file_create' object.id %}">Add
-                    File</a>
+                <h4 class="neighbours">Storage Files</h4>
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:file_create' object.id %}">
+                    Add a File
+                </a>
                 {% include "inventory/_resource_detail_files.html" %}
                 <br>
 
-                <h2 class="neighbours">Data Resources</h2>
-                <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:data_resource_create' object.id %}">Add
-                    Data Resource</a>
+                <h4 class="neighbours">Data Resources</h4>
+                <a class="btn btn-sm btn-outline-primary " href="{% url 'inventory:data_resource_create' object.id %}">
+                    Add a Data Resource
+                </a>
                 {% include "inventory/_resource_detail_data_resources.html" %}
                 <br>
 
-                <h2 class="neighbours">Web Services</h2>
-                <a class="btn btn-sm btn-outline-primary neighbours" href="{% url 'inventory:web_service_create' object.id %}">Add
-                    Web Service</a>
+                <h4 class="neighbours">Web Services</h4>
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:web_service_create' object.id %}">
+                    Add a Web Service
+                </a>
                 {% include "inventory/_resource_detail_web_services.html" %}
                 <br>
-
 
             </div>
 
             <div class="col-4">
-                <h2 class="neighbours">Keywords etc.</h2>
+                <h4 class="neighbours">Keywords etc.</h4>
                 <div class="dropdown neighbours">
                     <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add Keyword
+                        Add Keywords
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a class="dropdown-item" href="{% url 'inventory:resource_topic_category_filter' object.id %}">Topic
@@ -210,19 +242,20 @@
                 {% include "inventory/_resource_detail_keywords.html" %}
 
                 <br><br>
-                <h2 class="neighbours">Citations</h2>
-                <a class="btn btn-sm btn-outline-primary neighbours"
-                   href="{% url 'inventory:resource_citation_filter' object.id %}">Add Citation</a>
+                <h4 class="neighbours">Citations</h4>
+                <a class="btn btn-sm btn-outline-primary"
+                   href="{% url 'inventory:resource_citation_filter' object.id %}">
+                    Add a Citation
+                </a>
                 <br>
-
                 {% include "inventory/_resource_detail_citations.html" %}
 
                 <br><br>
-                <h2>Related Records</h2>
+                <h4>Related Records</h4>
                 {% include "inventory/_resource_detail_related.html" %}
 
                 <br><br>
-                <h2>Certification History</h2>
+                <h4>Certification History</h4>
                 {% include "inventory/_resource_detail_certification_history.html" %}
                 <br>
 
@@ -236,10 +269,11 @@
 
     <script type="text/javascript">
         $(".collapse-btn").click(function () {
-            if ($(this).text() == "Expand") {
-                $(this).text("Collapse")
+            console.log($(this).text())
+            if ($(this).text() == "(Show all)") {
+                $(this).text("(Hide all)")
             } else {
-                $(this).text("Expand")
+                $(this).text("(Show all)")
             }
         })
     </script>
