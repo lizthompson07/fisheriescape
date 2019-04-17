@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
-
+from django.utils.translation import gettext as _
 from . import models
 from django.contrib.auth.models import User
 from masterlist import models as ml_models
@@ -49,20 +49,20 @@ class ReportSearchForm(forms.Form):
     FY_CHOICES = [
         ("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
         models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
-    FY_CHOICES.insert(0, (None, "all years"))
+    FY_CHOICES.insert(0, (None, _("all years")))
     # ORG_CHOICES = [(None, "---"), ]
     REPORT_CHOICES = (
         (None, "------"),
-        (1, "Capacity Report (Excel Spreadsheet)"),
-        (2, "Organizational Report / Cue Card (PDF)"),
-        (3, "iHub Summary Report (Excel Spreadsheet)"),
-        (4, "iHub Summary Report (PDF)"),
+        (1, _("Capacity Report (Excel Spreadsheet)")),
+        (2, _("Organizational Report / Cue Card (PDF)")),
+        (3, _("iHub Summary Report (Excel Spreadsheet)")),
+        (4, _("iHub Summary Report (PDF)")),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    fiscal_year = forms.ChoiceField(required=False, choices=FY_CHOICES, label='Fiscal year')
-    organizations = forms.MultipleChoiceField(required=False, label='List of organizations (w/ entries) - Leave blank for all')
-    single_org = forms.ChoiceField(required=False, label='Organization')
+    fiscal_year = forms.ChoiceField(required=False, choices=FY_CHOICES, label=_('Fiscal year'))
+    organizations = forms.MultipleChoiceField(required=False, label=_('List of organizations (w/ entries) - Leave blank for all'))
+    single_org = forms.ChoiceField(required=False, label=_('Organization'))
 
     def __init__(self, *args, **kwargs):
         ORG_CHOICES_ALL = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
@@ -95,7 +95,7 @@ class EntryPersonForm(forms.ModelForm):
         model = models.EntryPerson
         fields = "__all__"
         labels = {
-            "user": "DFO employee",
+            "user": _("DFO employee"),
         }
         widgets = {
             'entry': forms.HiddenInput(),

@@ -47,17 +47,30 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
-                    Settings
+                    {% trans "Settings" %}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="{% url 'ihub:manage_sectors' %}">Manage Sectors</a>
-{#                    <a class="dropdown-item" href="{% url 'ihub:manage_roles' %}">Manage Member Roles</a>#}
-                    <a class="dropdown-item" href="{% url 'ihub:manage_orgs' %}">Manage Organizations</a>
-                    <a class="dropdown-item" href="{% url 'ihub:manage_statuses' %}">Manage Statuses</a>
-                    <a class="dropdown-item" href="{% url 'ihub:manage_entry_types' %}">Manage Entry Types</a>
-                    <a class="dropdown-item" href="{% url 'ihub:manage_funding_purposes' %}">Manage Funding Purposes</a>
-                    <a class="dropdown-item" href="{% url 'ihub:manage_regions' %}">Manage DFO Regions</a>
-                    <a class="dropdown-item" href="{% url 'ihub:manage_groupings' %}">Manage Groupings</a>
+                    <a class="dropdown-item" href="{% url 'ihub:manage_sectors' %}">
+                        {% trans "Manage Sectors" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'ihub:manage_orgs' %}">
+                        {% trans "Manage Organizations" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'ihub:manage_statuses' %}">
+                        {% trans "Manage Statuses" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'ihub:manage_entry_types' %}">
+                        {% trans "Manage Entry Types" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'ihub:manage_funding_purposes' %}">
+                        {% trans "Manage Funding Purposes" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'ihub:manage_regions' %}">
+                        {% trans "Manage DFO Regions" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'ihub:manage_groupings' %}">
+                        {% trans "Manage Groupings" %}
+                    </a>
                 </div>
             </li>
 
