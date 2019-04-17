@@ -21,6 +21,7 @@ class TicketFilter(django_filters.FilterSet):
         model = models.Ticket
         fields = {
             'fiscal_year': ['exact'],
+            'app': ['exact'],
             'status': ['exact'],
             # 'section': ['exact'],
         }

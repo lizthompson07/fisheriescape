@@ -111,7 +111,7 @@ class Person(models.Model):
 
 
 class Organization(models.Model):
-    name_eng = models.CharField(max_length=1000, verbose_name=_("english Name"))
+    name_eng = models.CharField(max_length=1000, verbose_name=_("english name"))
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
     abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
@@ -129,12 +129,13 @@ class Organization(models.Model):
     sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
 
     # ihub only
-    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election"))
-    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term"))
-    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve"))
-    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve"))
-    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve"))
-    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN"))
+    website = models.URLField(blank=True, null=True, verbose_name=_("website (iHub only)"))
+    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election (iHub only)"))
+    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term (iHub only)"))
+    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve (iHub only)"))
+    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve (iHub only)"))
+    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve (iHub only)"))
+    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN (iHub only)"))
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -212,7 +213,6 @@ class OrganizationMember(models.Model):
             last_name = self.person.last_name
         else:
             last_name = ""
-
 
         return "{} {}, {} ({})".format(first_name, last_name, self.role, self.organization)
 

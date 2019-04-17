@@ -2,6 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load i18n %}
 {% block content %}
 
     <style>
@@ -29,7 +30,9 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">
+                {% trans "Home" %}
+            </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
         </ol>
     </nav>
