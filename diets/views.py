@@ -323,11 +323,7 @@ class CruiseCreateView(DietsAccessRequired, CreateView):
         return HttpResponseRedirect(reverse_lazy('diets:cruise_detail', kwargs={"pk": object.id}))
 
 
-<<<<<<< HEAD
-class CruiseDeleteView(LoginRequiredMixin, DeleteView):
-=======
 class CruiseDeleteView(DietsAccessRequired, DeleteView):
->>>>>>> 4d6a75843c97a9612bf2913ec8bf7c3a20183d38
     model = shared_models.Cruise
     success_url = reverse_lazy('diets:cruise_list')
     success_message = 'The cruise was successfully deleted!'
