@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
-
+from django.utils.translation import gettext as _
 from . import models
 from django.contrib.auth.models import User
 from masterlist import models as ml_models
@@ -54,8 +54,10 @@ class ReportSearchForm(forms.Form):
 
         report_choices = (
             (None, "------"),
-            (1, "Capacity Report (Excel Spreadsheet)"),
-            (2, "Organizational Report / Cue Card (PDF)"),
+            (1, _("Capacity Report (Excel Spreadsheet)")),
+            (2, _("Organizational Report / Cue Card (PDF)")),
+            (3, _("iHub Summary Report (Excel Spreadsheet)")),
+            (4, _("iHub Summary Report (PDF)")),
         )
         fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
                       models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
@@ -67,7 +69,7 @@ class ReportSearchForm(forms.Form):
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
         self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
         self.fields['organizations'] = forms.MultipleChoiceField(required=False,
-                                                                 label='Organizations (Leave blank for all)',
+                                                                 label='List of organizations (w/ entries) - Leave blank for all',
                                                                  choices=org_choices_has_entry)
         self.fields['single_org'] = forms.ChoiceField(required=False, label='Organization', choices=org_choices_all)
 
@@ -94,7 +96,7 @@ class EntryPersonForm(forms.ModelForm):
         model = models.EntryPerson
         fields = "__all__"
         labels = {
-            "user": "DFO employee",
+            "user": _("DFO employee"),
         }
         widgets = {
             'entry': forms.HiddenInput(),

@@ -16,6 +16,8 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
 from easy_pdf.views import PDFTemplateView
+from shared_models import models as shared_models
+
 
 from lib.functions.nz import nz
 from . import models
@@ -181,7 +183,7 @@ class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.Person
     template_name = 'ihub/person_confirm_delete.html'
     success_url = reverse_lazy('ihub:person_list')
-    success_message = 'The person was deleted successfully!'
+    success_message = _('The person was deleted successfully!')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -257,7 +259,7 @@ class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.Organization
     template_name = 'ihub/organization_confirm_delete.html'
     success_url = reverse_lazy('ihub:org_list')
-    success_message = 'The organization was deleted successfully!'
+    success_message = _('The organization was deleted successfully!')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -417,7 +419,7 @@ class EntryCreateView(iHubAccessRequiredMixin, CreateView):
         else:
             print('not sending email since in dev mode')
         messages.success(self.request,
-                         "The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!")
+                         _("The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!"))
         return HttpResponseRedirect(reverse_lazy('ihub:entry_detail', kwargs={"pk": object.id}))
 
     def get_initial(self):
