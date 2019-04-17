@@ -80,8 +80,10 @@ class Status(models.Model):
 class Ticket(models.Model):
     # choices for app
     APP_CHOICES = [(app_key, my_conf.APP_DICT[app_key]) for app_key in my_conf.APP_DICT]
+    APP_CHOICES.insert(0, ("esee", "ESEE (not part of site)"))
+    APP_CHOICES.insert(0, ("plankton", "Plankton Net (not part of site)"))
     APP_CHOICES.sort()
-    APP_CHOICES.insert(0, ("general", "General Issue"))
+    APP_CHOICES.insert(0, ("general", "n/a"))
 
     # Choices for priority
     HIGH = '1'
