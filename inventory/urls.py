@@ -98,7 +98,7 @@ urlpatterns = [
 
     # RESOURCE CERTIFICATION #
     ##########################
-    path('<int:resource>/certify/', views.ResourceCertificationCreateView.as_view(), name="resource_certify"),
+    path('resource/<int:pk>/certify/', views.ResourceCertificationCreateView.as_view(), name="resource_certify"),
     path('remove-certification/<int:pk>/', views.ResourceCertificationDeleteView.as_view(), name="resource_certification_delete"),
 
     # FILES #
