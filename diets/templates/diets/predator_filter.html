@@ -33,7 +33,7 @@
             </div>
         </form>
 
-        {% paginate 40 filter.qs as filter_list %}
+{#        {% paginate 40 filter.qs as filter_list %}#}
         <br>
 
 
@@ -42,8 +42,8 @@
                 (click on a header to sort table)
             </div>
             <div class="col" style="text-align: center">
-                {% show_pages %}
-                <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
+{#                {% show_pages %}#}
+                <em>displaying all {{ filter.qs.count }} records</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
                 <a href="{% url 'diets:predator_new' %}" class="btn btn-sm btn-primary">New Predator</a>
@@ -61,7 +61,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for object in filter_list %}
+            {% for object in filter.qs %}
                 {% url 'diets:predator_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}

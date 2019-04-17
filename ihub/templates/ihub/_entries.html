@@ -13,7 +13,9 @@
             <a href="{% url 'ihub:entry_detail'  entry.id %}">{{ entry.title }} </a>
         </li>
     {% empty %}
-        <em>There are no iHub entries for this organization.</em>
+        <em>
+            {% trans "There are no iHub entries for this organization." %}
+        </em>
     {% endfor %}
 
 </ul>

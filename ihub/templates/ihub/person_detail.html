@@ -4,6 +4,7 @@
 {% load verbose_names %}
 {% load custom_filters %}
 {% load custom_tags %}
+{% load i18n %}
 {% block header %}
 {% endblock %}
 {% block content %}
@@ -20,8 +21,12 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'ihub:person_list' %}">People</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:person_list' %}">
+                {% trans "People" %}
+            </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -33,10 +38,10 @@
 
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'ihub:person_edit' object.id %}">
-                Edit
+                {% trans "Edit" %}
             </a>
             <a class="btn btn-danger " href="{% url 'ihub:person_delete' object.id %}">
-                Delete
+                {% trans "Delete" %}
             </a>
 
         </div>
@@ -45,7 +50,7 @@
         <div class="row">
             <div class="col-3">
                 <h3>
-                    Person Detail:
+                    {% trans "Person Detail:" %}
                 </h3>
 
                 {% for field in field_list %}
@@ -55,7 +60,9 @@
 
             </div>
             <div class="col-9">
-                <h3>Membership:</h3>
+                <h3>
+                    {% trans "Membership:" %}
+                </h3>
                 <ul>
                     {% for member in object.memberships.all %}
                         <li>
@@ -69,11 +76,13 @@
                                    target="_blank">{{ member.organization }} </a>,
                                 {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
                                     {{ "<em>missing role</em>"|safe }}{% endif %}
-                                - (Will open in Master List in separate tab)
+                                - {% trans "(Will open in Master List in separate tab)" %}
                             {% endif %}
                         </li>
                     {% empty %}
-                        <em>person is not part of any organizations</em>
+                        <em>
+                            {% trans "person is not part of any organizations" %}
+                        </em>
                     {% endfor %}
 
                 </ul>
