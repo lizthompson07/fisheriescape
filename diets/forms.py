@@ -62,7 +62,6 @@ class SearchForm(forms.Form):
 
     field_order = ["cruise", "species"]
 
-<<<<<<< HEAD
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -71,15 +70,21 @@ class SearchForm(forms.Form):
 
         self.fields['cruise'] = forms.ChoiceField(required=False, choices=cruise_choices)
         self.fields['species'] = forms.ChoiceField(required=False, choices=species_choices)
-=======
+
 
 class ReportSearchForm(forms.Form):
-    YEAR_CHOICES = [(y["season"], y["season"]) for y in shared_models.Cruise.objects.order_by("-season").values('season').distinct()]
-    REPORT_CHOICES = [
-        (1, "Summary of Prey Species"),
-    ]
-    REPORT_CHOICES.insert(0, (None, "------"))
+    report = forms.ChoiceField(required=True)
+    year = forms.ChoiceField(required=True)
 
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
->>>>>>> 4d6a75843c97a9612bf2913ec8bf7c3a20183d38
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        report_choices = [
+            (1, "Summary of Prey Species"),
+        ]
+        report_choices.insert(0, (None, "------"))
+
+        year_choices = [(y["season"], y["season"]) for y in shared_models.Cruise.objects.order_by("-season").values('season').distinct()]
+
+        self.fields['report'] = forms.ChoiceField(required=False, choices=report_choices)
+        self.fields['year'] = forms.ChoiceField(required=False, choices=year_choices)
