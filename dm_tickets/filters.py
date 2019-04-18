@@ -15,7 +15,7 @@ class TicketFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         section_choices = [(s.id, s.full_name) for s in shared_models.Section.objects.all().order_by(
             "division__branch__region", "division__branch", "division", "name")]
-        self.filters['section'].choices = section_choices
+        self.filters['section'] = django_filters.ChoiceFilter(field_name="section", choices=section_choices)
 
     class Meta:
         model = models.Ticket
@@ -33,4 +33,5 @@ class FiscalFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
-        self.filters['fiscal_year'].choices = fy_choices
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact',
+                                                                  choices=fy_choices)

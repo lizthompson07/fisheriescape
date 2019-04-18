@@ -28,6 +28,7 @@ class TransactionFilter(django_filters.FilterSet):
         fy_choices = [(obj.id, "{}".format(obj.full)) for obj in shared_models.FiscalYear.objects.all()]
         rc_choices = [(obj.id, "{} ({})".format(obj.code, obj.name)) for obj in shared_models.ResponsibilityCenter.objects.all()]
 
-        self.filters['fiscal_year'].choices = fy_choices
-        self.filters['responsibility_center'].choices = rc_choices
-
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices)
+        self.filters['responsibility_center'] = django_filters.ChoiceFilter(field_name='responsibility_center',
+                                                            lookup_expr='exact', label='Responsibility',
+                                                            choices=rc_choices)
