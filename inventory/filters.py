@@ -29,8 +29,10 @@ class ResourceFilter(django_filters.FilterSet):
                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch",
                                                                         "division", "name")]
 
-        self.filters['status'].choices = status_choices
-        self.filters['section'].choices = section_choices
+        self.filters['status'] = django_filters.ChoiceFilter(field_name="status", label=_("Section"),
+                                                             lookup_expr='exact', choices=status_choices)
+        self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
+                                                              lookup_expr='exact', choices=section_choices)
 
         # if there is a filter on section, filter the people filter accordingly
         try:
