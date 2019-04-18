@@ -48,8 +48,11 @@
         <th>
             {% trans "Mooring #" %}
         </th>
-                <th>
+        <th>
             {% trans "Depth [m]" %}
+        </th>
+        <th>
+            {% trans "Orientation" %}
         </th>
 <!--        <th>-->
 <!--            {% trans "Lat" %}-->
@@ -97,6 +100,7 @@
                 <td> {{ obj.mooring.mooring }}</td>
                 <td> {{ obj.mooring.mooring_number }}</td>
                 <td> {{ obj.depth }}</td>
+                <td> {{ obj.orientaion }}</td>
 
 <!--                <td> {{ obj.lat }}</td>-->
 <!--                <td> {{ obj.lon }}</td>-->

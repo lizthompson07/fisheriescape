@@ -38,28 +38,28 @@
 
         <div class="btn-group">
             {% if not report_mode %}
-                {% if object.submitted %}
-                    <a class="btn btn-secondary btn-sm" href="{% url 'ios2:mooring_submit' object.id %}">
-                        {% trans "Unsubmit Mooring" %}
-                    </a>
-                {% else %}
-                    <a class="btn btn-success btn-sm" href="{% url 'ios2:mooring_submit' object.id %}">
-                        {% trans "Submit Mooring" %}
-                    </a>
-                {% endif %}
+<!--                {% if object.submitted %}-->
+<!--                    <a class="btn btn-secondary btn-sm" href="{% url 'ios2:mooring_submit' object.id %}">-->
+<!--                        {% trans "Unsubmit Mooring" %}-->
+<!--                    </a>-->
+<!--                {% else %}-->
+<!--                    <a class="btn btn-success btn-sm" href="{% url 'ios2:mooring_submit' object.id %}">-->
+<!--                        {% trans "Submit Mooring" %}-->
+<!--                    </a>-->
+<!--                {% endif %}-->
             {% else %}
                 <span data-toggle="tooltip"
                       title="{% trans "Cannot submit/unsumbit instruments that do not belong to you or your section." %}">
 
-                {% if object.submitted %}
-                    <a class="btn btn-secondary btn-sm disabled" href="{% url 'ios2:mooring_submit' object.id %}">
-                        {% trans "Unsubmit Mooring" %}
-                    </a>
-                {% else %}
-                    <a class="btn btn-success btn-sm disabled" href="{% url 'ios2:mooring_submit' object.id %}">
-                        {% trans "Submit Mooring" %}
-                    </a>
-                {% endif %}
+<!--                {% if object.submitted %}-->
+<!--                    <a class="btn btn-secondary btn-sm disabled" href="{% url 'ios2:mooring_submit' object.id %}">-->
+<!--                        {% trans "Unsubmit Mooring" %}-->
+<!--                    </a>-->
+<!--                {% else %}-->
+<!--                    <a class="btn btn-success btn-sm disabled" href="{% url 'ios2:mooring_submit' object.id %}">-->
+<!--                        {% trans "Submit Mooring" %}-->
+<!--                    </a>-->
+<!--                {% endif %}-->
                 </span>
 
             {% endif %}
@@ -67,9 +67,11 @@
 
 
             {% if not report_mode %}
-                <a class="btn btn-danger btn-sm" href="{% url 'ios2:mooring_delete' object.id %}">
-                    {% trans "Delete" %}
-                </a>
+                {% if object.mooring != 'HOME' %}
+                    <a class="btn btn-danger btn-sm" href="{% url 'ios2:mooring_delete' object.id %}">
+                        {% trans "Delete" %}
+                    </a>
+                {% endif %}
             {% else %}
                 <span data-toggle="tooltip" title="{% trans "Cannot delete projects that do not belong to you or your section." %}">
                     <a class="btn btn-danger btn-sm disabled" href="#">{% trans "Delete" %}</a>
