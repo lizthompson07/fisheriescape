@@ -1236,7 +1236,7 @@ class ResourceCertificationCreateView(CustodianRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_resource = models.Resource.objects.get(pk=self.kwargs['resource'])
+        my_resource = models.Resource.objects.get(pk=self.kwargs['pk'])
 
         context['resource'] = my_resource
         return context
@@ -1244,13 +1244,13 @@ class ResourceCertificationCreateView(CustodianRequiredMixin, CreateView):
     def get_initial(self):
         return {
             'certifying_user': self.request.user,
-            'resource': self.kwargs['resource'],
+            'resource': self.kwargs['pk'],
             'certification_date': timezone.now(),
         }
 
     def get_success_url(self):
         return reverse('inventory:resource_detail', kwargs={
-            'pk': self.kwargs['resource'],
+            'pk': self.kwargs['pk'],
         })
 
     def form_valid(self, form):
