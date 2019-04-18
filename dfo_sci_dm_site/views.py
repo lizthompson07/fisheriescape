@@ -215,6 +215,18 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
+        app_dict["ios3"] = {
+            "title": _("CTDRosette"),
+            "description": _("CTDRosettes"),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('ios3:index'),
+            "icon_path": 'img/icons/paper-plane.svg',
+        }
+    except NoReverseMatch:
+        pass
+
     # try:
     #     app_dict["meq"] = {
     #         "title": _("MEQ"),
