@@ -13,25 +13,57 @@ from django.db.models.signals import post_save
 
 
 class Instrument(models.Model):
-    TYPE_CHOICES = [('CTD', 'CTD'),
-                    ('ADCP', 'ADCP'),
+    TYPE_CHOICES = [('AMAR', 'AMAR'),
+                    ('Baker Traps', 'Baker Traps'),
+                    ('SBE uCat', 'SB uCat'),
+                    ('SBE ODO', 'SB ODO'),
+                    ('SBE IDO', 'SB IDO'),
+                    ('SBE16+', 'SBE16+'),
+                    ('SBE19+', 'SBE19+'),
+                    ('SBE37 NoPump', 'SBE37 NoPump'),
+                    ('SBE37 W/Pump', 'SBE37 W/Pump'),
+                    ('SBE SeaFET', 'SBE SeaFET'),
+                    ('SBE SeapHox', 'SBE SeapHox'),
+                    ('TRDI LR75kHz', 'TRDI LR75kHz'),
+                    ('ADCP 150kHz', 'ADCP 150kHz'),
+                    ('ADCP 300kHz', 'ADCP 300kHz'),
+                    ('ADCP 600kHz', 'ADCP 600kHz'),
+                    ('Nortek Aquadopps', 'Nortek Aquadopps'),
+                    # ('ADCP 600kHz', 'ADCP 600kHz'),
+                    # ('ADCP 600kHz', 'ADCP 600kHz'),
+                    ('SONTEK Argonaut', 'SONTEK Argonaut'),
+                    ('RBR Virtuoso', 'RBR Virtuoso'),
+                    ('Wildlife Acoustics SM2M+', 'Wildlife Acoustics SM2M+'),
+                    ('Wildlife Acoustics SM3M', 'Wildlife Acoustics SM3M'),
+                    ('Multi Electronique Aural M2', 'Multi Electronique Aural M2'),
+                    ('AR861 Acoustic Release', 'AR861 Acoustic Release'),
+                    ('CTD', 'CTD'),
                     ('OXY', 'OXY')]
+    CONNECTOR_TYPES = [('CIRCULAR', 'CIRCULAR'),
+                       ('RA', 'RA')]
+    COMMS = [('232', '232'),
+             ('422', '422')]
     # fiscal_year = models.CharField(max_length=50, default="2019-2020", verbose_name=_("fiscal year"))
     # year = models.TextField(verbose_name=("Instrument title"))
-    instrument_type = models.CharField(max_length=20, default='CTD', verbose_name=_("Instrument Type"),
+    instrument_type = models.CharField(max_length=20, default='SBE16+', verbose_name=_("Instrument Type"),
                                        choices=TYPE_CHOICES)
     serial_number = models.CharField(max_length=20, default='0000', verbose_name=_("Serial ID"))
     purchase_date = models.DateField(blank=True, null=True, verbose_name=_("Purchase Date"))
     project_title = models.TextField(blank=True, null=True, verbose_name=_("Project title"))
     scientist = models.TextField(blank=True, null=True, verbose_name=_("Scientist"))
-    # location = models..... (default=..)
-
+    connector = models.CharField(max_length=20,  blank=True, null=True, verbose_name=_("Connector Type"),
+                                 choices=CONNECTOR_TYPES)
+    comm_port = models.CharField(max_length=20,  blank=True, null=True,verbose_name=_("COMM Port"),
+                                 choices=COMMS)
+    # location = models.CharField(max_length=20,  blank=True, null=True,verbose_name=_("Location"))
+    location = models.CharField(max_length=20, default='Home IOS', verbose_name=_("Location"))
     # date_of_last_service = models.DateField(blank=True, null=True,
     #                                         verbose_name=_("Last Service Date"))
     date_of_next_service = models.DateField(blank=True, null=True,
                                             verbose_name=_("Next Service Date"))
     # last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
     #                                      verbose_name=_("last modified by"))
+    in_service = models.BooleanField(default=False, verbose_name=_("In Service"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit instrument for review"))
 
     class Meta:
@@ -65,7 +97,7 @@ class Mooring(models.Model):
     lat = models.TextField(blank=True, null=True, verbose_name=_("lat"))
     lon = models.TextField(blank=True, null=True, verbose_name=_("lon"))
     depth = models.TextField(blank=True, null=True, verbose_name=_("depth"))
-    orientation = models.TextField(blank=True, null=True, verbose_name=_("Orientation"))
+    # orientation = models.TextField(blank=True, null=True, verbose_name=_("Orientation"))
     # comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit moorings for review"))
@@ -73,17 +105,28 @@ class Mooring(models.Model):
     def __str__(self):
         return "{}".format(self.mooring) + " {}".format(self.mooring_number)
 
+    # def clean_title(self):
+    #     return self.cleaned_data['mooring'].capitalize()
+
     class Meta:
         ordering = ['mooring', 'mooring_number']
         unique_together = ['mooring', 'mooring_number']
 
 
 class InstrumentMooring(models.Model):
+
+    ORIENTATION_CHOICES = [('UP', 'UP'),
+                    ('DOWN', 'DOWN'),]
+                    # ('OXY', 'OXY')]
     instrument = models.ForeignKey(Instrument, blank=True, on_delete=models.DO_NOTHING,
                                    related_name="instrudeploy", verbose_name=_("instrument"))
     mooring = models.ForeignKey(Mooring, on_delete=models.DO_NOTHING,
                                 related_name="instrudeploy", verbose_name=_("mooring"))
     depth = models.TextField(blank=True)
+    orientation = models.TextField(blank=True, null=True, verbose_name=_("Orientation"),
+                                   choices=ORIENTATION_CHOICES)
+
+
 
     def __str__(self):
 
@@ -133,6 +176,55 @@ def update_next_service_date(sender, instance, **kwargs):
         instance.instrument.date_of_next_service = instance.next_service_date
         instance.instrument.save()
 
+#
+@receiver(post_save, sender=InstrumentMooring, dispatch_uid="update_instrument_location")
+def update_instrument_location(sender, instance, **kwargs):
+    print(kwargs)
+    if instance.mooring.deploy_time is not None:  # Deploy date is entered
+        if instance.mooring.recover_time is None:  # not recovered yet
+            # if today > instance.mooring.recover_time:
+            instance.instrument.location = instance.mooring.mooring + ' ' + instance.mooring.mooring_number
+
+        else: # recovered
+            instance.instrument.location = 'HOME IOS'
+        instance.instrument.save()
+
+
+@receiver(post_save, sender=Mooring, dispatch_uid="update_instrument_location_from_mooring")
+def update_instrument_location_from_mooring(sender, instance, **kwargs):
+    if instance.deploy_time is not None:  # Deploy date is entered
+        if instance.recover_time is None:  # not recovered yet
+            for deployed in instance.instrudeploy.all():
+                deployed.instrument.location = instance.mooring + ' ' + instance.mooring_number
+                deployed.instrument.save()
+
+        else: # recovered
+            for deployed in instance.instrudeploy.all():
+                deployed.instrument.location = 'HOME IOS'
+                deployed.instrument.save()
+
+
+# @receiver(post_save, sender=Instrument, dispatch_uid="update_instrument_location_from_service")
+# def update_instrument_location_from_service(sender, instance, **kwargs):
+#     if instance.location == 'HOME IOS':  # Deploy date is entered
+#         if instance.in_service == True:
+#             instance.location == 'IN SERVICE'
+#             instance.instrument.save()
+#         else:
+#             print('first')
+#             raise
+#     else:
+#         print('second')
+#         raise
+        # if instance.recover_time is None:  # not recovered yet
+        #     for deployed in instance.instrudeploy.all():
+        #         deployed.instrument.location = instance.mooring + ' ' + instance.mooring_number
+        #         deployed.instrument.save()
+        #
+        # else: # recovered
+        #     for deployed in instance.instrudeploy.all():
+        #         deployed.instrument.location = 'HOME IOS'
+        #         deployed.instrument.save()
 
 
 #

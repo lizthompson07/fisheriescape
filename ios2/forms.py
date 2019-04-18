@@ -18,9 +18,13 @@ class NewInstrumentForm(forms.ModelForm):
             'instrument_type',
             'serial_number',
             'purchase_date',
+            'connector',
+            'comm_port',
             # 'date_of_last_service',
             # 'date_of_next_service',
+            'in_service',
             'project_title',
+            'scientist',
             # 'last_modified_by',
         ]
         widgets = {
@@ -70,6 +74,7 @@ class InstrumentForm(forms.ModelForm):
             # 'priorities_html',
             # 'deliverables_html',
             # 'date_of_last_service',
+            # 'location',
             'date_of_next_service'
 
         ]
@@ -113,7 +118,7 @@ class MooringForm(forms.ModelForm):
             # 'deploy_time': forms.DateTimeInput(attrs={"type": "datetime-local"}),#"type": "date"}),
             'recover_time': forms.DateTimeInput(attrs={'placeholder': 'yyyy-mm-dd hh:mm:ss'}),
             'depth': forms.Textarea(attrs={"rows": 1,}),
-            'orientation': forms.Textarea(attrs={"rows": 1}),
+            # 'orientation': forms.Textarea(attrs={"rows": 1}),
             'lat': forms.Textarea(attrs={"rows": 1}),
             'lon': forms.Textarea(attrs={"rows": 1}),
             'comments': forms.Textarea(attrs={"rows": 1}),
@@ -158,7 +163,7 @@ from django.forms import inlineformset_factory
 
 class AddInstrumentToMooringForm(forms.ModelForm):
 
-    # LANGUAGE_CHOICES = ((None, "---"),) + models.LANGUAGE_CHOICES
+
 
     # INSTRUMENTTYPE_CHOICES = ((None, "---"),)
     # for ins_types in models.Instrument.objects.all():
@@ -183,6 +188,7 @@ class AddInstrumentToMooringForm(forms.ModelForm):
             'depth': forms.Textarea(attrs={"rows": 1}),
             'lat': forms.Textarea(attrs={"rows": 1}),
             'lon': forms.Textarea(attrs={"rows": 1}),
+            # 'orientation': forms.Textarea(attrs={"rows": 1}),
             'comments': forms.Textarea(attrs={"rows": 2}),
         #     # "description": forms.Textarea(attrs={"rows": 8}),
         #     # "notes": forms.Textarea(attrs={"rows": 5}),
@@ -202,6 +208,7 @@ class AddInstrumentToMooringForm(forms.ModelForm):
         # self.fields['instrument_type'].queryset = models.Instrument.objects.values("instrument_type").distinct()
         super().__init__(*args, **kwargs)
         # print(self.instance)
+        # self.fields['instrument'].choices = models.Instrument.objects.distinct().filter('instrument_type')
         # self.fields['instrument_type'].queryset = models.Instrument.objects.distinct().filter('instrument_type')
     #     super().__init__(*args, **kwargs)
     #     for instrument in self.instruments:
@@ -209,12 +216,12 @@ class AddInstrumentToMooringForm(forms.ModelForm):
 
 
 # from django.contrib.auth.models import User
-from masterlist import models as ml_models
-AddInstrumentToMooringFormSet = modelformset_factory(
-    model=models.InstrumentMooring,
-    form=AddInstrumentToMooringForm,
-    extra=1,
-)
+# from masterlist import models as ml_models
+# AddInstrumentToMooringFormSet = modelformset_factory(
+#     model=models.InstrumentMooring,
+#     form=AddInstrumentToMooringForm,
+#     extra=1,
+# )
 
 
 class AddMooringToInstrumentForm(forms.ModelForm):
@@ -231,11 +238,20 @@ class AddMooringToInstrumentForm(forms.ModelForm):
             'depth': forms.Textarea(attrs={"rows": 1}),
             'lat': forms.Textarea(attrs={"rows": 1}),
             'lon': forms.Textarea(attrs={"rows": 1}),
+            # 'orientation': forms.Textarea(attrs={"rows": 1}),
             'comments': forms.Textarea(attrs={"rows": 2}),
         #     # "description": forms.Textarea(attrs={"rows": 8}),
         #     # "notes": forms.Textarea(attrs={"rows": 5}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(AddMooringToInstrumentForm, self).__init__(*args, **kwargs)
+        # selected_choices = whatever
+        # self.fields['mooring'].choices = [(k, v) for k, v in models.Mooring.objects.all()
+        #                                          if k is not 'HOME']
+        self.fields['mooring'].queryset = models.Mooring.objects.all()
+        self.fields['mooring'].choices = [(u.id, u) for u in
+                        models.Mooring.objects.all() if 'HOME' not in u.mooring ]
 
 class EditInstrumentMooringForm(forms.ModelForm):
     class Meta:
