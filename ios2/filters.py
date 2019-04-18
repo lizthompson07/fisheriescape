@@ -15,6 +15,8 @@ class InstrumentFilter(django_filters.FilterSet):
 
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
     instrument_type = django_filters.ChoiceFilter(field_name='instrument_type', lookup_expr='exact', choices=TYPE_CHOICES)
+    # location = django_filters.CharFilter(field_name='location', lookup_expr='icontains')
+    location = django_filters.ModelChoiceFilter(queryset=models.Mooring.objects.all())
     # fiscal_year = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=FY_CHOICES)
     # division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label="Division", choices=DIVISION_CHOICES)
     # section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label="Section", choices=SECTION_CHOICES)
@@ -36,3 +38,5 @@ class MooringFilter(django_filters.FilterSet):
     # division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label="Division", choices=DIVISION_CHOICES)
     # section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label="Section", choices=SECTION_CHOICES)
     submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', label="Submitted?", choices=YES_NO_CHOICES)
+    # def get_queryset(self):
+    #     return django_filters.MooringFilter(self.request.GET, queryset=models.Mooring.objects.exclude(mooring='HOME IOS'))

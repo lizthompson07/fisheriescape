@@ -138,6 +138,7 @@ class MooringListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MooringFilter
 
 
+
 class InstrumentCreateView(LoginRequiredMixin, CreateView):
     model = models.Instrument
     login_url = '/accounts/login_required/'
@@ -163,10 +164,15 @@ class InstrumentDetailView(LoginRequiredMixin, DetailView):
             # 'id',
             'instrument_type',
             'serial_number',
+            'location',
+            'in_service',
             'purchase_date',
-            'project_title',
             # 'date_of_last_service',
             'date_of_next_service',
+            'connector',
+            'comm_port',
+            'project_title',
+            'scientist'
             # 'last_modified_by',
         ]
 
@@ -325,12 +331,12 @@ class MooringDetailView(LoginRequiredMixin, DetailView):
         # instrument = self.object
         context["field_list"] = [
             # 'id',
-            # 'instruments',
+            'instruments',
             'mooring',
             'mooring_number',
             'deploy_time',
             'recover_time',
-            'orientation',
+            # 'orientation',
             'depth',
             'lat',
             'lon',

@@ -87,6 +87,9 @@
                 {% trans "Next Service" %}
             </th>
             <th scope="col">
+                {% trans "Current Location" %}
+            </th>
+            <th scope="col">
                 {% trans "Submitted" %}
             </th>
             </thead>
@@ -105,6 +108,8 @@
                     </td>
 <!--                    <td>{{ obj.date_of_last_service |date:"Y-M-d"}}</td>-->
                     <td>{{ obj.date_of_next_service |date:"Y-M-d"}}</td>
+
+                    <td>{{ obj.location}}</td>
 <!--                    <td>-->
 <!--                        {% for staff in obj.staff_members.all %}-->
 <!--                            {% if staff.lead %}-->
