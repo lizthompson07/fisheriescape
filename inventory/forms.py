@@ -138,12 +138,8 @@ class ResourcePersonForm(forms.ModelForm):
         }
 
 
-class PersonCreateForm(forms.Form):
+class PersonForm(forms.Form):
     LANGUAGE_CHOICES = ((None, "---"),) + models.LANGUAGE_CHOICES
-
-    ORGANIZATION_CHOICES = ((None, "---"),)
-    for org in models.Organization.objects.all():
-        ORGANIZATION_CHOICES = ORGANIZATION_CHOICES.__add__(((org.id, org.name_eng),))
 
     first_name = forms.CharField()
     last_name = forms.CharField()
@@ -152,31 +148,26 @@ class PersonCreateForm(forms.Form):
     position_fre = forms.CharField(label="Position title (French)", required=False)
     phone = forms.CharField(widget=forms.TextInput(attrs={'placeholder': "000-000-0000 ext.000"}), required=False)
     language = forms.ChoiceField(choices=LANGUAGE_CHOICES, required=False)
-    organization = forms.ChoiceField(choices=ORGANIZATION_CHOICES, required=False)
 
+    field_order = ["first_name", "last_name", "email", "position_eng", "position_fre", "phone", "language",
+                   "organization"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        organization_choices = [(org.id, org.name_eng) for org in models.Organization.objects.all()]
+        organization_choices.insert(0, (None, "---"))
+
+        self.fields['organization'] = forms.ChoiceField(choices=organization_choices, required=False)
+
+
+class PersonCreateForm(PersonForm):
     def clean_email(self):
         email = self.cleaned_data['email']
         # if email already exists in db
         if User.objects.filter(email=email).count() > 0:
             raise forms.ValidationError("email address already exists in system.")
         return email
-
-
-class PersonForm(forms.Form):
-    LANGUAGE_CHOICES = ((None, "---"),) + models.LANGUAGE_CHOICES
-
-    ORGANIZATION_CHOICES = ((None, "---"),)
-    for org in models.Organization.objects.all():
-        ORGANIZATION_CHOICES = ORGANIZATION_CHOICES.__add__(((org.id, org.name_eng),))
-
-    first_name = forms.CharField()
-    last_name = forms.CharField()
-    email = forms.EmailField(required=False)
-    position_eng = forms.CharField(label="Position title (English)", required=False)
-    position_fre = forms.CharField(label="Position title (French)", required=False)
-    phone = forms.CharField(widget=forms.TextInput(attrs={'placeholder': "000-000-0000 ext.000"}), required=False)
-    language = forms.ChoiceField(choices=LANGUAGE_CHOICES, required=False)
-    organization = forms.ChoiceField(choices=ORGANIZATION_CHOICES, required=False)
 
 
 class KeywordForm(forms.ModelForm):

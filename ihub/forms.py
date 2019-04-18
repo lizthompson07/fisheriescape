@@ -46,31 +46,32 @@ class NoteForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    FY_CHOICES = [
-        ("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
-        models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
-    FY_CHOICES.insert(0, (None, _("all years")))
     # ORG_CHOICES = [(None, "---"), ]
-    REPORT_CHOICES = (
-        (None, "------"),
-        (1, _("Capacity Report (Excel Spreadsheet)")),
-        (2, _("Organizational Report / Cue Card (PDF)")),
-        (3, _("iHub Summary Report (Excel Spreadsheet)")),
-        (4, _("iHub Summary Report (PDF)")),
-    )
-
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    fiscal_year = forms.ChoiceField(required=False, choices=FY_CHOICES, label=_('Fiscal year'))
-    organizations = forms.MultipleChoiceField(required=False, label=_('List of organizations (w/ entries) - Leave blank for all'))
-    single_org = forms.ChoiceField(required=False, label=_('Organization'))
+    field_order = ["report", "fiscal_year", "organizations", "single_org"]
 
     def __init__(self, *args, **kwargs):
-        ORG_CHOICES_ALL = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
-        ORG_CHOICES_HAS_ENTRY = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True) if obj.entries.count() > 0]
-
         super().__init__(*args, **kwargs)
-        self.fields['organizations'].choices = ORG_CHOICES_HAS_ENTRY
-        self.fields['single_org'].choices = ORG_CHOICES_ALL
+
+        report_choices = (
+            (None, "------"),
+            (1, _("Capacity Report (Excel Spreadsheet)")),
+            (2, _("Organizational Report / Cue Card (PDF)")),
+            (3, _("iHub Summary Report (Excel Spreadsheet)")),
+            (4, _("iHub Summary Report (PDF)")),
+        )
+        fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
+                      models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
+        fy_choices.insert(0, (None, "all years"))
+
+        org_choices_all = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
+        org_choices_has_entry = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True) if obj.entries.count() > 0]
+
+        self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
+        self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
+        self.fields['organizations'] = forms.MultipleChoiceField(required=False,
+                                                                 label='List of organizations (w/ entries) - Leave blank for all',
+                                                                 choices=org_choices_has_entry)
+        self.fields['single_org'] = forms.ChoiceField(required=False, label='Organization', choices=org_choices_all)
 
 class OrganizationForm(forms.ModelForm):
     class Meta:

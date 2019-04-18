@@ -16,8 +16,6 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
 from easy_pdf.views import PDFTemplateView
-from shared_models import models as shared_models
-
 
 from lib.functions.nz import nz
 from . import models
@@ -26,6 +24,7 @@ from . import filters
 from . import emails
 from . import reports
 from masterlist import models as ml_models
+from shared_models import models as shared_models
 
 ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 

@@ -59,21 +59,32 @@ class PreyForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    CRUISE_CHOICES = [(obj.id, str(obj)) for obj in shared_models.Cruise.objects.all()]
-    SPECIES_CHOICES = [(obj.id, str(obj)) for obj in models.Species.objects.all()]
-
-    cruise = forms.ChoiceField(required=False, choices=CRUISE_CHOICES)
-    species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
 
     field_order = ["cruise", "species"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cruise_choices = [(obj.id, str(obj)) for obj in shared_models.Cruise.objects.all()]
+        species_choices = [(obj.id, str(obj)) for obj in models.Species.objects.all()]
+
+        self.fields['cruise'] = forms.ChoiceField(required=False, choices=cruise_choices)
+        self.fields['species'] = forms.ChoiceField(required=False, choices=species_choices)
+
 
 class ReportSearchForm(forms.Form):
-    YEAR_CHOICES = [(y["season"], y["season"]) for y in shared_models.Cruise.objects.order_by("-season").values('season').distinct()]
-    REPORT_CHOICES = [
-        (1, "Summary of Prey Species"),
-    ]
-    REPORT_CHOICES.insert(0, (None, "------"))
+    report = forms.ChoiceField(required=True)
+    year = forms.ChoiceField(required=True)
 
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        report_choices = [
+            (1, "Summary of Prey Species"),
+        ]
+        report_choices.insert(0, (None, "------"))
+
+        year_choices = [(y["season"], y["season"]) for y in shared_models.Cruise.objects.order_by("-season").values('season').distinct()]
+
+        self.fields['report'] = forms.ChoiceField(required=False, choices=report_choices)
+        self.fields['year'] = forms.ChoiceField(required=False, choices=year_choices)
