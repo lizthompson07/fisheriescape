@@ -196,7 +196,7 @@ class OtolithForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    YEAR_CHOICES = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
+
     REPORT_CHOICES = [
         (1, "Progress Report"),
         (2, "Pretty fish detail export (csv)"),
@@ -207,4 +207,12 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES.insert(0, (None, "------"))
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
+
+    field_order = ["report", "year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        year_choices = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
+
+        self.fields['year'] = forms.ChoiceField(required=True, choices=year_choices)
