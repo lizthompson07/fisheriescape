@@ -41,25 +41,27 @@ class SpeciesForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    SITE_CHOICES = ((None, "---"),)
-    for obj in models.Site.objects.all().order_by("site"):
-        SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
-
-    STATION_CHOICES = ((None, "---"),)
-    for obj in models.Station.objects.all():
-        STATION_CHOICES = STATION_CHOICES.__add__(((obj.id, obj),))
-
-    SPECIES_CHOICES = ((None, "---"),)
-    for obj in models.Species.objects.all():
-        SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
 
     year = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all years"}))
     month = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'placeholder': "all months"}))
-    site = forms.ChoiceField(required=False, choices=SITE_CHOICES)
-    station = forms.ChoiceField(required=False, choices=STATION_CHOICES)
-    species = forms.ChoiceField(required=False, choices=SPECIES_CHOICES)
 
     field_order = ["year", "month", "site", "station", "species"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        site_choices = [(obj.id, str(obj)) for obj in models.Site.objects.all()]
+        site_choices.insert(0, tuple((None, "---")))
+
+        station_choices = [(obj.id, str(obj)) for obj in models.Station.objects.all()]
+        station_choices.insert(0, tuple((None, "---")))
+
+        species_choices = [(obj.id, str(obj)) for obj in models.Species.objects.all()]
+        species_choices.insert(0, tuple((None, "---")))
+
+        self.fields['site'] = forms.ChoiceField(required=False, choices=site_choices)
+        self.fields['station'] = forms.ChoiceField(required=False, choices=station_choices)
+        self.fields['species'] = forms.ChoiceField(required=False, choices=species_choices)
 
 
 class SampleForm(forms.ModelForm):
@@ -168,6 +170,8 @@ class ReportSearchForm(forms.Form):
     site = forms.ChoiceField(required=False)
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         SITE_CHOICES = [(obj.id, str(obj)) for obj in models.Site.objects.all()]
         SITE_CHOICES.insert(0, tuple((None, "All Sites")))
 
@@ -177,7 +181,6 @@ class ReportSearchForm(forms.Form):
         AIS_CHOICES = [(obj.id, "{} - {}".format(obj.common_name_eng, obj.scientific_name)) for obj in
                        models.Species.objects.filter(ais=True).order_by("common_name_eng")]
 
-        super().__init__(*args, **kwargs)
         self.fields['site'].choices = SITE_CHOICES
         self.fields['species'].choices = SPECIES_CHOICES
         self.fields['ais_species'].choices = AIS_CHOICES

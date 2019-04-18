@@ -7,11 +7,16 @@ from . import forms as ticket_forms
 
 
 class TicketFilter(django_filters.FilterSet):
-    SECTION_CHOICES = [(s.id, s.full_name) for s in shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
-
-    section = django_filters.ChoiceFilter(field_name="section", choices=SECTION_CHOICES)
-    search_term = django_filters.CharFilter(field_name='search_term', label="Key term (title, description, Id):",
+    section = django_filters.ChoiceFilter(field_name="section")
+    search_term = django_filters.CharFilter(field_name='search_term', label="Key term (title, description, notes, Id):",
                                             lookup_expr='icontains', widget=forms.TextInput())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        section_choices = [(s.id, s.full_name) for s in shared_models.Section.objects.all().order_by(
+            "division__branch__region", "division__branch", "division", "name")]
+        self.filters['section'] = django_filters.ChoiceFilter(field_name="section", choices=section_choices)
+
     class Meta:
         model = models.Ticket
         fields = {
@@ -23,5 +28,10 @@ class TicketFilter(django_filters.FilterSet):
 
 
 class FiscalFilter(django_filters.FilterSet):
-    FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
-    fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=FY_CHOICES)
+    fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact',
+                                                                  choices=fy_choices)
