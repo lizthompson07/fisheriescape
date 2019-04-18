@@ -164,10 +164,6 @@ GroupingFormSet = modelformset_factory(
 
 
 class ReportSearchForm(forms.Form):
-    PROVINCE_CHOICES = [(obj.id, str(obj)) for obj in shared_models.Province.objects.all()]
-    GROUPING_CHOICES = [(obj.id, str(obj)) for obj in models.Grouping.objects.all()]
-    SECTOR_CHOICES = [(obj.id, str(obj)) for obj in models.Sector.objects.all()]
-    REGION_CHOICES = [(obj.id, str(obj)) for obj in shared_models.Region.objects.all()]
 
     REPORT_CHOICES = (
         (None, "------"),
@@ -177,11 +173,24 @@ class ReportSearchForm(forms.Form):
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
 
     # report #1
-    provinces = forms.MultipleChoiceField(required=False, choices=PROVINCE_CHOICES, label=_('Provinces - Leave blank for all'))
-    groupings = forms.MultipleChoiceField(required=False, choices=GROUPING_CHOICES, label=_('Organization Grouping - Leave blank for all'))
-    sectors = forms.MultipleChoiceField(required=False, choices=SECTOR_CHOICES, label=_('DFO Sectors - Leave blank for all'))
-    regions = forms.MultipleChoiceField(required=False, choices=REGION_CHOICES, label=_('DFO Regions - Leave blank for all'))
     is_indigenous = forms.BooleanField(required=False, label=_('Indigenous Only'))
     species = forms.CharField(required=False, label=_('Key Species'))
 
-# key_species
+    field_order = ["provinces","groupings","sectors","regions","is_indigenous","species"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        province_choices = [(obj.id, str(obj)) for obj in shared_models.Province.objects.all()]
+        grouping_choices = [(obj.id, str(obj)) for obj in models.Grouping.objects.all()]
+        sector_choices = [(obj.id, str(obj)) for obj in models.Sector.objects.all()]
+        region_choices = [(obj.id, str(obj)) for obj in shared_models.Region.objects.all()]
+
+        self.fields["provinces"] = forms.MultipleChoiceField(required=False, choices=province_choices,
+                                          label=_('Provinces - Leave blank for all'))
+        self.fields["groupings"] = forms.MultipleChoiceField(required=False, choices=grouping_choices,
+                                          label=_('Organization Grouping - Leave blank for all'))
+        self.fields["sectors"] = forms.MultipleChoiceField(required=False, choices=sector_choices,
+                                        label=_('DFO Sectors - Leave blank for all'))
+        self.fields["regions"] = forms.MultipleChoiceField(required=False, choices=region_choices,
+                                        label=_('DFO Regions - Leave blank for all'))
