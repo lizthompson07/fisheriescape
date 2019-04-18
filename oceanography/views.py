@@ -276,7 +276,7 @@ class FileCreateView(CreateView):
         return context
 
     def get_initial(self):
-        mission = models.Mission.objects.get(pk=self.kwargs['mission'])
+        mission = shared_models.Cruise.objects.get(pk=self.kwargs['mission'])
         return {'mission': mission}
 
 
