@@ -107,7 +107,14 @@ except RuntimeError:
 try:
     urlpatterns += i18n_patterns(path('ios2/', include('ios2.urls')), prefix_default_language=True)
 except RuntimeError:
-    print("not connecting travel app")
+    raise
+    print("not connecting instrument app")
+
+# try:
+#     urlpatterns += i18n_patterns(path('ios3/', include('ios3.urls')), prefix_default_language=True)
+# except RuntimeError:
+#     raise
+#     print("not connecting CTDRosette app")
 
 
 if not settings.PRODUCTION_SERVER:
