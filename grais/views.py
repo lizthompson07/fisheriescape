@@ -385,9 +385,8 @@ class SpeciesCreatePopoutView(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
-class SpeciesDeleteView(PermissionRequiredMixin, GraisAccessRequiredMixin, DeleteView):
+class SpeciesDeleteView(GraisAccessRequiredMixin, DeleteView):
     model = models.Species
-    permission_required = "__all__"
     success_url = reverse_lazy('grais:species_list')
     success_message = 'The species was successfully deleted!'
 
