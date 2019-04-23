@@ -62,7 +62,7 @@
                     {% endif %}
                 </p>
             </div>
-            <div class="col">
+            <div class="col-8">
 
                 {% if object.surface_spp.count == 0 and object.sample_spp.count == 0 and object.line_spp.count == 0 and object.bycatch_set.count == 0 and object.crab_set.count == 0 and object.incidentalreport_set.count == 0 %}
                     <p><em>This species is not present in the database.</em></p>
@@ -87,9 +87,8 @@
                             Green Crab Monitoring dataset.
                         </li>
                         <li>
-                            This species has occured {{ object.crab_set.count }} time{{ object.crab_set.count|pluralize }} as bycatch
-                            in the
-                            Green Crab Monitoring dataset.
+                            This species has occured {{ object.crab_set.count }} time{{ object.crab_set.count|pluralize }} as a crab
+                            in the Green Crab Monitoring dataset.
                         </li>
                         <li>
                             This species has occured {{ object.incidentalreport_set.count }}
