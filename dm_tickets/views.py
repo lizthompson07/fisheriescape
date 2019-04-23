@@ -361,6 +361,76 @@ def add_generic_file(request, ticket, type):
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
 
 
+
+# Follow ups #
+##############
+
+class FollowUpCreateView(LoginRequiredMixin, CreateView):
+    model = models.FollowUp
+    # fields = '__all__'
+    template_name = 'dm_tickets/followup_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.FollowUpForm
+
+    def get_initial(self):
+        ticket = models.Ticket.objects.get(pk=self.kwargs['ticket'])
+        return {
+            'ticket': ticket,
+            'created_by': self.request.user.id,
+            'created_date': timezone.now()
+        }
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        # create a new email object
+        # email = emails.NewFileAddedEmail(self.object)
+        # send the email object
+        # if settings.PRODUCTION_SERVER:
+        #     send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+        #               recipient_list=email.to_list, fail_silently=False, )
+        # else:
+        #     print('not sending email since in dev mode')
+
+        return HttpResponseRedirect(reverse('tickets:close_me'))
+
+
+class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.FollowUp
+    template_name = 'dm_tickets/followup_form_popout.html'
+    form_class = forms.FollowUpForm
+
+    def get_initial(self):
+        return {
+            'created_by': self.request.user.id,
+            'created_date': timezone.now()
+        }
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        # create a new email object
+        # email = emails.NewFileAddedEmail(self.object)
+        # send the email object
+        # if settings.PRODUCTION_SERVER:
+        #     send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+        #               recipient_list=email.to_list, fail_silently=False, )
+        # else:
+        #     print('not sending email since in dev mode')
+
+        return HttpResponseRedirect(reverse('tickets:close_me'))
+
+class FollowUpDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.FollowUp
+    template_name = 'dm_tickets/followup_confirm_delete_popout.html'
+
+    # form_class = forms.StudentCreateForm
+
+    def get_success_url(self):
+        return reverse_lazy('tickets:close_me')
+
+
+
 # REPORTS #
 ###########
 

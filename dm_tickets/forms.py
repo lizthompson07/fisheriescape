@@ -93,3 +93,14 @@ class FileForm(forms.ModelForm):
         widgets = {
             'ticket': forms.HiddenInput(),
         }
+
+
+class FollowUpForm(forms.ModelForm):
+    class Meta:
+        model = models.FollowUp
+        fields = "__all__"
+        widgets = {
+            'ticket': forms.HiddenInput(),
+            'created_date': forms.HiddenInput(),
+            'created_by': forms.HiddenInput(),
+        }
