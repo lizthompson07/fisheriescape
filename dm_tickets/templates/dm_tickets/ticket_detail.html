@@ -77,7 +77,7 @@
                 </p>
 
             </div>
-            <div class="col-4">
+            <div class="col">
 
                 {% for field in field_group_2 %}
                     {% verbose_field_display object field %}
@@ -85,9 +85,34 @@
 
 
             </div>
-            <div class="col-3">
+            <div class="col">
+                <div class="neighbours">
+                    <b>Updates / Follow Ups:</b>
+                </div>
 
-                <p>
+                {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
+                <div class="neighbours">
+                    <a class="btn btn-sm btn-light"
+                       onclick="return popitup('{% url 'tickets:followup_create' ticket.id %}','FileCreate',500,1000)" data-toggle="tooltip"
+                       title="Add a follow-up"> <i
+                            class="material-icons">add</i></a>
+                </div>
+
+
+                <ul>
+                    {% for msg in object.follow_ups.all %}
+                        <li>
+                            {{ msg|safe }}
+                            (<a href="#" pop-href="{% url 'tickets:followup_edit' msg.id %}">edit</a>)
+                            (<a href="#" pop-href="{% url 'tickets:followup_delete' msg.id %}">delete</a>)
+                        </li>
+                    {% empty %}
+                        <br>
+                        <span class="">  <em>No follow-ups have been added to this ticket.</em></span>
+
+                    {% endfor %}
+                </ul>
+                <br>
                 <div class="neighbours">
                     <b>Files:</b>
                 </div>
@@ -96,7 +121,7 @@
                 <div class="neighbours">
                     <a class="btn btn-sm btn-light"
                        onclick="return popitup('{% url 'tickets:file_create' ticket.id %}','FileCreate',500,1000)"
-                    data-toggle="tooltip" title="add a file"> <i
+                       data-toggle="tooltip" title="add a file"> <i
                             class="material-icons">add</i></a>
                 </div>
 
@@ -128,41 +153,13 @@
 
                     {% endfor %}
                 </ul>
-
-                <br>
-                <p>
-                <div class="neighbours">
-                    <b>Updates / Follow Ups:</b>
-                </div>
-
-                {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-                <div class="neighbours">
-                    <a class="btn btn-sm btn-light"
-                       onclick="return popitup('{% url 'tickets:followup_create' ticket.id %}','FileCreate',500,1000)" data-toggle="tooltip" title="Add a follow-up"> <i
-                            class="material-icons">add</i></a>
-                </div>
-
-
-                <ul>
-                    {% for msg in object.follow_ups.all %}
-                        <li>
-                            {{ msg|safe }}
-                            (<a href="#" pop-href="{% url 'tickets:followup_edit' msg.id %}">edit</a>)
-                            (<a href="#" pop-href="{% url 'tickets:followup_delete' msg.id %}">delete</a>)
-                        </li>
-                    {% empty %}
-                        <br>
-                        <span class="">  <em>No follow-ups have been added to this ticket.</em></span>
-
-                    {% endfor %}
-                </ul>
             </div>
-        </div>
 
-        <div class="col">
-            {% for field in field_group_3 %}
-                {% verbose_field_display object field %}
-            {% endfor %}
+            <div class="col-2">
+                {% for field in field_group_3 %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 
