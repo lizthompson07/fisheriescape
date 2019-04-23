@@ -31,6 +31,34 @@ class NewTicketEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
 
+
+class NewFollowUpEmail:
+    def __init__(self, object):
+        self.subject = 'A follow-up has been added to your ticket / un suivi a été ajouté à votre billet'
+        self.message = self.load_html_template(object)
+        self.from_email = from_email
+
+        # decide on who should receive the email
+        if object.ticket.dm_assigned.count() > 0:
+            my_to_list = [user.email for user in object.ticket.dm_assigned.all()]
+            my_to_list.append(object.ticket.primary_contact.email)
+        else:
+            # get a list of all staff email addresses
+            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
+            my_to_list.append(object.ticket.primary_contact.email)
+        self.to_list = my_to_list
+
+    def load_html_template(self, object):
+        t = loader.get_template('dm_tickets/email_follow_up.html')
+        context = {'object': object}
+        rendered = t.render(context)
+        return rendered
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
+
+
 class NewFileAddedEmail:
     def __init__(self, object):
         self.subject = "A new file has been added to Ticket #{}".format(object.ticket.id)
