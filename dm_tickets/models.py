@@ -107,11 +107,11 @@ class Ticket(models.Model):
 
     # 'assigned_to' field needs to be removed!!! DEPRECATED
     assigned_to = models.ForeignKey(User, on_delete=models.DO_NOTHING, limit_choices_to={"is_staff": True},
-                                  verbose_name=_("ticket assigned to"), blank=True, null=True,
-                                  related_name="assigned_tickets")
+                                    verbose_name=_("ticket assigned to"), blank=True, null=True,
+                                    related_name="assigned_tickets")
 
     dm_assigned = models.ManyToManyField(User, limit_choices_to={"is_staff": True},
-                                    verbose_name=_("ticket assigned to"), blank=True, related_name="dm_assigned_tickets")
+                                         verbose_name=_("ticket assigned to"), blank=True, related_name="dm_assigned_tickets")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True)
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
@@ -161,26 +161,19 @@ class Ticket(models.Model):
     def get_absolute_url(self):
         return reverse('tickets:detail', kwargs={'pk': self.id})
 
-    @property
-    def search_clob(self):
-        return "{} {} {} {} {} {}".format(self.title, self.description, self.service_desk_ticket, self.request_type,
-                                          self.people.all(), self.tags.all())
 
-    @property
-    def tags_pretty(self):
-        my_str = ""
-        for tag in self.tags.all():
-            my_str = my_str + tag.tag + ", "
+class FollowUp(models.Model):
+    ticket = models.ForeignKey(Ticket, related_name="follow_ups", on_delete=models.CASCADE)
+    message = models.TextField(verbose_name=_("follow up message"))
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="dm_tickets_follow_ups")
+    created_date = models.DateTimeField(default=timezone.now)
 
-        return my_str[:len(my_str) - 2]
+    class Meta:
+        ordering = ['-created_date']
 
-    @property
-    def people_pretty(self):
-        my_str = ""
-        for person in self.people.all():
-            my_str = my_str + "{} {},<br>".format(person.first_name, person.last_name)
-
-        return my_str[:len(my_str) - 5]
+    def __str__(self):
+        return "{} <code>({} {} on {})</code>".format(self.message, self.created_by.first_name, self.created_by.last_name,
+                                                                self.created_date.strftime("%Y-%m-%d %H:%M"))
 
 
 def ticket_directory_path(instance, filename):
