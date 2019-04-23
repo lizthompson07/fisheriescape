@@ -104,9 +104,14 @@ class Ticket(models.Model):
     primary_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     app = models.CharField(max_length=25, default="general", choices=APP_CHOICES, verbose_name=_("application name"),
                            blank=True, null=True)
+
+    # 'assigned_to' field needs to be removed!!! DEPRECATED
     assigned_to = models.ForeignKey(User, on_delete=models.DO_NOTHING, limit_choices_to={"is_staff": True},
                                   verbose_name=_("ticket assigned to"), blank=True, null=True,
                                   related_name="assigned_tickets")
+
+    dm_assigned = models.ManyToManyField(User, limit_choices_to={"is_staff": True},
+                                    verbose_name=_("ticket assigned to"), blank=True, related_name="dm_assigned_tickets")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True)
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
