@@ -384,13 +384,14 @@ class FollowUpCreateView(LoginRequiredMixin, CreateView):
         self.object = form.save()
 
         # create a new email object
-        # email = emails.NewFileAddedEmail(self.object)
+        email = emails.NewFollowUpEmail(self.object)
         # send the email object
-        # if settings.PRODUCTION_SERVER:
-        #     send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-        #               recipient_list=email.to_list, fail_silently=False, )
-        # else:
-        #     print('not sending email since in dev mode')
+        if settings.PRODUCTION_SERVER:
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
+        else:
+            print('not sending email since in dev mode')
+            print(email)
 
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
@@ -410,13 +411,14 @@ class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
         self.object = form.save()
 
         # create a new email object
-        # email = emails.NewFileAddedEmail(self.object)
+        email = emails.NewFollowUpEmail(self.object)
         # send the email object
-        # if settings.PRODUCTION_SERVER:
-        #     send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-        #               recipient_list=email.to_list, fail_silently=False, )
-        # else:
-        #     print('not sending email since in dev mode')
+        if settings.PRODUCTION_SERVER:
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
+        else:
+            print('not sending email since in dev mode')
+            print(email)
 
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
