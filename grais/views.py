@@ -333,7 +333,7 @@ class SpeciesListView(GraisAccessRequiredMixin, FilterView):
     template_name = "grais/species_list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
-        search_term=Concat('common_name', 'scientific_name', 'abbrev', output_field=TextField()))
+        search_term=Concat('id', 'common_name', 'scientific_name', 'abbrev', output_field=TextField()))
 
 
 class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
