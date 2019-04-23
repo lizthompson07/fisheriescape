@@ -40,7 +40,7 @@ class TicketListView(FilterView):
         context["field_list"] = [
             'id',
             'date_modified',
-            'assigned_to',
+            'dm_assigned',
             'app',
             'title',
             'request_type',
