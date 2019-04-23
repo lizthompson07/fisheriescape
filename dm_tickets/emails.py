@@ -6,23 +6,24 @@ admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
 
 class NewTicketEmail:
-    def __init__(self, object):
+    def __init__(self, ticket_object):
         self.subject = 'A new ticket has been created / un nouveau billet a été créé'
-        self.message = self.load_html_template(object)
+        self.message = self.load_html_template(ticket_object)
         self.from_email = from_email
 
         # decide on who should receive the email
-        if object.assigned_to:
-            self.to_list = [object.assigned_to.email, object.primary_contact.email, ]
+        if ticket_object.dm_assigned.count() > 0:
+            my_to_list = [user.email for user in ticket_object.dm_assigned.all()]
+            my_to_list.append(ticket_object.primary_contact.email)
         else:
             # get a list of all staff email addresses
-            staff_emails = [user.email for user in User.objects.filter(is_staff=True)]
-            staff_emails.append(object.primary_contact.email)
-            self.to_list = staff_emails
+            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
+            my_to_list.append(ticket_object.primary_contact.email)
+        self.to_list = my_to_list
 
-    def load_html_template(self, object):
+    def load_html_template(self, ticket_object):
         t = loader.get_template('dm_tickets/email_new_ticket.html')
-        context = {'object': object}
+        context = {'object': ticket_object}
         rendered = t.render(context)
         return rendered
 
@@ -35,7 +36,14 @@ class NewFileAddedEmail:
         self.subject = "A new file has been added to Ticket #{}".format(object.ticket.id)
         self.message = self.load_html_template(object)
         self.from_email = from_email
-        self.to_list = [admin_email, ]
+        if object.ticket.dm_assigned.count() > 0:
+            my_to_list = [user.email for user in object.ticket.dm_assigned.all()]
+            my_to_list.append(object.ticket.primary_contact.email)
+        else:
+            # get a list of all staff email addresses
+            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
+            my_to_list.append(object.ticket.primary_contact.email)
+        self.to_list = my_to_list
 
     def load_html_template(self, object):
         t = loader.get_template('dm_tickets/email_new_file.html')
@@ -48,20 +56,21 @@ class NewFileAddedEmail:
 
 
 class TicketResolvedEmail:
-
     def __init__(self, ticket_object):
         self.ticket_object = ticket_object
         self.subject = 'Your ticket has been resolved / votre billet a été résolu'
         self.message = self.load_html_template()
         self.from_email = from_email
         # decide on who should receive the email
-        if ticket_object.assigned_to:
-            self.to_list = [ticket_object.assigned_to.email, ticket_object.primary_contact.email, ]
+        if ticket_object.dm_assigned.count() > 0:
+            my_to_list = [user.email for user in ticket_object.dm_assigned.all()]
+            my_to_list.append(ticket_object.primary_contact.email)
         else:
             # get a list of all staff email addresses
-            staff_emails = [user.email for user in User.objects.filter(is_staff=True)]
-            staff_emails.append(ticket_object.primary_contact.email)
-            self.to_list = staff_emails
+            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
+            my_to_list.append(ticket_object.primary_contact.email)
+        self.to_list = my_to_list
+
 
     def load_html_template(self):
         t = loader.get_template('dm_tickets/email_ticket_resolved.html')
