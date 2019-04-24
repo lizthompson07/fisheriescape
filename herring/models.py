@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import auth
+from shared_models import models as shared_models
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -140,7 +141,8 @@ class Sample(models.Model):
     sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number")
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
-    survey_id = models.CharField(max_length=50, null=True, blank=True)
+    port = models.ForeignKey(shared_models.Port, related_name="herring_samples", on_delete=models.DO_NOTHING, null=True, blank=True)
+    survey_id = models.CharField(max_length=50, null=True, blank=True, verbose_name="survey identifier")
     latitude_n = models.CharField(max_length=50, null=True, blank=True, verbose_name="Latitude (N)")
     longitude_w = models.CharField(max_length=50, null=True, blank=True, verbose_name="Longitude (W)")
     fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True,
