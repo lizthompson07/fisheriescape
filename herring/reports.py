@@ -275,35 +275,35 @@ def generate_hlog(year):
     # here is where things get tricky.. each row should consist of 10 columns of data + metadata (5 cols)
     # lets define a few custom functions:
 
-    for sample in sample_list:
-        # sample
-        # day
-        # month
-        # year
-        # maps to PORT_NAME but will also contain survey ID from new database
-        # sampler name (text)
-        # sampler's ref number
-        # number measured??
-        # number kept
-        # NAFO code
-        # district id; maps to PORT_CODE in oracle db
-        # cfvn
-        # gear code (str)
-        # mesh size (float)
-        # lat
-        # long
-        # landed wt.
-        # number measured per ½ cm
-        # blank
-        # length frequency bins
-        # number processed
-        # date processed
-        # ager name
-        # comment
-        # blank
-        # maps to WHARF_CODE in oracle db
-        # blank
+    # we will have to turn this into a fixed width
+    padding_lengths = [5, 2, 2, 4, 20, 15, 6, 3, 3, 3, 3, 20, 4, 4, 6, 6, 6, 2, 8, 3, 3, 10, 15, 85, 4, 4, 7, 7]
 
+    for sample in sample_list:
+
+        # a) sample
+        col_a = str(sample.id).rjust(padding_lengths[0])
+
+        # b) day
+        col_b = str(nz(sample.sample_date.day, "")).rjust(padding_lengths[1])
+
+        # c) month
+        col_c = str(nz(sample.sample_date.month, "")).rjust(padding_lengths[2])
+
+        # d) year
+        col_d = str(nz(sample.sample_date.year, "")).rjust(padding_lengths[3])
+
+        # e) maps to PORT_NAME but will also contain survey ID from new database
+        if sample.survey_id:
+            my_var = sample.survey_id
+        elif sample.port_id:
+            my_var = sample.port.alias_wharf_name
+        else:
+            my_var = ""
+        col_e = str(my_var).rjust(padding_lengths[4])
+        print(col_e)
+        print(len(col_e))
+
+        # f) sampler name (text)
         if sample.sampler:
             # if there is a missing first or last name
             if not sample.sampler.first_name or not sample.sampler.last_name:
@@ -312,77 +312,164 @@ def generate_hlog(year):
                 sampler = "{}. {}".format(sample.sampler.first_name.upper()[:1], sample.sampler.last_name.upper())
         else:
             sampler = ""
+        col_f = str(sampler).rjust(padding_lengths[5])
 
-        if sample.survey_id:
-            survey_id = sample.survey_id
-        else:
-            survey_id = ""
+        # g) sampler's ref number
+        col_g = str(nz(sample.sampler_ref_number, "")).rjust(padding_lengths[6])
 
+        # h) number measured??
+        col_h = str(nz(sample.total_fish_measured, "")).rjust(padding_lengths[7])
+
+        # i) number kept
+        col_i = str(nz(sample.total_fish_preserved, "")).rjust(padding_lengths[8])
+
+        # j) NAFO code
         if sample.fishing_area:
             nafo_code = sample.fishing_area.nafo_area_code
-
         else:
             nafo_code = ""
+        col_j = str(nafo_code).rjust(padding_lengths[9])
 
+        # k) district id; maps to PORT_CODE in oracle db ** can also be research code
+        # if it is experimental, we assign a research code
+        if sample.experimental_net_used:
+            # if gear is OTM, rc = 901
+            if sample.gear_id == 26:
+                my_var = 901
+            # if gear is OTB, rc = 905
+            elif sample.gear_id == 25:
+                my_var = 905
+            # if gear is GNS, rc = 908
+            elif sample.gear_id == 2:
+                my_var = 908
+            # otherwise default to 908.
+            else:
+                my_var = 999
+
+        # if there is a port, we give a district number (i.e. province_code + district_code
+        else:
+            if sample.port:
+                my_var = "{}{}".format(sample.port.province_code, sample.port.district_code)
+            else:
+                my_var = ""
+        col_k = str(nz(my_var, "")).rjust(padding_lengths[10])
+
+        # l) cfvn
+        col_l = str(nz(sample.vessel_cfvn, "")).rjust(padding_lengths[11])
+
+        # m) gear code (str)
         if sample.gear:
             gear_code = sample.gear.gear_code
             if sample.experimental_net_used:
                 gear_code = gear_code + "*"
         else:
             gear_code = ""
+        col_m = str(gear_code).rjust(padding_lengths[12])
 
+        # n) mesh size (float)
         if sample.mesh_size:
             mesh_size = "{:.2f}".format(sample.mesh_size.size_inches_decimal)
         else:
             mesh_size = ""
+        col_n = str(mesh_size).rjust(padding_lengths[13])
 
-        # based on a discussion with Francois Turcotte, we will try leaving this blank
-        if sample.type == 2:  # sea sample
-            protocol = 8
-        else:  # port sample
-            if sample.experimental_net_used:  # sea sample
-                protocol = 2
-            else:
-                protocol = 1
+        # o) lat
+        if sample.latitude_n:
+            my_var = sample.latitude_n[:6]
+        else:
+            my_var = ""
+        col_o = str(nz(my_var, "")).rjust(padding_lengths[14])
 
+        # p) long
+        if sample.longitude_w:
+            my_var = sample.longitude_w[:6]
+        else:
+            my_var = ""
+        col_p = str(nz(my_var, "")).rjust(padding_lengths[15])
+
+        # q) landed wt.
         if sample.catch_weight_lbs:
             catch_wt = int(sample.catch_weight_lbs)
         else:
             catch_wt = ""
+        col_q = str(catch_wt).rjust(padding_lengths[16])
 
-        # we will have to turn this into a fixed width
-        padding_lengths = [5, 2, 2, 4, 20, 15, 6, 3, 3, 3, 3, 20, 4, 4, 6, 6, 6, 2, 8, 3, 3, 10, 15, 85, 4, 4, 7, 7]
+        # r) sampling protocol
+        if sample.type == 2:  # sea sample
+            protocol = 8
+        else:  # port sample
+            if sample.experimental_net_used:
+                # mesh selectivity
+                protocol = 2
+            else:
+                # vanilla port sampling
+                protocol = 1
+        col_r = str(protocol).rjust(padding_lengths[17])
+
+        # s) blank
+        col_s = str("").rjust(padding_lengths[18])
+
+        # t) length frequency bins
+        col_t = str(0.5).rjust(padding_lengths[19])
+
+        # u) number processed
+        col_u = str(nz(sample.total_fish_preserved, "")).rjust(padding_lengths[20])
+
+        # v) date processed
+        col_v = str("").rjust(padding_lengths[21])
+
+        # w) ager name
+        col_w = str("").rjust(padding_lengths[22])
+
+        # x) comment
+        col_x = str("").rjust(padding_lengths[23])
+
+        # y) blank
+        col_y = str("").rjust(padding_lengths[24])
+
+        # z) maps to WHARF_CODE in oracle db
+        if sample.port:
+            my_var = sample.port.alias_wharf_id
+        else:
+            my_var = ""
+        col_z = str(my_var).rjust(padding_lengths[25])
+
+        # aa) blank
+        col_aa = str("").rjust(padding_lengths[26])
+
+        # ab) blank
+        col_ab = str("").rjust(padding_lengths[27])
 
         writer.writerow(
             [
-                str(sample.id).rjust(padding_lengths[0]),
-                str(nz(sample.sample_date.day, "")).rjust(padding_lengths[1]),
-                str(nz(sample.sample_date.month, "")).rjust(padding_lengths[2]),
-                str(nz(sample.sample_date.year, "")).rjust(padding_lengths[3]),
-                str(survey_id).rjust(padding_lengths[4]),
-                str(sampler).rjust(padding_lengths[5]),
-                str(nz(sample.sampler_ref_number, "")).rjust(padding_lengths[6]),
-                str(nz(sample.total_fish_measured, "")).rjust(padding_lengths[7]),
-                str(nz(sample.total_fish_preserved, "")).rjust(padding_lengths[8]),
-                str(nafo_code).rjust(padding_lengths[9]),
-                str(nz(sample.district_id, "")).rjust(padding_lengths[10]),
-                str(nz(sample.vessel_cfvn, "")).rjust(padding_lengths[11]),
-                str(gear_code).rjust(padding_lengths[12]),
-                str(mesh_size).rjust(padding_lengths[13]),
-                str(nz(sample.latitude_n, "")).rjust(padding_lengths[14]),
-                str(nz(sample.longitude_w, "")).rjust(padding_lengths[15]),
-                str(catch_wt).rjust(padding_lengths[16]),
-                str(protocol).rjust(padding_lengths[17]),
-                str("").rjust(padding_lengths[18]),
-                str(0.5).rjust(padding_lengths[19]),
-                str(nz(sample.total_fish_preserved, "")).rjust(padding_lengths[20]),
-                str("").rjust(padding_lengths[21]),
-                str("").rjust(padding_lengths[22]),
-                str("").rjust(padding_lengths[23]),
-                str("").rjust(padding_lengths[24]),
-                str("").rjust(padding_lengths[25]),
-                str("").rjust(padding_lengths[26]),
-                str("").rjust(padding_lengths[27]),
+                col_a,
+                col_b,
+                col_c,
+                col_d,
+                col_e,
+                col_f,
+                col_g,
+                col_h,
+                col_i,
+                col_j,
+                col_k,
+                col_l,
+                col_m,
+                col_n,
+                col_o,
+                col_p,
+                col_q,
+                col_r,
+                col_s,
+                col_t,
+                col_u,
+                col_v,
+                col_w,
+                col_x,
+                col_y,
+                col_z,
+                col_aa,
+                col_ab,
             ])
 
     return response
