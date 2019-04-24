@@ -121,7 +121,7 @@ class SampleCreateView(HerringAccessRequired, CreateView):
         context = super().get_context_data(**kwargs)
 
         # get a list of ports
-        port_list = ['<a href="#" class="port_insert" code={}>{}</a>'.format(p.id,p) for p in shared_models.Port.objects.all()]
+        port_list = ['<a href="#" class="port_insert" code={}>{}</a>'.format(p.id, p) for p in shared_models.Port.objects.all()]
         context['port_list'] = port_list
 
         # get a list of samplers
@@ -168,13 +168,9 @@ class SampleUpdateView(HerringAccessRequired, UpdateView):
         context = super().get_context_data(**kwargs)
 
         # get a list of districts
-        district_list = []
-        for d in models.District.objects.all():
-            for l in d.locality_list.split(", "):
-                html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
-                    p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
-                district_list.append(html_insert)
-        context['district_list'] = district_list
+        # get a list of ports
+        port_list = ['<a href="#" class="port_insert" code={}>{}</a>'.format(p.id, p) for p in shared_models.Port.objects.all()]
+        context['port_list'] = port_list
 
         # get a list of samplers
         sampler_list = []
