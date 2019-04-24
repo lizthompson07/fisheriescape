@@ -79,7 +79,7 @@
                         {% elif field == "dm_assigned" %}
                             <td>
                                 {% for dm in ticket.dm_assigned.all %}
-                                    {{ dm.first_name }} {{ dm.last_name }},
+                                    {{ dm.first_name }} {{ dm.last_name }}<br>
                                 {% empty %}
                                     {# display nothing #}
                                 {% endfor %}

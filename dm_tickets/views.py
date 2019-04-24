@@ -27,7 +27,6 @@ class CloserTemplateView(TemplateView):
 
 # Ticket #
 ##########
-
 class TicketListView(FilterView):
     filterset_class = filters.TicketFilter
     template_name = "dm_tickets/ticket_list.html"
