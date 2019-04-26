@@ -135,7 +135,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('scifi:index'),
             "icon_path": 'img/icons/stats.svg',
-            "region": "all",
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -213,7 +213,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('travel:index'),
             "icon_path": 'img/icons/paper-plane.svg',
-            "region": "all",
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
