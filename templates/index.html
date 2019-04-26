@@ -18,6 +18,12 @@
         .card {
             cursor: pointer;
         }
+
+        .shrink-me {
+            transform: scale(.8);
+        }
+
+
     </style>
 
 {% endblock %}
@@ -53,68 +59,130 @@
                     {% endblocktrans %}
                 {% endif %}
             </h2>
-
         </div>
-    </div>
-    <br><br>
-    <div class="container">
-        {% trans "Select" as btn_text %}
-        <div class="row">
-            {% for app in app_dict %}
-                <div class="card mb-3 jumbotron" style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px"
-                     href="{{ app_dict|lookup:app|lookup:"url" }}">
+        <br><br>
+            <div class="text-center roboto">
+                <h2>Shared Applications:</h2>
+            </div>
+        <div class="jumbotron shrink-me">
+            {% trans "Select" as btn_text %}
+            {% with app_dict_shared as app_dict %}
+                <div class="row">
+                    {% for app in app_dict %}
+                        <div class="card mb-3 jumbotron" style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; background-color: #ffffff"
+                             href="{{ app_dict|lookup:app|lookup:"url" }}">
 
-                    <div class="card-body text-center">
-                        <img src="{% static app_dict|lookup:app|lookup:"icon_path" %}" class="card-img-top" style="width: 35%; margin: auto">
-                        <br><br>
-                        <h5 class="card-title">
-                            {{ app_dict|lookup:app|lookup:"title" }}
-                            <br>
-                            {% if app_dict|lookup:app|lookup:"status" == "beta" %}
-                            <span class="badge badge-pill badge-warning" style="font-size: small">
+                            <div class="card-body text-center">
+                                <img src="{% static app_dict|lookup:app|lookup:"icon_path" %}" class="card-img-top"
+                                     style="width: 35%; margin: auto">
+                                <br><br>
+                                <h5 class="card-title">
+                                    {{ app_dict|lookup:app|lookup:"title" }}
+                                    <br>
+                                    {% if app_dict|lookup:app|lookup:"status" == "beta" %}
+                                        <span class="badge badge-pill badge-warning" style="font-size: small">
                                                 {% trans "beta" %}
                                             </span>
-                        {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
-                            <span class="badge badge-pill badge-danger" style="font-size: small">
+                                    {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
+                                        <span class="badge badge-pill badge-danger" style="font-size: small">
                                                 {% trans "development" %}
                                             </span>
-                        {% endif %}
-                        </h5>
-                        <p class="card-text">
-                            {{ app_dict|lookup:app|lookup:"description" }}
-                        </p>
-                    </div>
-                    <div class="" style="margin: auto">
+                                    {% endif %}
+                                </h5>
+                                <p class="card-text">
+                                    {{ app_dict|lookup:app|lookup:"description" }}
+                                </p>
+                            </div>
+                            <div class="" style="margin: auto">
 
-                        {% trans "access to this app requires special permissions" as permissions_msg %}
-                        {% trans "access to this app requires you to be logged in" as login_msg %}
-                        {% trans "this app is opened to all users" as open_msg %}
+                                {% trans "access to this app requires special permissions" as permissions_msg %}
+                                {% trans "access to this app requires you to be logged in" as login_msg %}
+                                {% trans "this app is opened to all users" as open_msg %}
 
-                        {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}
-                            <span data-toggle="tooltip" title="{{ permissions_msg }}">
+                                {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}
+                                    <span data-toggle="tooltip" title="{{ permissions_msg }}">
                                                 <img src="{% static 'img/icons/padlock.svg' %}" alt="" style="width: 25px">
                                             </span>
-                        {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}
-                            <span data-toggle="tooltip" title="{{ login_msg }}">
+                                {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}
+                                    <span data-toggle="tooltip" title="{{ login_msg }}">
                                                 <img src="{% static 'img/icons/user.svg' %}"
                                                      alt="" style="width: 25px">
                                             </span>
-                        {% else %}
-                            <span class="" data-toggle="tooltip" title="{{ open_msg }}">
+                                {% else %}
+                                    <span class="" data-toggle="tooltip" title="{{ open_msg }}">
                                                 <img src="{% static 'img/icons/language.svg' %}" alt="" width="25px">
                                             </span>
-                        {% endif %}
-                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            {% endwith %}
+        </div>
+
+        <div class="text-center roboto">
+            <h3>Gulf Region Specific Applications:</h3>
+        </div>
+        <div class="jumbotron shrink-me">
+
+            {% trans "Select" as btn_text %}
+            {% with app_dict_gulf as app_dict %}
+                <div class="row">
+                    {% for app in app_dict %}
+                        <div class="card mb-3 jumbotron" style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; background-color: #ffffff"
+                             href="{{ app_dict|lookup:app|lookup:"url" }}">
+
+                            <div class="card-body text-center">
+                                <img src="{% static app_dict|lookup:app|lookup:"icon_path" %}" class="card-img-top"
+                                     style="width: 35%; margin: auto">
+                                <br><br>
+                                <h5 class="card-title">
+                                    {{ app_dict|lookup:app|lookup:"title" }}
+                                    <br>
+                                    {% if app_dict|lookup:app|lookup:"status" == "beta" %}
+                                        <span class="badge badge-pill badge-warning" style="font-size: small">
+                                                {% trans "beta" %}
+                                            </span>
+                                    {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
+                                        <span class="badge badge-pill badge-danger" style="font-size: small">
+                                                {% trans "development" %}
+                                            </span>
+                                    {% endif %}
+                                </h5>
+                                <p class="card-text">
+                                    {{ app_dict|lookup:app|lookup:"description" }}
+                                </p>
+                            </div>
+                            <div class="" style="margin: auto">
+
+                                {% trans "access to this app requires special permissions" as permissions_msg %}
+                                {% trans "access to this app requires you to be logged in" as login_msg %}
+                                {% trans "this app is opened to all users" as open_msg %}
+
+                                {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}
+                                    <span data-toggle="tooltip" title="{{ permissions_msg }}">
+                                                <img src="{% static 'img/icons/padlock.svg' %}" alt="" style="width: 25px">
+                                            </span>
+                                {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}
+                                    <span data-toggle="tooltip" title="{{ login_msg }}">
+                                                <img src="{% static 'img/icons/user.svg' %}"
+                                                     alt="" style="width: 25px">
+                                            </span>
+                                {% else %}
+                                    <span class="" data-toggle="tooltip" title="{{ open_msg }}">
+                                                <img src="{% static 'img/icons/language.svg' %}" alt="" width="25px">
+                                            </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endwith %}
         </div>
 
 
-        {##}
-        {#            </tbody>#}
-        {#        </table>#}
-
     </div>
+
 
     {#    <span style="background-color: white; font-size: x-small">#}
     {#        Photo:Jeremy Cai - https://unsplash.com/photos/mnF75FoPBWY#}
