@@ -22,7 +22,7 @@
         </ol>
     </nav>
 
-    <div class="container">
+    <div class="container-fluid">
         {{ get_current_language }}
         <h1>
             {% blocktrans with name=user.first_name %}
@@ -76,6 +76,9 @@
                 {% trans "Fiscal Year" %}
             </th>
             <th scope="col">
+                {% trans "Region" %}
+            </th>
+            <th scope="col">
                 {% trans "Division" %}
             </th>
             <th scope="col">
@@ -107,9 +110,11 @@
                 <tr href="{% url 'projects:project_detail' obj.project.id %}">
                     <td>{{ obj.project.year }}</td>
                     {% if LANG == "fr" %}
+                        <td>{{ obj.project.section.division.branch.region.nom }}</td>
                         <td>{{ obj.project.section.division.nom }}</td>
                         <td>{{ obj.project.section.nom }}</td>
                     {% else %}
+                        <td>{{ obj.project.section.division.branch.region.name }}</td>
                         <td>{{ obj.project.section.division.name }}</td>
                         <td>{{ obj.project.section.name }}</td>
                     {% endif %}
