@@ -61,7 +61,7 @@
             </h2>
         </div>
         <div class="container">
-            <div class="jumbotron shrink-me" style="background-color: #ffffff">
+            <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
                 <div class="text-center roboto">
                     <h2>
                         {% trans "General Data Management Applications" %}
@@ -73,7 +73,7 @@
                     <div class="row">
                         {% for app in app_dict %}
                             <div class="card mb-3 jumbotron"
-                                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; background-color: #fcf9df"
+                                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
                                  href="{{ app_dict|lookup:app|lookup:"url" }}">
 
                                 <div class="card-body text-center">
@@ -124,7 +124,7 @@
                 {% endwith %}
             </div>
 
-            <div class="jumbotron shrink-me" style="background-color: #ffffff">
+            <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
                 <div class="text-center roboto">
                     <h2>
                         {% trans "Region Specific Applications" %}
@@ -137,7 +137,7 @@
                     <div class="row">
                         {% for app in app_dict %}
                             <div class="card mb-3 jumbotron"
-                                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; background-color: #fcf9df"
+                                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
                                  href="{{ app_dict|lookup:app|lookup:"url" }}">
 
                                 <div class="card-body text-center">
