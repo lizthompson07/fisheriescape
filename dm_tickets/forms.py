@@ -19,7 +19,7 @@ class TicketForm(forms.ModelForm):
         }
         labels = {
             'app': _("Application name (if applicable)"),
-            'dm_assigned': _("Assign ticket to")
+            'dm_assigned': _("Assign ticket to (leave blank for all)"),
         }
 
     def __init__(self, *args, **kwargs):
@@ -72,10 +72,16 @@ class FeedbackForm(forms.ModelForm):
         }
         labels = {
             'app': _("Application name (if applicable)"),
-            'description': _("Feedback details"),
+            'description': _("Description"),
             'title': _("Subject"),
+            'dm_assigned': _("Assign ticket to (leave blank for all)")
         }
 
+    def __init__(self, *args, **kwargs):
+        STAFF_USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
+                              User.objects.filter(is_staff=True).order_by("last_name", "first_name")]
+        super().__init__(*args, **kwargs)
+        self.fields['dm_assigned'].choices = STAFF_USER_CHOICES
 
 class TicketNoteForm(forms.ModelForm):
     class Meta:
