@@ -19,10 +19,10 @@ class ProjectFilter(django_filters.FilterSet):
         sec_choices = [(s.id, str(s)) for s in shared_models.Section.objects.filter(division__branch=1)]
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
 
-        self.filters['fiscal_year'].choices = fy_choices
-        self.filters['division'].choices = div_choices
-        self.filters['section'].choices = sec_choices
-        self.filters['submitted'].choices = yes_no_choices
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)
+        self.filters['division'] = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', choices=div_choices)
+        self.filters['section'] = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', choices=sec_choices)
+        self.filters['submitted'] = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', choices=yes_no_choices)
 
 
 class MySectionFilter(django_filters.FilterSet):
@@ -43,4 +43,3 @@ class MySectionFilter(django_filters.FilterSet):
         self.filters['staff'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=user_choices)
         self.filters['submitted'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=yes_no_choices)
         self.filters['approved'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=yes_no_choices)
-

@@ -282,6 +282,33 @@ class SampleDetailView(HerringAccessRequired, DetailView):
         return context
 
 
+def move_sample_next(request, sample):
+    # shared vars
+    message_end = "You are at the last sample."
+
+
+    sample_list = models.Sample.objects.all().order_by("id")
+    record_count = sample_list.count()
+
+    # populate a list with all fish detail ids
+    id_list = [s.id for s in sample_list]
+
+    # figure out where the current record is within recordset
+    current_index = id_list.index(sample)
+
+
+    # if you are at the end of the recordset, there is nowhere to go!
+    if sample == id_list[-1]:
+        messages.success(request, message_end)
+        return HttpResponseRedirect(reverse(viewname='herring:sample_detail', kwargs={"pk": sample, }))
+
+    # othersise move forward 1
+    else:
+        target_id = id_list[current_index + 1]
+        return HttpResponseRedirect(reverse(viewname='herring:sample_detail', kwargs={"pk": target_id, }))
+
+
+
 # Length Frequeny wizard #
 ##########################
 
