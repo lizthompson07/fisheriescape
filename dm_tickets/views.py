@@ -70,7 +70,7 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
         context['email'] = emails.TicketResolvedEmail(self.object)
         context["field_group_1"] = [
             "primary_contact",
-            "assigned_to",
+            "dm_assigned",
             "app",
             "section",
             "status",
