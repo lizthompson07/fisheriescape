@@ -52,17 +52,18 @@ class TicketListView(FilterView):
         return context
 
 
-class MyTicketListView(ListView):
-    # filterset_class = filters.TicketFilter
+class MyTicketListView(LoginRequiredMixin, FilterView):
+    filterset_class = filters.MyTicketFilter
     template_name = "dm_tickets/ticket_list.html"
 
     def get_queryset(self):
-        queryset = models.Ticket.objects.filter(dm_assigned=self.request.user.id).annotate(
+        return models.Ticket.objects.filter(dm_assigned=self.request.user.id).annotate(
             search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["my_object"] = models.Ticket.objects.first()
+        context["my_list"] = True
         context["field_list"] = [
             'id',
             'date_modified',

@@ -22,8 +22,20 @@
 
     <div class="container-fluid">
         <br>
+        {% if not my_list and user.is_staff %}
+            <div class="text-center">
+                <p>
+                    {{ user.first_name }}, click <a href="{% url 'tickets:my_list' %}">HERE</a> to view your tickets
+                </p>
+            </div>
+        {% endif %}
+
         <h1 class="text-center font-weight-bold ">
-            Data Management Tickets
+            {% if my_list %}
+                {{ user.first_name }}'s Tickets
+            {% else %}
+                Data Management Tickets
+            {% endif %}
         </h1>
         <br><br>
         {# <p>TOTAL: {{object_list.count}}</p><br> #}
