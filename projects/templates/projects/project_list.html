@@ -68,6 +68,8 @@
                 {% trans "Fiscal Year" %}
             </th>
             <th scope="col">
+                {% trans "Region" %}
+            <th scope="col">
                 {% trans "Division" %}
             </th>
             <th scope="col">
@@ -90,9 +92,11 @@
                     <td>{{ obj.year }}</td>
 
                     {% if LANG == "fr" %}
+                        <td>{{ obj.section.division.branch.region.nom }}</td>
                         <td>{{ obj.section.division.nom }}</td>
                         <td>{{ obj.section.nom }}</td>
                     {% else %}
+                        <td>{{ obj.section.division.branch.region.name }}</td>
                         <td>{{ obj.section.division.name }}</td>
                         <td>{{ obj.section.name }}</td>
                     {% endif %}
