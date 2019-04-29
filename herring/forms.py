@@ -18,12 +18,12 @@ class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         fields = "__all__"
-        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete",]
+        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete", 'district']
         labels={
             # 'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
             # 'district':mark_safe("District (<a href='#' >search</a>)"),
             'vessel_cfvn':"Vessel CFVN",
-            'survey_id': "Survey ID",
+            # 'survey_id': "Survey ID",
         }
         attr_dict = {"class":"tab",}
 
@@ -40,7 +40,7 @@ class SampleForm(forms.ModelForm):
             # 'vessel_cfvn':forms.TextInput(),
             'sampler_ref_number':forms.TextInput(attrs=attr_dict),
             'sampler':forms.Select(attrs=attr_dict),
-            'district':forms.Select(attrs=attr_dict),
+            'port':forms.Select(attrs=attr_dict),
             'fishing_area':forms.Select(attrs=attr_dict),
             'gear':forms.Select(attrs=attr_dict),
             'experimental_net_used':forms.Select(attrs=attr_dict),
