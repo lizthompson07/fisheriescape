@@ -58,7 +58,7 @@ class Project(models.Model):
     # basic
     project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
-                                verbose_name=_("section"), limit_choices_to={'division__branch': 1})
+                                verbose_name=_("section"))
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("program"))
 
     # coding

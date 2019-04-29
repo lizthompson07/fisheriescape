@@ -18,6 +18,7 @@ from numpy import arange
 import math
 import collections
 import csv
+from shared_models import models as shared_models
 
 
 # Create your views here.
@@ -119,14 +120,9 @@ class SampleCreateView(HerringAccessRequired, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # get a list of districts
-        district_list = []
-        for d in models.District.objects.all():
-            for l in d.locality_list.split(", "):
-                html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
-                    p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
-                district_list.append(html_insert)
-        context['district_list'] = district_list
+        # get a list of ports
+        port_list = ['<a href="#" class="port_insert" code={}>{}</a>'.format(p.id, p) for p in shared_models.Port.objects.all()]
+        context['port_list'] = port_list
 
         # get a list of samplers
         sampler_list = []
@@ -172,13 +168,9 @@ class SampleUpdateView(HerringAccessRequired, UpdateView):
         context = super().get_context_data(**kwargs)
 
         # get a list of districts
-        district_list = []
-        for d in models.District.objects.all():
-            for l in d.locality_list.split(", "):
-                html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
-                    p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
-                district_list.append(html_insert)
-        context['district_list'] = district_list
+        # get a list of ports
+        port_list = ['<a href="#" class="port_insert" code={}>{}</a>'.format(p.id, p) for p in shared_models.Port.objects.all()]
+        context['port_list'] = port_list
 
         # get a list of samplers
         sampler_list = []
@@ -288,6 +280,33 @@ class SampleDetailView(HerringAccessRequired, DetailView):
         # now conduct the test
 
         return context
+
+
+def move_sample_next(request, sample):
+    # shared vars
+    message_end = "You are at the last sample."
+
+
+    sample_list = models.Sample.objects.all().order_by("id")
+    record_count = sample_list.count()
+
+    # populate a list with all fish detail ids
+    id_list = [s.id for s in sample_list]
+
+    # figure out where the current record is within recordset
+    current_index = id_list.index(sample)
+
+
+    # if you are at the end of the recordset, there is nowhere to go!
+    if sample == id_list[-1]:
+        messages.success(request, message_end)
+        return HttpResponseRedirect(reverse(viewname='herring:sample_detail', kwargs={"pk": sample, }))
+
+    # othersise move forward 1
+    else:
+        target_id = id_list[current_index + 1]
+        return HttpResponseRedirect(reverse(viewname='herring:sample_detail', kwargs={"pk": target_id, }))
+
 
 
 # Length Frequeny wizard #

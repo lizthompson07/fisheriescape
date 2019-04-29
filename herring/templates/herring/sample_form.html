@@ -38,31 +38,30 @@
                         {% for field in form %}
                             <tr>
                                 <td width='80%'>
-                                    {% if field.name == "district" %}
-                                        <div id="district_interpreter_div">
+                                    {% if field.name == "port" %}
+                                        <div id="port_interpreter_div">
                                             <div class="form-group row" style="margin-bottom: 0px;">
-                                                <label for="district_interpreter" class="col-md-3 col-form-label">District
+                                                <label for="port_interpreter" class="col-md-3 col-form-label">Port
                                                     (any part of name or code)</label>
                                                 <div class="col-md-9">
                                                     <input type="text" class="form-control tab"
-                                                           id="district_interpreter">
+                                                           id="port_interpreter">
                                                 </div>
                                             </div>
                                             <div class="form-group row" style="margin-bottom: 0px;">
-                                                <label for="district_list" class="col-md-3 col-form-label"></label>
+                                                <label for="port_list" class="col-md-3 col-form-label"></label>
                                                 <div class="col-md-9">
-                                                    <p id="district_list"></p>
+                                                    <p id="port_list"></p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div id="district_field_div">
+                                        <div id="port_field_div">
                                             {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
                                             <div class="form-group row" style="margin-top: 0px;">
-                                                <label for="clear_district" class="col-md-3 col-form-label"></label>
+                                                <label for="clear_port" class="col-md-3 col-form-label"></label>
                                                 <div class="col-md-9">
-                                                    <a href="#" id="clear_district" class="red-font">(clear
-                                                        district)</a>
+                                                    <a href="#" id="clear_port" class="red-font">(clear port)</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -128,11 +127,10 @@
 
 
     <script type="text/javascript">
-        window.name = "motherWindow"
+        window.name = "motherWindow";
         var position = 0;
-        var districtList =
-        {{district_list|safe}}
-        var samplerList = {{sampler_list|safe}}
+        var portList = {{port_list|safe}};
+        var samplerList = {{sampler_list|safe}};
 
 
 
@@ -155,10 +153,10 @@
             $("#id_type")[0].focus()
 
 
-            {% if object.district %}
-                $("#district_interpreter_div").prop("hidden", true)
+            {% if object.port %}
+                $("#port_interpreter_div").prop("hidden", true)
             {% else %}
-                $("#district_field_div").prop("hidden", true)
+                $("#port_field_div").prop("hidden", true)
             {% endif %}
 
             {% if object.sampler %}
@@ -171,27 +169,27 @@
 
         });
 
-        $("#district_interpreter").keyup(function (e) {
-            $("#district_list").html("")
+        $("#port_interpreter").keyup(function (e) {
+            $("#port_list").html("")
             if ((this.value.length >= 2 && this.value.match(/^\d+$/)) || this.value.length >= 4) {
-                for (var i = 0; i < districtList.length; i++) {
+                for (var i = 0; i < portList.length; i++) {
                     // console.log(123);
                     var re = new RegExp(this.value, 'gi');
 
-                    if (districtList[i].match(re)) {
-                        $("#district_list").html(
-                            $("#district_list").html() + districtList[i] + '<br>')
+                    if (portList[i].match(re)) {
+                        $("#port_list").html(
+                            $("#port_list").html() + portList[i] + '<br>')
                     }
                 }
 
 
-                $(".district_insert").click(function () {
-                    $("#district_field_div").prop("hidden", false)
-                    $("#district_interpreter_div").prop("hidden", true)
+                $(".port_insert").click(function () {
+                    $("#port_field_div").prop("hidden", false)
+                    $("#port_interpreter_div").prop("hidden", true)
                     code = this.getAttribute("code")
-                    $("#id_district").val(code)
+                    $("#id_port").val(code)
 
-                    $("#id_latitude_n")[0].focus()
+                    $("#id_survey_id")[0].focus()
 
                 });
 
@@ -220,7 +218,7 @@
                     code = this.getAttribute("code")
                     $("#id_sampler").val(code)
 
-                    $("#district_interpreter")[0].focus()
+                    $("#port_interpreter")[0].focus()
 
                 });
 
@@ -228,12 +226,12 @@
         });
 
 
-        $("#clear_district").click(function () {
-            $("#district_interpreter").val("")
-            $("#district_list").html("")
-            $("#district_field_div").prop("hidden", true)
-            $("#district_interpreter_div").prop("hidden", false)
-            $("#district_interpreter")[0].focus()
+        $("#clear_port").click(function () {
+            $("#port_interpreter").val("")
+            $("#port_list").html("")
+            $("#port_field_div").prop("hidden", true)
+            $("#port_interpreter_div").prop("hidden", false)
+            $("#port_interpreter")[0].focus()
 
         });
 
@@ -250,7 +248,7 @@
         $("#add_sampler_btn").click(function () {
             $("#sampler_field_div").prop("hidden", false)
             $("#sampler_interpreter_div").prop("hidden", true)
-            $("#district_interpreter")[0].focus()
+            $("#port_interpreter")[0].focus()
         })
 
 

@@ -33,6 +33,12 @@ urlpatterns = [
     path('<int:ticket>/file/<int:pk>/delete', views.FileDeleteView.as_view(), name="file_delete"),
     path('<int:ticket>/add_generic_file/<str:type>/', views.add_generic_file, name="add_generic_file"),
 
+    # follow up #
+    #############
+    path('<int:ticket>/follow-up/new/', views.FollowUpCreateView.as_view(), name="followup_create"),
+    path('follow-up/<int:pk>/edit/', views.FollowUpUpdateView.as_view(), name="followup_edit"),
+    path('follow-up/<int:pk>/delete/', views.FollowUpDeleteView.as_view(), name="followup_delete"),
+
     # Reports #
     ###########
     path('reports/finance/', views.FinanceReportListView.as_view(), name="finance_report"),
