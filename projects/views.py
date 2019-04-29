@@ -23,11 +23,12 @@ from . import reports
 from shared_models import models as shared_models
 
 
+# This function is a bit of a misnomer. It is used to determine whether the user has full access to a record, assuming they are not already a project lead
 def can_delete(user, project):
-    """returns True if user is a custodian in the specified resource"""
+    """returns True if user has permissions to delete or modify a project"""
     if user.id:
-        # # check to see if a superuser
-        if user.is_superuser:
+        # # check to see if a superuser or projects_admin
+        if user.is_superuser or "projects_admin" in [g.name for g in user.groups.all()]:
             return True
 
         # otherwise check to see if they are a project lead or section head
