@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext as _
-from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView
+from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView, ListView
 from django_filters.views import FilterView
 from shutil import copyfile
 import os
@@ -52,12 +52,12 @@ class TicketListView(FilterView):
         return context
 
 
-class MyTicketListView(FilterView):
-    filterset_class = filters.TicketFilter
+class MyTicketListView(ListView):
+    # filterset_class = filters.TicketFilter
     template_name = "dm_tickets/ticket_list.html"
 
-    def get_queryset(self, ):
-        queryset = models.Ticket.objects.annotate(
+    def get_queryset(self):
+        queryset = models.Ticket.objects.filter(dm_assigned=self.request.user.id).annotate(
             search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
 
     def get_context_data(self, *args, **kwargs):
