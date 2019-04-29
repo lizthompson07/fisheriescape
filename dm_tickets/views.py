@@ -11,6 +11,8 @@ from django.utils.translation import gettext as _
 from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView, ListView
 from django_filters.views import FilterView
 from shutil import copyfile
+from github import Github
+
 import os
 
 from . import models
@@ -19,6 +21,19 @@ from . import filters
 from . import reports
 from . import emails
 
+
+def index_router(request):
+    # if the user is a staff user, then go to my_tickets
+    if request.user:
+        print("there is a user")
+        if request.user.is_staff:
+            print("there is a staff user")
+            return HttpResponseRedirect(reverse("tickets:my_list"))
+        else:
+            return HttpResponseRedirect(reverse("tickets:list"))
+    else:
+        print("there is no user")
+        return HttpResponseRedirect(reverse("tickets:list"))
 
 # Create your views here.
 class CloserTemplateView(TemplateView):
@@ -479,3 +494,21 @@ def finance_spreadsheet(request):
             response['Content-Disposition'] = 'inline; filename="data management report for finance.xlsx"'
             return response
     raise Http404
+
+# GitHub Views #
+################
+
+def get_github_repo():
+    g = Github("b12913003e4af7e94a003b79ae31b69c5fd8ebd1")
+    repo = g.get_repo("dfo-mar-odis/dfo_sci_dm_site")
+    return repo
+
+def create_github_issue(request, pk):
+    my_ticket = models.Ticket.objects.get(pk=pk)
+    repo = get_github_repo()
+    repo.create_issue(
+        title=my_ticket.title,
+        body=my_ticket.description,
+        labels=[my_ticket.app]
+    )
+    return HttpResponseRedirect(reverse("tickets:detail", kwargs={"pk":pk}))

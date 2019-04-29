@@ -11,8 +11,9 @@
 {% endblock body %}
 
 {% block left_all %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'tickets:list' %}">Home</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'tickets:router' %}">Home</a></li>
     {% if user.is_staff %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'tickets:list' %}">All Tickets</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'tickets:my_list' %}">My Tickets</a></li>
     {% endif %}
     {# Reports #}
