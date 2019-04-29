@@ -137,6 +137,7 @@ class Ticket(models.Model):
     estimated_cost = models.FloatField(blank=True, null=True)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
     github_issue_number = models.IntegerField(blank=True, null=True)
+    github_resolved = models.NullBooleanField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.notes:
@@ -168,6 +169,7 @@ class FollowUp(models.Model):
     message = models.TextField(verbose_name=_("follow up message"))
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="dm_tickets_follow_ups")
     created_date = models.DateTimeField(default=timezone.now)
+    github_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ['-created_date']

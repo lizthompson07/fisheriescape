@@ -24,6 +24,7 @@ urlpatterns = [
     path('feedback-form/<int:pk>/view/', views.TicketDetailViewPopout.as_view(), name="detail_pop"),
     # github views
     path('<int:pk>/create-github-issue/', views.create_github_issue, name="git_create"),
+    path('<int:pk>/resolved-github-issue/', views.resolve_github_issue, name="git_resolve"),
 
     # EMAIL #
     #########
