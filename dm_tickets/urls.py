@@ -9,6 +9,7 @@ urlpatterns = [
     # Tickets #
     ###########
     path('', views.TicketListView.as_view(), name="list"),
+    path('my-tickets/', views.MyTicketListView.as_view(), name="my_list"),
     path('<int:pk>/view/', views.TicketDetailView.as_view(), name="detail"),
     path('<int:pk>/edit/', views.TicketUpdateView.as_view(), name="update"),
     path('<int:pk>/delete/', views.TicketDeleteView.as_view(), name="delete"),

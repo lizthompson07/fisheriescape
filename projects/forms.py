@@ -27,8 +27,15 @@ class NewProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         region_choices = [(r.id, str(r)) for r in shared_models.Region.objects.filter(Q(id=1) | Q(id=2))]
         region_choices.insert(0, tuple((None, "---")))
-        division_choices = [(None, "---"), ]
-        section_choices = [(None, "---"), ]
+
+        division_choices = [(d.id, str(d)) for d in
+                            shared_models.Division.objects.filter(Q(branch_id=1) | Q(branch_id=3)).order_by("branch__region", "name")]
+        division_choices.insert(0, tuple((None, "---")))
+
+        section_choices = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.filter(Q(division__branch_id=1) | Q(division__branch_id=3)).order_by(
+                               "division__branch__region", "division__branch", "division", "name")]
+        section_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
         self.fields['region'].choices = region_choices

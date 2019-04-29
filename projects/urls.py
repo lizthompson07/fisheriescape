@@ -12,13 +12,13 @@ urlpatterns = [
     ############
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
     path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
-    path('projects/', views.ProjectListView.as_view(), name="project_list"),
-    path('projects/new/', views.ProjectCreateView.as_view(), name="project_new"),
-    path('projects/<int:pk>/view', views.ProjectDetailView.as_view(), name="project_detail"),
-    path('projects/<int:pk>/print', views.ProjectPrintDetailView.as_view(), name="project_print"),
-    path('projects/<int:pk>/edit', views.ProjectUpdateView.as_view(), name="project_edit"),
-    path('projects/<int:pk>/delete', views.ProjectDeleteView.as_view(), name="project_delete"),
-    path('projects/<int:pk>/submit', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
+    path('', views.ProjectListView.as_view(), name="project_list"),
+    path('new/', views.ProjectCreateView.as_view(), name="project_new"),
+    path('<int:pk>/view', views.ProjectDetailView.as_view(), name="project_detail"),
+    path('project/<int:pk>/print', views.ProjectPrintDetailView.as_view(), name="project_print"),
+    path('project/<int:pk>/edit', views.ProjectUpdateView.as_view(), name="project_edit"),
+    path('project/<int:pk>/delete', views.ProjectDeleteView.as_view(), name="project_delete"),
+    path('project/<int:pk>/submit', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
 
     # STAFF #
     #########
