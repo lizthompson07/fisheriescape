@@ -50,8 +50,18 @@
                         <a href="#" class="btn btn-outline-dark disabled" data-toggle="modal" data-target="#notify-client">Notify Client</a>
                     {% endif %}
 
-                    <a href="{% url "tickets:git_create"  object.id %}" class="btn btn-info">Create as Issue in GitHub</a>
+                    {% if not object.github_issue_number %}
+                        <a href="{% url "tickets:git_create"  object.id %}" class="btn btn-info">Create as Issue in GitHub</a>
+                    {% else %}
+                        <a href="https://github.com/dfo-mar-odis/dfo_sci_dm_site/issues/{{ object.github_issue_number }}" target="_blank"
+                           class="btn btn-outline-primary">
+                            View on GitHub
+                        </a>
+                        {% if not object.github_resolved %}
+                            <a href="{% url 'tickets:git_resolve' object.id %}" class="btn btn-outline-dark">Mark resolved on GitHub</a>
+                        {% endif %}
 
+                    {% endif %}
                 {% endif %}
 
             </div>
