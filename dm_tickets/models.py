@@ -136,6 +136,7 @@ class Ticket(models.Model):
     financial_follow_up_needed = models.BooleanField(default=False)
     estimated_cost = models.FloatField(blank=True, null=True)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
+    github_issue_number = models.IntegerField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.notes:

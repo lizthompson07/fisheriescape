@@ -49,6 +49,9 @@
                     {% else %}
                         <a href="#" class="btn btn-outline-dark disabled" data-toggle="modal" data-target="#notify-client">Notify Client</a>
                     {% endif %}
+
+                    <a href="{% url "tickets:git_create"  object.id %}" class="btn btn-info">Create as Issue in GitHub</a>
+
                 {% endif %}
 
             </div>
