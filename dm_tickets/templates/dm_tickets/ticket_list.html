@@ -25,40 +25,46 @@
         {% if not my_list and user.is_staff %}
             <div class="text-center">
                 <p>
-                    {{ user.first_name }}, click <a href="{% url 'tickets:my_list' %}">HERE</a> to view your tickets
+                    ({{ user.first_name }}, click <a href="{% url 'tickets:my_list' %}">HERE</a> to view your tickets)
                 </p>
             </div>
         {% endif %}
 
-        <h1 class="text-center font-weight-bold ">
+        <div class="text-center">
             {% if my_list %}
-                {{ user.first_name }}'s Tickets
+                <h1>
+                    {{ user.first_name }}'s Tickets
+                </h1>
+                <p>(You are seeing this page because you are a staff member.)</p>
             {% else %}
-                Data Management Tickets
+                <h1>
+                    Data Management Tickets
+                </h1>
             {% endif %}
-        </h1>
+        </div>
         <br><br>
         {# <p>TOTAL: {{object_list.count}}</p><br> #}
+        <div class="">
+            <form class="form" action="." method="get" id="filter-form" style="width: 85%">
+                <div class="row">
 
-        <form class="form" action="." method="get" id="filter-form" style="width: 85%">
-            <div class="row">
+                    {% for field in filter.form %}
+                        {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                        <div class="col">
+                            {% bootstrap_field field placeholder="" size="small" %}
+                        </div>
 
-                {% for field in filter.form %}
-                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    {% endfor %}
                     <div class="col">
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    </div>
-
-                {% endfor %}
-                <div class="col">
-                    <br>
-                    <div class="btn-group">
-                        <input type="submit" value="Filter" class="btn btn-warning btn-sm">
-                        <a href="." class="btn btn-success btn-sm">Clear</a>
+                        <br>
+                        <div class="btn-group">
+                            <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                            <a href="." class="btn btn-success btn-sm">Clear</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
         <br><br>
 
         <div class="row">
@@ -72,7 +78,7 @@
                 <a href="{% url 'tickets:create' %}" class="btn btn-sm btn-primary">New Ticket</a>
             </div>
         </div>
-        <table class="table table-hover table-sm sortable">
+        <table class="table table-hover table-sm sortable" style="width: auto">
             <thead>
             <tr>
                 {% for field in field_list %}

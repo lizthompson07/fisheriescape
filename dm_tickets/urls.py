@@ -8,7 +8,8 @@ urlpatterns = [
 
     # Tickets #
     ###########
-    path('', views.TicketListView.as_view(), name="list"),
+    path('', views.index_router, name="router"),
+    path('all-tickets/', views.TicketListView.as_view(), name="list"),
     path('my-tickets/', views.MyTicketListView.as_view(), name="my_list"),
     path('<int:pk>/view/', views.TicketDetailView.as_view(), name="detail"),
     path('<int:pk>/edit/', views.TicketUpdateView.as_view(), name="update"),
@@ -21,6 +22,8 @@ urlpatterns = [
     path('feedback-form/new/', views.TicketCreateViewPopout.as_view(), name="bug_create"),
     path('feedback-form/new/application/<str:app>/', views.TicketCreateViewPopout.as_view(), name="bug_create"),
     path('feedback-form/<int:pk>/view/', views.TicketDetailViewPopout.as_view(), name="detail_pop"),
+    # github views
+    path('<int:pk>/create-github-issue/', views.create_github_issue, name="git_create"),
 
     # EMAIL #
     #########
