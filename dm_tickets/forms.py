@@ -11,7 +11,7 @@ class TicketForm(forms.ModelForm):
     class Meta:
         model = models.Ticket
         exclude = ['notes_html', "resolved_email_date", 'notes', "date_opened", "date_modified",
-                   "date_closed", "fiscal_year", "assigned_to"]
+                   "date_closed", "fiscal_year", "assigned_to",'github_issue_number', ]
         widgets = {
             'date_closed': forms.DateInput(attrs={'type': 'date'}),
             'sd_date_logged': forms.DateInput(attrs={'type': 'date'}),
@@ -62,6 +62,7 @@ class FeedbackForm(forms.ModelForm):
             'estimated_cost',
             'assigned_to',
             'section',
+            'github_issue_number',
         ]
         widgets = {
             'date_closed': forms.DateInput(attrs={'type': 'date'}),
@@ -104,7 +105,7 @@ class FileForm(forms.ModelForm):
 class FollowUpForm(forms.ModelForm):
     class Meta:
         model = models.FollowUp
-        fields = "__all__"
+        exclude = ["github_id", ]
         widgets = {
             'ticket': forms.HiddenInput(),
             'created_date': forms.HiddenInput(),

@@ -117,6 +117,7 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
         ]
 
         context["field_group_2"] = [
+            "github_issue_number",
             "financial_coding",
             "description",
             "notes_html",
@@ -431,6 +432,16 @@ class FollowUpCreateView(LoginRequiredMixin, CreateView):
             print('not sending email since in dev mode')
             print(email)
 
+        # gihub
+        if self.object.ticket.github_issue_number:
+            my_repo = get_github_repo()
+            my_issue = my_repo.get_issue(
+                number=self.object.ticket.github_issue_number
+            )
+            message = "{} (comment created by {} {})".format(self.object.message, self.object.created_by.first_name, self.object.created_by.last_name)
+            my_comment = my_issue.create_comment(message)
+            self.object.github_id = my_comment.id
+            self.object.save()
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
 
@@ -505,10 +516,23 @@ def get_github_repo():
 
 def create_github_issue(request, pk):
     my_ticket = models.Ticket.objects.get(pk=pk)
-    repo = get_github_repo()
-    repo.create_issue(
+    my_repo = get_github_repo()
+    my_issue = my_repo.create_issue(
         title=my_ticket.title,
         body=my_ticket.description,
         labels=[my_ticket.app]
     )
+    my_ticket.github_issue_number = my_issue.number
+    my_ticket.save()
+    return HttpResponseRedirect(reverse("tickets:detail", kwargs={"pk":pk}))
+
+def resolve_github_issue(request, pk):
+    my_ticket = models.Ticket.objects.get(pk=pk)
+    my_repo = get_github_repo()
+    my_issue = my_repo.get_issue(
+        number=my_ticket.github_issue_number
+    )
+    my_issue.edit(state="closed")
+    my_ticket.github_resolved = True
+    my_ticket.save()
     return HttpResponseRedirect(reverse("tickets:detail", kwargs={"pk":pk}))
