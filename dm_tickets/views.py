@@ -51,11 +51,33 @@ class TicketListView(FilterView):
         ]
         return context
 
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     if kwargs["data"] is None:
-    #         kwargs["data"] = {"status": 5}
-    #     return kwargs
+
+class MyTicketListView(FilterView):
+    filterset_class = filters.TicketFilter
+    template_name = "dm_tickets/ticket_list.html"
+
+    def get_queryset(self, ):
+        queryset = models.Ticket.objects.annotate(
+            search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["my_object"] = models.Ticket.objects.first()
+        context["field_list"] = [
+            'id',
+            'date_modified',
+            'priority',
+            'dm_assigned',
+            'app',
+            'title',
+            'request_type',
+            'section',
+            'status',
+            'primary_contact',
+            'sd_ref_number',
+        ]
+        return context
+
 
 
 class TicketDetailView(LoginRequiredMixin, DetailView):
