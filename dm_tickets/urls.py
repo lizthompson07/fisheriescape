@@ -8,7 +8,10 @@ urlpatterns = [
 
     # Tickets #
     ###########
-    path('', views.TicketListView.as_view(), name="list"),
+    path('', views.index_router, name="router"),
+    path('all-tickets/', views.TicketListView.as_view(), name="list"),
+    path('my-tickets/', views.MyTicketListView.as_view(), name="my_list"),
+    path('my-assigned-tickets/', views.MyAssignedTicketListView.as_view(), name="my_assigned_list"),
     path('<int:pk>/view/', views.TicketDetailView.as_view(), name="detail"),
     path('<int:pk>/edit/', views.TicketUpdateView.as_view(), name="update"),
     path('<int:pk>/delete/', views.TicketDeleteView.as_view(), name="delete"),
@@ -16,10 +19,16 @@ urlpatterns = [
     path('<int:pk>/new-note/', views.TicketNoteUpdateView.as_view(), name="new_note"),
     path('<int:ticket>/resolved/', views.mark_ticket_resolved, name="ticket_resolved"),
     path('<int:ticket>/re-opened/', views.mark_ticket_active, name="ticket_reopened"),
+
     # feedback form
     path('feedback-form/new/', views.TicketCreateViewPopout.as_view(), name="bug_create"),
     path('feedback-form/new/application/<str:app>/', views.TicketCreateViewPopout.as_view(), name="bug_create"),
     path('feedback-form/<int:pk>/view/', views.TicketDetailViewPopout.as_view(), name="detail_pop"),
+
+    # github views
+    path('<int:pk>/create-github-issue/', views.create_github_issue, name="git_create"),
+    # path('<int:pk>/resolved-github-issue/', views.resolve_github_issue, name="git_resolve"),
+    # path('<int:pk>/reopen-github-issue/', views.reopen_github_issue, name="git_reopen"),
 
     # EMAIL #
     #########
