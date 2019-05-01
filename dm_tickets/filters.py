@@ -23,7 +23,7 @@ class TicketFilter(django_filters.FilterSet):
     class Meta:
         model = models.Ticket
         fields = {
-            'fiscal_year': ['exact'],
+            # 'fiscal_year': ['exact'],
             'app': ['exact'],
             'status': ['exact'],
         }
@@ -38,7 +38,7 @@ class MyTicketFilter(django_filters.FilterSet):
     class Meta:
         model = models.Ticket
         fields = {
-            'fiscal_year': ['exact'],
+            # 'fiscal_year': ['exact'],
             'app': ['exact'],
             'status': ['exact'],
         }
