@@ -239,6 +239,11 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save()
 
+        # nobody is assigned, assign everyone
+        if self.object.dm_assigned.count() == 0:
+            for u in User.objects.filter(is_staff=True):
+                self.object.dm_assigned.add(u)
+
         # if there is a github issue number, we should also make sure the ticket is up to date.
         if self.object.github_issue_number:
             edit_github_issue(self.object.id, self.request.user.id)
@@ -267,6 +272,11 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
+
+        # nobody is assigned, assign everyone
+        if self.object.dm_assigned.count() == 0:
+            for u in User.objects.filter(is_staff=True):
+                self.object.dm_assigned.add(u)
 
         # create a new email object
         email = emails.NewTicketEmail(self.object)
@@ -312,6 +322,11 @@ class TicketCreateViewPopout(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
+
+        # nobody is assigned, assign everyone
+        if self.object.dm_assigned.count() == 0:
+            for u in User.objects.filter(is_staff=True):
+                self.object.dm_assigned.add(u)
 
         # create a new email object
         email = emails.NewTicketEmail(self.object)
