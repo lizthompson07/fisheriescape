@@ -11,7 +11,7 @@ class TicketForm(forms.ModelForm):
     class Meta:
         model = models.Ticket
         exclude = ['notes_html', "resolved_email_date", 'notes', "date_opened", "date_modified",
-                   "date_closed", "fiscal_year", "assigned_to",'github_issue_number', ]
+                   "date_closed", "fiscal_year", "assigned_to",'github_issue_number','github_resolved',]
         widgets = {
             'date_closed': forms.DateInput(attrs={'type': 'date'}),
             'sd_date_logged': forms.DateInput(attrs={'type': 'date'}),
@@ -63,6 +63,7 @@ class FeedbackForm(forms.ModelForm):
             'assigned_to',
             'section',
             'github_issue_number',
+            'github_resolved',
         ]
         widgets = {
             'date_closed': forms.DateInput(attrs={'type': 'date'}),

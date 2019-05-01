@@ -21,19 +21,23 @@
     </nav>
 
     <div class="container-fluid">
-        <br>
-        {% if not my_list and user.is_staff %}
-            <div class="text-center">
-                <p>
-                    ({{ user.first_name }}, click <a href="{% url 'tickets:my_list' %}">HERE</a> to view your tickets)
-                </p>
-            </div>
-        {% endif %}
+        {#        <br>#}
+        {#        {% if not my_list and user.is_staff %}#}
+        {#            <div class="text-center">#}
+        {#                <p>#}
+        {#                    ({{ user.first_name }}, click <a href="{% url 'tickets:my_list' %}">HERE</a> to view your tickets)#}
+        {#                </p>#}
+        {#            </div>#}
+        {#        {% endif %}#}
 
         <div class="text-center">
-            {% if my_list %}
+            {% if list_name == "my" %}
                 <h1>
                     {{ user.first_name }}'s Tickets
+                </h1>
+            {% elif list_name == "assigned" %}
+                <h1>
+                    Tickets Assigned to {{ user.first_name }}
                 </h1>
                 <p>(You are seeing this page because you are a staff member.)</p>
             {% else %}
@@ -45,11 +49,10 @@
         <br><br>
         {# <p>TOTAL: {{object_list.count}}</p><br> #}
         <div class="">
-            <form class="form" action="." method="get" id="filter-form" style="width: 85%">
+            <form class="form" action="." method="get" id="filter-form" style="width: 85%; font-size: small">
                 <div class="row">
 
                     {% for field in filter.form %}
-                        {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
                         <div class="col">
                             {% bootstrap_field field placeholder="" size="small" %}
                         </div>
@@ -95,12 +98,16 @@
                         {% if field == "status" %}
                             <td style="background-color: {{ ticket.status.color }}">{% get_field_value ticket field %}</td>
                         {% elif field == "dm_assigned" %}
-                            <td>
+                            <td style="width: 150px">
                                 {% for dm in ticket.dm_assigned.all %}
                                     {{ dm.first_name }} {{ dm.last_name }}<br>
                                 {% empty %}
                                     {# display nothing #}
                                 {% endfor %}
+                            </td>
+                        {% elif field == "title" %}
+                            <td style="width: 400px">
+                                {% get_field_value ticket field %}
                             </td>
                         {% elif field == "primary_contact" %}
                             {% if ticket.primary_contact %}
@@ -108,6 +115,10 @@
                             {% else %}
                                 <td>{% get_field_value ticket field %}</td>
                             {% endif %}
+                        {% elif field == "github_issue_number" %}
+                            <td style="text-align: center" class="{% if not ticket.github_issue_number %}red-font{% endif %}">
+                                {% get_field_value ticket field %}
+                            </td>
                         {% else %}
                             <td>{% get_field_value ticket field %}</td>
                         {% endif %}
@@ -117,7 +128,6 @@
             </tbody>
         </table>
     </div>
-
 
 
 {% endblock content %}
