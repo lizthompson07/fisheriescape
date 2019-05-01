@@ -70,63 +70,65 @@
         </div>
         <br><br>
 
-        <div class="row">
-            <div class="col">
-                (click on a header to sort table)
+        <div class="my-table" style="">
+            <div class="row">
+                <div class="col">
+                    (click on a header to sort table)
+                </div>
+                <div class="col" style="text-align: center">
+                    <em>displaying {{ filter.qs.count }} of {{ filter.qs.count }}</em>
+                </div>
+                <div class="col" style="text-align: right; padding-bottom: 10px">
+                    <a href="{% url 'tickets:create' %}" class="btn btn-sm btn-primary">New Ticket</a>
+                </div>
             </div>
-            <div class="col" style="text-align: center">
-                <em>displaying {{ filter.qs.count }} of {{ filter.qs.count }}</em>
-            </div>
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'tickets:create' %}" class="btn btn-sm btn-primary">New Ticket</a>
-            </div>
-        </div>
-        <table class="table table-hover table-sm sortable" style="width: auto">
-            <thead>
-            <tr>
-                {% for field in field_list %}
-                    <th scope="col">{% get_verbose_label my_object field %}</th>
-                {% endfor %}
-            </tr>
-            </thead>
-
-            <tbody>
-            {% for ticket in filter.qs %}
-                {% url 'tickets:detail' ticket.id as my_url %}
-                <tr href="{{ my_url }}">
+            <table class="table table-hover table-sm sortable">
+                <thead>
+                <tr>
                     {% for field in field_list %}
-                        {% if field == "status" %}
-                            <td style="background-color: {{ ticket.status.color }}">{% get_field_value ticket field %}</td>
-                        {% elif field == "dm_assigned" %}
-                            <td style="width: 150px">
-                                {% for dm in ticket.dm_assigned.all %}
-                                    {{ dm.first_name }} {{ dm.last_name }}<br>
-                                {% empty %}
-                                    {# display nothing #}
-                                {% endfor %}
-                            </td>
-                        {% elif field == "title" %}
-                            <td style="width: 400px">
-                                {% get_field_value ticket field %}
-                            </td>
-                        {% elif field == "primary_contact" %}
-                            {% if ticket.primary_contact %}
-                                <td>{{ ticket.primary_contact.first_name }} {{ ticket.primary_contact.last_name }}</td>
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for ticket in filter.qs %}
+                    {% url 'tickets:detail' ticket.id as my_url %}
+                    <tr href="{{ my_url }}">
+                        {% for field in field_list %}
+                            {% if field == "status" %}
+                                <td style="background-color: {{ ticket.status.color }}">{% get_field_value ticket field %}</td>
+                            {% elif field == "dm_assigned" %}
+                                <td style="width: 150px">
+                                    {% for dm in ticket.dm_assigned.all %}
+                                        {{ dm.first_name }} {{ dm.last_name }}<br>
+                                    {% empty %}
+                                        {# display nothing #}
+                                    {% endfor %}
+                                </td>
+                            {% elif field == "title" %}
+                                <td style="width: 400px">
+                                    {% get_field_value ticket field %}
+                                </td>
+                            {% elif field == "primary_contact" %}
+                                {% if ticket.primary_contact %}
+                                    <td>{{ ticket.primary_contact.first_name }} {{ ticket.primary_contact.last_name }}</td>
+                                {% else %}
+                                    <td>{% get_field_value ticket field %}</td>
+                                {% endif %}
+                            {% elif field == "github_issue_number" %}
+                                <td style="text-align: center" class="{% if not ticket.github_issue_number %}red-font{% endif %}">
+                                    {% get_field_value ticket field %}
+                                </td>
                             {% else %}
                                 <td>{% get_field_value ticket field %}</td>
                             {% endif %}
-                        {% elif field == "github_issue_number" %}
-                            <td style="text-align: center" class="{% if not ticket.github_issue_number %}red-font{% endif %}">
-                                {% get_field_value ticket field %}
-                            </td>
-                        {% else %}
-                            <td>{% get_field_value ticket field %}</td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 
