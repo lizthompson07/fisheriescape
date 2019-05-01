@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
@@ -27,13 +28,15 @@ def index_router(request):
     if request.user:
         print("there is a user")
         if request.user.is_staff:
-            print("there is a staff user")
-            return HttpResponseRedirect(reverse("tickets:my_list"))
+            # go to assigned tickets
+            return HttpResponseRedirect(reverse("tickets:my_assigned_list"))
         else:
-            return HttpResponseRedirect(reverse("tickets:list"))
+            # go to 'my tickets'
+            return HttpResponseRedirect(reverse("tickets:my_list"))
     else:
-        print("there is no user")
+        # no user. go to all tickets
         return HttpResponseRedirect(reverse("tickets:list"))
+
 
 # Create your views here.
 class CloserTemplateView(TemplateView):
@@ -51,9 +54,10 @@ class TicketListView(FilterView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["my_object"] = models.Ticket.objects.first()
+        context["list_name"] = "all"
         context["field_list"] = [
             'id',
-            'date_modified',
+            # 'date_modified',
             'priority',
             'dm_assigned',
             'app',
@@ -72,16 +76,16 @@ class MyTicketListView(LoginRequiredMixin, FilterView):
     template_name = "dm_tickets/ticket_list.html"
 
     def get_queryset(self):
-        return models.Ticket.objects.filter(dm_assigned=self.request.user.id).annotate(
+        return models.Ticket.objects.filter(primary_contact=self.request.user).annotate(
             search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["my_object"] = models.Ticket.objects.first()
-        context["my_list"] = True
+        context["list_name"] = "my"
         context["field_list"] = [
             'id',
-            'date_modified',
+            # 'date_modified',
             'priority',
             'dm_assigned',
             'app',
@@ -94,6 +98,43 @@ class MyTicketListView(LoginRequiredMixin, FilterView):
         ]
         return context
 
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {"status": 2, }
+        return kwargs
+
+
+class MyAssignedTicketListView(LoginRequiredMixin, FilterView):
+    filterset_class = filters.MyTicketFilter
+    template_name = "dm_tickets/ticket_list.html"
+
+    def get_queryset(self):
+        return models.Ticket.objects.filter(dm_assigned=self.request.user.id).annotate(
+            search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["my_object"] = models.Ticket.objects.first()
+        context["list_name"] = "assigned"
+        context["field_list"] = [
+            'id',
+            'primary_contact',
+            'priority',
+            'dm_assigned',
+            'app',
+            'title',
+            'request_type',
+            'status',
+            'github_issue_number',
+        ]
+        return context
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {"status": 2, }
+        return kwargs
 
 
 class TicketDetailView(LoginRequiredMixin, DetailView):
@@ -164,6 +205,11 @@ def mark_ticket_resolved(request, ticket):
     my_ticket = models.Ticket.objects.get(pk=ticket)
     my_ticket.status_id = 1
     my_ticket.save()
+
+    # if there is a github issue number, we should also make sure the issue is resolved.
+    if my_ticket.github_issue_number:
+        my_response = resolve_github_issue(my_ticket, request.user)
+
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
 
 
@@ -172,7 +218,12 @@ def mark_ticket_active(request, ticket):
     my_ticket.status_id = 2
     my_ticket.date_closed = None
     my_ticket.save()
+
+    if my_ticket.github_issue_number:
+        reopen_github_issue(my_ticket, request.user)
+
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
+
 
 
 class TicketUpdateView(LoginRequiredMixin, UpdateView):
@@ -184,6 +235,16 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        # if there is a github issue number, we should also make sure the ticket is up to date.
+        if self.object.github_issue_number:
+            edit_github_issue(self.object.id, self.request.user.id)
+
+        return HttpResponseRedirect(self.get_success_url())
+
 
 
 class TicketDeleteView(LoginRequiredMixin, DeleteView):
@@ -400,7 +461,6 @@ def add_generic_file(request, ticket, type):
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
 
 
-
 # Follow ups #
 ##############
 
@@ -410,6 +470,11 @@ class FollowUpCreateView(LoginRequiredMixin, CreateView):
     template_name = 'dm_tickets/followup_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.FollowUpForm
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["ticket"] = models.Ticket.objects.get(pk=self.kwargs["ticket"])
+        return context
 
     def get_initial(self):
         ticket = models.Ticket.objects.get(pk=self.kwargs['ticket'])
@@ -432,14 +497,14 @@ class FollowUpCreateView(LoginRequiredMixin, CreateView):
             print('not sending email since in dev mode')
             print(email)
 
-        # gihub
+        # github
         if self.object.ticket.github_issue_number:
-            my_repo = get_github_repo()
-            my_issue = my_repo.get_issue(
-                number=self.object.ticket.github_issue_number
+            # If a github issue number exists, create this follow up as a comment
+            my_comment = create_or_edit_comment(
+                self.object.created_by_id,
+                self.object.message,
+                self.object.ticket.github_issue_number,
             )
-            message = "{} (comment created by {} {})".format(self.object.message, self.object.created_by.first_name, self.object.created_by.last_name)
-            my_comment = my_issue.create_comment(message)
             self.object.github_id = my_comment.id
             self.object.save()
         return HttpResponseRedirect(reverse('tickets:close_me'))
@@ -469,7 +534,20 @@ class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
             print('not sending email since in dev mode')
             print(email)
 
+        # github
+        if self.object.ticket.github_issue_number:
+            # If a github issue number exists, create this follow up as a comment
+
+            my_comment = create_or_edit_comment(
+                self.object.created_by_id,
+                self.object.message,
+                self.object.ticket.github_issue_number,
+                self.object.github_id,
+            )
+            self.object.github_id = my_comment.id
+            self.object.save()
         return HttpResponseRedirect(reverse('tickets:close_me'))
+
 
 class FollowUpDeleteView(LoginRequiredMixin, DeleteView):
     model = models.FollowUp
@@ -479,6 +557,16 @@ class FollowUpDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('tickets:close_me')
+
+    def delete(self, request, *args, **kwargs):
+        # If a github comment id exists, delete the comment on github as well
+        my_followup = models.FollowUp.objects.get(pk=self.kwargs["pk"])
+        if my_followup.github_id:
+            delete_comment(
+                my_followup.ticket.github_issue_number,
+                my_followup.github_id,
+            )
+        return super().delete(request, *args, **kwargs)
 
 
 
@@ -506,33 +594,137 @@ def finance_spreadsheet(request):
             return response
     raise Http404
 
+
 # GitHub Views #
 ################
 
 def get_github_repo():
+    # this is the generic ODIS user (currently user = davjfish)
     g = Github("b12913003e4af7e94a003b79ae31b69c5fd8ebd1")
     repo = g.get_repo("dfo-mar-odis/dfo_sci_dm_site")
+
     return repo
+
 
 def create_github_issue(request, pk):
     my_ticket = models.Ticket.objects.get(pk=pk)
+    my_user = request.user
     my_repo = get_github_repo()
+    descr = "{} _[Added to GitHub by {} {}. Ticket created in DM Tickets by {} {}. Full ticket available [here](http://glf-sci-dm{}).]_".format(
+        my_ticket.description,
+        my_user.first_name,
+        my_user.last_name,
+        my_ticket.primary_contact.first_name,
+        my_ticket.primary_contact.last_name,
+        reverse("tickets:detail", kwargs={"pk": pk})
+    )
+
     my_issue = my_repo.create_issue(
         title=my_ticket.title,
-        body=my_ticket.description,
-        labels=[my_ticket.app]
+        body=descr,
+        labels=[my_ticket.app],
     )
     my_ticket.github_issue_number = my_issue.number
     my_ticket.save()
-    return HttpResponseRedirect(reverse("tickets:detail", kwargs={"pk":pk}))
 
-def resolve_github_issue(request, pk):
-    my_ticket = models.Ticket.objects.get(pk=pk)
+    # if the ticket has some existing followups, they should be added as comments.
+    if my_ticket.follow_ups.count() > 0:
+        for f in my_ticket.follow_ups.all():
+            create_or_edit_comment(my_user.id, f.message, my_issue.number)
+
+    return HttpResponseRedirect(reverse("tickets:detail", kwargs={"pk": pk}))
+
+
+def resolve_github_issue(ticket_object, user_object):
+    """ This should only be called from within a view. This function does not return an HTTP response. Returns instance of github comment """
+
     my_repo = get_github_repo()
     my_issue = my_repo.get_issue(
-        number=my_ticket.github_issue_number
+        number=ticket_object.github_issue_number
     )
     my_issue.edit(state="closed")
-    my_ticket.github_resolved = True
-    my_ticket.save()
-    return HttpResponseRedirect(reverse("tickets:detail", kwargs={"pk":pk}))
+    my_issue.create_comment("Closed by {} {} through DM Tickets".format(
+        user_object.first_name,
+        user_object.last_name,
+    ))
+
+    ticket_object.github_resolved = True
+    ticket_object.save()
+
+    return None
+
+
+def reopen_github_issue(ticket_object, user_object):
+    """ This should only be called from within a view. This function does not return an HTTP response. Returns instance of github comment """
+
+    my_repo = get_github_repo()
+    my_issue = my_repo.get_issue(
+        number=ticket_object.github_issue_number
+    )
+    my_issue.edit(state="open")
+    my_issue.create_comment("Re-opened by {} {} through DM Tickets".format(
+        user_object.first_name,
+        user_object.last_name,
+    ))
+    ticket_object.github_resolved = False
+    ticket_object.save()
+    return None
+
+def create_or_edit_comment(user, message, issue_number, comment_id=None):
+    """ This should only be called from within a view. This function does not return an HTTP response. Returns instance of github comment """
+    my_user = User.objects.get(pk=user)
+    my_repo = get_github_repo()
+    my_issue = my_repo.get_issue(
+        number=issue_number
+    )
+
+    # if a comment_id was provided, then go ahead an recall that object
+    if comment_id:
+        my_comment = my_issue.get_comment(comment_id)
+        my_comment.edit(body=message)
+    else:
+        message = "{} _[created by {} {} through DM Tickets]_".format(
+            message,
+            my_user.first_name,
+            my_user.last_name,
+        )
+        my_comment = my_issue.create_comment(message)
+
+    return my_comment
+
+
+def delete_comment(issue_number, comment_id):
+    """ This should only be called from within a view. This function does not return an HTTP response. Returns None object """
+    my_repo = get_github_repo()
+    my_issue = my_repo.get_issue(
+        number=issue_number
+    )
+    my_comment = my_issue.get_comment(comment_id)
+    my_comment.delete()
+
+    return None
+
+
+def edit_github_issue(ticket, user):
+    """ This should only be called from within a view. This function does not return an HTTP response. Returns None object """
+    my_ticket = models.Ticket.objects.get(pk=ticket)
+    my_user = User.objects.get(pk=user)
+    my_repo = get_github_repo()
+    descr = "{} _[Added to GitHub by {} {}. Ticket created in DM Tickets by {} {}. Full ticket available [here](http://glf-sci-dm{}).]_".format(
+        my_ticket.description,
+        my_user.first_name,
+        my_user.last_name,
+        my_ticket.primary_contact.first_name,
+        my_ticket.primary_contact.last_name,
+        reverse("tickets:detail", kwargs={"pk": ticket})
+    )
+    my_issue = my_repo.get_issue(
+        number=my_ticket.github_issue_number,
+    )
+    my_issue.edit(
+        title=my_ticket.title,
+        body=descr,
+        labels=[my_ticket.app],
+    )
+
+    return None
