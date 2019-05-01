@@ -663,8 +663,8 @@ def resolve_github_issue(ticket_object, user_object):
         user_object.last_name,
     ))
 
-    ticket_object.github_resolved = True
-    ticket_object.save()
+    # ticket_object.github_resolved = True
+    # ticket_object.save()
 
     return None
 
@@ -681,8 +681,8 @@ def reopen_github_issue(ticket_object, user_object):
         user_object.first_name,
         user_object.last_name,
     ))
-    ticket_object.github_resolved = False
-    ticket_object.save()
+    # ticket_object.github_resolved = False
+    # ticket_object.save()
     return None
 
 def create_or_edit_comment(user, message, issue_number, comment_id=None):
