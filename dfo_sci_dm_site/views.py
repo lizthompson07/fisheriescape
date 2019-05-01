@@ -55,7 +55,7 @@ def get_app_dict(request):
                 "description": _("Submit and track data management service requests."),
                 "status": "production",
                 "access": "open",
-                "url": reverse('tickets:list'),
+                "url": reverse('tickets:router'),
                 "icon_path": 'img/icons/tickets.svg',
                 "region": "all",
             }

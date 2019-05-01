@@ -23,11 +23,25 @@ class TicketFilter(django_filters.FilterSet):
     class Meta:
         model = models.Ticket
         fields = {
-            'fiscal_year': ['exact'],
+            # 'fiscal_year': ['exact'],
             'app': ['exact'],
             'status': ['exact'],
         }
 
+
+class MyTicketFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search term (Id, title, etc.):",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    class Meta:
+        model = models.Ticket
+        fields = {
+            # 'fiscal_year': ['exact'],
+            'app': ['exact'],
+            'status': ['exact'],
+        }
 
 
 

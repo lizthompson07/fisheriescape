@@ -146,6 +146,8 @@
                     var $el = $("#id_division");
                     $el.empty(); // remove old options
                     $.each(newOptions, function (key, value) {
+                        console.log(key)
+                        console.log(value)
                         $el.append($("<option></option>")
                             .attr("value", value).text(key));
                     });
@@ -172,12 +174,14 @@
                         var searchTerm = $("#id_division option:selected").text().slice(0, sliceLength);
                         var re = new RegExp(searchTerm, 'gi');
                         if (key.match(re)) {
-                            newOptions[key] = divisionObj[key]
+                            newOptions[key] = sectionObj[key]
                         }
                     }
                     var $el = $("#id_section");
                     $el.empty(); // remove old options
                     $.each(newOptions, function (key, value) {
+                        console.log(key)
+                        console.log(value)
                         $el.append($("<option></option>")
                             .attr("value", value).text(key));
                     });
