@@ -105,7 +105,7 @@ except RuntimeError:
     print("not connecting travel app")
 
 try:
-    urlpatterns += i18n_patterns(path('spot/', include('spot.urls')), prefix_default_language=True)
+    urlpatterns += i18n_patterns(path('grants-and-contributions/', include('spot.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting spot")
 
