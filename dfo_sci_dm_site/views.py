@@ -218,6 +218,19 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
+        app_dict["spot"] = {
+            "title": _("Grants & Contributions"),
+            "description": _("Gulf Region application for the tracking of Gs & Cs."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('spot:index'),
+            "icon_path": 'img/icons/agreement.svg',
+            "region": "gulf",
+        }
+    except NoReverseMatch:
+        pass
+
     return OrderedDict(app_dict)
 
 
