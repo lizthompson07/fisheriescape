@@ -16,8 +16,6 @@ class OrganizationForm(forms.ModelForm):
         model = ml_models.Organization
         fields = [
             'name_eng',
-            'name_fre',
-            'name_ind',
             'abbrev',
             'address',
             'city',
@@ -25,7 +23,6 @@ class OrganizationForm(forms.ModelForm):
             'province',
             'phone',
             'fax',
-            'key_species',
             'dfo_contact_instructions',
             'notes',
             'grouping',
@@ -58,15 +55,21 @@ class NewMemberForm(forms.ModelForm):
 class MemberForm(forms.ModelForm):
     class Meta:
         model = ml_models.OrganizationMember
-        exclude = [
-            'roles',
-            'date_last_modified',
+        fields = [
+            'person',
+            'organization',
+            'role',
+            'notes',
+            'last_modified_by',
         ]
         widgets = {
             'notes': forms.Textarea(attrs={"rows": 2}),
+            'organization': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
         }
-
+        labels = {
+            'notes': _("Additional notes about member"),
+        }
 
 
 
