@@ -25,13 +25,13 @@
 
 {% block left_auth %}
     <li class="nav-item">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{% url 'spot:org_list'  %}">
             {% trans "Organizations" %}
         </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{% url ''  %}">
             {% trans "People" %}
         </a>
     </li>
