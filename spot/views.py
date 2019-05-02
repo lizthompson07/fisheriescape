@@ -241,6 +241,7 @@ class PersonListView(SpotAccessRequiredMixin, FilterView):
 
 class PersonDetailView(SpotAccessRequiredMixin, DetailView):
     model = ml_models.Person
+    template_name = 'spot/person_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -256,7 +257,6 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
             'last_modified_by',
         ]
         return context
-
 
 
 class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
