@@ -1,0 +1,28 @@
+# from accounts import models as account_models
+from gettext import gettext as _
+from django import forms
+import django_filters
+from django.db.models import Q
+
+from . import models
+from masterlist import models as ml_models
+from shared_models import models as shared_models
+YES_NO_CHOICES = (
+    (True, "Yes"),
+    (False, "No"),
+)
+
+
+class OrganizationFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search name",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+    province = django_filters.ModelChoiceFilter(field_name='province', lookup_expr='exact', queryset=shared_models.Province.objects.all())
+    grouping = django_filters.ModelChoiceFilter(field_name='grouping', lookup_expr='exact', queryset=ml_models.Grouping.objects.all())
+    regions = django_filters.ModelChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.filter(Q(id=1)|Q(id=2)))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+class PersonFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search",
+                                            lookup_expr='icontains', widget=forms.TextInput())
