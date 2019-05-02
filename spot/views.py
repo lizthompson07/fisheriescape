@@ -232,10 +232,8 @@ class PersonListView(SpotAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = ml_models.Person.objects.first()
         context["field_list"] = [
-            'last_name',
-            'first_name',
+            'display_name|Last name, First name',
             'phone_1',
-            'phone_2',
             'email_1',
         ]
         return context
@@ -263,6 +261,8 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
 
 class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
     model = ml_models.Person
+    template_name = 'spot/person_form_popout.html'
+
     form_class = forms.PersonForm
 
     def get_initial(self):
@@ -270,6 +270,8 @@ class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
             'last_modified_by': self.request.user,
         }
 
+    def get_success_url(self, *args, **kwargs):
+        return reverse_lazy("spot:person_detail", kwargs={"pk":self.kwargs["pk"]})
 
 class PersonUpdateViewPopout(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/person_form_popout.html'
@@ -293,6 +295,9 @@ class PersonCreateView(SpotAccessRequiredMixin, CreateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+    def form_valid(self, form):
+        my_person = form.save()
+        return reverse_lazy("spot:person_detail", kwargs={"pk":my_person.id})
 
 class PersonCreateViewPopout(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/person_form_popout.html'
