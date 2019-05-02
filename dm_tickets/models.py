@@ -1,6 +1,5 @@
 import os
 
-from dfo_sci_dm_site import my_conf
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
@@ -12,28 +11,10 @@ import markdown
 from lib.functions.fiscal_year import fiscal_year
 from shared_models import models as shared_models
 
-
-# Create your models here.
-
-# class Person(models.Model):
-#     first_name = models.CharField(max_length=225)
-#     last_name = models.CharField(max_length=225, null=True, blank=True)
-#     phone = models.CharField(max_length=50, null=True, blank=True)
-#     email = models.EmailField(null=True, blank=True)
-#     notes = models.TextField(null=True, blank=True)
-#
-#     def __str__(self):
-#         return "{} {}".format(self.first_name, self.last_name)
-#
-#     class Meta:
-#         ordering = ['first_name', 'last_name']
-#
-#     @property
-#     def full_name(self):
-#         return "{} {}".format(self.first_name, self.last_name)
-#
-#     def get_absolute_url(self):
-#         return reverse('tickets:person_detail', kwargs={'pk': self.id})
+try:
+    from dfo_sci_dm_site import my_conf as local_conf
+except (ModuleNotFoundError, ImportError):
+    from dfo_sci_dm_site import default_conf as local_conf
 
 
 class RequestType(models.Model):
@@ -79,7 +60,7 @@ class Status(models.Model):
 
 class Ticket(models.Model):
     # choices for app
-    APP_CHOICES = [(app_key, my_conf.APP_DICT[app_key]) for app_key in my_conf.APP_DICT]
+    APP_CHOICES = [(app_key, local_conf.APP_DICT[app_key]) for app_key in local_conf.APP_DICT]
     APP_CHOICES.insert(0, ("esee", "ESEE (not part of site)"))
     APP_CHOICES.insert(0, ("plankton", "Plankton Net (not part of site)"))
     APP_CHOICES.insert(0, ("tickets", "Data Management Ticketing App"))

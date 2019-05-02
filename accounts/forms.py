@@ -5,7 +5,11 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from dfo_sci_dm_site import my_conf
+
+try:
+    from dfo_sci_dm_site import my_conf as local_conf
+except (ModuleNotFoundError, ImportError):
+    from dfo_sci_dm_site import default_conf as local_conf
 
 # from django.contrib.auth.forms import UserCreationForm
 
@@ -62,7 +66,7 @@ class UserForgotPasswordForm(PasswordResetForm):
 
 class RequestAccessForm(forms.Form):
     # we only want the text from the choices of apps
-    APPLICATION_CHOICES = [(app_key, my_conf.APP_DICT[app_key]) for app_key in my_conf.APP_DICT]
+    APPLICATION_CHOICES = [(app_key, local_conf.APP_DICT[app_key]) for app_key in local_conf.APP_DICT]
     APPLICATION_CHOICES.insert(0, (None, "-----"))
 
     first_name = forms.CharField(label='First name', max_length=100)
