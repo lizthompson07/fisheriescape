@@ -78,10 +78,10 @@ class OrganizationListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = ml_models.Organization.objects.first()
         context["field_list"] = [
             'name_eng',
-            'name_fre',
-            'name_ind',
             'abbrev',
             'province',
+            'grouping',
+            'regions',
         ]
         return context
 
@@ -94,8 +94,6 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'name_eng',
-            'name_fre',
-            'name_ind',
             'abbrev',
             'address',
             'city',
@@ -103,7 +101,6 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
             'province',
             'phone',
             'fax',
-            'key_species',
             'dfo_contact_instructions',
             'notes',
             'grouping',
@@ -210,115 +207,119 @@ class MemberUpdateView(SpotAccessRequiredMixin, UpdateView):
         }
 
 
-def member_delete(request, pk):
-    object = ml_models.OrganizationMember.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The member has been successfully deleted from the organization."))
-    return HttpResponseRedirect(reverse_lazy("spot:org_detail", kwargs={"pk": object.organization.id}))
+class MemberDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/member_confirm_delete.html'
+    model = ml_models.OrganizationMember
+    success_url = reverse_lazy('spot:close_me')
+    success_message = 'This member was successfully removed!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# PERSON #
+##########
+
+class PersonListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/person_list.html'
+    filterset_class = filters.PersonFilter
+    model = ml_models.Person
+    queryset = ml_models.Person.objects.annotate(
+        search_term=Concat('first_name', 'last_name', 'notes', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = ml_models.Person.objects.first()
+        context["field_list"] = [
+            'last_name',
+            'first_name',
+            'phone_1',
+            'phone_2',
+            'email_1',
+        ]
+        return context
+
+
+class PersonDetailView(SpotAccessRequiredMixin, DetailView):
+    model = ml_models.Person
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'first_name',
+            'last_name',
+            'phone_1',
+            'phone_2',
+            'fax',
+            'email_1',
+            'email_2',
+            'notes',
+            'last_modified_by',
+        ]
+        return context
 
 
 
-#
-# # PERSON #
-# ##########
-#
-# class PersonListView(SpotAccessRequiredMixin, FilterView):
-#     template_name = 'spot/person_list.html'
-#     filterset_class = filters.PersonFilter
-#     model = models.Person
-#     queryset = models.Person.objects.annotate(
-#         search_term=Concat('first_name', 'last_name', 'notes', output_field=TextField()))
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["my_object"] = models.Person.objects.first()
-#         context["field_list"] = [
-#             'last_name',
-#             'first_name',
-#             'phone_1',
-#             'phone_2',
-#             'email_1',
-#         ]
-#         return context
-#
-#
-# class PersonDetailView(SpotAccessRequiredMixin, DetailView):
-#     model = models.Person
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'first_name',
-#             'last_name',
-#             'phone_1',
-#             'phone_2',
-#             'fax',
-#             'email_1',
-#             'email_2',
-#             'notes',
-#             'last_modified_by',
-#         ]
-#         return context
-#
-#
-#
-# class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
-#     model = models.Person
-#     form_class = forms.PersonForm
-#
-#     def get_initial(self):
-#         return {
-#             'last_modified_by': self.request.user,
-#         }
-#
-#
-# class PersonUpdateViewPopout(SpotAccessRequiredMixin, UpdateView):
-#     template_name = 'spot/person_form_popout.html'
-#     model = models.Person
-#     form_class = forms.PersonForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('spot:close_me'))
-#
-#     def get_initial(self):
-#         return {
-#             'last_modified_by': self.request.user,
-#         }
-#
-# class PersonCreateView(SpotAccessRequiredMixin, CreateView):
-#     model = models.Person
-#     form_class = forms.PersonForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class PersonCreateViewPopout(SpotAccessRequiredMixin, CreateView):
-#     template_name = 'spot/person_form_popout.html'
-#     model = models.Person
-#     form_class = forms.PersonForm
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse('spot:close_me'))
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class PersonDeleteView(SpotAdminRequiredMixin, DeleteView):
-#     model = models.Person
-#     success_url = reverse_lazy('spot:person_list')
-#     success_message = 'The person was deleted successfully!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-#
-#
+class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = ml_models.Person
+    form_class = forms.PersonForm
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+
+class PersonUpdateViewPopout(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/person_form_popout.html'
+    model = ml_models.Person
+    form_class = forms.PersonForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+class PersonCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/person_form.html'
+    model = ml_models.Person
+    form_class = forms.PersonForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class PersonCreateViewPopout(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/person_form_popout.html'
+    model = ml_models.Person
+    form_class = forms.PersonForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class PersonDeleteView(SpotAdminRequiredMixin, DeleteView):
+    template_name = 'spot/person_confirm_delete.html'
+    model = ml_models.Person
+    success_url = reverse_lazy('spot:person_list')
+    success_message = 'The person was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+
+
 
 # # CONSULTATION INSTRUCTION #
 # ############################

@@ -55,7 +55,7 @@ APP_DICT = {
     'masterlist': 'Masterlist',
     'shares': 'Gulf Shares',
     'travel': 'Travel Plans',
-    'spot': 'Grants & Contributions (Spot)',
+    'spot': 'Grants & Contributions (Spot)',  # dependency on masterlist
 }
 MY_INSTALLED_APPS = [app for app in APP_DICT]
 SHOW_TICKETS_APP = True
