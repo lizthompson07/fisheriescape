@@ -38,23 +38,6 @@ class OrganizationForm(forms.ModelForm):
         }
 
 
-class NewMemberForm(forms.ModelForm):
-    class Meta:
-        model = ml_models.OrganizationMember
-        fields = [
-            'person',
-            'organization',
-            'role',
-            'notes',
-            'last_modified_by',
-        ]
-        widgets = {
-            'organization': forms.HiddenInput(),
-            'notes': forms.Textarea(attrs={"rows": 2}),
-            'last_modified_by': forms.HiddenInput(),
-        }
-
-
 class MemberForm(forms.ModelForm):
     class Meta:
         model = ml_models.OrganizationMember
@@ -62,6 +45,7 @@ class MemberForm(forms.ModelForm):
             'person',
             'organization',
             'role',
+            # 'role_notes',
             'notes',
             'last_modified_by',
         ]
@@ -71,14 +55,26 @@ class MemberForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
         }
         labels = {
-            'notes': _("Additional notes about member"),
+            'role': _("Role"),
         }
 
 
 class PersonForm(forms.ModelForm):
     class Meta:
         model = ml_models.Person
-        exclude = ["date_last_modified", ]
+        fields = [
+            "designation",
+            "first_name",
+            "last_name",
+            "email_1",
+            "email_2",
+            "phone_1",
+            "phone_2",
+            "cell",
+            "fax",
+            "language",
+            "notes",
+        ]
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
