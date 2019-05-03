@@ -21,7 +21,7 @@
     </style>
 
     <script>
-        window.resizeTo(width = 600, height = 850);
+        window.resizeTo(width = 600, height = 900);
 
         window.onunload = refreshParent;
 
@@ -31,7 +31,7 @@
 
 
     </script>
-    <div class="indent-med">
+    <div class="container-fluid">
 
         <h3>
             {% if object %}
@@ -97,12 +97,11 @@
                     </span>
                         {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
                     </div>
-
                 {% elif field.name == "notes" %}
                     <div class="jumbotron">
                     <span class="roboto">
                         <h4>
-                            <u>Additional Notes</u>
+                            <u>Additional Notes About Member</u>
                         </h4>
                     </span>
                         {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}

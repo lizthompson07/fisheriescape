@@ -155,7 +155,7 @@ class MemberCreateView(SpotAccessRequiredMixin, CreateView):
     model = ml_models.OrganizationMember
     template_name = 'spot/member_form_popout.html'
     login_url = '/accounts/login_required/'
-    form_class = forms.NewMemberForm
+    form_class = forms.MemberForm
 
     def get_initial(self):
         org = ml_models.Organization.objects.get(pk=self.kwargs['org'])
@@ -243,6 +243,7 @@ class PersonListView(SpotAccessRequiredMixin, FilterView):
             'display_name|Last name, First name',
             'phone_1',
             'email_1',
+            'organizations',
         ]
         return context
 

@@ -116,15 +116,6 @@ class Organization(models.Model):
 
 
 class Person(models.Model):
-    # Choices for language
-    ENG = 1
-    FRE = 2
-    BI = 3
-    LANGUAGE_CHOICES = (
-        (ENG, _("English")),
-        (FRE, _("French")),
-        (BI, _("Bilingual")),
-    )
     designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
@@ -134,10 +125,9 @@ class Person(models.Model):
     email_2 = models.EmailField(blank=True, null=True, verbose_name=_("work email 2"))
     cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone (mobile)"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
+    language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-    organizations = models.ManyToManyField(Organization, through="OrganizationMember"
-                                           )
+    organizations = models.ManyToManyField(Organization, through="OrganizationMember", verbose_name=_("membership"))
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
@@ -192,13 +182,28 @@ class Person(models.Model):
         return my_str
 
 
+class Role(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
 
 
 class OrganizationMember(models.Model):
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="memberships")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
-    role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
-    notes = models.TextField(blank=True, null=True)
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="members", blank=True, null=True, verbose_name=_("G&C role"))
+    notes = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("notes"))
+    old_notes = models.TextField(blank=True, null=True)
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
