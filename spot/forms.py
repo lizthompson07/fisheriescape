@@ -41,9 +41,12 @@ class OrganizationForm(forms.ModelForm):
 class NewMemberForm(forms.ModelForm):
     class Meta:
         model = ml_models.OrganizationMember
-        exclude = [
-            'roles',
-            'date_last_modified',
+        fields = [
+            'person',
+            'organization',
+            'role',
+            'notes',
+            'last_modified_by',
         ]
         widgets = {
             'organization': forms.HiddenInput(),
@@ -70,7 +73,6 @@ class MemberForm(forms.ModelForm):
         labels = {
             'notes': _("Additional notes about member"),
         }
-
 
 
 class PersonForm(forms.ModelForm):

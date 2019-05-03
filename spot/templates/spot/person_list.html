@@ -2,6 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load el_pagination_tags %}
 {% block content %}
 
     <style>
@@ -40,20 +41,24 @@
                 </div>
             </div>
         </form>
+        {% paginate 100 filter.qs as filter_list %}
 
         <br>
         <div class="row">
             <div class="col-12">
+
 
                 <div class="row">
                     <div class="col">
                         (click on a header to sort table)
                     </div>
                     <div class="col" style="text-align: center">
-                        <em>displaying all {{ filter.qs.count }} records</em>
+                        {% show_pages %}
+                        <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
                         <a href="{% url 'spot:person_new' %}" class="btn btn-sm btn-primary">New Person</a>
+
                     </div>
                 </div>
 
@@ -67,7 +72,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for object in filter.qs %}
+                    {% for object in filter_list %}
                         {% url 'spot:person_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
                             {% for field in field_list %}
