@@ -39,81 +39,6 @@ class Grouping(models.Model):
         ordering = ['name', ]
 
 
-class Person(models.Model):
-    # Choices for language
-    ENG = 1
-    FRE = 2
-    BI = 3
-    LANGUAGE_CHOICES = (
-        (ENG, _("English")),
-        (FRE, _("French")),
-        (BI, _("Bilingual")),
-    )
-    designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
-    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
-    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone"))
-    phone_2 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone 2"))
-    email_1 = models.EmailField(blank=True, null=True, verbose_name=_("work email"))
-    email_2 = models.EmailField(blank=True, null=True, verbose_name=_("work email 2"))
-    cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone (mobile)"))
-    fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-
-    # metadata
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
-                                         related_name="masterlist_person_last_modified_by")
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
-
-    def __str__(self):
-        return "{}, {}".format(self.last_name, self.first_name)
-
-    class Meta:
-        ordering = ['last_name', 'first_name']
-
-    def get_absolute_url(self):
-        return reverse('masterlist:person_detail', kwargs={'pk': self.pk})
-
-    @property
-    def display_name(self):
-        my_str = "{}".format(self)
-        return my_str
-
-    @property
-    def contact_card_no_name(self):
-        my_str = ""
-        if self.phone_1:
-            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone_1)
-        if self.phone_2:
-            my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
-        if self.fax:
-            my_str += "<br>{}: {}".format(_("Fax"), self.fax)
-        if self.email_1:
-            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email_1)
-        if self.email_2:
-            my_str += "<br>{}: {}".format(_("E-mail 2"), self.email_2)
-        return my_str
-
-    @property
-    def contact_card(self):
-        my_str = "<b>{first} {last}</b>".format(first=self.first_name, last=self.last_name)
-        if self.phone_1:
-            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone_1)
-        if self.phone_2:
-            my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
-        if self.fax:
-            my_str += "<br>{}: {}".format(_("Fax"), self.fax)
-        if self.email_1:
-            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email_1)
-        if self.email_2:
-            my_str += "<br>{}: {}".format(_("E-mail 2"), self.email_2)
-        return my_str
-
 
 
 class Organization(models.Model):
@@ -127,7 +52,7 @@ class Organization(models.Model):
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("dfo contact instructions"))
+    dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("DFO contact instructions"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     key_species = models.TextField(blank=True, null=True, verbose_name=_("key species"))
     grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"), blank=True)
@@ -188,6 +113,85 @@ class Organization(models.Model):
 
     def get_absolute_url(self):
         return reverse('masterlist:org_detail', kwargs={'pk': self.pk})
+
+
+class Person(models.Model):
+    # Choices for language
+    ENG = 1
+    FRE = 2
+    BI = 3
+    LANGUAGE_CHOICES = (
+        (ENG, _("English")),
+        (FRE, _("French")),
+        (BI, _("Bilingual")),
+    )
+    designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
+    phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone"))
+    phone_2 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone 2"))
+    email_1 = models.EmailField(blank=True, null=True, verbose_name=_("work email"))
+    email_2 = models.EmailField(blank=True, null=True, verbose_name=_("work email 2"))
+    cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone (mobile)"))
+    fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
+    language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+    organizations = models.ManyToManyField(Organization, through="OrganizationMember"
+                                           )
+    # metadata
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
+                                         related_name="masterlist_person_last_modified_by")
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{}, {}".format(self.last_name, self.first_name)
+
+    class Meta:
+        ordering = ['last_name', 'first_name']
+
+    def get_absolute_url(self):
+        return reverse('masterlist:person_detail', kwargs={'pk': self.pk})
+
+    @property
+    def display_name(self):
+        my_str = "{}".format(self)
+        return my_str
+
+    @property
+    def contact_card_no_name(self):
+        my_str = ""
+        if self.phone_1:
+            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone_1)
+        if self.phone_2:
+            my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
+        if self.fax:
+            my_str += "<br>{}: {}".format(_("Fax"), self.fax)
+        if self.email_1:
+            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email_1)
+        if self.email_2:
+            my_str += "<br>{}: {}".format(_("E-mail 2"), self.email_2)
+        return my_str
+
+    @property
+    def contact_card(self):
+        my_str = "<b>{first} {last}</b>".format(first=self.first_name, last=self.last_name)
+        if self.phone_1:
+            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone_1)
+        if self.phone_2:
+            my_str += "<br>{}: {}".format(_("Phone 2"), self.phone_2)
+        if self.fax:
+            my_str += "<br>{}: {}".format(_("Fax"), self.fax)
+        if self.email_1:
+            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email_1)
+        if self.email_2:
+            my_str += "<br>{}: {}".format(_("E-mail 2"), self.email_2)
+        return my_str
+
+
 
 
 class OrganizationMember(models.Model):

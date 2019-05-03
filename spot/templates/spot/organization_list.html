@@ -2,6 +2,8 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load el_pagination_tags %}
+
 {% block content %}
 
     <style>
@@ -9,14 +11,17 @@
             margin-left: 5em;
             margin-right: 5em;
         }
-        table,td,th{
+
+        table, td, th {
             font-size: small;
         }
-        #filter-form{
+
+        #filter-form {
             font-size: small;
-            width: 50%;
+            width: 75%;
         }
-        label{
+
+        label {
             font-weight: bold;
         }
     </style>
@@ -48,46 +53,47 @@
         </form>
 
         <br>
+
+
+        {% paginate 100 filter.qs as filter_list %}
+
+
         <div class="row">
-            <div class="col-12">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: center">
+                {% show_pages %}
+                <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'spot:org_new' %}" class="btn btn-sm btn-primary">New Organization</a>
 
-                <div class="row">
-                    <div class="col">
-                        (click on a header to sort table)
-                    </div>
-                    <div class="col" style="text-align: center">
-                        <em>displaying all {{ filter.qs.count }} records</em>
-                    </div>
-                    <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'spot:org_new' %}" class="btn btn-sm btn-primary">New Organization</a>
-                    </div>
-                </div>
-
-
-                <table class="table table-sm table-hover sortable">
-                    <thead>
-                    <tr>
-                        {% for field in field_list %}
-                            <th scope="col">{% get_verbose_label my_object field %}</th>
-                        {% endfor %}
-                        <th scope="col">Address</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for object in filter.qs %}
-                        {% url 'spot:org_detail' object.id as my_url %}
-                        <tr href="{{ my_url }}">
-                            {% for field in field_list %}
-                                <td>{% get_field_value object field %}</td>
-                            {% endfor %}
-
-                            <td>{{ object.full_address }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
             </div>
         </div>
+
+        <table class="table table-sm table-hover sortable">
+            <thead>
+            <tr>
+                {% for field in field_list %}
+                    <th scope="col">{% get_verbose_label my_object field %}</th>
+                {% endfor %}
+                <th scope="col">Address</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in filter_list %}
+                {% url 'spot:org_detail' object.id as my_url %}
+                <tr href="{{ my_url }}">
+                    {% for field in field_list %}
+                        <td>{% get_field_value object field %}</td>
+                    {% endfor %}
+
+                    <td>{{ object.full_address }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
 
