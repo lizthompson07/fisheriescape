@@ -120,6 +120,10 @@ class OrganizationUpdateView(SpotAccessRequiredMixin, UpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+    def form_valid(self, form):
+        my_org = form.save()
+        return reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id})
+
 
 class OrganizationCreateView(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/organization_form.html'
@@ -128,6 +132,10 @@ class OrganizationCreateView(SpotAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_org = form.save()
+        return reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id})
 
 
 class OrganizationDeleteView(SpotAdminRequiredMixin, DeleteView):
