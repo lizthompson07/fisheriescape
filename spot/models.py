@@ -144,7 +144,7 @@ class ContributionAgreementChecklist(models.Model):
     expenses_eligible =  models.NullBooleanField(verbose_name=_("Schedule 5: All expenses are eligible"))
     reasonable_costs =  models.NullBooleanField(verbose_name=_("Schedule 5: All costs are reasonable"))
     budget_adds_up =  models.NullBooleanField(verbose_name=_("Schedule 5: The budget adds up correctly."))
-    maximum amounts_set =  models.NullBooleanField(verbose_name=_("Schedule 5: If applicable, maximum amounts for expense categories have been set (i.e., identified with an asterisk (*))."))
+    maximum_amounts_set =  models.NullBooleanField(verbose_name=_("Schedule 5: If applicable, maximum amounts for expense categories have been set (i.e., identified with an asterisk (*))."))
     budget_reflects_activity =  models.NullBooleanField(verbose_name=_("Schedule 5: The budget reflects the nature of the Activity(ies)."))
     stacking_limits_respected =  models.NullBooleanField(verbose_name=_("Schedule 5: The federal and stacking limit have been respected, based on confirmed funding."))
     no_funding_redundancy =  models.NullBooleanField(verbose_name=_("Schedule 5: The activities and budget items have been cross-checked against DFO Aboriginal program CAs (e.g., SPI-FHRI, AAROM, AFSAR) to ensure no funding redundancy."))
@@ -155,7 +155,7 @@ class ContributionAgreementChecklist(models.Model):
     # Schedule 6
     cashflow_adds_up =  models.NullBooleanField(verbose_name=_("Schedule 6: The cash flow adds up correctly and reflects the timing of Activities."))
     # Schedule 7
-    pre-filled_sched7 =  models.NullBooleanField(verbose_name=_("Schedule 7: is pre-filled and mirrors Schedule 5"))
+    pre_filled_sched7 =  models.NullBooleanField(verbose_name=_("Schedule 7: is pre-filled and mirrors Schedule 5"))
     performance_measures_in_path =  models.NullBooleanField(verbose_name=_("Schedule 7: Performance measures are updated in the ‘Planned’ column of the performance tab in PATH as per Data Entry Procedures"))
     # General
     team_leader_reviewed =  models.NullBooleanField(verbose_name=_("The Team Leader has reviewed and approves the CA"))
