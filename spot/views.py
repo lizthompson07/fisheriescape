@@ -351,6 +351,7 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
         context["field_list"] = [
             'id',
             'path_number',
+            'program_reference_number',
             'status',
             'start_year',
             'program.abbrev_eng',
@@ -370,7 +371,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
         context["field_list"] = [
             'id',
             'path_number',
-            'hsp_id',
+            'program_reference_number',
             'organization',
             'title',
             'program',
@@ -386,7 +387,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
 
 
 class ProjectUpdateView(SpotAccessRequiredMixin, UpdateView):
-    template_name = 'spot/organization_form.html'
+    template_name = 'spot/project_form.html'
     model = models.Project
     form_class = forms.OrganizationForm
 
@@ -399,16 +400,16 @@ class ProjectUpdateView(SpotAccessRequiredMixin, UpdateView):
 
 
 class ProjectCreateView(SpotAccessRequiredMixin, CreateView):
-    template_name = 'spot/organization_form.html'
+    template_name = 'spot/project_form.html'
     model = models.Project
-    form_class = forms.OrganizationForm
+    form_class = forms.ProjectForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
     def form_valid(self, form):
         my_org = form.save()
-        return reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id})
+        return reverse_lazy("spot:project_detail", kwargs={"pk": my_org.id})
 
 
 class ProjectDeleteView(SpotAdminRequiredMixin, DeleteView):
