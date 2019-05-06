@@ -86,7 +86,7 @@ def draft_ca_file_directory_path(instance, filename):
 
 class Project(models.Model):
     path_number = models.CharField(max_length=50, blank=True, null=True)
-    hsp_id = models.CharField(max_length=50, blank=True, null=True)
+    program_reference_number = models.CharField(max_length=50, blank=True, null=True)
     organization = models.ForeignKey(ml_models.Organization, on_delete=models.DO_NOTHING, related_name="projects")
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="projects")
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="projects")
@@ -144,6 +144,10 @@ class Project(models.Model):
     final_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True)
     advance_payment_sent_to_nhq = models.DateTimeField(blank=True, null=True)
     final_ca_nhq_signed = models.DateTimeField(blank=True, null=True)
+
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="gc_projects")
 
     def __str__(self):
         return "{} - {}".format(self.organization.abbrev, self.title_abbrev)
@@ -261,12 +265,18 @@ class ContributionAgreementChecklist(models.Model):
     review_completion_date = models.DateTimeField(blank=True, null=True)
     completed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="ca_checklist_last_mods")
 
 class ExpressionOfInterest(models.Model):
     project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="eois")
     eoi_coordinator_notified = models.DateTimeField(blank=True, null=True)
     eoi_feedback_sent = models.DateTimeField(blank=True, null=True)
 
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
 class ProjectYear(models.Model):
     project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="projects", verbose_name=_("project language"))
@@ -283,6 +293,9 @@ class ProjectYear(models.Model):
     funds_recovered = models.NullBooleanField()
     year_complete = models.DateTimeField(blank=True, null=True)
 
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
 class ReportType(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
@@ -309,6 +322,10 @@ class Report(models.Model):
     gc_officer_approved = models.DateTimeField(blank=True, null=True)
     manager_approved = models.DateTimeField(blank=True, null=True)
     nhq_notified = models.DateTimeField(blank=True, null=True)
+
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
 
 class ReportChecklist(models.Model):
@@ -377,6 +394,9 @@ class ReportChecklist(models.Model):
     review_completion_date = models.DateTimeField(blank=True, null=True)
     completed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="report_checklist_mods")
 
 class SiteVisit(models.Model):
     project_year = models.OneToOneField(ProjectYear, on_delete=models.DO_NOTHING, related_name="site_visits")
@@ -428,6 +448,9 @@ class SiteVisit(models.Model):
     # SUMMARY
     summary = models.TextField(blank=True, null=True, verbose_name=_("Summary of Findings and/or Follow-up Actions (if applicable)"))
 
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
 class RestorationTypeCategory(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
@@ -494,7 +517,9 @@ class Photo(models.Model):
     caption = models.CharField(max_length=255)
     site_visit = models.ForeignKey(SiteVisit, related_name="photos", on_delete=models.CASCADE)
     file = models.FileField(upload_to=photo_directory_path)
+    # meta
     date_created = models.DateTimeField(default=timezone.now)
+    uploaded_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("uploaded"))
 
     class Meta:
         ordering = ['-date_created']
@@ -547,6 +572,10 @@ class Payment(models.Model):
     nhq_notified = models.DateTimeField(blank=True, null=True)
     payment_confirmed = models.BooleanField(default=False)
     notes = models.TextField(blank=True, null=True)
+
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     class Meta:
         unique_together = ['project_year', 'claim_number']

@@ -80,6 +80,52 @@ class PersonForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": 3}),
         }
+
+
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'path_number',
+            'program_reference_number',
+            'organization',
+            'title',
+            'program',
+            'language',
+            'status',
+            'regions',
+            'start_year',
+            'project_length',
+            'date_completed',
+            'last_modified_by',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
+class NewProjectForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'regions',
+            'path_number',
+            'program_reference_number',
+            'organization',
+            'title',
+            'program',
+            'language',
+            'status',
+            'start_year',
+            'project_length',
+            'date_completed',
+            'last_modified_by',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
 #
 #
 
