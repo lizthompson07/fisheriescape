@@ -27,3 +27,17 @@ class PersonFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search",
                                             lookup_expr='icontains', widget=forms.TextInput())
     membership = django_filters.ModelMultipleChoiceFilter(field_name='organizations', lookup_expr='exact', queryset=ml_models.Organization.objects.all())
+
+
+class ProjectFilter(django_filters.FilterSet):
+
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search name",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+    organization = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact')
+    regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        org_choices = [(o.id, str(o)) for o in ml_models.Organization.objects.all() if o.projects.count() > 0]
+        self.filters["organization"] = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact', choices=org_choices)
+

@@ -31,11 +31,14 @@ urlpatterns = [
     path('person/<int:pk>/edit/popout/', views.PersonUpdateViewPopout.as_view(), name="person_edit_pop"),
     path('person/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),
 
-    # # RECIPIENTS #
-    # ##############
-    # path('instructions/<int:instruction>/member/<int:member>/add/', views.RecipientCreateView.as_view(), name="recipient_new"),
-    # path('recipient/<int:pk>/edit/', views.RecipientUpdateView.as_view(), name="recipient_edit"),
-    # path('recipient/<int:pk>/delete/', views.recipient_delete, name="recipient_delete"),
+    # PROJECT #
+    ###########
+    path('projects/', views.ProjectListView.as_view(), name="project_list"),
+    path('project/new/', views.ProjectCreateView.as_view(), name="project_new"),
+    path('project/<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
+    path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
+    path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
+
     #
     # # Reports #
     # ###########
