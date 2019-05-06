@@ -71,6 +71,7 @@ class Organization(models.Model):
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    old_id = models.IntegerField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -132,6 +133,9 @@ class Person(models.Model):
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="masterlist_person_last_modified_by")
+
+    old_id = models.IntegerField(blank=True, null=True)
+
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()

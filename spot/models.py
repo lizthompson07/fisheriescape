@@ -14,6 +14,7 @@ from masterlist import models as ml_models
 class Status(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+    old_id = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -45,17 +46,45 @@ class Program(models.Model):
         ordering = [_('name'), ]
 
 
-class Project(models.Model):
-    # choices for risk_assessment_score
-    LOW = 1
-    MED = 2
-    HIGH = 3
-    RISK_ASSESSMENT_SCORE_CHOICES = (
-        (LOW, "low"),
-        (MED, "medium"),
-        (HIGH, "high"),
-    )
+class RiskAssessmentScore(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
 
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
+class InitiationType(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
+def draft_ca_file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
+    suffix = filename.split(".")[1]
+    return 'spot/{0}/{0}_draft_contribution_agreement.{1}'.format(instance.id, suffix)
+
+
+class Project(models.Model):
     path_number = models.CharField(max_length=50, blank=True, null=True)
     hsp_id = models.CharField(max_length=50, blank=True, null=True)
     organization = models.ForeignKey(ml_models.Organization, on_delete=models.DO_NOTHING, related_name="projects")
@@ -63,31 +92,61 @@ class Project(models.Model):
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="projects")
     regions = models.ManyToManyField(shared_models.Region)
     start_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, related_name="gc_projects")
-
-    title = models.TextField()
-    title_abbrev = models.CharField(max_length=150, blank=True, null=True)
     project_length = models.IntegerField(blank=True, null=True)
-    risk_assessment_score = models.IntegerField(blank=True, null=True, choices=RISK_ASSESSMENT_SCORE_CHOICES)
     date_completed = models.DateTimeField(blank=True, null=True)
+    old_id = models.IntegerField(blank=True, null=True)
+    eccc_id = models.CharField(max_length=50, blank=True, null=True)
 
+    ## Initiation
+    language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, related_name="projects",
+                                 verbose_name=_("project language"))
+    title = models.TextField()
+    title_abbrev = models.CharField(max_length=500, blank=True, null=True)
+    initiation_date = models.DateTimeField(blank=True, null=True)
+    initiation_type = models.ForeignKey(InitiationType, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
+    initiation_acknowledgement_sent = models.DateTimeField(blank=True, null=True)
     requested_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 1)"))
     requested_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 2)"))
     requested_funding_y3 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 3)"))
 
+    ## Regional Review
     regional_score = models.DecimalField(max_digits=18, decimal_places=0, blank=True, null=True)
     rank = models.IntegerField(blank=True, null=True)
-
     application_submission_date = models.DateTimeField(blank=True, null=True)
-    language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, related_name="projects",
-                                 verbose_name=_("project language"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("project notes"))
     recommended_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 1)"))
     recommended_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 2)"))
     recommended_funding_y3 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 3)"))
     recommended_overprogramming = models.FloatField(blank=True, null=True)
+    regrets_or_op_letter_sent_date = models.DateTimeField(blank=True, null=True)
+
+    ## Negotiations
+    risk_assessment_score = models.ForeignKey(RiskAssessmentScore, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
     negotiations_workplan_completion_date = models.DateTimeField(blank=True, null=True)
     negotiations_financials_completion_date = models.DateTimeField(blank=True, null=True)
-    regrets_or_op_letter_sent_date = models.DateTimeField(blank=True, null=True)
+    negotiation_letter_sent = models.DateTimeField(blank=True, null=True)
+
+    ## CA Assembly
+    schedule_5_complete = models.DateTimeField(blank=True, null=True)
+    advance_payment = models.BooleanField(default=False)
+    draft_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True)
+    draft_ca_proponent_approved = models.DateTimeField(blank=True, null=True)
+    draft_ca_ready = models.DateTimeField(blank=True, null=True)
+    ## CA Checklist stuff
+    draft_ca_sent_to_manager = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to manager"))
+    draft_ca_manager_approved = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA approved by manager"))
+    draft_ca = models.FileField(blank=True, null=True, verbose_name=_("draft CA"))
+    draft_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to NHQ"))
+    aip_received = models.DateTimeField(blank=True, null=True, verbose_name=_("approve-in-principal (AIP) received"))
+    final_ca_received = models.DateTimeField(blank=True, null=True)
+    final_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True)
+    final_ca_proponent_signed = models.DateTimeField(blank=True, null=True)
+    final_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True)
+    advance_payment_sent_to_nhq = models.DateTimeField(blank=True, null=True)
+    final_ca_nhq_signed = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return "{} - {}".format(self.organization.abbrev, self.title_abbrev)
 
     @property
     def total_requested_funding(self):
@@ -111,20 +170,39 @@ class Project(models.Model):
         return max(self.negotiations_workplan_completion_date, self.negotiations_financials_completion_date)
 
 
-class InitiationType(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+@receiver(models.signals.post_delete, sender=Project)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+    # for draft ca
+    if instance.draft_ca:
+        if os.path.isfile(instance.draft_ca.path):
+            os.remove(instance.draft_ca.path)
 
-    class Meta:
-        ordering = [_('name'), ]
+
+@receiver(models.signals.pre_save, sender=Project)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    # for draft ca
+    try:
+        old_file = ProjectYear.objects.get(pk=instance.pk).draft_ca
+    except ProjectYear.DoesNotExist:
+        return False
+
+    new_file = instance.draft_ca
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 
 
 class ContributionAgreementChecklist(models.Model):
@@ -184,12 +262,6 @@ class ContributionAgreementChecklist(models.Model):
     completed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
 
-def draft_ca_file_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
-    suffix = filename.split(".")[1]
-    return 'spot/{0}/{0}_draft_contribution_agreement.{1}'.format(instance.id, suffix)
-
-
 class ExpressionOfInterest(models.Model):
     project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="eois")
     eoi_coordinator_notified = models.DateTimeField(blank=True, null=True)
@@ -202,31 +274,6 @@ class ProjectYear(models.Model):
     expenditure_initiation_date = models.DateTimeField(blank=True, null=True, default=datetime.datetime(timezone.now().year, 4, 1))
     paye_number = models.CharField(max_length=50, blank=True, null=True)
     annual_funding = models.FloatField(blank=True, null=True)
-    initiation_date = models.DateTimeField(blank=True, null=True)
-    initiation_type = models.ForeignKey(InitiationType, on_delete=models.DO_NOTHING, related_name="projects")
-    initiation_acknowledgement_sent = models.DateTimeField(blank=True, null=True)
-
-    # Negotiations
-    negotiation_letter_sent = models.DateTimeField(blank=True, null=True)
-    schedule_5_complete = models.DateTimeField(blank=True, null=True)
-    advance_payment = models.BooleanField(default=False)
-    draft_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True)
-    draft_ca_proponent_approved = models.DateTimeField(blank=True, null=True)
-    draft_ca_ready = models.DateTimeField(blank=True, null=True)
-    ## CA Checklist stuff
-    draft_ca_sent_to_manager = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to manager"))
-    draft_ca_manager_approved = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA approved by manager"))
-    draft_ca = models.FileField(verbose_name=_("draft CA"))
-    draft_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to NHQ"))
-    aip_received = models.DateTimeField(blank=True, null=True, verbose_name=_("approve-in-principal (AIP) received"))
-    final_ca_received = models.DateTimeField(blank=True, null=True)
-    final_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True)
-    final_ca_proponent_signed = models.DateTimeField(blank=True, null=True)
-    final_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True)
-    advance_payment_sent_to_nhq = models.DateTimeField(blank=True, null=True)
-    final_ca_nhq_signed = models.DateTimeField(blank=True, null=True)
-
-    # project delivery
     forecasting_notes = models.TextField(blank=True, null=True)
     yearend_reminder_sent = models.DateTimeField(blank=True, null=True)
     lapsing_funds = models.NullBooleanField()
@@ -235,41 +282,6 @@ class ProjectYear(models.Model):
     funding_recovery_email_sent = models.DateTimeField(blank=True, null=True)
     funds_recovered = models.NullBooleanField()
     year_complete = models.DateTimeField(blank=True, null=True)
-
-
-@receiver(models.signals.post_delete, sender=ProjectYear)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-
-    # for draft ca
-    if instance.draft_ca:
-        if os.path.isfile(instance.draft_ca.path):
-            os.remove(instance.draft_ca.path)
-
-
-@receiver(models.signals.pre_save, sender=ProjectYear)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    # for draft ca
-    try:
-        old_file = ProjectYear.objects.get(pk=instance.pk).draft_ca
-    except ProjectYear.DoesNotExist:
-        return False
-
-    new_file = instance.draft_ca
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
 
 
 class ReportType(models.Model):
@@ -525,8 +537,20 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 
 class Payment(models.Model):
     project_year = models.ForeignKey(ProjectYear, related_name="payments", on_delete=models.DO_NOTHING)
+    claim_number = models.IntegerField()
+    advance_amount = models.FloatField(default=0)
+    reimbursement_amount = models.FloatField(default=0)
+    from_period = models.DateTimeField(blank=True, null=True)
+    to_period = models.DateTimeField(blank=True, null=True)
     final_payment = models.NullBooleanField()
     materials_submitted = models.BooleanField(default=False)
     nhq_notified = models.DateTimeField(blank=True, null=True)
     payment_confirmed = models.BooleanField(default=False)
     notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ['project_year', 'claim_number']
+
+    @property
+    def disbursement(self):
+        return self.advance_amount + self.reimbursement_amount
