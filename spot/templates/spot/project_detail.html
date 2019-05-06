@@ -1,0 +1,68 @@
+{% extends "spot/spot_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+
+        table, td {
+            font-size: small;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Projects</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="indent-lg">
+
+        <h1>{{ object }}</h1>
+
+
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'spot:project_edit' object.id %}">
+                {% trans "Edit" %}
+            </a>
+            <a class="btn btn-danger " href="{% url 'spot:project_delete' object.id %}">
+                {% trans "Delete" %}
+            </a>
+
+        </div>
+        <br><br>
+
+        <div class="row">
+            <div class="col-3">
+                <h3>
+                    Detail:
+                </h3>
+
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+
+            </div>
+            <div class="col">
+{#                {% include "spot/_members.html" %}#}
+{#                {% include "spot/_instructions.html" %}#}
+            </div>
+        </div>
+
+    </div>
+
+    <script type="application/javascript">
+
+
+
+    </script>
+{% endblock content %}
+

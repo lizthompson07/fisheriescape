@@ -63,6 +63,7 @@ class SpotAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
     template_name = 'spot/index.html'
 
+
 # ORGANIZATION #
 ################
 
@@ -334,175 +335,89 @@ class PersonDeleteView(SpotAdminRequiredMixin, DeleteView):
 
 
 
+# PROJECT #
+###########
 
-# # CONSULTATION INSTRUCTION #
-# ############################
+class ProjectListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/project_list.html'
+    filterset_class = filters.ProjectFilter
+    model = models.Project
+    queryset = models.Project.objects.annotate(
+        search_term=Concat('title', 'title_abbrev', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Project.objects.first()
+        context["field_list"] = [
+            'id',
+            'path_number',
+            'status',
+            'start_year',
+            'program.abbrev_eng',
+            'organization',
+            'title',
+            'regions',
+        ]
+        return context
+
 #
-# class InstructionCreateView(SpotAccessRequiredMixin, CreateView):
-#     model = models.ConsultationInstruction
-#     template_name = 'spot/instruction_form.html'
-#     form_class = forms.InstructionForm
-#
-#     def get_initial(self):
-#         org = models.Organization.objects.get(pk=self.kwargs['org'])
-#         return {
-#             'organization': org,
-#             'last_modified_by': self.request.user
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         org = models.Organization.objects.get(id=self.kwargs['org'])
-#         context['org'] = org
-#
-#         return context
-#
-#     def form_valid(self, form):
-#         object = form.save()
-#         return HttpResponseRedirect(reverse_lazy('spot:instruction_edit', kwargs={"pk":object.id}))
-#
-#
-# class InstructionUpdateView(SpotAccessRequiredMixin, UpdateView):
-#     model = models.ConsultationInstruction
-#     template_name = 'spot/instruction_form.html'
-#     form_class = forms.InstructionForm
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#
-#         # # get a list of members from only the indigenous organizations
-#         member_list = ['<a href="#" class="add-btn" target-url="{target_url}">{text}</a>'.format(
-#             target_url=reverse_lazy("spot:recipient_new", kwargs={"instruction": self.object.id, "member": member.id}),
-#             text=member) for member in models.OrganizationMember.objects.filter(organization__grouping__is_indigenous=True)]
-#         context['member_list'] = member_list
-#
-#         return context
-#
-#     def get_initial(self):
-#         return {
-#             'last_modified_by': self.request.user
-#         }
-#
-#
-# class InstructionDeleteView(SpotAdminRequiredMixin, DeleteView):
-#     model = models.ConsultationInstruction
-#     success_message = _("The organization's consultation instructions were deleted successfully!")
-#     template_name = 'spot/instruction_confirm_delete.html'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#     def get_success_url(self):
-#         return reverse_lazy("spot:org_detail", kwargs={"pk": self.object.organization.id})
-#
-#
-# # RECIPIENTS #
-# ##############
-#
-# class RecipientCreateView(SpotAdminRequiredMixin, CreateView):
-#     model = models.ConsultationInstructionRecipient
-#     template_name = 'spot/recipient_form_popout.html'
-#     login_url = '/accounts/login_required/'
-#     form_class = forms.RecipientForm
-#
-#     def get_initial(self):
-#         instruction = models.ConsultationInstruction.objects.get(pk=self.kwargs['instruction'])
-#         member = models.OrganizationMember.objects.get(pk=self.kwargs['member'])
-#         return {
-#             'consultation_instruction': instruction.id,
-#             'member': member.id,
-#             'last_modified_by': self.request.user,
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         instruction = models.ConsultationInstruction.objects.get(id=self.kwargs['instruction'])
-#         member = models.OrganizationMember.objects.get(id=self.kwargs['member'])
-#         context['instruction'] = instruction
-#         context['member'] = member
-#         return context
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         return HttpResponseRedirect(reverse('spot:close_me'))
-#
-#
-# class RecipientUpdateView(SpotAdminRequiredMixin, UpdateView):
-#     model = models.ConsultationInstructionRecipient
-#     template_name = 'spot/recipient_form_popout.html'
-#     form_class = forms.RecipientForm
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         return HttpResponseRedirect(reverse('spot:close_me'))
-#
-#     def get_initial(self):
-#         return {
-#             'last_modified_by': self.request.user,
-#         }
-#
-#
-# def recipient_delete(request, pk):
-#     object = models.ConsultationInstructionRecipient.objects.get(pk=pk)
-#     object.delete()
-#     messages.success(request, "The recipient has been successfully deleted from {}.".format(object.consultation_instruction))
-#     return HttpResponseRedirect(reverse_lazy("spot:instruction_edit", kwargs={"pk": object.consultation_instruction.id}))
-#
-#
-# # REPORTS #
-# ###########
-#
-# class ReportSearchFormView(SpotAccessRequiredMixin, FormView):
-#     template_name = 'spot/report_search.html'
-#     form_class = forms.ReportSearchForm
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         return context
-#
-#     def form_valid(self, form):
-#         report = int(form.cleaned_data["report"])
-#         provinces = str(form.cleaned_data["provinces"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-#         groupings = str(form.cleaned_data["groupings"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-#         sectors = str(form.cleaned_data["sectors"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-#         regions = str(form.cleaned_data["regions"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-#         is_indigenous = int(form.cleaned_data["is_indigenous"])
-#         species = str(form.cleaned_data["species"])
-#
-#         if provinces == "":
-#             provinces = "None"
-#         if groupings == "":
-#             groupings = "None"
-#         if sectors == "":
-#             sectors = "None"
-#         if regions == "":
-#             regions = "None"
-#         if species == "":
-#             species = "None"
-#
-#         if report == 1:
-#             return HttpResponseRedirect(reverse("spot:export_custom_list", kwargs={
-#                 'provinces': provinces,
-#                 'groupings': groupings,
-#                 'sectors': sectors,
-#                 'regions': regions,
-#                 'is_indigenous': is_indigenous,
-#                 'species': species,
-#             }))
-#
-#         else:
-#             messages.error(self.request, "Report is not available. Please select another report.")
-#             return HttpResponseRedirect(reverse("spot:report_search"))
-#
-#
-# def export_custom_list(request, provinces, groupings, sectors, regions, is_indigenous, species):
-#     file_url = reports.generate_custom_list(provinces, groupings, sectors, regions, is_indigenous, species)
-#
-#     if os.path.exists(file_url):
-#         with open(file_url, 'rb') as fh:
-#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-#             response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
-#                 timezone.now().strftime("%Y-%m-%d"))
-#             return response
-#     raise Http404
+class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
+    template_name = 'spot/project_detail.html'
+    model = models.Project
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'path_number',
+            'hsp_id',
+            'organization',
+            'title',
+            'program',
+            'language',
+            'status',
+            'regions',
+            'start_year',
+            'project_length',
+            'date_completed',
+            'eccc_id',
+        ]
+        return context
+
+
+class ProjectUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/organization_form.html'
+    model = models.Project
+    form_class = forms.OrganizationForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_org = form.save()
+        return reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id})
+
+
+class ProjectCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/organization_form.html'
+    model = models.Project
+    form_class = forms.OrganizationForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_org = form.save()
+        return reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id})
+
+
+class ProjectDeleteView(SpotAdminRequiredMixin, DeleteView):
+    template_name = 'spot/organization_confirm_delete.html'
+    model = models.Project
+    success_url = reverse_lazy('spot:org_list')
+    success_message = 'The organization was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
