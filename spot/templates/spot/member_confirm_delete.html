@@ -34,7 +34,7 @@
             <form method="post" class="form">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">Confirm</button>
-                <a class="btn btn-secondary" href="{% url 'spot:org_list' %}">Cancel</a>
+                <a class="btn btn-secondary" href="{% url 'spot:close_me' %}">Cancel</a>
             </form>
         </div>
 
