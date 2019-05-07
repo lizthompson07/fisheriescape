@@ -34,6 +34,8 @@ class ProjectFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search name",
                                             lookup_expr='icontains', widget=forms.TextInput())
     organization = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact')
+    status = django_filters.ChoiceFilter(field_name='status', lookup_expr='exact')
+    program = django_filters.ChoiceFilter(field_name='program', lookup_expr='exact')
     regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())
 
     def __init__(self, *args, **kwargs):
