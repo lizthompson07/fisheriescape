@@ -584,76 +584,54 @@ class ProjectYearDeleteView(SpotAccessRequiredMixin, DeleteView):
 
 # PAYMENT #
 ################
-
-class ProjectYearDetailView(SpotAccessRequiredMixin, DetailView):
-    template_name = 'spot/project_year_detail.html'
-    model = models.ProjectYear
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'annual_funding',
-        ]
-        context["my_payment"] = models.Payment.objects.first()
-        context["payment_field_list"] = [
-            # 'project_year',
-            'claim_number',
-            'disbursement|Total amount',
-            'from_period',
-            'to_period',
-            'final_payment',
-            'materials_submitted',
-            'nhq_notified',
-            'payment_confirmed',
-            'notes',
-        ]
-        return context
-
-
-class ProjectYearUpdateView(SpotAccessRequiredMixin, UpdateView):
-    template_name = 'spot/project_year_form.html'
-    model = models.ProjectYear
-    form_class = forms.ProjectYearForm
+class PaymentUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/payment_form_popout.html'
+    model = models.Payment
+    form_class = forms.PaymentForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:year_detail", kwargs={"pk": my_object.id}))
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
 
-class ProjectYearCreateView(SpotAccessRequiredMixin, CreateView):
-    template_name = 'spot/project_year_form.html'
-    model = models.ProjectYear
-    form_class = forms.ProjectYearForm
+class PaymentCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/payment_form_popout.html'
+    model = models.Payment
+    form_class = forms.PaymentForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_project = models.Project.objects.get(pk=self.kwargs['project'])
-        context['project'] = my_project
+        my_project_year = models.ProjectYear.objects.get(pk=self.kwargs['project_year'])
+        context['project_year'] = my_project_year
         return context
 
     def get_initial(self):
-        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        my_project_year = models.ProjectYear.objects.get(pk=self.kwargs['project_year'])
+        if my_project_year.payments.count() == 0:
+            claim_number = 1
+        else:
+            claim_number = my_project_year.payments.count()+1
         return {
-            'project': my_project,
+            'project_year': my_project_year,
             'last_modified_by': self.request.user,
+            'claim_number': claim_number,
         }
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:year_detail", kwargs={"pk": my_object.id}))
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
 
-class ProjectYearDeleteView(SpotAccessRequiredMixin, DeleteView):
-    template_name = 'spot/project_year_confirm_delete.html'
-    model = models.ProjectYear
-    success_message = 'The project year was deleted successfully!'
+class PaymentDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/payment_confirm_delete.html'
+    model = models.Payment
+    success_message = 'The payment year was deleted successfully!'
 
     def get_success_url(self):
-        my_project = models.ProjectYear.objects.get(pk=self.kwargs['pk']).project
-        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
+        return reverse_lazy('spot:close_me')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

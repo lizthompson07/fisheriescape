@@ -125,6 +125,7 @@ class NewProjectForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
         }
 
+
 class ProjectPersonForm(forms.ModelForm):
     class Meta:
         model = models.ProjectPerson
@@ -139,6 +140,7 @@ class ProjectPersonForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
         }
 
+
 class ProjectYearForm(forms.ModelForm):
     class Meta:
         model = models.ProjectYear
@@ -151,4 +153,33 @@ class ProjectYearForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'project': forms.HiddenInput(),
+        }
+
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = models.Payment
+        fields = [
+            'project_year',
+            'claim_number',
+            'advance_amount',
+            'reimbursement_amount',
+            'from_period',
+            'to_period',
+            'final_payment',
+            'materials_submitted',
+            'nhq_notified',
+            'payment_confirmed',
+            'notes',
+            'last_modified_by',
+        ]
+        widgets = {
+            'project_year': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
+            'to_period': forms.DateInput(attrs={"type":"date"}),
+            'from_period': forms.DateInput(attrs={"type":"date"}),
+            'nhq_notified': forms.DateInput(attrs={"type":"date"}),
+            'notes': forms.Textarea(attrs={"rows":"4"}),
+            'materials_submitted': forms.Select(choices=YES_NO_CHOICES),
+            'payment_confirmed': forms.Select(choices=YES_NO_CHOICES),
         }
