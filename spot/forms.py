@@ -16,6 +16,7 @@ class OrganizationForm(forms.ModelForm):
         model = ml_models.Organization
         fields = [
             'name_eng',
+            'name_fre',
             'abbrev',
             'address',
             'city',
@@ -54,9 +55,6 @@ class MemberForm(forms.ModelForm):
             'organization': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
         }
-        labels = {
-            'role': _("Role"),
-        }
 
 
 class PersonForm(forms.ModelForm):
@@ -74,6 +72,7 @@ class PersonForm(forms.ModelForm):
             "fax",
             "language",
             "notes",
+            "old_id",
         ]
 
         widgets = {
@@ -117,8 +116,9 @@ class NewProjectForm(forms.ModelForm):
             'language',
             'status',
             'start_year',
-            'project_length',
-            'date_completed',
+            'requested_funding_y1',
+            'requested_funding_y2',
+            'requested_funding_y3',
             'last_modified_by',
         ]
         widgets = {

@@ -89,7 +89,11 @@
                 {% url 'spot:project_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
-                        <td>{% get_field_value object field %}</td>
+                        {% if field == "status" %}
+                            <td style="background-color: {{ object.status.color }}">{% get_field_value object field %}</td>
+                        {% else %}
+                            <td>{% get_field_value object field %}</td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}

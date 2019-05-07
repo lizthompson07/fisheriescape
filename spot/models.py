@@ -7,6 +7,8 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+from lib.functions.fiscal_year import fiscal_year
 from shared_models import models as shared_models
 from masterlist import models as ml_models
 
@@ -14,6 +16,7 @@ from masterlist import models as ml_models
 class Status(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+    color = models.CharField(max_length=15, blank=True, null=True)
     old_id = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
@@ -35,12 +38,13 @@ class Program(models.Model):
     abbrev_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation (French)"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+        # # check to see if a french value is given
+        # if getattr(self, str(_("name"))):
+        #     return "{}".format(getattr(self, str(_("name"))))
+        # # if there is no translated term, just pull from the english field
+        # else:
+        #     return "{}".format(self.name)
+        return "{} ({})".format(self.name, self.abbrev_eng)
 
     class Meta:
         ordering = [_('name'), ]
@@ -89,9 +93,10 @@ class Project(models.Model):
     program_reference_number = models.CharField(max_length=50, blank=True, null=True)
     organization = models.ForeignKey(ml_models.Organization, on_delete=models.DO_NOTHING, related_name="projects")
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="projects")
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="projects")
-    regions = models.ManyToManyField(shared_models.Region)
-    start_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, related_name="gc_projects")
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="projects", default=1)
+    regions = models.ManyToManyField(shared_models.Region, default=1)
+    start_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, related_name="gc_projects",
+                                   default=fiscal_year(sap_style=True, next=True))
     project_length = models.IntegerField(blank=True, null=True)
     date_completed = models.DateTimeField(blank=True, null=True)
     old_id = models.IntegerField(blank=True, null=True)
@@ -121,7 +126,8 @@ class Project(models.Model):
     regrets_or_op_letter_sent_date = models.DateTimeField(blank=True, null=True)
 
     ## Negotiations
-    risk_assessment_score = models.ForeignKey(RiskAssessmentScore, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
+    risk_assessment_score = models.ForeignKey(RiskAssessmentScore, on_delete=models.DO_NOTHING, related_name="projects", blank=True,
+                                              null=True)
     negotiations_workplan_completion_date = models.DateTimeField(blank=True, null=True)
     negotiations_financials_completion_date = models.DateTimeField(blank=True, null=True)
     negotiation_letter_sent = models.DateTimeField(blank=True, null=True)
@@ -147,7 +153,9 @@ class Project(models.Model):
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="gc_projects")
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
+                                         related_name="gc_projects")
+    people = models.ManyToManyField(ml_models.Person, through="ProjectPerson", blank=True)
 
     def __str__(self):
         return "{} - {}".format(self.organization.abbrev, self.title_abbrev)
@@ -209,6 +217,31 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
+class Role(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
+class ProjectPerson(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="project_people")
+    person = models.ForeignKey(ml_models.Person, on_delete=models.DO_NOTHING, related_name="project_people")
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="project_people")
+
+    class Meta:
+        unique_together = ['project', 'person', 'role']
+
+
 class ContributionAgreementChecklist(models.Model):
     project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="ca_checklist")
     date_assessed = models.DateTimeField(blank=True, null=True, default=timezone.now)
@@ -267,7 +300,9 @@ class ContributionAgreementChecklist(models.Model):
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="ca_checklist_last_mods")
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
+                                         related_name="ca_checklist_last_mods")
+
 
 class ExpressionOfInterest(models.Model):
     project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="eois")
@@ -278,8 +313,9 @@ class ExpressionOfInterest(models.Model):
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
+
 class ProjectYear(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="projects", verbose_name=_("project language"))
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="years", verbose_name=_("project language"))
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, related_name="gc_project_years")
     expenditure_initiation_date = models.DateTimeField(blank=True, null=True, default=datetime.datetime(timezone.now().year, 4, 1))
     paye_number = models.CharField(max_length=50, blank=True, null=True)
@@ -296,6 +332,17 @@ class ProjectYear(models.Model):
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def __str__(self):
+        return "FY {}".format(self.fiscal_year)
+
+    class Meta:
+        unique_together = ['project', 'fiscal_year']
+
+    @property
+    def payments_issued(self):
+        return sum([p.disbursement for p in self.payments.all()])
+
 
 class ReportType(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
@@ -396,7 +443,9 @@ class ReportChecklist(models.Model):
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="report_checklist_mods")
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
+                                         related_name="report_checklist_mods")
+
 
 class SiteVisit(models.Model):
     project_year = models.OneToOneField(ProjectYear, on_delete=models.DO_NOTHING, related_name="site_visits")
@@ -451,6 +500,7 @@ class SiteVisit(models.Model):
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
 
 class RestorationTypeCategory(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
