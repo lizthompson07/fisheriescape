@@ -41,9 +41,6 @@
 
         <div class="row">
             <div class="col-3">
-                <h3>
-                    Summary:
-                </h3>
 
                 {% for field in field_list %}
                     {% verbose_field_display object field %}
@@ -53,6 +50,7 @@
             </div>
             <div class="col">
                 {% include "spot/_project_years.html" %}
+                {% include "spot/_project_people.html" %}
 {#                {% include "spot/_instructions.html" %}#}
             </div>
         </div>

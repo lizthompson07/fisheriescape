@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from lib.functions.custom_functions import truncate
 from lib.functions.fiscal_year import fiscal_year
 from shared_models import models as shared_models
 from masterlist import models as ml_models
@@ -158,7 +159,11 @@ class Project(models.Model):
     people = models.ManyToManyField(ml_models.Person, through="ProjectPerson", blank=True)
 
     def __str__(self):
-        return "{} - {}".format(self.organization.abbrev, self.title_abbrev)
+        return "{} ({})".format(truncate(self.title, 50), self.organization.abbrev)
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
 
     @property
     def total_requested_funding(self):
@@ -221,6 +226,7 @@ class Role(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
+
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
@@ -238,9 +244,17 @@ class ProjectPerson(models.Model):
     person = models.ForeignKey(ml_models.Person, on_delete=models.DO_NOTHING, related_name="project_people")
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="project_people")
 
+    # meta
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
     class Meta:
         unique_together = ['project', 'person', 'role']
-
+        ordering = ['project', 'role', 'person']
 
 class ContributionAgreementChecklist(models.Model):
     project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="ca_checklist")
@@ -303,6 +317,10 @@ class ContributionAgreementChecklist(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="ca_checklist_last_mods")
 
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
 
 class ExpressionOfInterest(models.Model):
     project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="eois")
@@ -312,6 +330,10 @@ class ExpressionOfInterest(models.Model):
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
 
 
 class ProjectYear(models.Model):
@@ -335,6 +357,10 @@ class ProjectYear(models.Model):
 
     def __str__(self):
         return "FY {}".format(self.fiscal_year)
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
 
     class Meta:
         unique_together = ['project', 'fiscal_year']
@@ -373,6 +399,10 @@ class Report(models.Model):
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
 
 
 class ReportChecklist(models.Model):
@@ -446,6 +476,10 @@ class ReportChecklist(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="report_checklist_mods")
 
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
 
 class SiteVisit(models.Model):
     project_year = models.OneToOneField(ProjectYear, on_delete=models.DO_NOTHING, related_name="site_visits")
@@ -500,6 +534,10 @@ class SiteVisit(models.Model):
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
 
 
 class RestorationTypeCategory(models.Model):
@@ -626,6 +664,10 @@ class Payment(models.Model):
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
 
     class Meta:
         unique_together = ['project_year', 'claim_number']

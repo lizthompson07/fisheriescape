@@ -5,19 +5,15 @@
 
 <div class="">
     <h3>
-        {% trans "Project years:" %}
+        {% trans "Select a project year:" %}
     </h3>
 </div>
-<a class="" href="#" pop-href="#">
-    {% trans "(Add a year)" %}
-</a>
 
-{% if object.years == 0 %}
+{% if object.years.count == 0 %}
     <em>
         {% trans "No project years have been created" %}
     </em><br>
 {% else %}
-    <br><br>
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th style="width: 100px">
@@ -39,7 +35,7 @@
         </tr>
         <tbody>
         {% for obj in object.years.all %}
-            <tr href="#" pop>
+            <tr href="#" pop data-toggle="tooltip" title="click to edit this project year">
                 <td>
                     {{ obj.fiscal_year }}
                 </td>
@@ -61,7 +57,10 @@
         {% endfor %}
         </tbody>
     </table>
+
+
 {% endif %}
-<br>
-<br>
-<br>
+    <a class="" href="#" pop-href="#">
+        {% trans "(Add a year)" %}
+    </a>
+<br><br>
