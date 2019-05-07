@@ -39,6 +39,19 @@ urlpatterns = [
     path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
 
+    # PROJECT PERSON #
+    ##################
+    path('project/<int:project>/person/new/', views.ProjectPersonCreateView.as_view(), name="project_person_new"),
+    path('project-person/<int:pk>/edit/', views.ProjectPersonUpdateView.as_view(), name="project_person_edit"),
+    path('project-person/<int:pk>/delete/', views.ProjectPersonDeleteView.as_view(), name="project_person_delete"),
+
+    # PROJECT YEAR #
+    ################
+    path('project/<int:project>/year/new/', views.ProjectYearCreateView.as_view(), name="year_new"),
+    path('project-year/<int:pk>/view/', views.ProjectYearDetailView.as_view(), name="year_detail"),
+    path('project-year/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),
+    path('project-year/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),
+
     #
     # # Reports #
     # ###########

@@ -86,6 +86,7 @@ class OrganizationListView(SpotAccessRequiredMixin, FilterView):
         ]
         return context
 
+
 #
 class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
     template_name = 'spot/organization_detail.html'
@@ -281,7 +282,8 @@ class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
         }
 
     def get_success_url(self, *args, **kwargs):
-        return reverse_lazy("spot:person_detail", kwargs={"pk":self.kwargs["pk"]})
+        return reverse_lazy("spot:person_detail", kwargs={"pk": self.kwargs["pk"]})
+
 
 class PersonUpdateViewPopout(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/person_form_popout.html'
@@ -297,6 +299,7 @@ class PersonUpdateViewPopout(SpotAccessRequiredMixin, UpdateView):
             'last_modified_by': self.request.user,
         }
 
+
 class PersonCreateView(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/person_form.html'
     model = ml_models.Person
@@ -307,7 +310,8 @@ class PersonCreateView(SpotAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_person = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:person_detail", kwargs={"pk":my_person.id}))
+        return HttpResponseRedirect(reverse_lazy("spot:person_detail", kwargs={"pk": my_person.id}))
+
 
 class PersonCreateViewPopout(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/person_form_popout.html'
@@ -333,8 +337,6 @@ class PersonDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-
-
 # PROJECT #
 ###########
 
@@ -343,7 +345,7 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
     filterset_class = filters.ProjectFilter
     model = models.Project
     queryset = models.Project.objects.annotate(
-        search_term=Concat('title', 'title_abbrev', output_field=TextField()))
+        search_term=Concat('id', 'title', 'title_abbrev', 'program_reference_number', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -360,6 +362,7 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
             'regions',
         ]
         return context
+
 
 #
 class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
@@ -422,3 +425,143 @@ class ProjectDeleteView(SpotAdminRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+# PROJECT PERSON #
+##################
+class ProjectPersonCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.ProjectPerson
+    template_name = 'spot/project_person_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.ProjectPersonForm
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+
+        # get a list of people
+        person_list = [
+            '<a href="#" class="person_insert" code={id}>{first} {last}</a>'.format(
+                id=p.id, first=p.first_name, last=p.last_name
+            ) for p in ml_models.Person.objects.all()
+        ]
+
+        context['person_list'] = person_list
+
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+
+class ProjectPersonUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.ProjectPerson
+    template_name = 'spot/project_person_form_popout.html'
+    form_class = forms.ProjectPersonForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get a list of people
+        person_list = [
+            '<a href="#" class="person_insert" code={id}>{first} {last}</a>'.format(
+                id=p.id, first=p.first_name, last=p.last_name
+            ) for p in ml_models.Person.objects.all()
+        ]
+
+        context['person_list'] = person_list
+
+        return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class ProjectPersonDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/project_person_confirm_delete.html'
+    model = models.ProjectPerson
+    success_url = reverse_lazy('spot:close_me')
+    success_message = 'This contact was successfully removed!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# PROJECT YEAR #
+################
+
+class ProjectYearDetailView(SpotAccessRequiredMixin, DetailView):
+    template_name = 'spot/project_detail.html'
+    model = models.Project
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'path_number',
+            'program_reference_number',
+            'organization',
+            'title',
+            'program',
+            'language',
+            'status',
+            'regions',
+            'start_year',
+            'project_length',
+            'date_completed',
+            'eccc_id',
+        ]
+        return context
+
+
+class ProjectYearUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/project_form.html'
+    model = models.Project
+    form_class = forms.ProjectForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_project = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
+
+
+class ProjectYearCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/project_form.html'
+    model = models.Project
+    form_class = forms.NewProjectForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_project = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
+
+
+class ProjectYearDeleteView(SpotAdminRequiredMixin, DeleteView):
+    template_name = 'spot/organization_confirm_delete.html'
+    model = models.Project
+    success_url = reverse_lazy('spot:org_list')
+    success_message = 'The organization was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
