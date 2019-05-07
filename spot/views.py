@@ -416,10 +416,10 @@ class ProjectCreateView(SpotAccessRequiredMixin, CreateView):
 
 
 class ProjectDeleteView(SpotAdminRequiredMixin, DeleteView):
-    template_name = 'spot/organization_confirm_delete.html'
+    template_name = 'spot/project_confirm_delete.html'
     model = models.Project
-    success_url = reverse_lazy('spot:org_list')
-    success_message = 'The organization was deleted successfully!'
+    success_url = reverse_lazy('spot:project_list')
+    success_message = 'The project was deleted successfully!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -507,60 +507,153 @@ class ProjectPersonDeleteView(SpotAccessRequiredMixin, DeleteView):
 ################
 
 class ProjectYearDetailView(SpotAccessRequiredMixin, DetailView):
-    template_name = 'spot/project_detail.html'
-    model = models.Project
+    template_name = 'spot/project_year_detail.html'
+    model = models.ProjectYear
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'id',
-            'path_number',
-            'program_reference_number',
-            'organization',
-            'title',
-            'program',
-            'language',
-            'status',
-            'regions',
-            'start_year',
-            'project_length',
-            'date_completed',
-            'eccc_id',
+            'annual_funding',
+        ]
+        context["my_payment"] = models.Payment.objects.first()
+        context["payment_field_list"] = [
+            # 'project_year',
+            'claim_number',
+            'disbursement|Total amount',
+            'from_period',
+            'to_period',
+            'final_payment',
+            'materials_submitted',
+            'nhq_notified',
+            'payment_confirmed',
+            'notes',
         ]
         return context
 
 
 class ProjectYearUpdateView(SpotAccessRequiredMixin, UpdateView):
-    template_name = 'spot/project_form.html'
-    model = models.Project
-    form_class = forms.ProjectForm
+    template_name = 'spot/project_year_form.html'
+    model = models.ProjectYear
+    form_class = forms.ProjectYearForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
     def form_valid(self, form):
-        my_project = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:year_detail", kwargs={"pk": my_object.id}))
 
 
 class ProjectYearCreateView(SpotAccessRequiredMixin, CreateView):
-    template_name = 'spot/project_form.html'
-    model = models.Project
-    form_class = forms.NewProjectForm
+    template_name = 'spot/project_year_form.html'
+    model = models.ProjectYear
+    form_class = forms.ProjectYearForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:year_detail", kwargs={"pk": my_object.id}))
+
+
+class ProjectYearDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/project_year_confirm_delete.html'
+    model = models.ProjectYear
+    success_message = 'The project year was deleted successfully!'
+
+    def get_success_url(self):
+        my_project = models.ProjectYear.objects.get(pk=self.kwargs['pk']).project
+        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+
+# PAYMENT #
+################
+
+class ProjectYearDetailView(SpotAccessRequiredMixin, DetailView):
+    template_name = 'spot/project_year_detail.html'
+    model = models.ProjectYear
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'annual_funding',
+        ]
+        context["my_payment"] = models.Payment.objects.first()
+        context["payment_field_list"] = [
+            # 'project_year',
+            'claim_number',
+            'disbursement|Total amount',
+            'from_period',
+            'to_period',
+            'final_payment',
+            'materials_submitted',
+            'nhq_notified',
+            'payment_confirmed',
+            'notes',
+        ]
+        return context
+
+
+class ProjectYearUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/project_year_form.html'
+    model = models.ProjectYear
+    form_class = forms.ProjectYearForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
     def form_valid(self, form):
-        my_project = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:year_detail", kwargs={"pk": my_object.id}))
 
 
-class ProjectYearDeleteView(SpotAdminRequiredMixin, DeleteView):
-    template_name = 'spot/organization_confirm_delete.html'
-    model = models.Project
-    success_url = reverse_lazy('spot:org_list')
-    success_message = 'The organization was deleted successfully!'
+class ProjectYearCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/project_year_form.html'
+    model = models.ProjectYear
+    form_class = forms.ProjectYearForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:year_detail", kwargs={"pk": my_object.id}))
+
+
+class ProjectYearDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/project_year_confirm_delete.html'
+    model = models.ProjectYear
+    success_message = 'The project year was deleted successfully!'
+
+    def get_success_url(self):
+        my_project = models.ProjectYear.objects.get(pk=self.kwargs['pk']).project
+        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

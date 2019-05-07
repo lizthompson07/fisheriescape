@@ -165,6 +165,9 @@ class Project(models.Model):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ["-start_year", "program"]
+
     @property
     def total_requested_funding(self):
         return sum([
@@ -364,6 +367,7 @@ class ProjectYear(models.Model):
 
     class Meta:
         unique_together = ['project', 'fiscal_year']
+        ordering = ["project","fiscal_year"]
 
     @property
     def payments_issued(self):
@@ -657,7 +661,7 @@ class Payment(models.Model):
     to_period = models.DateTimeField(blank=True, null=True)
     final_payment = models.NullBooleanField()
     materials_submitted = models.BooleanField(default=False)
-    nhq_notified = models.DateTimeField(blank=True, null=True)
+    nhq_notified = models.DateTimeField(blank=True, null=True, verbose_name=_("NHQ notified"))
     payment_confirmed = models.BooleanField(default=False)
     notes = models.TextField(blank=True, null=True)
 

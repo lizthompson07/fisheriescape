@@ -138,3 +138,17 @@ class ProjectPersonForm(forms.ModelForm):
             'project': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
         }
+
+class ProjectYearForm(forms.ModelForm):
+    class Meta:
+        model = models.ProjectYear
+        fields = [
+            'fiscal_year',
+            'project',
+            'annual_funding',
+            'last_modified_by',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'project': forms.HiddenInput(),
+        }

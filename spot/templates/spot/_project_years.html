@@ -35,7 +35,7 @@
         </tr>
         <tbody>
         {% for obj in object.years.all %}
-            <tr href="#" pop data-toggle="tooltip" title="click to edit this project year">
+            <tr href="{% url 'spot:year_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project year">
                 <td>
                     {{ obj.fiscal_year }}
                 </td>
@@ -51,8 +51,6 @@
                 <td>
                     {{ obj.year_complete|yesno }}
                 </td>
-
-
             </tr>
         {% endfor %}
         </tbody>
@@ -60,7 +58,7 @@
 
 
 {% endif %}
-    <a class="" href="#" pop-href="#">
+    <a class="" href="{% url 'spot:year_new' object.id  %}">
         {% trans "(Add a year)" %}
     </a>
 <br><br>
