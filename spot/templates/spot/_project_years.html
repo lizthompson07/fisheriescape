@@ -1,0 +1,67 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h3>
+        {% trans "Project years:" %}
+    </h3>
+</div>
+<a class="" href="#" pop-href="#">
+    {% trans "(Add a year)" %}
+</a>
+
+{% if object.years == 0 %}
+    <em>
+        {% trans "No project years have been created" %}
+    </em><br>
+{% else %}
+    <br><br>
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th style="width: 100px">
+                {% trans "Year" %}
+            </th>
+            <th>
+                {% trans "Funding" %}
+            </th>
+            <th>
+                {% trans "Payments issued" %}
+            </th>
+            <th>
+                {% trans "Open balance" %}
+            </th>
+            <th>
+                {% trans "Year completed?" %}
+            </th>
+
+        </tr>
+        <tbody>
+        {% for obj in object.years.all %}
+            <tr href="#" pop>
+                <td>
+                    {{ obj.fiscal_year }}
+                </td>
+                <td>
+                    {{ obj.annual_funding|currency:True }}
+                </td>
+                <td>
+                    {{ obj.payments_issued|currency:True }}
+                </td>
+                <td>
+                    {{ obj.annual_funding|subtract:obj.payments_issued|currency:True }}
+                </td>
+                <td>
+                    {{ obj.year_complete|yesno }}
+                </td>
+
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+<br>
+<br>

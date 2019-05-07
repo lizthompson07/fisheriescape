@@ -128,14 +128,14 @@ class Person(models.Model):
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
     language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-    organizations = models.ManyToManyField(Organization, through="OrganizationMember", verbose_name=_("membership"))
+    organizations = models.ManyToManyField(Organization, through="OrganizationMember", verbose_name=_("membership"), blank=True)
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="masterlist_person_last_modified_by")
 
     old_id = models.IntegerField(blank=True, null=True)
-
+    connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -205,9 +205,9 @@ class Role(models.Model):
 class OrganizationMember(models.Model):
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="memberships")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="members", blank=True, null=True, verbose_name=_("G&C role"))
-    notes = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("notes"))
-    old_notes = models.TextField(blank=True, null=True)
+    # role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="members", blank=True, null=True, verbose_name=_("G&C role"))
+    role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
+    notes = models.TextField(blank=True, null=True)
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))

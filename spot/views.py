@@ -72,7 +72,7 @@ class OrganizationListView(SpotAccessRequiredMixin, FilterView):
     filterset_class = filters.OrganizationFilter
     model = ml_models.Organization
     queryset = ml_models.Organization.objects.annotate(
-        search_term=Concat('name_eng', 'name_fre', 'abbrev', output_field=TextField()))
+        search_term=Concat('name_eng', 'name_fre', 'abbrev', 'id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -123,7 +123,7 @@ class OrganizationUpdateView(SpotAccessRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_org = form.save()
-        return reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id})
+        return HttpResponseRedirect(reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id}))
 
 
 class OrganizationCreateView(SpotAccessRequiredMixin, CreateView):
@@ -136,10 +136,10 @@ class OrganizationCreateView(SpotAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_org = form.save()
-        return reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id})
+        return HttpResponseRedirect(reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id}))
 
 
-class OrganizationDeleteView(SpotAdminRequiredMixin, DeleteView):
+class OrganizationDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/organization_confirm_delete.html'
     model = ml_models.Organization
     success_url = reverse_lazy('spot:org_list')
@@ -235,7 +235,7 @@ class PersonListView(SpotAccessRequiredMixin, FilterView):
     filterset_class = filters.PersonFilter
     model = ml_models.Person
     queryset = ml_models.Person.objects.annotate(
-        search_term=Concat('first_name', 'last_name', 'notes', output_field=TextField()))
+        search_term=Concat('first_name', 'last_name', 'notes', 'id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -307,7 +307,7 @@ class PersonCreateView(SpotAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_person = form.save()
-        return reverse_lazy("spot:person_detail", kwargs={"pk":my_person.id})
+        return HttpResponseRedirect(reverse_lazy("spot:person_detail", kwargs={"pk":my_person.id}))
 
 class PersonCreateViewPopout(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/person_form_popout.html'
@@ -322,7 +322,7 @@ class PersonCreateViewPopout(SpotAccessRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-class PersonDeleteView(SpotAdminRequiredMixin, DeleteView):
+class PersonDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/person_confirm_delete.html'
     model = ml_models.Person
     success_url = reverse_lazy('spot:person_list')
@@ -389,27 +389,27 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
 class ProjectUpdateView(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/project_form.html'
     model = models.Project
-    form_class = forms.OrganizationForm
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
-
-    def form_valid(self, form):
-        my_org = form.save()
-        return reverse_lazy("spot:org_detail", kwargs={"pk": my_org.id})
-
-
-class ProjectCreateView(SpotAccessRequiredMixin, CreateView):
-    template_name = 'spot/project_form.html'
-    model = models.Project
     form_class = forms.ProjectForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
     def form_valid(self, form):
-        my_org = form.save()
-        return reverse_lazy("spot:project_detail", kwargs={"pk": my_org.id})
+        my_project = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
+
+
+class ProjectCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/project_form.html'
+    model = models.Project
+    form_class = forms.NewProjectForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_project = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
 
 
 class ProjectDeleteView(SpotAdminRequiredMixin, DeleteView):

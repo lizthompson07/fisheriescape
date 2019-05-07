@@ -10,6 +10,9 @@
         .ms-container {
             width: 100%;
         }
+    label{
+        font-weight: bold;
+    }
     </style>
 
     <nav aria-label="breadcrumb">
@@ -39,8 +42,9 @@
 
         <form method="post" class="form">
             {% csrf_token %}
-
-            {% bootstrap_form form %}
+            {% for field in form %}
+                {% bootstrap_field field placeholder="" %}
+            {% endfor %}
 
             {% buttons %}
                 {% if object %}
@@ -59,7 +63,7 @@
     <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
     <script type="application/javascript">
         {#$("#id_grouping").multiSelect()#}
-        {#$("#id_regions").multiSelect()#}
+        $("#id_regions").multiSelect()
         {#$("#id_sectors").multiSelect()#}
     </script>
 
