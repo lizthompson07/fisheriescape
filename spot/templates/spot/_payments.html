@@ -25,7 +25,7 @@
         </tr>
         <tbody>
         {% for obj in object.payments.all %}
-            <tr href="#" data-toggle="tooltip" title="click to edit this payment">
+            <tr href="{% url 'spot:payment_edit' obj.id  %}" pop data-toggle="tooltip" title="click to edit this payment">
                 {% for field in payment_field_list %}
                     <td>
                         {% if field == "disbursement|Total amount" %}
@@ -42,7 +42,7 @@
 
 
 {% endif %}
-<a class="" href="{% url 'spot:payment_new' object.id %}">
+<a class="" href="#" pop-href="{% url 'spot:payment_new' object.id %}">
     {% trans "(New payment)" %}
 </a>
 <br><br>
