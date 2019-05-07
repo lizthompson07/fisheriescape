@@ -8,4 +8,11 @@ def listrify(iterable):
         return str([str(i) for i in iterable]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
 
 
-
+def truncate(my_str, max_length):
+    """
+    This function takes a string an will return a string with a max length of var max_length
+    """
+    if len(my_str) > max_length:
+        return "{}...".format(my_str[:max_length])
+    else:
+        return my_str
