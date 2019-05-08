@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.template.defaultfilters import yesno
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from . import models
 import numpy as np
 
@@ -269,6 +269,7 @@ def generate_hlog(year):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="hlog{}.csv"'.format(year)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
     # these files have no headers so we jump straight into the date

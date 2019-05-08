@@ -19,7 +19,7 @@ from . import models
 from . import forms
 from . import filters
 from . import reports
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from django.utils.encoding import smart_str
 
 

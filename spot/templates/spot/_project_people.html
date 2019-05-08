@@ -1,0 +1,49 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h4>
+        {% trans "People:" %}
+    </h4>
+</div>
+
+{% if object.project_people.count == 0 %}
+    <em>
+        {% trans "No people have been added to this project" %}
+    </em><br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "Role" %}
+            </th>
+
+            <th>
+                {% trans "Name" %}
+            </th>
+
+        </tr>
+        <tbody>
+        {% for obj in object.project_people.all %}
+            <tr href="{% url 'spot:project_person_edit' obj.id %}" pop data-toggle="tooltip" title="click to edit this contact">
+                <td>
+                    {{ obj.role }}
+                </td>
+                <td>
+                    {{ obj.person }}
+                </td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<a class="" href="#" pop-href="{% url 'spot:project_person_new' object.id %}">
+    {% trans "(Add a person)" %}
+</a>
+
+<br>
+<br>
+<br>

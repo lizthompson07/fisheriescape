@@ -386,3 +386,17 @@ class Port(models.Model):
         unique_together = ['province_code','district_code','port_code']
 
 
+class Language(models.Model):
+    name = models.CharField(max_length=25)
+    nom = models.CharField(max_length=25)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
