@@ -46,20 +46,6 @@
                 <br><br>
                 <div class="btn-group-vertical" style="width: 75%">
 
-
-                    <a class="btn btn-outline-dark under-dev {% if object.fiscal_year != object.project.start_year %}disabled{% endif %}"
-                       href="#">
-                        {% trans "Initiation" %}
-                    </a>
-
-                    <a class="btn btn-outline-dark under-dev {% if object.fiscal_year != object.project.start_year %}disabled{% endif %}"
-                       href="#">
-                        {% trans "Project Review" %}
-                    </a>
-                    <a class="btn btn-outline-dark under-dev {% if object.fiscal_year != object.project.start_year %}disabled{% endif %}"
-                       href="#">
-                        {% trans "CA Administration" %}
-                    </a>
                     <a class="btn btn-outline-dark under-dev {% if object.fiscal_year == object.project.start_year %}disabled{% endif %}"
                        href="#">
                         {% trans "MY Update" %}
