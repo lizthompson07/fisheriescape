@@ -1,6 +1,7 @@
 {% extends "ihub/ihub_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load i18n %}
 {% block header %}
     <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen" type="text/css">
 {% endblock %}
@@ -14,25 +15,33 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'ihub:org_list' %}">Organizations</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:org_list' %}">
+                {% trans "Organizations" %}
+            </a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'ihub:org_detail' object.id %}">{{ object }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% trans "Edit" %}
+                </li>
             {% else %}
-                <li class="breadcrumb-item active" aria-current="page">New</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% trans "New" %}
+                </li>
             {% endif %}
         </ol>
     </nav>
 
     <div class="container">
-
-        {% if object %}
-            <h1>{{ object }}</h1>
-        {% else %}
-            New Organization
-        {% endif %}
-
+        <h1>
+            {% if object %}
+                {{ object }}
+            {% else %}
+                {% trans "New Organization" %}
+            {% endif %}
+        </h1>
         <br><br>
 
         <form method="post" class="form">
@@ -42,11 +51,19 @@
 
             {% buttons %}
                 {% if object %}
-                    <button type="submit" class="btn btn-success">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'ihub:org_detail' object.id %}">Cancel</a>
+                    <button type="submit" class="btn btn-success">
+                        {% trans "Submit" %}
+                    </button>
+                    <a class="btn btn-secondary" href="{% url 'ihub:org_detail' object.id %}">
+                        {% trans "Cancel" %}
+                    </a>
                 {% else %}
-                    <button type="submit" class="btn btn-success">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'ihub:org_list' %}">Cancel</a>
+                    <button type="submit" class="btn btn-success">
+                        {% trans "Add" %}
+                    </button>
+                    <a class="btn btn-secondary" href="{% url 'ihub:org_list' %}">
+                        {% trans "Cancel" %}
+                    </a>
                 {% endif %}
 
 

@@ -1,8 +1,11 @@
 {% extends "ihub/ihub_base.html" %}
 {% load static %}
+{% load i18n %}
 {% load bootstrap4 %}
 
-{% block title %}iHub reports{% endblock title %}
+{% block title %}
+    {% trans "iHub reports" %}
+{% endblock title %}
 
 {% block content %}
 
@@ -45,7 +48,9 @@
     {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
     <div class="container">
         <div class="jumbotron">
-            <h1>Please enter the Report Details:</h1>
+            <h1>
+                {% trans "Please enter the Report Details:" %}
+            </h1>
         </div>
     </div>
 

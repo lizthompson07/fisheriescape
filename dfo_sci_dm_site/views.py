@@ -42,6 +42,8 @@ def get_app_dict(request):
             "access": "open",
             "url": inventory_url,
             "icon_path": 'img/icons/research.svg',
+            "region": "all",
+
         }
     except NoReverseMatch:
         pass
@@ -53,8 +55,9 @@ def get_app_dict(request):
                 "description": _("Submit and track data management service requests."),
                 "status": "production",
                 "access": "open",
-                "url": reverse('tickets:list'),
+                "url": reverse('tickets:router'),
                 "icon_path": 'img/icons/tickets.svg',
+                "region": "all",
             }
         except NoReverseMatch:
             pass
@@ -67,6 +70,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('grais:index'),
             "icon_path": 'img/icons/starfish.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -79,6 +83,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('herring:index'),
             "icon_path": 'img/icons/fish.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -91,6 +96,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('ihub:index'),
             "icon_path": 'img/icons/network.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -103,6 +109,7 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('camp:index'),
             "icon_path": 'img/icons/coral.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -115,6 +122,7 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('projects:index'),
             "icon_path": 'img/icons/scope.svg',
+            "region": "all",
         }
     except NoReverseMatch:
         pass
@@ -127,6 +135,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('scifi:index'),
             "icon_path": 'img/icons/stats.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -139,6 +148,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('masterlist:index'),
             "icon_path": 'img/icons/connection.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -151,6 +161,7 @@ def get_app_dict(request):
             "access": "open",
             "url": reverse('crab:index'),
             "icon_path": 'img/icons/crab.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -163,6 +174,7 @@ def get_app_dict(request):
             "access": "open",
             "url": reverse('oceanography:index'),
             "icon_path": 'img/icons/boat.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -171,10 +183,11 @@ def get_app_dict(request):
         app_dict["diets"] = {
             "title": _("Marine Diets"),
             "description": _("Stomach contents analysis database / application."),
-            "status": "dev",
+            "status": "beta",
             "access": "permission-required",
             "url": reverse('diets:index'),
             "icon_path": 'img/icons/fork.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -183,10 +196,11 @@ def get_app_dict(request):
         app_dict["shares"] = {
             "title": _("Gulf Shares"),
             "description": _("Administrative tool for managing gulf region shares."),
-            "status": "dev",
+            "status": "production",
             "access": "permission-required",
             "url": reverse('shares:index'),
             "icon_path": 'img/icons/database.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
@@ -195,52 +209,43 @@ def get_app_dict(request):
         app_dict["travel"] = {
             "title": _("Travel Plans"),
             "description": _("Gulf region travel plans management tool."),
-            "status": "dev",
+            "status": "beta",
             "access": "permission-required",
             "url": reverse('travel:index'),
             "icon_path": 'img/icons/paper-plane.svg',
+            "region": "gulf",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["spot"] = {
+            "title": _("Grants & Contributions"),
+            "description": _("Gulf Region application for the tracking of Gs & Cs."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('spot:index'),
+            "icon_path": 'img/icons/agreement.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
 
     try:
         app_dict["ios2"] = {
-            "title": _("Instruments"),
-            "description": _("instruments."),
+            "title": _("ios instrument"),
+            "description": _("Gulf Region application for the tracking of Gs & Cs."),
             "status": "dev",
             "access": "permission-required",
             "url": reverse('ios2:index'),
-            "icon_path": 'img/icons/paper-plane.svg',
+            "icon_path": 'img/icons/agreement.svg',
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
-
-    try:
-        app_dict["ios3"] = {
-            "title": _("CTDRosette"),
-            "description": _("CTDRosettes"),
-            "status": "dev",
-            "access": "permission-required",
-            "url": reverse('ios3:index'),
-            "icon_path": 'img/icons/paper-plane.svg',
-        }
-    except NoReverseMatch:
-        pass
-
-    # try:
-    #     app_dict["meq"] = {
-    #         "title": _("MEQ"),
-    #         "description": _("Marine Environmental Quality (MEQ) database."),
-    #         "status": "dev",
-    #         "access": "open",
-    #         "url": "#"
-    #     }
-    # except NoReverseMatch:
-    #     pass
-
-
 
     return OrderedDict(app_dict)
+
 
 
 class IndexView(TemplateView):
@@ -248,5 +253,17 @@ class IndexView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["app_dict"] = get_app_dict(self.request)
+        app_odict = get_app_dict(self.request)
+        app_dict_shared = OrderedDict()
+        app_dict_gulf = OrderedDict()
+        for key in app_odict:
+            if app_odict[key]["region"] == "all":
+                app_dict_shared[key] = app_odict[key]
+
+            if app_odict[key]["region"] == "gulf":
+                app_dict_gulf[key] = app_odict[key]
+
+
+        context["app_dict_shared"] = app_dict_shared
+        context["app_dict_gulf"] = app_dict_gulf
         return context

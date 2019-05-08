@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.template.defaultfilters import yesno
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from . import models
 import numpy as np
 

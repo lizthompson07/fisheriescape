@@ -17,8 +17,12 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'ihub:org_list' %}">Organizations</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ihub:org_list' %}">
+                {% trans "Organizations" %}
+            </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -45,7 +49,7 @@
         <div class="row">
             <div class="col-3">
                 <h3>
-                    Organization Detail:
+                    {% trans "Organization Detail:" %}
                 </h3>
 
                 {% for field in field_list %}
@@ -54,7 +58,7 @@
                 <br>
 
                 <h3>
-                    Extended Detail:
+                    {% trans "Extended Detail:" %}
                 </h3>
 
                 {% for field in field_list_2 %}

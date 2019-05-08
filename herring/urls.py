@@ -22,7 +22,7 @@ urlpatterns = [
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name ="sample_edit"),
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name ="sample_delete"),
     path('samples/<int:pk>/edit-fish-<str:type>/', views.SamplePopoutUpdateView.as_view(), name ="sample_edit_pop"),
-
+    path('samples/go-to-next/from-sample/<int:sample>', views.move_sample_next, name ="move_sample_next"),
 
     # Length Frequency #
     ####################
