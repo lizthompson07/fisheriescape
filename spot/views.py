@@ -414,6 +414,13 @@ class ProjectCreateView(SpotAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_project = form.save()
+
+        # add a project year
+        my_start_year = models.ProjectYear.objects.create(
+            project=my_project,
+            fiscal_year=my_project.start_year,
+        )
+        my_start_year.save()
         return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
 
 
@@ -641,6 +648,30 @@ class ProjectYearDeleteView(SpotAccessRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/tracking_form_popout.html'
+
+    def get_queryset(self, *args, **kwargs):
+        if self.kwargs["step"] == "initiation" or self.kwargs["step"] == "review":
+            return models.Project.objects.all()
+        else:
+            return models.ProjectYear.objects.all()
+
+    def get_form_class(self, *args, **kwargs):
+        if self.kwargs["step"] == "initiation":
+            return forms.InitiationForm
+        elif self.kwargs["step"] == "review":
+            return forms.ProjectReviewForm
+        else:
+            return forms.ProjectYearForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
 
 # PAYMENT #
