@@ -189,6 +189,9 @@ class Project(models.Model):
         """ this will be the max of negotiations_workplan_completion_date and negotiations_financials_completion_date"""
         return max(self.negotiations_workplan_completion_date, self.negotiations_financials_completion_date)
 
+    @property
+    def end_year(self):
+        return self.years.order_by("fiscal_year").last().fiscal_year.full
 
 @receiver(models.signals.post_delete, sender=Project)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
