@@ -3,7 +3,7 @@ from django.conf import settings
 from django.template.defaultfilters import yesno
 
 from shared_models import models as shared_models
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
 import os

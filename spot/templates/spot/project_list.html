@@ -3,7 +3,7 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load el_pagination_tags %}
-
+{% load i18n %}
 {% block content %}
 
     <style>
@@ -21,7 +21,6 @@
             font-weight: bold;
         }
     </style>
-
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
@@ -78,6 +77,9 @@
                         <th scope="col">{% get_verbose_label my_object field %}</th>
                     {% endif %}
                 {% endfor %}
+                <th scope="col" style="width: 100px">
+                    {% trans "Project length (years)" %}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -91,11 +93,13 @@
                             <td>{% get_field_value object field %}</td>
                         {% endif %}
                     {% endfor %}
+                    <td>{{object.years.count}}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
+
 
 
 
