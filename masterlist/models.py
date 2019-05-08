@@ -39,16 +39,84 @@ class Grouping(models.Model):
         ordering = ['name', ]
 
 
+
+
+class Organization(models.Model):
+    name_eng = models.CharField(max_length=1000, verbose_name=_("english name"))
+    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
+    name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
+    abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
+    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
+    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
+    postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
+    dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("DFO contact instructions"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+    key_species = models.TextField(blank=True, null=True, verbose_name=_("key species"))
+    grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"), blank=True)
+    regions = models.ManyToManyField(shared_models.Region, verbose_name=_("region"), blank=True)
+    sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
+
+    # ihub only
+    website = models.URLField(blank=True, null=True, verbose_name=_("website (iHub only)"))
+    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election (iHub only)"))
+    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term (iHub only)"))
+    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve (iHub only)"))
+    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve (iHub only)"))
+    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve (iHub only)"))
+    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN (iHub only)"))
+
+    # metadata
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    old_id = models.IntegerField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name_eng"))):
+            return "{}".format(getattr(self, str(_("name_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name_eng)
+
+    class Meta:
+        ordering = ['name_eng']
+
+    @property
+    def full_address(self):
+        # initial my_str with either address or None
+        if self.address:
+            my_str = self.address
+        else:
+            my_str = ""
+        # add city
+        if self.city:
+            if my_str:
+                my_str += ", "
+            my_str += self.city
+        # add province abbrev.
+        if self.province:
+            if my_str:
+                my_str += ", "
+            my_str += self.province.abbrev_eng
+        # add postal code
+        if self.postal_code:
+            if my_str:
+                my_str += ", "
+            my_str += self.postal_code
+        return my_str
+
+    def get_absolute_url(self):
+        return reverse('masterlist:org_detail', kwargs={'pk': self.pk})
+
+
 class Person(models.Model):
-    # Choices for language
-    ENG = 1
-    FRE = 2
-    BI = 3
-    LANGUAGE_CHOICES = (
-        (ENG, _("English")),
-        (FRE, _("French")),
-        (BI, _("Bilingual")),
-    )
     designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
@@ -58,13 +126,16 @@ class Person(models.Model):
     email_2 = models.EmailField(blank=True, null=True, verbose_name=_("work email 2"))
     cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone (mobile)"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
+    language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-
+    organizations = models.ManyToManyField(Organization, through="OrganizationMember", verbose_name=_("membership"), blank=True)
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="masterlist_person_last_modified_by")
+
+    old_id = models.IntegerField(blank=True, null=True)
+    connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -115,84 +186,26 @@ class Person(models.Model):
         return my_str
 
 
-
-class Organization(models.Model):
-    name_eng = models.CharField(max_length=1000, verbose_name=_("english name"))
-    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
-    name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
-    abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
-    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
-    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
-    postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
-    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
-    fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("dfo contact instructions"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-    key_species = models.TextField(blank=True, null=True, verbose_name=_("key species"))
-    grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"), blank=True)
-    regions = models.ManyToManyField(shared_models.Region, verbose_name=_("region"), blank=True)
-    sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
-
-    # ihub only
-    website = models.URLField(blank=True, null=True, verbose_name=_("website (iHub only)"))
-    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election (iHub only)"))
-    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term (iHub only)"))
-    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve (iHub only)"))
-    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve (iHub only)"))
-    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve (iHub only)"))
-    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN (iHub only)"))
-
-    # metadata
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
+class Role(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
 
     def __str__(self):
         # check to see if a french value is given
-        if getattr(self, str(_("name_eng"))):
-            return "{}".format(getattr(self, str(_("name_eng"))))
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.name_eng)
+            return "{}".format(self.name)
 
     class Meta:
-        ordering = ['name_eng']
-
-    @property
-    def full_address(self):
-        # initial my_str with either address or None
-        if self.address:
-            my_str = self.address
-        else:
-            my_str = ""
-        # add city
-        if self.city:
-            if my_str:
-                my_str += ", "
-            my_str += self.city
-        # add province abbrev.
-        if self.province:
-            if my_str:
-                my_str += ", "
-            my_str += self.province.abbrev_eng
-        # add postal code
-        if self.postal_code:
-            if my_str:
-                my_str += ", "
-            my_str += self.postal_code
-        return my_str
-
-    def get_absolute_url(self):
-        return reverse('masterlist:org_detail', kwargs={'pk': self.pk})
+        ordering = [_('name'), ]
 
 
 class OrganizationMember(models.Model):
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="memberships")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
+    # role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="members", blank=True, null=True, verbose_name=_("G&C role"))
     role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
     notes = models.TextField(blank=True, null=True)
 

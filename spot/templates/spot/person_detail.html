@@ -24,7 +24,7 @@
         </ol>
     </nav>
 
-    <div class="indent-lg">
+    <div class="container-fluid">
 
         <h1>{{ object }}</h1>
 
@@ -58,7 +58,7 @@
                     {% for member in object.memberships.all %}
                         <li>
                             <a href="{% url 'spot:org_detail'  member.organization.id %}">{{ member.organization }} </a>
-                            - {{ member.position_title }}
+                            - {{ member.role }}
                         </li>
                     {% empty %}
                         <em>person is not part of any organizations</em>
