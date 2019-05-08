@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from lib.functions import nz
+from lib.functions.custom_functions import nz
 
 class Province(models.Model):
     province_eng = models.CharField(max_length=255, blank=True, null=True)

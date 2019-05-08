@@ -13,8 +13,8 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 ###
 import os
 
-from lib.functions.fiscal_year import fiscal_year
-from lib.functions.nz import nz
+from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import nz
 from . import models
 from . import forms
 from . import filters
