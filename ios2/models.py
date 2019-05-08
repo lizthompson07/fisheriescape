@@ -29,8 +29,6 @@ class Instrument(models.Model):
                     ('ADCP 300kHz', 'ADCP 300kHz'),
                     ('ADCP 600kHz', 'ADCP 600kHz'),
                     ('Nortek Aquadopps', 'Nortek Aquadopps'),
-                    # ('ADCP 600kHz', 'ADCP 600kHz'),
-                    # ('ADCP 600kHz', 'ADCP 600kHz'),
                     ('SONTEK Argonaut', 'SONTEK Argonaut'),
                     ('RBR Virtuoso', 'RBR Virtuoso'),
                     ('Wildlife Acoustics SM2M+', 'Wildlife Acoustics SM2M+'),
