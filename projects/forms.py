@@ -5,6 +5,7 @@ from . import models
 from django.contrib.auth.models import User
 from shared_models import models as shared_models
 
+chosen_js = {"class":"chosen-select-contains"}
 
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField()
@@ -61,6 +62,11 @@ class ProjectForm(forms.ModelForm):
             'project_title': forms.Textarea(attrs={"rows": 5}),
             "description": forms.Textarea(attrs={"rows": 8}),
             "notes": forms.Textarea(attrs={"rows": 5}),
+            "section": forms.Select(attrs=chosen_js),
+            "program": forms.Select(attrs=chosen_js),
+            "responsibility_center": forms.Select(attrs=chosen_js),
+            "allotment_code": forms.Select(attrs=chosen_js),
+            "existing_project_code": forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
