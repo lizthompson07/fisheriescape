@@ -45,8 +45,9 @@
                 {% if field.name == "person" %}
                     <div id="person_interpreter_div">
                         <div class="form-group row" style="margin-bottom: 0px;">
-                            <label for="person_interpreter" class="col-md-3 col-form-label">Person
-                                (any part of name)</label>
+                            <label for="person_interpreter" class="col-md-3 col-form-label">
+                                {% trans "Person (any part of name)" %}
+                            </label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control tab"
                                        id="person_interpreter">
@@ -56,7 +57,9 @@
                             <label for="person_list" class="col-md-3 col-form-label"></label>
                             <div class="col-md-9">
                                 <p id="person_list" style="margin-bottom: 0px;"></p>
-                                <a href="#" id="add_person"><em>(add new person)</em></a>
+                                <a href="#" id="add_person"><em>
+                                    {% trans "(add new person)" %}
+                                </em></a>
                             </div>
                         </div>
                     </div>
@@ -69,9 +72,13 @@
                             <div class="col-md-9">
                                 <div id="contact_card">
                                     {{ object.person.contact_card|safe }}<br>
-                                    <a href="#" id="edit_person">(edit contact details)</a>
+                                    <a href="#" id="edit_person">
+                                        {% trans "(edit contact details)" %}
+                                    </a>
                                 </div>
-                                <a href="#" id="clear_person" class="red-font">(clear)</a>
+                                <a href="#" id="clear_person" class="red-font">
+                                    {% trans "(clear)" %}
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -95,8 +102,12 @@
         </form>
 
         {% if object %}
-            <p><b>Date last modified:</b><br>{{ object.date_last_modified }}</p>
-            <p><b>Last modified by:</b><br>{{ object.last_modified_by }}</p>
+            <p><b>
+                {% trans "Date last modified:" %}
+            </b><br>{{ object.date_last_modified }}</p>
+            <p><b>
+                {% trans "Last modified by:" %}
+            </b><br>{{ object.last_modified_by }}</p>
         {% endif %}
 
 

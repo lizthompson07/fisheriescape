@@ -21,7 +21,8 @@ from . import filters
 from . import emails
 from . import xml_export
 from . import reports
-from shared_models import  models as shared_models
+from shared_models import models as shared_models
+
 
 # @login_required(login_url='/accounts/login_required/')
 # @user_passes_test(in_herring_group, login_url='/accounts/denied/')
@@ -62,7 +63,6 @@ class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-
 class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
@@ -90,8 +90,7 @@ class ResourceListView(FilterView):
     template_name = 'inventory/resource_list.html'
     # queryset = models.Resource.objects.all().order_by("-status", "title_eng")
     queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
-        search_term=Concat('title_eng', 'title_fre', 'descr_eng', 'descr_fre', 'purpose_eng', 'purpose_fre',
-                           output_field=TextField()))
+        search_term=Concat('title_eng', 'descr_eng', 'purpose_eng', output_field=TextField()))
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -107,7 +106,13 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        custodian_queryset = models.Person.objects.get(pk=self.request.user.id).resource_people.filter(role=1)
+
+        custodian_queryset = []
+        try:
+            custodian_queryset = models.Person.objects.get(pk=self.request.user.id).resource_people.filter(role=1)
+        except ObjectDoesNotExist:
+            print("Person " + str (self.request.user.id) + "does not exit, Database may be empty")
+
         context['custodian_list'] = custodian_queryset
 
         non_custodian_queryset = []
@@ -179,6 +184,17 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
             'date_last_modified': timezone.now(),
         }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get lists
+        resource_list = ['<a href="#id_parent" class="resource_insert" code="{id}" url="{url}">{text}</a>'.format(id=obj.id, text=str(obj),
+                                                                                                         url=reverse('inventory:resource_detail',
+                                                                                                                     kwargs={'pk': obj.id}))
+                         for obj in models.Resource.objects.all()]
+        context['resource_list'] = resource_list
+        return context
+
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = models.Resource
@@ -202,6 +218,15 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
             models.ResourcePerson.objects.create(resource_id=object.id, person_id=50, role_id=4)
 
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get lists
+        resource_list = ['<a href="#" class="resource_insert" code={id}>{text}</a>'.format(id=obj.id, text=str(obj)) for obj in
+                         models.Resource.objects.all()]
+        context['resource_list'] = resource_list
+        return context
 
 
 class ResourceDeleteView(CustodianRequiredMixin, DeleteView):
@@ -627,8 +652,6 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 
 # RESOURCE KEYWORD #
 ####################
-
-
 
 
 class ResourceKeywordFilterView(CustodianRequiredMixin, FilterView):
@@ -1213,7 +1236,7 @@ class ResourceCertificationCreateView(CustodianRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_resource = models.Resource.objects.get(pk=self.kwargs['resource'])
+        my_resource = models.Resource.objects.get(pk=self.kwargs['pk'])
 
         context['resource'] = my_resource
         return context
@@ -1221,13 +1244,13 @@ class ResourceCertificationCreateView(CustodianRequiredMixin, CreateView):
     def get_initial(self):
         return {
             'certifying_user': self.request.user,
-            'resource': self.kwargs['resource'],
+            'resource': self.kwargs['pk'],
             'certification_date': timezone.now(),
         }
 
     def get_success_url(self):
         return reverse('inventory:resource_detail', kwargs={
-            'pk': self.kwargs['resource'],
+            'pk': self.kwargs['pk'],
         })
 
     def form_valid(self, form):
@@ -1402,7 +1425,6 @@ class WebServiceDeleteView(CustodianRequiredMixin, DeleteView):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
 
-
 # REPORTS #
 ###########
 
@@ -1429,6 +1451,7 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("inventory:report_search"))
+
 
 def export_batch_xml(request, sections):
     file_url = reports.generate_batch_xml(sections)

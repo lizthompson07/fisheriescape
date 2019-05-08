@@ -347,3 +347,56 @@ class Cruise(models.Model):
 
 # species model
 # person
+
+
+class Port(models.Model):
+    # Choices for province
+    NS = "1"
+    NB = "2"
+    PE = "3"
+    QC = "4"
+    NL = "5"
+    PROVINCE_CHOICES = (
+        (NS, _('NS')),
+        (NB, _('NB')),
+        (PE, _('PE')),
+        (QC, _('QC')),
+        (NL, _('NL')),
+    )
+
+    province_code = models.CharField(max_length=1, choices=PROVINCE_CHOICES)
+    district_code = models.CharField(max_length=2)
+    port_code = models.CharField(max_length=2)
+    port_name = models.CharField(max_length=100, blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    herring_fishing_area_code = models.CharField(max_length=100, blank=True, null=True)
+    nafo_unit_area_code = models.CharField(max_length=100, blank=True, null=True)
+
+    # These two fields are just temporary. they are being created to help bridge the data from the hlog format into oracle.
+    # They should be deleted once the new herring database is being used.
+    alias_wharf_id = models.IntegerField(blank=True, null=True)
+    alias_wharf_name = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return "{}, {} ({}{}{})".format(self.port_name, self.get_province_code_display(), self.province_code, self.district_code, self.port_code)
+
+    class Meta:
+        ordering = ['port_name','province_code', 'district_code', 'port_code']
+        unique_together = ['province_code','district_code','port_code']
+
+
+class Language(models.Model):
+    name = models.CharField(max_length=25)
+    nom = models.CharField(max_length=25)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]

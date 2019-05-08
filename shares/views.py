@@ -14,7 +14,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView
 ###
 
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from . import models
 from . import forms
 from . import emails

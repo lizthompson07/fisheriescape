@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz
-from lib.functions.fiscal_year import fiscal_year
+from lib.functions.custom_functions import fiscal_year
 
 YES_NO_CHOICES = (
     (True, _("Yes")),

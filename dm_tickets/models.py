@@ -1,6 +1,5 @@
 import os
 
-from dfo_sci_dm_site import my_conf
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
@@ -9,31 +8,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
 import markdown
 
-from lib.functions.fiscal_year import fiscal_year
+from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 
-
-# Create your models here.
-
-# class Person(models.Model):
-#     first_name = models.CharField(max_length=225)
-#     last_name = models.CharField(max_length=225, null=True, blank=True)
-#     phone = models.CharField(max_length=50, null=True, blank=True)
-#     email = models.EmailField(null=True, blank=True)
-#     notes = models.TextField(null=True, blank=True)
-#
-#     def __str__(self):
-#         return "{} {}".format(self.first_name, self.last_name)
-#
-#     class Meta:
-#         ordering = ['first_name', 'last_name']
-#
-#     @property
-#     def full_name(self):
-#         return "{} {}".format(self.first_name, self.last_name)
-#
-#     def get_absolute_url(self):
-#         return reverse('tickets:person_detail', kwargs={'pk': self.id})
+try:
+    from dfo_sci_dm_site import my_conf as local_conf
+except (ModuleNotFoundError, ImportError):
+    from dfo_sci_dm_site import default_conf as local_conf
 
 
 class RequestType(models.Model):
@@ -79,9 +60,12 @@ class Status(models.Model):
 
 class Ticket(models.Model):
     # choices for app
-    APP_CHOICES = [(app_key, my_conf.APP_DICT[app_key]) for app_key in my_conf.APP_DICT]
+    APP_CHOICES = [(app_key, local_conf.APP_DICT[app_key]) for app_key in local_conf.APP_DICT]
+    APP_CHOICES.insert(0, ("esee", "ESEE (not part of site)"))
+    APP_CHOICES.insert(0, ("plankton", "Plankton Net (not part of site)"))
+    APP_CHOICES.insert(0, ("tickets", "Data Management Ticketing App"))
     APP_CHOICES.sort()
-    APP_CHOICES.insert(0, ("general", "General Issue"))
+    APP_CHOICES.insert(0, ("general", "n/a"))
 
     # Choices for priority
     HIGH = '1'
@@ -101,9 +85,8 @@ class Ticket(models.Model):
     primary_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     app = models.CharField(max_length=25, default="general", choices=APP_CHOICES, verbose_name=_("application name"),
                            blank=True, null=True)
-    assigned_to = models.ForeignKey(User, on_delete=models.DO_NOTHING, limit_choices_to={"is_staff": True},
-                                  verbose_name=_("ticket assigned to"), blank=True, null=True,
-                                  related_name="assigned_tickets")
+    dm_assigned = models.ManyToManyField(User, limit_choices_to={"is_staff": True},
+                                         verbose_name=_("ticket assigned to"), blank=True, related_name="dm_assigned_tickets")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True)
     request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
     status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
@@ -128,6 +111,7 @@ class Ticket(models.Model):
     financial_follow_up_needed = models.BooleanField(default=False)
     estimated_cost = models.FloatField(blank=True, null=True)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
+    github_issue_number = models.IntegerField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.notes:
@@ -153,26 +137,20 @@ class Ticket(models.Model):
     def get_absolute_url(self):
         return reverse('tickets:detail', kwargs={'pk': self.id})
 
-    @property
-    def search_clob(self):
-        return "{} {} {} {} {} {}".format(self.title, self.description, self.service_desk_ticket, self.request_type,
-                                          self.people.all(), self.tags.all())
 
-    @property
-    def tags_pretty(self):
-        my_str = ""
-        for tag in self.tags.all():
-            my_str = my_str + tag.tag + ", "
+class FollowUp(models.Model):
+    ticket = models.ForeignKey(Ticket, related_name="follow_ups", on_delete=models.CASCADE)
+    message = models.TextField(verbose_name=_("follow up message"))
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="dm_tickets_follow_ups")
+    created_date = models.DateTimeField(default=timezone.now)
+    github_id = models.IntegerField(blank=True, null=True)
 
-        return my_str[:len(my_str) - 2]
+    class Meta:
+        ordering = ['-created_date']
 
-    @property
-    def people_pretty(self):
-        my_str = ""
-        for person in self.people.all():
-            my_str = my_str + "{} {},<br>".format(person.first_name, person.last_name)
-
-        return my_str[:len(my_str) - 5]
+    def __str__(self):
+        return "{} <code>({} {} on {})</code>".format(self.message, self.created_by.first_name, self.created_by.last_name,
+                                                                self.created_date.strftime("%Y-%m-%d %H:%M"))
 
 
 def ticket_directory_path(instance, filename):

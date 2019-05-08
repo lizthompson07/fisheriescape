@@ -1,0 +1,70 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h3>
+        {% trans "Select a project year:" %}
+    </h3>
+</div>
+
+{% if object.years.count == 0 %}
+    <em>
+        {% trans "No project years have been created" %}
+    </em><br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th style="width: 100px">
+                {% trans "Year" %}
+            </th>
+            <th>
+                {% trans "Funding" %}
+            </th>
+            <th>
+                {% trans "Payments issued" %}
+            </th>
+            <th>
+                {% trans "Open balance" %}
+            </th>
+            <th>
+                {% trans "Year completed?" %}
+            </th>
+
+        </tr>
+        <tbody>
+        {% for obj in object.years.all %}
+
+
+
+            <tr {% if obj.fiscal_year.full == current_fy %} class="highlight"{% endif %}
+                    href="{% url 'spot:year_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project year">
+                <td>
+                    {{ obj.fiscal_year }}
+                </td>
+
+
+                <td>
+                    {{ obj.annual_funding|currency:True }}
+                </td>
+                <td>
+                    {{ obj.payments_issued|currency:True }}
+                </td>
+                <td>
+                    {{ obj.annual_funding|subtract:obj.payments_issued|currency:True }}
+                </td>
+                <td>
+                    {{ obj.year_complete|yesno:"yes,no,no" }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endif %}
+    <a class="" href="{% url 'spot:year_new' object.id  %}">
+        {% trans "(Add a year)" %}
+    </a>
+<br><br>

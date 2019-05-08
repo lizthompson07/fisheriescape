@@ -19,7 +19,7 @@ from . import models
 from . import forms
 from . import filters
 from . import reports
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from django.utils.encoding import smart_str
 
 
@@ -598,7 +598,15 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
 
     def get_initial(self):
         # default the year to the year of the latest samples
-        return {"year": models.Sample.objects.all().order_by("-start_date").first().start_date.year}
+
+        # 2019/04/03 - P. Upson
+        # I've added a check here to see if there's any data in the DB before retrieving the .first() cursor
+        # If the DB is empty calling:
+        #    models.Sample.objects.all().order_by("-start_date").first().start_date.year
+        # will cause an error (essentially a null pointer exception)
+
+        res = models.Sample.objects.all().order_by("-start_date")
+        return {"year": res.first().start_date.year if res.exists() else ""}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
