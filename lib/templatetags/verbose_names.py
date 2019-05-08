@@ -146,3 +146,23 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
         html_block = '<p><span class="label">{}:</span><br>{}</p>'.format(verbose_name, field_value)
 
     return SafeString(html_block)
+
+
+@register.simple_tag
+def verbose_td_display(instance, field_name, format=None, display_time=False, url=None):
+    """
+    returns a table row <tr> with a <td> for the label and a <td> for the value. Call this from within a <table>
+    """
+
+    # call on the get_verbose_label func to handle label prep
+    verbose_name = get_verbose_label(instance, field_name)
+
+    # call on the get_field_value func to handle field value prep
+    field_value = get_field_value(instance, field_name, format, display_time)
+
+    if url and field_value != "n/a":
+        html_block = '<tr><th><a href="{}">{}</a></th><td>{}</td></tr>'.format(verbose_name, url, field_value)
+    else:
+        html_block = '<tr><th>{}</th><td>{}</td></tr>'.format(verbose_name, field_value)
+
+    return SafeString(html_block)
