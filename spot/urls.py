@@ -44,6 +44,7 @@ urlpatterns = [
     path('project/<int:project>/person/new/', views.ProjectPersonCreateView.as_view(), name="project_person_new"),
     path('project-person/<int:pk>/edit/', views.ProjectPersonUpdateView.as_view(), name="project_person_edit"),
     path('project-person/<int:pk>/delete/', views.ProjectPersonDeleteView.as_view(), name="project_person_delete"),
+    path('user-to-person/<int:user>/return-to/<str:view_name>/pk/<int:pk>/', views.user_to_person, name="user_to_person"),
 
     # PROJECT YEAR #
     ################
