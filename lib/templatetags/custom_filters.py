@@ -65,7 +65,13 @@ def percentage(value, arg=2):
 
 @register.filter
 def subtract(value, arg):
-    return float(value) - float(arg)
+    try:
+        float(value)
+        float(arg)
+    except (TypeError, ValueError):
+        return "n/a"
+    else:
+        return float(value) - float(arg)
 
 
 @register.filter

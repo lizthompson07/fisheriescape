@@ -7,6 +7,8 @@ from django.utils import timezone
 import os
 import uuid
 from django.utils.translation import gettext as _
+
+from lib.functions.custom_functions import truncate
 from shared_models import models as shared_models
 from dfo_sci_dm_site import custom_widgets
 
@@ -412,10 +414,7 @@ class Resource(models.Model):
 
     def truncated_title(self):
         if self.title_eng:
-            if self.title_eng.__len__() > 50:
-                my_str = self.title_eng[:50] + " ..."
-            else:
-                my_str = self.title_eng
+            my_str = truncate(self.title_eng, 50)
         else:
             my_str = "no title"
 

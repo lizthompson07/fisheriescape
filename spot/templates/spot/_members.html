@@ -1,0 +1,57 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h3>
+        {% trans "Members:" %}
+    </h3>
+</div>
+<a class="" href="#"
+   onclick="return popitup('{% url 'spot:member_new' object.id %}','popoutWindow')">
+    {% trans "(Add a member)" %}
+</a>
+
+{% if object.members.count == 0 %}
+    <em>
+        {% trans "No members have been added to this organization" %}
+    </em><br>
+{% else %}
+    <br><br>
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "Role" %}
+            </th>
+            <th>
+                {% trans "Person" %}
+            </th>
+{#            <th>#}
+{#                {% trans "Notes" %}#}
+{#            </th>#}
+            <th>
+                {% trans "Last modified" %}
+            </th>
+
+        </tr>
+        <tbody>
+        {% for obj in object.members.all %}
+            <tr href="{% url 'spot:member_edit' obj.id %}" pop>
+                <td>
+                    {{ obj.role }}
+                </td>
+                <td>
+                    {{ obj.person.first_name }} {{ obj.person.last_name }}
+                </td>
+{#                <td>{{ obj.notes|nz:"" }}</td>#}
+                <td>{{ obj.date_last_modified|date:"Y-m-d" }}</td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+<br>
+<br>

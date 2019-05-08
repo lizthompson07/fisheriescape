@@ -14,7 +14,7 @@ from django.views.generic import UpdateView, DeleteView, CreateView, DetailView,
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
-from lib.functions.fiscal_year import fiscal_year
+from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from . import models
 from . import forms

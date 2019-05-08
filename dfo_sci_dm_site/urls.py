@@ -104,6 +104,11 @@ try:
 except RuntimeError:
     print("not connecting travel app")
 
+try:
+    urlpatterns += i18n_patterns(path('grants-and-contributions/', include('spot.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting spot")
+
 
 if not settings.PRODUCTION_SERVER:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

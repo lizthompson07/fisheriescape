@@ -101,7 +101,16 @@ class LengthFrquencyWizardForm(forms.Form):
 class FishForm(forms.ModelForm):
     class Meta:
         model = models.FishDetail
-        exclude = ["lab_processed_date", "otolith_processed_date", "creation_date", "last_modified_date"]
+        exclude = [
+            "lab_processed_date", "otolith_processed_date", "creation_date", "last_modified_date",
+            'test_204_accepted',
+            'test_207_accepted',
+            'test_209_accepted',
+            'test_302_accepted',
+            'test_305_accepted',
+            'test_308_accepted',
+            'test_311_accepted',
+        ]
 
         widgets = {
             'sample':forms.HiddenInput(),
