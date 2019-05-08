@@ -28,88 +28,132 @@
 
     <div class="container-fluid">
 
-        <h1>{{ object }}</h1>
-
-
-        <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'spot:year_edit' object.id %}">
-                {% trans "Edit Basic Information" %}
-            </a>
-            <a class="btn btn-danger " href="{% url 'spot:year_delete' object.id %}">
-                {% trans "Delete" %}
-            </a>
-
-        </div>
-        <br><br>
 
         <div class="row">
             <div class="col-3">
-                <h3>Summary of Fiscal Year</h3>
-                <table class="table table-bordered">
+                {#                <h3>Project Tracking Menu:</h3>#}
 
-                    <tr>
-                        <th>
-                            {% trans "Annual Funding" %}
-                        </th>
-                        <td>
-                            {{ object.annual_funding|currency:True }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            {% trans "Payments issued" %}
-                        </th>
-                        <td>
-                            {{ object.payments_issued|currency:True }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            {% trans "Open balance" %}
-                        </th>
-                        <td>
-                            {{ object.annual_funding|subtract:object.payments_issued|currency:True }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            {% trans "Year completed?" %}
-                        </th>
-                        <td>
-                            {{ object.year_complete|yesno }}
-                        </td>
-                    </tr>
+                <div class="btn-group-vertical" style="width: 75%">
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'spot:year_edit' object.id %}">
+                        {% trans "Edit Basic Information" %}
+                    </a>
 
-                </table>
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'spot:year_delete' object.id %}">
+                        <span class="red-font">{% trans "Delete" %}</span>
+                    </a>
+                </div>
 
-                <br>
-                 <h3>Project Tracking Menu:</h3>
+                <br><br>
+                <div class="btn-group-vertical" style="width: 75%">
 
-                <div class="btn-group-vertical">
-                    {% if object.fiscal_year %}
-                    
-                    {% endif %}
-                    
-                    <a class="btn btn-outline-dark under-dev" href="#">Initiation</a>
-                    <a class="btn btn-outline-dark under-dev" href="#">Project Review</a>
-                    <a class="btn btn-outline-dark under-dev" href="#">CA Administration</a>
-                    <a class="btn btn-outline-dark under-dev" href="#">Previously Approved MY Update</a>
-                    <a class="btn btn-outline-dark under-dev" href="#">Site Visits</a>
-                    <a class="btn btn-outline-dark under-dev" href="#">Mid-year Procedures</a>
-                    <a class="btn btn-outline-dark under-dev" href="#">Year-end Procedures</a>
+
+                    <a class="btn btn-outline-dark under-dev {% if object.fiscal_year != object.project.start_year %}disabled{% endif %}"
+                       href="#">
+                        {% trans "Initiation" %}
+                    </a>
+
+                    <a class="btn btn-outline-dark under-dev {% if object.fiscal_year != object.project.start_year %}disabled{% endif %}"
+                       href="#">
+                        {% trans "Project Review" %}
+                    </a>
+                    <a class="btn btn-outline-dark under-dev {% if object.fiscal_year != object.project.start_year %}disabled{% endif %}"
+                       href="#">
+                        {% trans "CA Administration" %}
+                    </a>
+                    <a class="btn btn-outline-dark under-dev {% if object.fiscal_year == object.project.start_year %}disabled{% endif %}"
+                       href="#">
+                        {% trans "MY Update" %}
+                    </a>
+                    <a class="btn btn-outline-dark under-dev" href="#">
+                        {% trans "Site Visits" %}
+                    </a>
+                    <a class="btn btn-outline-dark under-dev" href="#">
+                        {% trans "Mid-year Procedures" %}
+                    </a>
+                    <a class="btn btn-outline-dark under-dev" href="#">
+                        {% trans "Year-end Procedures" %}
+                    </a>
                 </div>
 
 
+
             </div>
+
             <div class="col">
+                <div class="">
+                    <h1>{{ object }}</h1>
+                    <h5>
+                        <ul>
+                            {% if object.fiscal_year.full == current_fy %}
+                                <li>
+                                    <span style="background-color: #7bff75;">
+                                    This is the active year
+
+                                    </span>
+                                </li>
+                            {% endif %}
+                            {% if object.fiscal_year == object.project.start_year %}
+                                <li>
+                                    This is the start year of the project
+                                </li>
+                            {% endif %}
+                            {% if object.fiscal_year.full == object.project.end_year %}
+                                <li>
+                                    This is the final year of the project
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </h5>
+                </div>
+                <br><br>
+
+
                 {% include "spot/_payments.html" %}
 
+                <br>
 
+                <div>
+                    <h3>Fiscal Year Summary</h3>
+                    <table class="table table-bordered" style="width: auto">
 
-                
+                        <tr>
+                            <th>
+                                {% trans "Annual Funding" %}
+                            </th>
+                            <td>
+                                {{ object.annual_funding|currency:True }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                {% trans "Payments issued" %}
+                            </th>
+                            <td>
+                                {{ object.payments_issued|currency:True }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                {% trans "Open balance" %}
+                            </th>
+                            <td>
+                                {{ object.annual_funding|subtract:object.payments_issued|currency:True }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                {% trans "Year completed?" %}
+                            </th>
+                            <td>
+                                {{ object.year_complete|yesno:"yes,no,no" }}
+                            </td>
+                        </tr>
 
+                    </table>
+                </div>
             </div>
         </div>
+        <br><br>
 
 
     </div>
