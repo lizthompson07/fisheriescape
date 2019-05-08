@@ -82,17 +82,35 @@
 
                 </table>
 
+                <br>
+                 <h3>Project Tracking Menu:</h3>
 
-                </tr>
+                <div class="btn-group-vertical">
+                    {% if object.fiscal_year %}
+                    
+                    {% endif %}
+                    
+                    <a class="btn btn-outline-dark under-dev" href="#">Initiation</a>
+                    <a class="btn btn-outline-dark under-dev" href="#">Project Review</a>
+                    <a class="btn btn-outline-dark under-dev" href="#">CA Administration</a>
+                    <a class="btn btn-outline-dark under-dev" href="#">Previously Approved MY Update</a>
+                    <a class="btn btn-outline-dark under-dev" href="#">Site Visits</a>
+                    <a class="btn btn-outline-dark under-dev" href="#">Mid-year Procedures</a>
+                    <a class="btn btn-outline-dark under-dev" href="#">Year-end Procedures</a>
+                </div>
 
 
             </div>
             <div class="col">
-                                {% include "spot/_payments.html" %}
-                {#                {% include "spot/_project_people.html" %}#}
-                {#                {% include "spot/_instructions.html" %}#}
+                {% include "spot/_payments.html" %}
+
+
+
+                
+
             </div>
         </div>
+
 
     </div>
 
