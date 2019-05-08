@@ -108,7 +108,7 @@ class Project(models.Model):
                                  verbose_name=_("project language"))
     title = models.TextField()
     title_abbrev = models.CharField(max_length=500, blank=True, null=True)
-    initiation_date = models.DateTimeField(blank=True, null=True)
+    initiation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     initiation_type = models.ForeignKey(InitiationType, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
     initiation_acknowledgement_sent = models.DateTimeField(blank=True, null=True)
     requested_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 1)"))
@@ -118,7 +118,7 @@ class Project(models.Model):
     ## Regional Review
     regional_score = models.DecimalField(max_digits=18, decimal_places=0, blank=True, null=True)
     rank = models.IntegerField(blank=True, null=True)
-    application_submission_date = models.DateTimeField(blank=True, null=True)
+    application_submission_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date/time of application submission"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("project notes"))
     recommended_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 1)"))
     recommended_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 2)"))

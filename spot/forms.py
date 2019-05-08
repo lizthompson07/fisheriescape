@@ -5,6 +5,11 @@ from shared_models import models as shared_models
 from masterlist import models as ml_models
 from . import models
 
+attr_chosen_contains = {"class":"chosen-select-contains"}
+attr_chosen = {"class":"chosen-select"}
+attr_fp_date = {"class":"fp-date", "placeholder":"Select Date.."}
+attr_fp_date_time = {"class":"fp-date-time", "placeholder":"Select Date and Time.."}
+
 YES_NO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
@@ -100,8 +105,21 @@ class ProjectForm(forms.ModelForm):
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'organization': forms.Select(attrs=attr_chosen_contains),
+            'program': forms.Select(attrs=attr_chosen_contains),
+            'language': forms.Select(attrs=attr_chosen_contains),
+            'status': forms.Select(attrs=attr_chosen_contains),
+            'start_year': forms.Select(attrs=attr_chosen_contains),
+            'regions': forms.SelectMultiple(attrs=attr_chosen_contains),
+            'title': forms.Textarea(attrs={"rows": 4}),
+            'date_completed': forms.TextInput(attrs=attr_fp_date),
+
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
+        self.fields['organization'].choices = org_choices
 
 class NewProjectForm(forms.ModelForm):
     class Meta:
@@ -120,10 +138,24 @@ class NewProjectForm(forms.ModelForm):
             'requested_funding_y2',
             'requested_funding_y3',
             'last_modified_by',
+            'initiation_date',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'initiation_date': forms.HiddenInput(),
+            'organization': forms.Select(attrs=attr_chosen_contains),
+            'program': forms.Select(attrs=attr_chosen_contains),
+            'language': forms.Select(attrs=attr_chosen_contains),
+            'status': forms.Select(attrs=attr_chosen_contains),
+            'start_year': forms.Select(attrs=attr_chosen_contains),
+            'regions': forms.SelectMultiple(attrs=attr_chosen_contains),
+            'title': forms.Textarea(attrs={"rows":4}),
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
+        org_choices.insert(0, (None, "------"))
+        self.fields['organization'].choices = org_choices
 
 
 class ProjectPersonForm(forms.ModelForm):
@@ -153,6 +185,53 @@ class ProjectYearForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'project': forms.HiddenInput(),
+        }
+
+class InitiationForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'title',
+            'title_abbrev',
+            'initiation_date',
+            'initiation_type',
+            'initiation_acknowledgement_sent',
+            'requested_funding_y1',
+            'requested_funding_y2',
+            'requested_funding_y3',
+            'notes',
+            'last_modified_by',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'title': forms.Textarea(attrs={"rows": 3}),
+            'notes': forms.Textarea(attrs={"rows": 3}),
+            'initiation_date': forms.DateInput(attrs=attr_fp_date),
+            'initiation_acknowledgement_sent': forms.DateInput(attrs=attr_fp_date),
+        }
+
+
+
+class ProjectReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'regional_score',
+            'rank',
+            'application_submission_date',
+            'recommended_funding_y1',
+            'recommended_funding_y2',
+            'recommended_funding_y3',
+            'recommended_overprogramming',
+            'regrets_or_op_letter_sent_date',
+            'last_modified_by',
+            'notes',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": 3}),
+            'application_submission_date': forms.DateInput(attrs=attr_fp_date_time),
+            'regrets_or_op_letter_sent_date': forms.DateInput(attrs=attr_fp_date),
         }
 
 
