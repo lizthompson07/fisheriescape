@@ -6,8 +6,8 @@ from django.utils import timezone
 import os
 from django.utils.translation import gettext_lazy as _
 
-from lib.functions.fiscal_year import fiscal_year
-from lib.functions.nz import nz
+from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 

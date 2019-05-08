@@ -9,15 +9,15 @@ urlpatterns = [
 
     # ORGANIZATION #
     ################
-    path('organizations/', views.OrganizationListView.as_view(), name="org_list"),
-    path('organization/new/', views.OrganizationCreateView.as_view(), name="org_new"),
-    path('organization/<int:pk>/view/', views.OrganizationDetailView.as_view(), name="org_detail"),
-    path('organization/<int:pk>/edit/', views.OrganizationUpdateView.as_view(), name="org_edit"),
-    path('organization/<int:pk>/delete/', views.OrganizationDeleteView.as_view(), name="org_delete"),
+    path('orgs/', views.OrganizationListView.as_view(), name="org_list"),
+    path('org/new/', views.OrganizationCreateView.as_view(), name="org_new"),
+    path('org/<int:pk>/view/', views.OrganizationDetailView.as_view(), name="org_detail"),
+    path('org/<int:pk>/edit/', views.OrganizationUpdateView.as_view(), name="org_edit"),
+    path('org/<int:pk>/delete/', views.OrganizationDeleteView.as_view(), name="org_delete"),
 
     # ORGANIZATION MEMBER #
     ######################
-    path('organization/<int:org>/member/new/', views.MemberCreateView.as_view(), name="member_new"),
+    path('org/<int:org>/member/new/', views.MemberCreateView.as_view(), name="member_new"),
     path('member/<int:pk>/edit/', views.MemberUpdateView.as_view(), name="member_edit"),
     path('member/<int:pk>/delete/', views.MemberDeleteView.as_view(), name="member_delete"),
 
@@ -31,11 +31,34 @@ urlpatterns = [
     path('person/<int:pk>/edit/popout/', views.PersonUpdateViewPopout.as_view(), name="person_edit_pop"),
     path('person/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),
 
-    # # RECIPIENTS #
-    # ##############
-    # path('instructions/<int:instruction>/member/<int:member>/add/', views.RecipientCreateView.as_view(), name="recipient_new"),
-    # path('recipient/<int:pk>/edit/', views.RecipientUpdateView.as_view(), name="recipient_edit"),
-    # path('recipient/<int:pk>/delete/', views.recipient_delete, name="recipient_delete"),
+    # PROJECT #
+    ###########
+    path('projects/', views.ProjectListView.as_view(), name="project_list"),
+    path('project/new/', views.ProjectCreateView.as_view(), name="project_new"),
+    path('project/<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
+    path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
+    path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
+
+    # PROJECT PERSON #
+    ##################
+    path('project/<int:project>/person/new/', views.ProjectPersonCreateView.as_view(), name="project_person_new"),
+    path('project-person/<int:pk>/edit/', views.ProjectPersonUpdateView.as_view(), name="project_person_edit"),
+    path('project-person/<int:pk>/delete/', views.ProjectPersonDeleteView.as_view(), name="project_person_delete"),
+    path('user-to-person/<int:user>/return-to/<str:view_name>/pk/<int:pk>/', views.user_to_person, name="user_to_person"),
+
+    # PROJECT YEAR #
+    ################
+    path('project/<int:project>/year/new/', views.ProjectYearCreateView.as_view(), name="year_new"),
+    path('project-year/<int:pk>/view/', views.ProjectYearDetailView.as_view(), name="year_detail"),
+    path('project-year/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),
+    path('project-year/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),
+
+    # PAYMENT #
+    ###########
+    path('project-year/<int:project_year>/payment/new/', views.PaymentCreateView.as_view(), name="payment_new"),
+    path('payment/<int:pk>/edit/', views.PaymentUpdateView.as_view(), name="payment_edit"),
+    path('payment/<int:pk>/delete/', views.PaymentDeleteView.as_view(), name="payment_delete"),
+
     #
     # # Reports #
     # ###########

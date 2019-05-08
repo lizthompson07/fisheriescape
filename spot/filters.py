@@ -16,9 +16,9 @@ YES_NO_CHOICES = (
 class OrganizationFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search name",
                                             lookup_expr='icontains', widget=forms.TextInput())
-    province = django_filters.ModelChoiceFilter(field_name='province', lookup_expr='exact', queryset=shared_models.Province.objects.all())
-    grouping = django_filters.ModelChoiceFilter(field_name='grouping', lookup_expr='exact', queryset=ml_models.Grouping.objects.all())
-    regions = django_filters.ModelChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.filter(Q(id=1)|Q(id=2)))
+    province = django_filters.ModelMultipleChoiceFilter(field_name='province', lookup_expr='exact', queryset=shared_models.Province.objects.all())
+    grouping = django_filters.ModelMultipleChoiceFilter(field_name='grouping', lookup_expr='exact', queryset=ml_models.Grouping.objects.all())
+    regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())  #queryset=shared_models.Region.objects.filter(Q(id=1)|Q(id=2))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,3 +26,20 @@ class OrganizationFilter(django_filters.FilterSet):
 class PersonFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search",
                                             lookup_expr='icontains', widget=forms.TextInput())
+    membership = django_filters.ModelMultipleChoiceFilter(field_name='organizations', lookup_expr='exact', queryset=ml_models.Organization.objects.all())
+
+
+class ProjectFilter(django_filters.FilterSet):
+
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search name",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+    organization = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact')
+    status = django_filters.ChoiceFilter(field_name='status', lookup_expr='exact')
+    program = django_filters.ChoiceFilter(field_name='program', lookup_expr='exact')
+    regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        org_choices = [(o.id, str(o)) for o in ml_models.Organization.objects.all() if o.projects.count() > 0]
+        self.filters["organization"] = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact', choices=org_choices)
+

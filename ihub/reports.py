@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from lib.templatetags.verbose_names import get_verbose_label
 from . import models
 import os
