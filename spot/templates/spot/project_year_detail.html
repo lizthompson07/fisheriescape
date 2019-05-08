@@ -1,0 +1,104 @@
+{% extends "spot/spot_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_tags %}
+{% load custom_filters %}
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+
+        table, td {
+            font-size: small;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_detail' object.project.id %}">{{ object.project }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+
+        <h1>{{ object }}</h1>
+
+
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'spot:year_edit' object.id %}">
+                {% trans "Edit Basic Information" %}
+            </a>
+            <a class="btn btn-danger " href="{% url 'spot:year_delete' object.id %}">
+                {% trans "Delete" %}
+            </a>
+
+        </div>
+        <br><br>
+
+        <div class="row">
+            <div class="col-3">
+                <h3>Summary of Fiscal Year</h3>
+                <table class="table table-bordered">
+
+                    <tr>
+                        <th>
+                            {% trans "Annual Funding" %}
+                        </th>
+                        <td>
+                            {{ object.annual_funding|currency:True }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            {% trans "Payments issued" %}
+                        </th>
+                        <td>
+                            {{ object.payments_issued|currency:True }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            {% trans "Open balance" %}
+                        </th>
+                        <td>
+                            {{ object.annual_funding|subtract:object.payments_issued|currency:True }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            {% trans "Year completed?" %}
+                        </th>
+                        <td>
+                            {{ object.year_complete|yesno }}
+                        </td>
+                    </tr>
+
+                </table>
+
+
+                </tr>
+
+
+            </div>
+            <div class="col">
+                                {% include "spot/_payments.html" %}
+                {#                {% include "spot/_project_people.html" %}#}
+                {#                {% include "spot/_instructions.html" %}#}
+            </div>
+        </div>
+
+    </div>
+
+    <script type="application/javascript">
+
+
+    </script>
+{% endblock content %}
+

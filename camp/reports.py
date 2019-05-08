@@ -16,7 +16,7 @@ from django.db.models import Sum, Q
 from shutil import rmtree
 from django.conf import settings
 
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from . import models
 import numpy as np
 import os
