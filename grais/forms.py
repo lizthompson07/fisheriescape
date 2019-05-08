@@ -95,11 +95,12 @@ class FollowUpForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         User.objects.all().order_by("last_name", "first_name")]
         USER_CHOICES.insert(0, tuple((None, "---")))
 
-        super().__init__(*args, **kwargs)
         self.fields['author'].queryset = User.objects.all().order_by("last_name", "first_name")
         self.fields['author'].choices = USER_CHOICES
 
@@ -286,10 +287,12 @@ class ReportSearchForm(forms.Form):
     year = forms.CharField(required=False, widget=forms.NumberInput())
 
     def __init__(self, *args, **kwargs):
-        SPECIES_CHOICES = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
-                           models.Species.objects.all().order_by("scientific_name")]
         super().__init__(*args, **kwargs)
-        self.fields['species'].choices = SPECIES_CHOICES
+
+        species_choices = [(obj.id, "{} ({})".format(obj.scientific_name, obj.common_name)) for obj in
+                           models.Species.objects.all().order_by("scientific_name")]
+
+        self.fields['species'].choices = species_choices
 
 
 class TrapForm(forms.ModelForm):

@@ -17,13 +17,14 @@ from django.views.generic import UpdateView, DeleteView, CreateView, DetailView,
 ###
 from easy_pdf.views import PDFTemplateView
 
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 from . import models
 from . import forms
 from . import filters
 from . import emails
 from . import reports
 from masterlist import models as ml_models
+from shared_models import models as shared_models
 
 ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 
@@ -180,7 +181,7 @@ class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.Person
     template_name = 'ihub/person_confirm_delete.html'
     success_url = reverse_lazy('ihub:person_list')
-    success_message = 'The person was deleted successfully!'
+    success_message = _('The person was deleted successfully!')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -256,7 +257,7 @@ class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.Organization
     template_name = 'ihub/organization_confirm_delete.html'
     success_url = reverse_lazy('ihub:org_list')
-    success_message = 'The organization was deleted successfully!'
+    success_message = _('The organization was deleted successfully!')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -416,7 +417,7 @@ class EntryCreateView(iHubAccessRequiredMixin, CreateView):
         else:
             print('not sending email since in dev mode')
         messages.success(self.request,
-                         "The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!")
+                         _("The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!"))
         return HttpResponseRedirect(reverse_lazy('ihub:entry_detail', kwargs={"pk": object.id}))
 
     def get_initial(self):
@@ -911,7 +912,7 @@ def manage_funding_purposes(request):
 
 
 def manage_regions(request):
-    qs = ml_models.Region.objects.all()
+    qs = shared_models.Region.objects.all()
     if request.method == 'POST':
         formset = forms.RegionFormSet(request.POST, )
         if formset.is_valid():

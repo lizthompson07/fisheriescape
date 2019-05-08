@@ -29,7 +29,7 @@
         {% load static %}
         {# Load js file to allow for popout window #}
         {% if object.id %}
-            <h1>{{ object }}</h1><br>
+            <h2>{{ object }}</h2><br>
         {% else %}
             <h1>New Resource</h1>
         {% endif %}
@@ -222,7 +222,22 @@
 
                             </div>
                         </div>
+                    {% elif field.name == 'parent' %}
+                        <div class="row">
+                            <div class="col-8">
+                                {% bootstrap_field field placeholder="" %}
+                                {% if object.parent %}
+                                    <p>The current selection for parent record is: <br><a class="current-resource-anchor"
+                                                                                          href="{% url 'inventory:resource_detail' object.parent.id %}"
+                                                                                          target="_blank">{{ object.parent }}</a>
+                                    </p>
+                                    <p>Click <a id="clear-parent-resource" href="#parent_id">HERE</a> to clear the current selection</p>
+                                {% endif %}
+                                <br>
+                                <br>
 
+                            </div>
+                        </div>
 
                     {% else %}
                         <div class="row">
@@ -241,5 +256,92 @@
 
     </div>
 
+    <!-- Hidden button trigger & Modal -->
+    <button type="button" class="btn btn-primary gone" data-toggle="modal" data-target="#parent-finder" id="parent-finder-btn"></button>
+    <div class="modal fade" id="parent-finder" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Which resource are you looking for?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="resource_interpreter_div">
+                        {% if object.parent %}
+                            <p>The current selection for parent record is: <br><a class="current-resource-anchor"
+                                                                                  href="{% url 'inventory:resource_detail' object.parent.id %}"
+                                                                                  target="_blank">{{ object.parent }}</a>
+                            </p>
+                        {% endif %}
+                        <label for="resource_interpreter" class="col-form-label">
+                            Search term (title, id, ...)
+                        </label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control no-tab" id="resource_interpreter">
+                        </div>
 
+                        <label for="resource_list" class="col-md-3 col-form-label"></label>
+                        <div class="col-md-9">
+                            <p id="resource_list" style="margin-bottom: 0px;"></p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" id="modal-close-btn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/javascript">
+        var resourceList = {{resource_list|safe}};
+
+        // modal needs to pop up when someone clicks on the input element
+        $("#id_parent").click(function () {
+            $("#parent-finder-btn")[0].click();
+            $("#resource_interpreter")[0].focus();
+        });
+
+        if ($(".invalid-feedback").length > 0) {
+            $(".appear-on-error").prop("hidden", false)
+        }
+
+        // parent resource
+        $("#resource_interpreter").keyup(function (e) {
+            $("#resource_list").html("")
+            if (this.value.length >= 1) {
+                for (var i = 0; i < resourceList.length; i++) {
+                    var re = new RegExp(this.value, 'gi');
+
+                    if (resourceList[i].match(re)) {
+                        $("#resource_list").html(
+                            $("#resource_list").html() + resourceList[i] + '<br>')
+                    }
+                }
+                $(".resource_insert").click(function () {
+                    code = this.getAttribute("code");
+                    myUrl = this.getAttribute("url");
+                    myTitle = $(this).text();
+                    $("#id_parent").val(code);
+                    $(".current-resource-anchor").attr("href", myUrl);
+                    $(".current-resource-anchor").text(myTitle);
+                    $("#resource_interpreter").val("");
+                    $("#resource_list").html("");
+                    // close the modal and focus on the parent id field
+                    $("#modal-close-btn")[0].click();
+                    document.getElementById("id_parent").focus();
+
+                });
+            }
+        });
+        $("#clear-parent-resource").click(function () {
+            $("#id_parent").val("")
+            $(".current-resource-anchor").attr("href", "#id_parent");
+            $(".current-resource-anchor").text("");
+        })
+
+    </script>
 {% endblock content %}

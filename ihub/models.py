@@ -6,8 +6,8 @@ from django.utils import timezone
 import os
 from django.utils.translation import gettext_lazy as _
 
-from lib.functions.fiscal_year import fiscal_year
-from lib.functions.nz import nz
+from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 
@@ -63,7 +63,7 @@ class FundingPurpose(models.Model):
 
 class Entry(models.Model):
     # basic
-    title = models.CharField(max_length=1000, blank=True, null=True)
+    title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
                                            limit_choices_to={'grouping__is_indigenous': True})
     initial_date = models.DateTimeField(verbose_name=_("initial date"))
@@ -120,9 +120,9 @@ class EntryPerson(models.Model):
     )
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="people", blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
-    name = models.CharField(max_length=50, blank=True, null=True)
+    name = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("name"))
     organization = models.CharField(max_length=50)
-    role = models.IntegerField(choices=ROLE_CHOICES, blank=True, null=True)
+    role = models.IntegerField(choices=ROLE_CHOICES, blank=True, null=True, verbose_name=_("role"))
 
     def __str__(self):
         if self.user:
@@ -148,7 +148,7 @@ class EntryNote(models.Model):
     entry = models.ForeignKey(Entry, related_name='notes', on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES)
     date = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    author = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("author"))
     note = models.TextField()
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"))
 
@@ -165,10 +165,10 @@ def file_directory_path(instance, filename):
 
 
 class File(models.Model):
-    caption = models.CharField(max_length=255)
+    caption = models.CharField(max_length=255, verbose_name=_("caption"))
     entry = models.ForeignKey(Entry, related_name="files", on_delete=models.CASCADE)
-    file = models.FileField(upload_to=file_directory_path)
-    date_uploaded = models.DateTimeField(default=timezone.now)
+    file = models.FileField(upload_to=file_directory_path, verbose_name=_("file"))
+    date_uploaded = models.DateTimeField(default=timezone.now, verbose_name=_("date uploaded"))
 
     class Meta:
         ordering = ['-date_uploaded']

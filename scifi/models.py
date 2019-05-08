@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
-from lib.functions.nz import nz
+from lib.functions.custom_functions import nz
 
 YES_NO_CHOICES = (
     (True, "Yes"),

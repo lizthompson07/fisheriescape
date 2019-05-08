@@ -333,7 +333,7 @@ class SpeciesListView(GraisAccessRequiredMixin, FilterView):
     template_name = "grais/species_list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
-        search_term=Concat('common_name', 'scientific_name', 'abbrev', output_field=TextField()))
+        search_term=Concat('id', 'common_name', 'scientific_name', 'abbrev', output_field=TextField()))
 
 
 class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
@@ -385,9 +385,8 @@ class SpeciesCreatePopoutView(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
-class SpeciesDeleteView(PermissionRequiredMixin, GraisAccessRequiredMixin, DeleteView):
+class SpeciesDeleteView(GraisAccessRequiredMixin, DeleteView):
     model = models.Species
-    permission_required = "__all__"
     success_url = reverse_lazy('grais:species_list')
     success_message = 'The species was successfully deleted!'
 

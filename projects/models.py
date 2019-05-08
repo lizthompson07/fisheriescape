@@ -3,10 +3,11 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from textile import textile
-from lib.functions.fiscal_year import fiscal_year
+from lib.functions.custom_functions import fiscal_year
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
+from dfo_sci_dm_site import custom_widgets
 
 # Choices for language
 ENG = 1
@@ -55,9 +56,9 @@ class Project(models.Model):
     year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                              verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
     # basic
-    project_title = models.TextField(verbose_name=_("Project title"))
+    project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
-                                verbose_name=_("section"), limit_choices_to={'division__branch': 1})
+                                verbose_name=_("section"))
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("program"))
 
     # coding

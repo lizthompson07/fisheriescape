@@ -45,8 +45,10 @@
                 <div class="col">
                     <br>
                     <div class="btn-group">
-                        <input type="submit" value="Filter" class="btn btn-warning btn-sm">
-                        <a href="." class="btn btn btn-secondary btn-sm"> Clear</a>
+                        <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+                        <a href="." class="btn btn btn-secondary btn-sm">
+                            {% trans "Clear" %}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -60,10 +62,14 @@
 
         <div class="row">
             <div class="col">
-                (click on a header to sort table)
+                {% trans "(click on a header to sort table)" %}
             </div>
             <div class="col" style="text-align: right">
-                <em>displaying all {{ filter.qs.count }} records</em>
+                <em>
+                    {% blocktrans with count=filter.qs.count %}
+                        displaying all {{ count }} records
+                    {% endblocktrans %}
+                </em>
             </div>
 
         </div>

@@ -1,10 +1,11 @@
 import datetime
+import json
 import os
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
@@ -13,19 +14,21 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 from easy_pdf.views import PDFTemplateView
-from lib.functions.fiscal_year import fiscal_year
-from lib.functions.nz import nz
+from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import nz
 from . import models
 from . import forms
 from . import filters
 from . import reports
 from shared_models import models as shared_models
 
+
+# This function is a bit of a misnomer. It is used to determine whether the user has full access to a record, assuming they are not already a project lead
 def can_delete(user, project):
-    """returns True if user is a custodian in the specified resource"""
+    """returns True if user has permissions to delete or modify a project"""
     if user.id:
-        # # check to see if a superuser
-        if user.is_superuser:
+        # # check to see if a superuser or projects_admin
+        if user.is_superuser or "projects_admin" in [g.name for g in user.groups.all()]:
             return True
 
         # otherwise check to see if they are a project lead or section head
@@ -368,6 +371,30 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     model = models.Project
     login_url = '/accounts/login_required/'
     form_class = forms.NewProjectForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # here are the option objects we want to send in through context
+        # only from the science branches of each region
+        division_choices = [(d.id, str(d)) for d in
+                            shared_models.Division.objects.filter(Q(branch_id=1) | Q(branch_id=3)).order_by("branch__region", "name")]
+        section_choices = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.filter(Q(division__branch_id=1) | Q(division__branch_id=3)).order_by(
+                               "division__branch__region", "division__branch", "division", "name")]
+
+        division_dict = {}
+        for d in division_choices:
+            division_dict[d[1]] = d[0]
+
+        section_dict = {}
+        for s in section_choices:
+            section_dict[s[1]] = s[0]
+
+        context['division_json'] = json.dumps(division_dict)
+        context['section_json'] = json.dumps(section_dict)
+
+        return context
 
     def form_valid(self, form):
         object = form.save()

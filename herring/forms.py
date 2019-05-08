@@ -18,12 +18,12 @@ class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         fields = "__all__"
-        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete",]
+        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete", 'district']
         labels={
             # 'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
             # 'district':mark_safe("District (<a href='#' >search</a>)"),
             'vessel_cfvn':"Vessel CFVN",
-            'survey_id': "Survey ID",
+            # 'survey_id': "Survey ID",
         }
         attr_dict = {"class":"tab",}
 
@@ -40,7 +40,7 @@ class SampleForm(forms.ModelForm):
             # 'vessel_cfvn':forms.TextInput(),
             'sampler_ref_number':forms.TextInput(attrs=attr_dict),
             'sampler':forms.Select(attrs=attr_dict),
-            'district':forms.Select(attrs=attr_dict),
+            'port':forms.Select(attrs=attr_dict),
             'fishing_area':forms.Select(attrs=attr_dict),
             'gear':forms.Select(attrs=attr_dict),
             'experimental_net_used':forms.Select(attrs=attr_dict),
@@ -101,7 +101,16 @@ class LengthFrquencyWizardForm(forms.Form):
 class FishForm(forms.ModelForm):
     class Meta:
         model = models.FishDetail
-        exclude = ["lab_processed_date", "otolith_processed_date", "creation_date", "last_modified_date"]
+        exclude = [
+            "lab_processed_date", "otolith_processed_date", "creation_date", "last_modified_date",
+            'test_204_accepted',
+            'test_207_accepted',
+            'test_209_accepted',
+            'test_302_accepted',
+            'test_305_accepted',
+            'test_308_accepted',
+            'test_311_accepted',
+        ]
 
         widgets = {
             'sample':forms.HiddenInput(),
@@ -196,7 +205,7 @@ class OtolithForm(forms.ModelForm):
 
 
 class ReportSearchForm(forms.Form):
-    YEAR_CHOICES = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
+
     REPORT_CHOICES = [
         (1, "Progress Report"),
         (2, "Pretty fish detail export (csv)"),
@@ -207,4 +216,12 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES.insert(0, (None, "------"))
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.ChoiceField(required=True, choices=YEAR_CHOICES)
+
+    field_order = ["report", "year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        year_choices = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
+
+        self.fields['year'] = forms.ChoiceField(required=True, choices=year_choices)
