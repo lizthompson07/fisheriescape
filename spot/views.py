@@ -1,6 +1,7 @@
 import os
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.utils import timezone
@@ -10,8 +11,8 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
-
-from lib.functions.nz import nz
+from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import nz
 from . import models
 from . import forms
 from . import filters
@@ -349,6 +350,7 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context["my_object"] = models.Project.objects.first()
         context["field_list"] = [
             'id',
@@ -364,13 +366,13 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
         return context
 
 
-#
 class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
     template_name = 'spot/project_detail.html'
     model = models.Project
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["current_fy"] = fiscal_year()
         context["field_list"] = [
             'id',
             'path_number',
@@ -453,6 +455,20 @@ class ProjectPersonCreateView(SpotAccessRequiredMixin, CreateView):
             ) for p in ml_models.Person.objects.all()
         ]
 
+        # get a list of all site users who have not already been connected to ml_models.Person
+        person_list_1 = [
+            '<a href="#" class="user_insert purple-font" url="{my_url}">{first} {last} (SITE USER)</a>'.format(
+                my_url=reverse("spot:user_to_person", kwargs={
+                    "user": u.id,
+                    "view_name": "project_person_new",
+                    "pk": my_project.id,
+                }),
+                first=u.first_name,
+                last=u.last_name,
+            ) for u in User.objects.all() if
+            u.id not in [p.connected_user_id for p in ml_models.Person.objects.filter(connected_user__isnull=False)]
+        ]
+        person_list.extend(person_list_1)
         context['person_list'] = person_list
 
         return context
@@ -469,7 +485,7 @@ class ProjectPersonUpdateView(SpotAccessRequiredMixin, UpdateView):
     login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
-        object = form.save()
+        my_object = form.save()
         return HttpResponseRedirect(reverse('spot:close_me'))
 
     def get_context_data(self, **kwargs):
@@ -482,8 +498,20 @@ class ProjectPersonUpdateView(SpotAccessRequiredMixin, UpdateView):
             ) for p in ml_models.Person.objects.all()
         ]
 
+        # get a list of all site users who have not already been connected to ml_models.Person
+        person_list_1 = [
+            '<a href="#" class="user_insert purple-font" url="{my_url}">{first} {last} (SITE USER)</a>'.format(
+                my_url=reverse("spot:user_to_person", kwargs={
+                    "user":u.id,
+                    "view_name":"project_person_edit",
+                    "pk":context['object'].id,
+                }),
+                first=u.first_name,
+                last=u.last_name,
+            ) for u in User.objects.all() if u.id not in [p.connected_user_id for p in ml_models.Person.objects.filter(connected_user__isnull=False)]
+        ]
+        person_list.extend(person_list_1)
         context['person_list'] = person_list
-
         return context
 
     def get_initial(self):
@@ -502,6 +530,35 @@ class ProjectPersonDeleteView(SpotAccessRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+def user_to_person(request, user, view_name, pk):
+    """
+    Adds a user to the masterlist person table
+    :param request: HTTP request
+    :param user: pk of site user
+    :param view_name: should be either 'project_person_new' or 'project_person_edit'
+    :param pk: could be pk of project or project person, depending on which view is being called from
+    :return: HTTP response
+    """
+    my_user = User.objects.get(pk=user)
+    my_new_person = ml_models.Person.objects.create(
+        first_name=my_user.first_name,
+        last_name=my_user.last_name,
+        connected_user=my_user,
+    )
+    my_new_person.save()
+
+    # figure out where to go!
+    if view_name == "project_person_new":
+        target_url = reverse("spot:"+view_name, kwargs={"project":pk})
+
+    elif view_name == "project_person_edit":
+        target_url = reverse("spot:"+view_name, kwargs={"pk":pk})
+
+    else:
+        target_url= reverse("spot:close_me")
+
+    return HttpResponseRedirect(target_url)
 
 # PROJECT YEAR #
 ################

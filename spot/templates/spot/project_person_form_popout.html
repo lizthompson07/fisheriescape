@@ -187,6 +187,12 @@
 
                 });
 
+                $(".user_insert").click(function () {
+                    myUrl = this.getAttribute("url");
+                    alert("The person has been successfully added to the app. Please re-select their name.");
+                    window.location.href = myUrl;
+                });
+
             }
         });
 

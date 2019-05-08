@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from lib.functions.custom_functions import truncate
-from lib.functions.fiscal_year import fiscal_year
+from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from masterlist import models as ml_models
 
@@ -228,7 +228,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 class Role(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
-
+    order = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -239,7 +239,7 @@ class Role(models.Model):
             return "{}".format(self.name)
 
     class Meta:
-        ordering = [_('name'), ]
+        ordering = [_('order'), ]
 
 
 class ProjectPerson(models.Model):
@@ -659,7 +659,7 @@ class Payment(models.Model):
     reimbursement_amount = models.FloatField(default=0)
     from_period = models.DateTimeField(blank=True, null=True)
     to_period = models.DateTimeField(blank=True, null=True)
-    final_payment = models.NullBooleanField()
+    final_payment = models.BooleanField(default=False)
     materials_submitted = models.BooleanField(default=False)
     nhq_notified = models.DateTimeField(blank=True, null=True, verbose_name=_("NHQ notified"))
     payment_confirmed = models.BooleanField(default=False)

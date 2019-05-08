@@ -35,10 +35,16 @@
         </tr>
         <tbody>
         {% for obj in object.years.all %}
-            <tr href="{% url 'spot:year_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project year">
+
+
+
+            <tr {% if obj.fiscal_year.full == current_fy %} class="highlight"{% endif %}
+                    href="{% url 'spot:year_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project year">
                 <td>
                     {{ obj.fiscal_year }}
                 </td>
+
+
                 <td>
                     {{ obj.annual_funding|currency:True }}
                 </td>
@@ -49,7 +55,7 @@
                     {{ obj.annual_funding|subtract:obj.payments_issued|currency:True }}
                 </td>
                 <td>
-                    {{ obj.year_complete|yesno }}
+                    {{ obj.year_complete|yesno:"yes,no,no" }}
                 </td>
             </tr>
         {% endfor %}
