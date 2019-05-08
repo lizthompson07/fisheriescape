@@ -569,6 +569,10 @@ class ProjectYearDetailView(SpotAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["current_fy"] = fiscal_year()
+        # send in the name of the project's first fiscal year
+        context["first_year"] = fiscal_year()
+        # currently field are being called manually into a table. This can be improved when time permits
         context["field_list"] = [
             'annual_funding',
         ]
