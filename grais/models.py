@@ -98,7 +98,7 @@ class Sample(models.Model):
     # notes = models.TextField(blank=True, null=True)
     # notes_html = models.TextField(blank=True, null=True)
     # date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    old_id = models.IntegerField(blank=True, null=True)
+    old_substn_id = models.IntegerField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SampleSpecies')
     season = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
