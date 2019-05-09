@@ -5,10 +5,10 @@ from shared_models import models as shared_models
 from masterlist import models as ml_models
 from . import models
 
-attr_chosen_contains = {"class":"chosen-select-contains"}
-attr_chosen = {"class":"chosen-select"}
-attr_fp_date = {"class":"fp-date", "placeholder":"Select Date.."}
-attr_fp_date_time = {"class":"fp-date-time", "placeholder":"Select Date and Time.."}
+attr_chosen_contains = {"class": "chosen-select-contains"}
+attr_chosen = {"class": "chosen-select"}
+attr_fp_date = {"class": "fp-date", "placeholder": "Select Date.."}
+attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -123,6 +123,7 @@ class ProjectForm(forms.ModelForm):
         org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
         self.fields['organization'].choices = org_choices
 
+
 class NewProjectForm(forms.ModelForm):
     class Meta:
         model = models.Project
@@ -155,8 +156,9 @@ class NewProjectForm(forms.ModelForm):
             'status': forms.Select(attrs=attr_chosen_contains),
             'start_year': forms.Select(attrs=attr_chosen_contains),
             'regions': forms.SelectMultiple(attrs=attr_chosen_contains),
-            'title': forms.Textarea(attrs={"rows":4}),
+            'title': forms.Textarea(attrs={"rows": 4}),
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
@@ -192,6 +194,7 @@ class ProjectYearForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'project': forms.HiddenInput(),
         }
+
 
 class InitiationForm(forms.ModelForm):
     class Meta:
@@ -244,7 +247,6 @@ class EOIForm(forms.ModelForm):
         }
 
 
-
 class ProjectReviewForm(forms.ModelForm):
     class Meta:
         model = models.Project
@@ -290,7 +292,6 @@ class NegotiationForm(forms.ModelForm):
         }
 
 
-
 class CAChecklistForm(forms.ModelForm):
     class Meta:
         model = models.ContributionAgreementChecklist
@@ -302,9 +303,50 @@ class CAChecklistForm(forms.ModelForm):
             'project': forms.HiddenInput(),
 
             'feedback': forms.Textarea(attrs={"rows": 5}),
-            'coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
-            'date_received': forms.DateInput(attrs=attr_fp_date_time),
-            'feedback_sent': forms.DateInput(attrs=attr_fp_date),
+            'review_completion_date': forms.DateInput(attrs=attr_fp_date_time),
+            'date_assessed': forms.DateInput(attrs=attr_fp_date_time),
+        }
+
+
+class CAAdministrationForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'risk_assessment_score',
+            'schedule_5_complete',
+            'advance_payment',
+            'draft_ca_sent_to_proponent',
+            'draft_ca_proponent_approved',
+            'draft_ca_ready',
+            'draft_ca_sent_to_manager',
+            'draft_ca_manager_approved',
+            'draft_ca',
+            'draft_ca_sent_to_nhq',
+            'aip_received',
+            'final_ca_received',
+            'final_ca_sent_to_proponent',
+            'final_ca_proponent_signed',
+            'final_ca_sent_to_nhq',
+            'advance_payment_sent_to_nhq',
+            'final_ca_nhq_signed',
+            'notes',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": 4}),
+
+            'schedule_5_complete': forms.DateInput(attrs=attr_fp_date),
+            'draft_ca_sent_to_proponent': forms.DateInput(attrs=attr_fp_date),
+            'draft_ca_proponent_approved': forms.DateInput(attrs=attr_fp_date),
+            'draft_ca_ready': forms.DateInput(attrs=attr_fp_date),
+            'draft_ca_sent_to_manager': forms.DateInput(attrs=attr_fp_date),
+            'draft_ca_sent_to_nhq': forms.DateInput(attrs=attr_fp_date),
+            'aip_received': forms.DateInput(attrs=attr_fp_date),
+            'final_ca_received': forms.DateInput(attrs=attr_fp_date),
+            'final_ca_proponent_signed': forms.DateInput(attrs=attr_fp_date),
+            'final_ca_sent_to_nhq': forms.DateInput(attrs=attr_fp_date),
+            'advance_payment_sent_to_nhq': forms.DateInput(attrs=attr_fp_date),
+            'final_ca_nhq_signed': forms.DateInput(attrs=attr_fp_date),
         }
 
 
@@ -328,10 +370,10 @@ class PaymentForm(forms.ModelForm):
         widgets = {
             'project_year': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
-            'to_period': forms.DateInput(attrs={"type":"date"}),
-            'from_period': forms.DateInput(attrs={"type":"date"}),
-            'nhq_notified': forms.DateInput(attrs={"type":"date"}),
-            'notes': forms.Textarea(attrs={"rows":"4"}),
+            'to_period': forms.DateInput(attrs={"type": "date"}),
+            'from_period': forms.DateInput(attrs={"type": "date"}),
+            'nhq_notified': forms.DateInput(attrs={"type": "date"}),
+            'notes': forms.Textarea(attrs={"rows": "4"}),
             'materials_submitted': forms.Select(choices=YES_NO_CHOICES),
             'payment_confirmed': forms.Select(choices=YES_NO_CHOICES),
         }
