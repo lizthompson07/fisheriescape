@@ -227,15 +227,18 @@ class EOIForm(forms.ModelForm):
             'eoi_date_received',
             'eoi_project_description',
             'eoi_coordinator_notified',
+            'eoi_feedback',
             'eoi_feedback_sent',
             'last_modified_by',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'project': forms.HiddenInput(),
+
+            'eoi_feedback': forms.Textarea(attrs={"rows": 5}),
             'eoi_coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
             'eoi_date_received': forms.DateInput(attrs=attr_fp_date_time),
             'eoi_feedback_sent': forms.DateInput(attrs=attr_fp_date),
-            'project': forms.HiddenInput(),
         }
 
 

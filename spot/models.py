@@ -282,7 +282,7 @@ class Role(models.Model):
 
 
 class ProjectPerson(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="project_people")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_people")
     person = models.ForeignKey(ml_models.Person, on_delete=models.DO_NOTHING, related_name="project_people")
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="project_people")
 
@@ -369,6 +369,7 @@ class ExpressionOfInterest(models.Model):
     eoi_date_received = models.DateTimeField(blank=True, null=True, default=timezone.now)
     eoi_project_description = models.TextField(blank=True, null=True)
     eoi_coordinator_notified = models.DateTimeField(blank=True, null=True)
+    eoi_feedback = models.TextField(blank=True, null=True)
     eoi_feedback_sent = models.DateTimeField(blank=True, null=True)
 
     # meta
