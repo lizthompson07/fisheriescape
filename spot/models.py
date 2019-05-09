@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from lib.functions.custom_functions import truncate
 from lib.functions.custom_functions import fiscal_year
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from masterlist import models as ml_models
 
@@ -19,6 +20,7 @@ class Status(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
     color = models.CharField(max_length=15, blank=True, null=True)
     old_id = models.IntegerField(blank=True, null=True)
+    description_text = models.CharField(max_length=250, blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -107,7 +109,7 @@ class PriorityAreaOrThreat(models.Model):
             return "{} ({})".format(self.name, self.get_type_display())
 
     class Meta:
-        ordering = ['type',_('name'), ]
+        ordering = ['type', _('name'), ]
 
 
 def draft_ca_file_directory_path(instance, filename):
@@ -137,7 +139,8 @@ class Project(models.Model):
     title_abbrev = models.CharField(max_length=500, blank=True, null=True)
     initiation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     initiation_type = models.ForeignKey(InitiationType, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
-    priority_area_or_threat = models.ForeignKey(PriorityAreaOrThreat, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
+    priority_area_or_threat = models.ForeignKey(PriorityAreaOrThreat, on_delete=models.DO_NOTHING, related_name="projects", blank=True,
+                                                null=True)
     initiation_acknowledgement_sent = models.DateTimeField(blank=True, null=True)
     requested_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 1)"))
     requested_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 2)"))
@@ -149,6 +152,7 @@ class Project(models.Model):
     regional_score = models.DecimalField(max_digits=18, decimal_places=0, blank=True, null=True)
     rank = models.IntegerField(blank=True, null=True)
     application_submission_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date/time of application submission"))
+    submission_accepted = models.NullBooleanField()
     notes = models.TextField(blank=True, null=True, verbose_name=_("project notes"))
     recommended_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 1)"))
     recommended_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 2)"))
@@ -195,6 +199,13 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
+
+        # determine status
+        self.status_id = determine_project_status(self)
+
+        # determine length
+        self.project_length = determine_project_length(self, self.status_id)
+
         return super().save(*args, **kwargs)
 
     class Meta:
@@ -203,22 +214,29 @@ class Project(models.Model):
     @property
     def total_requested_funding(self):
         return sum([
-            self.requested_funding_y1,
-            self.requested_funding_y2,
-            self.requested_funding_y3,
-            self.requested_funding_y4,
-            self.requested_funding_y5,
+            nz(self.requested_funding_y1, 0),
+            nz(self.requested_funding_y2, 0),
+            nz(self.requested_funding_y3, 0),
+            nz(self.requested_funding_y4, 0),
+            nz(self.requested_funding_y5, 0),
         ])
 
     @property
     def total_recommended_funding(self):
         return sum([
-            self.recommended_funding_y1,
-            self.recommended_funding_y2,
-            self.recommended_funding_y3,
-            self.recommended_funding_y4,
-            self.recommended_funding_y5,
+            nz(self.recommended_funding_y1, 0),
+            nz(self.recommended_funding_y2, 0),
+            nz(self.recommended_funding_y3, 0),
+            nz(self.recommended_funding_y4, 0),
+            nz(self.recommended_funding_y5, 0),
         ])
+
+    @property
+    def total_project_funding(self):
+        if self.years:
+            return sum([nz(f.annual_funding, 0) for f in self.years.all()])
+        else:
+            return 0
 
     @property
     def negotiation_completion_date(self):
@@ -228,6 +246,7 @@ class Project(models.Model):
     @property
     def end_year(self):
         return self.years.order_by("fiscal_year").last().fiscal_year.full
+
 
 @receiver(models.signals.post_delete, sender=Project)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -297,6 +316,7 @@ class ProjectPerson(models.Model):
     class Meta:
         unique_together = ['project', 'person', 'role']
         ordering = ['project', 'role', 'person']
+
 
 class ContributionAgreementChecklist(models.Model):
     project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="ca_checklist")
@@ -369,6 +389,7 @@ class ExpressionOfInterest(models.Model):
     eoi_date_received = models.DateTimeField(blank=True, null=True, default=timezone.now)
     eoi_project_description = models.TextField(blank=True, null=True)
     eoi_coordinator_notified = models.DateTimeField(blank=True, null=True)
+    eoi_project_eligible = models.NullBooleanField()
     eoi_feedback = models.TextField(blank=True, null=True)
     eoi_feedback_sent = models.DateTimeField(blank=True, null=True)
 
@@ -409,7 +430,7 @@ class ProjectYear(models.Model):
 
     class Meta:
         unique_together = ['project', 'fiscal_year']
-        ordering = ["project","fiscal_year"]
+        ordering = ["project", "fiscal_year"]
 
     @property
     def payments_issued(self):
@@ -721,3 +742,73 @@ class Payment(models.Model):
     @property
     def disbursement(self):
         return self.advance_amount + self.reimbursement_amount
+
+
+def determine_project_status(project):
+    ignore_statuses = [2, 4, 5, 7, 11, 12, 13]
+    # first check to see if this function should be escaped
+    if project.status_id in ignore_statuses:
+        return project.status_id
+
+    # otherwise we assess status
+    else:
+        # start backwards
+        if project.date_completed:
+        # means project is over
+            return 13
+        elif project.total_project_funding > 0:
+        # means funding has been assigned. Status should be changed to 'active'
+            return 10
+        elif nz(project.recommended_overprogramming, 0) > 0:
+        # means project is on OP
+            return 8
+        elif project.total_recommended_funding > 0:
+        # means funding has been recommended
+            return 9
+        elif project.submission_accepted == False:
+        # means submission has not been accepted
+            return 5
+        elif project.submission_accepted == True:
+        # means submission was successful
+            return 6
+        elif ExpressionOfInterest.objects.filter(project=project).count() > 0:
+        # means an eoi was submitted
+            if project.eoi.eoi_project_eligible == False:
+                # means project was deemed eligible
+                return 2
+            elif project.eoi.eoi_project_eligible == True:
+                # means project was deemed ineligible
+                return 3
+            else:
+                return 1
+        else:
+            print("returning default status")
+            return project.status_id
+
+def determine_project_length(project, status_id):
+    # depending on the status, we should set the project length
+    my_length = 0
+
+    if status_id == 8:
+        # an OP project can only be for 1 year
+        my_length = 1
+    elif status_id == 9:
+        # recommended project will be based on the number of years recommended
+        if nz(project.recommended_funding_y1,0) > 0:
+            my_length += 1
+        if nz(project.recommended_funding_y2,0) > 0:
+            my_length += 1
+        if nz(project.recommended_funding_y3,0) > 0:
+            my_length += 1
+        if nz(project.recommended_funding_y4,0) > 0:
+            my_length += 1
+        if nz(project.recommended_funding_y5,0) > 0:
+            my_length += 1
+    elif status_id == 10:
+        # active project will be based on the number of project-years
+        my_length = project.years.count()
+
+    else:
+        my_length = None
+
+    return my_length

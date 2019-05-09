@@ -361,6 +361,7 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
             'program.abbrev_eng',
             'organization',
             'title',
+            'project_length',
             'regions',
         ]
         return context
@@ -386,7 +387,6 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'start_year',
             'project_length',
             'date_completed',
-            'eccc_id',
         ]
         return context
 
