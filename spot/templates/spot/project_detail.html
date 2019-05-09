@@ -69,17 +69,7 @@
             <div class="col">
                 <div class="">
                     <h1>{{ object }}</h1>
-                    <h5>
-                        <ul>
-                            <li>
-                                <span style="background-color: {{ object.status.color }}">
-                                {{ object.status.description_text }}
-                                </span>
-                            </li>
-
-                            {# A good spot to display some contextual messages #}
-                        </ul>
-                    </h5>
+                    {% include "spot/_status.html" %}
                 </div>
                 <br><br>
 
