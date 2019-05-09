@@ -170,7 +170,7 @@ class Project(models.Model):
     negotiation_letter_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("negotiation letter sent to client"))
 
     ## CA Assembly
-    schedule_5_complete = models.DateTimeField(blank=True, null=True, verbose_name=_("schedule_is_complete"))
+    schedule_5_complete = models.DateTimeField(blank=True, null=True, verbose_name=_("schedule 5 is complete"))
     advance_payment = models.BooleanField(default=True, verbose_name=_("will this project receive an advance payment?"))
     draft_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to client"))
     draft_ca_proponent_approved = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA approved by client"))
@@ -178,7 +178,7 @@ class Project(models.Model):
     ## CA Checklist stuff
     draft_ca_sent_to_manager = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to manager"))
     draft_ca_manager_approved = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA approved by manager"))
-    draft_ca = models.FileField(blank=True, null=True, verbose_name=_("draft CA"))
+    draft_ca = models.FileField(blank=True, null=True, verbose_name=_("draft CA"), upload_to=draft_ca_file_directory_path)
     draft_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to NHQ"))
     aip_received = models.DateTimeField(blank=True, null=True, verbose_name=_("approve-in-principal (AIP) received"))
     final_ca_received = models.DateTimeField(blank=True, null=True, verbose_name=_("final CA received from NHQ"))
@@ -247,40 +247,6 @@ class Project(models.Model):
     def end_year(self):
         return self.years.order_by("fiscal_year").last().fiscal_year.full
 
-
-@receiver(models.signals.post_delete, sender=Project)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-
-    # for draft ca
-    if instance.draft_ca:
-        if os.path.isfile(instance.draft_ca.path):
-            os.remove(instance.draft_ca.path)
-
-
-@receiver(models.signals.pre_save, sender=Project)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    # for draft ca
-    try:
-        old_file = ProjectYear.objects.get(pk=instance.pk).draft_ca
-    except ProjectYear.DoesNotExist:
-        return False
-
-    new_file = instance.draft_ca
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
 
 
 class Role(models.Model):
@@ -684,37 +650,6 @@ class Photo(models.Model):
         return self.caption
 
 
-@receiver(models.signals.post_delete, sender=Photo)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
-
-
-@receiver(models.signals.pre_save, sender=Photo)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = Photo.objects.get(pk=instance.pk).file
-    except Photo.DoesNotExist:
-        return False
-
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
-
 
 class Payment(models.Model):
     project_year = models.ForeignKey(ProjectYear, related_name="payments", on_delete=models.DO_NOTHING)
@@ -813,3 +748,72 @@ def determine_project_length(project, status_id):
         my_length = None
 
     return my_length
+
+
+
+@receiver(models.signals.post_delete, sender=Project)
+def auto_delete_draft_ca_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    # for draft ca
+    if instance.draft_ca:
+        if os.path.isfile(instance.draft_ca.path):
+            os.remove(instance.draft_ca.path)
+
+
+@receiver(models.signals.pre_save, sender=Project)
+def auto_delete_draft_ca_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    # for draft ca
+    try:
+        old_file = Project.objects.get(pk=instance.pk).draft_ca
+    except Project.DoesNotExist:
+        return False
+
+    if old_file:
+        new_file = instance.draft_ca
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)
+
+
+@receiver(models.signals.post_delete, sender=Photo)
+def auto_delete_photo_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=Photo)
+def auto_delete_photo_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Photo.objects.get(pk=instance.pk).file
+    except Photo.DoesNotExist:
+        return False
+
+    if old_file:
+        new_file = instance.file
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)

@@ -658,10 +658,12 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/tracking_form_popout.html'
 
     def get_queryset(self, *args, **kwargs):
-        if self.kwargs["step"] == "initiation" or self.kwargs["step"] == "review" or self.kwargs["step"] == "negotiations":
+        if self.kwargs["step"] == "initiation" or self.kwargs["step"] == "review" or self.kwargs["step"] == "negotiations" or self.kwargs["step"] == "ca-admin":
             return models.Project.objects.all()
-        else:
+        elif self.kwargs["step"] == "my-update":
             return models.ProjectYear.objects.all()
+        else:
+            return None
 
     def get_form_class(self, *args, **kwargs):
         if self.kwargs["step"] == "initiation":
