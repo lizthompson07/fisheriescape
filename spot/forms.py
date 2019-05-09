@@ -224,22 +224,23 @@ class EOIForm(forms.ModelForm):
         model = models.ExpressionOfInterest
         fields = [
             'project',
-            'eoi_date_received',
-            'eoi_project_description',
-            'eoi_coordinator_notified',
-            'eoi_project_eligible',
-            'eoi_feedback',
-            'eoi_feedback_sent',
+            'date_received',
+            'title',
+            'description',
+            'coordinator_notified',
+            'project_eligible',
+            'feedback',
+            'feedback_sent',
             'last_modified_by',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'project': forms.HiddenInput(),
 
-            'eoi_feedback': forms.Textarea(attrs={"rows": 5}),
-            'eoi_coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
-            'eoi_date_received': forms.DateInput(attrs=attr_fp_date_time),
-            'eoi_feedback_sent': forms.DateInput(attrs=attr_fp_date),
+            'feedback': forms.Textarea(attrs={"rows": 5}),
+            'coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
+            'date_received': forms.DateInput(attrs=attr_fp_date_time),
+            'feedback_sent': forms.DateInput(attrs=attr_fp_date),
         }
 
 
@@ -267,6 +268,43 @@ class ProjectReviewForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={"rows": 3}),
             'application_submission_date': forms.DateInput(attrs=attr_fp_date_time),
             'regrets_or_op_letter_sent_date': forms.DateInput(attrs=attr_fp_date),
+        }
+
+
+class NegotiationForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'risk_assessment_score',
+            'negotiations_workplan_completion_date',
+            'negotiations_financials_completion_date',
+            'negotiation_letter_sent',
+            'notes',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": 5}),
+            'negotiations_workplan_completion_date': forms.DateInput(attrs=attr_fp_date),
+            'negotiations_financials_completion_date': forms.DateInput(attrs=attr_fp_date),
+            'negotiation_letter_sent': forms.DateInput(attrs=attr_fp_date_time),
+        }
+
+
+
+class CAChecklistForm(forms.ModelForm):
+    class Meta:
+        model = models.ContributionAgreementChecklist
+        exclude = [
+            "date_last_modified",
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'project': forms.HiddenInput(),
+
+            'feedback': forms.Textarea(attrs={"rows": 5}),
+            'coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
+            'date_received': forms.DateInput(attrs=attr_fp_date_time),
+            'feedback_sent': forms.DateInput(attrs=attr_fp_date),
         }
 
 
