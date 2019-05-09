@@ -119,12 +119,12 @@ def draft_ca_file_directory_path(instance, filename):
 
 
 class Project(models.Model):
-    path_number = models.CharField(max_length=50, blank=True, null=True)
+    path_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("DFO PATH #"))
     program_reference_number = models.CharField(max_length=50, blank=True, null=True)
     organization = models.ForeignKey(ml_models.Organization, on_delete=models.DO_NOTHING, related_name="projects")
-    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="projects")
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="projects", default=1)
-    regions = models.ManyToManyField(shared_models.Region, default=1)
+    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="projects", verbose_name=_("funding program"))
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="projects", default=1, verbose_name=_("project status"))
+    regions = models.ManyToManyField(shared_models.Region, default=1, verbose_name=_("DFO regions"))
     start_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, related_name="gc_projects",
                                    default=fiscal_year(sap_style=True, next=True))
     project_length = models.IntegerField(blank=True, null=True)
@@ -136,12 +136,12 @@ class Project(models.Model):
     language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, related_name="projects",
                                  verbose_name=_("project language"))
     title = models.TextField()
-    title_abbrev = models.CharField(max_length=500, blank=True, null=True)
+    title_abbrev = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("title abbreviation"))
     initiation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    initiation_type = models.ForeignKey(InitiationType, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
+    initiation_type = models.ForeignKey(InitiationType, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True, verbose_name=_("type of initiation"))
     priority_area_or_threat = models.ForeignKey(PriorityAreaOrThreat, on_delete=models.DO_NOTHING, related_name="projects", blank=True,
-                                                null=True)
-    initiation_acknowledgement_sent = models.DateTimeField(blank=True, null=True)
+                                                null=True, verbose_name=_("priority area or threat"))
+    initiation_acknowledgement_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("acknowledgement email sent"))
     requested_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 1)"))
     requested_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 2)"))
     requested_funding_y3 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 3)"))
@@ -149,44 +149,44 @@ class Project(models.Model):
     requested_funding_y5 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 5)"))
 
     ## Regional Review
-    regional_score = models.DecimalField(max_digits=18, decimal_places=0, blank=True, null=True)
-    rank = models.IntegerField(blank=True, null=True)
+    regional_score = models.DecimalField(max_digits=18, decimal_places=0, blank=True, null=True, verbose_name=_("regional score"))
+    rank = models.IntegerField(blank=True, null=True, verbose_name=_("project rank"))
     application_submission_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date/time of application submission"))
-    submission_accepted = models.NullBooleanField()
+    submission_accepted = models.NullBooleanField(verbose_name=_("was the submission accepted?"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("project notes"))
-    recommended_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 1)"))
-    recommended_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 2)"))
-    recommended_funding_y3 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 3)"))
-    recommended_funding_y4 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 4)"))
-    recommended_funding_y5 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 5)"))
-    recommended_overprogramming = models.FloatField(blank=True, null=True)
-    regrets_or_op_letter_sent_date = models.DateTimeField(blank=True, null=True)
+    recommended_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding amount - Year 1"))
+    recommended_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding amount - Year 2"))
+    recommended_funding_y3 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding amount - Year 3"))
+    recommended_funding_y4 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding amount - Year 4"))
+    recommended_funding_y5 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding amount - Year 5"))
+    recommended_overprogramming = models.FloatField(blank=True, null=True, verbose_name=_("recommended amount for over-programming"))
+    regrets_or_op_letter_sent_date = models.DateTimeField(blank=True, null=True, verbose_name=_("client notification sent (OP or Regrets only)"))
 
     ## Negotiations
     risk_assessment_score = models.ForeignKey(RiskAssessmentScore, on_delete=models.DO_NOTHING, related_name="projects", blank=True,
                                               null=True)
-    negotiations_workplan_completion_date = models.DateTimeField(blank=True, null=True)
-    negotiations_financials_completion_date = models.DateTimeField(blank=True, null=True)
-    negotiation_letter_sent = models.DateTimeField(blank=True, null=True)
+    negotiations_workplan_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("negotiation workplan complete"))
+    negotiations_financials_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("negotiation financials complete"))
+    negotiation_letter_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("negotiation letter sent to client"))
 
     ## CA Assembly
-    schedule_5_complete = models.DateTimeField(blank=True, null=True)
-    advance_payment = models.BooleanField(default=False)
-    draft_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True)
-    draft_ca_proponent_approved = models.DateTimeField(blank=True, null=True)
-    draft_ca_ready = models.DateTimeField(blank=True, null=True)
+    schedule_5_complete = models.DateTimeField(blank=True, null=True, verbose_name=_("schedule_is_complete"))
+    advance_payment = models.BooleanField(default=True, verbose_name=_("will this project receive an advance payment?"))
+    draft_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to client"))
+    draft_ca_proponent_approved = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA approved by client"))
+    draft_ca_ready = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA ready"))
     ## CA Checklist stuff
     draft_ca_sent_to_manager = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to manager"))
     draft_ca_manager_approved = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA approved by manager"))
     draft_ca = models.FileField(blank=True, null=True, verbose_name=_("draft CA"))
     draft_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True, verbose_name=_("draft CA sent to NHQ"))
     aip_received = models.DateTimeField(blank=True, null=True, verbose_name=_("approve-in-principal (AIP) received"))
-    final_ca_received = models.DateTimeField(blank=True, null=True)
-    final_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True)
-    final_ca_proponent_signed = models.DateTimeField(blank=True, null=True)
-    final_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True)
-    advance_payment_sent_to_nhq = models.DateTimeField(blank=True, null=True)
-    final_ca_nhq_signed = models.DateTimeField(blank=True, null=True)
+    final_ca_received = models.DateTimeField(blank=True, null=True, verbose_name=_("final CA received from NHQ"))
+    final_ca_sent_to_proponent = models.DateTimeField(blank=True, null=True, verbose_name=_("final CA sent to client"))
+    final_ca_proponent_signed = models.DateTimeField(blank=True, null=True, verbose_name=_("final CA signed by client"))
+    final_ca_sent_to_nhq = models.DateTimeField(blank=True, null=True, verbose_name=_("final CA sent to HNQ"))
+    advance_payment_sent_to_nhq = models.DateTimeField(blank=True, null=True, verbose_name=_("advance payment sent to NHQ"))
+    final_ca_nhq_signed = models.DateTimeField(blank=True, null=True, verbose_name=_("final CA signed by NHQ"))
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -372,7 +372,7 @@ class ContributionAgreementChecklist(models.Model):
     team_leader_reviewed = models.NullBooleanField(verbose_name=_("The Team Leader has reviewed and approves the CA"))
     comment_for_nhq = models.TextField(verbose_name=_("Comments for NHQ"), blank=True, null=True)
     review_completion_date = models.DateTimeField(blank=True, null=True)
-    completed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    # completed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -386,12 +386,13 @@ class ContributionAgreementChecklist(models.Model):
 
 class ExpressionOfInterest(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name="eoi")
-    eoi_date_received = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    eoi_project_description = models.TextField(blank=True, null=True)
-    eoi_coordinator_notified = models.DateTimeField(blank=True, null=True)
-    eoi_project_eligible = models.NullBooleanField()
-    eoi_feedback = models.TextField(blank=True, null=True)
-    eoi_feedback_sent = models.DateTimeField(blank=True, null=True)
+    date_received = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date received"))
+    title = models.TextField(blank=True, null=True, verbose_name=_("title"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+    coordinator_notified = models.DateTimeField(blank=True, null=True, verbose_name=_("coordinator was notified"))
+    project_eligible = models.NullBooleanField(verbose_name=_("is the project eligible?"))
+    feedback = models.TextField(blank=True, null=True, verbose_name=_("Feedback to client"))
+    feedback_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("feedback sent to client"))
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -722,10 +723,10 @@ class Payment(models.Model):
     reimbursement_amount = models.FloatField(default=0)
     from_period = models.DateTimeField(blank=True, null=True)
     to_period = models.DateTimeField(blank=True, null=True)
-    final_payment = models.BooleanField(default=False)
-    materials_submitted = models.BooleanField(default=False)
+    final_payment = models.BooleanField(default=False, verbose_name=_("Is this a final payment (project-year)?"))
+    materials_submitted = models.NullBooleanField(verbose_name=_("were all necessary materials submitted?"))
     nhq_notified = models.DateTimeField(blank=True, null=True, verbose_name=_("NHQ notified"))
-    payment_confirmed = models.BooleanField(default=False)
+    payment_confirmed = models.NullBooleanField(verbose_name=_("has the payment been confirmed?"))
     notes = models.TextField(blank=True, null=True)
 
     # meta
@@ -773,10 +774,10 @@ def determine_project_status(project):
             return 6
         elif ExpressionOfInterest.objects.filter(project=project).count() > 0:
         # means an eoi was submitted
-            if project.eoi.eoi_project_eligible == False:
+            if project.eoi.project_eligible == False:
                 # means project was deemed eligible
                 return 2
-            elif project.eoi.eoi_project_eligible == True:
+            elif project.eoi.project_eligible == True:
                 # means project was deemed ineligible
                 return 3
             else:

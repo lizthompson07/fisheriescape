@@ -42,6 +42,7 @@ urlpatterns = [
     # Tracking views
     path('<int:pk>/tracking/<str:step>/', views.TrackingUpdateView.as_view(), name="tracking"),
     path('project/<int:pk>/eoi/', views.EOIUpdateView.as_view(), name="eoi"),
+    path('project/<int:pk>/ca-checklist/', views.CAChecklistUpdateView.as_view(), name="ca_checklist"),
 
 
     # PROJECT PERSON #

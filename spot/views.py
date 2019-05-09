@@ -658,7 +658,7 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/tracking_form_popout.html'
 
     def get_queryset(self, *args, **kwargs):
-        if self.kwargs["step"] == "initiation" or self.kwargs["step"] == "review":
+        if self.kwargs["step"] == "initiation" or self.kwargs["step"] == "review" or self.kwargs["step"] == "negotiations":
             return models.Project.objects.all()
         else:
             return models.ProjectYear.objects.all()
@@ -668,8 +668,18 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
             return forms.InitiationForm
         elif self.kwargs["step"] == "review":
             return forms.ProjectReviewForm
+        elif self.kwargs["step"] == "negotiations":
+            return forms.NegotiationForm
         else:
             return forms.ProjectYearForm
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        step_name =  self.kwargs["step"]
+        if step_name == "review":
+            step_name = "Project Regional Review"
+        context["step_name"] = step_name
+        return context
 
     def get_initial(self):
         return {
@@ -699,9 +709,44 @@ class EOIUpdateView(SpotAccessRequiredMixin, UpdateView):
             'last_modified_by': self.request.user,
         }
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["step_name"] = "Expression of Interest"
+        return context
+
     def form_valid(self, form):
         my_object = form.save()
         return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+
+
+class CAChecklistUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/tracking_form_popout.html'
+    form_class = forms.CAChecklistForm
+
+    def get_object(self, *args, **kwargs):
+        my_ca_checklist, created = models.ContributionAgreementChecklist.objects.get_or_create(
+            project=models.Project.objects.get(pk=self.kwargs["pk"])
+        )
+        if created:
+            my_ca_checklist.save()
+        return my_ca_checklist
+
+    def get_initial(self):
+        return {
+            'project': models.Project.objects.get(pk=self.kwargs["pk"]),
+            'last_modified_by': self.request.user,
+        }
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["step_name"] = "CA Checklist"
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
 
 # PAYMENT #
 ################
