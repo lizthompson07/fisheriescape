@@ -76,14 +76,48 @@ class PersonForm(forms.ModelForm):
             "cell",
             "fax",
             "language",
-            "notes",
-            "old_id",
         ]
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'notes': forms.Textarea(attrs={"rows": 3}),
+            'language': forms.Select(attrs=attr_chosen),
         }
+
+
+class NewPersonForm(forms.ModelForm):
+    organization = forms.ChoiceField(widget=forms.Select(attrs=attr_chosen_contains))
+    role = forms.CharField(required=False)
+
+    class Meta:
+        model = ml_models.Person
+        fields = [
+            "designation",
+            "first_name",
+            "last_name",
+            "email_1",
+            "email_2",
+            "phone_1",
+            "phone_2",
+            "cell",
+            "fax",
+            "language",
+            # "notes",
+        ]
+
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'language': forms.Select(attrs=attr_chosen),
+            # 'notes': forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
+        org_choices.insert(0,(None, "------"))
+        self.fields['organization'].choices = org_choices
+
+
+
 
 
 class ProjectForm(forms.ModelForm):
@@ -120,7 +154,7 @@ class ProjectForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
+        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()].insert(0,(None, "------"))
         self.fields['organization'].choices = org_choices
 
 
@@ -177,6 +211,7 @@ class ProjectPersonForm(forms.ModelForm):
         ]
         widgets = {
             'project': forms.HiddenInput(),
+            'role': forms.Select(attrs=attr_chosen_contains),
             'last_modified_by': forms.HiddenInput(),
         }
 

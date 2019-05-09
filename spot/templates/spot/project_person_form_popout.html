@@ -1,14 +1,11 @@
+{% extends 'pop_base.html' %}
 {% load bootstrap4 %}
 {% load i18n %}
 {% load static %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
 
-{% block content %}
-    <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen" type="text/css">
-
-    <link rel="stylesheet" href="{% static 'css/master.css' %}">
-    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
+{% block body %}
 
     <style>
         .ms-container {
@@ -223,4 +220,4 @@
     </script>
 
 
-{% endblock content %}
+{% endblock %}
