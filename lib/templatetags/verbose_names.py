@@ -161,7 +161,7 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
     field_value = get_field_value(instance, field_name, format, display_time)
 
     if url and field_value != "n/a":
-        html_block = '<tr><th><a href="{}">{}</a></th><td>{}</td></tr>'.format(verbose_name, url, field_value)
+        html_block = '<tr><th>{}</th><td><a href="{}">{}</a></td></tr>'.format(verbose_name, url, field_value)
     else:
         html_block = '<tr><th>{}</th><td>{}</td></tr>'.format(verbose_name, field_value)
 

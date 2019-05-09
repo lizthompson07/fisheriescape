@@ -82,7 +82,12 @@
                         <h4>Project Summary:</h4>
                         <table class="table table-sm table-bordered" style="width: auto">
                             {% for field in field_list %}
-                                {% verbose_td_display object field %}
+                                {% if field == "organization" %}
+                                    {% url 'spot:org_detail' object.organization.id  as org_url %}
+                                    {% verbose_td_display object field url=org_url %}
+                                {% else %}
+                                    {% verbose_td_display object field %}
+                                {% endif %}
                             {% endfor %}
                         </table>
                     </div>
