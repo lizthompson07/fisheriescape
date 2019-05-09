@@ -83,6 +83,33 @@ class InitiationType(models.Model):
         ordering = [_('name'), ]
 
 
+class PriorityAreaOrThreat(models.Model):
+    # choices for type
+    THREAT = 1
+    PRIORITY = 2
+    TYPE_CHOICES = (
+        (THREAT, _("Threat")),
+        (PRIORITY, _("Priority area")),
+    )
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+    type = models.IntegerField(blank=True, null=True, choices=TYPE_CHOICES)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{} ({})".format(
+                getattr(self, str(_("name"))),
+                self.get_type_display(),
+            )
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{} ({})".format(self.name, self.get_type_display())
+
+    class Meta:
+        ordering = ['type',_('name'), ]
+
+
 def draft_ca_file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
     suffix = filename.split(".")[1]
@@ -110,10 +137,13 @@ class Project(models.Model):
     title_abbrev = models.CharField(max_length=500, blank=True, null=True)
     initiation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     initiation_type = models.ForeignKey(InitiationType, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
+    priority_area_or_threat = models.ForeignKey(PriorityAreaOrThreat, on_delete=models.DO_NOTHING, related_name="projects", blank=True, null=True)
     initiation_acknowledgement_sent = models.DateTimeField(blank=True, null=True)
     requested_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 1)"))
     requested_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 2)"))
     requested_funding_y3 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 3)"))
+    requested_funding_y4 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 4)"))
+    requested_funding_y5 = models.FloatField(blank=True, null=True, verbose_name=_("requested funding (year 5)"))
 
     ## Regional Review
     regional_score = models.DecimalField(max_digits=18, decimal_places=0, blank=True, null=True)
@@ -123,6 +153,8 @@ class Project(models.Model):
     recommended_funding_y1 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 1)"))
     recommended_funding_y2 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 2)"))
     recommended_funding_y3 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 3)"))
+    recommended_funding_y4 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 4)"))
+    recommended_funding_y5 = models.FloatField(blank=True, null=True, verbose_name=_("recommended funding (year 5)"))
     recommended_overprogramming = models.FloatField(blank=True, null=True)
     regrets_or_op_letter_sent_date = models.DateTimeField(blank=True, null=True)
 
@@ -174,6 +206,8 @@ class Project(models.Model):
             self.requested_funding_y1,
             self.requested_funding_y2,
             self.requested_funding_y3,
+            self.requested_funding_y4,
+            self.requested_funding_y5,
         ])
 
     @property
@@ -182,6 +216,8 @@ class Project(models.Model):
             self.recommended_funding_y1,
             self.recommended_funding_y2,
             self.recommended_funding_y3,
+            self.recommended_funding_y4,
+            self.recommended_funding_y5,
         ])
 
     @property
@@ -329,7 +365,9 @@ class ContributionAgreementChecklist(models.Model):
 
 
 class ExpressionOfInterest(models.Model):
-    project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="eois")
+    project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="eoi")
+    eoi_date_received = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    eoi_project_description = models.TextField(blank=True, null=True)
     eoi_coordinator_notified = models.DateTimeField(blank=True, null=True)
     eoi_feedback_sent = models.DateTimeField(blank=True, null=True)
 
