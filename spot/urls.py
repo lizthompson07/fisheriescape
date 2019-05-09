@@ -40,7 +40,8 @@ urlpatterns = [
     path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
 
     # Tracking views
-    path('project-year/<int:pk>/tracking/<str:step>/', views.TrackingUpdateView.as_view(), name="tracking"),
+    path('<int:pk>/tracking/<str:step>/', views.TrackingUpdateView.as_view(), name="tracking"),
+    path('project/<int:pk>/eoi/', views.EOIUpdateView.as_view(), name="eoi"),
 
 
     # PROJECT PERSON #

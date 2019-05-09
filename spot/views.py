@@ -435,6 +435,7 @@ class ProjectDeleteView(SpotAdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+
 # PROJECT PERSON #
 ##################
 class ProjectPersonCreateView(SpotAccessRequiredMixin, CreateView):
@@ -649,6 +650,10 @@ class ProjectYearDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+# TRACKING #
+############
+
+
 class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/tracking_form_popout.html'
 
@@ -667,12 +672,36 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
             return forms.ProjectYearForm
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user}
+        return {
+            'last_modified_by': self.request.user,
+        }
 
     def form_valid(self, form):
         my_object = form.save()
         return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
+
+class EOIUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/tracking_form_popout.html'
+    form_class = forms.EOIForm
+
+    def get_object(self, *args, **kwargs):
+        my_eoi, created = models.ExpressionOfInterest.objects.get_or_create(
+            project=models.Project.objects.get(pk=self.kwargs["pk"])
+        )
+        if created:
+            my_eoi.save()
+        return my_eoi
+
+    def get_initial(self):
+        return {
+            'project': models.Project.objects.get(pk=self.kwargs["pk"]),
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
 # PAYMENT #
 ################
