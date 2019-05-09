@@ -670,14 +670,22 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
             return forms.ProjectReviewForm
         elif self.kwargs["step"] == "negotiations":
             return forms.NegotiationForm
+        elif self.kwargs["step"] == "ca-admin":
+            return forms.CAAdministrationForm
         else:
             return forms.ProjectYearForm
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         step_name =  self.kwargs["step"]
-        if step_name == "review":
-            step_name = "Project Regional Review"
+        if step_name == "initiation":
+            step_name = "Initiation"
+        elif step_name == "review":
+            step_name = "Regional Review"
+        elif step_name == "negotiations":
+            step_name = "Negotiations"
+        elif step_name == "ca-admin":
+            step_name = "CA Administration"
         context["step_name"] = step_name
         return context
 
@@ -711,7 +719,7 @@ class EOIUpdateView(SpotAccessRequiredMixin, UpdateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["step_name"] = "Expression of Interest"
+        context["step_name"] = "EOI"
         return context
 
     def form_valid(self, form):
