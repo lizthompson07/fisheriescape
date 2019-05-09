@@ -365,7 +365,7 @@ class ContributionAgreementChecklist(models.Model):
 
 
 class ExpressionOfInterest(models.Model):
-    project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="eoi")
+    project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name="eoi")
     eoi_date_received = models.DateTimeField(blank=True, null=True, default=timezone.now)
     eoi_project_description = models.TextField(blank=True, null=True)
     eoi_coordinator_notified = models.DateTimeField(blank=True, null=True)
