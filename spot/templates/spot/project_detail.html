@@ -45,6 +45,9 @@
                     <a class="btn btn-outline-dark" href="#" pop-href="{% url 'spot:tracking' object.id 'initiation' %}">
                         {% trans "Initiation" %}
                     </a>
+                    <a class="btn btn-outline-dark" href="#" pop-href="{% url 'spot:eoi' object.id %}">
+                        {% trans "Expression of Interest" %}
+                    </a>
                     <a class="btn btn-outline-dark under-dev" href="#" pop-href="{% url 'spot:tracking' object.id 'review' %}">
                         {% trans "Project Review" %}
                     </a>

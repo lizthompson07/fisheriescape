@@ -93,9 +93,10 @@ class ProjectForm(forms.ModelForm):
             'path_number',
             'program_reference_number',
             'organization',
+            'language',
             'title',
             'program',
-            'language',
+            'priority_area_or_threat',
             'status',
             'regions',
             'start_year',
@@ -107,6 +108,7 @@ class ProjectForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'organization': forms.Select(attrs=attr_chosen_contains),
             'program': forms.Select(attrs=attr_chosen_contains),
+            'priority_area_or_threat': forms.Select(attrs=attr_chosen_contains),
             'language': forms.Select(attrs=attr_chosen_contains),
             'status': forms.Select(attrs=attr_chosen_contains),
             'start_year': forms.Select(attrs=attr_chosen_contains),
@@ -129,14 +131,17 @@ class NewProjectForm(forms.ModelForm):
             'path_number',
             'program_reference_number',
             'organization',
+            'language',
             'title',
             'program',
-            'language',
+            'priority_area_or_threat',
             'status',
             'start_year',
             'requested_funding_y1',
             'requested_funding_y2',
             'requested_funding_y3',
+            'requested_funding_y4',
+            'requested_funding_y5',
             'last_modified_by',
             'initiation_date',
         ]
@@ -145,6 +150,7 @@ class NewProjectForm(forms.ModelForm):
             'initiation_date': forms.HiddenInput(),
             'organization': forms.Select(attrs=attr_chosen_contains),
             'program': forms.Select(attrs=attr_chosen_contains),
+            'priority_area_or_threat': forms.Select(attrs=attr_chosen_contains),
             'language': forms.Select(attrs=attr_chosen_contains),
             'status': forms.Select(attrs=attr_chosen_contains),
             'start_year': forms.Select(attrs=attr_chosen_contains),
@@ -199,6 +205,8 @@ class InitiationForm(forms.ModelForm):
             'requested_funding_y1',
             'requested_funding_y2',
             'requested_funding_y3',
+            'requested_funding_y4',
+            'requested_funding_y5',
             'notes',
             'last_modified_by',
         ]
@@ -208,6 +216,26 @@ class InitiationForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={"rows": 3}),
             'initiation_date': forms.DateInput(attrs=attr_fp_date),
             'initiation_acknowledgement_sent': forms.DateInput(attrs=attr_fp_date),
+        }
+
+
+class EOIForm(forms.ModelForm):
+    class Meta:
+        model = models.ExpressionOfInterest
+        fields = [
+            'project',
+            'eoi_date_received',
+            'eoi_project_description',
+            'eoi_coordinator_notified',
+            'eoi_feedback_sent',
+            'last_modified_by',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'eoi_coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
+            'eoi_date_received': forms.DateInput(attrs=attr_fp_date_time),
+            'eoi_feedback_sent': forms.DateInput(attrs=attr_fp_date),
+            'project': forms.HiddenInput(),
         }
 
 
@@ -222,6 +250,8 @@ class ProjectReviewForm(forms.ModelForm):
             'recommended_funding_y1',
             'recommended_funding_y2',
             'recommended_funding_y3',
+            'recommended_funding_y4',
+            'recommended_funding_y5',
             'recommended_overprogramming',
             'regrets_or_op_letter_sent_date',
             'last_modified_by',
