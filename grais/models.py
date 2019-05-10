@@ -5,6 +5,10 @@ from django.contrib import auth
 from django.core.validators import MaxValueValidator, MinValueValidator
 from shared_models import models as shared_models
 
+YES_NO_CHOICES = (
+    (True, "Yes"),
+    (False, "No"),
+)
 
 # Create your models here.
 class Sampler(models.Model):
@@ -160,6 +164,7 @@ class Line(models.Model):
     collector = models.CharField(max_length=56, blank=True, null=True)
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
+    is_lost = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the line lost?")
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='LineSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
