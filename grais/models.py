@@ -169,6 +169,17 @@ class Line(models.Model):
     species = models.ManyToManyField(Species, through='LineSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        # if the line was lost, set all surfaces to be lost as well
+        if self.surfaces.count() > 0:
+            if self.is_lost:
+                for s in self.surfaces.all():
+                    s.is_lost = True
+                    s.save()
+
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         if self.collector:
             my_str = "{} (collector #{})".format(self.id, self.collector)
@@ -209,6 +220,7 @@ class Surface(models.Model):
     surface_type = models.CharField(max_length=2, choices=SURFACE_TYPE_CHOICES)
     label = models.CharField(max_length=255)
     image = models.ImageField(blank=True, null=True, upload_to=img_file_name)
+    is_lost = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the surface lost?")
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SurfaceSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)

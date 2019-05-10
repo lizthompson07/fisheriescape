@@ -17,7 +17,7 @@ for s in models.Sampler.objects.all():
 
 probe_dict = {}
 for p in models.Probe.objects.all():
-    sampler_dict[p.probe_name] = p.id
+    probe_dict[p.probe_name] = p.id
 
 
 # STEP 1
@@ -54,6 +54,7 @@ def seed_biofouling_samples_deployments():
 
                 else:
                     print("skipping")
+
 
 # STEP 2
 def seed_biofouling_samples_retrievals():
@@ -100,27 +101,40 @@ def event_2_sample_dict():
         my_csv = csv.DictReader(csv_read_file)
         my_dict = {}
         for row in my_csv:
+            # there are some stations we are crunching. example,
+
             try:
                 my_sample = models.Sample.objects.get(
                     station_id=row["grais_station_id"],
                     season=row["year"],
-                    old_substn_id=row["SubStn_fk"],
+                    # old_substn_id=row["SubStn_fk"],
                 )
             except models.Sample.DoesNotExist:
                 print("no sample found.")
 
-            else:
-                print("hit")
+            except models.Sample.MultipleObjectsReturned:
+                print([s for s in models.Sample.objects.filter(
+                    station_id=row["grais_station_id"],
+                    season=row["year"],
+                )])
+
+                my_sample = models.Sample.objects.filter(
+                    station_id=row["grais_station_id"],
+                    season=row["year"],
+                ).last()
                 my_dict[row["Event_pk"]] = my_sample.id
 
-        # write a pickle
-        with open(os.path.join(rootdir, "event_2_sample.pickle"), 'wb') as handle:
-            pickle.dump(my_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            else:
+                # print("hit")
+                my_dict[row["Event_pk"]] = my_sample.id
+
+            # write a pickle
+            with open(os.path.join(rootdir, "event_2_sample.pickle"), 'wb') as handle:
+                pickle.dump(my_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 # STEP 4: probe data
 def import_probe_data():
-
     # import dict from pickle
     with open(os.path.join(rootdir, "event_2_sample.pickle"), 'rb') as handle:
         event_sample_dict = pickle.load(handle)
@@ -131,32 +145,118 @@ def import_probe_data():
             try:
                 my_sample = models.Sample.objects.get(pk=event_sample_dict[row["Event_fk"]])
             except models.Sample.DoesNotExist:
-                print("sample wasn't found.")
+                print("sample wasn't found. event id = {}".format(row["Event_fk"]))
+                break
 
             try:
                 my_probe = models.Probe.objects.get(pk=probe_dict[row["Data_Probe"]])
             except models.Sample.DoesNotExist:
-                print("probe wasn't found.")
+                print("probe wasn't found. probe name = {}".format(row["Data_Probe"]))
+                break
 
+            # get the time date from row
             my_date_time_str = row["SampleDate"] + " " + row["SampleTime"]
-
             probe_date = timezone.make_aware(
-                datetime.datetime.strptime(my_date_time_str, "%d-%b-%Y %H:%M"),
+                datetime.datetime.strptime(my_date_time_str, "%d-%b-%y %H:%M"),
                 timezone.get_current_timezone()
             )
-            retrev_date_tzaware = timezone.make_aware(retrev_date, timezone.get_current_timezone())
 
-    #             my_sample = models.Sample.objects.get(
-    #                 station_id=row["grais_station_id"],
-    #                 season=row["year"],
-    #                 old_substn_id=row["SubStn_fk"],
-    #             )
-    #         except models.Sample.DoesNotExist:
-    #             print("no sample found.")
-    #
-    #         else:
-    #             print("hit")
-    #             my_dict[row["Event_pk"]] = my_sample.id
-    #
-    #     with open('C:\\Users\\fishmand\\Projects\\dfo_sci_dm_site\\grais\\misc\\event_2_sample.py', 'w') as file:
-    #         file.write(str(my_dict))
+            # get or create an instance of probe measurement
+            my_probe_measurement, created = models.ProbeMeasurement.objects.get_or_create(
+                sample=my_sample,
+                probe=my_probe,
+                time_date=probe_date,
+            )
+
+            if created:
+                my_probe_measurement.probe_depth = nz(row["Probe_Depth"], None)
+                my_probe_measurement.weather_notes = row["eWeather"]
+
+            else:
+                pass
+                # print("not creating probe measurement")
+
+            try:
+                float(row["DataValue"])
+                float(row["Probe_Depth"])
+            except ValueError:
+                print(row["DataValue"])
+                print(row["Probe_Depth"])
+                break
+
+            # populate the value
+            if row["DataType_fk"] == '1':
+                my_probe_measurement.temp_c = row["DataValue"]
+            elif row["DataType_fk"] == '2':
+                my_probe_measurement.sal_ppt = row["DataValue"]
+            elif row["DataType_fk"] == '3':
+                my_probe_measurement.o2_percent = row["DataValue"]
+            elif row["DataType_fk"] == '4':
+                my_probe_measurement.o2_mgl = row["DataValue"]
+            elif row["DataType_fk"] == '5':
+                my_probe_measurement.spc_ms = row["DataValue"]
+            elif row["DataType_fk"] == '6':
+                my_probe_measurement.sp_cond_ms = row["DataValue"]
+            else:
+                print("dont know what kind of probe this is: {}".format(row["DataType_fk"]))
+
+            my_probe_measurement.save()
+
+
+
+# STEP 5: Import the lines
+def import_line_headers():
+    # import dict from pickle
+    with open(os.path.join(rootdir, "event_2_sample.pickle"), 'rb') as handle:
+        event_sample_dict = pickle.load(handle)
+
+    with open(os.path.join(rootdir, "qry_lines.csv"), 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            try:
+                my_sample = models.Sample.objects.get(pk=event_sample_dict[row["Event_fk"]])
+            except models.Sample.DoesNotExist:
+                print("sample wasn't found. event id = {}".format(row["Event_fk"]))
+                break
+
+            # get or create an instance of probe measurement
+            my_line, created = models.Line.objects.get_or_create(
+                sample=my_sample,
+                latitude_n=row["Latitude"],
+                longitude_w=row["Longitude"],
+                collector="collector {}".format(row["Collector"]),
+            )
+
+            if created:
+                my_probe_measurement.probe_depth = nz(row["Probe_Depth"], None)
+                my_probe_measurement.weather_notes = row["eWeather"]
+
+            else:
+                pass
+                # print("not creating probe measurement")
+
+            try:
+                float(row["DataValue"])
+                float(row["Probe_Depth"])
+            except ValueError:
+                print(row["DataValue"])
+                print(row["Probe_Depth"])
+                break
+
+            # populate the value
+            if row["DataType_fk"] == '1':
+                my_probe_measurement.temp_c = row["DataValue"]
+            elif row["DataType_fk"] == '2':
+                my_probe_measurement.sal_ppt = row["DataValue"]
+            elif row["DataType_fk"] == '3':
+                my_probe_measurement.o2_percent = row["DataValue"]
+            elif row["DataType_fk"] == '4':
+                my_probe_measurement.o2_mgl = row["DataValue"]
+            elif row["DataType_fk"] == '5':
+                my_probe_measurement.spc_ms = row["DataValue"]
+            elif row["DataType_fk"] == '6':
+                my_probe_measurement.sp_cond_ms = row["DataValue"]
+            else:
+                print("dont know what kind of probe this is: {}".format(row["DataType_fk"]))
+
+            my_probe_measurement.save()
