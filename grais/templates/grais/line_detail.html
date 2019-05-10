@@ -53,6 +53,10 @@
                     {% endif %}
                 </p>
                 <p>
+                    <b>Was the collector lost?</b><br>
+                    {{ object.is_lost|yesno }}
+                </p>
+                <p>
                     <b>Notes:</b><br>
                     {{ object.notes }}
                 </p>
