@@ -10,7 +10,7 @@ class SampleFilter(django_filters.FilterSet):
     class Meta:
         model = models.Sample
         fields = {
-            # 'id': ['exact'],
+            'id': ['exact'],
             'season': ['exact'],
             'station': ['exact'],
         }

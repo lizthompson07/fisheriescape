@@ -104,9 +104,6 @@ class Sample(models.Model):
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
-    class Meta:
-        ordering = ['-date_deployed']
-
     def save(self, *args, **kwargs):
         self.season = self.date_deployed.year
         if self.date_retrieved != None:
@@ -129,7 +126,7 @@ class Sample(models.Model):
             return None
 
     class Meta:
-        ordering = ['-season', 'station', '-date_deployed']
+        ordering = ['-season', 'date_deployed', 'station']
 
 
 class SampleSpecies(models.Model):
