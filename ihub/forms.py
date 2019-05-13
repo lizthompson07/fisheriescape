@@ -66,8 +66,13 @@ class ReportSearchForm(forms.Form):
         org_choices_all = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
         org_choices_has_entry = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True) if obj.entries.count() > 0]
 
+        sector_choices = [(obj.id, obj) for obj in models.ml_models.Sector.objects.all() if obj.entries.count() > 0]
+
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
         self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
+        self.fields['sectors'] = forms.MultipleChoiceField(required=False,
+                                                                 label='List of sectors (w/ entries) - Leave blank for all',
+                                                                 choices=sector_choices)
         self.fields['organizations'] = forms.MultipleChoiceField(required=False,
                                                                  label='List of organizations (w/ entries) - Leave blank for all',
                                                                  choices=org_choices_has_entry)
