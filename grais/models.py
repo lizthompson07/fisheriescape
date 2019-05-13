@@ -224,6 +224,7 @@ class Surface(models.Model):
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SurfaceSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    old_plateheader_id = models.IntegerField(blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('grais:surface_detail', kwargs={
