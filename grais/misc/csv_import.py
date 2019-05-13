@@ -203,9 +203,8 @@ def import_probe_data():
             my_probe_measurement.save()
 
 
-
 # STEP 5: Import the lines
-def import_line_headers():
+def import_lines_and_surfaces():
     # import dict from pickle
     with open(os.path.join(rootdir, "event_2_sample.pickle"), 'rb') as handle:
         event_sample_dict = pickle.load(handle)
@@ -214,12 +213,12 @@ def import_line_headers():
         my_csv = csv.DictReader(csv_read_file)
         for row in my_csv:
             try:
-                my_sample = models.Sample.objects.get(pk=event_sample_dict[row["Event_fk"]])
+                my_sample = models.Sample.objects.get(pk=event_sample_dict[row["Event_pk"]])
             except models.Sample.DoesNotExist:
-                print("sample wasn't found. event id = {}".format(row["Event_fk"]))
+                print("sample wasn't found. event id = {}".format(row["Event_pk"]))
                 break
 
-            # get or create an instance of probe measurement
+            # get or create an instance of line
             my_line, created = models.Line.objects.get_or_create(
                 sample=my_sample,
                 latitude_n=row["Latitude"],
@@ -227,36 +226,33 @@ def import_line_headers():
                 collector="collector {}".format(row["Collector"]),
             )
 
-            if created:
-                my_probe_measurement.probe_depth = nz(row["Probe_Depth"], None)
-                my_probe_measurement.weather_notes = row["eWeather"]
-
+            # create a corresponding surface
+            PETRI = 'pe'
+            PLATE = 'pl'
+            if row["CollectorType_fk"] == '1':
+                my_surface_type = PLATE
+            elif row["CollectorType_fk"] == '2':
+                my_surface_type = PETRI
             else:
-                pass
-                # print("not creating probe measurement")
-
-            try:
-                float(row["DataValue"])
-                float(row["Probe_Depth"])
-            except ValueError:
-                print(row["DataValue"])
-                print(row["Probe_Depth"])
+                print("invalid surface type")
                 break
 
-            # populate the value
-            if row["DataType_fk"] == '1':
-                my_probe_measurement.temp_c = row["DataValue"]
-            elif row["DataType_fk"] == '2':
-                my_probe_measurement.sal_ppt = row["DataValue"]
-            elif row["DataType_fk"] == '3':
-                my_probe_measurement.o2_percent = row["DataValue"]
-            elif row["DataType_fk"] == '4':
-                my_probe_measurement.o2_mgl = row["DataValue"]
-            elif row["DataType_fk"] == '5':
-                my_probe_measurement.spc_ms = row["DataValue"]
-            elif row["DataType_fk"] == '6':
-                my_probe_measurement.sp_cond_ms = row["DataValue"]
-            else:
-                print("dont know what kind of probe this is: {}".format(row["DataType_fk"]))
+            my_surface, created = models.Surface.objects.get_or_create(
+                line=my_line,
+                surface_type=my_surface_type,
+                label="{} {}".format(row["Name"], row["Plate"]),
+                is_lost=row["Lost"],
+            )
 
-            my_probe_measurement.save()
+            my_surface.old_plateheader_id = row["PlateHeader_pk"]
+            my_surface.save()
+
+# import the surface species
+def import_surface_spp():
+
+    with open(os.path.join(rootdir, "qry_surface_spp.csv"), 'r') as csv_read_file: # NOT CREATED
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+
+            # the platerheader id == surface id
+            my_surface = models.Surface.objects.get(old_plateheader_id=row["PlateHeader_pk"])
