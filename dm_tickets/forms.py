@@ -4,6 +4,8 @@ from django.utils.translation import gettext as _
 from . import models
 from shared_models import models as shared_models
 
+chosen_select = {"class":"chosen-select"}
+chosen_select_contains = {"class":"chosen-select-contains"}
 
 class TicketForm(forms.ModelForm):
     generic_file_to_load = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -16,10 +18,17 @@ class TicketForm(forms.ModelForm):
             'date_closed': forms.DateInput(attrs={'type': 'date'}),
             'sd_date_logged': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.Textarea(attrs={'rows': '5'}),
+            'primary_contact': forms.Select(attrs=chosen_select_contains),
+            'app': forms.Select(attrs=chosen_select_contains),
+            'dm_assigned': forms.SelectMultiple(attrs=chosen_select_contains),
+            'section': forms.Select(attrs=chosen_select_contains),
+            'request_type': forms.Select(attrs=chosen_select_contains),
+            'status': forms.Select(attrs=chosen_select_contains),
+            'priority': forms.Select(attrs=chosen_select_contains),
         }
         labels = {
             'app': _("Application name (if applicable)"),
-            'dm_assigned': _("Assign ticket to (leave blank for all)"),
+            'dm_assigned': _("Assign ticket to"),
         }
 
     def __init__(self, *args, **kwargs):
@@ -66,17 +75,20 @@ class FeedbackForm(forms.ModelForm):
             'github_resolved',
         ]
         widgets = {
-            'date_closed': forms.DateInput(attrs={'type': 'date'}),
-            'sd_date_logged': forms.DateInput(attrs={'type': 'date'}),
-            'description': forms.Textarea(attrs={'rows': '5'}),
             'primary_contact': forms.HiddenInput(),
             'status': forms.HiddenInput(),
+            'description': forms.Textarea(attrs={'rows': '5'}),
+            'app': forms.Select(attrs=chosen_select_contains),
+            'dm_assigned': forms.SelectMultiple(attrs=chosen_select_contains),
+            'priority': forms.Select(attrs=chosen_select_contains),
+            'request_type': forms.Select(attrs=chosen_select_contains),
         }
+
         labels = {
             'app': _("Application name (if applicable)"),
             'description': _("Description"),
             'title': _("Subject"),
-            'dm_assigned': _("Assign ticket to (leave blank for all)")
+            'dm_assigned': _("Assign ticket to")
         }
 
     def __init__(self, *args, **kwargs):

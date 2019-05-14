@@ -1,22 +1,24 @@
+{% extends 'pop_base.html' %}
 {% load bootstrap4 %}
 {% load static %}
 {% load i18n %}
-{% bootstrap_css %}
-{% bootstrap_javascript jquery='full' %}
 
-{% block content %}
+{% block body %}
 
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
     <script>
-        window.resizeTo(width = 1200, height = 800);
+        window.resizeTo(width = 1000, height = 650);
         window.onunload = refreshParent;
 
         function refreshParent() {
             window.opener.location.reload();
         }
+        $(document).ready(function() {
+            // Stuff to do as soon as the DOM is ready
+            $("#id_title")[0].focus()
+        });
     </script>
-    <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen"
-          type="text/css">
+
     <style>
         .ms-container {
             width: 100%;
@@ -42,9 +44,5 @@
             {% endbuttons %}
         </form>
     </div>
-    <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
-    <script type="application/javascript">
-        $("#id_dm_assigned").multiSelect()
-    </script>
 
-{% endblock content %}
+{% endblock %}
