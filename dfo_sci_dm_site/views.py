@@ -207,8 +207,8 @@ def get_app_dict(request):
 
     try:
         app_dict["travel"] = {
-            "title": _("Travel Plans"),
-            "description": _("Gulf region travel plans management tool."),
+            "title": _("Travel Management System"),
+            "description": _("Gulf region travel management tool."),
             "status": "beta",
             "access": "permission-required",
             "url": reverse('travel:index'),
