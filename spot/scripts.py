@@ -1,5 +1,5 @@
 from . import models
 
-def resave_all(entries = models.Entry.objects.all()):
-    for obj in entries:
+def resave_all_projects():
+    for obj in models.Project.objects.all():
         obj.save()
