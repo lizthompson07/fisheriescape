@@ -237,15 +237,13 @@ def import_lines_and_surfaces():
                 print("invalid surface type")
                 break
 
-            my_surface, created = models.Surface.objects.get_or_create(
+            models.Surface.objects.create(
                 line=my_line,
                 surface_type=my_surface_type,
                 label="{} {}".format(row["Name"], row["Plate"]),
                 is_lost=row["Lost"],
+                old_plateheader_id=row["PlateHeader_pk"],
             )
-
-            my_surface.old_plateheader_id = row["PlateHeader_pk"]
-            my_surface.save()
 
 
 
@@ -259,7 +257,12 @@ def import_surface_spp():
         for row in my_csv:
             # get the surface
             # the platerheader id == surface id
-            my_surface = models.Surface.objects.get(old_plateheader_id=int(row["PlateHeader_fk"]))
+            try:
+                my_surface = models.Surface.objects.get(old_plateheader_id=int(row["PlateHeader_fk"]))
+
+            except models.Surface.DoesNotExist:
+                print("old plateholder id wasn't found: {}".format(row["PlateHeader_fk"]))
+                break
 
             percent_coverage = (20 * int(row["Coverage_fk"])) / 100
 
@@ -276,3 +279,32 @@ def import_surface_spp():
                 percent_coverage=percent_coverage,
                 notes=notes,
             )
+
+
+
+# import the surface species
+def import_sample_spp():
+    with open(os.path.join(rootdir, "event_2_sample.pickle"), 'rb') as handle:
+        event_sample_dict = pickle.load(handle)
+
+    with open(os.path.join(rootdir, "qry_sample_spp.csv"), 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            try:
+                my_sample = models.Sample.objects.get(pk=event_sample_dict[row["Event_fk"]])
+            except models.Sample.DoesNotExist:
+                print("sample wasn't found. event id = {}".format(row["Event_fk"]))
+                break
+
+            observation_date = timezone.make_aware(
+                datetime.datetime.strptime(row["eDate"].split(" ")[0], "%m/%d/%Y"),
+                timezone.get_current_timezone(),
+            )
+            try:
+                models.SampleSpecies.objects.create(
+                    species=models.Species.objects.get(pk=row["grais_species_id"]),
+                    sample=my_sample,
+                    observation_date=observation_date
+                )
+            except IntegrityError:
+                print("duplicate entry found")
