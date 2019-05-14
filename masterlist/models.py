@@ -203,7 +203,7 @@ class Role(models.Model):
 
 
 class OrganizationMember(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="memberships")
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="memberships")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
     # role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="members", blank=True, null=True, verbose_name=_("G&C role"))
     role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))

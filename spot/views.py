@@ -274,7 +274,6 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
 class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
     model = ml_models.Person
     template_name = 'spot/person_form_popout.html'
-
     form_class = forms.PersonForm
 
     def get_initial(self):
@@ -304,24 +303,42 @@ class PersonUpdateViewPopout(SpotAccessRequiredMixin, UpdateView):
 class PersonCreateView(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/person_form.html'
     model = ml_models.Person
-    form_class = forms.PersonForm
+    form_class = forms.NewPersonForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
     def form_valid(self, form):
         my_person = form.save()
+        my_org = ml_models.Organization.objects.get(pk=form.cleaned_data["organization"])
+        print(my_org)
+        my_role = form.cleaned_data["role"]
+        my_new_member = ml_models.OrganizationMember.objects.create(
+            person=my_person,
+            organization=my_org,
+            role=my_role
+        )
+        my_new_member.save()
         return HttpResponseRedirect(reverse_lazy("spot:person_detail", kwargs={"pk": my_person.id}))
 
 
 class PersonCreateViewPopout(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/person_form_popout.html'
     model = ml_models.Person
-    form_class = forms.PersonForm
+    form_class = forms.NewPersonForm
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('spot:close_me'))
+        my_person = form.save()
+        my_org = ml_models.Organization.objects.get(pk=form.cleaned_data["organization"])
+        print(my_org)
+        my_role = form.cleaned_data["role"]
+        my_new_member = ml_models.OrganizationMember.objects.create(
+            person=my_person,
+            organization=my_org,
+            role=my_role
+        )
+        my_new_member.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -361,6 +378,7 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
             'program.abbrev_eng',
             'organization',
             'title',
+            'project_length',
             'regions',
         ]
         return context
@@ -386,7 +404,6 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'start_year',
             'project_length',
             'date_completed',
-            'eccc_id',
         ]
         return context
 
@@ -414,6 +431,13 @@ class ProjectCreateView(SpotAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_project = form.save()
+
+        # add a project year
+        my_start_year = models.ProjectYear.objects.create(
+            project=my_project,
+            fiscal_year=my_project.start_year,
+        )
+        my_start_year.save()
         return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
 
 
@@ -502,13 +526,14 @@ class ProjectPersonUpdateView(SpotAccessRequiredMixin, UpdateView):
         person_list_1 = [
             '<a href="#" class="user_insert purple-font" url="{my_url}">{first} {last} (SITE USER)</a>'.format(
                 my_url=reverse("spot:user_to_person", kwargs={
-                    "user":u.id,
-                    "view_name":"project_person_edit",
-                    "pk":context['object'].id,
+                    "user": u.id,
+                    "view_name": "project_person_edit",
+                    "pk": context['object'].id,
                 }),
                 first=u.first_name,
                 last=u.last_name,
-            ) for u in User.objects.all() if u.id not in [p.connected_user_id for p in ml_models.Person.objects.filter(connected_user__isnull=False)]
+            ) for u in User.objects.all() if
+            u.id not in [p.connected_user_id for p in ml_models.Person.objects.filter(connected_user__isnull=False)]
         ]
         person_list.extend(person_list_1)
         context['person_list'] = person_list
@@ -550,15 +575,16 @@ def user_to_person(request, user, view_name, pk):
 
     # figure out where to go!
     if view_name == "project_person_new":
-        target_url = reverse("spot:"+view_name, kwargs={"project":pk})
+        target_url = reverse("spot:" + view_name, kwargs={"project": pk})
 
     elif view_name == "project_person_edit":
-        target_url = reverse("spot:"+view_name, kwargs={"pk":pk})
+        target_url = reverse("spot:" + view_name, kwargs={"pk": pk})
 
     else:
-        target_url= reverse("spot:close_me")
+        target_url = reverse("spot:close_me")
 
     return HttpResponseRedirect(target_url)
+
 
 # PROJECT YEAR #
 ################
@@ -569,6 +595,10 @@ class ProjectYearDetailView(SpotAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["current_fy"] = fiscal_year()
+        # send in the name of the project's first fiscal year
+        context["first_year"] = context["object"].project.years.first().fiscal_year.full
+        # currently field are being called manually into a table. This can be improved when time permits
         context["field_list"] = [
             'annual_funding',
         ]
@@ -638,6 +668,113 @@ class ProjectYearDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+# TRACKING #
+############
+
+
+class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/tracking_form_popout.html'
+
+    def get_queryset(self, *args, **kwargs):
+        if self.kwargs["step"] == "initiation" or self.kwargs["step"] == "review" or self.kwargs["step"] == "negotiations" or self.kwargs[
+            "step"] == "ca-admin":
+            return models.Project.objects.all()
+        elif self.kwargs["step"] == "my-update":
+            return models.ProjectYear.objects.all()
+        else:
+            return None
+
+    def get_form_class(self, *args, **kwargs):
+        if self.kwargs["step"] == "initiation":
+            return forms.InitiationForm
+        elif self.kwargs["step"] == "review":
+            return forms.ProjectReviewForm
+        elif self.kwargs["step"] == "negotiations":
+            return forms.NegotiationForm
+        elif self.kwargs["step"] == "ca-admin":
+            return forms.CAAdministrationForm
+        else:
+            return forms.ProjectYearForm
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        step_name = self.kwargs["step"]
+        if step_name == "initiation":
+            step_name = "Initiation"
+        elif step_name == "review":
+            step_name = "Regional Review"
+        elif step_name == "negotiations":
+            step_name = "Negotiations"
+        elif step_name == "ca-admin":
+            step_name = "CA Administration"
+        context["step_name"] = step_name
+        return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+
+class EOIUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/tracking_form_popout.html'
+    form_class = forms.EOIForm
+
+    def get_object(self, *args, **kwargs):
+        my_eoi, created = models.ExpressionOfInterest.objects.get_or_create(
+            project=models.Project.objects.get(pk=self.kwargs["pk"])
+        )
+        if created:
+            my_eoi.save()
+        return my_eoi
+
+    def get_initial(self):
+        return {
+            'project': models.Project.objects.get(pk=self.kwargs["pk"]),
+            'last_modified_by': self.request.user,
+        }
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["step_name"] = "EOI"
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+
+class CAChecklistUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/tracking_form_popout.html'
+    form_class = forms.CAChecklistForm
+
+    def get_object(self, *args, **kwargs):
+        my_ca_checklist, created = models.ContributionAgreementChecklist.objects.get_or_create(
+            project=models.Project.objects.get(pk=self.kwargs["pk"])
+        )
+        if created:
+            my_ca_checklist.save()
+        return my_ca_checklist
+
+    def get_initial(self):
+        return {
+            'project': models.Project.objects.get(pk=self.kwargs["pk"]),
+            'last_modified_by': self.request.user,
+        }
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["step_name"] = "CA Checklist"
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
 
 # PAYMENT #
 ################
@@ -670,7 +807,7 @@ class PaymentCreateView(SpotAccessRequiredMixin, CreateView):
         if my_project_year.payments.count() == 0:
             claim_number = 1
         else:
-            claim_number = my_project_year.payments.count()+1
+            claim_number = my_project_year.payments.count() + 1
         return {
             'project_year': my_project_year,
             'last_modified_by': self.request.user,
