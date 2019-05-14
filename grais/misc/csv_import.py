@@ -247,12 +247,32 @@ def import_lines_and_surfaces():
             my_surface.old_plateheader_id = row["PlateHeader_pk"]
             my_surface.save()
 
+
+
+
 # import the surface species
 def import_surface_spp():
+    # This is for the invasive spp only.
 
     with open(os.path.join(rootdir, "qry_surface_spp.csv"), 'r') as csv_read_file: # NOT CREATED
         my_csv = csv.DictReader(csv_read_file)
         for row in my_csv:
-
+            # get the surface
             # the platerheader id == surface id
-            my_surface = models.Surface.objects.get(old_plateheader_id=row["PlateHeader_pk"])
+            my_surface = models.Surface.objects.get(old_plateheader_id=int(row["PlateHeader_fk"]))
+
+            percent_coverage = (20 * int(row["Coverage_fk"])) / 100
+
+            notes = "This record was imported from the old database. Percent coverage is an approximated. The calculation was based on the old coverage category where 1=20%; 2=40%; 3=60%; 4=80%; 5=100%."
+            if row["spDescription"] is not None and row["spDescription"] != "":
+                notes = "{} The color description for this species is: {}.".format(
+                    notes,
+                    row["spDescription"],
+                )
+
+            my_surface_spp, created = models.SurfaceSpecies.objects.get_or_create(
+                species=models.Species.objects.get(pk=row["grais_species_id"]),
+                surface=my_surface,
+                percent_coverage=percent_coverage,
+                notes=notes,
+            )
