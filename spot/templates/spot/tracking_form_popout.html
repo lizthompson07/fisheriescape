@@ -1,0 +1,59 @@
+{% extends "pop_base.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load static %}
+
+{% block body %}
+    <style>
+        .ms-container {
+            width: 100%;
+        }
+
+        label {
+            font-weight: bold;
+        }
+    </style>
+
+    <script>
+        window.resizeTo(width = 700, height = 850);
+        window.onunload = refreshParent;
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            {#$("#id_advance_amount")[0].focus()#}
+        });
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+    </script>
+    <div class="container-fluid">
+
+        <h3>
+            {% trans "Tracking: " %} {{ step_name }}
+        </h3>
+        <br>
+        <form method="post" class="form" {% if view.kwargs.step == "ca-admin" %}enctype="multipart/form-data"{% endif %}>
+
+            {% csrf_token %}
+
+            {% for field in form %}
+                {% bootstrap_field field size='small' placeholder="" %}
+            {% endfor %}
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" onclick="refreshParent()">
+                    {% trans "Submit" %}
+                </button>
+                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                    {% trans "Close" %}
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+{% endblock %}

@@ -27,7 +27,22 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     {#    <link rel="stylesheet" href="{% static "js/chosen/docsupport/style.css" %}">#}
     {#    <link rel="stylesheet" href="{% static "js/chosen/docsupport/prism.css" %}">#}
+
+    {# Special JS library CSS files   #}
     <link rel="stylesheet" href="{% static "js/chosen/chosen.css" %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <style>
+        .chosen-container-single .chosen-single {
+            height: 30px;
+            background: -webkit-gradient(linear, left top, left bottom);
+            background: linear-gradient(#ffffff, #ffffff);
+        }
+        .chosen-container-multi .chosen-choices {
+            border-radius: 5px;
+
+        }
+    </style>
 
 
     <title>{% block title %}{% endblock title %}</title>
@@ -130,7 +145,8 @@
 <script type="text/javascript" src="{% static "js/filterForm.js" %}"></script>
 
 <script src="{% static "js/chosen/chosen.jquery.js" %}" type="text/javascript"></script>
-<script src="{% static "js/chosen/my-init.js" %}" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="{% static "js/init.js" %}?version=1.1" type="text/javascript" charset="utf-8"></script>
 
 </body>
 </html>
