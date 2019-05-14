@@ -53,7 +53,7 @@
             {% buttons %}
                 {% if object %}
                     <button type="submit" class="btn btn-success">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'spot:project_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'spot:year_detail' object.id %}">Cancel</a>
                 {% else %}
                     <button type="submit" class="btn btn-success">Add</button>
                     <a class="btn btn-secondary" href="{% url 'spot:project_detail' project.id  %}">Cancel</a>
