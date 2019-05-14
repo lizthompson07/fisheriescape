@@ -77,9 +77,6 @@
                         <th scope="col">{% get_verbose_label my_object field %}</th>
                     {% endif %}
                 {% endfor %}
-                <th scope="col" style="width: 100px">
-                    {% trans "Project length (years)" %}
-                </th>
             </tr>
             </thead>
             <tbody>
@@ -93,7 +90,6 @@
                             <td>{% get_field_value object field %}</td>
                         {% endif %}
                     {% endfor %}
-                    <td>{{object.years.count}}</td>
                 </tr>
             {% endfor %}
             </tbody>
