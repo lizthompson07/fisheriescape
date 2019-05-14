@@ -231,6 +231,19 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
+        app_dict["publications"] = {
+            "title": _("Project Publications Inventory"),
+            "description": _("Tool for publishing and viewing publications related to completed projects."),
+            "status": "production",
+            "access": "login-required",
+            "url": reverse('publications:index'),
+            "icon_path": 'img/icons/scope.svg',
+            "region": "all",
+        }
+    except NoReverseMatch:
+        pass
+
     return OrderedDict(app_dict)
 
 

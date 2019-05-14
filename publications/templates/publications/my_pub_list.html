@@ -1,0 +1,72 @@
+{% extends "publications/pub_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block content %}
+    {% get_current_language as LANG %}
+
+    <style>
+        table, td {
+            font-size: 14px;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "My Publications" %}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        {{ get_current_language }}
+        <h1>
+            {% blocktrans with name=user.first_name %}
+                 {{ name }}'s Publications List
+            {% endblocktrans %}
+        </h1>
+        <br>
+
+        <h3>
+
+            {#            {% blocktrans with wt=weeks_total|floatformat:1 plur=weeks_total|pluralize %}#}
+            {#                You are currently being planned for a total of <span class="highlight"> {{ wt }} week{{ plur }} </span>#}
+            {#            {% endblocktrans %}#}
+        </h3>
+        <br>
+
+        <a href="{% url 'publications:pub_new' %}" class="btn btn btn-primary float-right">
+            {% trans "New Publication" %}
+        </a>
+        <br> <br>
+        <table class="table table-hover table-sm sortable">
+            <thead>
+            <th scope="col" style="width: auto">
+                {% trans "Fiscal Year" %}
+            </th>
+            <th scope="col" style="width: 30%">
+                {% trans "Title" %}
+            </th>
+            </thead>
+
+            <tbody>
+
+            {% for obj in object_list %}
+                <tr href="{% url 'publications:pub_detail' obj.publications.id %}">
+                    <td>{{ obj.publications.pub_year }}</td>
+                    <td>
+                        {{ obj.publications.pub_title }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <b>
+            TOTAL: {{ object_list.count }}
+        </b>
+    </div>
+
+{% endblock content %}
