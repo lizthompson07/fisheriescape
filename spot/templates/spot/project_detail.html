@@ -3,6 +3,7 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load i18n %}
+{% load custom_filters %}
 {% block content %}
 
     <style>
@@ -24,38 +25,75 @@
 
     <div class="container-fluid">
 
-        <h1>{{ object }}</h1>
-
-
-        <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'spot:project_edit' object.id %}">
-                {% trans "Edit" %}
-            </a>
-            <a class="btn btn-danger " href="{% url 'spot:project_delete' object.id %}">
-                {% trans "Delete" %}
-            </a>
-
-        </div>
-        <br><br>
-
         <div class="row">
-            <div class="col-3">
+            <div class="col-2">
+                {#                <h3>Project Tracking Menu:</h3>#}
 
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-                <br>
+                <div class="btn-group-vertical" style="width: 75%">
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'spot:project_edit' object.id %}">
+                        {% trans "Edit Project Information" %}
+                    </a>
+
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'spot:project_delete' object.id %}">
+                        <span class="red-font">{% trans "Delete Project" %}</span>
+                    </a>
+                </div>
+
+                <br><br>
+                <div class="btn-group-vertical" style="width: 75%">
+
+                    <a class="btn btn-outline-dark" href="#" pop-href="{% url 'spot:tracking' object.id 'initiation' %}">
+                        {% trans "Initiation" %}
+                    </a>
+                    <a class="btn btn-outline-dark" href="#" pop-href="{% url 'spot:eoi' object.id %}">
+                        {% trans "Expression of Interest" %}
+                    </a>
+                    <a class="btn btn-outline-dark" href="#" pop-href="{% url 'spot:tracking' object.id 'review' %}">
+                        {% trans "Project Review" %}
+                    </a>
+                    <a class="btn btn-outline-dark" href="#" pop-href="{% url 'spot:tracking' object.id 'negotiations' %}">
+                        {% trans "Negotiations" %}
+                    </a>
+                    <a class="btn btn-outline-dark" href="#" pop-href="{% url 'spot:ca_checklist' object.id %}">
+                        {% trans "CA Checklist" %}
+                    </a>
+                    <a class="btn btn-outline-dark" href="#" pop-href="{% url 'spot:tracking' object.id 'ca-admin' %}">
+                        {% trans "CA Administration" %}
+                    </a>
+
+                </div>
+
 
             </div>
+
             <div class="col">
-                {% include "spot/_project_years.html" %}
-                {#                {% include "spot/_instructions.html" %}#}
-            </div>
-            <div class="col">
-                {% include "spot/_project_people.html" %}
+                <div class="">
+                    <h1>{{ object }}</h1>
+                    {% include "spot/_status.html" %}
+                </div>
+                <br><br>
+
+                <div class="row">
+                    <div class="col-5">
+                        {% include "spot/_project_years.html" %}
+                        {% include "spot/_project_people.html" %}
+                    </div>
+                    <div class="col">
+                        <h4>Project Summary:</h4>
+                        <table class="table table-sm table-bordered" style="width: auto">
+                            {% for field in field_list %}
+                                {% if field == "organization" %}
+                                    {% url 'spot:org_detail' object.organization.id  as org_url %}
+                                    {% verbose_td_display object field url=org_url %}
+                                {% else %}
+                                    {% verbose_td_display object field %}
+                                {% endif %}
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-
     </div>
 
     <script type="application/javascript">

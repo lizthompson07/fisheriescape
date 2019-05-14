@@ -1,0 +1,22 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<h5>
+    <ul>
+        {% if object.eoi %}
+            <li>
+                An EOI was submitted.
+            </li>
+        {% endif %}
+        <li>
+            <span style="background-color: {{ object.status.color }}">
+            {{ object.status.description_text }}
+            </span>
+        </li>
+
+
+        {# A good spot to display some contextual messages #}
+    </ul>
+</h5>

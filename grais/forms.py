@@ -60,7 +60,7 @@ class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         exclude = ['date_created', 'last_modified', 'season', 'notes_html', 'days_deployed', 'collector_lines',
-                   'species', 'old_id']
+                   'species', 'old_substn_id']
         labels = {
             'site_desc': "Site description",
             'samplers': "Samplers"
