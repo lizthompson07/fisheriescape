@@ -8,41 +8,18 @@
         <div class="container">
             <div class="jumbotron">
                 <h1 class="three-em">
-                    {% trans "Indigenous Hub" %}
+                    {% trans "Welcome to the iHub" %}
                 </h1>
                 <hr>
                 <h3>
 {#                    {% trans "" %}#}
                 </h3>
-                {% if user.is_authenticated %}
-                    <br>
-                    <p></p>
-                {% else %}
-                    <br>
 
-                    {% url 'accounts:login' as sign_in_url %}
-                    {% url 'ihub:index' as next_url %}
-                    {% url 'accounts:signup' as sign_up_url %}
-
-
-
-                    <p>
-                        {% blocktrans %}
-                            You must be <a href="{{ sign_in_url }}?next={{ next_url }}">signed in</a> to use this
-                            application.
-                        {% endblocktrans %}
-                    <p>
-                        {% blocktrans %}
-                            If you do not have an account, you can create one <a href="{{ sign_up_url }}">here</a>.
-                        {% endblocktrans %}
-
-                    </p>
-                {% endif %}
             </div>
 
         </div>
 
-        {% if user.is_authenticated %}
+{#        {% if user.is_authenticated %}#}
             <div align="center">
                 {% url 'ihub:entry_new' as new_entry_url %}
                 {% url 'ihub:entry_list' as entry_list_url %}
@@ -51,7 +28,7 @@
                 <h4>
                     {% blocktrans %}
                         Click
-                        <a href="{{ new_entry_url }}">HERE</a> to create a new Indigenous Hub entry.
+                        <a href="{{ new_entry_url }}">HERE</a> to create a new iHub entry.
                         <br><br>
                         Or you can click
                         <a href="{{ entry_list_url }}">HERE</a> to view a full list.
@@ -59,7 +36,7 @@
                     {% endblocktrans %}
                 </h4>
             </div>
-        {% endif %}
+{#        {% endif %}#}
 
 
 

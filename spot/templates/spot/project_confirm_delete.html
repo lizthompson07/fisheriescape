@@ -23,7 +23,7 @@
         <form method="post" class="form">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Delete</button>
-            <a class="btn btn-secondary" href="{% url 'spot:project_list' %}">Cancel</a>
+            <a class="btn btn-secondary" href="{% url 'spot:project_detail' object.id %}">Cancel</a>
         </form>
 
     </div>

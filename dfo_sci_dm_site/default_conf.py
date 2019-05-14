@@ -41,7 +41,7 @@ ALLOWED_HOSTS = ['127.0.0.1', ]
 # the dict key should be the actual name of the app
 # if there is a verbose name, it should be the key value, otherwise None
 APP_DICT = {
-    'inventory': 'metadata inventory',
+    'inventory': 'Metadata Inventory',
     'grais': 'grAIS',
     'oceanography': 'Oceanography',
     'herring': 'HerMorrhage',
@@ -54,7 +54,7 @@ APP_DICT = {
     'scifi': 'SciFi',
     'masterlist': 'Masterlist',
     'shares': 'Gulf Shares',
-    'travel': 'Travel Plans',
+    'travel': 'Travel Management System',
     'spot': 'Grants & Contributions (Spot)',  # dependency on masterlist
 }
 MY_INSTALLED_APPS = [app for app in APP_DICT]
