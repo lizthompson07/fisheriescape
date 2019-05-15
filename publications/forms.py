@@ -8,15 +8,11 @@ class NewPublicationsForm(forms.ModelForm):
     pub_year = forms.DateField(widget=forms.DateInput(format='%Y'), input_formats=['%Y'])
     region = forms.ChoiceField()
     division = forms.ChoiceField()
-    field_order = ['pub_year', 'pub_title', 'region', 'division']
+    field_order = ['pub_year', 'pub_title', 'region', 'division', 'date_last_modified']
 
     class Meta:
         model = models.Publications
-        fields = [
-            'pub_year',
-            'pub_title',
-            'last_modified_by',
-        ]
+        fields = ['pub_year', 'pub_title', 'region', 'division']
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'pub_title': forms.Textarea(attrs={"rows": 3}),
@@ -33,3 +29,35 @@ class NewPublicationsForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['region'].choices = region_choices
         self.fields['division'].choices = division_choices
+
+
+class PublicationsSubmitForm(forms.ModelForm):
+    class Meta:
+        model = models.Publications
+        fields = [
+            'last_modified_by',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
+class PublicationsForm(NewPublicationsForm):
+
+    class Meta:
+        model = models.Publications
+        fields = [
+            'pub_year',
+            'pub_title',
+            'last_modified_by',
+        ]
+        excludes = [
+            'date_last_modified',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'pub_title': forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
