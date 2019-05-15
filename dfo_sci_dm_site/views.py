@@ -238,7 +238,7 @@ def get_app_dict(request):
             "status": "production",
             "access": "login-required",
             "url": reverse('publications:index'),
-            "icon_path": 'img/icons/scope.svg',
+            "icon_path": 'img/icons/publications.svg',
             "region": "all",
         }
     except NoReverseMatch:
