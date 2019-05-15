@@ -33,6 +33,15 @@
                         </button>
                     {% endif %}
 
+                    {% if object.id %}
+                        <a class="btn btn-secondary" href="{% url 'publications:pub_detail' object.id %}">
+                            {% trans "Cancel" %}
+                        </a>
+                    {% else %}
+                        <a class="btn btn-secondary" href="{% url 'publications:my_pub_list' %}">
+                            {% trans "Cancel" %}
+                        </a>
+                    {% endif %}
                 </div>
             {% endbuttons %}
 
@@ -51,6 +60,16 @@
                             {% trans "Add" %}
                         </button>
                     {% endif %}
+
+                    {% if object.id %}
+                        <a class="btn btn-secondary" href="{% url 'publications:pub_detail' object.id %}">
+                            {% trans "Cancel" %}
+                        </a>
+                    {% else %}
+                        <a class="btn btn-secondary" href="{% url 'publications:my_pub_list' %}">
+                            {% trans "Cancel" %}
+                        </a>
+                    {% endif %}
                 </div>
             {% endbuttons %}
         </form>
@@ -66,6 +85,15 @@
                 // Stuff to do as soon as the DOM is ready
                 resetFields()
             });
+
+            function resetFields() {
+                // if the region is null, clear and disable both subsequent fields
+                if ($("#id_region").val() == "") {
+                    $("#id_division").val("")
+                    $("#id_division").prop('disabled', true)
+                // if the division is null, clear and disable section field
+                }
+            }
 
             $("#id_region").change(function () {
                 if ($(this).val() != "") {
