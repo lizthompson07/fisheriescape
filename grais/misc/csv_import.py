@@ -343,3 +343,18 @@ def mark_lost():
             if not False in lost_list:
                 line.is_lost = True
                 line.save()
+
+
+#STEP 10
+def spcond_times_1000():
+    for obj in models.ProbeMeasurement.objects.filter(sample__season__lte=2016):
+        # I am commenting this one out for safety reasons
+        pass
+
+        # if obj.sp_cond_ms:
+        #     obj.sp_cond_ms= obj.sp_cond_ms*1000
+        #
+        # if obj.spc_ms:
+        #     obj.spc_ms=obj.spc_ms*1000
+        #
+        # obj.save()
