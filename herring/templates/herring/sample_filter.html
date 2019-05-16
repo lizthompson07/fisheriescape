@@ -45,6 +45,7 @@
             <th scope="col">Sample #</th>
             <th scope="col">Type</th>
             <th scope="col">Sample Collection Date</th>
+            <th scope="col">Port</th>
             <th scope="col" style="text-align: center;">Sampler Ref. No.</th>
             <th scope="col" style="text-align: center;">Experimental?</th>
             <th scope="col">Sampler</th>
@@ -58,7 +59,8 @@
                 <tr href="{% url 'herring:sample_detail' sample.id %}">
                     <td>{{ sample.id }}</td>
                     <td>{{ sample.get_type_display }}</td>
-                    <td>{{ sample.sample_date|date:'F d, Y' }}</td>
+                    <td>{{ sample.sample_date|date:'Y-m-d' }}</td>
+                    <td>{{ sample.port }}</td>
                     <td align='center'>{{ sample.sampler_ref_number }}</td>
                     <td align='center'>{{ sample.experimental_net_used|yesno:"yes,no,n/a" }}</td>
                     <td>{{ sample.sampler }}</td>
