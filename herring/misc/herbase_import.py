@@ -183,17 +183,26 @@ def import_hlen():
                     my_count = int(count)
                     if my_count > 0:
                         my_bin = my_bin_starter + (i * bin_interval)
-                        my_lf, created = models.LengthFrequency.objects.get_or_create(
-                            sample=my_sample,
-                            length_bin_id=my_bin,
-                            count=my_count,
-                        )
-                        if not created:
-                            print("old_id={}; len_bin={}; count={}".format(
+
+                        try:
+                            my_lf, created = models.LengthFrequency.objects.get_or_create(
+                                sample=my_sample,
+                                length_bin_id=my_bin,
+                                count=my_count,
+                            )
+                        except IntegrityError:
+                            print("INTEGRITY old_id={}; len_bin={}; count={}".format(
                                 row[0],
                                 my_bin,
                                 my_count,
                             ))
+                        else:
+                            if not created:
+                                print("old_id={}; len_bin={}; count={}".format(
+                                    row[0],
+                                    my_bin,
+                                    my_count,
+                                ))
                     i += 1
 
 def resave_samples():
