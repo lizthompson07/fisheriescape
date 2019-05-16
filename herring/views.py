@@ -88,7 +88,7 @@ class SampleFilterView(HerringAccessRequired, FilterView):
     login_url = '/accounts/login_required/'
 
     def get_queryset(self):
-        return models.Sample.objects.all().order_by("-sample_date")
+        return models.Sample.objects.all().order_by("sample_date")
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
