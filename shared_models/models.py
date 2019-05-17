@@ -159,7 +159,10 @@ class Section(models.Model):
         my_str = "{} - {} - {} - {}".format(self.division.branch.region.name, self.division.branch.name, self.division.name, self.name)
         return my_str
 
-
+    @property
+    def shortish_name(self):
+        my_str = "{} - {} - {} - {}".format(self.division.branch.region.abbrev, self.division.branch.abbrev, self.division.abbrev, self.name)
+        return my_str
 
 class AllotmentCategory(models.Model):
     name = models.CharField(max_length=25)

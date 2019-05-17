@@ -63,7 +63,7 @@ class Ticket(models.Model):
     APP_CHOICES = [(app_key, local_conf.APP_DICT[app_key]) for app_key in local_conf.APP_DICT]
     APP_CHOICES.insert(0, ("esee", "ESEE (not part of site)"))
     APP_CHOICES.insert(0, ("plankton", "Plankton Net (not part of site)"))
-    APP_CHOICES.insert(0, ("tickets", "Data Management Ticketing App"))
+    APP_CHOICES.insert(0, ("tickets", "Data Management Tickets"))
     APP_CHOICES.sort()
     APP_CHOICES.insert(0, ("general", "n/a"))
 

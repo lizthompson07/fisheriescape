@@ -52,7 +52,6 @@ class Status(models.Model):
 
 
 class Project(models.Model):
-    # fiscal_year = models.CharField(max_length=50, default="2019-2020", verbose_name=_("fiscal year"))
     year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                              verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
     # basic
@@ -70,13 +69,16 @@ class Project(models.Model):
     existing_project_code = models.ForeignKey(shared_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
                                               related_name='projects_projects', verbose_name=_("existing project code (if known)"))
 
+    # details
+    is_national = models.NullBooleanField(default=False, verbose_name=_("Is this a national project?"), choices=national_choices)
+    is_negotiable = models.NullBooleanField(default=True, verbose_name=_("Is this project negotiable?"), choices=national_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"))
+    is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding stream for this project competitive (e.g. ACRDP, PARR, SPERA)"))
     approved = models.NullBooleanField(default=False, verbose_name=_("Has this project already been approved"))
-    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start Date"))
-    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End Date"))
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
 
-    # details
     description = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
     priorities = models.TextField(blank=True, null=True, verbose_name=_(
         "Project-specific priorities (e.g., what will be the project emphasis in this fiscal year)"))
@@ -113,6 +115,8 @@ class Project(models.Model):
                                           "Please provide details regarding chemical needs and the plan for storage and disposal."))
     ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
 
+
+
     # admin
     feedback = models.TextField(blank=True, null=True,
                                 verbose_name=_("Do you have any feedback you would like to submit about this process"))
@@ -122,6 +126,8 @@ class Project(models.Model):
                                               verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("last modified by"))
+
+
 
     class Meta:
         ordering = ['-year', 'section__division', 'section', 'project_title']

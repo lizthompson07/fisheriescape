@@ -8,3 +8,31 @@
 # TODO: PROBLEM WITH APPROVED FILTER ON SECTION VIEW... should turn field into a boolean
 # make sure all users can access reports, esp section heads
 # TODO: there should be a duplicate button
+
+
+# 10-may batch list
+###################
+# from the main detail, make a review page from which you can then export it
+# - if non-competitive funding selected, project approval should be grayed out
+# - project start date = @ start of project, not fiscal year
+# - for reports, add a field to limit selection by region
+# - PDF reports: sort by project id (both in toc and in project cards); summary report to be in thousands; add a total column in financial summary table (for abase, bbase and cbase)
+# - collaborators should be specified as external collaborators (could be a drop down);
+# - should be a many-to-many relationship with other projects (link related projects)
+# - ASEC and CSAS for gulf region to be under RDSO
+# - NAAHP to be removed as a division
+# - project labels field
+# - use smart lookups throughout app but esp in staff form
+# - help tooltips
+# - admin view for approvals (i forget what this means)
+# - update translation file
+# - report: QC report for project staff --> are the users connected as expected?
+# - report: FTE stand-alone report; sorting in desc order; for approved projects only.
+# - report: Doug's report
+# - report: OT report
+# - report: OT by program
+# - report: list of external collabs
+# - report: salary $ + O&M  (desc by o&M)
+
+#help icons
+# start date of project re: fiscal year

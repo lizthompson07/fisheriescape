@@ -1,6 +1,7 @@
 
 * {
-    /*font-family: 'Montserrat', sans-serif;*/
+    font-family: 'Roboto', sans-serif;
+    /*font-size: small;*/
 }
 
 .bigbrand {
@@ -12,6 +13,7 @@
 .montserrat {
     font-family: 'Montserrat', sans-serif;
 }
+
 
 .roboto {
     font-family: 'Roboto', sans-serif;
@@ -32,6 +34,7 @@
 .med-header {
     font-size: 6em;
 }
+
 
 /*.modal {*/
 /*display: none; !* Hidden by default *!*/
