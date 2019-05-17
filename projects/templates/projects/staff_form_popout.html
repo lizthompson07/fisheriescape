@@ -1,23 +1,23 @@
+{% extends 'pop_base.html' %}
 {% load bootstrap4 %}
 {% load i18n %}
 {% load static %}
-{% bootstrap_css %}
-{% bootstrap_javascript jquery='full' %}
-<script type=" text/javascript" src="{% static "js/popItOut.js" %}"></script>
-<style>
-    .gone {
-        visibility: hidden;
-        width: 0%;
-        height: 0px;
-        padding: 0px;
-    }
 
-    label {
-        font-weight: bold;
-    }
-</style>
+{% block body %}
 
-{% block content %}
+    <style>
+        .gone {
+            visibility: hidden;
+            width: 0%;
+            height: 0px;
+            padding: 0px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+    </style>
+
 
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
     <script>
@@ -136,7 +136,12 @@
                 {% elif field.name == "user" %}
                     <div class="row">
                         <div class="col-4">
-                            {% bootstrap_field field size="small" %}
+                            {% bootstrap_label field.label %}
+                            {% trans "This should be selected if the staff member is a DFO employee" as start_year_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ start_year_text }}">
+                            {% bootstrap_field field placeholder="" show_label=False %}
                         </div>
                         <div class="col-1">
                             {% trans "OR" %}
@@ -249,4 +254,5 @@
     </script>
 
 
-{% endblock content %}
+{% endblock %}
+

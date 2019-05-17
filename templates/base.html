@@ -8,11 +8,19 @@
 <head>
     <meta charset="utf-8">
 
-    {#  DJANGO-BOOTSTRAP4 #}
+    {#  BOOTSTRAP4 #}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-    {# Load CSS and JavaScript #}
-    {% bootstrap_css %}
-    {% bootstrap_javascript jquery='full' %}
+
+
 
     <!-- custom CSS -->
     <link rel="stylesheet" href="{% static 'css/master.css' %}?version=1.4">
@@ -32,12 +40,22 @@
     <link rel="stylesheet" href="{% static "js/chosen/chosen.css" %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
+    {#    Medium-editor https://github.com/yabwe/medium-editor#}
+    <link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/medium-editor.min.css' %}">
+    <link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/themes/beagle.min.css' %}">
+    {#    Medium-editor-tables   https://github.com/yabwe/medium-editor#}
+    <link rel="stylesheet" href="{% static 'js/medium-editor-tables-master/dist/css/medium-editor-tables.min.css' %}">
+    {#  This one is needed for the buttons in medium-editor-tables #}
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css"/>
+
+
     <style>
         .chosen-container-single .chosen-single {
             height: 30px;
             background: -webkit-gradient(linear, left top, left bottom);
             background: linear-gradient(#ffffff, #ffffff);
         }
+
         .chosen-container-multi .chosen-choices {
             border-radius: 5px;
 
@@ -146,7 +164,14 @@
 
 <script src="{% static "js/chosen/chosen.jquery.js" %}" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="{% static "js/init.js" %}?version=1.1" type="text/javascript" charset="utf-8"></script>
+
+
+{#    Medium-editor FROM https://github.com/yabwe/medium-editor#}
+<script src="{% static 'js/medium-editor-master/dist/js/medium-editor.min.js' %}"></script>
+{#    Medium-editor-tables FROM https://github.com/yabwe/medium-editor#}
+<script src="{% static 'js/medium-editor-tables-master/dist/js/medium-editor-tables.min.js' %}"></script>
+<script src="{% static "js/init.js" %}?version=1.5" type="text/javascript" charset="utf-8"></script>
+
 
 </body>
 </html>
