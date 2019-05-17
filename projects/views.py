@@ -162,7 +162,10 @@ project_field_list = [
     'responsibility_center',
     'allotment_code',
     'existing_project_code',
+    'is_national',
+    'is_negotiable',
     'status',
+    'is_competitive',
     'is_approved',
     'start_date',
     'end_date',
@@ -241,7 +244,7 @@ class MySectionListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MySectionFilter
 
     def get_queryset(self):
-        return models.Project.objects.filter(section__head=self.request.user)
+        return models.Project.objects.filter(section__head=self.request.user).order_by('-year', 'section__division', 'section', 'project_title')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -253,7 +256,7 @@ class MySectionListView(LoginRequiredMixin, FilterView):
 class ProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
-    model = models.Project
+    queryset = models.Project.objects.all().order_by('-year', 'section__division', 'section', 'project_title')
     filterset_class = filters.ProjectFilter
 
 
@@ -912,9 +915,7 @@ class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
         context = super().get_context_data(**kwargs)
         fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("section__division",
-                                                                                                                   "section",
-                                                                                                                   "project_title")
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("id")
 
         context["fy"] = fy
         context["report_mode"] = True
@@ -1026,10 +1027,16 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = [s for s in shared_models.Section.objects.filter(division__branch=1)]
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("section__division",
-                                                                                                                   "section",
-                                                                                                                   "project_title")
-        project_list = [project for project in project_list if project.section in section_list]
+        # project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("section__division",
+        #                                                                                                            "section",
+        #                                                                                                            "project_title")
+        q_objects = Q()  # Create an empty Q object to start with
+        for s in section_list:
+            q_objects |= Q(section=s)  # 'or' the Q objects together
+
+        project_list = models.Project.objects.filter(q_objects).filter(year=fy, submitted=True, section_head_approved=True).order_by("id")
+
+        # project_list = [project for project in project_list if project.section in section_list]
 
         context["fy"] = fy
         context["report_mode"] = True
