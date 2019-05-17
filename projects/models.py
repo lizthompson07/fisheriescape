@@ -149,7 +149,7 @@ class Project(models.Model):
                                          verbose_name=_("last modified by"))
 
     class Meta:
-        ordering = ['-year', 'section__division', 'section', 'project_title']
+        ordering = ['id']
 
     def __str__(self):
         return "{}".format(self.project_title)

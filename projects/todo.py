@@ -14,10 +14,10 @@
 ###################
 # from the main detail, make a review page from which you can then export it
 # - for reports, add a field to limit selection by region
-# - PDF reports: sort by project id (both in toc and in project cards); summary report to be in thousands; add a total column in financial summary table (for abase, bbase and cbase)
+# summary report to be in thousands; add a total column in financial summary table (for abase, bbase and cbase)
 # - collaborators should be specified as external collaborators (could be a drop down);
 # - should be a many-to-many relationship with other projects (link related projects)
-
+# once a project is submitted you should go to the review page
 
 # - project labels field
 # - admin view for approvals (i forget what this means)

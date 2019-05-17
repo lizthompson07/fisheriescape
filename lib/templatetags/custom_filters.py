@@ -118,3 +118,12 @@ def dict_2_list(my_dict):
         return [key for key in my_dict]
     except (KeyError, TypeError):
         return ""
+
+
+@register.filter
+def kmark(value):
+    """if a value is equal to None, this function will return arg instead"""
+    if value is None or value == "":
+        return value
+    else:
+        return "{} K".format(value)
