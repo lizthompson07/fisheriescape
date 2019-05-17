@@ -2,13 +2,12 @@
 {% load i18n %}
 {% load static %}
 {% bootstrap_css %}
-
 {% bootstrap_javascript jquery='full' %}
 <script type=" text/javascript" src="{% static "js/popItOut.js" %}"></script>
 
 {% block content %}
     <div class="container">
-        <h2>Theme</h2>
+        <h2>{% trans title %}</h2>
         <form method="post" class="form">
             {% csrf_token %}
 
@@ -17,6 +16,10 @@
             {% endfor %}
 
             {% buttons %}
+                <a class="btn btn-primary" href="#"
+                   onclick="return popitup('{% url 'publications:new_lookup' url_var %}','popoutWindow')">
+                   {% trans "New" %}
+                </a>
                 <button type="submit" class="btn btn-success" onclick="refreshParent()">
                     {% trans "Submit" %}
                 </button>

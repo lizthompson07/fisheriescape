@@ -16,6 +16,32 @@ import json
 from . import models
 from . import forms
 
+
+def get_mod(mod_str):
+    if mod_str == "theme":
+        lookup_mod = models.Theme
+    elif mod_str == "human":
+        lookup_mod = models.HumanComponents
+    elif mod_str == "linkage":
+        lookup_mod = models.ProgramLinkage
+    elif mod_str == "ecosystem":
+        lookup_mod = models.EcosystemComponents
+
+    return lookup_mod
+
+
+def get_mod_title(mod_str):
+    if mod_str == "theme":
+        title = "Theme"
+    elif mod_str == "human":
+        title = "Human Component"
+    elif mod_str == "linkage":
+        title = "Linkage to Program"
+    elif mod_str == "ecosystem":
+        title = "Ecosystem Component"
+
+    return title
+
 project_field_list = [
     'id',
     'pub_year',
@@ -131,7 +157,28 @@ class PublicationDetailView(LoginRequiredMixin, DetailView):
             'division',
         ]
 
-        context["Theme"] = models.Theme.objects.filter(publications__id=publication.id).order_by("name")
+        context["lookups"] = [
+            {
+                "url": "theme",
+                "label": "Theme",
+                "list": models.Theme.objects.filter(publications__id=publication.id).order_by("name")
+            },
+            {
+                "url": "human",
+                "label": "Human Component",
+                "list": models.HumanComponents.objects.filter(publications__id=publication.id).order_by("name")
+            },
+            {
+                "url": "ecosystem",
+                "label": "Ecosystem Component",
+                "list": models.EcosystemComponents.objects.filter(publications__id=publication.id).order_by("name")
+            },
+            {
+                "url": "linkage",
+                "label": "Linkage to Program",
+                "list": models.ProgramLinkage.objects.filter(publications__id=publication.id).order_by("name")
+            },
+        ]
         context["field_list_1"] = [
             'human_component',
             'ecosystem_component',
@@ -150,48 +197,75 @@ class PublicationsListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.PublicationsFilter
 
 
-class ThemeCreateView(LoginRequiredMixin, CreateView):
-    template_name = 'publications/new_theme.html'
+class LookupCreateView(LoginRequiredMixin, CreateView):
+    template_name = 'publications/new_lookup.html'
     model = models.Theme
-    form_class = forms.ThemeNew
+    form_class = forms.LookupNew
+
+    def get_initial(self):
+
+        lookup_mod = get_mod(self.kwargs['lookup'])
+        return {
+            'lookup': lookup_mod
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = get_mod_title(self.kwargs['lookup'])
+
+        return context
 
     def form_valid(self, form):
         form.save()
         return HttpResponseRedirect(reverse('publications:close_me'))
 
 
-class ThemeLookupCreateView(LoginRequiredMixin, CreateView):
-    template_name = 'publications/new_theme_popout.html'
+class LookupAddView(LoginRequiredMixin, CreateView):
+    template_name = 'publications/new_lookup_popout.html'
     model = models.Theme
-    form_class = forms.ThemeLookupForm
+    form_class = forms.LookupForm
 
     def get_initial(self):
         publications = models.Publications.objects.get(pk=self.kwargs['publications'])
+        lookup_mod = get_mod(self.kwargs['lookup'])
+
         return {
             'publications': publications,
+            'lookup': lookup_mod
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         publications = models.Publications.objects.get(id=self.kwargs['publications'])
         context['publications'] = publications
+        context['title'] = get_mod_title(self.kwargs['lookup'])
+        context['url_var'] = self.kwargs['lookup']
         return context
 
     def form_valid(self, form):
-        # get a queryset of themes matching what was selected in the form field
-        themes = models.Theme.objects.filter(pk__in=form.cleaned_data['name'])
+        mod = get_mod(self.kwargs['lookup'])
 
-        # get the publication the themes are being added to
+        # get a queryset of lookup matching what was selected in the form field
+        vals = mod.objects.filter(pk__in=form.cleaned_data['name'])
+
+        # get the publication the lookup are being added to
         publication = models.Publications.objects.get(id=self.kwargs['publications'])
 
-        # for each theme make sure it doesn't already exist in the publication
-        for theme in themes:
-            if publication and not models.Theme.objects.filter(pk=theme.id, publications__id=publication.id):
-                publication.theme.add(theme)
+        dirty = False
+        # for each lookup make sure it doesn't already exist in the publication variable
+        for val in vals:
+            if publication and not mod.objects.filter(pk=val.id, publications__id=publication.id):
+                if mod is models.Theme:
+                    publication.theme.add(val)
+                elif mod is models.HumanComponents:
+                    publication.human_component.add(val)
+                elif mod is models.ProgramLinkage:
+                    publication.program_linkage.add(val)
+                elif mod is models.EcosystemComponents:
+                    publication.ecosystem_component.add(val)
+                dirty = True
+
+        if dirty:
+            publication.save()
 
         return HttpResponseRedirect(reverse('publications:close_me'))
-
-
-class HumanLookupCreateView(LoginRequiredMixin, CreateView):
-    template_name = 'publications/new_human_popout.html'
-    model = models.HumanComponents
