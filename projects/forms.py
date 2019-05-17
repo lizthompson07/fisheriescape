@@ -52,17 +52,14 @@ class ProjectForm(forms.ModelForm):
             'submitted',
             'date_last_modified',
             'section_head_approved',
-            'description',
-            'priorities',
-            'deliverables',
         ]
         class_editable = {"class": "editable"}
         widgets = {
             "project_title": forms.Textarea(attrs={"rows":"3"}),
 
-            "description_html": forms.Textarea(attrs=class_editable),
-            "priorities_html": forms.Textarea(attrs=class_editable),
-            "deliverables_html": forms.Textarea(attrs=class_editable),
+            "description": forms.Textarea(attrs=class_editable),
+            "priorities": forms.Textarea(attrs=class_editable),
+            "deliverables": forms.Textarea(attrs=class_editable),
             "data_collection": forms.Textarea(attrs=class_editable),
             "data_sharing": forms.Textarea(attrs=class_editable),
             "data_storage": forms.Textarea(attrs=class_editable),
