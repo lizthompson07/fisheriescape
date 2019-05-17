@@ -5,45 +5,14 @@
 
 {% block content %}
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        .loader {
-            border: 16px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 16px solid #3498db;
-            width: 120px;
-            height: 120px;
-            -webkit-animation: spin 2s linear infinite; /* Safari */
-            animation: spin 2s linear infinite;
-        }
-        {##}
-        {#/* Safari */#}
-        {#@-webkit-keyframes spin {#}
-        {#    0% {#}
-        {#        -webkit-transform: rotate(0deg);#}
-        {#    }#}
-        {#    100% {#}
-        {#        -webkit-transform: rotate(360deg);#}
-        {#    }#}
-        {#}#}
-        {##}
-        {#@keyframes spin {#}
-        {#    0% {#}
-        {#        transform: rotate(0deg);#}
-        {#    }#}
-        {#    100% {#}
-        {#        transform: rotate(360deg);#}
-        {#    }#}
-        {#}#}
-    </style>
-
     <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen"
           type="text/css">
     <style>
         .ms-container {
             width: 100%;
         }
-        label{
+
+        label {
             font-weight: bold;
         }
     </style>
@@ -88,8 +57,13 @@
         <p>
         </p>
 
-        <div class="loader hidden"></div>
+        <div class="spinner-border text-primary hidden" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
     </div>
+
+
+
 
     <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
     <script type="application/javascript">
@@ -108,8 +82,7 @@
                 $(".sections_div").removeClass("gone");
                 $("#id_sections").multiSelect()
 
-            }
-            else if (reportChoice == 2) {
+            } else if (reportChoice == 2) {
                 $(".sections_div").removeClass("gone");
                 $("#id_sections").multiSelect()
 
@@ -132,7 +105,7 @@
             // species count report
             if (reportChoice != 4) {
                 $(this).addClass("hidden");
-                $(".loader").removeClass("hidden");
+                $(".spinner-border").removeClass("hidden");
                 window.setTimeout(closeLoader, 20000)
             }
 
@@ -140,7 +113,7 @@
 
         function closeLoader() {
             $("form").removeClass("hidden");
-            $(".loader").addClass("hidden");
+            $(".spinner-border").addClass("hidden");
         }
     </script>
 
