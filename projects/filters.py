@@ -91,6 +91,6 @@ class MySectionFilter(django_filters.FilterSet):
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)
-        self.filters['staff'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=user_choices)
-        self.filters['submitted'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=yes_no_choices)
-        self.filters['approved'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=yes_no_choices)
+        self.filters['staff'] = django_filters.ChoiceFilter(field_name='staff_members__user', lookup_expr='exact', choices=user_choices)
+        self.filters['submitted'] = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', choices=yes_no_choices)
+        self.filters['is_approved'] = django_filters.ChoiceFilter(field_name='is_approved', lookup_expr='exact', choices=yes_no_choices)

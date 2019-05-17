@@ -83,27 +83,27 @@ class Project(models.Model):
                                               related_name='projects_projects', verbose_name=_("existing project code (if known)"))
 
     # details
-    is_national = models.NullBooleanField(verbose_name=_("National or regional?"), choices=is_national_choices)
+    is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
     is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or Non-negotiable (e.g. Core vs. Non-core)?"), choices=is_negotiable_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"))
-    is_competitive = models.NullBooleanField(verbose_name=_("Is the funding for this project competitive (e.g. ACRDP, PARR, SPERA)"))
-    approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
+    is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding for this project competitive (e.g. ACRDP, PARR, SPERA)"))
+    is_approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
 
     # HTML field
     description = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
-    description_html = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
+    # description_html = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
 
     # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_(
         "Project-specific priorities (e.g., what will be the project emphasis in this fiscal year)"))
-    priorities_html = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities"))
+    # priorities_html = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities"))
 
     # HTML field
     deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables (bulleted form)"))
-    deliverables_html = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
+    # deliverables_html = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
 
 
     # data
