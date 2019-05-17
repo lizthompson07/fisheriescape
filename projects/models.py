@@ -70,12 +70,12 @@ class Project(models.Model):
                                               related_name='projects_projects', verbose_name=_("existing project code (if known)"))
 
     # details
-    is_national = models.NullBooleanField(default=False, verbose_name=_("Is this a national project?"), choices=national_choices)
-    is_negotiable = models.NullBooleanField(default=True, verbose_name=_("Is this project negotiable?"), choices=national_choices)
+    is_national = models.NullBooleanField(verbose_name=_("Is this a national project?"))
+    is_negotiable = models.NullBooleanField(verbose_name=_("Is this project negotiable?"))
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"))
-    is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding stream for this project competitive (e.g. ACRDP, PARR, SPERA)"))
-    approved = models.NullBooleanField(default=False, verbose_name=_("Has this project already been approved"))
+    is_competitive = models.NullBooleanField(verbose_name=_("Is the funding for this project competitive (e.g. ACRDP, PARR, SPERA)"))
+    approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
 
