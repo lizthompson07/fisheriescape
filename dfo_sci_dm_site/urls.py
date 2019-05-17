@@ -43,10 +43,12 @@ try:
     urlpatterns += i18n_patterns(path('inventory/', include('inventory.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting inventory app")
+
 try:
     urlpatterns += i18n_patterns(path('dm-tickets/', include('dm_tickets.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting ticket app")
+
 try:
     urlpatterns += i18n_patterns(path('oceanography/', include('oceanography.urls')), prefix_default_language=True)
 except RuntimeError:
@@ -91,14 +93,17 @@ try:
     urlpatterns += i18n_patterns(path('scifi/', include('scifi.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting scifi app")
+
 try:
     urlpatterns += i18n_patterns(path('master-list/', include('masterlist.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting masterlist app")
+
 try:
     urlpatterns += i18n_patterns(path('gulf-shares/', include('shares.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting shares app")
+
 try:
     urlpatterns += i18n_patterns(path('travel-plans/', include('travel.urls')), prefix_default_language=True)
 except RuntimeError:
@@ -108,6 +113,7 @@ try:
     urlpatterns += i18n_patterns(path('grants-and-contributions/', include('spot.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting spot")
+
 try:
     urlpatterns += i18n_patterns(path('publications/', include('publications.urls')), prefix_default_language=True)
 except RuntimeError:

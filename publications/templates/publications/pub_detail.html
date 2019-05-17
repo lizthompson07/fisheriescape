@@ -15,8 +15,8 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'publications:my_pub_list' %}">
-                {% trans "My Publications" %}
+            <li class="breadcrumb-item"><a href="{% url 'publications:index' %}">
+                {% trans "All Publications" %}
             </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
@@ -25,79 +25,38 @@
     <div class="container">
 
 
-        <h1>{{ object }} -
-            {% if object.submitted %}
-                {% trans "SUBMITTED" %}
-            {% else %}
-                <span class="red-font">
-                {% trans "DRAFT VERSION" %}
-                </span>
-            {% endif %}
-        </h1>
-
-
         <div class="btn-group">
-            {% if not report_mode %}
-                {% if object.submitted %}
-                    <a class="btn btn-secondary btn-sm" href="{% url 'publications:pub_submit' object.id %}">
-                        {% trans "Unsubmit Project" %}
-                    </a>
-                {% else %}
-                    <a class="btn btn-success btn-sm" href="{% url 'publications:pub_submit' object.id %}">
-                        {% trans "Submit Project" %}
-                    </a>
-                {% endif %}
-            {% else %}
-                <span data-toggle="tooltip"
-                      title="{% trans "Cannot submit/unsumbit projects that do not belong to you or your section." %}">
+            <span data-toggle="tooltip"
+                  title="{% trans "Cannot submit/unsumbit projects that do not belong to you or your section." %}">
 
-                {% if object.submitted %}
-                    <a class="btn btn-secondary btn-sm disabled" href="{% url 'publications:pub_submit' object.id %}">
-                        {% trans "Unsubmit Project" %}
-                    </a>
-                {% else %}
-                    <a class="btn btn-success btn-sm disabled" href="{% url 'publications:pub_submit' object.id %}">
-                        {% trans "Submit Project" %}
-                    </a>
-                {% endif %}
-                </span>
-
+            {% if not object.submitted and not report_mode %}
+                <a class="btn btn-primary btn-sm" href="{% url 'publications:pub_edit' object.id %}">
+                    {% trans "Add/Edit Project Details" %}
+                </a>
             {% endif %}
-
-
-
              <span data-toggle="tooltip" title="{% trans "Cannot delete projects that do not belong to you or your section." %}">
                 <a class="btn btn-danger btn-sm disabled" href="#">{% trans "Delete" %}</a>
             </span>
 
         </div>
 
+        <h2>{{ object }}</h2>
 
-        <br><br><br>
-
-        <h3>
-            {% trans "Project Summary:" %}
-        </h3>
-
-        <div class="btn-group">
-            {% if not object.submitted and not report_mode %}
-                <a class="btn btn-primary btn-sm" href="{% url 'publications:pub_edit' object.id %}">
-                    {% trans "Add/Edit Project Details" %}
-                </a>
-            {% endif %}
+        <div class="row">
+            <div class="col-12">
+                {% for field in abstract %}
+                    {% verbose_field_display object field format='HTML' %}
+                {% endfor %}
+            </div>
         </div>
-
-        <br><br>
         <div class="row">
             <div class="col-4">
                 {% for field in field_list %}
-                    {% verbose_field_display object field %}
+                    {% print_field_properties object field %}
                 {% endfor %}
             </div>
             <div class="col-8">
-                {% for field in field_list_1 %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
+                {% include "publications/_add_theme_lookup.html" %}
             </div>
         </div>
     </div>
