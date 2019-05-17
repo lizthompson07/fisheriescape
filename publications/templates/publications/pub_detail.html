@@ -52,11 +52,11 @@
         <div class="row">
             <div class="col-4">
                 {% for field in field_list %}
-                    {% print_field_properties object field %}
+                    {% verbose_field_display object field %}
                 {% endfor %}
             </div>
             <div class="col-8">
-                {% include "publications/_add_theme_lookup.html" %}
+                {% include "publications/_add_lookup.html" %}
             </div>
         </div>
     </div>

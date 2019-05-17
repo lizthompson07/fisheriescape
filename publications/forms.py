@@ -70,7 +70,7 @@ class PublicationsForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 
-class ThemeLookupForm(forms.ModelForm):
+class LookupForm(forms.ModelForm):
     class Meta:
         model = models.Theme
         fields = ['name']
@@ -78,15 +78,23 @@ class ThemeLookupForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        themes = [(t.id, t.name) for t in models.Theme.objects.all()]
+        self._meta.model = kwargs['initial']['lookup']
 
-        self.fields['name'] = forms.MultipleChoiceField(required=True, choices=themes,
+        values = [(t.id, t.name) for t in self._meta.model.objects.all()]
+
+        self.fields['name'] = forms.MultipleChoiceField(required=True, choices=values,
                                                         widget=widgets.SelectMultiple(attrs={'size': 15}))
 
 
-class ThemeNew(forms.ModelForm):
+class LookupNew(forms.ModelForm):
 
     name = UpperCaseField(required=True)
+
     class Meta:
         model = models.Theme
         fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._meta.model = kwargs['initial']['lookup']
