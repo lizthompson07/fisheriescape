@@ -1,0 +1,62 @@
+{% load static %}
+{% load bootstrap4 %}
+
+
+{#  BOOTSTRAP4 #}
+
+{#{% bootstrap_css %} <!-- loading version 4.1.1 -->#}
+
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css" type="text/css" media="screen"
+      charset="utf-8">
+
+{#<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">#}
+
+
+<!-- custom CSS -->
+<link rel="stylesheet" href="{% static 'css/master.css' %}?version=1.4">
+{##}
+<!--  Google Fonts -->
+<link href="https://fonts.googleapis.com/css?family=Montserrat:300|Open+Sans:300|Roboto:300" rel="stylesheet">
+
+<!--  Google icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<!--  favicon -->
+<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+
+{# Special JS library CSS files   #}
+<link rel="stylesheet" href="{% static "js/chosen/chosen.css" %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+{#    Medium-editor https://github.com/yabwe/medium-editor#}
+<link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/medium-editor.min.css' %}">
+<link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/themes/beagle.min.css' %}">
+{#    Medium-editor-tables   https://github.com/yabwe/medium-editor#}
+<link rel="stylesheet" href="{% static 'js/medium-editor-tables-master/dist/css/medium-editor-tables.min.css' %}">
+{#  This one is needed for the buttons in medium-editor-tables #}
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css"/>
+
+
+<style>
+    .chosen-container-single .chosen-single {
+        height: 30px;
+        background: -webkit-gradient(linear, left top, left bottom);
+        background: linear-gradient(#ffffff, #ffffff);
+    }
+
+    .chosen-container-multi .chosen-choices {
+        border-radius: 5px;
+
+    }
+
+    .editable {
+        background-color: #fff;
+        border: 1px solid #1999f4;
+        border-radius: 4px;
+
+    {#padding: 30px;#}
+    }
+</style>
