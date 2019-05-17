@@ -48,3 +48,11 @@ def replace_html():
 
         if should_save:
             p.save()
+
+
+def clean_project():
+    projects = models.Project.objects.all()
+
+    for p in projects:
+        p.is_negotiable = None
+        p.save()
