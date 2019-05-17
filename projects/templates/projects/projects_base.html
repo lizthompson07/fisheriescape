@@ -9,7 +9,13 @@
     {% trans "Project Planning" %}
 {% endblock title %}
 
+
+
 {% block body %}
+    <span style="font-weight: bold; font-size: large">
+        {% bootstrap_alert "Today, Friday May 17, this application will be undergoing some maintenance from approximately 12-15h ADT. Please do not use the application during this time. When this message is gone, usage can be resumed."%}
+    </span>
+
     {% block content %}{% endblock content %}
 {% endblock body %}
 
