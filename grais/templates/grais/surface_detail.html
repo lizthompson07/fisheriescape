@@ -8,8 +8,8 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
             <li class="breadcrumb-item"><a href="{% url 'grais:sample_list' %}"> All samples </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'grais:sample_detail' object.line.sample.id %}"> {{object.line.sample}} </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'grais:line_detail' object.line.id %}"> {{object.line}} </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:sample_detail' object.line.sample.id %}"> {{ object.line.sample }} </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:line_detail' object.line.id %}"> {{ object.line }} </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -66,7 +66,10 @@
                     <b>Surface type:</b><br>
                     {{ object.get_surface_type_display }}
                 </p>
-
+                <p>
+                    <b>Was the surface lost?</b><br>
+                    {{ object.is_lost|yesno }}
+                </p>
                 <p>
                     <b>Notes:</b><br>
                     {{ object.notes }}
