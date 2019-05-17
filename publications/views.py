@@ -9,6 +9,7 @@ from django.urls import reverse_lazy, reverse
 
 from django.db.models import Q
 from shared_models import models as shared_models
+from publications import filters
 
 import json
 
@@ -22,6 +23,11 @@ project_field_list = [
     'date_last_modified',
     'last_modified_by',
 ]
+
+
+class CloserTemplateView(TemplateView):
+    template_name = 'publications/close_me.html'
+
 
 class IndexTemplateView(TemplateView):
     template_name = 'publications/index.html'
@@ -50,10 +56,9 @@ class PublicationCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        object = form.save()
+        publication = form.save()
 
-
-        return HttpResponseRedirect(reverse_lazy("publications:pub_detail", kwargs={"pk": object.id}))
+        return HttpResponseRedirect(reverse_lazy("publications:pub_detail", kwargs={"pk": publication.id}))
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -80,7 +85,7 @@ class PublicationSubmitUpdateView(LoginRequiredMixin, UpdateView):
 class PublicationUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Publications
     login_url = '/accounts/login_required/'
-    form_class = forms.PublicationsForm
+    form_class = forms.NewPublicationsForm
     template_name = "publications/pub_form.html"
 
     def get_initial(self):
@@ -89,7 +94,7 @@ class PublicationUpdateView(LoginRequiredMixin, UpdateView):
         }
 
         try:
-            my_dict["pub_year"] = "{}-{:02d}-{:02d}".format(self.object.pub_year.year)
+            my_dict["pub_year"] = "{}".format(self.object.pub_year.year)
         except:
             print("no start date...")
 
@@ -99,7 +104,7 @@ class PublicationUpdateView(LoginRequiredMixin, UpdateView):
 class PublicationDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Publications
     permission_required = "__all__"
-    success_url = reverse_lazy('publications:my_pub_list')
+    success_url = reverse_lazy('publications:')
     success_message = _('The publication was successfully deleted!')
     login_url = '/accounts/login_required/'
 
@@ -116,26 +121,24 @@ class PublicationDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         publication = self.object
-        context["field_list"] = [
-            'id',
-            'pub_year',
-            'pub_title',
-            'date_last_modified',
-            'last_modified_by',
+
+        context["abstract"] =[
+            'pub_abstract'
         ]
 
-        return context
+        context["field_list"] = [
+            'pub_year',
+            'division',
+        ]
 
-
-class MyPublicationsListView(LoginRequiredMixin, ListView):
-    template_name = 'publications/my_pub_list'
-    login_url = '/accounts/login_required/'
-
-    def get_queryset(self):
-        return models.Staff.objects.filter(user=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context["Theme"] = models.Theme.objects.filter(publications__id=publication.id).order_by("name")
+        context["field_list_1"] = [
+            'human_component',
+            'ecosystem_component',
+            'spatial_management',
+            'sustainability_pillar',
+            'program_linkage',
+        ]
 
         return context
 
@@ -144,3 +147,51 @@ class PublicationsListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'publications/pub_list.html'
     model = models.Publications
+    filterset_class = filters.PublicationsFilter
+
+
+class ThemeCreateView(LoginRequiredMixin, CreateView):
+    template_name = 'publications/new_theme.html'
+    model = models.Theme
+    form_class = forms.ThemeNew
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(reverse('publications:close_me'))
+
+
+class ThemeLookupCreateView(LoginRequiredMixin, CreateView):
+    template_name = 'publications/new_theme_popout.html'
+    model = models.Theme
+    form_class = forms.ThemeLookupForm
+
+    def get_initial(self):
+        publications = models.Publications.objects.get(pk=self.kwargs['publications'])
+        return {
+            'publications': publications,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        publications = models.Publications.objects.get(id=self.kwargs['publications'])
+        context['publications'] = publications
+        return context
+
+    def form_valid(self, form):
+        # get a queryset of themes matching what was selected in the form field
+        themes = models.Theme.objects.filter(pk__in=form.cleaned_data['name'])
+
+        # get the publication the themes are being added to
+        publication = models.Publications.objects.get(id=self.kwargs['publications'])
+
+        # for each theme make sure it doesn't already exist in the publication
+        for theme in themes:
+            if publication and not models.Theme.objects.filter(pk=theme.id, publications__id=publication.id):
+                publication.theme.add(theme)
+
+        return HttpResponseRedirect(reverse('publications:close_me'))
+
+
+class HumanLookupCreateView(LoginRequiredMixin, CreateView):
+    template_name = 'publications/new_human_popout.html'
+    model = models.HumanComponents

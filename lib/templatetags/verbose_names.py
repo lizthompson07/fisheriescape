@@ -1,6 +1,7 @@
 from django import template
 from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString, mark_safe
+import markdown
 
 register = template.Library()
 
@@ -125,7 +126,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
         except:
             pass
 
-    return field_value
+    return markdown.markdown(field_value) if "HTML" in str(format) else field_value
 
 
 @register.simple_tag
@@ -166,3 +167,12 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
         html_block = '<tr><th>{}</th><td>{}</td></tr>'.format(verbose_name, field_value)
 
     return SafeString(html_block)
+
+
+@register.simple_tag
+def print_field_properties(instance, field_name, format=True, display_time=False, url=None):
+    if type(field_name) is list:
+        html_block = '<p><span class="label">{}:</span><br>{}</p>'.format(field_name[0], str(field_name[1]))
+        return SafeString(html_block)
+
+    return verbose_field_display(instance, field_name, format, display_time, url)

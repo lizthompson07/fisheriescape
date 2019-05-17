@@ -1,0 +1,27 @@
+{% load bootstrap4 %}
+{% load i18n %}
+{% load static %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+<script type=" text/javascript" src="{% static "js/popItOut.js" %}"></script>
+
+{% block content %}
+    <div class="container">
+        <h3>
+            {% if object %}
+                {% trans "Editing Staff Member:" %} {{ object }}
+
+            {% else %}
+                {% trans "Adding Staff Member" %}
+            {% endif %}
+        </h3>
+        <br>
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            {% for field in form %}
+                {{field.name}}
+            {% endfor %}
+        </form>
+    </div>
+{% endblock content %}
