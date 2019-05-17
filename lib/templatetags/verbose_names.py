@@ -1,6 +1,7 @@
 from django import template
 from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString, mark_safe
+import markdown
 
 register = template.Library()
 
@@ -125,7 +126,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
         except:
             pass
 
-    return field_value
+    return markdown.markdown(field_value) if "HTML" in str(format) else field_value
 
 
 @register.simple_tag
