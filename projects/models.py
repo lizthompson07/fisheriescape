@@ -94,16 +94,17 @@ class Project(models.Model):
 
     # HTML field
     description = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
+    description_html = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
+
     # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_(
         "Project-specific priorities (e.g., what will be the project emphasis in this fiscal year)"))
+    priorities_html = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities"))
+
     # HTML field
     deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables (bulleted form)"))
-
-    description_html = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
-    priorities_html = models.TextField(blank=True, null=True, verbose_name=_(
-        "Project-specific priorities"))
     deliverables_html = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
+
 
     # data
     #######
@@ -159,13 +160,6 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
-        if self.description:
-            self.description_html = textile(self.description)
-        if self.priorities:
-            self.priorities_html = textile(self.priorities)
-        if self.deliverables:
-            self.deliverables_html = textile(self.deliverables)
-
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):

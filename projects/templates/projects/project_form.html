@@ -2,7 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
-
+{% load custom_filters %}
 
 {% block content %}
 
@@ -69,15 +69,21 @@
             {% endbuttons %}
 
             {% for field in form %}
-                {% if field.name == "start_date" %}
+                {% if 'editable' in field.field.widget.attrs|lookup:"class" %}
                     {% bootstrap_label field.label %}
-                    {% trans "This is the start date of the project, not the fiscal year" as start_year_text %}
-                    <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" title="{{ field.label }}"
-                         data-content="{{ start_year_text }}">
-                    {% bootstrap_field field placeholder="" show_label=False %}
-
+                    {{ field }}<br>
                 {% else %}
-                    {% bootstrap_field field placeholder="" %}
+                    {% if field.name == "start_date" %}
+                        {% bootstrap_label field.label %}
+                        {% trans "This is the start date of the project, not the fiscal year" as start_year_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                             title="{{ field.label }}"
+                             data-content="{{ start_year_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False %}
+
+                    {% else %}
+                        {% bootstrap_field field placeholder="" %}
+                    {% endif %}
                 {% endif %}
             {% endfor %}
 
@@ -106,8 +112,6 @@
                 </div>
             {% endbuttons %}
         </form>
-
-        {#        <textarea name="my_text_id" id="id_123" cols="30" rows="10" class="editable"></textarea>#}
 
 
     </div>

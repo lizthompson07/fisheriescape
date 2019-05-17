@@ -137,7 +137,7 @@
                     <div class="row">
                         <div class="col-4">
                             {% bootstrap_label field.label %}
-                            {% trans "This should be selected if the staff member is a DFO employee" as start_year_text %}
+                            {% trans "This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)" as start_year_text %}
                             <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
                                  title="{{ field.label }}"
                                  data-content="{{ start_year_text }}">
