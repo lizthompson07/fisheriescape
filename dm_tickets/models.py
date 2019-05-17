@@ -17,6 +17,13 @@ except (ModuleNotFoundError, ImportError):
     from dfo_sci_dm_site import default_conf as local_conf
 
 
+def get_name(self):
+    return '{} {}'.format(self.first_name, self.last_name)
+
+
+User.add_to_class("__str__", get_name)
+
+
 class RequestType(models.Model):
     request_type = models.CharField(max_length=255)
     financial_follow_up_needed = models.BooleanField(default=False)
