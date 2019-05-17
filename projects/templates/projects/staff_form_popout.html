@@ -2,6 +2,7 @@
 {% load bootstrap4 %}
 {% load i18n %}
 {% load static %}
+{% load custom_filters %}
 
 {% block body %}
 
@@ -136,12 +137,14 @@
                 {% elif field.name == "user" %}
                     <div class="row">
                         <div class="col-4">
+
                             {% bootstrap_label field.label %}
-                            {% trans "This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)" as start_year_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                                 title="{{ field.label }}"
-                                 data-content="{{ start_year_text }}">
-                            {% bootstrap_field field placeholder="" show_label=False %}
+                            {% with help_text_dict|lookup:field.name as help_text %}
+                                <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                     title="{{ field.label }}"
+                                     data-content="{{ help_text }}">
+                                {% bootstrap_field field placeholder="" show_label=False %}
+                            {% endwith %}
                         </div>
                         <div class="col-1">
                             {% trans "OR" %}

@@ -23,6 +23,15 @@ from . import reports
 from shared_models import models as shared_models
 
 
+help_text_dict = {
+    "user":_("This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)"),
+    "start_date":_("This is the start date of the project, not the fiscal year"),
+    "is_negotiable ":_("Is this program a part of DFO's core mandate?"),
+    "is_competitive ":_("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
+    "priorities":_("What will be the project emphasis in this particular fiscal year?"),
+    "deliverables":_("Please provide this information in bulleted form, if possible."),
+}
+
 # This function is a bit of a misnomer. It is used to determine whether the user has full access to a record, assuming they are not already a project lead
 def can_delete(user, project):
     """returns True if user has permissions to delete or modify a project"""
@@ -268,7 +277,6 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             'last_modified_by',
             'date_last_modified',
         ]
-
         # bring in financial summary data
         my_context = financial_summary_data(project)
         context = {**my_context, **context}
@@ -313,6 +321,12 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Project
     login_url = '/accounts/login_required/'
     form_class = forms.ProjectForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict']=help_text_dict
+        return context
+
 
     def get_initial(self):
         my_dict = {
@@ -371,6 +385,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['help_text_dict']=help_text_dict
 
         # here are the option objects we want to send in through context
         # only from the science branches of each region
@@ -438,6 +453,7 @@ class StaffCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
+        context['help_text_dict']=help_text_dict
         return context
 
     def form_valid(self, form):
@@ -457,6 +473,11 @@ class StaffUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse('projects:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict']=help_text_dict
+        return context
 
 
 def staff_delete(request, pk):
