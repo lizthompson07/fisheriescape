@@ -24,9 +24,8 @@
         {% trans "Home" %}
     </a></li>
 
-{% endblock left_all %}
 
-{% block left_auth %}
+
     <li class="nav-item"><a class="nav-link" href="{% url 'ihub:entry_list' %}">
         {% trans "Entries" %}
     </a></li>
@@ -65,12 +64,12 @@
                     <a class="dropdown-item" href="{% url 'ihub:manage_funding_purposes' %}">
                         {% trans "Manage Funding Purposes" %}
                     </a>
-                    <a class="dropdown-item" href="{% url 'ihub:manage_regions' %}">
-                        {% trans "Manage DFO Regions" %}
-                    </a>
-                    <a class="dropdown-item" href="{% url 'ihub:manage_groupings' %}">
-                        {% trans "Manage Groupings" %}
-                    </a>
+{#                    <a class="dropdown-item" href="{% url 'ihub:manage_regions' %}">#}
+{#                        {% trans "Manage DFO Regions" %}#}
+{#                    </a>#}
+{#                    <a class="dropdown-item" href="{% url 'ihub:manage_groupings' %}">#}
+{#                        {% trans "Manage Groupings" %}#}
+{#                    </a>#}
                 </div>
             </li>
 
@@ -79,8 +78,8 @@
     {% endfor %}
 
 
+{% endblock left_all %}
 
 
-{% endblock left_auth %}
 {% block left_admin %}
 {% endblock left_admin %}

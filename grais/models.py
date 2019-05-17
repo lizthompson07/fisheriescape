@@ -5,6 +5,10 @@ from django.contrib import auth
 from django.core.validators import MaxValueValidator, MinValueValidator
 from shared_models import models as shared_models
 
+YES_NO_CHOICES = (
+    (True, "Yes"),
+    (False, "No"),
+)
 
 # Create your models here.
 class Sampler(models.Model):
@@ -98,14 +102,11 @@ class Sample(models.Model):
     # notes = models.TextField(blank=True, null=True)
     # notes_html = models.TextField(blank=True, null=True)
     # date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    old_id = models.IntegerField(blank=True, null=True)
+    old_substn_id = models.IntegerField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SampleSpecies')
     season = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        ordering = ['-date_deployed']
 
     def save(self, *args, **kwargs):
         self.season = self.date_deployed.year
@@ -129,7 +130,7 @@ class Sample(models.Model):
             return None
 
     class Meta:
-        ordering = ['-season', 'station', '-date_deployed']
+        ordering = ['-season', 'date_deployed', 'station']
 
 
 class SampleSpecies(models.Model):
@@ -163,9 +164,21 @@ class Line(models.Model):
     collector = models.CharField(max_length=56, blank=True, null=True)
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
+    is_lost = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the line lost?")
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='LineSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        # if the line was lost, set all surfaces to be lost as well
+        if self.surfaces.count() > 0:
+            if self.is_lost:
+                for s in self.surfaces.all():
+                    s.is_lost = True
+                    s.save()
+
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         if self.collector:
@@ -207,9 +220,11 @@ class Surface(models.Model):
     surface_type = models.CharField(max_length=2, choices=SURFACE_TYPE_CHOICES)
     label = models.CharField(max_length=255)
     image = models.ImageField(blank=True, null=True, upload_to=img_file_name)
+    is_lost = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the surface lost?")
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SurfaceSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    old_plateheader_id = models.IntegerField(blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('grais:surface_detail', kwargs={
