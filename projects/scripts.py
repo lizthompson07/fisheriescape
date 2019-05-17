@@ -1,3 +1,5 @@
+from textile import textile
+
 from . import models
 
 # def resave_all(projects = models.Project.objects.all()):
@@ -10,3 +12,39 @@ from . import models
 def resave_all(projects = models.Project.objects.all()):
     for p in projects:
         p.save()
+
+
+def compare_html():
+    projects = models.Project.objects.all()
+
+    for p in projects:
+        if p.description:
+            if not textile(p.description) == p.description_html:
+                print("mismatch in project {}".format(p.id))
+        if p.priorities:
+            if not textile(p.priorities) == p.priorities_html:
+                print("mismatch in project {}".format(p.id))
+        if p.deliverables:
+            if not textile(p.deliverables) == p.deliverables_html:
+                print("mismatch in project {}".format(p.id))
+
+
+def replace_html():
+    projects = models.Project.objects.all()
+
+    for p in projects:
+        should_save = False
+        if p.description:
+            p.description = p.description_html
+            should_save = True
+
+        if p.priorities:
+            p.priorities = p.priorities_html
+            should_save = True
+
+        if p.deliverables:
+            p.deliverables = p.deliverables_html
+            should_save = True
+
+        if should_save:
+            p.save()

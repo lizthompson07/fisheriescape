@@ -5,7 +5,8 @@ from . import models
 from django.contrib.auth.models import User
 from shared_models import models as shared_models
 
-chosen_js = {"class":"chosen-select-contains"}
+chosen_js = {"class": "chosen-select-contains"}
+
 
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField()
@@ -22,7 +23,7 @@ class NewProjectForm(forms.ModelForm):
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'project_title': forms.Textarea(attrs={"rows": 5}),
+            'project_title': forms.Textarea(attrs={"rows": 3}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -51,17 +52,31 @@ class ProjectForm(forms.ModelForm):
             'submitted',
             'date_last_modified',
             'section_head_approved',
-            'description_html',
-            'priorities_html',
-            'deliverables_html',
+            'description',
+            'priorities',
+            'deliverables',
         ]
+        class_editable = {"class": "editable"}
         widgets = {
+            "project_title": forms.Textarea(attrs={"rows":"3"}),
+
+            "description_html": forms.Textarea(attrs=class_editable),
+            "priorities_html": forms.Textarea(attrs=class_editable),
+            "deliverables_html": forms.Textarea(attrs=class_editable),
+            "data_collection": forms.Textarea(attrs=class_editable),
+            "data_sharing": forms.Textarea(attrs=class_editable),
+            "data_storage": forms.Textarea(attrs=class_editable),
+            "regional_dm_needs": forms.Textarea(attrs=class_editable),
+            "sectional_dm_needs": forms.Textarea(attrs=class_editable),
+            "vehicle_needs": forms.Textarea(attrs=class_editable),
+            "it_needs": forms.Textarea(attrs=class_editable),
+            "chemical_needs": forms.Textarea(attrs=class_editable),
+            "ship_needs": forms.Textarea(attrs=class_editable),
+            "feedback": forms.Textarea(attrs=class_editable),
+
             'start_date': forms.DateInput(attrs={"type": "date"}),
             'end_date': forms.DateInput(attrs={"type": "date"}),
             'last_modified_by': forms.HiddenInput(),
-            'project_title': forms.Textarea(attrs={"rows": 5}),
-            "description": forms.Textarea(attrs={"rows": 8}),
-            "notes": forms.Textarea(attrs={"rows": 5}),
             "section": forms.Select(attrs=chosen_js),
             "program": forms.Select(attrs=chosen_js),
             "responsibility_center": forms.Select(attrs=chosen_js),
@@ -104,17 +119,9 @@ class StaffForm(forms.ModelForm):
         widgets = {
             'project': forms.HiddenInput(),
             'overtime_description': forms.Textarea(attrs={"rows": 5}),
-            # 'user': forms.Select(choices=USER_CHOICES),
+            'user': forms.Select(attrs=chosen_js),
         }
 
-    def __init__(self, *args, **kwargs):
-        USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                        User.objects.all().order_by("last_name", "first_name")]
-        USER_CHOICES.insert(0, tuple((None, "---")))
-
-        super().__init__(*args, **kwargs)
-        self.fields['user'].queryset = User.objects.all().order_by("last_name", "first_name")
-        self.fields['user'].choices = USER_CHOICES
 
 
 class CollaboratorForm(forms.ModelForm):
