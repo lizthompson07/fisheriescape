@@ -262,14 +262,11 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             'section',
             'program',
             'coding|' + _("budget code"),
-            'date_last_modified',
-            'last_modified_by',
-        ]
-
-        context["field_list_1"] = [
             'description_html',
             'priorities_html',
             'deliverables_html',
+            'last_modified_by',
+            'date_last_modified',
         ]
 
         # bring in financial summary data

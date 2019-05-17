@@ -81,7 +81,8 @@
             </a>
 
         </div>
-
+        <a href="#" class="under-dev btn btn-sm btn-outline-primary" data-toggle="tooltip"
+           title="Use this project a template for a new project">Clone as Template</a>
 
         <br><br><br>
 
@@ -98,19 +99,12 @@
         </div>
 
         <br><br>
-        <div class="row">
-            <div class="col-4">
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-            </div>
-            <div class="col-8">
-                {% for field in field_list_1 %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-            </div>
-        </div>
 
+        <table class="table table-sm table-striped" style="width: auto">
+            {% for field in field_list %}
+                {% verbose_td_display object field %}
+            {% endfor %}
+        </table>
 
         <br>
 
