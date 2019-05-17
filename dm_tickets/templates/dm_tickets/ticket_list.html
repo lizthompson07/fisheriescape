@@ -41,6 +41,9 @@
                 </h1>
                 <p>(You are seeing this page because you are a staff member.)</p>
             {% else %}
+                {% if not user.is_authenticated %}
+                    <p>(Please log in to view your personalized list.)</p>
+                {% endif %}
                 <h1>
                     Data Management Tickets
                 </h1>

@@ -27,11 +27,13 @@
 
     <div class="container">
 
-        {% if object %}
-            <h1>{{ object }}</h1>
-        {% else %}
-            New Organization
-        {% endif %}
+        <h1>
+            {% if object %}
+                {{ object }}
+            {% else %}
+                New Organization
+            {% endif %}
+        </h1>
 
         <br><br>
 

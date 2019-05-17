@@ -14,7 +14,7 @@
         <div class="container">
             <div class="jumbotron">
                 <h1 class="three-em">
-                    {% trans "Travel Plan Management System" %}
+                    {% trans "Travel Management System" %}
                 </h1>
                 <hr>
                 {% url 'travel:event_list' as event_list_url %}
@@ -22,9 +22,9 @@
                 <br>
                 <h2>
                     {% blocktrans %}
-                        <a href="{{ event_new_url }}">New</a> Travel Event
+                        <a href="{{ event_new_url }}">New</a> Travel
                         <br><br>
-                        <a href="{{ event_list_url }}">List</a> all Travel Events.
+                        <a href="{{ event_list_url }}">List</a> all Travel.
                     {% endblocktrans %}
                 </h2>
                 <br><br>

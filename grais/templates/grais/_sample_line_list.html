@@ -9,6 +9,7 @@
             <th>Latitude</th>
             <th>Longitude</th>
             <th>No. surfaces</th>
+            <th>Was lost?</th>
           </thead>
           <tbody>
             {% for l in object.lines.all  %}
@@ -30,6 +31,7 @@
                   <td>n/a</td>
                 {% endif %}
                 <td>{{l.surfaces.count}}</td>
+                <td {% if l.is_lost %}class="red-font"{% endif %}>{{l.is_lost|yesno}}</td>
 
               </tr>
             {% empty %}
