@@ -9,52 +9,60 @@ from shared_models import models as shared_models
 import markdown
 
 
-class Theme(models.Model):
-    """
-        Theme - Lookup table of Themes of which a publication can have multiple
-    """
-    name = models.CharField(max_length=60, unique=True)
+class Lookup(models.Model):
+
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        abstract = True
 
-class HumanComponents(models.Model):
+
+class Theme(Lookup):
+    """
+        Theme - Lookup table of Themes of which a publication can have multiple
+    """
+    pass
+
+
+class HumanComponents(Lookup):
     """
         HumanComponent - Lookup table of Human Components of which a publication can have multiple
     """
-    name = models.CharField(max_length=60, unique=True)
+    pass
 
 
-class EcosystemComponents(models.Model):
+class EcosystemComponents(Lookup):
     """
         EcosystemComponent - Lookup table of Ecosystem Components of which a publication can have multiple
     """
-    name = models.CharField(max_length=60, unique=True)
+    pass
 
 
-class SpatialManagement(models.Model):
+class SpatialManagement(Lookup):
     """
         SpatialManagement - Lookup table of Spatial Management of which a
         publication can have multiple
     """
-    name = models.CharField(max_length=60, unique=True)
+    pass
 
 
-class SustainabilityPillar(models.Model):
+class SustainabilityPillar(Lookup):
     """
         SustainabilityPillar - Lookup table of Pillar of Sustainability of which a
         publication can have multiple
     """
-    name = models.CharField(max_length=60, unique=True)
+    pass
 
 
-class ProgramLinkage(models.Model):
+class ProgramLinkage(Lookup):
     """
         ProgramLinkage - Lookup table of Program Linkage of which a
         publication can have multiple
     """
-    name = models.CharField(max_length=60, unique=True)
+    pass
 
 
 class Publications(models.Model):
