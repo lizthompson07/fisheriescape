@@ -108,3 +108,13 @@ def lookup(my_dict, key):
         return my_dict[key]
     except (KeyError, TypeError):
         return ""
+
+
+@register.filter(name='dict_2_list')
+def dict_2_list(my_dict):
+    """turn a dictionary into a list of key"""
+    print(my_dict)
+    try:
+        return [key for key in my_dict]
+    except (KeyError, TypeError):
+        return ""

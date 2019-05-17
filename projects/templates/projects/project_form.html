@@ -70,16 +70,34 @@
 
             {% for field in form %}
                 {% if 'editable' in field.field.widget.attrs|lookup:"class" %}
-                    {% bootstrap_label field.label %}
-                    {{ field }}<br>
-                {% else %}
-                    {% if field.name == "start_date" %}
+
+                    {% if field.name in help_text_dict %}
                         {% bootstrap_label field.label %}
-                        {% trans "This is the start date of the project, not the fiscal year" as start_year_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                             title="{{ field.label }}"
-                             data-content="{{ start_year_text }}">
-                        {% bootstrap_field field placeholder="" show_label=False %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {{ field }}<br>
+
+                        {% endwith %}
+
+                    {% else %}
+
+                        {% bootstrap_label field.label %}
+                        {{ field }}<br>
+                    {% endif %}
+
+
+
+                {% else %}
+                    {% if field.name in help_text_dict %}
+                        {% bootstrap_label field.label %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {% bootstrap_field field placeholder="" show_label=False %}
+                        {% endwith %}
 
                     {% else %}
                         {% bootstrap_field field placeholder="" %}
