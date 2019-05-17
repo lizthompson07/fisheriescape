@@ -121,7 +121,7 @@
 
                     $("#id_section").val("")
                     $("#id_section").prop('disabled', true)
-                // if the division is null, clear and disable section field
+                    // if the division is null, clear and disable section field
                 } else if ($("#id_division").val() == "") {
                     $("#id_section").val("")
                     $("#id_section").prop('disabled', true)
@@ -190,6 +190,13 @@
                 }
             });
 
+        </script>
+    {% else %}
+        <script type="application/javascript">
+            $(document).ready(function() {
+                // Stuff to do as soon as the DOM is ready
+
+            });
         </script>
     {% endif %}
 
