@@ -5,8 +5,6 @@
 {% load custom_filters %}
 
 {% block content %}
-
-
     <style>
         label {
             font-weight: bold;
@@ -150,13 +148,16 @@
                 if ($("#id_region").val() == "") {
                     $("#id_division").val("")
                     $("#id_division").prop('disabled', true)
+                    $("#id_division").empty();
 
                     $("#id_section").val("")
                     $("#id_section").prop('disabled', true)
+                    $("#id_section").empty();
                     // if the division is null, clear and disable section field
                 } else if ($("#id_division").val() == "") {
                     $("#id_section").val("")
                     $("#id_section").prop('disabled', true)
+                    $("#id_section").empty();
                 }
             }
 
@@ -169,20 +170,39 @@
                     var newOptions = {"---": ""};
                     for (var i = 0; i < Object.keys(divisionObj).length; i++) {
                         var key = Object.keys(divisionObj)[i];
-                        var searchTerm = $("#id_region option:selected").text();
-                        var re = new RegExp(searchTerm, 'gi');
-                        if (key.match(re)) {
-                            newOptions[key] = divisionObj[key]
+                        var searchTerm = $("#id_region option:selected").val();
+                        if (divisionObj[key].region_id == searchTerm) {
+                            newOptions[divisionObj[key].display] = key
                         }
                     }
                     var $el = $("#id_division");
                     $el.empty(); // remove old options
                     $.each(newOptions, function (key, value) {
-                        console.log(key)
-                        console.log(value)
                         $el.append($("<option></option>")
                             .attr("value", value).text(key));
                     });
+
+                    // disable the section field again, empty choices
+                    $("#id_section").val("")
+                    $("#id_section").prop('disabled', true)
+                    var $el = $("#id_section");
+                    $el.empty(); // remove old options
+
+                    // sort the options
+                    // https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+                    var options = $('#id_division option');
+                    var arr = options.map(function (_, o) {
+                        return {t: $(o).text(), v: o.value};
+                    }).get();
+                    arr.sort(function (o1, o2) {
+                        return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0;
+                    });
+                    options.each(function (i, o) {
+                        o.value = arr[i].v;
+                        $(o).text(arr[i].t);
+                    });
+
+
                 } else {
                     resetFields()
                 }
@@ -191,32 +211,40 @@
 
             $("#id_division").change(function () {
                 if ($(this).val() != "") {
-                    // enable the division field
+                    // enable the section field
                     $("#id_section").prop('disabled', false);
 
                     // define options based on division selection
                     var newOptions = {"---": ""};
+
                     for (var i = 0; i < Object.keys(sectionObj).length; i++) {
                         var key = Object.keys(sectionObj)[i];
-
-                        // slice length
-                        // get the length of the region name + 3 chars for space are parentheses
-                        var sliceLength = $("#id_division option:selected").text().length - ($("#id_region option:selected").text().length + 3);
-                        // get the length of the division name
-                        var searchTerm = $("#id_division option:selected").text().slice(0, sliceLength);
-                        var re = new RegExp(searchTerm, 'gi');
-                        if (key.match(re)) {
-                            newOptions[key] = sectionObj[key]
+                        var searchTerm = $("#id_division option:selected").val();
+                        if (sectionObj[key].division_id == searchTerm) {
+                            newOptions[sectionObj[key].display] = key
                         }
                     }
                     var $el = $("#id_section");
                     $el.empty(); // remove old options
                     $.each(newOptions, function (key, value) {
-                        console.log(key)
-                        console.log(value)
                         $el.append($("<option></option>")
                             .attr("value", value).text(key));
                     });
+
+                    // sort the options
+                    // https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+                    var options = $('#id_section option');
+                    var arr = options.map(function (_, o) {
+                        return {t: $(o).text(), v: o.value};
+                    }).get();
+                    arr.sort(function (o1, o2) {
+                        return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0;
+                    });
+                    options.each(function (i, o) {
+                        o.value = arr[i].v;
+                        $(o).text(arr[i].t);
+                    });
+
                 } else {
                     resetFields()
                 }
