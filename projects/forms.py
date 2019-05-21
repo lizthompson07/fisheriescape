@@ -31,11 +31,11 @@ class NewProjectForm(forms.ModelForm):
         region_choices.insert(0, tuple((None, "---")))
 
         division_choices = [(d.id, str(d)) for d in
-                            shared_models.Division.objects.filter(Q(branch_id=1) | Q(branch_id=3)).order_by("branch__region", "name")]
+                            shared_models.Division.objects.filter(branch__name__icontains="science").order_by("branch__region", "name")]
         division_choices.insert(0, tuple((None, "---")))
 
         section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(Q(division__branch_id=1) | Q(division__branch_id=3)).order_by(
+                           shared_models.Section.objects.filter(division__branch__name__icontains="science").order_by(
                                "division__branch__region", "division__branch", "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
@@ -181,7 +181,7 @@ class ReportSearchForm(forms.Form):
 
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
         section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(Q(division__branch__region=1) | Q(division__branch__region=2)).order_by(
+                           shared_models.Section.objects.filter(division__branch__name__icontains="science").order_by(
                                "division__branch__region", "division__branch", "division", "name")]
         self.fields["sections"].choices = section_choices
         self.fields["fiscal_year"].choices = fy_choices
