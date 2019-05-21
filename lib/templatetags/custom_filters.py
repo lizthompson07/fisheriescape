@@ -121,9 +121,24 @@ def dict_2_list(my_dict):
 
 
 @register.filter
-def kmark(value):
-    """if a value is equal to None, this function will return arg instead"""
-    if value is None or value == "":
+def kmark(value, args):
+    '''
+    :param value: any float
+    :param args:  should be two parts: first = precision (int); second  = with_sign (True/False)
+    :return: value / 1000 with [precision] decimal places and formated with a "K" if with_sign
+    '''
+    # both args must be present, if not then leave
+    if args is None or len(args) < 2:
+        return value
+
+    arg_list = [arg.strip() for arg in args.split(',')]
+    precision = int(arg_list[0])
+    with_sign = bool(arg_list[1])
+
+    try:
+        float(value)
+        # if not able to cast, then just return 'value'
+    except (ValueError, TypeError):
         return value
     else:
-        return "{} K".format(value)
+        return "{1:,.{0}f} K".format(precision, float(value)/1000) if with_sign else "{1:,.{0}f}".format(precision, float(value)/1000)
