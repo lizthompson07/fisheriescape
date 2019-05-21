@@ -42,13 +42,26 @@ def get_mod_title(mod_str):
 
     return title
 
-project_field_list = [
-    'id',
-    'pub_year',
-    'pub_title',
-    'date_last_modified',
-    'last_modified_by',
-]
+
+def lookup_delete(request, lookup, pk, fk):
+    print("Attribute: " + str(lookup))
+    print("Publication key: " + str(pk))
+    print("Foreign key: " + str(fk))
+    publication = models.Publications.objects.get(pk=pk)
+    mod = get_mod(lookup)
+    val = mod.objects.get(pk=fk)
+    if publication:
+        if mod is models.Theme:
+            publication.theme.remove(val)
+        elif mod is models.HumanComponents:
+            publication.human_component.remove(val)
+        elif mod is models.ProgramLinkage:
+            publication.program_linkage.remove(val)
+        elif mod is models.EcosystemComponents:
+            publication.ecosystem_component.remove(val)
+
+    messages.success(request, _("The " + get_mod_title(lookup) + " has been successfully deleted."))
+    return HttpResponseRedirect(reverse_lazy("publications:pub_detail", kwargs={"pk": publication.id}))
 
 
 class CloserTemplateView(TemplateView):
@@ -197,31 +210,8 @@ class PublicationsListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.PublicationsFilter
 
 
-class LookupCreateView(LoginRequiredMixin, CreateView):
-    template_name = 'publications/new_lookup.html'
-    model = models.Theme
-    form_class = forms.LookupNew
-
-    def get_initial(self):
-
-        lookup_mod = get_mod(self.kwargs['lookup'])
-        return {
-            'lookup': lookup_mod
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = get_mod_title(self.kwargs['lookup'])
-
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse('publications:close_me'))
-
-
 class LookupAddView(LoginRequiredMixin, CreateView):
-    template_name = 'publications/new_lookup_popout.html'
+    template_name = 'publications/lookup_new_popout.html'
     model = models.Theme
     form_class = forms.LookupForm
 
@@ -240,13 +230,25 @@ class LookupAddView(LoginRequiredMixin, CreateView):
         context['publications'] = publications
         context['title'] = get_mod_title(self.kwargs['lookup'])
         context['url_var'] = self.kwargs['lookup']
+
+        print(context)
+
         return context
 
     def form_valid(self, form):
         mod = get_mod(self.kwargs['lookup'])
 
-        # get a queryset of lookup matching what was selected in the form field
-        vals = mod.objects.filter(pk__in=form.cleaned_data['name'])
+        name_pk = form.cleaned_data['mult_name']
+        vals = [t for t in mod.objects.filter(pk__in=name_pk)]
+
+        # if values were selected in the multiple choice 'name' field add them to the publication
+        # Otherwise check to see if a new lookup was created, add to its lookup table then use
+        # its lookup value as the name_pk
+
+        if form.cleaned_data['name']:
+            val = form.save()
+            print("New object: " + str(val))
+            vals.append(val)
 
         # get the publication the lookup are being added to
         publication = models.Publications.objects.get(id=self.kwargs['publications'])

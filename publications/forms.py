@@ -71,9 +71,13 @@ class PublicationsForm(forms.ModelForm):
 
 
 class LookupForm(forms.ModelForm):
+    name = UpperCaseField(required=False, label="Add a new item")
+    mult_name = forms.MultipleChoiceField(required=False, label="Select one or more existing items "
+                                          "(holding down ctrl-key)", widget=widgets.SelectMultiple(attrs={'size': 13}))
+
     class Meta:
         model = models.Theme
-        fields = ['name']
+        fields = ['mult_name','name']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,20 +85,4 @@ class LookupForm(forms.ModelForm):
         self._meta.model = kwargs['initial']['lookup']
 
         values = [(t.id, t.name) for t in self._meta.model.objects.all()]
-
-        self.fields['name'] = forms.MultipleChoiceField(required=True, choices=values,
-                                                        widget=widgets.SelectMultiple(attrs={'size': 15}))
-
-
-class LookupNew(forms.ModelForm):
-
-    name = UpperCaseField(required=True)
-
-    class Meta:
-        model = models.Theme
-        fields = ['name']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self._meta.model = kwargs['initial']['lookup']
+        self.fields['mult_name'].choices = values

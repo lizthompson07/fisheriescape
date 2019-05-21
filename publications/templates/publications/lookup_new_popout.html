@@ -12,14 +12,10 @@
             {% csrf_token %}
 
             {% for field in form %}
-                {% bootstrap_field field show_label=False placeholder="" size="small" %}
+                {% bootstrap_field field placeholder="" size="small" %}
             {% endfor %}
 
             {% buttons %}
-                <a class="btn btn-primary" href="#"
-                   onclick="return popitup('{% url 'publications:new_lookup' url_var %}','popoutWindow')">
-                   {% trans "New" %}
-                </a>
                 <button type="submit" class="btn btn-success" onclick="refreshParent()">
                     {% trans "Submit" %}
                 </button>

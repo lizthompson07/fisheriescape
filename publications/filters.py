@@ -9,7 +9,7 @@ class PublicationsFilter(FilterSet):
     class Meta:
         model = models.Publications
         fields = [
-            'pub_year', 'pub_title', 'theme', 'division']
+            'pub_year', 'pub_title', 'theme', 'program_linkage', 'ecosystem_component']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,4 +23,4 @@ class PublicationsFilter(FilterSet):
                                                                choices=dates)
 
         self.filters['theme'].conjoined = True
-        self.filters['theme'].attrs = {"rows": 2}
+        self.filters['program_linkage'].conjoined = True
