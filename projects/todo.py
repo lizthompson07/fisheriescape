@@ -14,14 +14,20 @@
 ###################
 # from the main detail, make a review page from which you can then export it
 # - for reports, add a field to limit selection by region
-# summary report to be in thousands; add a total column in financial summary table (for abase, bbase and cbase)
+
 # - collaborators should be specified as external collaborators (could be a drop down);
+
 # - should be a many-to-many relationship with other projects (link related projects)
+
 # once a project is submitted you should go to the review page
 
 # - project labels field
-# - admin view for approvals (i forget what this means)
+
+
+# - admin view for approvals (a place where admins can check to see if everything has been approved etc.)
 # - report: QC report for project staff --> are the users connected as expected?
+
+
 # - report: FTE stand-alone report; sorting in desc order; for approved projects only.
 # - report: Doug's report
 # - report: OT report
