@@ -151,6 +151,7 @@ def financial_summary_data(project):
     context["abase"] = models.FundingSource.objects.get(pk=1).color
     context["bbase"] = models.FundingSource.objects.get(pk=2).color
     context["cbase"] = models.FundingSource.objects.get(pk=3).color
+
     return context
 
 
@@ -937,6 +938,9 @@ class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
             "capital_abase",
             "capital_bbase",
             "capital_cbase",
+            "salary_total",
+            "om_total",
+            "capital_total",
             "students",
             "casuals",
             "OT",
