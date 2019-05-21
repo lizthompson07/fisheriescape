@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Q
 from django.utils.translation import gettext as _
 from . import models
+from . import views
 from django.contrib.auth.models import User
 from shared_models import models as shared_models
 
@@ -27,22 +28,19 @@ class NewProjectForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        region_choices = [(r.id, str(r)) for r in shared_models.Region.objects.filter(Q(id=1) | Q(id=2))]
+        region_choices = views.get_region_choices(all=True)
         region_choices.insert(0, tuple((None, "---")))
 
-        division_choices = [(d.id, str(d)) for d in
-                            shared_models.Division.objects.filter(branch__name__icontains="science").order_by("branch__region", "name")]
-        division_choices.insert(0, tuple((None, "---")))
-
-        section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(division__branch__name__icontains="science").order_by(
-                               "division__branch__region", "division__branch", "division", "name")]
-        section_choices.insert(0, tuple((None, "---")))
+        # division_choices = views.get_division_choices(all=True)
+        # division_choices.insert(0, tuple((None, "---")))
+        #
+        # section_choices = views.get_section_choices(all=True)
+        # section_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
         self.fields['region'].choices = region_choices
-        self.fields['division'].choices = division_choices
-        self.fields['section'].choices = section_choices
+        # self.fields['division'].choices = division_choices
+        # self.fields['section'].choices = section_choices
 
 
 class ProjectForm(forms.ModelForm):
@@ -55,7 +53,7 @@ class ProjectForm(forms.ModelForm):
         ]
         class_editable = {"class": "editable"}
         widgets = {
-            "project_title": forms.Textarea(attrs={"rows":"3"}),
+            "project_title": forms.Textarea(attrs={"rows": "3"}),
 
             "description": forms.Textarea(attrs=class_editable),
             "priorities": forms.Textarea(attrs=class_editable),
@@ -82,9 +80,7 @@ class ProjectForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        SECTION_CHOICES = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(Q(division__branch__region=1) | Q(division__branch__region=2)).order_by(
-                               "division__branch__region", "division__branch", "division", "name")]
+        SECTION_CHOICES = views.get_section_choices(all=True)
         SECTION_CHOICES.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -118,7 +114,6 @@ class StaffForm(forms.ModelForm):
             'overtime_description': forms.Textarea(attrs={"rows": 5}),
             'user': forms.Select(attrs=chosen_js),
         }
-
 
 
 class CollaboratorForm(forms.ModelForm):
@@ -168,22 +163,25 @@ class GCCostForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
+        (None, "-----"),
         (3, "Project Summary Report (PDF)"),
         (2, "Batch Workplan Export (PDF) (submitted and approved)"),
         (1, "Master spreadsheet (XLSX)"),
     )
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=True)
-    sections = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    region = forms.MultipleChoiceField(required=False, label="Regions (Leave blank to select all)")
+    division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
+    section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
-        section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(division__branch__name__icontains="science").order_by(
-                               "division__branch__region", "division__branch", "division", "name")]
-        self.fields["sections"].choices = section_choices
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        fy_choices.insert(0, (None, "-----"))
+        self.fields['region'].choices = views.get_region_choices()
+        self.fields['division'].choices = views.get_division_choices()
+        self.fields["section"].choices = views.get_section_choices()
         self.fields["fiscal_year"].choices = fy_choices
 
 

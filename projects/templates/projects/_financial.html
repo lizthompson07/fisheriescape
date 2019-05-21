@@ -20,16 +20,16 @@
         <th>
             {% trans "Category" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "A-base" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "B-base" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "C-base" %}
         </th>
-        <th>
+        <th style="text-align: center">
             {% trans "Total Cost" %}
         </th>
     </tr>
@@ -39,38 +39,29 @@
             <td>
                 {% trans "Salary (excluding full time employees)" %}
             </td>
-            <td {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ salary_abase|currency|zero2val:na }}</td>
-            <td {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ salary_bbase|currency|zero2val:na }}</td>
-            <td {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ salary_cbase|currency|zero2val:na }}</td>
-            <td>{{ salary_total|currency|zero2val:na }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ salary_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ salary_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ salary_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center">{{ salary_total|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
         </tr>
         <tr>
             <td>
                 {% trans "O & M" %}
             </td>
-            <td {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ om_abase|currency|zero2val:na }}</td>
-            <td {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ om_bbase|currency|zero2val:na }}</td>
-            <td {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ om_cbase|currency|zero2val:na }}</td>
-            <td>{{ om_total|currency }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ om_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ om_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ om_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center">{{ om_total|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
         </tr>
         <tr>
             <td>
                 {% trans "Capital" %}
             </td>
-            <td {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ capital_abase|currency|zero2val:na }}</td>
-            <td {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ capital_bbase|currency|zero2val:na }}</td>
-            <td {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ capital_cbase|currency|zero2val:na }}</td>
-            <td>{{ capital_total|currency|zero2val:na }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ capital_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ capital_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ capital_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center">{{ capital_total|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
         </tr>
-{#        <tr>#}
-{#            <td>#}
-{#                {% trans "G & C" %}#}
-{#            </td>#}
-{#            <td>{{na}}</td>#}
-{#            <td>{{ na }}</td>#}
-{#            <td>{{ na }}</td>#}
-{#            <td>{{ gc_total|currency|zero2val:na }}</td>#}
-{#        </tr>#}
     {% endwith %}
 
     </tbody>

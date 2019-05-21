@@ -105,8 +105,8 @@
     <table>
         <thead>
         <tr>
-            <th rowspan="2">Division</th>
-            <th rowspan="2">Section</th>
+            <th rowspan="2" style="width: 75px">Division</th>
+            <th rowspan="2" style="width: 125px">Section</th>
             <th colspan="3" style="text-align: center">A-Base</th>
             <th colspan="3" style="text-align: center">B-Base</th>
             <th colspan="3" style="text-align: center">C-Base</th>
@@ -142,19 +142,19 @@
 
                                 {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
                     {% endif %}
-                    <td>{{ section.abbrev }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_abase"|divide:1000|floatformat:1|zero2val:na|kmark }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_abase"|divide:1000|floatformat:1|zero2val:na|kmark }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_abase"|divide:1000|floatformat:1|zero2val:na|kmark }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                    <td>{{ section }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_abase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_abase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_abase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_bbase"|zero2val:na|kmark:"1,True"}}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_bbase"|zero2val:na|kmark:"1,True"}}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_bbase"|zero2val:na|kmark:"1,True"}}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_cbase"|zero2val:na|kmark:"1,True"}}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_cbase"|zero2val:na|kmark:"1,True"}}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_cbase"|zero2val:na|kmark:"1,True"}}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_total"|zero2val:na|kmark:"1,True"}}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_total"|zero2val:na|kmark:"1,True"}}</td>
+                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_total"|zero2val:na|kmark:"1,True"}}</td>
                     <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"students"|nz:0|floatformat:0|zero2val:na }}</td>
                     <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"casuals"|nz:0|floatformat:0|zero2val:na }}</td>
                     <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"OT"|nz:0|floatformat:1|zero2val:na }}</td>
@@ -164,71 +164,71 @@
                 <tr>
                     <td class="total"><em>SUB-TOTAL</em></td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_abase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_abase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_abase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_abase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_abase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_abase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_bbase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_cbase"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_total"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_total"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_total"|zero2val:na|kmark:"1,True"}}</td>
                     <td class="total"
                         style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"students"|nz:0|floatformat:0|zero2val:na }}</td>
                     <td class="total"
                         style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"casuals"|nz:0|floatformat:0|zero2val:na }}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"OT"|nz:0|floatformat:0|zero2val:na }}</td>
+                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"OT"|nz:0|floatformat:1|zero2val:na }}</td>
                 </tr>
             {% endif %}
         {% endfor %}
         <tr>
             <td colspan="2" class="total">TOTAL</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_abase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_abase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_abase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_abase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_abase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_abase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_bbase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_bbase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_bbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_bbase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_cbase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_cbase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_cbase"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_cbase"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_total"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_total"|zero2val:na|kmark:"1,True"}}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_total"|divide:1000|floatformat:1|zero2val:na|kmark}}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_total"|zero2val:na|kmark:"1,True"}}</td>
 
             <td class="total"
                 style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"students"|nz:0|floatformat:0|zero2val:na }}</td>
             <td class="total"
                 style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"casuals"|nz:0|floatformat:0|zero2val:na }}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"OT"|nz:0|floatformat:0|zero2val:na }}</td>
+                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"OT"|nz:0|floatformat:1|zero2val:na }}</td>
         </tr>
         </tbody>
 

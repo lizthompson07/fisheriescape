@@ -14,7 +14,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 from easy_pdf.views import PDFTemplateView
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
 from . import models
 from . import forms
@@ -22,15 +22,15 @@ from . import filters
 from . import reports
 from shared_models import models as shared_models
 
-
 help_text_dict = {
-    "user":_("This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)"),
-    "start_date":_("This is the start date of the project, not the fiscal year"),
-    "is_negotiable ":_("Is this program a part of DFO's core mandate?"),
-    "is_competitive ":_("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
-    "priorities":_("What will be the project emphasis in this particular fiscal year?"),
-    "deliverables":_("Please provide this information in bulleted form, if possible."),
+    "user": _("This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)"),
+    "start_date": _("This is the start date of the project, not the fiscal year"),
+    "is_negotiable ": _("Is this program a part of DFO's core mandate?"),
+    "is_competitive ": _("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
+    "priorities": _("What will be the project emphasis in this particular fiscal year?"),
+    "deliverables": _("Please provide this information in bulleted form, if possible."),
 }
+
 
 # This function is a bit of a misnomer. It is used to determine whether the user has full access to a record, assuming they are not already a project lead
 def can_delete(user, project):
@@ -190,6 +190,59 @@ project_field_list = [
 ]
 
 
+def get_section_choices(all=False, full_name=True):
+    if full_name:
+        my_attr = "full_name"
+    else:
+        my_attr = _("name")
+
+    return [(s.id, getattr(s, my_attr)) for s in
+            shared_models.Section.objects.all().order_by(
+                "division__branch__region",
+                "division__branch",
+                "division",
+                "name"
+            ) if s.projects.count() > 0] if not all else [(s.id, getattr(s, my_attr)) for s in
+                                                          shared_models.Section.objects.filter(
+                                                              division__branch__name__icontains="science").order_by(
+                                                              "division__branch__region",
+                                                              "division__branch",
+                                                              "division",
+                                                              "name"
+                                                          )]
+
+
+def get_division_choices(all=False):
+    if all:
+        division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices(all=True)])
+    else:
+        division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices()])
+    q_objects = Q()  # Create an empty Q object to start with
+    for d in division_list:
+        q_objects |= Q(id=d.id)  # 'or' the Q objects together
+
+    return [(d.id, str(d)) for d in
+            shared_models.Division.objects.filter(q_objects).order_by(
+                "branch__region",
+                "name"
+            )]
+
+
+def get_region_choices(all=False):
+    if all:
+        region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices(all=True)])
+    else:
+        region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices()])
+    q_objects = Q()  # Create an empty Q object to start with
+    for r in region_list:
+        q_objects |= Q(id=r.id)  # 'or' the Q objects together
+
+    return [(r.id, str(r)) for r in
+            shared_models.Region.objects.filter(q_objects).order_by(
+                "name",
+            )]
+
+
 # Create your views here.
 class CloserTemplateView(TemplateView):
     template_name = 'projects/close_me.html'
@@ -245,7 +298,8 @@ class MySectionListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MySectionFilter
 
     def get_queryset(self):
-        return models.Project.objects.filter(section__head=self.request.user).order_by('-year', 'section__division', 'section', 'project_title')
+        return models.Project.objects.filter(section__head=self.request.user).order_by('-year', 'section__division', 'section',
+                                                                                       'project_title')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -328,9 +382,8 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['help_text_dict']=help_text_dict
+        context['help_text_dict'] = help_text_dict
         return context
-
 
     def get_initial(self):
         my_dict = {
@@ -389,24 +442,27 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['help_text_dict']=help_text_dict
+        context['help_text_dict'] = help_text_dict
 
         # here are the option objects we want to send in through context
         # only from the science branches of each region
-        division_choices = [(d.id, str(d)) for d in
-                            shared_models.Division.objects.filter(Q(branch_id=1) | Q(branch_id=3)).order_by("branch__region", "name")]
-        section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(Q(division__branch_id=1) | Q(division__branch_id=3)).order_by(
-                               "division__branch__region", "division__branch", "division", "name")]
 
         division_dict = {}
-        for d in division_choices:
-            division_dict[d[1]] = d[0]
+        for d in get_division_choices(all=True):
+            my_division = shared_models.Division.objects.get(pk=d[0])
+            division_dict[my_division.id] = {}
+            division_dict[my_division.id]["display"] = "{} - {}".format(
+                getattr(my_division.branch, _("name")),
+                getattr(my_division, _("name")),
+            )
+            division_dict[my_division.id]["region_id"] = my_division.branch.region_id
 
         section_dict = {}
-        for s in section_choices:
-            section_dict[s[1]] = s[0]
-
+        for s in get_section_choices(all=True):
+            my_section = shared_models.Section.objects.get(pk=s[0])
+            section_dict[my_section.id] = {}
+            section_dict[my_section.id]["display"] = str(my_section)
+            section_dict[my_section.id]["division_id"] = my_section.division_id
         context['division_json'] = json.dumps(division_dict)
         context['section_json'] = json.dumps(section_dict)
 
@@ -457,7 +513,7 @@ class StaffCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
-        context['help_text_dict']=help_text_dict
+        context['help_text_dict'] = help_text_dict
         return context
 
     def form_valid(self, form):
@@ -480,7 +536,7 @@ class StaffUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['help_text_dict']=help_text_dict
+        context['help_text_dict'] = help_text_dict
         return context
 
 
@@ -854,45 +910,80 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
     login_url = '/accounts/login_required/'
     form_class = forms.ReportSearchForm
 
-    def get_initial(self):
+    # def get_initial(self):
         # default the year to the year of the latest samples
-        return {"fiscal_year": fiscal_year(next=True, sap_style=True)}
+        # return {"fiscal_year": fiscal_year(next=True, sap_style=True)}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        division_dict = {}
+        for d in get_division_choices():
+            my_division = shared_models.Division.objects.get(pk=d[0])
+            division_dict[my_division.id] = {}
+            division_dict[my_division.id]["display"] = getattr(my_division, _("name"))
+            division_dict[my_division.id]["region_id"] = my_division.branch.region_id
+
+        section_dict = {}
+        for s in get_section_choices():
+            my_section = shared_models.Section.objects.get(pk=s[0])
+            section_dict[my_section.id] = {}
+            section_dict[my_section.id]["display"] = str(my_section)
+            section_dict[my_section.id]["division_id"] = my_section.division_id
+
+        context['division_json'] = json.dumps(division_dict)
+        context['section_json'] = json.dumps(section_dict)
         return context
 
     def form_valid(self, form):
         fiscal_year = str(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
-        sections = str(form.cleaned_data["sections"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        regions = listrify(form.cleaned_data["region"])
+        divisions = listrify(form.cleaned_data["division"])
+        sections = listrify(form.cleaned_data["section"])
 
+        if regions == "":
+            regions = "None"
+        if divisions == "":
+            divisions = "None"
         if sections == "":
             sections = "None"
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects:report_master", kwargs={
                 'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
                 'sections': sections,
             }))
         elif report == 2:
             return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={
                 'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
                 'sections': sections,
             }))
         elif report == 3:
             return HttpResponseRedirect(reverse("projects:pdf_project_summary", kwargs={
                 'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
             }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
 
 
-def master_spreadsheet(request, fiscal_year, sections=None, user=None):
+def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None, user=None):
+    # sections arg will be coming in as None from the my_section view
+    if regions is None:
+        regions = "None"
+    if divisions is None:
+        divisions = "None"
     if sections is None:
         sections = "None"
-    file_url = reports.generate_master_spreadsheet(fiscal_year, sections, user)
+    file_url = reports.generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -916,7 +1007,20 @@ class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
         context = super().get_context_data(**kwargs)
         fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("id")
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section_id__in=section_list).order_by("id")
 
         context["fy"] = fy
         context["report_mode"] = True
@@ -999,14 +1103,9 @@ class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
         context["gc_list"] = [gc for project in project_list for gc in project.gc_costs.all()]
 
         # get a list of the collaborators
-        # context["collaborator_list"] = [collaborator for project in project_list.order_by("section__division", "section", "project_title")
-        #                                 for
-        #                                 collaborator in project.collaborators.all()]
         context["collaborator_list"] = [collaborator for project in project_list for collaborator in project.collaborators.all()]
 
         # get a list of the agreements
-        # context["agreement_list"] = [agreement for project in project_list.order_by("section__division", "section", "project_title")
-        #                              for agreement in project.agreements.all()]
         context["agreement_list"] = [agreement for project in project_list for agreement in project.agreements.all()]
 
         return context
@@ -1025,20 +1124,20 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
         context = super().get_context_data(**kwargs)
         fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
 
-        sections = self.kwargs["sections"]
-        if sections != "None":
-            section_list = [shared_models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
         else:
-            section_list = [s for s in shared_models.Section.objects.filter(division__branch=1)]
+            section_list = []
 
-        # project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True).order_by("section__division",
-        #                                                                                                            "section",
-        #                                                                                                            "project_title")
-        q_objects = Q()  # Create an empty Q object to start with
-        for s in section_list:
-            q_objects |= Q(section=s)  # 'or' the Q objects together
-
-        project_list = models.Project.objects.filter(q_objects).filter(year=fy, submitted=True, section_head_approved=True).order_by("id")
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section_id__in=section_list).order_by("id")
 
         # project_list = [project for project in project_list if project.section in section_list]
 
