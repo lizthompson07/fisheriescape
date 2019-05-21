@@ -17,7 +17,7 @@ urlpatterns = [
 
     # Theme #
     #########
-    path('<str:lookup>/new/', views.LookupCreateView.as_view(), name="new_lookup"),
-    path('<int:publications>/<str:lookup>/new/', views.LookupAddView.as_view(), name="add_lookup"),
+    path('delete/<str:lookup>/<int:pk>/<int:fk>', views.lookup_delete, name="lookup_delete"),
+    path('<int:publications>/<str:lookup>/new/', views.LookupAddView.as_view(), name="lookup_add"),
 
 ]
