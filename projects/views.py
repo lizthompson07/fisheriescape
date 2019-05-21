@@ -303,6 +303,8 @@ class MySectionListView(LoginRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['fy_form'] = forms.FYForm(user=self.request.user.id)
+
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
         context['has_section'] = models.Project.objects.filter(section__head=self.request.user).count() > 0
         return context
@@ -322,19 +324,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.object
-        context["field_list"] = [
-            'id',
-            'year',
-            'project_title',
-            'section',
-            'program',
-            'coding|' + _("budget code"),
-            'description',
-            'priorities',
-            'deliverables',
-            'last_modified_by',
-            'date_last_modified',
-        ]
+        context["field_list"] = project_field_list
         # bring in financial summary data
         my_context = financial_summary_data(project)
         context = {**my_context, **context}
