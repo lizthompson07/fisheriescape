@@ -101,6 +101,8 @@
         <br><br>
 
         <table class="table table-sm table-striped" style="width: auto">
+            {# cheating here to adjust header width #}
+            <th class="gone" style="width: 250px; padding: 0px; margin: 0px;"></th>
             {% for field in field_list %}
                 {% verbose_td_display object field %}
             {% endfor %}
