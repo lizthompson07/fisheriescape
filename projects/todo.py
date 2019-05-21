@@ -13,13 +13,13 @@
 # 10-may batch list
 ###################
 # from the main detail, make a review page from which you can then export it
-# - for reports, add a field to limit selection by region
 
+# CLONE FUNCTION
+
+# once a project is submitted you should go to the review page, not the detail page
 # - collaborators should be specified as external collaborators (could be a drop down);
-
 # - should be a many-to-many relationship with other projects (link related projects)
-
-# once a project is submitted you should go to the review page
+# when projects are unsubmitted, they should also get unapproved?
 
 # - project labels field
 
@@ -37,7 +37,7 @@
 
 # - update translation file
 
+
 # - help tooltips
 # start date of project re: fiscal year
 
-# CLONE FUNCTION

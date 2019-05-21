@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models import Q
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from . import models
 from . import views
@@ -159,6 +160,20 @@ class GCCostForm(forms.ModelForm):
         widgets = {
             'project': forms.HiddenInput(),
         }
+
+
+class FYForm(forms.Form):
+    fiscal_year = forms.ChoiceField(required=True)
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        fy_choices = [(
+            reverse("projects:report_sh", kwargs={"fiscal_year": fy.id, "user": user}), str(fy)) for fy in
+            shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        fy_choices.insert(0, (None, "-----"))
+
+        self.fields["fiscal_year"].choices = fy_choices
 
 
 class ReportSearchForm(forms.Form):
