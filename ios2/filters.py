@@ -3,6 +3,11 @@ from shared_models import models as shared_models
 
 from . import models
 import django_filters
+from django import forms
+
+chosen_js = {"class":"chosen-select-contains"}
+# chosen_js = {"class":"chosen-select-contains", 'Select multiple': True}
+# chosen_js = {"class":"chosen-select-contains"}
 
 
 class InstrumentFilter(django_filters.FilterSet):
@@ -11,16 +16,26 @@ class InstrumentFilter(django_filters.FilterSet):
     # SECTION_CHOICES = [(s.id, str(s)) for s in shared_models.Section.objects.filter(division__branch=1)]
     # TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP'), ('OXY', 'OXY')]
     TYPE_CHOICES = models.Instrument.TYPE_CHOICES
+
     YES_NO_CHOICES = [(True, "Yes"), (False, "No"), ]
 
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
-    instrument_type = django_filters.ChoiceFilter(field_name='instrument_type', lookup_expr='exact', choices=TYPE_CHOICES)
+    # instrument_type = django_filters.ChoiceFilter(field_name='instrument_type', lookup_expr='exact',
+    #                                               choices=TYPE_CHOICES,
+    #                                               widget=forms.Select(attrs=chosen_js))
+    instrument_type = django_filters.MultipleChoiceFilter(field_name='instrument_type', lookup_expr='exact',
+                                                  choices=TYPE_CHOICES,)
+                                                  # widget=forms.Select(attrs=chosen_js))
+    #                                               attrs='chosen_js')
     # location = django_filters.CharFilter(field_name='location', lookup_expr='icontains')
     location = django_filters.ModelChoiceFilter(queryset=models.Mooring.objects.all())
     # fiscal_year = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=FY_CHOICES)
     # division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label="Division", choices=DIVISION_CHOICES)
     # section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label="Section", choices=SECTION_CHOICES)
-    submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', label="Submitted?", choices=YES_NO_CHOICES)
+    is_sensor = django_filters.ChoiceFilter(field_name='is_sensor', lookup_expr='exact',
+                                            label="Is Sensor?", choices=YES_NO_CHOICES)
+    # submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact',
+    #                                         label="Submitted?", choices=YES_NO_CHOICES)
 
 
 class MooringFilter(django_filters.FilterSet):

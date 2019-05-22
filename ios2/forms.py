@@ -8,11 +8,15 @@ from datetime import date, timedelta, datetime
 from django.forms import modelformset_factory
 
 
+chosen_js = {"class":"chosen-select-contains"}#, 'Select multiple': True}
+
+
 class NewInstrumentForm(forms.ModelForm):
 
     class Meta:
         # TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP')]
         model = models.Instrument
+        # instrument_type1 = forms.CharField(widget=forms.TextInput(attrs={"class": "chosen-select"}))
 
         fields = [
             'instrument_type',
@@ -22,7 +26,8 @@ class NewInstrumentForm(forms.ModelForm):
             'comm_port',
             # 'date_of_last_service',
             # 'date_of_next_service',
-            'in_service',
+            # 'in_service',
+            'is_sensor',
             'project_title',
             'scientist',
             # 'last_modified_by',
@@ -35,6 +40,7 @@ class NewInstrumentForm(forms.ModelForm):
             #                                 ),
             # 'instrument_type': forms.Textarea(attrs={"rows": 1},  choices=TYPE_CHOICES),
             # 'instrument_type': forms.Select(choices=TYPE_CHOICES),
+            "instrument_type": forms.Select(attrs=chosen_js),
             # 'serial_number': forms.Textarea(attrs={"rows": 1}),
             # 'date_of_last_service': forms.DateInput(attrs={"type": "date",
             #                                                "value": timezone.now().strftime("%Y-%b-%d")}),
@@ -54,11 +60,11 @@ class InstrumentSubmitForm(forms.ModelForm):
         model = models.Instrument
         fields = [
             # 'last_modified_by',
-            'submitted',
+            # 'submitted',
         ]
         widgets = {
             # 'last_modified_by': forms.HiddenInput(),
-            'submitted': forms.HiddenInput(),
+            # 'submitted': forms.HiddenInput(),
         }
 
 
@@ -67,7 +73,7 @@ class InstrumentForm(forms.ModelForm):
     class Meta:
         model = models.Instrument
         exclude = [
-            'submitted',
+            # 'submitted',
             # 'date_last_modified',
             # 'section_head_approved',
             # 'description_html',
@@ -99,12 +105,11 @@ class InstrumentForm(forms.ModelForm):
 
 
 
-
 class MooringForm(forms.ModelForm):
     class Meta:
         model = models.Mooring
         exclude = [
-            'submitted',
+            # 'submitted',
             'date_last_modified',
             'instruments'
 
@@ -176,7 +181,7 @@ class AddInstrumentToMooringForm(forms.ModelForm):
     class Meta:
         model = models.InstrumentMooring
         exclude = [
-            'submitted',
+            # 'submitted',
             'date_last_modified',
 
         ]
@@ -228,7 +233,7 @@ class AddMooringToInstrumentForm(forms.ModelForm):
     class Meta:
         model = models.InstrumentMooring
         exclude = [
-            'submitted',
+            # 'submitted',
             'date_last_modified',
 
         ]
@@ -257,7 +262,7 @@ class EditInstrumentMooringForm(forms.ModelForm):
     class Meta:
         model = models.InstrumentMooring
         exclude = [
-            'submitted',
+            # 'submitted',
             'date_last_modified',
 
         ]
@@ -288,11 +293,11 @@ class MooringSubmitForm(forms.ModelForm):
         model = models.Mooring
         fields = [
             # 'last_modified_by',
-            'submitted',
+            # 'submitted',
         ]
         widgets = {
             # 'last_modified_by': forms.HiddenInput(),
-            'submitted': forms.HiddenInput(),
+            # 'submitted': forms.HiddenInput(),
         }
 
 
@@ -301,7 +306,7 @@ class ServiceForm(forms.ModelForm):
     class Meta:
         model = models.ServiceHistory
         exclude = [
-            'submitted',
+            # 'submitted',
             'date_last_modified',
             # 'section_head_approved',
             # 'description_html',
