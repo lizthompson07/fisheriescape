@@ -265,7 +265,7 @@ def generate_fish_detail_report(year):
 
 def generate_hlen(year):
     # grab a list of samples for which there are length frequencies
-    sample_list = [s for s in models.Sample.objects.filter(season=year) if s.length_frequencies.count() > 0]
+    sample_list = [s for s in models.Sample.objects.filter(season=year).order_by("sample_date") if s.length_frequencies.count() > 0]
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -332,7 +332,7 @@ def generate_hlen(year):
 
 def generate_hlog(year):
     # grab a list of all samples for the year
-    sample_list = [s for s in models.Sample.objects.filter(season=year).order_by("id")]
+    sample_list = [s for s in models.Sample.objects.filter(season=year).order_by("sample_date")]
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -551,7 +551,7 @@ def generate_hlog(year):
 
 def generate_hdet(year):
     # grab a list of all fish details for the year, ordered by sample then fish number
-    fish_list = [f for f in models.FishDetail.objects.filter(sample__season=year).order_by("sample_id", "fish_number")]
+    fish_list = [f for f in models.FishDetail.objects.filter(sample__season=year).order_by("sample__sample_date", "fish_number")]
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
