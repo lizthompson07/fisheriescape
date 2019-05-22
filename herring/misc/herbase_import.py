@@ -61,6 +61,7 @@ def import_hlog():
             my_sample.type = 1
             my_sample.catch_weight_lbs = nz(row[16].replace(" ", ""), None)
             my_sample.experimental_net_used = False
+            my_sample.last_modified_by_id = 50
 
             # j) NAFO code
             search_name = row[9]
@@ -70,10 +71,11 @@ def import_hlog():
                     break
 
             # gear code
-            search_name = row[12]
+            search_name = row[12].strip()
             for gear in models.Gear.objects.all():
                 if search_name == gear.gear_code:
                     my_sample.gear = gear
+                    print("found gear!")
                     break
 
             search_name = nz(row[25].replace(" ", ""), None)

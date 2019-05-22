@@ -6,6 +6,7 @@ from django.template.defaultfilters import yesno
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from lib.functions.custom_functions import nz
+from lib.functions.verbose_field_name import verbose_field_name
 from . import models
 import numpy as np
 
@@ -65,6 +66,73 @@ def generate_progress_report(year):
                 sample.total_fish_preserved,
                 lab_processed_date,
                 otolith_processed_date,
+            ])
+
+    return response
+
+
+def generate_sample_report(year):
+    # create instance of mission:
+    qs = models.Sample.objects.filter(season=year)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="herring_sample_report_{}.csv"'.format(year)
+    writer = csv.writer(response)
+
+    writer.writerow([
+        verbose_field_name(qs.first(), "id"),
+        verbose_field_name(qs.first(), 'season'),
+        verbose_field_name(qs.first(), 'type'),
+        verbose_field_name(qs.first(), 'sample_date'),
+        verbose_field_name(qs.first(), 'sampler_ref_number'),
+        verbose_field_name(qs.first(), 'sampler'),
+        verbose_field_name(qs.first(), 'district'),
+        verbose_field_name(qs.first(), 'survey_id'),
+        verbose_field_name(qs.first(), 'latitude_n'),
+        verbose_field_name(qs.first(), 'longitude_w'),
+        verbose_field_name(qs.first(), 'fishing_area'),
+        verbose_field_name(qs.first(), 'gear'),
+        verbose_field_name(qs.first(), 'experimental_net_used', ),
+        verbose_field_name(qs.first(), 'vessel_cfvn'),
+        verbose_field_name(qs.first(), 'mesh_size'),
+        verbose_field_name(qs.first(), 'remarks'),
+    ])
+
+    for sample in qs:
+        if sample.sampler:
+            sampler = "{} {}".format(sample.sampler.first_name, sample.sampler.last_name)
+        else:
+            sampler = None
+
+        if sample.sample_date:
+            sample_date = sample.sample_date.strftime('%Y-%m-%d')
+        else:
+            sample_date = None
+
+        if sample.port:
+            district = "{}{}".format(sample.port.province_code, sample.port.district_code)
+        else:
+            district = None
+
+        writer.writerow(
+            [
+                sample.id,
+                sample.season,
+                sample.get_type_display(),
+                sample_date,
+                sample.sampler_ref_number,
+                sampler,
+                district,
+                sample.survey_id,
+                sample.latitude_n,
+                sample.longitude_w,
+                str(sample.fishing_area),
+                str(sample.gear),
+                sample.experimental_net_used,
+                sample.vessel_cfvn,
+                str(sample.mesh_size),
+                sample.remarks,
             ])
 
     return response
@@ -297,12 +365,14 @@ def generate_hlog(year):
         if sample.survey_id:
             my_var = sample.survey_id
         elif sample.port_id:
-            my_var = sample.port.alias_wharf_name
+            if sample.port.alias_wharf_name:
+                my_var = sample.port.alias_wharf_name
+            else:
+                my_var = ""
+
         else:
             my_var = ""
         col_e = str(my_var).rjust(padding_lengths[4])
-        print(col_e)
-        print(len(col_e))
 
         # f) sampler name (text)
         if sample.sampler:
@@ -430,7 +500,10 @@ def generate_hlog(year):
 
         # z) maps to WHARF_CODE in oracle db
         if sample.port:
-            my_var = sample.port.alias_wharf_id
+            if sample.port.alias_wharf_id:
+                my_var = sample.port.alias_wharf_id
+            else:
+                my_var = ""
         else:
             my_var = ""
         col_z = str(my_var).rjust(padding_lengths[25])
