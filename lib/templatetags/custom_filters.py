@@ -108,3 +108,37 @@ def lookup(my_dict, key):
         return my_dict[key]
     except (KeyError, TypeError):
         return ""
+
+
+@register.filter(name='dict_2_list')
+def dict_2_list(my_dict):
+    """turn a dictionary into a list of key"""
+    print(my_dict)
+    try:
+        return [key for key in my_dict]
+    except (KeyError, TypeError):
+        return ""
+
+
+@register.filter
+def kmark(value, args):
+    '''
+    :param value: any float
+    :param args:  should be two parts: first = precision (int); second  = with_sign (True/False)
+    :return: value / 1000 with [precision] decimal places and formated with a "K" if with_sign
+    '''
+    # both args must be present, if not then leave
+    if args is None or len(args) < 2:
+        return value
+
+    arg_list = [arg.strip() for arg in args.split(',')]
+    precision = int(arg_list[0])
+    with_sign = bool(arg_list[1])
+
+    try:
+        float(value)
+        # if not able to cast, then just return 'value'
+    except (ValueError, TypeError):
+        return value
+    else:
+        return "{1:,.{0}f} K".format(precision, float(value)/1000) if with_sign else "{1:,.{0}f}".format(precision, float(value)/1000)
