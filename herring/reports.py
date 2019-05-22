@@ -87,6 +87,7 @@ def generate_sample_report(year):
         verbose_field_name(qs.first(), 'sample_date'),
         verbose_field_name(qs.first(), 'sampler_ref_number'),
         verbose_field_name(qs.first(), 'sampler'),
+        verbose_field_name(qs.first(), 'port'),
         verbose_field_name(qs.first(), 'district'),
         verbose_field_name(qs.first(), 'survey_id'),
         verbose_field_name(qs.first(), 'latitude_n'),
@@ -100,11 +101,6 @@ def generate_sample_report(year):
     ])
 
     for sample in qs:
-        if sample.sampler:
-            sampler = "{} {}".format(sample.sampler.first_name, sample.sampler.last_name)
-        else:
-            sampler = None
-
         if sample.sample_date:
             sample_date = sample.sample_date.strftime('%Y-%m-%d')
         else:
@@ -122,7 +118,8 @@ def generate_sample_report(year):
                 sample.get_type_display(),
                 sample_date,
                 sample.sampler_ref_number,
-                sampler,
+                str(sample.sampler),
+                str(sample.port),
                 district,
                 sample.survey_id,
                 sample.latitude_n,
@@ -368,7 +365,7 @@ def generate_hlog(year):
             if sample.port.alias_wharf_name:
                 my_var = sample.port.alias_wharf_name
             else:
-                my_var = ""
+                my_var = "UNKNOWN"
 
         else:
             my_var = ""
