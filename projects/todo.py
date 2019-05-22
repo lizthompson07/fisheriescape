@@ -17,6 +17,7 @@
 # CLONE FUNCTION
 
 # once a project is submitted you should go to the review page, not the detail page
+## actually, since the latest update, the review page can probably be highly simplified since all the information is displayed on the detail page.
 # - collaborators should be specified as external collaborators (could be a drop down);
 # - should be a many-to-many relationship with other projects (link related projects)
 # when projects are unsubmitted, they should also get unapproved?
