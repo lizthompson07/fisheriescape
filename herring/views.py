@@ -681,6 +681,8 @@ class ReportSearchFormView(HerringAccessRequired, FormView):
             return HttpResponseRedirect(reverse("herring:export_hlog", kwargs={'year': year}))
         elif report == 5:
             return HttpResponseRedirect(reverse("herring:export_hdet", kwargs={'year': year}))
+        elif report == 6:
+            return HttpResponseRedirect(reverse("herring:export_sample_report", kwargs={'year': year}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("herring:report_search"))
@@ -756,6 +758,11 @@ def export_progress_report(request, year):
 
 def export_fish_detail(request, year):
     response = reports.generate_fish_detail_report(year)
+    return response
+
+
+def export_sample_report(request, year):
+    response = reports.generate_sample_report(year)
     return response
 
 
