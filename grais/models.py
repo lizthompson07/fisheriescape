@@ -195,6 +195,9 @@ class Line(models.Model):
     def get_absolute_url(self):
         return reverse('grais:line_detail', kwargs={'pk': self.id})
 
+    @property
+    def surface_species_count(self):
+        return sum([s.species.count() for s in self.surfaces.all()])
 
 def img_file_name(instance, filename):
     img_name = 'grais/sample_{}/{}'.format(instance.line.sample.id, filename)
