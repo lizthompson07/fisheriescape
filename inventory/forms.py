@@ -136,7 +136,11 @@ class ResourcePersonForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': "5"}),
             # 'last_modified_by':forms.HiddenInput(),
         }
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        role_choices = [(r.id, "{} - {}".format(r.role, r.notes)) for r in models.PersonRole.objects.all()]
+        role_choices.insert(0,(None, "-----"))
+        self.fields['role'].choices = role_choices
 
 class PersonForm(forms.Form):
     LANGUAGE_CHOICES = ((None, "---"),) + models.LANGUAGE_CHOICES
