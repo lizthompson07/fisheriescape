@@ -1,5 +1,7 @@
+import html2text as html2text
 import xlsxwriter as xlsxwriter
 from django.conf import settings
+from django.db.models import Q
 from django.template.defaultfilters import yesno
 
 from shared_models import models as shared_models
@@ -9,7 +11,7 @@ from . import models
 import os
 
 
-def generate_master_spreadsheet(fiscal_year, sections, user=None):
+def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
     target_file = "temp_export.xlsx"
@@ -34,43 +36,31 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
     bold_format = workbook.add_format({"align": 'left', 'bold': True})
 
+
+    # need to assemble a section list
+    ## first look at the sections arg; if not null, we don't need anything else
     if sections != "None":
-        section_list = [shared_models.Section.objects.get(pk=int(obj)) for obj in sections.split(",")]
+        section_list = shared_models.Section.objects.filter(id__in=sections.split(","))
+    ## next look at the divisions arg; if not null, we don't need anything else
+    elif divisions != "None":
+        section_list = shared_models.Section.objects.filter(division_id__in=divisions.split(","))
+    ## next look at the divisions arg; if not null, we don't need anything else
+    elif regions != "None":
+        section_list = shared_models.Section.objects.filter(division__branch__region_id__in=regions.split(","))
     else:
         section_list = []
 
-        # If there is no user, it means that this report is being called throught the report_search.html page (as opposed to my_section.html)
+        # If there is no user, it means that this report is being called throught the report_search view (as opposed to my_section view)
     if not user:
-        if len(section_list) == 1:
-            section = section_list[0]
-            project_list = models.Project.objects.filter(year=fiscal_year, section=section)
-            staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1, project__section=section)
-            collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year, project__section=section)
-            agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year, project__section=section)
-            om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0, project__section=section)
-            capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year, project__section=section)
-            gc_list = models.GCCost.objects.filter(project__year=fiscal_year, project__section=section)
-
-        else:
-            project_list = models.Project.objects.filter(year=fiscal_year)
-            staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1)
-            collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year)
-            agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year)
-            om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0)
-            capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year)
-            gc_list = models.GCCost.objects.filter(project__year=fiscal_year)
-
-            if section_list:
-                project_list = [project for project in project_list if project.section in section_list]
-                staff_list = [staff for staff in staff_list if staff.project.section in section_list]
-                collaborator_list = [collaborator for collaborator in collaborator_list if collaborator.project.section in section_list]
-                agreement_list = [agreement for agreement in agreement_list if agreement.project.section in section_list]
-                om_list = [om for om in om_list if om.project.section in section_list]
-                capital_list = [capital for capital in capital_list if capital.project.section in section_list]
-                gc_list = [gc for gc in gc_list if gc.project.section in section_list]
-
+        project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list)
+        staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1, project__section__in=section_list)
+        collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year, project__section__in=section_list)
+        agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year, project__section__in=section_list)
+        om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0, project__section__in=section_list)
+        capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year, project__section__in=section_list)
+        gc_list = models.GCCost.objects.filter(project__year=fiscal_year, project__section__in=section_list)
     else:
-        project_list = models.Project.objects.filter(year=fiscal_year).filter(section__head__id=user)
+        project_list = models.Project.objects.filter(year=fiscal_year).filter(section__head_id=user)
         staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1).filter(
             project__section__head__id=user)
         collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year).filter(project__section__head__id=user)
@@ -97,7 +87,7 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
             "Coding",
             verbose_field_name(project_list[0], 'status'),
             "Project lead",
-            verbose_field_name(project_list[0], 'approved'),
+            verbose_field_name(project_list[0], 'is_approved'),
             verbose_field_name(project_list[0], 'start_date'),
             verbose_field_name(project_list[0], 'end_date'),
             verbose_field_name(project_list[0], 'description'),
@@ -220,24 +210,24 @@ def generate_master_spreadsheet(fiscal_year, sections, user=None):
                 p.coding,
                 status,
                 lead,
-                yesno(p.approved),
+                yesno(p.is_approved),
                 start,
                 end,
-                p.description,
-                p.priorities,
-                p.deliverables,
-                p.data_collection,
-                p.data_sharing,
-                p.data_storage,
+                html2text.html2text(p.description),
+                html2text.html2text(p.priorities),
+                html2text.html2text(p.deliverables),
+                html2text.html2text(p.data_collection),
+                html2text.html2text(p.data_sharing),
+                html2text.html2text(p.data_storage),
                 p.metadata_url,
                 p.regional_dm,
-                p.regional_dm_needs,
+                html2text.html2text(p.regional_dm_needs),
                 p.sectional_dm,
-                p.sectional_dm_needs,
-                p.vehicle_needs,
-                p.it_needs,
-                p.chemical_needs,
-                p.ship_needs,
+                html2text.html2text(p.sectional_dm_needs),
+                html2text.html2text(p.vehicle_needs),
+                html2text.html2text(p.it_needs),
+                html2text.html2text(p.chemical_needs),
+                html2text.html2text(p.ship_needs),
                 fte_total,
                 salary_total,
                 ot_total,

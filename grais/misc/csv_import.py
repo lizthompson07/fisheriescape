@@ -218,12 +218,12 @@ def import_lines_and_surfaces():
                 print("sample wasn't found. event id = {}".format(row["Event_pk"]))
                 break
 
+            note = "Coordinates of lines were not collected in the old database. These data can be found on the original field sheets."
             # get or create an instance of line
             my_line, created = models.Line.objects.get_or_create(
                 sample=my_sample,
-                latitude_n=row["Latitude"],
-                longitude_w=row["Longitude"],
                 collector="collector {}".format(row["Collector"]),
+                notes=note,
             )
 
             # create a corresponding surface
@@ -237,29 +237,30 @@ def import_lines_and_surfaces():
                 print("invalid surface type")
                 break
 
-            my_surface, created = models.Surface.objects.get_or_create(
+            models.Surface.objects.create(
                 line=my_line,
                 surface_type=my_surface_type,
                 label="{} {}".format(row["Name"], row["Plate"]),
                 is_lost=row["Lost"],
+                old_plateheader_id=row["PlateHeader_pk"],
             )
 
-            my_surface.old_plateheader_id = row["PlateHeader_pk"]
-            my_surface.save()
 
-
-
-
-# import the surface species
+# STEP 6: import the surface species (AIS only)
 def import_surface_spp():
     # This is for the invasive spp only.
 
-    with open(os.path.join(rootdir, "qry_surface_spp.csv"), 'r') as csv_read_file: # NOT CREATED
+    with open(os.path.join(rootdir, "qry_surface_spp.csv"), 'r') as csv_read_file:  # NOT CREATED
         my_csv = csv.DictReader(csv_read_file)
         for row in my_csv:
             # get the surface
             # the platerheader id == surface id
-            my_surface = models.Surface.objects.get(old_plateheader_id=int(row["PlateHeader_fk"]))
+            try:
+                my_surface = models.Surface.objects.get(old_plateheader_id=int(row["PlateHeader_fk"]))
+
+            except models.Surface.DoesNotExist:
+                print("old plateholder id wasn't found: {}".format(row["PlateHeader_fk"]))
+                break
 
             percent_coverage = (20 * int(row["Coverage_fk"])) / 100
 
@@ -276,3 +277,84 @@ def import_surface_spp():
                 percent_coverage=percent_coverage,
                 notes=notes,
             )
+
+
+# STEP 7: import the sample species
+def import_sample_spp():
+    with open(os.path.join(rootdir, "event_2_sample.pickle"), 'rb') as handle:
+        event_sample_dict = pickle.load(handle)
+
+    with open(os.path.join(rootdir, "qry_sample_spp.csv"), 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            try:
+                my_sample = models.Sample.objects.get(pk=event_sample_dict[row["Event_fk"]])
+            except models.Sample.DoesNotExist:
+                print("sample wasn't found. event id = {}".format(row["Event_fk"]))
+                break
+
+            observation_date = timezone.make_aware(
+                datetime.datetime.strptime(row["eDate"].split(" ")[0], "%m/%d/%Y"),
+                timezone.get_current_timezone(),
+            )
+            try:
+                models.SampleSpecies.objects.create(
+                    species=models.Species.objects.get(pk=row["grais_species_id"]),
+                    sample=my_sample,
+                    observation_date=observation_date
+                )
+            except IntegrityError:
+                print("duplicate entry found")
+
+
+# STEP 8: import the surface species (non-AIS only)
+def import_surface_spp_non_ais():
+    # This is for the invasive spp only.
+
+    with open(os.path.join(rootdir, "qry_surface_spp_non_ais.csv"), 'r') as csv_read_file:  # NOT CREATED
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            # get the surface
+            # the platerheader id == surface id
+            try:
+                my_surface = models.Surface.objects.get(old_plateheader_id=int(row["PlateHeader_fk"]))
+
+            except models.Surface.DoesNotExist:
+                print("old plateholder id wasn't found: {}".format(row["PlateHeader_fk"]))
+                break
+
+            notes = "This record was imported from the old database. Since the old database did not record percent coverage of non-AIS, there is no data relating to the coverage of this observation that was carried over"
+
+            my_surface_spp, created = models.SurfaceSpecies.objects.get_or_create(
+                species=models.Species.objects.get(pk=row["grais_species_id"]),
+                surface=my_surface,
+                percent_coverage=0,
+                notes=notes,
+            );
+
+
+# STEP 9: remove the line coordinates
+def mark_lost():
+    # for lines whose surfaces are all lost, mark them as lost too!
+    for line in models.Line.objects.filter(sample__season__lte=2016):
+
+        if not line.is_lost:
+            lost_list = [surface.is_lost for surface in line.surfaces.all()]
+            if not False in lost_list:
+                line.is_lost = True
+                line.save()
+
+
+#STEP 10
+def spcond_times_1000():
+    for obj in models.ProbeMeasurement.objects.filter(sample__season__lte=2016):
+        # I am commenting this one out for safety reasons
+        pass
+
+        # if obj.sp_cond_ms:
+        #     obj.sp_cond_ms= obj.sp_cond_ms*1000
+        #
+        # if obj.spc_ms:
+        #     obj.spc_ms=obj.spc_ms*1000
+        #
+        # obj.save()

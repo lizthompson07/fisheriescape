@@ -136,7 +136,11 @@ class ResourcePersonForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': "5"}),
             # 'last_modified_by':forms.HiddenInput(),
         }
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        role_choices = [(r.id, "{} - {}".format(r.role, r.notes)) for r in models.PersonRole.objects.all()]
+        role_choices.insert(0,(None, "-----"))
+        self.fields['role'].choices = role_choices
 
 class PersonForm(forms.Form):
     LANGUAGE_CHOICES = ((None, "---"),) + models.LANGUAGE_CHOICES
@@ -148,17 +152,12 @@ class PersonForm(forms.Form):
     position_fre = forms.CharField(label="Position title (French)", required=False)
     phone = forms.CharField(widget=forms.TextInput(attrs={'placeholder': "000-000-0000 ext.000"}), required=False)
     language = forms.ChoiceField(choices=LANGUAGE_CHOICES, required=False)
+    organization = forms.ModelChoiceField(required=False, queryset=models.Organization.objects.all())
 
     field_order = ["first_name", "last_name", "email", "position_eng", "position_fre", "phone", "language",
                    "organization"]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        organization_choices = [(org.id, org.name_eng) for org in models.Organization.objects.all()]
-        organization_choices.insert(0, (None, "---"))
-
-        self.fields['organization'] = forms.ChoiceField(choices=organization_choices, required=False)
 
 
 class PersonCreateForm(PersonForm):
