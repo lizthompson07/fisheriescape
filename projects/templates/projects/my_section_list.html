@@ -22,7 +22,6 @@
         </ol>
     </nav>
 
-    {% url 'projects:report_sh' next_fiscal_year.id request.user.id as report_url %}
 
     <div class="indent-med">
         {% if has_section %}
@@ -36,9 +35,14 @@
             <br>
 
             <h3>
-                {% blocktrans with fy=next_fiscal_year %}
-                    You can download a spreadsheet with all {{ fy }} projects <a href="{{ report_url }}">here</a>
-                {% endblocktrans %}
+                {% for field in fy_form %}
+                    {% blocktrans with form=field %}
+                        You can download a spreadsheet with all
+                        {{ form }}
+                        projects <a href="#" id="make_spreadsheet">here</a>
+                    {% endblocktrans %}
+                {% endfor %}
+
             </h3>
             <br><br>
 
@@ -63,7 +67,7 @@
             <div class="row">
                 <div class="col">
                     <em>
-{#                        {% trans "displaying all records" %}#}
+                        {#                        {% trans "displaying all records" %}#}
                     </em>
                     {% trans "(click on a header to sort table)" %}
                 </div>
@@ -152,7 +156,8 @@
         {% else %}
             <p>
                 {% blocktrans %}
-                    There are no sections assigned to you, or there are no projects listed under your section. If this doesn't sound right, please contact <a
+                    There are no sections assigned to you, or there are no projects listed under your section. If this doesn't sound right,
+                    please contact <a
                         href="mailto:david.fishman@dfo-mpo.gc.ca">david.fishman@dfo-mpo.gc.ca</a>
                 {% endblocktrans %}
             </p>
@@ -166,6 +171,10 @@
             window.location.href = myURL
 
         });
+        $("#make_spreadsheet").click(function () {
+
+          window.document.location.href = $("#id_fiscal_year").val()
+        })
     </script>
 
 {% endblock content %}

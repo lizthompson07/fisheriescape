@@ -175,7 +175,8 @@ class Sample(models.Model):
         return reverse('herring:sample_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
-        self.season = self.sample_date.year
+        if self.sample_date:
+            self.season = self.sample_date.year
         self.last_modified_date = timezone.now()
 
         # set lab_processing_complete

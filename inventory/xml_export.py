@@ -827,13 +827,13 @@ def construct(my_resource, pretty=True):
     geographicElement = SubElement(EX_Extent, 'gmd:geographicElement')
     EX_GeographicBoundingBox = SubElement(geographicElement, 'gmd:EX_GeographicBoundingBox')
     westBoundLongitude = SubElement(EX_GeographicBoundingBox, 'gmd:westBoundLongitude')
-    SubElement(westBoundLongitude, 'gco:Decimal').text = str(my_resource.west_bounding)
+    SubElement(westBoundLongitude, 'gco:Decimal').text = nz(my_resource.west_bounding, "")
     eastBoundLongitude = SubElement(EX_GeographicBoundingBox, 'gmd:eastBoundLongitude')
-    SubElement(eastBoundLongitude, 'gco:Decimal').text = str(my_resource.east_bounding)
+    SubElement(eastBoundLongitude, 'gco:Decimal').text = nz(my_resource.east_bounding, "")
     southBoundLatitude = SubElement(EX_GeographicBoundingBox, 'gmd:southBoundLatitude')
-    SubElement(southBoundLatitude, 'gco:Decimal').text = str(my_resource.south_bounding)
+    SubElement(southBoundLatitude, 'gco:Decimal').text = nz(my_resource.south_bounding, "")
     northBoundLatitude = SubElement(EX_GeographicBoundingBox, 'gmd:northBoundLatitude')
-    SubElement(northBoundLatitude, 'gco:Decimal').text = str(my_resource.north_bounding)
+    SubElement(northBoundLatitude, 'gco:Decimal').text = nz(my_resource.north_bounding, "")
 
     # supplemental information
     suppl_info = SupplemantInformation(my_resource)

@@ -52,7 +52,7 @@ class Organization(models.Model):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(self.name_eng)
+        return "{} ({})".format(self.name_eng, self.city) if self.city else "{}".format(self.name_eng)
 
     class Meta:
         ordering = ['name_eng']
@@ -77,7 +77,7 @@ class Person(models.Model):
     position_fre = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=25, blank=True, null=True)
     language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
-    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True, default=6)
+    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return "{}, {}".format(self.user.last_name, self.user.first_name)

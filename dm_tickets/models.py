@@ -17,6 +17,13 @@ except (ModuleNotFoundError, ImportError):
     from dfo_sci_dm_site import default_conf as local_conf
 
 
+def get_name(self):
+    return '{} {}'.format(self.first_name, self.last_name)
+
+
+User.add_to_class("__str__", get_name)
+
+
 class RequestType(models.Model):
     request_type = models.CharField(max_length=255)
     financial_follow_up_needed = models.BooleanField(default=False)
@@ -63,7 +70,7 @@ class Ticket(models.Model):
     APP_CHOICES = [(app_key, local_conf.APP_DICT[app_key]) for app_key in local_conf.APP_DICT]
     APP_CHOICES.insert(0, ("esee", "ESEE (not part of site)"))
     APP_CHOICES.insert(0, ("plankton", "Plankton Net (not part of site)"))
-    APP_CHOICES.insert(0, ("tickets", "Data Management Ticketing App"))
+    APP_CHOICES.insert(0, ("tickets", "Data Management Tickets"))
     APP_CHOICES.sort()
     APP_CHOICES.insert(0, ("general", "n/a"))
 

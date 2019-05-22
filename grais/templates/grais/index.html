@@ -1,42 +1,72 @@
 {% extends "grais/grais_base.html" %}
 {% load bootstrap4 %}
+{% load static %}
 
 {% block content %}
 
-<div class="container">
-<br>
-  <div class="container">
-    <div class="jumbotron">
-      <h1 class="three-em">grAIS</h1>
-      <hr>
-      <h3>Gulf Region Aquatic Invasive Species Application</h3>
-      {% if user.is_authenticated %}
+    <div class="container">
         <br>
-        <p>Welcome back, {{user.first_name}}!</p>
-      {% else %}
-      <br>
-        <p>You must be
-          <a href="{% url 'accounts:login' %}?next={% url 'grais:index' %}">signed in</a>
-          to use this application.</p>
-      {% endif %}
+        <div class="container">
+            <div class="jumbotron">
+                <h1 class="three-em">grAIS</h1>
+                <hr>
+                <h3>Gulf Region Aquatic Invasive Species Application</h3>
+                {% if user.is_authenticated %}
+                    <br>
+                    <p>Welcome back, {{ user.first_name }}!</p>
+                {% else %}
+                    <br>
+                    <p>You must be
+                        <a href="{% url 'accounts:login' %}?next={% url 'grais:index' %}">signed in</a>
+                        to use this application.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="row">
+                <div class="col-4">
+                    <div class="">
+                        <br><br>
+                        <h3>Please select a dataset:</h3>
+                        <h4>
+                            <ul>
+                                <li>
+                                    <a href="{% url 'grais:sample_list' %}">Biofouling Monitoring</a><br>
+
+                                </li>
+                                <li>
+
+                                    <a href="{% url 'grais:gcsample_list' %}">Greencrab Monitoring</a><br>
+                                </li>
+                                <li>
+
+                                    <a href="{% url 'grais:report_list' %}">Incidental Reports</a><br>
+                                </li>
+
+
+                            </ul>
+                        </h4>
+
+                    </div>
+                </div>
+                <div class="col">
+
+                    <div align="">
+                        <img src="{% static "/img/grais/img4.JPG" %}" class="rounded" width="500px" alt="...">
+                    </div>
+
+                </div>
+            </div>
+
+        {% else %}
+            <div align="center">
+                <img src="{% static "/img/grais/img4.JPG" %}" class="rounded" width="500px" alt="...">
+            </div>
+        {% endif %}
+
+
     </div>
-
-  </div>
-
-
-
-{% load static %}
-<div align="center">
-  <table cellpadding="15px">
-    <tr >
-      <td><img src="{% static "/img/grais/img4.JPG" %}" class="rounded" width="500px" alt="..."></td>
-    </tr>
-
-  </table>
-
-</div>
-
-
-</div>
 
 {% endblock content %}
