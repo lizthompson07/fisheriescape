@@ -631,7 +631,7 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
         if organization == "" or organization is None:
             old_person.organization_id = None
         else:
-            old_person.organization_id = int(organization)
+            old_person.organization = organization
 
         old_person.user.save()
         old_person.save()
