@@ -45,7 +45,7 @@ class Instrument(models.Model):
     # year = models.TextField(verbose_name=("Instrument title"))
     instrument_type = models.CharField(max_length=20, default='SBE16+', verbose_name=_("Instrument Type"),
                                        choices=TYPE_CHOICES)
-    serial_number = models.CharField(max_length=20, default='0000', verbose_name=_("Serial ID"))
+    serial_number = models.CharField(max_length=20, default='00000', verbose_name=_("Serial ID"))
     purchase_date = models.DateField(blank=True, null=True, verbose_name=_("Purchase Date"))
     project_title = models.TextField(blank=True, null=True, verbose_name=_("Project title"))
     scientist = models.TextField(blank=True, null=True, verbose_name=_("Scientist"))
@@ -61,8 +61,9 @@ class Instrument(models.Model):
                                             verbose_name=_("Next Service Date"))
     # last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
     #                                      verbose_name=_("last modified by"))
-    in_service = models.BooleanField(default=False, verbose_name=_("In Service"))
-    submitted = models.BooleanField(default=False, verbose_name=_("Submit instrument for review"))
+    # in_service = models.BooleanField(default=False, verbose_name=_("In Service"))
+    is_sensor = models.BooleanField(default=False, verbose_name=_("Is Sensor?"))
+    # submitted = models.BooleanField(default=False, verbose_name=_("Submit instrument for review"))
 
     class Meta:
         ordering = ['instrument_type', 'serial_number', 'purchase_date', 'project_title']
@@ -78,12 +79,17 @@ class Instrument(models.Model):
         return reverse('ios2:instrument_detail', kwargs={'pk': self.pk})
 
 
-
+    # @property
+    # def get_last_service_date(self):
+    #     print(self.service)
+    #     print('aaaaaaaaaaaaaaaaaa')
+    #     return 0
 
 
 class Mooring(models.Model):
 
-    instruments = models.ManyToManyField(Instrument, blank=True, through='InstrumentMooring')
+    instruments = models.ManyToManyField(Instrument, blank=True, through='InstrumentMooring',
+                                         related_name='moorings')
 
     mooring = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("mooring name"))
     mooring_number = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("mooring number"))
@@ -114,8 +120,8 @@ class Mooring(models.Model):
 class InstrumentMooring(models.Model):
 
     ORIENTATION_CHOICES = [('UP', 'UP'),
-                    ('DOWN', 'DOWN'),]
-                    # ('OXY', 'OXY')]
+                           ('DOWN', 'DOWN')]
+
     instrument = models.ForeignKey(Instrument, blank=True, on_delete=models.DO_NOTHING,
                                    related_name="instrudeploy", verbose_name=_("instrument"))
     mooring = models.ForeignKey(Mooring, on_delete=models.DO_NOTHING,
@@ -123,7 +129,6 @@ class InstrumentMooring(models.Model):
     depth = models.TextField(blank=True)
     orientation = models.TextField(blank=True, null=True, verbose_name=_("Orientation"),
                                    choices=ORIENTATION_CHOICES)
-
 
 
     def __str__(self):
@@ -153,7 +158,7 @@ class ServiceHistory(models.Model):
                                     verbose_name=_("Service Date"))
 
     next_service_date = models.DateField(blank=True, null=True,
-                                    verbose_name=_("Next Service Date"))
+                                         verbose_name=_("Next Service Date"))
 
     comments = models.TextField(blank=True)
 
