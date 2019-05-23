@@ -10,18 +10,17 @@ class UpperCaseField(forms.CharField):
         return value.upper()
 
 
-class NewPublicationsForm(forms.ModelForm):
-    pub_year = forms.DateField(widget=forms.DateInput(format='%Y'), input_formats=['%Y'])
+class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField()
-    field_order = ['pub_year', 'pub_title', 'pub_abstract', 'region', 'division', 'date_last_modified']
+    field_order = ['title', 'abstract', 'region', 'division', 'date_last_modified']
 
     class Meta:
-        model = models.Publications
-        fields = ['pub_year', 'pub_title', 'pub_abstract', 'region', 'division']
+        model = models.Project
+        fields = ['title', 'abstract', 'region', 'division']
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'pub_title': forms.Textarea(attrs={"rows": 2}),
-            'pub_abstract': forms.Textarea(attrs={"rows": 4}),
+            'title': forms.Textarea(attrs={"rows": 2}),
+            'abstract': forms.Textarea(attrs={"rows": 4}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -38,9 +37,9 @@ class NewPublicationsForm(forms.ModelForm):
         self.fields['division'].choices = division_choices
 
 
-class PublicationsSubmitForm(forms.ModelForm):
+class ProjectSubmitForm(forms.ModelForm):
     class Meta:
-        model = models.Publications
+        model = models.Project
         fields = [
             'last_modified_by',
         ]
@@ -49,13 +48,12 @@ class PublicationsSubmitForm(forms.ModelForm):
         }
 
 
-class PublicationsForm(forms.ModelForm):
+class ProjectForm(forms.ModelForm):
 
     class Meta:
-        model = models.Publications
+        model = models.Project
         fields = [
-            'pub_year',
-            'pub_title',
+            'title',
             'last_modified_by',
         ]
         excludes = [
@@ -63,7 +61,7 @@ class PublicationsForm(forms.ModelForm):
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'pub_title': forms.Textarea(attrs={"rows": 3}),
+            'title': forms.Textarea(attrs={"rows": 3}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -86,3 +84,16 @@ class LookupForm(forms.ModelForm):
 
         values = [(t.id, t.name) for t in self._meta.model.objects.all()]
         self.fields['mult_name'].choices = values
+
+
+class TextForm(forms.ModelForm):
+    value = forms.Textarea()
+
+    class Meta:
+        model = models.Site
+        fields = ['value']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._meta.model = kwargs['initial']['lookup']
