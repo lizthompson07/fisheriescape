@@ -78,13 +78,13 @@
                     {{ section.name }}
                 </em>
             </h3>
-            <ol>
+            <ul>
                 {% for project in section.projects.all %}
                     {% if project in object_list %}
-                        <li>{{ project }}</li>
+                        {{ project.id }} - {{ project }}<br>
                     {% endif %}
                 {% endfor %}
-            </ol>
+            </ul>
         {% endfor %}
     </ul>
 {% endfor %}

@@ -26,7 +26,7 @@
         {{ get_current_language }}
         <h1>
             {% blocktrans with name=user.first_name %}
-                 {{ name }}'s Project List
+                {{ name }}'s Project List
             {% endblocktrans %}
         </h1>
         <br>
@@ -72,7 +72,7 @@
         <br> <br>
         <table class="table table-hover table-sm sortable">
             <thead>
-            <th scope="col" style="width: auto">
+            <th scope="col" style="width: 100px">
                 {% trans "Fiscal Year" %}
             </th>
             <th scope="col">
@@ -87,13 +87,13 @@
             <th scope="col" style="width: 30%">
                 {% trans "Title" %}
             </th>
-            <th scope="col">
+            <th scope="col" style="width: 100px">
                 {% trans "Project Lead?" %}
             </th>
             <th scope="col">
                 {% trans "Role" %}
             </th>
-            <th scope="col">
+            <th scope="col" style="width: 100px">
                 {% trans "No. weeks" %}
             </th>
             <th scope="col" style="text-align: center">
