@@ -235,11 +235,11 @@ def get_app_dict(request):
         app_dict["publications"] = {
             "title": _("Project Publications Inventory"),
             "description": _("Tool for publishing and viewing publications related to completed projects."),
-            "status": "production",
+            "status": "dev",
             "access": "login-required",
             "url": reverse('publications:index'),
             "icon_path": 'img/icons/publications.svg',
-            "region": "all",
+            "region": "mar",
         }
     except NoReverseMatch:
         pass
