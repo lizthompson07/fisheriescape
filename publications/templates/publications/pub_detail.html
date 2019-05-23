@@ -1,0 +1,140 @@
+{% extends "publications/pub_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'publications:index' %}">
+                {% trans "All Projects" %}
+            </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+
+        <div class="btn-group">
+            <span data-toggle="tooltip"
+                  title="{% trans "Cannot submit/unsumbit projects that do not belong to you or your section." %}">
+
+            {% if not object.submitted and not report_mode %}
+                <a class="btn btn-primary btn-sm" href="{% url 'publications:prj_edit' object.id %}">
+                    {% trans "Add/Edit Project Details" %}
+                </a>
+            {% endif %}
+             <span data-toggle="tooltip" title="{% trans "Cannot delete projects that do not belong to you or your section." %}">
+                <a class="btn btn-danger btn-sm disabled" href="#">{% trans "Delete" %}</a>
+            </span>
+
+        </div>
+
+        <h2>{{ object }}</h2>
+
+        <div class="row">
+            <div class="col-8">
+                {% for field in abstract %}
+                    {% verbose_field_display object field format='HTML' %}
+                {% endfor %}
+                {% for lookup in field_list %}
+                    <table class="table table-hover table-borderless table-sm no-gutters" style="width: auto">
+                        <thead>
+                            <tr><th>
+                                <span>
+                                    {% with "Add "|add:lookup.label as btn_label %}
+                                    <a class="btn btn-primary" href="#"
+                                    onclick="return popitup('{% url 'publications:text_add' object.id lookup.url %}','popoutWindow')"
+                                    title="{% trans btn_label%}">+</a>
+                                    {% endwith %}
+                                </span>
+                                {% with lookup.label|add:":" as lst_label %}
+                                {% trans lst_label %}
+                                {% endwith %}
+                            </th></tr>
+                        </thead>
+                        <tbody>
+                        {% for val in lookup.list %}
+                            <tr id="{{lookup.url}}-{{ val.id }}">
+                                <td>
+                                    <a class="delete-me" href="#" val="{{ val.id }}">
+                                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                             title="Delete">
+                                    </a>
+                                    <a id="secrect-delete-btn-{{ val.id }}"
+                                       href="{% url 'publications:lookup_delete' lookup.url object.id val.id %}" class="hidden"></a>
+
+                                    {{ val }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            </div>
+            <div class="col-4">
+                {% for lookup in lookups %}
+                <table class="table table-hover table-borderless table-sm no-gutters" style="width: auto">
+                    <thead>
+                        <tr><th>
+                            <span>
+                                {% with "Add "|add:lookup.label as btn_label %}
+                                <a class="btn btn-primary" href="#"
+                                   onclick="return popitup('{% url 'publications:lookup_add' object.id lookup.url %}','popoutWindow')"
+                                    title="{% trans btn_label%}">+</a>
+                                {% endwith %}
+                            </span>
+                            {% with lookup.label|add:":" as lst_label %}
+                            {% trans lst_label %}
+                            {% endwith %}
+                        </th></tr>
+                    </thead>
+                    <tbody>
+                    {% for val in lookup.list %}
+                        <tr id="{{lookup.url}}-{{ val.id }}">
+                            <td>
+                                <a class="delete-me" href="#" val="{{ val.id }}">
+                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                         title="Delete">
+                                </a>
+                                <a id="secrect-delete-btn-{{ val.id }}"
+                                   href="{% url 'publications:lookup_delete' lookup.url object.id val.id %}" class="hidden"></a>
+
+                                {{ val }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+
+    <script type="application/javascript">
+
+
+        $(".delete-me").click(function (e) {
+            var objectId = $(this)[0].getAttribute("val");
+            var userInput = "";
+            userInput = confirm("{% trans "Are you sure you want to delete the list item?" %}");
+            if (userInput === true) {
+                document.location.href = $("#secrect-delete-btn-" + objectId)[0].getAttribute("href");
+            }
+            e.stopImmediatePropagation();
+        });
+
+    </script>
+
+
+{% endblock content %}
