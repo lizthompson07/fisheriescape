@@ -247,12 +247,18 @@ class OrganizationUpdateView(iHubAccessRequiredMixin, UpdateView):
     template_name = 'ihub/organization_form.html'
     form_class = forms.OrganizationForm
 
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 class OrganizationCreateView(iHubAccessRequiredMixin, CreateView):
     model = ml_models.Organization
     template_name = 'ihub/organization_form.html'
     form_class = forms.OrganizationForm
 
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.Organization
