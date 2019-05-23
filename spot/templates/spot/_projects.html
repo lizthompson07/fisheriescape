@@ -1,0 +1,56 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h3>
+        {% trans "Projects:" %}
+    </h3>
+</div>
+
+{% if object.projects.count == 0 %}
+    <em>
+        {% trans "No projects exist in the system under this organization" %}
+    </em><br>
+{% else %}
+    <br>
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "Start year" %}
+            </th>
+            <th>
+                {% trans "Program" %}
+            </th>
+            <th>
+                {% trans "Title" %}
+            </th>
+            <th>
+                {% trans "Status" %}
+            </th>
+
+        </tr>
+        <tbody>
+        {% for obj in object.projects.all %}
+            <tr href="{% url 'spot:project_detail' obj.id %}">
+                <td>
+                    {{ obj.start_year }}
+                </td>
+                <td>
+                    {{ obj.program.abbrev_eng}}
+                </td>
+                <td>
+                    {{ obj.title }}
+                </td>
+{#                <td>{{ obj.notes|nz:"" }}</td>#}
+                <td style="background-color: {{ obj.status.color }}">{{ obj.status }}</td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+<br>
+<br>

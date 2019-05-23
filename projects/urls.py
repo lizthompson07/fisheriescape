@@ -67,11 +67,14 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/sections/<str:sections>/', views.master_spreadsheet, name="report_master"),
+    path('reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/', views.master_spreadsheet, name="report_master"),
+    path('reports/project-summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/', views.PDFProjectSummaryReport.as_view(), name="pdf_project_summary"),
+    path('reports/batch-workplan-export/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/', views.PDFProjectPrintoutReport.as_view(), name="pdf_printout"),
+
+    # this is a special view of the masterlist report that is called from the my_section view
     path('reports/section-head-spreadsheet/fiscal-year/<int:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
-    path('reports/project-summary/fiscal-year/<int:fiscal_year>/', views.PDFProjectSummaryReport.as_view(), name="pdf_project_summary"),
-    path('reports/batch-workplan-export/fiscal-year/<int:fiscal_year>/sections/<str:sections>/', views.PDFProjectPrintoutReport.as_view(), name="pdf_printout"),
-    path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
+
+    # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
     # SHARED #
     ##########
