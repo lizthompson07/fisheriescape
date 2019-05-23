@@ -5,45 +5,14 @@
 
 {% block content %}
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        .loader {
-            border: 16px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 16px solid #3498db;
-            width: 120px;
-            height: 120px;
-            -webkit-animation: spin 2s linear infinite; /* Safari */
-            animation: spin 2s linear infinite;
-        }
-        {##}
-        {#/* Safari */#}
-        {#@-webkit-keyframes spin {#}
-        {#    0% {#}
-        {#        -webkit-transform: rotate(0deg);#}
-        {#    }#}
-        {#    100% {#}
-        {#        -webkit-transform: rotate(360deg);#}
-        {#    }#}
-        {#}#}
-        {##}
-        {#@keyframes spin {#}
-        {#    0% {#}
-        {#        transform: rotate(0deg);#}
-        {#    }#}
-        {#    100% {#}
-        {#        transform: rotate(360deg);#}
-        {#    }#}
-        {#}#}
-    </style>
-
     <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen"
           type="text/css">
     <style>
         .ms-container {
             width: 100%;
         }
-        label{
+
+        label {
             font-weight: bold;
         }
     </style>
@@ -54,8 +23,10 @@
             <h1>Please Select a Report:</h1>
         </div>
     </div>
-
     <div class="container">
+        <div class="spinner-border text-primary hidden" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
         <form method="post">
 
             {% csrf_token %}
@@ -66,8 +37,8 @@
                         {% bootstrap_field field %}
 
                     </div>
-                {% elif field.name == "sections" %}
-                    <div class="sections_div">
+                {% elif field.name == "section" %}
+                    <div class="section_div">
                         {% bootstrap_field field %}
 
                     </div>
@@ -88,14 +59,17 @@
         <p>
         </p>
 
-        <div class="loader hidden"></div>
+
     </div>
+
+
+
 
     <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
     <script type="application/javascript">
 
         function hideAll() {
-            $(".sections_div").addClass("gone");
+            {#$(".section_div").addClass("gone");#}
 
             $("#id_report").prop('required', true);
 
@@ -105,13 +79,12 @@
             var reportChoice = $("#id_report")[0].value;
             // masterlist count report
             if (reportChoice == 1) {
-                $(".sections_div").removeClass("gone");
-                $("#id_sections").multiSelect()
+                {#$(".section_div").removeClass("gone");#}
+                $("#id_section").multiSelect()
 
-            }
-            else if (reportChoice == 2) {
-                $(".sections_div").removeClass("gone");
-                $("#id_sections").multiSelect()
+            } else if (reportChoice == 2) {
+                {#$(".section_div").removeClass("gone");#}
+                $("#id_section").multiSelect()
 
             }
         }
@@ -132,7 +105,7 @@
             // species count report
             if (reportChoice != 4) {
                 $(this).addClass("hidden");
-                $(".loader").removeClass("hidden");
+                $(".spinner-border").removeClass("hidden");
                 window.setTimeout(closeLoader, 20000)
             }
 
@@ -140,8 +113,127 @@
 
         function closeLoader() {
             $("form").removeClass("hidden");
-            $(".loader").addClass("hidden");
+            $(".spinner-border").addClass("hidden");
         }
+    </script>
+
+
+    <script type="application/javascript">
+
+        divisionObj = {{ division_json|safe }};
+        sectionObj = {{ section_json|safe }};
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            resetFields()
+        });
+
+        function resetFields() {
+            // if the region is null, clear and disable both subsequent fields
+            if ($("#id_region option:selected").length != 1) {
+                $("#id_division").val("")
+                $("#id_division").prop('disabled', true)
+                $("#id_division").empty();
+
+                $("#id_section").val("")
+                $("#id_section").prop('disabled', true)
+                $("#id_section").empty();
+                // if the division is null, clear and disable section field
+            } else if ($("#id_division option:selected").length != 1) {
+                $("#id_section").val("")
+                $("#id_section").prop('disabled', true)
+                $("#id_section").empty();
+            }
+        }
+
+        $("#id_region").change(function () {
+            if ($("#id_region option:selected").length == 1) {
+                // enable the division field
+                $("#id_division").prop('disabled', false);
+
+                // define options based on region selection
+                var newOptions = {};
+                for (var i = 0; i < Object.keys(divisionObj).length; i++) {
+                    var key = Object.keys(divisionObj)[i];
+                    var searchTerm = $("#id_region option:selected").val();
+                    if (divisionObj[key].region_id == searchTerm) {
+                        newOptions[divisionObj[key].display] = key
+                    }
+                }
+                var $el = $("#id_division");
+                $el.empty(); // remove old options
+                $.each(newOptions, function (key, value) {
+                    $el.append($("<option></option>")
+                        .attr("value", value).text(key));
+                });
+
+                // disable the section field again, empty choices
+                $("#id_section").val("")
+                $("#id_section").prop('disabled', true)
+                var $el = $("#id_section");
+                $el.empty(); // remove old options
+
+                // sort the options
+                // https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+                var options = $('#id_division option');
+                var arr = options.map(function (_, o) {
+                    return {t: $(o).text(), v: o.value};
+                }).get();
+                arr.sort(function (o1, o2) {
+                    return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0;
+                });
+                options.each(function (i, o) {
+                    o.value = arr[i].v;
+                    $(o).text(arr[i].t);
+                });
+
+            } else {
+                resetFields()
+            }
+        });
+
+
+        $("#id_division").change(function () {
+            if ($("#id_division option:selected").length == 1) {
+                // enable the section field
+                $("#id_section").prop('disabled', false);
+
+                // define options based on division selection
+                var newOptions = {};
+
+                for (var i = 0; i < Object.keys(sectionObj).length; i++) {
+                    var key = Object.keys(sectionObj)[i];
+                    var searchTerm = $("#id_division option:selected").val();
+                    if (sectionObj[key].division_id == searchTerm) {
+                        newOptions[sectionObj[key].display] = key
+                    }
+                }
+                var $el = $("#id_section");
+                $el.empty(); // remove old options
+                $.each(newOptions, function (key, value) {
+                    $el.append($("<option></option>")
+                        .attr("value", value).text(key));
+                });
+
+                // sort the options
+                // https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+                var options = $('#id_section option');
+                var arr = options.map(function (_, o) {
+                    return {t: $(o).text(), v: o.value};
+                }).get();
+                arr.sort(function (o1, o2) {
+                    return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0;
+                });
+                options.each(function (i, o) {
+                    o.value = arr[i].v;
+                    $(o).text(arr[i].t);
+                });
+
+            } else {
+                resetFields()
+            }
+        });
+
     </script>
 
 {% endblock content %}

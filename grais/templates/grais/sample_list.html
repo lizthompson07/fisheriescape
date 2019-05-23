@@ -1,6 +1,7 @@
 {% extends "grais/grais_base.html" %}
 {% load static %}
 {% load el_pagination_tags %}
+{% load bootstrap4 %}
 {% block content %}
 
 
@@ -9,11 +10,18 @@
         <h1 class="big-header">Biofouling Samples </h1>
 
         <form class="form" action="." method="get" id="filter-form">
+            <div class="row">
+                {% for field in filter.form %}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+                {% endfor %}
+                <div class="col-2">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                </div>
+            </div>
 
-            {% for field in filter.form %}
-                {{ field.label }}: &nbsp; {{ field }}&nbsp;&nbsp;
-            {% endfor %}
-            <input type="submit" value="Filter" class="btn btn-sm btn-warning">
         </form>
         <br><br>
         {% paginate 50 filter.qs as filter_list %}

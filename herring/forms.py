@@ -208,6 +208,7 @@ class ReportSearchForm(forms.Form):
 
     REPORT_CHOICES = [
         (1, "Progress Report"),
+        (6, "Pretty sample export (csv)"),
         (2, "Pretty fish detail export (csv)"),
         (4, "Export hlog file (csv)"),
         (3, "Export hlen file (csv)"),
