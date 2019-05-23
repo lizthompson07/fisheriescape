@@ -148,6 +148,9 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
 
     return SafeString(html_block)
 
+@register.simple_tag
+def print_safe(value):
+    return SafeString(value)
 
 @register.simple_tag
 def verbose_td_display(instance, field_name, format=None, display_time=False, url=None):

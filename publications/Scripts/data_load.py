@@ -54,9 +54,11 @@ next(tp_reader, None)
 # 4 Human Component
 # 5 Linkage to Program
 # 6 Ecosystem Component
+# 7 Sites
+# 8 Publications
 for line in tp_reader:
 
-    project = line[0].replace("\"", "")
+    project_title = line[0].replace("\"", "")
 
     description = line[1].replace("\"", "").replace('\\n', '\n')
 
@@ -72,17 +74,19 @@ for line in tp_reader:
 
     ecosystems = [e.strip().upper() for e in line[6].split(' | ')]
 
+    sites = [s.strip() for s in line[7].split(' | ')]
+
+    publications = [p.strip() for p in line[8].split(' | ')]
+
     try:
-        publication = models.Publications.objects.get(pub_title=project)
-    except models.Publications.MultipleObjectsReturned:
-        print("found multiple projects matching:\n\n'" + project + "'\n\n")
+        project = models.Project.objects.get(title=project_title)
+    except models.Project.MultipleObjectsReturned:
+        print("found multiple projects matching:\n\n'" + project_title + "'\n\n")
         exit()
-    except models.Publications.DoesNotExist:
-        print("Creating new publication: " + project)
-        publication = models.Publications(pub_title=project,
-                                          pub_abstract=description,
-                                          pub_year=datetime.date(int(year), 1, 1))
-        publication.save()
+    except models.Project.DoesNotExist:
+        print("Creating new publication: " + project_title)
+        project = models.Project(title=project_title, abstract=description)
+        project.save()
 
     dirty = False
     for t in themes:
@@ -92,9 +96,9 @@ for line in tp_reader:
 
         theme = models.Theme.objects.get(name__exact=t)
         try:
-            publication.theme.get(id=theme.id)
+            project.theme.get(id=theme.id)
         except models.Theme.DoesNotExist:
-            publication.theme.add(theme)
+            project.theme.add(theme)
             dirty = True
 
     for h in humans:
@@ -103,9 +107,9 @@ for line in tp_reader:
 
         human = models.HumanComponents.objects.get(name__exact=h)
         try:
-            publication.human_component.get(id=human.id)
+            project.human_component.get(id=human.id)
         except models.HumanComponents.DoesNotExist:
-            publication.human_component.add(human)
+            project.human_component.add(human)
             dirty = True
 
     for l in linkages:
@@ -114,9 +118,9 @@ for line in tp_reader:
 
         link = models.ProgramLinkage.objects.get(name__exact=l)
         try:
-            publication.program_linkage.get(id=link.id)
+            project.program_linkage.get(id=link.id)
         except models.ProgramLinkage.DoesNotExist:
-            publication.program_linkage.add(link)
+            project.program_linkage.add(link)
             dirty = True
 
     for e in ecosystems:
@@ -129,11 +133,29 @@ for line in tp_reader:
             print("Ecosystem does not exist: '" + str(e) + "'")
 
         try:
-            publication.ecosystem_component.get(id=ecosystem.id)
+            project.ecosystem_component.get(id=ecosystem.id)
         except models.EcosystemComponents.DoesNotExist:
-            publication.ecosystem_component.add(ecosystem)
+            project.ecosystem_component.add(ecosystem)
             dirty = True
 
     if dirty:
-        publication.save()
+        project.save()
         dirty = False
+
+    if project:
+        print("Adding sites to project: " + str(project))
+        for s in sites:
+            try:
+                site = models.Site(project=project, value=s)
+                site.save()
+            except DataError:
+                print("Error adding publication: " )
+                print(s)
+
+        for p in publications:
+            try:
+                publication = models.Publication(project=project, value=p)
+                publication.save()
+            except DataError:
+                print("Error adding publication: " )
+                print(p)

@@ -65,7 +65,7 @@ class ProgramLinkage(Lookup):
     pass
 
 
-class Publications(models.Model):
+class Project(models.Model):
     # year
     # title
     # division <- region is a part of division
@@ -73,15 +73,13 @@ class Publications(models.Model):
     # Human component
     # Ecosystem component
 
-    pub_year = models.DateField(verbose_name=_("Publication Year"))
-    pub_title = models.CharField(max_length=255, verbose_name=_("Publication Title"))
+    title = models.CharField(max_length=255, verbose_name=_("Project Title"))
     division = models.ForeignKey(shared_models.Division, on_delete=models.DO_NOTHING, blank=True, null=True,
                                  verbose_name=_("Division"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
                                               verbose_name=_("Date last modified"))
 
-    pub_abstract = models.TextField(verbose_name=_("Abstract"), blank=True, null=True)
-    pub_abstract_html = models.TextField(verbose_name=_("Abstract"), blank=True, null=True)
+    abstract = models.TextField(verbose_name=_("Abstract"), blank=True, null=True)
 
     # Todo: Last modified by isn't currently set in the new or update forms
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -94,16 +92,36 @@ class Publications(models.Model):
     program_linkage = models.ManyToManyField(ProgramLinkage, verbose_name=_("Program Linkage(s)"))
 
     class Meta:
-        ordering = ['-pub_year', 'division', 'pub_title']
+        ordering = ['title', 'division']
 
     def __str__(self):
-        return "{}".format(self.pub_title)
+        return "{}".format(self.title)
 
     def get_absolute_url(self):
-        return reverse('publications:pub_detail', kwargs={'pk': self.pk})
+        return reverse('publications:prj_detail', kwargs={'pk': self.pk})
 
-    def save(self, *args, **kwargs):
-        if self.pub_abstract:
-            self.pub_abstract_html = markdown.markdown(self.pub_abstract)
 
-        super().save(*args, **kwargs)
+'''
+TextLookup is intended to be used for many-to-one relationships where a DB table
+has large non-searchable text blobs associated with a single project
+'''
+
+
+class TextLookup(models.Model):
+    project = models.ForeignKey(Project, verbose_name=_("Project"), on_delete=models.CASCADE)
+    value = models.TextField()
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.value
+
+
+class Publication(TextLookup):
+    pass
+
+
+class Site(TextLookup):
+    pass
+
