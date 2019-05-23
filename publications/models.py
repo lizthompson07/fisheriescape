@@ -82,7 +82,8 @@ class Project(models.Model):
     abstract = models.TextField(verbose_name=_("Abstract"), blank=True, null=True)
 
     # Todo: Last modified by isn't currently set in the new or update forms
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         related_name="pub_projects")
 
     theme = models.ManyToManyField(Theme, verbose_name=_("Theme(s)"))
     human_component = models.ManyToManyField(HumanComponents, verbose_name=_("Human Component(s)"))
