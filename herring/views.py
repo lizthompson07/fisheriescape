@@ -88,7 +88,7 @@ class SampleFilterView(HerringAccessRequired, FilterView):
     login_url = '/accounts/login_required/'
 
     def get_queryset(self):
-        return models.Sample.objects.all().order_by("-sample_date")
+        return models.Sample.objects.all().order_by("sample_date")
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -681,6 +681,8 @@ class ReportSearchFormView(HerringAccessRequired, FormView):
             return HttpResponseRedirect(reverse("herring:export_hlog", kwargs={'year': year}))
         elif report == 5:
             return HttpResponseRedirect(reverse("herring:export_hdet", kwargs={'year': year}))
+        elif report == 6:
+            return HttpResponseRedirect(reverse("herring:export_sample_report", kwargs={'year': year}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("herring:report_search"))
@@ -690,7 +692,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
     template_name = 'herring/report_progress_list.html'
 
     def get_queryset(self):
-        return models.Sample.objects.filter(season=self.kwargs["year"])
+        return models.Sample.objects.filter(season=self.kwargs["year"]).order_by("sample_date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -756,6 +758,11 @@ def export_progress_report(request, year):
 
 def export_fish_detail(request, year):
     response = reports.generate_fish_detail_report(year)
+    return response
+
+
+def export_sample_report(request, year):
+    response = reports.generate_sample_report(year)
     return response
 
 

@@ -1,31 +1,39 @@
+{% load static %}
 <ul>
-  {% for item in object.resource_people.all %}
-  <li><a href="{% url 'inventory:resource_person_edit' item.id %}">{{item.person.user.first_name}} {{item.person.user.last_name}} - {{item.role}}</a>&nbsp;
-    {% if item.role.id == 1 %}
-      {% if custodian_count <= 1 and not user.is_superuser %}
+    {% for item in object.resource_people.all %}
+        <li>
 
-      <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cannot delete a sole custodian. Add a new custodian before removing.">
+            <a href="{% url 'inventory:resource_person_edit' item.id %}">{{ item.person.user.first_name }} {{ item.person.user.last_name }}
+                - {{ item.role }}</a>&nbsp;
+            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                 title="{{ item.role }}"
+                 data-content="{{ item.role.notes }}"> &nbsp;
+            {% if item.role.id == 1 %}
+                {% if custodian_count <= 1 and not user.is_superuser %}
+
+                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip"
+                          title="Cannot delete a sole custodian. Add a new custodian before removing.">
         &times
         {# if there is only one custodian, do not delete #}
       </span>
 
-      {% else %}
+                {% else %}
 
-      <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="remove person from record">
+                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="remove person from record">
         {# if there is only one custodian, do not delete #}
         <a href="{% url 'inventory:resource_person_delete' item.id %}" class="red-font">&times;</a>
       </span>
 
-      {% endif %}
-    {% else %}
-      <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="remove person from record">
+                {% endif %}
+            {% else %}
+                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="remove person from record">
         {# if there is only one custodian, do not delete #}
         <a href="{% url 'inventory:resource_person_delete' item.id %}" class="red-font">&times;</a>
       </span>
-    {% endif %}
+            {% endif %}
 
-  </li>
-  {% empty %}
-  <em>No people</em>
-  {% endfor %}
+        </li>
+    {% empty %}
+        <em>No people</em>
+    {% endfor %}
 </ul>

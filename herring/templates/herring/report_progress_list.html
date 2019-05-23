@@ -19,7 +19,8 @@
             <th scope="col">Sample date</th>
             <th scope="col" style="width: 150px;">Sampler's reference no.</th>
             <th scope="col">Sampler name</th>
-            <th scope="col">Length frequencies collected</th>
+            <th scope="col"># fish measured (from sheet)</th>
+            <th scope="col"># fish measured (from LF)</th>
             <th scope="col">Fish preserved</th>
             <th scope="col" style="text-align: center;">Lab processed</th>
             <th scope="col" style="text-align: center;">Otoliths processed</th>
@@ -33,15 +34,10 @@
                     <td>{{ sample.sample_date|date:'F d, Y' }}</td>
                     <td>{{ sample.sampler_ref_number }}</td>
                     <td>{{ sample.sampler }}</td>
+                    <td>{{ sample.total_fish_measured}}</td>
 
-                    {% if sample.length_frequencies.count %}
-                        <td class="good">
-                            {% else %}
-                        <td class="bad">
-                    {% endif %}
-                    {{ sample.length_frequencies.count|yesno }}
-                    </td>
 
+                    <td {% if not sample.total_fish_measured == sample.lf_count %}class="concern"{% endif %}>{{ sample.lf_count}}</td>
                     <td>{{ sample.total_fish_preserved }}</td>
                     {% if sample.lab_processing_complete %}
                         <td class="good">

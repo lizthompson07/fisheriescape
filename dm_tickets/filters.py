@@ -6,50 +6,56 @@ from shared_models import models as shared_models
 from . import models
 from . import forms as ticket_forms
 
+chosen_js = {"class":"chosen-select-contains"}
 
 class TicketFilter(django_filters.FilterSet):
-    section = django_filters.ChoiceFilter(field_name="section")
-    dm_assigned = django_filters.ChoiceFilter(field_name="dm_assigned")
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term (Id, title, etc.):",
                                             lookup_expr='icontains', widget=forms.TextInput())
+    app = django_filters.ChoiceFilter(
+        field_name="app",
+        choices=models.Ticket.APP_CHOICES,
+        widget=forms.Select(attrs=chosen_js),
+    )
+    status = django_filters.ModelChoiceFilter(
+        field_name="status",
+        queryset=models.Status.objects.all(),
+        widget=forms.Select(attrs=chosen_js),
+    )
+    section = django_filters.ChoiceFilter(field_name="section")
+    dm_assigned = django_filters.ChoiceFilter(field_name="dm_assigned")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        section_choices = [(s.id, s.full_name) for s in shared_models.Section.objects.all().order_by(
+        section_choices = [(s.id, s.shortish_name) for s in shared_models.Section.objects.all().order_by(
             "division__branch__region", "division__branch", "division", "name")]
         staff_choices = [(dm.id, "{} {}".format(dm.first_name, dm.last_name)) for dm in User.objects.filter(is_staff=True)]
-        self.filters['section'] = django_filters.ChoiceFilter(field_name="section", choices=section_choices)
-        self.filters['dm_assigned'] = django_filters.ChoiceFilter(field_name="dm_assigned", choices=staff_choices,
-                                                                  label="Ticket assigned to")
-
-    class Meta:
-        model = models.Ticket
-        fields = {
-            # 'fiscal_year': ['exact'],
-            'app': ['exact'],
-            'status': ['exact'],
-        }
+        self.filters['section'] = django_filters.ChoiceFilter(
+            field_name="section",
+            choices=section_choices,
+            widget=forms.Select(attrs=chosen_js),
+        )
+        self.filters['dm_assigned'] = django_filters.ChoiceFilter(
+            field_name="dm_assigned",
+            choices=staff_choices,
+            label="Ticket assigned to",
+            widget=forms.Select(attrs=chosen_js),
+        )
 
 
 class MyTicketFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term (Id, title, etc.):",
                                             lookup_expr='icontains', widget=forms.TextInput())
+    app = django_filters.ChoiceFilter(
+        field_name="app",
+        choices=models.Ticket.APP_CHOICES,
+        widget=forms.Select(attrs={"class": "chosen-select-contains"}),
+    )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.filters['status'] = django_filters.ModelChoiceFilter(
-            field_name="status",
-            queryset=models.Status.objects.all(),
-            widget=forms.Select(attrs={"class": "chosen-select-contains"}),
-        )
-
-    class Meta:
-        model = models.Ticket
-        fields = {
-            # 'fiscal_year': ['exact'],
-            'app': ['exact'],
-            'status': ['exact'],
-        }
+    status = django_filters.ModelChoiceFilter(
+        field_name="status",
+        queryset=models.Status.objects.all(),
+        widget=forms.Select(attrs={"class": "chosen-select-contains"}),
+    )
 
 
 class FiscalFilter(django_filters.FilterSet):
