@@ -2,23 +2,22 @@ import django_filters
 from . import models
 from django import forms
 
+chosen_js = {"class":"chosen-select-contains"}
 
 class SampleFilter(django_filters.FilterSet):
-    SeasonExact = django_filters.NumberFilter(field_name='season', label="Year", lookup_expr='exact',
-                                              widget=forms.NumberInput(attrs={'style': "width: 4em"}))
-
     class Meta:
         model = models.Sample
         fields = {
             'id': ['exact'],
             'season': ['exact'],
-            'station': ['exact'],
         }
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.filters['season'].extra.update(
-                {'empty_label': 'All Manufacturers'})
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters['station'] = django_filters.ModelChoiceFilter(
+            queryset=models.Station.objects.all(),
+            widget=forms.Select(attrs=chosen_js),
+        )
 
 
 class StationFilter(django_filters.FilterSet):

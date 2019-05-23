@@ -176,6 +176,10 @@ class Line(models.Model):
                 for s in self.surfaces.all():
                     s.is_lost = True
                     s.save()
+        if not self.is_lost:
+            lost_list = [surface.is_lost for surface in self.surfaces.all()]
+            if not False in lost_list:
+                self.is_lost = True
 
 
         super().save(*args, **kwargs)
@@ -191,6 +195,9 @@ class Line(models.Model):
     def get_absolute_url(self):
         return reverse('grais:line_detail', kwargs={'pk': self.id})
 
+    @property
+    def surface_species_count(self):
+        return sum([s.species.count() for s in self.surfaces.all()])
 
 def img_file_name(instance, filename):
     img_name = 'grais/sample_{}/{}'.format(instance.line.sample.id, filename)

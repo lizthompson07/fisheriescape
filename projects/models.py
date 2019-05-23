@@ -52,7 +52,19 @@ class Status(models.Model):
 
 
 class Project(models.Model):
-    # fiscal_year = models.CharField(max_length=50, default="2019-2020", verbose_name=_("fiscal year"))
+    # choices for is_national
+    is_national_choices = (
+        (None, _("Unknown")),
+        (True, _("National")),
+        (False, _("Regional")),
+    )
+    # choices for is_negotiable
+    is_negotiable_choices = (
+        (None, _("Unknown")),
+        (True, _("Negotiable")),
+        (False, _("Non-negotiable")),
+    )
+
     year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                              verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
     # basic
@@ -70,50 +82,63 @@ class Project(models.Model):
     existing_project_code = models.ForeignKey(shared_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
                                               related_name='projects_projects', verbose_name=_("existing project code (if known)"))
 
+    # details
+    is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
+    is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or non-negotiable?"), choices=is_negotiable_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"))
-    approved = models.NullBooleanField(default=False, verbose_name=_("Has this project already been approved"))
-    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start Date"))
-    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End Date"))
+    is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding competitive?"))
+    is_approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
 
-    # details
+    # HTML field
     description = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
-    priorities = models.TextField(blank=True, null=True, verbose_name=_(
-        "Project-specific priorities (e.g., what will be the project emphasis in this fiscal year)"))
-    deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables (bulleted form)"))
+    # description_html = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
 
-    description_html = models.TextField(blank=True, null=True, verbose_name=_("Project objective & description"))
-    priorities_html = models.TextField(blank=True, null=True, verbose_name=_(
-        "Project-specific priorities"))
-    deliverables_html = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
+    # HTML field
+    priorities = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities"))
+    # HTML field
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
+
 
     # data
+    #######
+    # HTML field
     data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
+    # HTML field
     data_sharing = models.TextField(blank=True, null=True,
-                                    verbose_name=_(
-                                        "Which of these data will be share-worthy and what is the plan to share / disseminate"))
+                                    verbose_name=_("Which of these data will be share-worthy and what is the plan to share / disseminate"))
+    # HTML field
     data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
     metadata_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("please provide link to metadata, if available"))
 
     # needs
+    ########
     regional_dm = models.NullBooleanField(
         verbose_name=_("Does the program require assistance of the branch data manager"))
+    # HTML field
     regional_dm_needs = models.TextField(blank=True, null=True,
                                          verbose_name=_("If yes, please describe"))
-    sectional_dm = models.NullBooleanField(
-        verbose_name=_("Does the program require assistance of the section's data manager"))
+    sectional_dm = models.NullBooleanField( verbose_name=_("Does the program require assistance of the section's data manager"))
+    # HTML field
     sectional_dm_needs = models.TextField(blank=True, null=True,
                                           verbose_name=_("If yes, please describe"))
+    # HTML field
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_(
                                          "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
+    # HTML field
     it_needs = models.TextField(blank=True, null=True, verbose_name=_("IT requirements (software, licenses, hardware)"))
+    # HTML field
     chemical_needs = models.TextField(blank=True, null=True,
                                       verbose_name=_(
                                           "Please provide details regarding chemical needs and the plan for storage and disposal."))
+    # HTML field
     ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
 
     # admin
+    # HTML field
     feedback = models.TextField(blank=True, null=True,
                                 verbose_name=_("Do you have any feedback you would like to submit about this process"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
@@ -124,20 +149,13 @@ class Project(models.Model):
                                          verbose_name=_("last modified by"))
 
     class Meta:
-        ordering = ['-year', 'section__division', 'section', 'project_title']
+        ordering = ['id']
 
     def __str__(self):
         return "{}".format(self.project_title)
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
-        if self.description:
-            self.description_html = textile(self.description)
-        if self.priorities:
-            self.priorities_html = textile(self.priorities)
-        if self.deliverables:
-            self.deliverables_html = textile(self.deliverables)
-
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):

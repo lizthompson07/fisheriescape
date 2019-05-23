@@ -637,7 +637,7 @@ def create_github_issue(request, pk):
     my_issue = my_repo.create_issue(
         title=my_ticket.title,
         body=descr,
-        labels=[my_ticket.app],
+        labels=[my_ticket.app, my_ticket.request_type.request_type],
     )
     my_ticket.github_issue_number = my_issue.number
     my_ticket.save()
@@ -739,7 +739,7 @@ def edit_github_issue(ticket, user):
     my_issue.edit(
         title=my_ticket.title,
         body=descr,
-        labels=[my_ticket.app],
+        labels=[my_ticket.app, my_ticket.request_type.request_type],
     )
 
     return None

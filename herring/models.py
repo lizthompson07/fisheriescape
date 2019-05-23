@@ -145,8 +145,7 @@ class Sample(models.Model):
     survey_id = models.CharField(max_length=50, null=True, blank=True, verbose_name="survey identifier")
     latitude_n = models.CharField(max_length=50, null=True, blank=True, verbose_name="Latitude (N)")
     longitude_w = models.CharField(max_length=50, null=True, blank=True, verbose_name="Longitude (W)")
-    fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True,
-                                     blank=True)
+    fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     gear = models.ForeignKey(Gear, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     experimental_net_used = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
     vessel_cfvn = models.IntegerField(null=True, blank=True)
@@ -168,6 +167,10 @@ class Sample(models.Model):
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          related_name="last_modified_by_samples")
 
+    @property
+    def lf_count(self):
+        return sum([lf.count for lf in self.length_frequency_objects.all()])
+
     class Meta:
         ordering = ['-sample_date']
 
@@ -175,7 +178,8 @@ class Sample(models.Model):
         return reverse('herring:sample_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
-        self.season = self.sample_date.year
+        if self.sample_date:
+            self.season = self.sample_date.year
         self.last_modified_date = timezone.now()
 
         # set lab_processing_complete
