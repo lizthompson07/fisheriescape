@@ -8,8 +8,9 @@
             <th>Tag #</th>
             <th>Latitude</th>
             <th>Longitude</th>
-            <th>No. surfaces</th>
-            <th>Was lost?</th>
+            <th style="text-align: center">No. surfaces</th>
+            <th style="text-align: center">Species count</th>
+            <th style="text-align: center">Was lost?</th>
           </thead>
           <tbody>
             {% for l in object.lines.all  %}
@@ -17,7 +18,7 @@
                 {% if l.collector %}
                   <td>{{l.collector}}</td>
                 {% else %}
-                  <td></td>
+                  <td>n/a</td>
                 {% endif %}
 
                 {% if l.latitude_n %}
@@ -30,8 +31,9 @@
                 {% else %}
                   <td>n/a</td>
                 {% endif %}
-                <td>{{l.surfaces.count}}</td>
-                <td {% if l.is_lost %}class="red-font"{% endif %}>{{l.is_lost|yesno}}</td>
+                <td style="text-align: center">{{l.surfaces.count}}</td>
+                <td style="text-align: center">{{l.surface_species_count}}</td>
+                <td  style="text-align: center" {% if l.is_lost %}class="red-font"{% endif %}>{{l.is_lost|yesno}}</td>
 
               </tr>
             {% empty %}
