@@ -1,0 +1,128 @@
+{% extends "publications/pub_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% block content %}
+    <style>
+        label {
+            font-weight: bold;
+        }
+    </style>
+
+    <div class="container">
+        <h1>
+            {% if object.id %}
+                {{ object }}
+            {% else %}
+                {% trans "New Publication" %}
+            {% endif %}
+        </h1>
+        <br><br>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+            {% buttons %}
+                <div class="btn-group">
+                    {% if object.id %}
+                        <button type="submit" class="btn btn-primary">
+                            {% trans "Update" %}
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">
+                            {% trans "Add" %}
+                        </button>
+                    {% endif %}
+
+                    {% if object.id %}
+                        <a class="btn btn-secondary" href="{% url 'publications:prj_detail' object.id %}">
+                            {% trans "Cancel" %}
+                        </a>
+                    {% else %}
+                        <a class="btn btn-secondary" href="{% url 'publications:index' %}">
+                            {% trans "Cancel" %}
+                        </a>
+                    {% endif %}
+                </div>
+            {% endbuttons %}
+
+            {% for field in form %}
+                {% bootstrap_field field placeholder="" %}
+            {% endfor %}
+
+            {% buttons %}
+                <div class="btn-group">
+                    {% if object.id %}
+                        <button type="submit" class="btn btn-primary">
+                            {% trans "Update" %}
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">
+                            {% trans "Add" %}
+                        </button>
+                    {% endif %}
+
+                    {% if object.id %}
+                        <a class="btn btn-secondary" href="{% url 'publications:prj_detail' object.id %}">
+                            {% trans "Cancel" %}
+                        </a>
+                    {% else %}
+                        <a class="btn btn-secondary" href="{% url 'publications:index' %}">
+                            {% trans "Cancel" %}
+                        </a>
+                    {% endif %}
+                </div>
+            {% endbuttons %}
+        </form>
+
+    </div>
+    {# only do this if we are in the project create view #}
+    {% if not object %}
+        <script type="application/javascript">
+
+            divisionObj = {{ division_json|safe }};
+
+            $(document).ready(function () {
+                // Stuff to do as soon as the DOM is ready
+                resetFields()
+            });
+
+            function resetFields() {
+                // if the region is null, clear and disable both subsequent fields
+                if ($("#id_region").val() == "") {
+                    $("#id_division").val("")
+                    $("#id_division").prop('disabled', true)
+                // if the division is null, clear and disable section field
+                }
+            }
+
+            $("#id_region").change(function () {
+                if ($(this).val() != "") {
+                    // enable the division field
+                    $("#id_division").prop('disabled', false);
+
+                    // define options based on region selection
+                    var newOptions = {"---": ""};
+                    for (var i = 0; i < Object.keys(divisionObj).length; i++) {
+                        var key = Object.keys(divisionObj)[i];
+                        var searchTerm = $("#id_region option:selected").text();
+                        var re = new RegExp(searchTerm, 'gi');
+                        if (key.match(re)) {
+                            newOptions[key] = divisionObj[key]
+                        }
+                    }
+                    var $el = $("#id_division");
+                    $el.empty(); // remove old options
+                    $.each(newOptions, function (key, value) {
+                        console.log(key)
+                        console.log(value)
+                        $el.append($("<option></option>")
+                            .attr("value", value).text(key));
+                    });
+                } else {
+                    resetFields()
+                }
+            });
+        </script>
+    {% endif %}
+
+{% endblock content %}
