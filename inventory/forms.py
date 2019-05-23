@@ -5,6 +5,8 @@ from django.utils.translation import gettext as _
 from . import models
 from shared_models import models as shared_models
 
+chosen_js = {"class": "chosen-select-contains"}
+
 
 class ResourceCreateForm(forms.ModelForm):
     add_custodian = forms.BooleanField(required=False, label="Add yourself as custodian")
@@ -50,6 +52,7 @@ class ResourceCreateForm(forms.ModelForm):
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
             "notes": forms.Textarea(attrs={"rows": 5}),
             "parent": forms.NumberInput(),
+            "section": forms.Select(attrs=chosen_js),
         }
         labels = {
             "section": "Section (Region / Branch / Division / Section)",
