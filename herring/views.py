@@ -692,7 +692,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
     template_name = 'herring/report_progress_list.html'
 
     def get_queryset(self):
-        return models.Sample.objects.filter(season=self.kwargs["year"])
+        return models.Sample.objects.filter(season=self.kwargs["year"]).order_by("sample_date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
