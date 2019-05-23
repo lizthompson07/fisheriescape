@@ -34,7 +34,7 @@
                     {% endif %}
 
                     {% if object.id %}
-                        <a class="btn btn-secondary" href="{% url 'publications:pub_detail' object.id %}">
+                        <a class="btn btn-secondary" href="{% url 'publications:prj_detail' object.id %}">
                             {% trans "Cancel" %}
                         </a>
                     {% else %}
@@ -62,7 +62,7 @@
                     {% endif %}
 
                     {% if object.id %}
-                        <a class="btn btn-secondary" href="{% url 'publications:pub_detail' object.id %}">
+                        <a class="btn btn-secondary" href="{% url 'publications:prj_detail' object.id %}">
                             {% trans "Cancel" %}
                         </a>
                     {% else %}

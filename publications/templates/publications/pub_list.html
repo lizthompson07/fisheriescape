@@ -21,14 +21,14 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "All Publications" %}
+                {% trans "All Projects" %}
             </li>
         </ol>
     </nav>
 
     <div class="indent-lg">
         <h1>
-            {% trans "All Publications:" %}
+            {% trans "All Projects:" %}
         </h1>
 
         <form class="form" action="." method="get" id="filter-form">
@@ -57,38 +57,21 @@
                 <em>{% trans "displaying all records" %}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'publications:pub_new' %}" class="btn btn-sm btn-primary">{% trans "New Publication" %}</a>
+                <a href="{% url 'publications:prj_new' %}" class="btn btn-sm btn-primary">{% trans "New Project" %}</a>
             </div>
         </div>
 
         <table class="table table-hover table-sm sortable">
             <thead>
-            <th scope="col" style="width: 120px;">
-                {% trans "Publication Year" %}
-            </th>
             <th scope="col" style="width: 50%">
                 {% trans "Title" %}
-            </th>
-            <th scope="col">
-                {% trans "Region" %}
-            <th scope="col">
-                {% trans "Division" %}
             </th>
             </thead>
             <tbody>
 
             {% for obj in filter.qs %}
-                <tr href="{% url 'publications:pub_detail' obj.id %}">
-                    <td>{{ obj.pub_year.year }}</td>
-                    <td>{{ obj.pub_title }}</td>
-
-                    {% if LANG == "fr" %}
-                        <td>{{ obj.division.branch.region.nom }}</td>
-                        <td>{{ obj.division.nom }}</td>
-                    {% else %}
-                        <td>{{ obj.division.branch.region.name }}</td>
-                        <td>{{ obj.division.name }}</td>
-                    {% endif %}
+                <tr href="{% url 'publications:prj_detail' obj.id %}">
+                    <td>{{ obj.title }}</td>
                 </tr>
             {% endfor %}
             </tbody>

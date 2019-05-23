@@ -26,6 +26,10 @@ def get_mod(mod_str):
         lookup_mod = models.ProgramLinkage
     elif mod_str == "ecosystem":
         lookup_mod = models.EcosystemComponents
+    elif mod_str == "site":
+        lookup_mod = models.Site
+    elif mod_str == "publication":
+        lookup_mod = models.Publication
 
     return lookup_mod
 
@@ -39,29 +43,32 @@ def get_mod_title(mod_str):
         title = "Linkage to Program"
     elif mod_str == "ecosystem":
         title = "Ecosystem Component"
+    elif mod_str == "site":
+        title = "Site"
+    elif mod_str == "publication":
+        title = "Publication"
 
     return title
 
 
-def lookup_delete(request, lookup, pk, fk):
-    print("Attribute: " + str(lookup))
-    print("Publication key: " + str(pk))
-    print("Foreign key: " + str(fk))
-    publication = models.Publications.objects.get(pk=pk)
+def lookup_delete(request, lookup, project, theme):
+    project = models.Project.objects.get(pk=project)
     mod = get_mod(lookup)
-    val = mod.objects.get(pk=fk)
-    if publication:
+    val = mod.objects.get(pk=theme)
+    if project:
         if mod is models.Theme:
-            publication.theme.remove(val)
+            project.theme.remove(val)
         elif mod is models.HumanComponents:
-            publication.human_component.remove(val)
+            project.human_component.remove(val)
         elif mod is models.ProgramLinkage:
-            publication.program_linkage.remove(val)
+            project.program_linkage.remove(val)
         elif mod is models.EcosystemComponents:
-            publication.ecosystem_component.remove(val)
+            project.ecosystem_component.remove(val)
+        elif issubclass(mod, models.TextLookup):
+            val.delete()
 
     messages.success(request, _("The " + get_mod_title(lookup) + " has been successfully deleted."))
-    return HttpResponseRedirect(reverse_lazy("publications:pub_detail", kwargs={"pk": publication.id}))
+    return HttpResponseRedirect(reverse_lazy("publications:prj_detail", kwargs={"pk": project.id}))
 
 
 class CloserTemplateView(TemplateView):
@@ -72,11 +79,11 @@ class IndexTemplateView(TemplateView):
     template_name = 'publications/index.html'
 
 
-class PublicationCreateView(LoginRequiredMixin, CreateView):
+class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = 'publications/pub_form.html'
-    model = models.Publications
+    model = models.Project
     login_url = '/accounts/login_required/'
-    form_class = forms.NewPublicationsForm
+    form_class = forms.NewProjectForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -95,18 +102,18 @@ class PublicationCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        publication = form.save()
+        project = form.save()
 
-        return HttpResponseRedirect(reverse_lazy("publications:pub_detail", kwargs={"pk": publication.id}))
+        return HttpResponseRedirect(reverse_lazy("publications:pub_detail", kwargs={"pk": project.id}))
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class PublicationSubmitUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Publications
+class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Project
     login_url = '/accounts/login_required/'
-    form_class = forms.PublicationsSubmitForm
+    form_class = forms.ProjectSubmitForm
     template_name = "publications/pub_submit_form.html"
 
     def get_initial(self):
@@ -121,10 +128,10 @@ class PublicationSubmitUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class PublicationUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Publications
+class ProjectUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Project
     login_url = '/accounts/login_required/'
-    form_class = forms.NewPublicationsForm
+    form_class = forms.NewProjectForm
     template_name = "publications/pub_form.html"
 
     def get_initial(self):
@@ -132,16 +139,11 @@ class PublicationUpdateView(LoginRequiredMixin, UpdateView):
             'last_modified_by': self.request.user,
         }
 
-        try:
-            my_dict["pub_year"] = "{}".format(self.object.pub_year.year)
-        except:
-            print("no start date...")
-
         return my_dict
 
 
-class PublicationDeleteView(LoginRequiredMixin, DeleteView):
-    model = models.Publications
+class ProjectDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.Project
     permission_required = "__all__"
     success_url = reverse_lazy('publications:')
     success_message = _('The publication was successfully deleted!')
@@ -152,44 +154,70 @@ class PublicationDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class PublicationDetailView(LoginRequiredMixin, DetailView):
+class SiteDetailView(LoginRequiredMixin, DetailView):
+    template_name = 'publications/pub_site.html'
+    model = models.Site
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
+class ProjectDetailView(LoginRequiredMixin, DetailView):
     template_name = 'publications/pub_detail.html'
-    model = models.Publications
+    model = models.Project
     login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        publication = self.object
+        project = self.object
 
         context["abstract"] =[
-            'pub_abstract'
+            'abstract'
         ]
 
+        site_array = [site for site in models.Site.objects.filter(project__id=project.id)]
+        pub_array = [pub for pub in models.Publication.objects.filter(project__id=project.id)]
+        print(str(project.id) + ": " + str(site_array))
         context["field_list"] = [
-            'pub_year',
-            'division',
+            # {
+            #     "url": None,
+            #     "label": "Division",
+            #     "list": project.division
+            # },
+            {
+                "url": "site",
+                "label": "Site(s)",
+                "list": site_array
+            },
+            {
+                "url": "publication",
+                "label": "Publications(s)",
+                "list": pub_array
+            },
         ]
 
         context["lookups"] = [
             {
                 "url": "theme",
                 "label": "Theme",
-                "list": models.Theme.objects.filter(publications__id=publication.id).order_by("name")
+                "list": models.Theme.objects.filter(project__id=project.id).order_by("name")
             },
             {
                 "url": "human",
                 "label": "Human Component",
-                "list": models.HumanComponents.objects.filter(publications__id=publication.id).order_by("name")
+                "list": models.HumanComponents.objects.filter(project__id=project.id).order_by("name")
             },
             {
                 "url": "ecosystem",
                 "label": "Ecosystem Component",
-                "list": models.EcosystemComponents.objects.filter(publications__id=publication.id).order_by("name")
+                "list": models.EcosystemComponents.objects.filter(project__id=project.id).order_by("name")
             },
             {
                 "url": "linkage",
                 "label": "Linkage to Program",
-                "list": models.ProgramLinkage.objects.filter(publications__id=publication.id).order_by("name")
+                "list": models.ProgramLinkage.objects.filter(project__id=project.id).order_by("name")
             },
         ]
         context["field_list_1"] = [
@@ -203,11 +231,21 @@ class PublicationDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class PublicationsListView(LoginRequiredMixin, FilterView):
+class ProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'publications/pub_list.html'
-    model = models.Publications
-    filterset_class = filters.PublicationsFilter
+    model = models.Project
+    filterset_class = filters.ProjectFilter
+
+
+'''
+LookupAddView is an abstract class with the basic code
+common to popout views used to add or edit values
+
+Subclasses of this view should override the __init__
+method and set the self.form_class to the specific
+form required for the data entry
+'''
 
 
 class LookupAddView(LoginRequiredMixin, CreateView):
@@ -216,24 +254,40 @@ class LookupAddView(LoginRequiredMixin, CreateView):
     form_class = forms.LookupForm
 
     def get_initial(self):
-        publications = models.Publications.objects.get(pk=self.kwargs['publications'])
+        project = models.Project.objects.get(pk=self.kwargs['project'])
         lookup_mod = get_mod(self.kwargs['lookup'])
 
         return {
-            'publications': publications,
+            'project': project,
             'lookup': lookup_mod
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        publications = models.Publications.objects.get(id=self.kwargs['publications'])
-        context['publications'] = publications
+        project = models.Project.objects.get(id=self.kwargs['project'])
+        context['project'] = project
         context['title'] = get_mod_title(self.kwargs['lookup'])
         context['url_var'] = self.kwargs['lookup']
 
-        print(context)
-
         return context
+
+
+'''
+ChoiceAddView is an extension of the LookupAddView.
+It uses the forms.LookupForm to display a multiple text select
+UI Component and a text field to enter values that are missing
+from the text select.
+
+This class is intended to deal with models that extend the Lookup
+abstract class and require the models to have a "name" field
+'''
+
+
+class ChoiceAddView(LookupAddView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form_class = forms.LookupForm
+        print(self.form_class)
 
     def form_valid(self, form):
         mod = get_mod(self.kwargs['lookup'])
@@ -251,23 +305,51 @@ class LookupAddView(LoginRequiredMixin, CreateView):
             vals.append(val)
 
         # get the publication the lookup are being added to
-        publication = models.Publications.objects.get(id=self.kwargs['publications'])
+        project = models.Project.objects.get(id=self.kwargs['project'])
 
         dirty = False
         # for each lookup make sure it doesn't already exist in the publication variable
         for val in vals:
-            if publication and not mod.objects.filter(pk=val.id, publications__id=publication.id):
+            if project and not mod.objects.filter(pk=val.id, project__id=project.id):
                 if mod is models.Theme:
-                    publication.theme.add(val)
+                    project.theme.add(val)
                 elif mod is models.HumanComponents:
-                    publication.human_component.add(val)
+                    project.human_component.add(val)
                 elif mod is models.ProgramLinkage:
-                    publication.program_linkage.add(val)
+                    project.program_linkage.add(val)
                 elif mod is models.EcosystemComponents:
-                    publication.ecosystem_component.add(val)
+                    project.ecosystem_component.add(val)
                 dirty = True
 
         if dirty:
-            publication.save()
+            project.save()
+
+        return HttpResponseRedirect(reverse('publications:close_me'))
+
+
+'''
+TextAddView is an extension of the LookupAddView.
+It uses the forms.TextForm to display a TextArea
+UI Component for large text entry
+
+This class is intended to deal with models that extend the TextLookup
+abstract class and require the models to have a "value" field and a
+"project" field
+'''
+
+
+class TextAddView(LookupAddView):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form_class = forms.TextForm
+        print(self.form_class)
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        print(context['project'])
+        text_obj = form.save(commit=False)
+        text_obj.project = context['project']
+        text_obj.save()
 
         return HttpResponseRedirect(reverse('publications:close_me'))
