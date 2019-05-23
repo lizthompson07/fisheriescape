@@ -239,7 +239,7 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('publications:index'),
             "icon_path": 'img/icons/publications.svg',
-            "region": "mar",
+            "region": "gulf",
         }
     except NoReverseMatch:
         pass
