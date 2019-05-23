@@ -1281,6 +1281,9 @@ class FileCreateView(CustodianRequiredMixin, CreateView):
     model = models.File
     form_class = forms.FileForm
 
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
+
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
@@ -1315,6 +1318,9 @@ class FileUpdateView(CustodianRequiredMixin, UpdateView):
     model = models.File
     form_class = forms.FileForm
 
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
+
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
@@ -1328,6 +1334,9 @@ class FileUpdateView(CustodianRequiredMixin, UpdateView):
 class FileDeleteView(CustodianRequiredMixin, DeleteView):
     template_name = "inventory/file_confirm_delete.html"
     model = models.File
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
