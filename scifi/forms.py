@@ -4,6 +4,8 @@ from django.utils import timezone
 from shared_models import models as shared_models
 from . import models
 
+chosen_js = {"class": "chosen-select-contains"}
+
 
 class ResponsibilityCentreForm(forms.ModelForm):
     class Meta:
@@ -56,9 +58,14 @@ class TransactionForm(forms.ModelForm):
             "fiscal_year": forms.NumberInput(),
             "created_by": forms.HiddenInput(),
             "creation_date": forms.DateInput(attrs={"type": "date"}),
+            "expected_purchase_date": forms.DateInput(attrs={"type": "date"}),
             "invoice_date": forms.DateInput(attrs={"type": "date"}),
+            "responsibility_center": forms.Select(attrs=chosen_js),
+            "business_line": forms.Select(attrs=chosen_js),
+            "allotment_code": forms.Select(attrs=chosen_js),
+            "line_object": forms.Select(attrs=chosen_js),
+            "project": forms.Select(attrs=chosen_js),
         }
-
 
 class CustomTransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -66,12 +73,14 @@ class CustomTransactionForm(forms.ModelForm):
     class Meta:
         model = models.Transaction
         fields = [
+            "fiscal_year",
             "project",
             "responsibility_center",
             "business_line",
             "allotment_code",
             "line_object",
             "supplier_description",
+            "expected_purchase_date",
             "obligation_cost",
             "reference_number",
             "comment",
@@ -89,7 +98,14 @@ class CustomTransactionForm(forms.ModelForm):
         }
 
         widgets = {
+            "fiscal_year": forms.Select(attrs=chosen_js),
+            "responsibility_center": forms.Select(attrs=chosen_js),
+            "business_line": forms.Select(attrs=chosen_js),
+            "allotment_code": forms.Select(attrs=chosen_js),
+            "line_object": forms.Select(attrs=chosen_js),
+            "project": forms.Select(attrs=chosen_js),
             "comment": forms.Textarea(attrs={"rows": 4}),
+            "expected_purchase_date": forms.DateInput(attrs={"type": "date"}),
 
             # hidden because they are given default values
             "created_by": forms.HiddenInput(),
@@ -98,14 +114,11 @@ class CustomTransactionForm(forms.ModelForm):
             "in_mrs": forms.HiddenInput(),
         }
 
-
 class ReportSearchForm(forms.Form):
-
-
     report = forms.ChoiceField(required=True)
     fiscal_year = forms.ChoiceField(required=True)
-    rc = forms.ChoiceField(required=False, label="Responsibility centre")
-    project = forms.ChoiceField(required=False, label="Project")
+    rc = forms.ChoiceField(required=False, label="Responsibility centre", widget=forms.Select(attrs=chosen_js))
+    project = forms.ChoiceField(required=False, label="Project", widget=forms.Select(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -126,7 +139,6 @@ class ReportSearchForm(forms.Form):
         project_choices = [(obj.id, "{} - {}".format(obj.code, obj.name)) for obj in
                            shared_models.Project.objects.all()]
         project_choices.insert(0, (None, "------"))
-
 
         self.fields['report'].choices = report_choices
         self.fields['fiscal_year'].choices = fy_choices

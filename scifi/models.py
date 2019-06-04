@@ -11,99 +11,6 @@ YES_NO_CHOICES = (
     (False, "No"),
 )
 
-#
-# class AllotmentCategory(models.Model):
-#     name = models.CharField(max_length=25)
-#     color = models.CharField(max_length=25, blank=True, null=True)
-#
-#     def __str__(self):
-#         return "{}".format(self.name)
-#
-#     class Meta:
-#         ordering = ['name', ]
-#
-#
-# class AllotmentCode(models.Model):
-#     # choices for category
-#     SAL = "salary"
-#     CAP = "capital"
-#     OM = "om"
-#     GC = "gc"
-#     CBASE = "cbase"
-#     CATEGORY_CHOICES = (
-#         (SAL, "Salary"),
-#         (CAP, "Capital"),
-#         (OM, "O&M"),
-#         (CBASE, "Cbase"),
-#         (GC, "G&C"),
-#     )
-#     code = models.CharField(max_length=50, unique=True)
-#     name = models.TextField(blank=True, null=True)
-#     # category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, default="other")
-#     allotment_category = models.ForeignKey(AllotmentCategory, on_delete=models.DO_NOTHING, related_name="allotment_codes", blank=True,
-#                                            null=True)
-#
-#     def __str__(self):
-#         return "{} ({})".format(self.code, self.name)
-#
-#     class Meta:
-#         ordering = ['code', ]
-#
-#
-# class BusinessLine(models.Model):
-#     code = models.CharField(max_length=50, unique=True)
-#     name = models.TextField(blank=True, null=True)
-#
-#     def __str__(self):
-#         return "{} ({})".format(self.code, self.name)
-#
-#     class Meta:
-#         ordering = ['code', ]
-#
-#
-# class LineObject(models.Model):
-#     code = models.CharField(max_length=50, unique=True)
-#     name_eng = models.CharField(max_length=1000)
-#     description_eng = models.TextField(blank=True, null=True)
-#
-#     def __str__(self):
-#         return "{} ({})".format(self.code, self.name_eng)
-#
-#     class Meta:
-#         ordering = ['code', ]
-#
-#
-# class ResponsibilityCenter(models.Model):
-#     code = models.CharField(max_length=50, unique=True)
-#     name = models.TextField(blank=True, null=True)
-#     responsible_manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-#                                             related_name="rcs")
-#
-#     def __str__(self):
-#         return "{} ({})".format(self.code, self.name)
-#
-#     class Meta:
-#         ordering = ['code', ]
-#
-#
-# class Project(models.Model):
-#     name = models.CharField(max_length=1000)
-#     code = models.CharField(max_length=50)
-#     description = models.TextField(blank=True, null=True)
-#     project_lead = models.CharField(max_length=500, blank=True, null=True)
-#     default_responsibility_center = models.ForeignKey(ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
-#                                                       null=True, related_name='projects')
-#     default_allotment_code = models.ForeignKey(AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True)
-#     default_business_line = models.ForeignKey(BusinessLine, on_delete=models.DO_NOTHING, blank=True, null=True)
-#     default_line_object = models.ForeignKey(LineObject, on_delete=models.DO_NOTHING, blank=True, null=True)
-#
-#     def __str__(self):
-#         return "{} ({})".format(self.code, self.name)
-#
-#     class Meta:
-#         ordering = ['code', ]
-
-
 class Transaction(models.Model):
     # Choices for transaction_type
     ALLOCATION = 1
@@ -125,6 +32,7 @@ class Transaction(models.Model):
     project = models.ForeignKey(shared_models.Project, on_delete=models.DO_NOTHING, related_name="transactions")
     transaction_type = models.IntegerField(default=3, choices=TYPE_CHOICES)
     supplier_description = models.CharField(max_length=1000, blank=True, null=True)
+    expected_purchase_date = models.DateTimeField(blank=True, null=True)
     creation_date = models.DateTimeField(default=timezone.now)
     obligation_cost = models.FloatField(blank=True, null=True)
     outstanding_obligation = models.FloatField(blank=True, null=True)
@@ -138,6 +46,8 @@ class Transaction(models.Model):
     comment = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     exclude_from_rollup = models.BooleanField(default=False, verbose_name="Exclude from rollup", choices=YES_NO_CHOICES)
+
+
 
     def __str__(self):
         return "{}".format(self.supplier_description)

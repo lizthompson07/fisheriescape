@@ -176,7 +176,7 @@ class Line(models.Model):
                 for s in self.surfaces.all():
                     s.is_lost = True
                     s.save()
-        if not self.is_lost:
+        if not self.is_lost and self.surfaces.count() > 0:
             lost_list = [surface.is_lost for surface in self.surfaces.all()]
             if not False in lost_list:
                 self.is_lost = True
