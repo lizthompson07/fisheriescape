@@ -15,6 +15,7 @@ class SampleFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters['station'] = django_filters.ModelChoiceFilter(
+            field_name="station",
             queryset=models.Station.objects.all(),
             widget=forms.Select(attrs=chosen_js),
         )
