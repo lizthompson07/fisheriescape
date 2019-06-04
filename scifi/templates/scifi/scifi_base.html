@@ -16,6 +16,10 @@
     {% block content %}{% endblock content %}
 {% endblock body %}
 
+{% block body_js %}
+    {% block js %}{% endblock js %}
+{% endblock body_js %}
+
 {% block left_unauth %}
 {% endblock left_unauth %}
 
@@ -58,23 +62,7 @@
     </li>
 
 
-    {#    #}
-    {#    <li class="nav-item"><a class="nav-link under-dev" href="#">#}
-    {#        {% trans "Organizations" %}#}
-    {#    </a></li>#}
-    {#    <li class="nav-item"><a class="nav-link" href="#">#}
-    {#        {% trans "New Entry" %}#}
-    {#    </a></li>#}
-
-    {#  {% for group in user.groups.all %}#}
-    {#    {% if group.name == "inventory_section_head"   %}#}
-    {#      <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_section_detail' %}"> My Section </a></li>#}
-    {#    {% endif %}#}
-    {##}
-    {#  {% endfor %}#}
-
 
 
 {% endblock left_auth %}
-{% block left_admin %}
-{% endblock left_admin %}
+{% block left_admin %}{% endblock left_admin %}
