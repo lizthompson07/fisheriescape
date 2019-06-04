@@ -47,14 +47,7 @@
                 </td>
                 <td>{{ obj.notes|nz:"" }}</td>
                 <td>{{ obj.date_last_modified|date:"Y-m-d" }}</td>
-                <td>
-                    <a class="person-delete-me" href="#" val="{{ obj.id }}">
-                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                             title="Remove">
-                    </a>
-                    <a id="person-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'ihub:member_delete' obj.id %}" class="hidden"></a>
-                </td>
+
             </tr>
         {% endfor %}
         </tbody>

@@ -337,15 +337,10 @@ class MemberUpdateView(iHubAccessRequiredMixin, UpdateView):
             'last_modified_by': self.request.user,
         }
 
-
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
-def member_delete(request, pk):
-    object = ml_models.OrganizationMember.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The member has been successfully deleted from the organization."))
-    return HttpResponseRedirect(reverse_lazy("ihub:org_detail", kwargs={"pk": object.organization.id}))
-
+class MemberDeleteView(iHubAdminRequiredMixin, DeleteView):
+    model = ml_models.OrganizationMember
+    template_name = 'ihub/member_confirm_delete_popout.html'
+    success_url = reverse_lazy("ihub:close_me")
 
 # ENTRY #
 #########
