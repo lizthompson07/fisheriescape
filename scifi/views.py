@@ -562,6 +562,7 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         return {
+            'fiscal_year': fiscal_year(sap_style=True),
             'created_by': self.request.user,
             'transaction_type': 3,
             'in_mrs': False,
