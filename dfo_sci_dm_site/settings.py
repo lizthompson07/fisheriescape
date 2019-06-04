@@ -184,3 +184,7 @@ else:
     STATICFILES_DIRS = [
         STATIC_DIR,
     ]
+
+# This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000 # higher than the count of fields
+
