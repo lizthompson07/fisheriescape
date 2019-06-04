@@ -171,15 +171,15 @@ class Line(models.Model):
 
     def save(self, *args, **kwargs):
         # if the line was lost, set all surfaces to be lost as well
-        # if self.surfaces.count() > 0:
-        #     if self.is_lost:
-        #         for s in self.surfaces.all():
-        #             s.is_lost = True
-        #             s.save()
-        if not self.is_lost:
-            lost_list = [surface.is_lost for surface in self.surfaces.all()]
-            if not False in lost_list:
-                self.is_lost = True
+        if self.surfaces.count() > 0:
+            if self.is_lost:
+                for s in self.surfaces.all():
+                    s.is_lost = True
+                    s.save()
+        # if not self.is_lost:
+        #     lost_list = [surface.is_lost for surface in self.surfaces.all()]
+        #     if not False in lost_list:
+        #         self.is_lost = True
 
 
         super().save(*args, **kwargs)
