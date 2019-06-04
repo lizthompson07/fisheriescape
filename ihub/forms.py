@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 
+chosen_js = {"class": "chosen-select-contains"}
+
 
 class EntryCreateForm(forms.ModelForm):
     class Meta:
@@ -64,35 +66,53 @@ class ReportSearchForm(forms.Form):
         fy_choices.insert(0, (None, "all years"))
 
         org_choices_all = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
-        org_choices_has_entry = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True) if obj.entries.count() > 0]
+        org_choices_has_entry = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True) if
+                                 obj.entries.count() > 0]
 
         sector_choices = [(obj.id, obj) for obj in models.ml_models.Sector.objects.all() if obj.entries.count() > 0]
 
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
         self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
         self.fields['sectors'] = forms.MultipleChoiceField(required=False,
-                                                                 label='List of sectors (w/ entries) - Leave blank for all',
-                                                                 choices=sector_choices)
+                                                           label='List of sectors (w/ entries) - Leave blank for all',
+                                                           choices=sector_choices)
         self.fields['organizations'] = forms.MultipleChoiceField(required=False,
                                                                  label='List of organizations (w/ entries) - Leave blank for all',
                                                                  choices=org_choices_has_entry)
         self.fields['single_org'] = forms.ChoiceField(required=False, label='Organization', choices=org_choices_all)
 
+
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = ml_models.Organization
-        exclude = ["date_last_modified",]
+        exclude = ["date_last_modified", ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
         }
 
+
 class PersonForm(forms.ModelForm):
     class Meta:
         model = ml_models.Person
-        exclude = ["date_last_modified",]
+        fields = [
+            "designation",
+            "first_name",
+            "last_name",
+            "phone_1",
+            "phone_2",
+            "email_1",
+            "email_2",
+            "cell",
+            "fax",
+            "language",
+            "notes",
+            "last_modified_by",
+        ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": "3"}),
         }
+
 
 
 class EntryPersonForm(forms.ModelForm):
@@ -123,10 +143,15 @@ class MemberForm(forms.ModelForm):
     # save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
     class Meta:
         model = ml_models.OrganizationMember
-        exclude = ["date_last_modified",]
+        exclude = ["date_last_modified", ]
         widgets = {
+            'person': forms.Select(attrs=chosen_js),
             'organization': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": "3"}),
+        }
+        labels = {
+            'person': "Select a person:",
         }
 
 
