@@ -58,6 +58,7 @@ class TransactionForm(forms.ModelForm):
             "fiscal_year": forms.NumberInput(),
             "created_by": forms.HiddenInput(),
             "creation_date": forms.DateInput(attrs={"type": "date"}),
+            "expected_purchase_date": forms.DateInput(attrs={"type": "date"}),
             "invoice_date": forms.DateInput(attrs={"type": "date"}),
             "responsibility_center": forms.Select(attrs=chosen_js),
             "business_line": forms.Select(attrs=chosen_js),
@@ -79,6 +80,7 @@ class CustomTransactionForm(forms.ModelForm):
             "allotment_code",
             "line_object",
             "supplier_description",
+            "expected_purchase_date",
             "obligation_cost",
             "reference_number",
             "comment",
@@ -103,6 +105,7 @@ class CustomTransactionForm(forms.ModelForm):
             "line_object": forms.Select(attrs=chosen_js),
             "project": forms.Select(attrs=chosen_js),
             "comment": forms.Textarea(attrs={"rows": 4}),
+            "expected_purchase_date": forms.DateInput(attrs={"type": "date"}),
 
             # hidden because they are given default values
             "created_by": forms.HiddenInput(),
