@@ -468,7 +468,7 @@ class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save()
+        my_object = form.save()
         # create a new email object
         email = emails.ProjectSubmissionEmail(self.object)
         # send the email object
@@ -480,7 +480,6 @@ class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request,
                          _("The project was submitted and an email has been sent to notify the section head!"))
         return super().form_valid(form)
-
 
 
 class ProjectApprovalUpdateView(LoginRequiredMixin, UpdateView):
