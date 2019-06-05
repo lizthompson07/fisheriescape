@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.core.mail import send_mail
 from django.db.models import TextField, Sum
 from django.db.models.functions import Concat
+from django.utils import timezone
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
@@ -662,6 +663,11 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
+
+
+
+
+
         fiscal_year = int(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
         try:
@@ -674,7 +680,12 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
             project = None
 
         if report == 1:
-            return HttpResponseRedirect(reverse("scifi:report_branch", kwargs={'fiscal_year': fiscal_year}))
+            return HttpResponseRedirect(reverse("scifi:report_master", kwargs={
+                'fy': fiscal_year,
+                'rc': str(rc),
+                'project': str(project),
+            }))
+
         elif report == 2:
             return HttpResponseRedirect(reverse("scifi:report_rc", kwargs={'fiscal_year': fiscal_year, "rc": rc}))
         elif report == 3:
@@ -998,14 +1009,14 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         return context
 
 
-def master_spreadsheet(request, fiscal_year, user=None):
-    # my_site = models.Site.objects.get(pk=site)
-    file_url = reports.generate_master_spreadsheet(fiscal_year, user)
+def master_spreadsheet(request, fy, rc, project):
+
+    file_url = reports.generate_master_spreadsheet(fy, rc, project)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="Science project planning MASTER LIST {}.xlsx"'.format(
-                fiscal_year)
+            response['Content-Disposition'] = 'inline; filename="transactions export ({}).xlsx"'.format(
+                timezone.now().strftime("%y-%m-%d"))
             return response
     raise Http404
