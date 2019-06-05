@@ -1,0 +1,22 @@
+{% load verbose_names %}
+
+<p>
+    A project was submitted under your section:
+</p>
+
+<table class="table table-sm table-striped" style="width: auto">
+    <th class="gone" style="width: 250px; padding: 0px; margin: 0px;"></th>
+    {% for field in field_list %}
+        {% verbose_td_display object field %}
+    {% endfor %}
+</table>
+
+<p>
+    The full project detail page can be viewed <a href="http://glf-sci-dm{% url 'projects:project_detail' object.id %}">HERE</a>.
+</p>
+
+<style media="screen">
+    table, td {
+        border: solid 1px black;
+    }
+</style>
