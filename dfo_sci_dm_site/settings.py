@@ -117,7 +117,7 @@ WSGI_APPLICATION = 'dfo_sci_dm_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-# DATABASE_ROUTERS = ['dfo_sci_dm_site.routers.DevDatabaseRouter', ]
+DATABASE_ROUTERS = ['dfo_sci_dm_site.routers.WhaleDatabaseRouter', ]
 DATABASES = local_conf.DATABASES
 
 # Password validation

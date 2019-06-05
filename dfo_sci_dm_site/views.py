@@ -244,6 +244,19 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
+        app_dict["whalesdb"] = {
+            "title": _("Whale Equipment Deployment Inventory"),
+            "description": _("Tool for managing whale equipment, deployments and recordings."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('whalesdb:index'),
+            "icon_path": 'img/icons/whalesdb.svg',
+            "region": "gulf",
+        }
+    except NoReverseMatch:
+        pass
+
     return OrderedDict(app_dict)
 
 
