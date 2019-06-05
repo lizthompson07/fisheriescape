@@ -127,6 +127,7 @@ class ReportSearchForm(forms.Form):
             # (1, "Branch Summary"),
             (2, "RC Summary"),
             (3, "Project Summary"),
+            (1, "Transaction Export (xlsx)"),
         ]
         report_choices.insert(0, (None, "------"))
 
