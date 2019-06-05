@@ -3,7 +3,11 @@ from_email = 'DoNotReply@DMApps.com'
 
 class ProjectSubmissionEmail:
     def __init__(self, object):
-        self.subject = 'A project has been submitted under your section / Un projet a été soumis dans votre section'
+        if object.submitted:
+            self.subject = 'A project has been submitted under your section / Un projet a été soumis dans votre section'
+        else:
+            self.subject = 'A project has been unsubmitted from your section / Un projet a été annulé dans votre section'
+
         self.message = self.load_html_template(object)
         self.from_email = from_email
         try:
