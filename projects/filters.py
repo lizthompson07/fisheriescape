@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils.translation import gettext as _
@@ -5,6 +6,7 @@ from shared_models import models as shared_models
 import django_filters
 from . import views
 
+chosen_js = {"class": "chosen-select-contains"}
 
 class ProjectFilter(django_filters.FilterSet):
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
@@ -66,7 +68,7 @@ class MySectionFilter(django_filters.FilterSet):
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
     staff = django_filters.ChoiceFilter(field_name='staff_members__user', lookup_expr='exact', label="Staff member")
     submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', label="Submitted?")
-    approved = django_filters.ChoiceFilter(field_name='section_head_approved', lookup_expr='exact', label="Approved by me?")
+    # approved = django_filters.ChoiceFilter(field_name='section_head_approved', lookup_expr='exact', label="Approved by me?")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -76,6 +78,21 @@ class MySectionFilter(django_filters.FilterSet):
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)
-        self.filters['staff'] = django_filters.ChoiceFilter(field_name='staff_members__user', lookup_expr='exact', choices=user_choices)
+        self.filters['staff'] = django_filters.ChoiceFilter(field_name='staff_members__user', lookup_expr='exact', choices=user_choices,
+                                                            widget=forms.Select(attrs=chosen_js))
         self.filters['submitted'] = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', choices=yes_no_choices)
-        self.filters['is_approved'] = django_filters.ChoiceFilter(field_name='is_approved', lookup_expr='exact', choices=yes_no_choices)
+
+        if "my-section" in str(kwargs["request"]):
+            self.filters['approved'] = django_filters.ChoiceFilter(field_name='section_head_approved', lookup_expr='exact',
+                                                                   label="Approved by me?", choices=yes_no_choices)
+        elif "my-division" in str(kwargs["request"]):
+            self.filters['sh_approved'] = django_filters.ChoiceFilter(field_name='section_head_approved', lookup_expr='exact',
+                                                                   label="Approved by section head?", choices=yes_no_choices)
+            self.filters['approved'] = django_filters.ChoiceFilter(field_name='manager_approved', lookup_expr='exact',
+                                                                   label="Approved by me?", choices=yes_no_choices)
+        elif "my-branch" in str(kwargs["request"]):
+            self.filters['dm_approved'] = django_filters.ChoiceFilter(field_name='manager_approved', lookup_expr='exact',
+                                                                   label="Approved by division manager?", choices=yes_no_choices)
+            self.filters['approved'] = django_filters.ChoiceFilter(field_name='rds_approved', lookup_expr='exact',
+                                                                   label="Approved by me?", choices=yes_no_choices)
+
