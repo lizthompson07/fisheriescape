@@ -717,6 +717,23 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
+
+        # if we are at the review step
+        if self.kwargs["step"] == "review":
+            # if there is recommended funding
+            if my_object.recommended_funding_y1:
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year=my_object.start_year)
+                my_year.annual_funding = my_object.recommended_funding_y1
+                my_year.save()
+            if my_object.recommended_funding_y2:
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+1)
+                my_year.annual_funding = my_object.recommended_funding_y2
+                my_year.save()
+            if my_object.recommended_funding_y3:
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+2)
+                my_year.annual_funding = my_object.recommended_funding_y3
+                my_year.save()
+
         return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
 

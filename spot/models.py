@@ -285,7 +285,7 @@ class ProjectPerson(models.Model):
 
 
 class ContributionAgreementChecklist(models.Model):
-    project = models.OneToOneField(Project, on_delete=models.DO_NOTHING, related_name="ca_checklist")
+    project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name="ca_checklist")
     date_assessed = models.DateTimeField(blank=True, null=True, default=timezone.now)
     risk_assessment_complete = models.NullBooleanField(verbose_name=_("The risk assessment has been completed/approved and posted to PATH"))
     correct_clause_selected = models.NullBooleanField(
