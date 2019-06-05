@@ -65,7 +65,9 @@ class TransactionForm(forms.ModelForm):
             "allotment_code": forms.Select(attrs=chosen_js),
             "line_object": forms.Select(attrs=chosen_js),
             "project": forms.Select(attrs=chosen_js),
+            "cosignee_code": forms.Select(attrs=chosen_js),
         }
+
 
 class CustomTransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -104,6 +106,7 @@ class CustomTransactionForm(forms.ModelForm):
             "allotment_code": forms.Select(attrs=chosen_js),
             "line_object": forms.Select(attrs=chosen_js),
             "project": forms.Select(attrs=chosen_js),
+            "cosignee_code": forms.Select(attrs=chosen_js),
             "comment": forms.Textarea(attrs={"rows": 4}),
             "expected_purchase_date": forms.DateInput(attrs={"type": "date"}),
 
@@ -113,6 +116,7 @@ class CustomTransactionForm(forms.ModelForm):
             "transaction_type": forms.HiddenInput(),
             "in_mrs": forms.HiddenInput(),
         }
+
 
 class ReportSearchForm(forms.Form):
     report = forms.ChoiceField(required=True)

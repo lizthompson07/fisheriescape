@@ -185,6 +185,7 @@ project_field_list = [
     'it_needs',
     'chemical_needs',
     'ship_needs',
+    'impacts_if_not_approved',
     'date_last_modified',
     'last_modified_by',
 ]
@@ -305,8 +306,47 @@ class MySectionListView(LoginRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context['fy_form'] = forms.FYForm(user=self.request.user.id)
 
+        context['type'] = _("section")
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
         context['has_section'] = models.Project.objects.filter(section__head=self.request.user).count() > 0
+        return context
+
+
+class MyDivisionListView(LoginRequiredMixin, FilterView):
+    login_url = '/accounts/login_required/'
+    template_name = 'projects/my_section_list.html'
+    filterset_class = filters.MySectionFilter
+
+    def get_queryset(self):
+        return models.Project.objects.filter(section__division__head=self.request.user).order_by('-year', 'section__division', 'section',
+                                                                                                 'project_title')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type'] = _("division")
+        context['fy_form'] = forms.FYForm(user=self.request.user.id)
+
+        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
+        context['has_section'] = models.Project.objects.filter(section__division__head=self.request.user).count() > 0
+        return context
+
+
+class MyBranchListView(LoginRequiredMixin, FilterView):
+    login_url = '/accounts/login_required/'
+    template_name = 'projects/my_section_list.html'
+    filterset_class = filters.MySectionFilter
+
+    def get_queryset(self):
+        return models.Project.objects.filter(section__division__branch__head=self.request.user).order_by('-year', 'section__division',
+                                                                                                         'section',
+                                                                                                         'project_title')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type'] = _("branch")
+        context['fy_form'] = forms.FYForm(user=self.request.user.id)
+        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
+        context['has_section'] = models.Project.objects.filter(section__division__branch__head=self.request.user).count() > 0
         return context
 
 
@@ -422,6 +462,31 @@ class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
         my_context = financial_summary_data(project)
         context = {**my_context, **context}
 
+        return context
+
+
+class ProjectApprovalUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Project
+    login_url = '/accounts/login_required/'
+    template_name = "projects/project_approval_form_popout.html"
+    success_url = reverse_lazy("projects:close_me")
+
+    def get_form_class(self):
+        level = self.kwargs["level"]
+        if level=="section":
+            return forms.SectionApprovalForm
+        elif level == "division":
+            return forms.DivisionApprovalForm
+        elif level == "branch":
+            return forms.BranchApprovalForm
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 
@@ -901,8 +966,8 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
     form_class = forms.ReportSearchForm
 
     # def get_initial(self):
-        # default the year to the year of the latest samples
-        # return {"fiscal_year": fiscal_year(next=True, sap_style=True)}
+    # default the year to the year of the latest samples
+    # return {"fiscal_year": fiscal_year(next=True, sap_style=True)}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1010,7 +1075,8 @@ class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section_id__in=section_list).order_by("id")
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
 
         context["fy"] = fy
         context["report_mode"] = True
@@ -1127,7 +1193,8 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section_id__in=section_list).order_by("id")
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
 
         # project_list = [project for project in project_list if project.section in section_list]
 
