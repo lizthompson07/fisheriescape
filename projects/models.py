@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from textile import textile
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
@@ -185,6 +185,9 @@ class Project(models.Model):
             pc = "xxxxx"
         return "{}-{}-{}".format(rc, ac, pc)
 
+    @property
+    def project_leads(self):
+        return listrify([staff for staff in self.staff_members.all() if staff.lead])
 
 class EmployeeType(models.Model):
     # cost_type choices
