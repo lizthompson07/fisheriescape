@@ -2,9 +2,11 @@ import datetime
 import json
 import os
 import pandas as pd
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.db.models import Sum, Q
 from django.utils import timezone
 from django.utils.text import slugify
@@ -18,6 +20,7 @@ from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
 from . import models
 from . import forms
+from . import emails
 from . import filters
 from . import reports
 from shared_models import models as shared_models
@@ -463,6 +466,21 @@ class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
         context = {**my_context, **context}
 
         return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+        # create a new email object
+        email = emails.ProjectSubmissionEmail(self.object)
+        # send the email object
+        if settings.PRODUCTION_SERVER:
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
+        else:
+            print(email)
+        messages.success(self.request,
+                         _("The project was submitted and an email has been sent to notify the section head!"))
+        return super().form_valid(form)
+
 
 
 class ProjectApprovalUpdateView(LoginRequiredMixin, UpdateView):
