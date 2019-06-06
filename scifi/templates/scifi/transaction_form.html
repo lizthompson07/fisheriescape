@@ -8,8 +8,7 @@
         select:invalid {
             height: 0px !important;
             opacity: 0 !important;
-            {#position: absolute !important;#}
-            display: flex !important;
+        {#position: absolute !important;#} display: flex !important;
         }
 
         select:invalid[multiple] {
@@ -81,10 +80,14 @@
         </form>
 
     </div>
+{% endblock %}
+{% block body_js %}
 
     <script type="text/javascript">
         window.name = "motherWindow";
-
+        {% if custom_transaction %}
+            var projectObj = {{project_json|safe}};
+        {% endif %}
         document.addEventListener("keydown", function (zEvent) {
             if (zEvent.ctrlKey && zEvent.code === "KeyS") {
                 zEvent.preventDefault()
@@ -101,6 +104,36 @@
             }
         });
         $("#id_fiscal_year")[0].focus()
+
+
+        {% if custom_transaction %}
+            $("#id_project").change(function () {
+                setProjectDefaults();
+            });
+        {% endif %}
+
+        // special func for project; once populated, enter the default coding for rc, bl, ac and lo
+        function setProjectDefaults() {
+            projectId = $("#id_project").val();
+
+            // RC
+            if (projectObj[projectId]["rc"] != "") {
+                $("#id_responsibility_center").val(projectObj[projectId]["rc"]);
+            }
+            // BL
+            if (projectObj[projectId]["bl"] != null) {
+                $("#id_business_line").val(projectObj[projectId]["bl"]);
+            }
+            // AC
+            if (projectObj[projectId]["ac"] != null) {
+                $("#id_allotment_code").val(projectObj[projectId]["ac"]);
+            }
+            // LO
+            if (projectObj[projectId]["lo"] != null) {
+                $("#id_line_object").val(projectObj[projectId]["lo"]);
+            }
+            $('select').trigger("chosen:updated");
+        };
 
 
     </script>
