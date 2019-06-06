@@ -43,7 +43,12 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = shared_models.Project
         fields = "__all__"
-
+        widgets = {
+            "default_responsibility_center": forms.Select(attrs=chosen_js),
+            "default_allotment_code": forms.Select(attrs=chosen_js),
+            "default_business_line": forms.Select(attrs=chosen_js),
+            "default_line_object": forms.Select(attrs=chosen_js),
+        }
 
 class TransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
