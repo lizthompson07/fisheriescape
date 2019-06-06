@@ -618,8 +618,9 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         email = emails.NewEntryEmail(self.object)
         # send the email object
         if settings.PRODUCTION_SERVER:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
+            pass
+            # send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+            #           recipient_list=email.to_list, fail_silently=False, )
         else:
             print('not sending email since in dev mode')
             print(email.from_email)
