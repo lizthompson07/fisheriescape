@@ -51,9 +51,9 @@
         <div class="row">
             <div class="col-12">
                 {% paginate 40 filter.qs as filter_list %}
-                                <br>
+                <br>
 
-            
+
                 <div class="row">
                     <div class="col">
                         (click on a header to sort table)
@@ -68,22 +68,23 @@
                 </div>
                 <table class="table table-sm table-hover table-bordered sortable">
                     <thead>
-                        <th></th>
-                        {% for field in field_list %}
-                            {% if field == "fiscal_year" or field == "invoice_date" %}
-                                <th scope="col" style="width: 80px;">{% get_verbose_label my_object field %}</th>
-                            {% elif field == "project.code" %}
-                                <th>Project code</th>
-                            {% elif field == "responsibility_center.code" %}
-                                <th>RC</th>
-                            {% else %}
-                                <th scope="col">{% get_verbose_label my_object field %}</th>
-                            {% endif %}
-                        {% endfor %}
+                    <th></th>
+                    {% for field in field_list %}
+                        {% if field == "fiscal_year" or field == "invoice_date" %}
+                            <th scope="col" style="width: 80px;">{% get_verbose_label my_object field %}</th>
+                        {% elif field == "project.code" %}
+                            <th>Project code</th>
+                        {% elif field == "responsibility_center.code" %}
+                            <th>RC</th>
+                        {% else %}
+                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% endif %}
+                    {% endfor %}
                     </thead>
                     <tbody>
                     {% for object in filter_list %}
-                        <tr id="trans{{ object.id }}" data-toggle="tooltip" title="Click to view" href="{% url 'scifi:trans_detail' object.id %}">
+                        <tr id="trans{{ object.id }}" data-toggle="tooltip" title="Click to view"
+                            href="{% url 'scifi:trans_detail' object.id %}">
                             <td style="font-size: x-small">
                                 <a href="{% url 'scifi:trans_edit' object.id %}">
                                     edit
@@ -132,14 +133,18 @@
                             {% elif field == "allotment_code" %}
                                 {{ ac.code }} <br>({{ ac.allotment_category }})
                             {% elif field == "in_mrs" %}
-                            {% get_field_value object field as val %}
+                                {% get_field_value object field as val %}
 
                                 {% if request.META.QUERY_STRING %}
-                                    <a style="font-size: x-small" class="toggle_mrs btn btn-sm {% if val == "No" %}btn-warning{% else %}btn-outline-secondary{% endif %}" href="#" url="{% url 'scifi:toggle_mrs' object.id request.META.QUERY_STRING %}">
+                                    <a style="font-size: x-small"
+                                       class="toggle_mrs btn btn-sm {% if val == "No" %}btn-warning{% else %}btn-outline-secondary{% endif %}"
+                                       href="#" url="{% url 'scifi:toggle_mrs' object.id request.META.QUERY_STRING %}">
                                 {% else %}
-                                    <a style="font-size: x-small" class="toggle_mrs btn btn-sm {% if val == "No" %}btn-warning{% else %}btn-outline-secondary{% endif %}" href="#" url="{% url 'scifi:toggle_mrs' object.id %}">
+                                    <a style="font-size: x-small"
+                                       class="toggle_mrs btn btn-sm {% if val == "No" %}btn-warning{% else %}btn-outline-secondary{% endif %}"
+                                       href="#" url="{% url 'scifi:toggle_mrs' object.id %}">
                                 {% endif %}
-                                {{ val }}
+                            {{ val }}
                             </a>
                             {% else %}
                                 {% get_field_value object field %}
@@ -167,15 +172,16 @@
                 }
             })
         });
-        
-        $(".toggle_mrs").click(function () {
-          userInput = confirm("Do you want to toggle this field?")
-            if(userInput) {
+
+        $(".toggle_mrs").click(function (e) {
+            userInput = confirm("Do you want to toggle this field?")
+            if (userInput) {
                 window.location.href = ($(this).attr("url"))
             }
+            e.stopImmediatePropagation()
         })
-        
-        
+
+
     </script>
 
 {% endblock content %}

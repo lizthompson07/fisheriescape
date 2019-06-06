@@ -66,3 +66,14 @@ class Transaction(models.Model):
 
     class Meta:
         ordering = ["-creation_date", ]
+
+
+class SciFiUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="scifi_users")
+    responsibility_centers = models.ManyToManyField(shared_models.ResponsibilityCenter, related_name="scifi_users")
+
+    def __str__(self):
+        return "{}".format(self.user)
+
+    class Meta:
+        ordering = ["user", ]
