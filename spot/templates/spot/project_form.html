@@ -10,9 +10,21 @@
         .ms-container {
             width: 100%;
         }
-    label{
-        font-weight: bold;
-    }
+
+        label {
+            font-weight: bold;
+        }
+
+        select:invalid {
+            height: 0px !important;
+            opacity: 0 !important;
+            {#position: absolute !important;#}
+            display: flex !important;
+        }
+
+        select:invalid[multiple] {
+            margin-top: 15px !important;
+        }
     </style>
 
     <nav aria-label="breadcrumb">
