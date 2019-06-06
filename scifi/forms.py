@@ -5,13 +5,16 @@ from shared_models import models as shared_models
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
+multi_select_js = {"class": "multi-select"}
 
 
 class ResponsibilityCentreForm(forms.ModelForm):
     class Meta:
         model = shared_models.ResponsibilityCenter
         fields = "__all__"
-
+        widgets = {
+            "manager": forms.Select(attrs=chosen_js),
+        }
     def __init__(self, *args, **kwargs):
         USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         User.objects.all().order_by("last_name", "first_name")]
@@ -37,6 +40,16 @@ class AllotmentCodeForm(forms.ModelForm):
     class Meta:
         model = shared_models.AllotmentCode
         fields = "__all__"
+
+
+class SciFiUserForm(forms.ModelForm):
+    class Meta:
+        model = models.SciFiUser
+        fields = "__all__"
+        widgets = {
+            "user": forms.Select(attrs=chosen_js),
+            "responsibility_centers": forms.SelectMultiple(attrs=multi_select_js),
+        }
 
 
 class ProjectForm(forms.ModelForm):
