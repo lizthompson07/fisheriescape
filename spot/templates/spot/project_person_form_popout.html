@@ -119,8 +119,10 @@
 
 
     </div>
+{% endblock %}
 
-    <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
+{% block body_js %}
+
     <script type="application/javascript">
         $("#id_roles").multiSelect()
     </script>
@@ -165,7 +167,8 @@
                     // console.log(123);
                     var re = new RegExp(this.value, 'gi');
 
-                    if (personList[i].match(re)) {
+                    let myString = personList[i].replace('class="person_insert"',"");
+                    if (myString.match(re)) {
                         $("#person_list").html(
                             $("#person_list").html() + personList[i] + '<br>')
                     }

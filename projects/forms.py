@@ -9,6 +9,11 @@ from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
 
+# Choices for YesNo
+YESNO_CHOICES = (
+    (1, "Yes"),
+    (0, "No"),
+)
 
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField()
@@ -50,7 +55,12 @@ class ProjectForm(forms.ModelForm):
         exclude = [
             'submitted',
             'date_last_modified',
+            'section_head_feedback',
             'section_head_approved',
+            'manager_feedback',
+            'manager_approved',
+            'rds_feedback',
+            'rds_approved',
         ]
         class_editable = {"class": "editable"}
         widgets = {
@@ -98,6 +108,45 @@ class ProjectSubmitForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'submitted': forms.HiddenInput(),
+        }
+
+class SectionApprovalForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'last_modified_by',
+            'section_head_feedback',
+            'section_head_approved',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'section_head_approved': forms.HiddenInput(),
+        }
+
+class DivisionApprovalForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'last_modified_by',
+            'manager_feedback',
+            'manager_approved',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'manager_approved': forms.HiddenInput(),
+        }
+
+class BranchApprovalForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'last_modified_by',
+            'rds_feedback',
+            'rds_approved',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'rds_approved': forms.HiddenInput(),
         }
 
 

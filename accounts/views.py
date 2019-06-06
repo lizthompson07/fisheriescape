@@ -42,6 +42,13 @@ def access_denied_custodian(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+
+def access_denied_scifi(request):
+    denied_message = "Sorry, you do not have the permissions to modify this record."
+    messages.error(request, denied_message)
+    # send user back to the page that they came from
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 class UserLoginView(LoginView):
     template_name = "registration/login.html"
 
