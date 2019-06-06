@@ -1,0 +1,37 @@
+{% extends "whalesdb/whale_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block tab_title %}
+    {% trans "Hydrophone" %}
+{% endblock tab_title %}
+
+{% block body %}
+    <form method="post" class="form">
+        {% csrf_token %}
+
+        {% for field in form %}
+            {% if field.name == "emm" %}
+                <div class="row align-bottom">
+                    <span class="col-11">{% bootstrap_field field placeholder="" size="small" %}</span>
+                    <span class="col-1"><br /><a class="btn btn-primary"
+                                                 onclick="return popitup('{% url 'whalesdb:create_makemodel' %}','popoutWindow')"
+                                                 href="#">+</a></span>
+                </div>
+            {% else %}
+                {% bootstrap_field field placeholder="" size="small" %}
+            {% endif %}
+        {% endfor %}
+
+        {% buttons %}
+            <button type="submit" class="btn btn-success" onclick="refreshParent()">
+                {% trans "Submit" %}
+            </button>
+            <a class="btn btn-secondary" onclick="window.close()" href="#">
+                {% trans "Close" %}
+            </a>
+        {% endbuttons %}
+    </form>
+{% endblock body %}

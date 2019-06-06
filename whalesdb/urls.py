@@ -1,10 +1,10 @@
 from django.urls import path
 from . import views
 
-app_name = 'whaledb'
+app_name = 'whalesdb'
 
 urlpatterns = [
-    path('index', views.IndexView.as_view(), name="index"),
+    path('', views.IndexView.as_view(), name="index"),
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
 
     path('<str:lookup>/edit', views.CodeEditView.as_view(), name="code_entry"),
