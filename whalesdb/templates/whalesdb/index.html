@@ -1,0 +1,131 @@
+{% extends "whalesdb/whale_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block header %}
+    <style>
+        body {
+            background-image: url("{% static 'img/pebbles_light.png' %}");
+            background-size: cover;
+        }
+
+        .card-title {
+        {#font-weight: bold;#}
+        }
+
+        .card {
+            cursor: pointer;
+        }
+
+        .shrink-me {
+            transform: scale(.8);
+        }
+
+
+    </style>
+
+{% endblock %}
+
+{% block tab_title %}
+    {% trans 'Whale DB Home' %}
+{% endblock tab_title %}
+
+{% block body %}
+
+<div class=" text-center">
+    <h1 class="text-center montserrat" style="font-size: 56px">
+        {% trans 'Whale Equipment Metadata Repository' %}
+    </h1>
+</div>
+<div class="container">
+    <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
+        <div class="text-center roboto">
+            <h2>
+                {% trans "Inventory" %}
+            </h2>
+        </div>
+        <div class="row">
+
+            {% for data_obj in data_inventory %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url data_obj.url %}" >
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        {% trans data_obj.title %}
+                    </h5>
+                    <img src="{% static data_obj.icon %}" class="card-img-top" />
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
+        <div class="text-center roboto">
+            <h2>
+                {% trans "Data Entry Applications" %}
+            </h2>
+        </div>
+        <div class="row">
+
+            {% for data_obj in data_entry %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url data_obj.url %}" >
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        {% trans data_obj.title %}
+                    </h5>
+                    <img src="{% static data_obj.icon %}" class="card-img-top" />
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
+        <div class="text-center roboto">
+            <h2>
+                {% trans "Code Table Entry Applications" %}
+            </h2>
+        </div>
+        <div class="row">
+            {% for code_table in code_list %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url 'whalesdb:code_list' code_table.url %}" >
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        {% trans code_table.title %}
+                    </h5>
+                    <img src="{% static code_table.icon %}" class="card-img-top" />
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block body_js %}
+    <script type="application/javascript">
+    // look through all table row
+    $(".card").each(function () {
+        // if there is an href attr
+        if ($(this)[0].getAttribute("href") != null) {
+            // have the cursor change to a pointer on hover
+            $(this)[0].style.cursor = "pointer"
+            // add a click event listener to navigate to the specified url
+            $(this).click(function () {
+                href = $(this)[0].getAttribute("href")
+
+                document.location.href = href
+
+            });
+        }
+    });
+
+    </script>
+{% endblock body_js %}
