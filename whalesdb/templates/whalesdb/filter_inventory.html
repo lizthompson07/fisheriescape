@@ -1,0 +1,61 @@
+{% extends "whalesdb/whale_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block tab_title %}
+    {% trans "Make and Model" %}
+{% endblock tab_title %}
+
+{% block body %}
+    <div class="indent-lg">
+        <form class="form" action="#" method="get" id="filter-form">
+            <div class="row">
+
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+
+                </div>
+            </div>
+        </form>
+
+        <table class="table table-hover table-sm sortable">
+            <thead>
+            <tr>
+                <th scope="col" style="width: 50%">
+                    {% trans "Make and Model" %}
+                </th>
+                <th scope="col" style="width: 50%">
+                    {% trans "Max Range" %}
+                </th>
+                <th scope="col" style="width: 50%">
+                    {% trans "Min Range" %}
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for obj in filter.qs %}
+                <tr>
+                    <td>{{ obj.emm }}</td>
+                    <td>{{ obj.eqh_range_max }}</td>
+                    <td>{{ obj.eqh_range_min }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <b>
+            TOTAL: {{ object_list.count }}
+        </b>
+    </div>
+
+{% endblock body %}
