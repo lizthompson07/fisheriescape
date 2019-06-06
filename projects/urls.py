@@ -12,6 +12,8 @@ urlpatterns = [
     ############
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
     path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
+    path('my-division/', views.MyDivisionListView.as_view(), name="my_division_list"),
+    path('my-branch/', views.MyBranchListView.as_view(), name="my_branch_list"),
     path('all/', views.ProjectListView.as_view(), name="project_list"),
     path('new/', views.ProjectCreateView.as_view(), name="project_new"),
     path('<int:pk>/view', views.ProjectDetailView.as_view(), name="project_detail"),
@@ -19,7 +21,7 @@ urlpatterns = [
     path('project/<int:pk>/edit', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('project/<int:pk>/delete', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('project/<int:pk>/submit', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
-
+    path('approval/project/<int:pk>/level/<str:level>/', views.ProjectApprovalUpdateView.as_view(), name="project_approval"),
     # STAFF #
     #########
     path('project/<int:project>/staff/new/', views.StaffCreateView.as_view(), name="staff_new"),

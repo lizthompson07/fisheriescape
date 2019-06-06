@@ -81,6 +81,8 @@ class Branch(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches")
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("branch manager"),
+                             related_name="shared_models_branches")
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -106,6 +108,8 @@ class Division(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
     branch = models.ForeignKey(Branch, on_delete=models.DO_NOTHING, verbose_name=_("branch"), related_name="divisions")
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("division manager"),
+                             related_name="shared_models_divisions")
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -240,16 +244,17 @@ class ResponsibilityCenter(models.Model):
         ordering = ['code', ]
 
 # CONNECTED APPS: scifi
-# class CosigneeCode(models.Model):
-#     code = models.CharField(max_length=50, unique=True)
-#     name_eng = models.CharField(max_length=1000)
-#     description_eng = models.TextField(blank=True, null=True)
-#
-#     def __str__(self):
-#         return "{} ({})".format(self.code, self.name_eng)
-#
-#     class Meta:
-#         ordering = ['code', ]
+class CosigneeCode(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    name_eng = models.CharField(max_length=1000)
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING)
+    rc_list = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return "{} - {} ({})".format(self.code, self.name_eng, self.rc_list)
+
+    class Meta:
+        ordering = ['code', ]
 
 
 # CONNECTED APPS: projects, scifi

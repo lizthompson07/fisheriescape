@@ -104,16 +104,7 @@
                         {{ obj.project_title }}
                     </td>
                     <td>
-                        {% for staff in obj.staff_members.all %}
-                            {% if staff.lead %}
-                                {% if staff.user_id %}
-                                    {{ staff.user.first_name }} {{ staff.user.last_name }}
-                                {% else %}
-                                    {{ staff.name }}
-                                {% endif %}
-                                <br>
-                            {% endif %}
-                        {% endfor %}
+                        {{ obj.project_leads }}
                     </td>
                     <td>{{ obj.submitted|yesno:_("yes,no") }}</td>
                 </tr>
