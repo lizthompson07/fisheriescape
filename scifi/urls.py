@@ -7,6 +7,13 @@ urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    # SCIFI USER #
+    ##############
+    path('scifi-users/', views.SciFiUserListView.as_view(), name="user_list"),
+    path('scifi-user/new/', views.SciFiUserCreateView.as_view(), name="user_new"),
+    path('scifi-user/<int:pk>/edit/', views.SciFiUserUpdateView.as_view(), name="user_edit"),
+    path('scifi-user/<int:pk>/delete/', views.SciFiUserDeleteView.as_view(), name="user_delete"),
+
     # ALLOTMENT CODE #
     ##################
     path('allotment-codes/', views.AllotmentCodeListView.as_view(), name="allotment_list"),
