@@ -80,42 +80,62 @@
         </form>
 
     </div>
-{% endblock %}
+{% endblock content%}
+
 {% block body_js %}
 
-    <script type="text/javascript">
-        window.name = "motherWindow";
-        {% if custom_transaction %}
-            var projectObj = {{project_json|safe}};
-        {% endif %}
-        document.addEventListener("keydown", function (zEvent) {
-            if (zEvent.ctrlKey && zEvent.code === "KeyS") {
-                zEvent.preventDefault()
-                $("#submit_done")[0].click();
-            } else if (zEvent.ctrlKey && zEvent.code === "KeyA") {
-                zEvent.preventDefault()
-                $("#submit")[0].click();
-            }
+<script type="text/javascript">
+    window.name = "motherWindow";
+    {% if custom_transaction %}
+        var projectObj = {{project_json|safe}};
+    {% endif %}
+    document.addEventListener("keydown", function (zEvent) {
+        if (zEvent.ctrlKey && zEvent.code === "KeyS") {
+            zEvent.preventDefault()
+            $("#submit_done")[0].click();
+        } else if (zEvent.ctrlKey && zEvent.code === "KeyA") {
+            zEvent.preventDefault()
+            $("#submit")[0].click();
+        }
+    });
+
+    $("input").keydown(function (event) {
+        if (event.key == "Enter") {
+            event.preventDefault()
+        }
+    });
+    $("#id_fiscal_year")[0].focus()
+
+    {% if custom_transaction %}
+        $("#id_project").change(function () {
+            setProjectDefaults();
         });
+    {% endif %}
 
-        $("input").keydown(function (event) {
-            if (event.key == "Enter") {
-                event.preventDefault()
-            }
-        });
-        $("#id_fiscal_year")[0].focus()
+    function uiRefresh() {
+        $('#id_responsibility_center').trigger("chosen:updated");
+        $('#id_business_line').trigger("chosen:updated");
+        $('#id_allotment_code').trigger("chosen:updated");
+        $('#id_line_object').trigger("chosen:updated");
+    }
 
+    function clearDefaults() {
+        $("#id_responsibility_center").val("");
+        $("#id_business_line").val("");
+        $("#id_allotment_code").val("");
+        $("#id_line_object").val("");
+    }
 
-        {% if custom_transaction %}
-            $("#id_project").change(function () {
-                setProjectDefaults();
-            });
-        {% endif %}
+    // special func for project; once populated, enter the default coding for rc, bl, ac and lo
+    function setProjectDefaults() {
+        //start by clearing the existing values so we don't get
+        //previously accidentally selected values
+        clearDefaults();
 
-        // special func for project; once populated, enter the default coding for rc, bl, ac and lo
-        function setProjectDefaults() {
-            projectId = $("#id_project").val();
+        projectId = $("#id_project").val();
 
+        //if the project input is set to '------' don't update the input dialogs
+        if(projectId!="") {
             // RC
             if (projectObj[projectId]["rc"] != "") {
                 $("#id_responsibility_center").val(projectObj[projectId]["rc"]);
@@ -132,10 +152,9 @@
             if (projectObj[projectId]["lo"] != null) {
                 $("#id_line_object").val(projectObj[projectId]["lo"]);
             }
-            $('select').trigger("chosen:updated");
-        };
+        }
 
-
-    </script>
-{% endblock %}
-
+        $('select').trigger("chosen:updated");
+    };
+</script>
+{% endblock body_js %}
