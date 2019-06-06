@@ -68,19 +68,63 @@
         </form>
 
     </div>
+{% endblock content %}
 
-    <script type="text/javascript">
-        window.name = "motherWindow";
+{% block body_js %}
+<script type="text/javascript">
+    window.name = "motherWindow";
 
-        $("input").keydown(function (event) {
-            if (event.key == "Enter") {
-                event.preventDefault()
-            }
-        });
-            $("#id_fiscal_year")[0].focus()
+    var projectObj = {{project_json|safe}};
 
+    $("input").keydown(function (event) {
+        if (event.key == "Enter") {
+            event.preventDefault()
+        }
+    });
 
+    $("#id_fiscal_year_chosen .chosen-search-input").focus()
 
-    </script>
-{% endblock %}
+    $("#id_project").change(function(e) {
+        updateDefaults()
 
+        // Where to?
+        if ($("#id_responsibility_center").val() == "") {
+            $("#id_responsibility_center_chosen .chosen-search-input").focus();
+        } else if ($("#id_business_line").val() == "") {
+            $("#id_business_line_chosen .chosen-search-input").focus();
+        } else if ($("#id_allotment_code").val() == "") {
+            $("#id_allotment_code_chosen .chosen-search-input").focus();
+        } else if ($("#id_line_object").val() == "") {
+            $("#id_line_object_chosen .chosen-search-input").focus();
+        } else {
+            $("#id_supplier_description").focus();
+        }
+    });
+
+    function updateDefaults() {
+        projectId = $("#id_project").val()
+
+        // RC
+        if (projectObj[projectId]["rc"] != null && projectObj[projectId]["rc"] != "") {
+            $("#id_responsibility_center").val(projectObj[projectId]["rc"]);
+            $('#id_responsibility_center').trigger("chosen:updated");
+        }
+        // BL
+        if (projectObj[projectId]["bl"] != null && projectObj[projectId]["bl"] != null) {
+            $("#id_business_line").val(projectObj[projectId]["bl"]);
+            $('#id_business_line').trigger("chosen:updated");
+        }
+        // AC
+        if (projectObj[projectId]["ac"] != null && projectObj[projectId]["ac"] != null) {
+            $("#id_allotment_code").val(projectObj[projectId]["ac"]);
+            $('#id_allotment_code').trigger("chosen:updated");
+        }
+        // LO
+        if (projectObj[projectId]["lo"] != null && projectObj[projectId]["lo"] != null) {
+            $("#id_line_object").val(projectObj[projectId]["lo"]);
+            $('#id_line_object').trigger("chosen:updated");
+        }
+    }
+
+</script>
+{% endblock body_js %}
