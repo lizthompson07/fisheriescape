@@ -432,12 +432,12 @@ class ProjectCreateView(SpotAccessRequiredMixin, CreateView):
     def form_valid(self, form):
         my_project = form.save()
 
-        # add a project year
-        my_start_year = models.ProjectYear.objects.create(
-            project=my_project,
-            fiscal_year=my_project.start_year,
-        )
-        my_start_year.save()
+        # # add a project year
+        # my_start_year = models.ProjectYear.objects.create(
+        #     project=my_project,
+        #     fiscal_year=my_project.start_year,
+        # )
+        # my_start_year.save()
         return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": my_project.id}))
 
 
@@ -717,6 +717,35 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
+
+        # if we are at the review step
+        if self.kwargs["step"] == "review":
+            # if there is recommended funding
+            if my_object.recommended_funding_y1:
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year=my_object.start_year)
+                if created:
+                    my_year.annual_funding = my_object.recommended_funding_y1
+                    my_year.save()
+            if my_object.recommended_funding_y2:
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+1)
+                if created:
+                    my_year.annual_funding = my_object.recommended_funding_y2
+                    my_year.save()
+            if my_object.recommended_funding_y3:
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+2)
+                if created:
+                    my_year.annual_funding = my_object.recommended_funding_y3
+                    my_year.save()
+            if my_object.recommended_funding_y4:
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+3)
+                if created:
+                    my_year.annual_funding = my_object.recommended_funding_y4
+                    my_year.save()
+            if my_object.recommended_funding_y5:
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+4)
+                if created:
+                    my_year.annual_funding = my_object.recommended_funding_y5
+                    my_year.save()
         return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
 
