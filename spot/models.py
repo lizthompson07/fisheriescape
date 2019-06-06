@@ -352,7 +352,7 @@ class ContributionAgreementChecklist(models.Model):
 
 class ExpressionOfInterest(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name="eoi")
-    date_received = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date received"))
+    date_received = models.DateTimeField(blank=True, null=True, verbose_name=_("date received"))
     title = models.TextField(blank=True, null=True, verbose_name=_("title"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     coordinator_notified = models.DateTimeField(blank=True, null=True, verbose_name=_("coordinator was notified"))
@@ -370,7 +370,7 @@ class ExpressionOfInterest(models.Model):
 
 
 class ProjectYear(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="years", verbose_name=_("project language"))
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="years", verbose_name=_("project language"))
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, related_name="gc_project_years")
     expenditure_initiation_date = models.DateTimeField(blank=True, null=True, default=datetime.datetime(timezone.now().year, 4, 1))
     paye_number = models.CharField(max_length=50, blank=True, null=True)
@@ -652,7 +652,7 @@ class Photo(models.Model):
 
 
 class Payment(models.Model):
-    project_year = models.ForeignKey(ProjectYear, related_name="payments", on_delete=models.DO_NOTHING)
+    project_year = models.ForeignKey(ProjectYear, related_name="payments", on_delete=models.CASCADE)
     claim_number = models.IntegerField()
     advance_amount = models.FloatField(default=0)
     reimbursement_amount = models.FloatField(default=0)
@@ -692,8 +692,8 @@ def determine_project_status(project):
         if project.date_completed:
         # means project is over
             return 13
-        elif project.total_project_funding > 0:
-        # means funding has been assigned. Status should be changed to 'active'
+        elif project.final_ca_nhq_signed:
+        # means there is a signed agreement inplace. Status should be changed to 'active'
             return 10
         elif nz(project.recommended_overprogramming, 0) > 0:
         # means project is on OP
