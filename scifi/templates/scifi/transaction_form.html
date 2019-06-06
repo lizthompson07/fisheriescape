@@ -85,45 +85,54 @@
     $("#id_fiscal_year_chosen .chosen-search-input").focus()
 
     $("#id_project").change(function(e) {
-        updateDefaults()
-
-        // Where to?
-        if ($("#id_responsibility_center").val() == "") {
-            $("#id_responsibility_center_chosen .chosen-search-input").focus();
-        } else if ($("#id_business_line").val() == "") {
-            $("#id_business_line_chosen .chosen-search-input").focus();
-        } else if ($("#id_allotment_code").val() == "") {
-            $("#id_allotment_code_chosen .chosen-search-input").focus();
-        } else if ($("#id_line_object").val() == "") {
-            $("#id_line_object_chosen .chosen-search-input").focus();
-        } else {
-            $("#id_supplier_description").focus();
-        }
+        //update the field objects
+        updateDefaults();
     });
 
-    function updateDefaults() {
-        projectId = $("#id_project").val()
+    function uiRefresh() {
+        $('#id_responsibility_center').trigger("chosen:updated");
+        $('#id_business_line').trigger("chosen:updated");
+        $('#id_allotment_code').trigger("chosen:updated");
+        $('#id_line_object').trigger("chosen:updated");
+    }
 
-        // RC
-        if (projectObj[projectId]["rc"] != null && projectObj[projectId]["rc"] != "") {
-            $("#id_responsibility_center").val(projectObj[projectId]["rc"]);
-            $('#id_responsibility_center').trigger("chosen:updated");
+    function clearDefaults() {
+        $("#id_responsibility_center").val("");
+        $("#id_business_line").val("");
+        $("#id_allotment_code").val("");
+        $("#id_line_object").val("");
+    }
+
+    function updateDefaults() {
+        //start by clearing the existing values so we don't get
+        //previously accidentally selected values
+        clearDefaults();
+
+        projectId = $("#id_project").val();
+
+        //if the project input is set to '------' don't update the input dialogs
+        if(projectId!="") {
+            // RC
+            if (projectObj[projectId]["rc"] != "") {
+                $("#id_responsibility_center").val(projectObj[projectId]["rc"]);
+            }
+
+            // BL
+            if (projectObj[projectId]["bl"] != "") {
+                $("#id_business_line").val(projectObj[projectId]["bl"]);
+            }
+            // AC
+            if (projectObj[projectId]["ac"] != "") {
+                $("#id_allotment_code").val(projectObj[projectId]["ac"]);
+            }
+            // LO
+            if (projectObj[projectId]["lo"] != "") {
+                $("#id_line_object").val(projectObj[projectId]["lo"]);
+            }
         }
-        // BL
-        if (projectObj[projectId]["bl"] != null && projectObj[projectId]["bl"] != null) {
-            $("#id_business_line").val(projectObj[projectId]["bl"]);
-            $('#id_business_line').trigger("chosen:updated");
-        }
-        // AC
-        if (projectObj[projectId]["ac"] != null && projectObj[projectId]["ac"] != null) {
-            $("#id_allotment_code").val(projectObj[projectId]["ac"]);
-            $('#id_allotment_code').trigger("chosen:updated");
-        }
-        // LO
-        if (projectObj[projectId]["lo"] != null && projectObj[projectId]["lo"] != null) {
-            $("#id_line_object").val(projectObj[projectId]["lo"]);
-            $('#id_line_object').trigger("chosen:updated");
-        }
+
+        //refresh the ui to reflect the new/cleared selection
+        uiRefresh();
     }
 
 </script>
