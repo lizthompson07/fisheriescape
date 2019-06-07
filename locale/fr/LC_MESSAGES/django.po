@@ -234,25 +234,25 @@ msgstr "Subventions et contributions:"
 msgid "Gulf Region application for the tracking of Gs & Cs."
 msgstr ""
 
-#: .\dm_tickets\forms.py:30 .\dm_tickets\forms.py:88
+#: .\tickets\forms.py:30 .\tickets\forms.py:88
 msgid "Application name (if applicable)"
 msgstr "Nom de l'application (le cas échéant)"
 
-#: .\dm_tickets\forms.py:31 .\dm_tickets\forms.py:91
+#: .\tickets\forms.py:31 .\tickets\forms.py:91
 msgid "Assign ticket to"
 msgstr ""
 
-#: .\dm_tickets\forms.py:89
+#: .\tickets\forms.py:89
 #: .\projects\templates\projects\_capital_costs.html:38
 #: .\projects\templates\projects\_om_costs.html:53
 msgid "Description"
 msgstr "Description"
 
-#: .\dm_tickets\forms.py:90
+#: .\tickets\forms.py:90
 msgid "Subject"
 msgstr "Sujet"
 
-#: .\dm_tickets\models.py:45 .\ihub\models.py:15 .\ihub\models.py:32
+#: .\tickets\models.py:45 .\ihub\models.py:15 .\ihub\models.py:32
 #: .\ihub\models.py:49 .\masterlist\models.py:10 .\masterlist\models.py:190
 #: .\shared_models\models.py:29 .\shared_models\models.py:56
 #: .\shared_models\models.py:80 .\shared_models\models.py:105
@@ -264,14 +264,14 @@ msgstr "Sujet"
 msgid "name (English)"
 msgstr "nom (anglais)"
 
-#: .\dm_tickets\models.py:46 .\ihub\models.py:16 .\ihub\models.py:33
+#: .\tickets\models.py:46 .\ihub\models.py:16 .\ihub\models.py:33
 #: .\ihub\models.py:50 .\masterlist\models.py:11 .\masterlist\models.py:27
 #: .\masterlist\models.py:191 .\shared_models\models.py:57
 #: .\shared_models\models.py:81 .\spot\models.py:233
 msgid "Name (French)"
 msgstr "nom (français)"
 
-#: .\dm_tickets\models.py:51 .\dm_tickets\models.py:52 .\ihub\models.py:21
+#: .\tickets\models.py:51 .\tickets\models.py:52 .\ihub\models.py:21
 #: .\ihub\models.py:22 .\ihub\models.py:38 .\ihub\models.py:39
 #: .\ihub\models.py:54 .\ihub\models.py:55 .\ihub\models.py:123
 #: .\masterlist\models.py:15 .\masterlist\models.py:16
@@ -302,11 +302,11 @@ msgstr "nom (français)"
 msgid "name"
 msgstr "nom"
 
-#: .\dm_tickets\models.py:86
+#: .\tickets\models.py:86
 msgid "application name"
 msgstr "nom de l'application"
 
-#: .\dm_tickets\models.py:89
+#: .\tickets\models.py:89
 msgid "ticket assigned to"
 msgstr ""
 
