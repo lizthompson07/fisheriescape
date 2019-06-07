@@ -61,7 +61,7 @@
                     {% if not object.github_issue_number %}
                         <a href="{% url "tickets:git_create"  object.id %}" class="btn btn-sm btn-outline-primary">Create as Issue in GitHub</a>
                     {% else %}
-                        <a href="https://github.com/dfo-mar-odis/dfo_sci_dm_site/issues/{{ object.github_issue_number }}" target="_blank"
+                        <a href="https://github.com/dfo-mar-odis/dm_apps/issues/{{ object.github_issue_number }}" target="_blank"
                            class="btn btn-sm btn-outline-primary">
                             View on GitHub
                         </a>
