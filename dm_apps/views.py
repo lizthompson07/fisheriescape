@@ -56,7 +56,7 @@ def get_app_dict(request):
                 "status": "production",
                 "access": "open",
                 "url": reverse('tickets:router'),
-                "icon_path": 'img/icons/tickets.svg',
+                "icon_path": 'img/icons/flowchart.svg',
                 "region": "all",
             }
         except NoReverseMatch:
@@ -108,7 +108,7 @@ def get_app_dict(request):
             "status": "production",
             "access": "login-required",
             "url": reverse('camp:index'),
-            "icon_path": 'img/icons/coral.svg',
+            "icon_path": 'img/icons/seine.svg',
             "region": "gulf",
         }
     except NoReverseMatch:
@@ -134,8 +134,8 @@ def get_app_dict(request):
             "status": "beta",
             "access": "permission-required",
             "url": reverse('scifi:index'),
-            "icon_path": 'img/icons/stats.svg',
-            "region": "gulf",
+            "icon_path": 'img/icons/money.svg',
+            "region": "all",
         }
     except NoReverseMatch:
         pass
