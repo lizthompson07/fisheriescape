@@ -134,7 +134,7 @@ def get_app_dict(request):
             "status": "beta",
             "access": "permission-required",
             "url": reverse('scifi:index'),
-            "icon_path": 'img/icons/money.svg',
+            "icon_path": 'img/icons/money1.svg',
             "region": "all",
         }
     except NoReverseMatch:
