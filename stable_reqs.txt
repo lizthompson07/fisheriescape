@@ -2,17 +2,18 @@ bokeh==1.0.4
 certifi==2019.3.9
 chardet==3.0.4
 Deprecated==1.2.5
-Django==2.1.4
+Django==2.2.2
 django-bootstrap4==0.0.7
 django-easy-pdf==0.1.1
 django-el-pagination==3.2.4
 django-filter==2.1.0
+html2text==2018.1.9
 html5lib==1.0.1
 idna==2.8
 Jinja2==2.10
 Markdown==3.0.1
 MarkupSafe==1.1.0
-mysqlclient==1.3.12
+mysqlclient==1.4.2
 numpy==1.16.1
 packaging==19.0
 pandas==0.24.1
@@ -28,6 +29,7 @@ reportlab==3.5.13
 requests==2.21.0
 selenium==3.141.0
 six==1.12.0
+sqlparse==0.3.0
 textile==3.0.3
 tornado==5.1.1
 unicodecsv==0.14.1
@@ -36,4 +38,3 @@ webencodings==0.5.1
 wrapt==1.11.1
 xhtml2pdf==0.2.3
 XlsxWriter==1.1.4
-html2text==2018.1.9
