@@ -40,22 +40,44 @@ process_lookup(data_linkage_file_name, models.EcosystemComponents)
 data_ecosystem_file_name = r'E:\Projects\Python\publications-inventory\Ecosystem.csv'
 process_lookup(data_ecosystem_file_name, models.ProgramLinkage)
 
-data_tp_file_name = r'E:\Projects\Python\publications-inventory\pub_data.csv'
+data_tp_file_name = r'E:\Projects\Python\publications-inventory\pub_data2.csv'
 
 tp_reader = csv.reader(open(data_tp_file_name, encoding='utf-8'), delimiter=',')
 
 # skip the header line
 next(tp_reader, None)
 
-# 0 Projects
-# 1 Description
-# 2 Pub year
-# 3 Themes
-# 4 Human Component
-# 5 Linkage to Program
-# 6 Ecosystem Component
-# 7 Sites
-# 8 Publications
+# 0 Projects_id - not used
+# *1 Themes
+# *2 Project title
+# *3 Human Component
+# *4 Ecosystem Component
+# 5 Spatial Management
+# 6 Pillar of sustainability
+# *7 Linkage to Program
+# *8 Description
+# 9 Source data (external)
+# 10 Source data year (external)
+# 11 Source data (internal)
+# 12 Source data year (internal)
+# 13 Spatial data product
+# 14 Spatial data product year
+# 15 Computer environment
+# 16 Software Libraries
+# 17 Method of approach
+# 18 FGP Link
+# 19 code or data site
+# 20 contact (keep as free text)
+# 21 DFO Contact (create code list)
+# 22 Geographic scope
+# 23 Geographic coordinates
+# 24 Spatial Scale
+# *25 Pub year
+# 26 Organization
+# 27 DFO Region
+# 28 DFO Division
+# 29 Sites
+# 30 Publications
 for line in tp_reader:
 
     project_title = line[0].replace("\"", "")

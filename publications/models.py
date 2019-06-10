@@ -79,7 +79,7 @@ class Project(models.Model):
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
                                               verbose_name=_("Date last modified"))
 
-    abstract = models.TextField(verbose_name=_("Abstract"), blank=True, null=True)
+    abstract = models.TextField(verbose_name=_("Description"), blank=True, null=True)
 
     # Todo: Last modified by isn't currently set in the new or update forms
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
