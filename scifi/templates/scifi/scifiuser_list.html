@@ -1,0 +1,60 @@
+{% extends "scifi/scifi_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">SciFi Users</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1 class="big-header">SciFi Users </h1>
+    <p>Use this module to create users in SciFi. By attaching a user to an RC, they will have the permissions to modify transactions under that code.</p>
+        <br>
+
+        <div class="row">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'scifi:user_new' %}" class="btn btn-sm btn-primary">New</a>
+            </div>
+        </div>
+        <table class="table table-sm table-hover table-bordered sortable">
+            <thead>
+            <th scope="col">User name</th>
+            <th scope="col">Which responsibility centres they can modify</th>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr id="trans{{ object.id }}" data-toggle="tooltip" title="Click to edit"
+                    href="{% url 'scifi:user_edit' object.id %}">
+
+                    <td>{{ object.user }}</td>
+                    <td>
+                        {% for rc in object.responsibility_centers.all %}
+                            {{ rc.code }},
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        <a class="delete-me" href="{% url 'scifi:user_delete' object.id %}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete">
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+
+{% endblock content %}
