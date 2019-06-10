@@ -7,7 +7,7 @@
 {% bootstrap_css %}
 
 <h1>{{ object }} ({{ object.id }})
-{#    ({{ object.id }})#}
+    {#    ({{ object.id }})#}
     {% if not object_list %}
         -
         {% if object.submitted %}
@@ -23,9 +23,19 @@
 
 <hr>
 <br>
-{% for field in field_list %}
-    {% verbose_field_display object field %}
-{% endfor %}
+<table class="table table-sm table-striped" style="width: auto">
+    {# cheating here to adjust header width #}
+    <th class="gone" style="width: 250px; padding: 0px; margin: 0px;"></th>
+    {% for field in field_list %}
+        {% verbose_td_display object field %}
+    {% endfor %}
+    {% verbose_td_display object "section_head_approved" %}
+    {% verbose_td_display object "section_head_feedback" %}
+    {% verbose_td_display object "manager_approved" %}
+    {% verbose_td_display object "manager_feedback" %}
+    {% verbose_td_display object "rds_approved" %}
+    {% verbose_td_display object "rds_feedback" %}
+</table>
 <hr>
 
 {% include "projects/_staff.html" %}

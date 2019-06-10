@@ -17,7 +17,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "My Section" %}
+                {% trans "My" %} {{ type|title }}
             </li>
         </ol>
     </nav>
@@ -27,24 +27,25 @@
         {% if has_section %}
 
             <h1>
-                {% blocktrans with name=user.first_name plur=filter.qs|pluralize %}
-                    Projects Listed under {{ name }}'s Section{{ plur }}:
-                {% endblocktrans %}
+                {% trans "Projects In Your" %} {{ type|title }}
             </h1>
 
             <br>
+            {% if type == 'section' %}
+                <h3>
+                    {% for field in fy_form %}
+                        {% blocktrans with form=field %}
+                            You can download a spreadsheet with all
+                            {{ form }}
+                            projects <a href="#" id="make_spreadsheet">here</a>
+                        {% endblocktrans %}
+                    {% endfor %}
 
-            <h3>
-                {% for field in fy_form %}
-                    {% blocktrans with form=field %}
-                        You can download a spreadsheet with all
-                        {{ form }}
-                        projects <a href="#" id="make_spreadsheet">here</a>
-                    {% endblocktrans %}
-                {% endfor %}
+                </h3>
+                <br>
+            {% endif %}
 
-            </h3>
-            <br><br>
+            <br>
 
             <form class="form" action="." method="get" id="filter-form">
                 <div class="row">
@@ -84,23 +85,38 @@
                 <th scope="col" style="width: 120px;">
                     {% trans "Fiscal Year" %}
                 </th>
-                <th scope="col">
+                <th scope="col" style="width: 10%">
                     {% trans "Division" %}
                 </th>
-                <th scope="col">
+                <th scope="col" style="width: 10%">
                     {% trans "Section" %}
                 </th>
                 <th scope="col" style="width: 30%">
                     {% trans "Title" %}
                 </th>
-                <th scope="col">
+                <th scope="col" style="width: 10%">
                     {% trans "Project Lead" %}
                 </th>
-                <th scope="col" style="text-align:center">
+                <th scope="col" style="text-align:center; width: 8%">
                     {% trans "Submitted" %}
                 </th>
-                <th scope="col" style="text-align:center">
-                    {% trans "Section Head Approved" %}
+                {% if type == "division" %}
+                    <th scope="col" style="text-align:center; width: 8%">
+                        {% trans "Section Head Approved" %}
+                    </th>
+                {% elif type == "branch" %}
+                    <th scope="col" style="text-align:center; width: 8%">
+                        {% trans "Division Manager Approved" %}
+                    </th>
+                {% endif %}
+
+                <th scope="col" style="text-align:center; width: 8%">
+                    {% trans "Approved by you" %}
+                </th>
+                <th scope="col" style="width: 20%">
+                    {% trans "Your Feedback" %}
+                </th>
+
                 </th>
                 </thead>
                 <tbody>
@@ -132,20 +148,50 @@
                             {% endfor %}
                         </td>
 
-                        <td class="{% if obj.submitted %}good{% else %}bad{% endif %}" style="text-align:center">
+                        <td class="{% if obj.submitted %}green-font{% else %}red-font{% endif %}" style="text-align:center">
                             {{ obj.submitted|yesno:_("yes,no") }}
                         </td>
-                        <td class="{% if obj.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
-                            {{ obj.section_head_approved|yesno:_("yes,no") }}<br>
-                            <a href="#" style="font-size: small" class="approve"
-                               my_url="{% url 'projects:toggle_project_approval' obj.id %}">
-                                {% if not obj.section_head_approved %}
-                                    (click to approve)
-                                {% else %}
-                                    (click to un-approve)
-                                {% endif %}
-                            </a>
-                        </td>
+
+
+
+                        {% if type == "section" %}
+                            <td class="{% if obj.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.section_head_approved|yesno:_("yes,no") }}
+                                <br>
+                                <a href="#" style="font-size: small" class="approve"
+                                   my_url="{% url 'projects:project_approval' obj.id type %}">
+                                    (click to open form)
+                                </a>
+                            </td>
+                            <td>{{ obj.section_head_feedback|nz:"n/a" }}</td>
+                        {% elif type == "division" %}
+                            <td class="{% if obj.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.section_head_approved|yesno:_("yes,no") }}
+                            </td>
+
+                            <td class="{% if obj.manager_approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.manager_approved|yesno:_("yes,no") }}
+                                <br>
+                                <a href="#" style="font-size: small" class="approve"
+                                   my_url="{% url 'projects:project_approval' obj.id type %}">
+                                    (click to open form)
+                                </a>
+                            </td>
+                            <td>{{ obj.manager_feedback|nz:"n/a" }}</td>
+                        {% elif type == "branch" %}
+                            <td class="{% if obj.manager_approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.manager_approved|yesno:_("yes,no") }}
+                            </td>
+                            <td class="{% if obj.rds_approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.rds_approved|yesno:_("yes,no") }}
+                                <br>
+                                <a href="#" style="font-size: small" class="approve"
+                                   my_url="{% url 'projects:project_approval' obj.id type %}">
+                                    (click to open form)
+                                </a>
+                            </td>
+                            <td>{{ obj.rds_feedback|nz:"n/a" }}</td>
+                        {% endif %}
 
                     </tr>
                 {% endfor %}
@@ -155,10 +201,11 @@
 
         {% else %}
             <p>
-                {% blocktrans %}
-                    There are no sections assigned to you, or there are no projects listed under your section. If this doesn't sound right,
-                    please contact <a
-                        href="mailto:david.fishman@dfo-mpo.gc.ca">david.fishman@dfo-mpo.gc.ca</a>
+                {% url 'tickets:bug_create' 'projects' as my_url %}
+                {% blocktrans with my_type=type my_url=my_url %}
+                    You have not been assigned to a {{ type }} or there are no projects listed under your {{ type }}. If this doesn't sound
+                    right, please contact a <a
+                        pop-href="{{ my_url }}" href="#">site administrator</a>.
                 {% endblocktrans %}
             </p>
 
@@ -168,12 +215,13 @@
         $(".approve").click(function (e) {
             e.stopImmediatePropagation()
             var myURL = $(this)[0].getAttribute("my_url");
-            window.location.href = myURL
+            popitup(myURL)
+            {#window.location.href = myURL#}
 
         });
         $("#make_spreadsheet").click(function () {
 
-          window.document.location.href = $("#id_fiscal_year").val()
+            window.document.location.href = $("#id_fiscal_year").val()
         })
     </script>
 

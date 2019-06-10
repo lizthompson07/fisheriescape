@@ -2,10 +2,13 @@ import json
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.db.models import TextField, Sum
 from django.db.models.functions import Concat
+from django.utils import timezone
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
@@ -28,26 +31,56 @@ class CloserTemplateView(TemplateView):
     template_name = 'scifi/close_me.html'
 
 
-def in_scifi_group(user):
-    if user:
-        return user.groups.filter(name='scifi_access').count() != 0
-
-
 def in_scifi_admin_group(user):
     if user:
         return user.groups.filter(name='scifi_admin').count() != 0
 
 
-class SciFiAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+def can_modify(user, transaction):
+    # a user should be able to modify the record if: 1) they created it; 2) they are a scifi user with that RC attached
+    if user:
+        return user.groups.filter(name='scifi_access').count() != 0
+
+
+def can_modify(user, transaction_id):
+    """returns True if user is allowed to edit a transaction. This would be the case if
+    1) the transaction was created by the user
+    2) they are a scifi user who is allowed to interact with the transaction's RC
+     """
+
+    if user.id:
+        # get the instance of the transaction
+        my_trans = models.Transaction.objects.get(pk=transaction_id)
+
+        # check to see if user created the transaction
+        if my_trans.created_by == user:
+            return True
+        else:
+            # if the user has no associated scifi user in the app, automatic fail
+            try:
+                scifi_user = models.SciFiUser.objects.get(user=user)
+            except ObjectDoesNotExist:
+                return False
+            else:
+                # check to see if the transaction RC is listed in the scifi user rc list
+                return my_trans.responsibility_center in [rc for rc in scifi_user.responsibility_centers.all()]
+
+
+class SciFiAccessRequiredMixin(LoginRequiredMixin):
+    # everyone who is logged in should be able to access scifi
+    login_url = '/accounts/login_required/'
+
+
+class OnlyThoseAllowedToEditMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return in_scifi_group(self.request.user)
+        return can_modify(self.request.user, self.kwargs["pk"])
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/scifi/')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -77,6 +110,48 @@ class IndexTemplateView(SciFiAccessRequiredMixin, TemplateView):
         return context
 
 
+# SCIFI USERS #
+###############
+
+class SciFiUserListView(SciFiAccessRequiredMixin, ListView):
+    model = models.SciFiUser
+    template_name = 'scifi/scifiuser_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'user',
+            'responsibility_centers',
+        ]
+        context["my_object"] = self.model.objects.first()
+        return context
+
+
+class SciFiUserUpdateView(SciFiAdminRequiredMixin, UpdateView):
+    model = models.SciFiUser
+    form_class = forms.SciFiUserForm
+    success_url = reverse_lazy('scifi:user_list')
+    template_name = 'scifi/scifiuser_form.html'
+
+
+class SciFiUserCreateView(SciFiAdminRequiredMixin, CreateView):
+    model = models.SciFiUser
+    form_class = forms.SciFiUserForm
+    success_url = reverse_lazy('scifi:user_list')
+    template_name = 'scifi/scifiuser_form.html'
+
+
+class SciFiUserDeleteView(SciFiAdminRequiredMixin, DeleteView):
+    model = models.SciFiUser
+    success_url = reverse_lazy('scifi:user_list')
+    success_message = 'The scifi user was successfully deleted!'
+    template_name = 'scifi/scifiuser_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
 # ALLOTMENT CODE #
 ##################
 
@@ -95,13 +170,13 @@ class AllotmentCodeUpdateView(SciFiAdminRequiredMixin, UpdateView):
 class AllotmentCodeCreateView(SciFiAdminRequiredMixin, CreateView):
     model = shared_models.AllotmentCode
     form_class = forms.AllotmentCodeForm
-    success_url = reverse_lazy('scifi:digestion_list')
+    success_url = reverse_lazy('scifi:allotment_list')
     template_name = 'scifi/allotmentcode_form.html'
 
 
 class AllotmentCodeDeleteView(SciFiAdminRequiredMixin, DeleteView):
     model = shared_models.AllotmentCode
-    success_url = reverse_lazy('scifi:digestion_list')
+    success_url = reverse_lazy('scifi:allotment_list')
     success_message = 'The allotment code was successfully deleted!'
     template_name = 'scifi/allotmentcode_confirm_delete.html'
 
@@ -338,7 +413,7 @@ class ProjectDetailView(SciFiAccessRequiredMixin, DetailView):
 # TRANSACTION #
 ###############
 
-class TransactionListView(SciFiAdminRequiredMixin, FilterView):
+class TransactionListView(SciFiAccessRequiredMixin, FilterView):
     template_name = 'scifi/transaction_list.html'
     filterset_class = filters.TransactionFilter
     model = models.Transaction
@@ -381,7 +456,7 @@ class TransactionListView(SciFiAdminRequiredMixin, FilterView):
         return kwargs
 
 
-class TransactionBasicListView(SciFiAdminRequiredMixin, FilterView):
+class TransactionBasicListView(SciFiAccessRequiredMixin, FilterView):
     template_name = 'scifi/transaction_basic_list.html'
     filterset_class = filters.TransactionFilter
     model = models.Transaction
@@ -422,7 +497,8 @@ class TransactionBasicListView(SciFiAdminRequiredMixin, FilterView):
             }
         return kwargs
 
-
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_scifi_admin_group, login_url='/accounts/denied/')
 def toggle_mrs(request, pk, query=None):
     # get instance of transaction
     my_t = models.Transaction.objects.get(pk=pk)
@@ -436,7 +512,7 @@ def toggle_mrs(request, pk, query=None):
     return HttpResponseRedirect(reverse("scifi:trans_list") + "?{}#trans{}".format(query, pk))
 
 
-class TransactionDetailView(SciFiAdminRequiredMixin, DetailView):
+class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
     model = models.Transaction
 
     def get_context_data(self, **kwargs):
@@ -466,7 +542,7 @@ class TransactionDetailView(SciFiAdminRequiredMixin, DetailView):
         return context
 
 
-class TransactionUpdateView(SciFiAdminRequiredMixin, UpdateView):
+class TransactionUpdateView(OnlyThoseAllowedToEditMixin, UpdateView):
     model = models.Transaction
     form_class = forms.TransactionForm
 
@@ -543,7 +619,7 @@ class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
             return HttpResponseRedirect(reverse_lazy('scifi:trans_list'))
 
 
-class TransactionDeleteView(SciFiAdminRequiredMixin, DeleteView):
+class TransactionDeleteView(OnlyThoseAllowedToEditMixin, DeleteView):
     model = models.Transaction
     success_url = reverse_lazy('scifi:trans_list')
     success_message = 'The transaction was successfully deleted!'
@@ -616,17 +692,14 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewEntryEmail(self.object)
         # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.PRODUCTION_SERVER and email.to_list:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
+            messages.success(self.request,
+                         "The entry has been submitted and an email has been sent to the branch finance manager!")
         else:
             print('not sending email since in dev mode')
-            print(email.from_email)
-            print(email.to_list)
-            print(email.subject)
-            print(email.message)
-        messages.success(self.request,
-                         "The entry has been submitted and an email has been sent to the branch finance manager!")
+            print(email)
 
         if form.cleaned_data["do_another"] == 1:
             return HttpResponseRedirect(reverse_lazy('scifi:ctrans_new'))
@@ -662,6 +735,7 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
+
         fiscal_year = int(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
         try:
@@ -674,7 +748,12 @@ class ReportSearchFormView(SciFiAccessRequiredMixin, FormView):
             project = None
 
         if report == 1:
-            return HttpResponseRedirect(reverse("scifi:report_branch", kwargs={'fiscal_year': fiscal_year}))
+            return HttpResponseRedirect(reverse("scifi:report_master", kwargs={
+                'fy': fiscal_year,
+                'rc': str(rc),
+                'project': str(project),
+            }))
+
         elif report == 2:
             return HttpResponseRedirect(reverse("scifi:report_rc", kwargs={'fiscal_year': fiscal_year, "rc": rc}))
         elif report == 3:
@@ -998,14 +1077,13 @@ class ProjectSummaryListView(SciFiAccessRequiredMixin, ListView):
         return context
 
 
-def master_spreadsheet(request, fiscal_year, user=None):
-    # my_site = models.Site.objects.get(pk=site)
-    file_url = reports.generate_master_spreadsheet(fiscal_year, user)
+def master_spreadsheet(request, fy, rc, project):
+    file_url = reports.generate_master_spreadsheet(fy, rc, project)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="Science project planning MASTER LIST {}.xlsx"'.format(
-                fiscal_year)
+            response['Content-Disposition'] = 'inline; filename="transactions export ({}).xlsx"'.format(
+                timezone.now().strftime("%y-%m-%d"))
             return response
     raise Http404
