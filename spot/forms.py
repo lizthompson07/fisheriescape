@@ -278,7 +278,7 @@ class EOIForm(forms.ModelForm):
 
             'feedback': forms.Textarea(attrs={"rows": 5}),
             'coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
-            'date_received': forms.DateInput(attrs=attr_fp_date_time),
+            'date_received': forms.DateInput(attrs={"type":"date"}),
             'feedback_sent': forms.DateInput(attrs=attr_fp_date),
         }
 
