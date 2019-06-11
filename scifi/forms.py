@@ -5,13 +5,16 @@ from shared_models import models as shared_models
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
+multi_select_js = {"class": "multi-select"}
 
 
 class ResponsibilityCentreForm(forms.ModelForm):
     class Meta:
         model = shared_models.ResponsibilityCenter
         fields = "__all__"
-
+        widgets = {
+            "manager": forms.Select(attrs=chosen_js),
+        }
     def __init__(self, *args, **kwargs):
         USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         User.objects.all().order_by("last_name", "first_name")]
@@ -39,11 +42,26 @@ class AllotmentCodeForm(forms.ModelForm):
         fields = "__all__"
 
 
+class SciFiUserForm(forms.ModelForm):
+    class Meta:
+        model = models.SciFiUser
+        fields = "__all__"
+        widgets = {
+            "user": forms.Select(attrs=chosen_js),
+            "responsibility_centers": forms.SelectMultiple(attrs=multi_select_js),
+        }
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = shared_models.Project
         fields = "__all__"
-
+        widgets = {
+            "default_responsibility_center": forms.Select(attrs=chosen_js),
+            "default_allotment_code": forms.Select(attrs=chosen_js),
+            "default_business_line": forms.Select(attrs=chosen_js),
+            "default_line_object": forms.Select(attrs=chosen_js),
+        }
 
 class TransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -65,7 +83,9 @@ class TransactionForm(forms.ModelForm):
             "allotment_code": forms.Select(attrs=chosen_js),
             "line_object": forms.Select(attrs=chosen_js),
             "project": forms.Select(attrs=chosen_js),
+            "cosignee_code": forms.Select(attrs=chosen_js),
         }
+
 
 class CustomTransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -104,6 +124,7 @@ class CustomTransactionForm(forms.ModelForm):
             "allotment_code": forms.Select(attrs=chosen_js),
             "line_object": forms.Select(attrs=chosen_js),
             "project": forms.Select(attrs=chosen_js),
+            "cosignee_code": forms.Select(attrs=chosen_js),
             "comment": forms.Textarea(attrs={"rows": 4}),
             "expected_purchase_date": forms.DateInput(attrs={"type": "date"}),
 
@@ -113,6 +134,7 @@ class CustomTransactionForm(forms.ModelForm):
             "transaction_type": forms.HiddenInput(),
             "in_mrs": forms.HiddenInput(),
         }
+
 
 class ReportSearchForm(forms.Form):
     report = forms.ChoiceField(required=True)
@@ -127,6 +149,7 @@ class ReportSearchForm(forms.Form):
             # (1, "Branch Summary"),
             (2, "RC Summary"),
             (3, "Project Summary"),
+            (1, "Transaction Export (xlsx)"),
         ]
         report_choices.insert(0, (None, "------"))
 
