@@ -7,9 +7,9 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 try:
-    from dfo_sci_dm_site import my_conf as local_conf
+    from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
-    from dfo_sci_dm_site import default_conf as local_conf
+    from dm_apps import default_conf as local_conf
 
 # from django.contrib.auth.forms import UserCreationForm
 
