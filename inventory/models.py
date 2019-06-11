@@ -456,7 +456,7 @@ class DataResource(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{}".format(self.content_type)
+        return "{} - {}".format(self.content_type, self.name_eng)
 
 
 class WebService(models.Model):
@@ -476,7 +476,7 @@ class WebService(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{}".format(self.name_eng)
+        return "{} - {}".format(self.content_type, self.name_eng)
 
 
 class ResourcePerson(models.Model):
