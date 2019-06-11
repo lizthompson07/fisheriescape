@@ -1319,7 +1319,8 @@ class FileUpdateView(CustodianRequiredMixin, UpdateView):
     form_class = forms.FileForm
 
     def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
+        my_object = models.File.objects.get(pk=self.kwargs["pk"])
+        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
@@ -1336,7 +1337,8 @@ class FileDeleteView(CustodianRequiredMixin, DeleteView):
     model = models.File
 
     def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
+        my_object = models.File.objects.get(pk=self.kwargs["pk"])
+        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
@@ -1349,6 +1351,9 @@ class DataResourceCreateView(CustodianRequiredMixin, CreateView):
     template_name = "inventory/data_resource_form.html"
     model = models.DataResource
     form_class = forms.DataResourceForm
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def form_valid(self, form):
         object = form.save()
@@ -1371,6 +1376,10 @@ class DataResourceUpdateView(CustodianRequiredMixin, UpdateView):
     model = models.DataResource
     form_class = forms.DataResourceForm
 
+    def test_func(self):
+        my_object = models.DataResource.objects.get(pk=self.kwargs["pk"])
+        return is_custodian_or_admin(self.request.user, my_object.resource_id)
+
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
@@ -1384,6 +1393,10 @@ class DataResourceDeleteView(CustodianRequiredMixin, DeleteView):
     template_name = "inventory/data_resource_confirm_delete.html"
     model = models.DataResource
 
+    def test_func(self):
+        my_object = models.DataResource.objects.get(pk=self.kwargs["pk"])
+        return is_custodian_or_admin(self.request.user, my_object.resource_id)
+
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
@@ -1395,6 +1408,9 @@ class WebServiceCreateView(CustodianRequiredMixin, CreateView):
     template_name = "inventory/data_resource_form.html"
     model = models.WebService
     form_class = forms.WebServiceForm
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def form_valid(self, form):
         object = form.save()
@@ -1417,6 +1433,10 @@ class WebServiceUpdateView(CustodianRequiredMixin, UpdateView):
     model = models.WebService
     form_class = forms.WebServiceForm
 
+    def test_func(self):
+        my_object = models.WebService.objects.get(pk=self.kwargs["pk"])
+        return is_custodian_or_admin(self.request.user, my_object.resource_id)
+
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
@@ -1429,6 +1449,10 @@ class WebServiceUpdateView(CustodianRequiredMixin, UpdateView):
 class WebServiceDeleteView(CustodianRequiredMixin, DeleteView):
     template_name = "inventory/data_resource_confirm_delete.html"
     model = models.WebService
+
+    def test_func(self):
+        my_object = models.WebService.objects.get(pk=self.kwargs["pk"])
+        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
