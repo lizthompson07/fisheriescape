@@ -538,6 +538,7 @@ class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
             'procurement_hub_contact',
             'exclude_from_rollup',
             'comment',
+            'created_by',
         ]
         return context
 

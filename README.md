@@ -2,10 +2,10 @@
 
 ### Prerequisite to running the application
 1. Install Python 3 (<https://www.python.org>), and make sure that Python is added to your PATH variable.
-1. Working from your root projects directory (e.g., `~/my_projects`), create python virtual environment: `python -m venv dfo_sci_dm_site_venv`
-1. Activate the virtual environment: `.\dfo_sci_dm_site_venv\Scripts\activate` (Windows) OR `source ./dfo_sci_dm_site_venv/bin/activate` (Linux)
-1. Clone project: `git clone https://github.com/dfo-mar-odis/dfo_sci_dm_site`
-1. navigate into the project director: `cd dfo_sci_dm_site`
+1. Working from your root projects directory (e.g., `~/my_projects`), create python virtual environment: `python -m venv dm_apps_venv`
+1. Activate the virtual environment: `.\dm_apps_venv\Scripts\activate` (Windows) OR `source ./dm_apps_venv/bin/activate` (Linux)
+1. Clone project: `git clone https://github.com/dfo-mar-odis/dm_apps`
+1. navigate into the project director: `cd dm_apps`
 
 1. For a MySQL Database Backend
     1. Try installing the Python virtual environment libraries required by the application: `pip install -r stable_reqs.txt`.
@@ -23,15 +23,15 @@
     1. Remove the line `mysqlclient==1.3.12`
     1. From the directory where the modified stable_reqs.txt file exists, run the command `pip install -r stable_reqs.txt'
     1. Run the command `python -m pip install cx_oracle --upgrade`
-    1. In the directory `\dfo_sci_dm_site\dfo_sci_dm_site\` locate, copy and rename the file `default_conf.py` to `my_conf.py`
+    1. In the directory `\dm_apps\dm_apps\` locate, copy and rename the file `default_conf.py` to `my_conf.py`
     1. Change `DATABASES = MYSQL_DATABASES` to `DATABASES = ORACLE_DATABASES`
     1. You may need to install the [Oracle Instant client](https://www.oracle.com/technetwork/database/database-technologies/instant-client/overview/index.html)
     
 ### Running the django development server
-1. Change directory to the root `dfo_sci_dm_site` folder (if not already there) and run the development server: `python manage.py runserver`
+1. Change directory to the root `dm_apps` folder (if not already there) and run the development server: `python manage.py runserver`
 
 ### Notes
 - Without any additional configuration, the app will connect to the Gulf Region's development database called [glf_sci_site_dev] (see file `dev.cnf` for database connection details)
 - The development server is essentially a slave of the production database. There is currently no script to automate the syncing 
 so it will be done on an as needed basis. **The development database is overwritten each time it is synced with the production database.** So don't store any valuable data on there! 
-- For more elaborate details about getting setup, please visit the site's [wiki](https://github.com/dfo-mar-odis/dfo_sci_dm_site/wiki).
+- For more elaborate details about getting setup, please visit the site's [wiki](https://github.com/dfo-mar-odis/dm_apps/wiki).

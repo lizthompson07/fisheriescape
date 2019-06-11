@@ -7,7 +7,7 @@ from lib.functions.custom_functions import fiscal_year, listrify
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
-from dfo_sci_dm_site import custom_widgets
+from dm_apps import custom_widgets
 
 # Choices for language
 ENG = 1
