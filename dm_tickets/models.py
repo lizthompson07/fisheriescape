@@ -12,9 +12,9 @@ from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 
 try:
-    from dfo_sci_dm_site import my_conf as local_conf
+    from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
-    from dfo_sci_dm_site import default_conf as local_conf
+    from dm_apps import default_conf as local_conf
 
 
 def get_name(self):
