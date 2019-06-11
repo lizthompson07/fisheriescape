@@ -38,13 +38,14 @@ class Transaction(models.Model):
     outstanding_obligation = models.FloatField(blank=True, null=True)
     invoice_cost = models.FloatField(blank=True, null=True)
     reference_number = models.CharField(max_length=50, blank=True, null=True)
+    cosignee_code = models.ForeignKey(shared_models.CosigneeCode, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='transactions')
     invoice_date = models.DateTimeField(blank=True, null=True)
     in_mrs = models.BooleanField(default=False, verbose_name="In MRS", choices=YES_NO_CHOICES)
     amount_paid_in_mrs = models.FloatField(blank=True, null=True, verbose_name="amount paid in MRS")
     mrs_notes = models.CharField(blank=True, null=True, max_length=100, verbose_name="MRS notes")
     procurement_hub_contact = models.CharField(max_length=500, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions")
     exclude_from_rollup = models.BooleanField(default=False, verbose_name="Exclude from rollup", choices=YES_NO_CHOICES)
 
 
@@ -65,3 +66,14 @@ class Transaction(models.Model):
 
     class Meta:
         ordering = ["-creation_date", ]
+
+
+class SciFiUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="scifi_users")
+    responsibility_centers = models.ManyToManyField(shared_models.ResponsibilityCenter, related_name="scifi_users")
+
+    def __str__(self):
+        return "{}".format(self.user)
+
+    class Meta:
+        ordering = ["user", ]
