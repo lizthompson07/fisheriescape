@@ -1,0 +1,602 @@
+{% extends "scifi/scifi_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scifi:index' %}">Home</a></li>
+            {% if custom_transaction %}
+                <li class="breadcrumb-item active" aria-current="page">New Expense</li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'scifi:trans_list' %}">Transaction List</a></li>
+                {% if object %}
+                    <li class="breadcrumb-item active" aria-current="page">Edit Transaction: {{ object }}</li>
+                {% else %}
+                    <li class="breadcrumb-item active" aria-current="page">New Transaction</li>
+                {% endif %}
+            {% endif %}
+        </ol>
+    </nav>
+
+    <div class="container">
+        <h1>
+            {% if custom_transaction %}
+                New Expense
+            {% else %}
+                {% if object %}
+                    {{ object }}
+                {% else %}
+                    New Transaction
+                {% endif %}
+            {% endif %}
+        </h1>
+
+        <form method="post" class="form" style="width: 85%;">
+            {% csrf_token %}
+
+
+            {% for field in form %}
+
+                {% if field.name == "responsibility_center" %}
+                    <div id="rc_interpreter_div">
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="rc_interpreter" class="col-md-3 col-form-label">RC
+                                (any part...)</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control no-tab"
+                                       id="rc_interpreter">
+                            </div>
+                        </div>
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="rc_list" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <p id="rc_list" style="margin-bottom: 0px;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="rc_field_div" class="appear-on-error">
+                        {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
+                        <div class="form-group row" style="margin-top: 0px;">
+                            <label for="clear_rc" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <a href="#" id="clear_rc" class="red-font">(clear RC)</a>
+                            </div>
+                        </div>
+                    </div>
+
+                {% elif field.name == "business_line" %}
+                    <div id="bl_interpreter_div">
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="bl_interpreter" class="col-md-3 col-form-label">Business line
+                                (any part...)</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control no-tab"
+                                       id="bl_interpreter">
+                            </div>
+                        </div>
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="bl_list" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <p id="bl_list" style="margin-bottom: 0px;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="bl_field_div" class="appear-on-error">
+                        {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
+                        <div class="form-group row" style="margin-top: 0px;">
+                            <label for="clear_bl" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <a href="#" id="clear_bl" class="red-font">(clear business line)</a>
+                            </div>
+                        </div>
+                    </div>
+
+                {% elif field.name == "allotment_code" %}
+                    <div id="ac_interpreter_div">
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="ac_interpreter" class="col-md-3 col-form-label">Allotment code
+                                (any part...)</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control no-tab"
+                                       id="ac_interpreter">
+                            </div>
+                        </div>
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="ac_list" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <p id="ac_list" style="margin-bottom: 0px;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="ac_field_div" class="appear-on-error">
+                        {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
+                        <div class="form-group row" style="margin-top: 0px;">
+                            <label for="clear_ac" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <a href="#" id="clear_ac" class="red-font">(clear allotment code)</a>
+                            </div>
+                        </div>
+                    </div>
+                {% elif field.name == "line_object" %}
+                    <div id="lo_interpreter_div">
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="lo_interpreter" class="col-md-3 col-form-label">Line object
+                                (any part...)</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control no-tab"
+                                       id="lo_interpreter">
+                            </div>
+                        </div>
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="lo_list" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <p id="lo_list" style="margin-bottom: 0px;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="lo_field_div" class="appear-on-error">
+                        {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
+                        <div class="form-group row" style="margin-top: 0px;">
+                            <label for="clear_lo" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <a href="#" id="clear_lo" class="red-font">(clear line object)</a>
+                            </div>
+                        </div>
+                    </div>
+                {% elif field.name == "project" %}
+                    <div id="project_interpreter_div">
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="project_interpreter" class="col-md-3 col-form-label">Project code
+                                (any part...)</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control no-tab"
+                                       id="project_interpreter">
+                            </div>
+                        </div>
+                        <div class="form-group row" style="margin-bottom: 0px;">
+                            <label for="project_list" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <p id="project_list" style="margin-bottom: 0px;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="project_field_div" class="appear-on-error">
+                        {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
+                        <div class="form-group row" style="margin-top: 0px;">
+                            <label for="clear_project" class="col-md-3 col-form-label"></label>
+                            <div class="col-md-9">
+                                <a href="#" id="clear_project" class="red-font">(clear project code)</a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+
+                    {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
+                {% endif %}
+
+
+            {% endfor %}
+
+            <div class="btn-group">
+                {% if object %}
+                    <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+                    <a class="btn btn-sm btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
+                {% else %}
+                    <button id="submit" type="submit" class="btn btn-sm btn-success">Save & Next (Ctrl+A)</button>
+                    <button id="submit_done" type="submit" class="btn btn-sm btn-primary">Save & Done (Ctrl+S)</button>
+                    {% if custom_transaction %}
+                        <a class="btn btn-secondary" href="{% url 'scifi:index' %}">Cancel</a>
+                    {% else %}
+                        <a class="btn btn-sm btn-secondary" href="{% url 'scifi:trans_list' %}">Cancel</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <br>
+            <br>
+
+
+        </form>
+
+    </div>
+
+
+    <script type="text/javascript">
+        window.name = "motherWindow";
+        var rcList = {{rc_list|safe}};
+        var blList = {{bl_list|safe}};
+        var acList = {{ac_list|safe}};
+        var loList = {{lo_list|safe}};
+        var projectList = {{project_list|safe}};
+
+        {% if custom_transaction %}
+            var projectObj = {{project_json|safe}};
+        {% endif %}
+
+        $("#submit_done").click(function () {
+            // clear the do_another field
+            $("#id_do_another").val("")
+        })
+
+        function moveNext(fromField) {
+            if (fromField == "rc") {
+                $("#bl_interpreter")[0].focus()
+            }
+            else if (fromField == "bl") {
+                $("#ac_interpreter")[0].focus()
+            }
+            else if (fromField == "ac") {
+                $("#lo_interpreter")[0].focus()
+            }
+            else if (fromField == "lo") {
+                // will depend on which form we are in:
+                {% if custom_transaction %}
+                    $("#id_supplier_description")[0].focus()
+                {% else %}
+                    $("#project_interpreter")[0].focus()
+                {% endif %}
+            }
+            else if (fromField == "project") {
+                // will depend on which form we are in:
+                {% if custom_transaction %}
+                    $("#rc_interpreter")[0].focus()
+                {% else %}
+                    $("#id_transaction_type")[0].focus()
+                {% endif %}
+            }
+
+        }
+
+
+        $(document).ready(function () {
+            {% if custom_transaction %}
+                $("#project_interpreter")[0].focus()
+            {% else %}
+                $("#id_fiscal_year")[0].focus()
+            {% endif %}
+
+            // remove the required prop from hidden fields so that they show up on the form errors
+            $("#id_responsibility_center").prop("required", false)
+            $("#id_allotment_code").prop("required", false)
+            $("#id_business_line").prop("required", false)
+            $("#id_project").prop("required", false)
+
+            document.addEventListener("keydown", function (zEvent) {
+                if (zEvent.ctrlKey && zEvent.code === "KeyS") {
+                    zEvent.preventDefault()
+                    $("#submit_done")[0].click();
+                }
+                else if (zEvent.ctrlKey && zEvent.code === "KeyA") {
+                    zEvent.preventDefault()
+                    $("#submit")[0].click();
+                }
+            });
+
+            {% if object.responsibility_center %}
+                $("#rc_interpreter_div").prop("hidden", true)
+            {% else %}
+                $("#rc_field_div").prop("hidden", true)
+            {% endif %}
+
+            {% if object.business_line %}
+                $("#bl_interpreter_div").prop("hidden", true)
+            {% else %}
+                $("#bl_field_div").prop("hidden", true)
+            {% endif %}
+
+            {% if object.allotment_code %}
+                $("#ac_interpreter_div").prop("hidden", true)
+            {% else %}
+                $("#ac_field_div").prop("hidden", true)
+            {% endif %}
+
+            {% if object.line_object %}
+                $("#lo_interpreter_div").prop("hidden", true)
+            {% else %}
+                $("#lo_field_div").prop("hidden", true)
+            {% endif %}
+
+            {% if object.project %}
+                $("#project_interpreter_div").prop("hidden", true)
+            {% else %}
+                $("#project_field_div").prop("hidden", true)
+            {% endif %}
+
+            if ($(".invalid-feedback").length > 0) {
+                $(".appear-on-error").prop("hidden", false)
+            }
+
+
+        });
+
+
+        $("input").keydown(function (event) {
+            if (event.key == "Enter") {
+                event.preventDefault()
+            }
+        });
+
+        $(".no-tab").keydown(function (event) {
+            if (event.key == "Tab" && $(this).val() != "") {
+                event.preventDefault()
+            }
+        });
+
+        // RC
+        $("#rc_interpreter").keyup(function (e) {
+            $("#rc_list").html("")
+            if (this.value.length >= 1) {
+                for (var i = 0; i < rcList.length; i++) {
+                    var re = new RegExp(this.value, 'gi');
+
+                    if (rcList[i].match(re)) {
+                        $("#rc_list").html(
+                            $("#rc_list").html() + rcList[i] + '<br>')
+                    }
+                }
+                $(".rc_insert").click(function () {
+                    $("#rc_field_div").prop("hidden", false)
+                    $("#rc_interpreter_div").prop("hidden", true)
+                    code = this.getAttribute("code")
+                    $("#id_responsibility_center").val(code)
+                    // where to go next
+                    moveNext("rc")
+
+                });
+                if (e.key == "Tab" || e.key == "Enter") {
+                    $(".rc_insert")[0].click()
+                }
+
+                if ($(".rc_insert").length == 0) {
+                    $("#rc_interpreter").addClass("bad")
+                } else {
+                    $("#rc_interpreter").removeClass("bad")
+                }
+
+            }
+        });
+        $("#clear_rc").click(function () {
+            $("#rc_interpreter").val("")
+            $("#rc_list").html("")
+            $("#rc_field_div").prop("hidden", true)
+            $("#rc_interpreter_div").prop("hidden", false)
+            $("#rc_interpreter")[0].focus()
+        });
+
+        // BUSINESS LINE
+        $("#bl_interpreter").keyup(function (e) {
+            $("#bl_list").html("")
+            if (this.value.length >= 1) {
+                for (var i = 0; i < blList.length; i++) {
+                    var re = new RegExp(this.value, 'gi');
+
+                    if (blList[i].match(re)) {
+                        $("#bl_list").html(
+                            $("#bl_list").html() + blList[i] + '<br>')
+                    }
+                }
+                $(".bl_insert").click(function () {
+                    $("#bl_field_div").prop("hidden", false)
+                    $("#bl_interpreter_div").prop("hidden", true)
+                    code = this.getAttribute("code")
+                    $("#id_business_line").val(code)
+
+                    // where to go next
+                    moveNext("bl")
+
+                });
+
+                if (e.key == "Tab" || e.key == "Enter") {
+                    $(".bl_insert")[0].click()
+                }
+
+                if ($(".bl_insert").length == 0) {
+                    $("#bl_interpreter").addClass("bad")
+                } else {
+                    $("#bl_interpreter").removeClass("bad")
+                }
+
+            }
+        });
+        $("#clear_bl").click(function () {
+            $("#bl_interpreter").val("")
+            $("#bl_list").html("")
+            $("#bl_field_div").prop("hidden", true)
+            $("#bl_interpreter_div").prop("hidden", false)
+            $("#bl_interpreter")[0].focus()
+        });
+
+
+        // AC
+        $("#ac_interpreter").keyup(function (e) {
+            $("#ac_list").html("")
+            if (this.value.length >= 1) {
+                for (var i = 0; i < acList.length; i++) {
+                    var re = new RegExp(this.value, 'gi');
+
+                    if (acList[i].match(re)) {
+                        $("#ac_list").html(
+                            $("#ac_list").html() + acList[i] + '<br>')
+                    }
+                }
+                $(".ac_insert").click(function () {
+                    $("#ac_field_div").prop("hidden", false)
+                    $("#ac_interpreter_div").prop("hidden", true)
+                    code = this.getAttribute("code")
+                    $("#id_allotment_code").val(code)
+
+                    // where to go next
+                    moveNext("ac")
+
+                });
+
+                if (e.key == "Tab" || e.key == "Enter") {
+                    $(".ac_insert")[0].click()
+                }
+
+                if ($(".ac_insert").length == 0) {
+                    $("#ac_interpreter").addClass("bad")
+                } else {
+                    $("#ac_interpreter").removeClass("bad")
+                }
+
+            }
+        });
+        $("#clear_ac").click(function () {
+            $("#ac_interpreter").val("")
+            $("#ac_list").html("")
+            $("#ac_field_div").prop("hidden", true)
+            $("#ac_interpreter_div").prop("hidden", false)
+            $("#ac_interpreter")[0].focus()
+        });
+
+
+        // LO
+        $("#lo_interpreter").keyup(function (e) {
+            $("#lo_list").html("")
+            if (this.value.length >= 3) {
+                for (var i = 0; i < loList.length; i++) {
+                    var re = new RegExp(this.value, 'gi');
+
+                    if (loList[i].match(re)) {
+                        $("#lo_list").html(
+                            $("#lo_list").html() + loList[i] + '<br>')
+                    }
+                }
+                $(".lo_insert").click(function () {
+                    $("#lo_field_div").prop("hidden", false)
+                    $("#lo_interpreter_div").prop("hidden", true)
+                    code = this.getAttribute("code")
+                    $("#id_line_object").val(code)
+
+                    // where to go next
+                    moveNext("lo")
+
+                });
+
+                if (e.key == "Tab" || e.key == "Enter") {
+                    $(".lo_insert")[0].click()
+                }
+
+                if ($(".lo_insert").length == 0) {
+                    $("#lo_interpreter").addClass("bad")
+                } else {
+                    $("#lo_interpreter").removeClass("bad")
+                }
+
+            }
+        });
+        $("#clear_lo").click(function () {
+            $("#lo_interpreter").val("")
+            $("#lo_list").html("")
+            $("#lo_field_div").prop("hidden", true)
+            $("#lo_interpreter_div").prop("hidden", false)
+            $("#lo_interpreter")[0].focus()
+        });
+
+
+        // PROJECT
+        $("#project_interpreter").keyup(function (e) {
+            $("#project_list").html("")
+            if (this.value.length >= 1) {
+                for (var i = 0; i < projectList.length; i++) {
+                    var re = new RegExp(this.value, 'gi');
+
+                    if (projectList[i].match(re)) {
+                        $("#project_list").html(
+                            $("#project_list").html() + projectList[i] + '<br>')
+                    }
+                }
+                $(".project_insert").click(function () {
+                    $("#project_field_div").prop("hidden", false)
+                    $("#project_interpreter_div").prop("hidden", true)
+                    code = this.getAttribute("code")
+                    $("#id_project").val(code)
+
+                    {% if custom_transaction %}
+                        setProjectDefaults()
+                    {% endif %}
+
+                    // where to go next
+                    moveNext("project")
+
+                });
+
+                if (e.key == "Tab" || e.key == "Enter") {
+                    $(".project_insert")[0].click()
+                }
+
+                if ($(".project_insert").length == 0) {
+                    $("#project_interpreter").addClass("bad")
+                } else {
+                    $("#project_interpreter").removeClass("bad")
+                }
+
+            }
+        });
+        $("#clear_project").click(function () {
+            $("#project_interpreter").val("")
+            $("#project_list").html("")
+            $("#project_field_div").prop("hidden", true)
+            $("#project_interpreter_div").prop("hidden", false)
+            $("#project_interpreter")[0].focus()
+        });
+
+        // special func for project; once populated, enter the default coding for rc, bl, ac and lo
+        function setProjectDefaults(clear = false) {
+            projectId = $("#id_project").val()
+
+            // RC
+            if (projectObj[projectId]["rc"] != "") {
+                $("#id_responsibility_center").val(projectObj[projectId]["rc"])
+                $("#rc_interpreter_div").prop("hidden", true)
+                $("#rc_field_div").prop("hidden", false)
+            }
+            // BL
+            if (projectObj[projectId]["bl"] != null) {
+                $("#id_business_line").val(projectObj[projectId]["bl"])
+                $("#bl_interpreter_div").prop("hidden", true)
+                $("#bl_field_div").prop("hidden", false)
+            }
+            // AC
+            if (projectObj[projectId]["ac"] != null) {
+                $("#id_allotment_code").val(projectObj[projectId]["ac"])
+                $("#ac_interpreter_div").prop("hidden", true)
+                $("#ac_field_div").prop("hidden", false)
+            }
+            // LO
+            if (projectObj[projectId]["lo"] != null) {
+                $("#id_line_object").val(projectObj[projectId]["lo"])
+                $("#lo_interpreter_div").prop("hidden", true)
+                $("#lo_field_div").prop("hidden", false)
+            }
+
+            // Where to?
+            if ($("#id_responsibility_center").val() == "") {
+                $("#rc_interpreter")[0].focus()
+            }
+            else if ($("#id_business_line").val() == "") {
+                $("#bl_interpreter")[0].focus()
+            }
+            else if ($("#id_allotment_code").val() == "") {
+                $("#ac_interpreter")[0].focus()
+            }
+            else if ($("#id_line_object").val() == "") {
+                $("#lo_interpreter")[0].focus()
+            }
+            else {
+                $("#id_supplier_description")[0].focus()
+            }
+
+        };
+
+    </script>
+{% endblock content %}
+
