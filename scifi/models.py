@@ -45,7 +45,7 @@ class Transaction(models.Model):
     mrs_notes = models.CharField(blank=True, null=True, max_length=100, verbose_name="MRS notes")
     procurement_hub_contact = models.CharField(max_length=500, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions")
     exclude_from_rollup = models.BooleanField(default=False, verbose_name="Exclude from rollup", choices=YES_NO_CHOICES)
 
 
