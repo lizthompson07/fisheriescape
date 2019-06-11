@@ -20,7 +20,7 @@ WEB_APP_NAME = "ScienceDataManagement"
 # check to see if there is a user-defined local configuration file
 # if there is, we we use this as our local configuration, otherwise we use the default
 try:
-    from . import my_conf as local_conf
+    from bio_sci_site.dm_apps import my_conf as local_conf
 except ModuleNotFoundError and ImportError:
     from . import default_conf as local_conf
     print("my_conf.py' not found. using default configuration file 'default_conf.py' instead.")
