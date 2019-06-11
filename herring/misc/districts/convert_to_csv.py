@@ -2,7 +2,7 @@ import os
 import csv
 import datetime
 
-rootdir = "C:\\Users\\fishmand\\Projects\\dfo_sci_dm_site\\herring\\misc\\districts"
+rootdir = "C:\\Users\\fishmand\\Projects\\dm_apps\\herring\\misc\\districts"
 
 # open the csv we want to write to
 with open(os.path.join(rootdir, "district_new_list.csv"), 'w') as new_file:
