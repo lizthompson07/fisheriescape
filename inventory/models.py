@@ -538,7 +538,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'inventory/resource_{0}/{1}'.format(instance.id, filename)
+    return 'inventory/resource_{0}/{1}'.format(instance.resource.id, filename)
 
 
 class File(models.Model):
