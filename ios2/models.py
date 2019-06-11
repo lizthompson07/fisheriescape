@@ -149,10 +149,12 @@ class ServiceHistory(models.Model):
     # category choices:
     CALIB = 1#'Calibration'
     REPAIR = 2#'Repair'
+    REPAIRCALIB = 3
 
     CATEGORY_CHOICES = (
         (CALIB, _("Calibration")),
         (REPAIR, _("Repair")),
+        (REPAIRCALIB, _("Repair&Calib")),
     )
     instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE, related_name="service",
                                    verbose_name=_("instrument"))

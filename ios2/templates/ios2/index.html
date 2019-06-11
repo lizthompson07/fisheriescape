@@ -9,11 +9,11 @@
         <div class="container">
             <div class="jumbotron">
                 <h1 class="three-em">
-                    {% trans "Instrument Tracking" %}
+                    {% trans "IOS Instrument Tracking" %}
                 </h1>
                 <hr>
                 <h3>
-                    {% trans "IOS" %}
+<!--                    {% trans "IOS" %}-->
                 </h3>
                 {% if user.is_authenticated %}
                     <br>
@@ -37,7 +37,7 @@
 
                     </p>
                 {% endif %}
-                <br>
+<!--                <br>-->
                 <div style="text-align: center">
                     <h4>
                         {% trans "Please use <u>Microsoft Edge</u> or <u>Google Chrome</u> to view this page." %}
@@ -58,15 +58,19 @@
             <div align="center">
                 {% url 'ios2:instrument_new' as new_proj_url %}
                 {% url 'ios2:instrument_list' as all_proj_url %}
+                {% url 'ios2:mooring_list' as all_mooring_url %}
 
 
                 <h4>
                     {% blocktrans %}
                         Click
                         <a href="{{ new_proj_url }}">HERE</a> to create a new instrument.
-<br><br>
+                    <br>
                         For a list of all instrument in the branch, go to <a href="{{ all_proj_url }}">All
                         Instruments</a>.
+                    <br>
+                        For a list of all moorings in the branch, go to <a href="{{ all_mooring_url }}">All
+                        Moorings</a>.
 
                     {% endblocktrans %}
 

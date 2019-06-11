@@ -307,7 +307,7 @@ class ServiceForm(forms.ModelForm):
         model = models.ServiceHistory
         exclude = [
             # 'submitted',
-            'date_last_modified',
+            # 'date_last_modified',
             # 'section_head_approved',
             # 'description_html',
             # 'priorities_html',
@@ -327,7 +327,7 @@ class ServiceForm(forms.ModelForm):
         #                                                    'value': (timezone.now()+ timedelta(days=365)).strftime("%Y-%b-%d")}),
         #     # 'end_date': forms.DateInput(attrs={"type": "date"}),
         #     # 'last_modified_by': forms.HiddenInput(),
-            'Comments': forms.Textarea(attrs={"rows": 1}),
+            'comments': forms.Textarea(attrs={"rows": 1}),
             'project_title': forms.Textarea(attrs={"rows": 1}),
         #     # "description": forms.Textarea(attrs={"rows": 8}),
         #     # "notes": forms.Textarea(attrs={"rows": 5}),

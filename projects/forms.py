@@ -31,17 +31,17 @@ class NewProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         region_choices = views.get_region_choices(all=True)
         region_choices.insert(0, tuple((None, "---")))
-
-        # division_choices = views.get_division_choices(all=True)
-        # division_choices.insert(0, tuple((None, "---")))
-        #
-        # section_choices = views.get_section_choices(all=True)
-        # section_choices.insert(0, tuple((None, "---")))
+        division_choices = views.get_division_choices(all=True)
+        division_choices.insert(0, tuple((None, "---")))
+        section_choices = views.get_section_choices(all=True)
+        section_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
         self.fields['region'].choices = region_choices
-        # self.fields['division'].choices = division_choices
-        # self.fields['section'].choices = section_choices
+
+        # even though these are overwritten by js scripts you have to define these so that the validation kicks in properly
+        self.fields['division'].choices = division_choices
+        self.fields['section'].choices = section_choices
 
 
 class ProjectForm(forms.ModelForm):

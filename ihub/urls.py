@@ -29,7 +29,8 @@ urlpatterns = [
     ######################
     path('organization/<int:org>/member/new/', views.MemberCreateView.as_view(), name="member_new"),
     path('member/<int:pk>/edit/', views.MemberUpdateView.as_view(), name="member_edit"),
-    path('member/<int:pk>/delete/', views.member_delete, name="member_delete"),
+    path('member/<int:pk>/delete/', views.MemberDeleteView.as_view(), name="member_delete"),
+    # path('member/<int:pk>/delete/', views.member_delete, name="member_delete"),
 
     # # Entry #
     # #########

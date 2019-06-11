@@ -126,8 +126,7 @@ class Division(models.Model):
         ordering = ['name', ]
 
 
-# CONNECTED APPS: dm_tickets, travel, projects
-# STILL NEED TO CONNECT: inventory
+# CONNECTED APPS: dm_tickets, travel, projects, inventory
 class Section(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
@@ -175,8 +174,7 @@ class AllotmentCategory(models.Model):
         ordering = ['name', ]
 
 
-# CONNECTED APPS: projects
-# STILL NEED TO CONNECT: scifi
+# CONNECTED APPS: projects, scifi
 class AllotmentCode(models.Model):
     # choices for category
     SAL = "salary"
@@ -204,8 +202,7 @@ class AllotmentCode(models.Model):
         ordering = ['code', ]
 
 
-# CONNECTED APPS:
-# STILL NEED TO CONNECT: scifi
+# CONNECTED APPS: scifi
 class BusinessLine(models.Model):
     code = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, null=True)
@@ -217,8 +214,7 @@ class BusinessLine(models.Model):
         ordering = ['code', ]
 
 
-# CONNECTED APPS:
-# STILL NEED TO CONNECT: scifi
+# CONNECTED APPS: scifi
 class LineObject(models.Model):
     code = models.CharField(max_length=50, unique=True)
     name_eng = models.CharField(max_length=1000)
@@ -231,8 +227,7 @@ class LineObject(models.Model):
         ordering = ['code', ]
 
 
-# CONNECTED APPS: projects
-# STILL NEED TO CONNECT: scifi
+# CONNECTED APPS: projects, scifi
 class ResponsibilityCenter(models.Model):
     code = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, null=True)
@@ -244,9 +239,20 @@ class ResponsibilityCenter(models.Model):
     class Meta:
         ordering = ['code', ]
 
+# CONNECTED APPS: scifi
+# class CosigneeCode(models.Model):
+#     code = models.CharField(max_length=50, unique=True)
+#     name_eng = models.CharField(max_length=1000)
+#     description_eng = models.TextField(blank=True, null=True)
+#
+#     def __str__(self):
+#         return "{} ({})".format(self.code, self.name_eng)
+#
+#     class Meta:
+#         ordering = ['code', ]
 
-# CONNECTED APPS: projects
-# STILL NEED TO CONNECT: scifi
+
+# CONNECTED APPS: projects, scifi
 class Project(models.Model):
     name = models.CharField(max_length=1000)
     code = models.CharField(max_length=50)

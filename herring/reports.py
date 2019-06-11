@@ -97,6 +97,11 @@ def generate_sample_report(year):
         verbose_field_name(qs.first(), 'experimental_net_used', ),
         verbose_field_name(qs.first(), 'vessel_cfvn'),
         verbose_field_name(qs.first(), 'mesh_size'),
+        verbose_field_name(qs.first(), 'total_fish_measured'),
+        "length-frequency counts",
+        verbose_field_name(qs.first(), 'total_fish_preserved'),
+        verbose_field_name(qs.first(), 'catch_weight_lbs'),
+        verbose_field_name(qs.first(), 'sample_weight_lbs'),
         verbose_field_name(qs.first(), 'remarks'),
     ])
 
@@ -129,6 +134,11 @@ def generate_sample_report(year):
                 sample.experimental_net_used,
                 sample.vessel_cfvn,
                 str(sample.mesh_size),
+                sample.total_fish_measured,
+                sample.lf_count,
+                sample.total_fish_preserved,
+                sample.catch_weight_lbs,
+                sample.sample_weight_lbs,
                 sample.remarks,
             ])
 
