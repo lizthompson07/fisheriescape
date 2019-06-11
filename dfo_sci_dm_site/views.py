@@ -233,19 +233,31 @@ def get_app_dict(request):
 
     try:
         app_dict["ios2"] = {
-            "title": _("ios instrument"),
-            "description": _("Gulf Region application for the tracking of Gs & Cs."),
+            "title": _("IOS Instrument Tracking"),
+            "description": _("IOS Instrument Tracking Application."),
             "status": "dev",
             "access": "permission-required",
             "url": reverse('ios2:index'),
-            "icon_path": 'img/icons/agreement.svg',
+            "icon_path": 'img/icons/sailor.svg',
+            "region": "gulf",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["publications"] = {
+            "title": _("Project Publications Inventory"),
+            "description": _("Tool for publishing and viewing publications related to completed projects."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('publications:index'),
+            "icon_path": 'img/icons/publications.svg',
             "region": "gulf",
         }
     except NoReverseMatch:
         pass
 
     return OrderedDict(app_dict)
-
 
 
 class IndexView(TemplateView):

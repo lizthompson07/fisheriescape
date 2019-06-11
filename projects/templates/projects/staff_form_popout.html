@@ -3,9 +3,9 @@
 {% load i18n %}
 {% load static %}
 {% load custom_filters %}
-
 {% block body %}
-
+    {% bootstrap_javascript 'full'%}
+    {% bootstrap_css %}
     <style>
         .gone {
             visibility: hidden;
