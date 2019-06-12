@@ -20,16 +20,28 @@ from . import forms
 def get_mod(mod_str):
     if mod_str == "theme":
         lookup_mod = models.Theme
+    elif mod_str == "pillar":
+        lookup_mod = models.Pillar
     elif mod_str == "human":
-        lookup_mod = models.HumanComponents
+        lookup_mod = models.HumanComponent
+    elif mod_str == "ecosystem":
+        lookup_mod = models.EcosystemComponent
     elif mod_str == "linkage":
         lookup_mod = models.ProgramLinkage
-    elif mod_str == "ecosystem":
-        lookup_mod = models.EcosystemComponents
     elif mod_str == "site":
         lookup_mod = models.Site
     elif mod_str == "publication":
         lookup_mod = models.Publication
+    elif mod_str == "computer_environment":
+        lookup_mod = models.ComputerEnvironment
+    elif mod_str == "spatial":
+        lookup_mod = models.SpatialManagementDesignation
+    elif mod_str == "spatialproduct":
+        lookup_mod = models.SpatialDataProduct
+    elif mod_str == "sourceinternal":
+        lookup_mod = models.SourceDataInternal
+    elif mod_str == "sourceexternal":
+        lookup_mod = models.SourceDataExternal
 
     return lookup_mod
 
@@ -37,16 +49,28 @@ def get_mod(mod_str):
 def get_mod_title(mod_str):
     if mod_str == "theme":
         title = "Theme"
+    elif mod_str == "pillar":
+        title = "Pillar of Sustainability"
     elif mod_str == "human":
         title = "Human Component"
-    elif mod_str == "linkage":
-        title = "Linkage to Program"
     elif mod_str == "ecosystem":
         title = "Ecosystem Component"
+    elif mod_str == "linkage":
+        title = "Linkage to Program"
     elif mod_str == "site":
         title = "Site"
     elif mod_str == "publication":
         title = "Publication"
+    elif mod_str == "computer_environment":
+        title = "Computer Environment"
+    elif mod_str == "spatial":
+        title = "Spatial Management Designation"
+    elif mod_str == "spatialproduct":
+        title = "Spatial Data Product"
+    elif mod_str == "sourceinternal":
+        title = "Source Data Internal"
+    elif mod_str == "sourceexternal":
+        title = "Source Data External"
 
     return title
 
