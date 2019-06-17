@@ -10,31 +10,53 @@
         }
     </style>
 
-    <script>
-        window.resizeTo(width = 700, height = 850);
-        window.onunload = refreshParent;
-        $(document).ready(function () {
-            // Stuff to do as soon as the DOM is ready
-            {#$("#id_advance_amount")[0].focus()#}
-        });
 
-        function refreshParent() {
-            window.opener.location.reload();
-        }
-    </script>
     <div class="container-fluid">
 
         <h3>
             {% trans "Tracking: " %} {{ step_name }}
         </h3>
         <br>
-        <form method="post" class="form" {% if view.kwargs.step == "ca-admin" %}enctype="multipart/form-data"{% endif %}>
-
+        <form method="post" class="form" {% if view.kwargs.step == "ca-admin" %}enctype="multipart/form-data"{% endif %}
+        >
             {% csrf_token %}
 
+
+
+
             {% for field in form %}
+                {% if field.name == "date_received" %}
                 {% bootstrap_field field size='small' placeholder="" %}
+                <p>
+                    <b>
+                        {% trans "EOI File uploaded?" %}
+                    </b>
+                    {% if object.file %}
+                        <span class="green-font"> Yes</span>
+                    {% else %}
+                            <span class="red-font">No. Click  <a href="#" pop-href="{% url 'spot:file_new' object.id 3 %}">here</a> to upload it.</span>
+                    {% endif %}
+                </p>
+                {% elif field.name == "application_submission_date" %}
+                    {% bootstrap_field field size='small' placeholder="" %}
+                    <p>
+                        <b>
+                            {% trans "Application File uploaded?" %}
+                        </b>
+                        {% if object.application_file %}
+                            <span class="green-font"> Yes</span>
+                        {% else %}
+                            <span class="red-font">No. Click  <a href="#" pop-href="{% url 'spot:file_new' object.id 6 %}">here</a> to upload it.</span>
+                        {% endif %}
+                    </p>
+
+                {% else %}
+                    {% bootstrap_field field size='small' placeholder="" %}
+                {% endif %}
+
             {% endfor %}
+
+
             <div class="btn-group">
                 <button type="submit" class="btn btn-primary" onclick="refreshParent()">
                     {% trans "Submit" %}
@@ -99,7 +121,22 @@
 
     {% block body_js %}
 
+        <script>
+            {% if view.kwargs.step == "activities" %}
+                window.resizeTo(width = 1200, height = 850);
+            {% else %}
+                window.resizeTo(width = 700, height = 850);
+            {% endif %}
+            window.onunload = refreshParent;
+            $(document).ready(function () {
+                // Stuff to do as soon as the DOM is ready
+                {#$("#id_advance_amount")[0].focus()#}
+            });
 
+            function refreshParent() {
+                window.opener.location.reload();
+            }
+        </script>
         <script type="application/javascript">
             $(document).ready(function () {
                 // Stuff to do as soon as the DOM is ready

@@ -69,6 +69,15 @@ urlpatterns = [
     path('payment/<int:pk>/edit/', views.PaymentUpdateView.as_view(), name="payment_edit"),
     path('payment/<int:pk>/delete/', views.PaymentDeleteView.as_view(), name="payment_delete"),
 
+    # FILE #
+    ########
+    path('project/<int:project>/file/new/', views.FileCreateView.as_view(), name="file_new"),
+    path('project/<int:project>/file/new/type/<int:type>/', views.FileCreateView.as_view(), name="file_new"),
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name="file_edit"),
+    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name="file_delete"),
+
+    # path('file/<int:pk>/delete/', views.file_delete, name="file_delete"),
+
     #
     # # Reports #
     # ###########
