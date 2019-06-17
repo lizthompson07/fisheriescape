@@ -127,7 +127,7 @@ class ProjectForm(forms.ModelForm):
             'language',
             'title',
             'program',
-            'priority_area_or_threat',
+            'priority_area_or_threats',
             'status',
             'regions',
             'start_year',
@@ -139,7 +139,7 @@ class ProjectForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'organization': forms.Select(attrs=attr_chosen_contains),
             'program': forms.Select(attrs=attr_chosen_contains),
-            'priority_area_or_threat': forms.Select(attrs=attr_chosen_contains),
+            'priority_area_or_threats': forms.SelectMultiple(attrs=attr_chosen_contains),
             'language': forms.Select(attrs=attr_chosen_contains),
             'status': forms.Select(attrs=attr_chosen_contains),
             'start_year': forms.Select(attrs=attr_chosen_contains),
@@ -167,7 +167,7 @@ class NewProjectForm(forms.ModelForm):
             'language',
             'title',
             'program',
-            'priority_area_or_threat',
+            'priority_area_or_threats',
             'status',
             'start_year',
             'requested_funding_y1',
@@ -183,7 +183,7 @@ class NewProjectForm(forms.ModelForm):
             'initiation_date': forms.HiddenInput(),
             'organization': forms.Select(attrs=attr_chosen_contains),
             'program': forms.Select(attrs=attr_chosen_contains),
-            'priority_area_or_threat': forms.Select(attrs=attr_chosen_contains),
+            'priority_area_or_threats': forms.SelectMultiple(attrs=attr_chosen_contains),
             'language': forms.Select(attrs=attr_chosen_contains),
             'status': forms.Select(attrs=attr_chosen_contains),
             'start_year': forms.Select(attrs=attr_chosen_contains),
@@ -353,7 +353,6 @@ class CAAdministrationForm(forms.ModelForm):
             'draft_ca_ready',
             'draft_ca_sent_to_manager',
             'draft_ca_manager_approved',
-            'draft_ca',
             'draft_ca_sent_to_nhq',
             'aip_received',
             'final_ca_received',
@@ -390,14 +389,21 @@ class ActivitiesForm(forms.ModelForm):
         model = models.Project
         fields = [
             'last_modified_by',
-            'activity_types',
+            'activities',
             'notes',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": 4}),
-            'activity_types': forms.SelectMultiple(attrs=multi_select_js),
+            'activities': forms.SelectMultiple(attrs=multi_select_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        my_project = kwargs["instance"]
+        if my_project.program:
+            activity_choices = [(obj.id, str(obj)) for obj in models.Activity.objects.filter(program=my_project.program)]
+            self.fields["activities"].choices = activity_choices
 
 
 class PaymentForm(forms.ModelForm):
@@ -427,3 +433,15 @@ class PaymentForm(forms.ModelForm):
             'materials_submitted': forms.Select(choices=YES_NO_CHOICES),
             'payment_confirmed': forms.Select(choices=YES_NO_CHOICES),
         }
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+            'uploaded_by': forms.HiddenInput(),
+            'date_modified': forms.HiddenInput(),
+        }
+
