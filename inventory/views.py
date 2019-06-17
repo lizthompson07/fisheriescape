@@ -495,7 +495,7 @@ class PersonCreateView(LoginRequiredMixin, FormView):
             new_person.language = int(language)
 
         if organization != "":
-            new_person.organization_id = int(organization)
+            new_person.organization_id = organization.id
 
         new_person.save()
 
@@ -557,7 +557,7 @@ class PersonCreateViewPopout(LoginRequiredMixin, FormView):
             new_person.language = int(language)
 
         if organization != "":
-            new_person.organization_id = int(organization)
+            new_person.organization = organization
 
         new_person.save()
 
