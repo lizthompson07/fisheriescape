@@ -56,7 +56,7 @@ class Instrument(models.Model):
     comm_port = models.CharField(max_length=20,  blank=True, null=True,verbose_name=_("COMM Port"),
                                  choices=COMMS)
     # location = models.CharField(max_length=20,  blank=True, null=True,verbose_name=_("Location"))
-    location = models.CharField(max_length=20, default='Home IOS', verbose_name=_("Location"))
+    location = models.CharField(max_length=20, default='HOME IOS', verbose_name=_("Location"))
     # date_of_last_service = models.DateField(blank=True, null=True,
     #                                         verbose_name=_("Last Service Date"))
     date_of_next_service = models.DateField(blank=True, null=True,
@@ -65,11 +65,14 @@ class Instrument(models.Model):
     #                                      verbose_name=_("last modified by"))
     # in_service = models.BooleanField(default=False, verbose_name=_("In Service"))
     is_sensor = models.BooleanField(default=False, verbose_name=_("Is Sensor?"))
+    asset_tag = models.CharField(max_length=20, blank=True,  null=True,
+                                 verbose_name=_("Asset Tag"), unique=True)
     # submitted = models.BooleanField(default=False, verbose_name=_("Submit instrument for review"))
 
     class Meta:
         ordering = ['instrument_type', 'serial_number', 'purchase_date', 'project_title']
         unique_together = ['instrument_type', 'serial_number']
+
 
     def __str__(self):
         # return "{}".format(self.project_title)
