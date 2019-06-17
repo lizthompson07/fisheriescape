@@ -2,6 +2,7 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -911,7 +912,7 @@ class CitationCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "'{}' has been added as a citation.".format(self.object.title))
         return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': self.kwargs['resource']}))
 
-
+@login_required(login_url='/accounts/login_required/')
 def citation_delete(request, resource, citation):
     my_citation = models.Citation.objects.get(pk=citation)
     my_citation.delete()
