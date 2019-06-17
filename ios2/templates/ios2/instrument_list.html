@@ -92,6 +92,9 @@
             <th scope="col">
                 {% trans "Is Sensor?" %}
             </th>
+            <th scope="col">
+                {% trans "Asset Tag" %}
+            </th>
             </thead>
             <tbody>
 
@@ -123,6 +126,7 @@
 <!--                        {% endfor %}-->
 <!--                    </td>-->
                     <td>{{ obj.is_sensor|yesno:_("yes,no") }}</td>
+                    <td>{{ obj.asset_tag}}</td>
                 </tr>
             {% endfor %}
             </tbody>

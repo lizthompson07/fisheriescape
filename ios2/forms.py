@@ -22,6 +22,7 @@ class NewInstrumentForm(forms.ModelForm):
             'instrument_type',
             'serial_number',
             'purchase_date',
+            'asset_tag',
             'connector',
             'comm_port',
             # 'date_of_last_service',
