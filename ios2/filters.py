@@ -16,6 +16,10 @@ class InstrumentFilter(django_filters.FilterSet):
     # SECTION_CHOICES = [(s.id, str(s)) for s in shared_models.Section.objects.filter(division__branch=1)]
     # TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP'), ('OXY', 'OXY')]
     TYPE_CHOICES = models.Instrument.TYPE_CHOICES
+    # ASSET_CHOICES = models.Instrument.asset_tag
+    ASSET_CHOICES = [(str(at.asset_tag) , str(at.asset_tag) ) for at in models.Instrument.objects.all()]
+    print(ASSET_CHOICES)
+    print(TYPE_CHOICES)
 
     YES_NO_CHOICES = [(True, "Yes"), (False, "No"), ]
 
@@ -35,6 +39,10 @@ class InstrumentFilter(django_filters.FilterSet):
     # section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label="Section", choices=SECTION_CHOICES)
     is_sensor = django_filters.ChoiceFilter(field_name='is_sensor', lookup_expr='exact',
                                             label="Is Sensor?", choices=YES_NO_CHOICES)
+    # project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
+    asset_tag = django_filters.MultipleChoiceFilter(field_name='asset_tag', lookup_expr='exact',
+                                                   choices=ASSET_CHOICES,
+                                                  widget=forms.SelectMultiple(attrs=chosen_js))
     # submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact',
     #                                         label="Submitted?", choices=YES_NO_CHOICES)
 
