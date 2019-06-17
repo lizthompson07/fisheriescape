@@ -859,7 +859,63 @@ class PaymentCreateView(SpotAccessRequiredMixin, CreateView):
 class PaymentDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/payment_confirm_delete.html'
     model = models.Payment
-    success_message = 'The payment year was deleted successfully!'
+    success_message = 'The payment was deleted successfully!'
+
+    def get_success_url(self):
+        return reverse_lazy('spot:close_me')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+
+# FILE #
+########
+
+class FileCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.File
+    template_name = 'spot/file_form_popout.html'
+    form_class = forms.FileForm
+    success_url = reverse_lazy('spot:close_me')
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(id=self.kwargs['project'])
+        if not self.kwargs.get("type"):
+          return {'project': my_project,}
+        else:
+          return {
+              'project': my_project,
+              'type': models.FileType.objects.get(pk=self.kwargs.get("type")),
+          }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(id=self.kwargs['project'])
+        context['project'] = my_project
+        return context
+
+
+class FileUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.File
+    template_name = 'spot/file_form_popout.html'
+    form_class = forms.FileForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+    def get_initial(self):
+        return {
+            'date_uploaded': timezone.now(),
+        }
+
+
+class FileDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/file_confirm_delete.html'
+    model = models.File
+    success_message = 'The file was deleted successfully!'
 
     def get_success_url(self):
         return reverse_lazy('spot:close_me')
