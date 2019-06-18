@@ -26,7 +26,7 @@
                 {% trans "Caption" %}
             </th>
             <th>
-                {% trans "Date Uploaded" %}
+                {% trans "Date Modified" %}
             </th>
 
         </tr>
@@ -45,7 +45,7 @@
                     {{ obj.caption }}
                 </td>
                 <td>
-                    {{ obj.date_uploaded|date:"F d, Y" }}
+                    {{ obj.date_modified|date:"F d, Y" }}
                 </td>
 
 

@@ -72,7 +72,7 @@ urlpatterns = [
     # FILE #
     ########
     path('project/<int:project>/file/new/', views.FileCreateView.as_view(), name="file_new"),
-    path('project/<int:project>/file/new/type/<int:type>/', views.FileCreateView.as_view(), name="file_new"),
+    path('project/<int:project>/file/new/file-type/<int:type>/', views.FileCreateView.as_view(), name="file_new"),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name="file_edit"),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name="file_delete"),
 
