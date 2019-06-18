@@ -880,14 +880,15 @@ class FileCreateView(SpotAccessRequiredMixin, CreateView):
     success_url = reverse_lazy('spot:close_me')
 
     def get_initial(self):
-        my_project = models.Project.objects.get(id=self.kwargs['project'])
-        if not self.kwargs.get("type"):
-          return {'project': my_project,}
-        else:
-          return {
+        super().get_initial()
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        my_dict = {
               'project': my_project,
-              'file_type': models.FileType.objects.get(pk=self.kwargs.get("type")),
+              'uploaded_by': self.request.user,
           }
+        if self.kwargs.get("type"):
+            my_dict['file_type'] = models.FileType.objects.get(pk=self.kwargs.get("type"))
+        return my_dict
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -895,6 +896,9 @@ class FileCreateView(SpotAccessRequiredMixin, CreateView):
         context['project'] = my_project
         return context
 
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
 
 class FileUpdateView(SpotAccessRequiredMixin, UpdateView):
     model = models.File
@@ -908,7 +912,8 @@ class FileUpdateView(SpotAccessRequiredMixin, UpdateView):
 
     def get_initial(self):
         return {
-            'date_uploaded': timezone.now(),
+            'date_modified': timezone.now(),
+            'uploaded_by': self.request.user,
         }
 
 
