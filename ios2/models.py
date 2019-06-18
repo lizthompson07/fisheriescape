@@ -90,7 +90,7 @@ class Instrument(models.Model):
     #     return 0
 
 
-register(Instrument)
+# register(Instrument)
 
 
 class Mooring(models.Model):
