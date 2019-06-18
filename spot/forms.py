@@ -9,7 +9,10 @@ attr_chosen_contains = {"class": "chosen-select-contains"}
 attr_chosen = {"class": "chosen-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Select Date.."}
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
+attr_fp_date_time_email = {"class": "fp-date-time green-borders", "placeholder": "Select Date and Time.."}
+
 multi_select_js = {"class": "multi-select"}
+class_editable = {"class": "editable"}
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -76,11 +79,13 @@ class PersonForm(forms.ModelForm):
             "cell",
             "fax",
             "language",
+            "email_block",
         ]
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'language': forms.Select(attrs=attr_chosen),
+            # 'email_block': forms.Textarea(attrs=class_editable),
         }
 
 
@@ -101,7 +106,6 @@ class NewPersonForm(forms.ModelForm):
             "cell",
             "fax",
             "language",
-            # "notes",
         ]
 
         widgets = {
@@ -321,7 +325,7 @@ class NegotiationForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={"rows": 5}),
             'negotiations_workplan_completion_date': forms.DateInput(attrs=attr_fp_date),
             'negotiations_financials_completion_date': forms.DateInput(attrs=attr_fp_date),
-            'negotiation_letter_sent': forms.DateInput(attrs=attr_fp_date_time),
+            'negotiation_letter_sent': forms.DateInput(attrs=attr_fp_date_time_email),
         }
 
 
