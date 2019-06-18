@@ -300,15 +300,21 @@ class Project(models.Model):
                 my_person.last_name,
             )
 
-
-
     @property
     def application_file(self):
-        if File.objects.filter(project=self, type_id=6).count() == 0:
-            return None
-        else:
-            return File.objects.filter(project=self, type_id=6)
+        return File.objects.get(project=self, file_type_id=6)
 
+    @property
+    def risk_assessment_file(self):
+        return File.objects.get(project=self, file_type_id=4)
+
+    @property
+    def draft_ca_file(self):
+        return File.objects.get(project=self, file_type_id=1)
+
+    @property
+    def fully_signed_ca_file(self):
+        return File.objects.get(project=self, file_type_id=2)
 
 
 class Role(models.Model):
@@ -431,10 +437,7 @@ class ExpressionOfInterest(models.Model):
 
     @property
     def file(self):
-        if File.objects.filter(project=self.project, type_id=3).count() == 0:
-            return None
-        else:
-            return File.objects.filter(project=self.project, type_id=3)
+        return File.objects.get(project=self.project, file_type_id=3)
 
 
 class ProjectYear(models.Model):
@@ -737,17 +740,20 @@ class FileType(models.Model):
 class File(models.Model):
     project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
     caption = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("file caption (optional)"))
-    type = models.ForeignKey(FileType, related_name="files", on_delete=models.DO_NOTHING)
+    file_type = models.ForeignKey(FileType, related_name="files", on_delete=models.DO_NOTHING)
     file = models.FileField(upload_to=file_directory_path)
     # meta
     date_modified = models.DateTimeField(default=timezone.now)
     uploaded_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("uploaded by"))
 
     class Meta:
-        ordering = ['type']
+        ordering = ['file_type']
 
     def __str__(self):
-        return self.caption
+        my_str = str(self.file_type)
+        if self.caption:
+            my_str = "{} - {}".format(my_str, self.caption)
+        return my_str
 
     def save(self, *args, **kwargs):
         self.date_modified = timezone.now()
@@ -853,6 +859,7 @@ def determine_project_length(project, status_id):
 
     return my_length
 
+
 #
 # @receiver(models.signals.post_delete, sender=Project)
 # def auto_delete_draft_ca_on_delete(sender, instance, **kwargs):
@@ -920,7 +927,6 @@ def auto_delete_photo_on_change(sender, instance, **kwargs):
         if not old_file == new_file:
             if os.path.isfile(old_file.path):
                 os.remove(old_file.path)
-
 
 
 @receiver(models.signals.post_delete, sender=File)

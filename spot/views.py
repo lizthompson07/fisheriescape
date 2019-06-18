@@ -886,7 +886,7 @@ class FileCreateView(SpotAccessRequiredMixin, CreateView):
         else:
           return {
               'project': my_project,
-              'type': models.FileType.objects.get(pk=self.kwargs.get("type")),
+              'file_type': models.FileType.objects.get(pk=self.kwargs.get("type")),
           }
 
     def get_context_data(self, **kwargs):
