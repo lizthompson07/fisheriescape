@@ -10,7 +10,6 @@ from shared_models import models as shared_models
 from datetime import date, timedelta, datetime
 import os
 from django.db.models.signals import post_save
-# import tagging
 from tagging.registry import register
 
 
