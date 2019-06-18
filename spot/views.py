@@ -274,7 +274,7 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
 
 class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
     model = ml_models.Person
-    template_name = 'spot/person_form_popout.html'
+    template_name = 'spot/person_form.html'
     form_class = forms.PersonForm
 
     def get_initial(self):
@@ -699,18 +699,18 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
         else:
             return forms.ProjectYearForm
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         my_object = models.Project.objects.get(pk=self.kwargs["pk"])
         step_name = self.kwargs["step"]
         if step_name == "initiation":
             step_name = "Initiation"
-            context["email"] = emails.EOIAcknowledgement(my_object)
-            print(context["email"])
+            context["email"] = emails.MasterEmail(my_object, "eoi_acknowledgement")
         elif step_name == "review":
             step_name = "Regional Review"
         elif step_name == "negotiations":
             step_name = "Negotiations"
+            context["email"] = emails.MasterEmail(my_object, "negotiations")
         elif step_name == "ca-admin":
             step_name = "CA Administration"
         elif step_name == "activities":

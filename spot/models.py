@@ -49,6 +49,14 @@ class Program(models.Model):
         #     return "{}".format(self.name)
         return "{} ({})".format(self.name, self.abbrev_eng)
 
+    @property
+    def full_eng(self):
+        return "{} ({})".format(self.name, self.abbrev_eng)
+
+    @property
+    def full_fre(self):
+        return "{} ({})".format(self.nom, self.abbrev_fre)
+
     class Meta:
         ordering = [_('name'), ]
 
@@ -276,30 +284,16 @@ class Project(models.Model):
     def end_year(self):
         return self.years.order_by("fiscal_year").last().fiscal_year.full
 
+    #PEOPLE
     @property
     def pp(self):
-        if self.project_people.filter(role=1).count() == 0:
-            return '<span class="red-font">MISSING</span>'
-        else:
-            # this is an issue if there are two pp's
-            my_person = self.project_people.filter(role=1).first().person
-            return "{} {}".format(
-                my_person.first_name,
-                my_person.last_name,
-            )
+        return self.project_people.get(role=1).person
 
     @property
     def gc_officer(self):
-        if self.project_people.filter(role=7).count() == 0:
-            return '<span class="red-font">MISSING</span>'
-        else:
-            # this is an issue if there are two pp's
-            my_person = self.project_people.filter(role=7).first().person
-            return "{} {}".format(
-                my_person.first_name,
-                my_person.last_name,
-            )
+        return self.project_people.get(role=7).person
 
+    # FILES
     @property
     def application_file(self):
         return File.objects.get(project=self, file_type_id=6)
