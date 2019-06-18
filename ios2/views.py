@@ -1,6 +1,5 @@
 from django.shortcuts import render
 
-
 from django.http import HttpResponse
 from django.template import loader
 
@@ -28,8 +27,6 @@ from . import forms
 from . import filters
 # from . import reports
 from shared_models import models as shared_models
-
-
 
 # TYPE_CHOICES = [('CTD', 'CTD'), ('ADCP', 'ADCP')]
 
@@ -69,6 +66,7 @@ instrument_field_list = [
     # 'date_last_modified',
     # 'last_modified_by',
 ]
+
 
 # Create your views here.
 
@@ -139,7 +137,6 @@ class MooringListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MooringFilter
 
 
-
 class InstrumentCreateView(LoginRequiredMixin, CreateView):
     model = models.Instrument
     login_url = '/accounts/login_required/'
@@ -178,20 +175,19 @@ class InstrumentDetailView(LoginRequiredMixin, DetailView):
             # 'last_modified_by',
         ]
 
-
         context["report_mode"] = False
         print(self.kwargs, 'yay?')
         # context['service_history'] = models.ServiceHistory.objects.get(pk=self.kwargs["pk"])#latest('service_date')\
         try:
-            context['service_history'] = models.ServiceHistory.objects.\
+            context['service_history'] = models.ServiceHistory.objects. \
                 select_related().filter(instrument=self.kwargs["pk"]).latest('service_date')
         except:
             print('no service recorded...')
 
         # context["field_list_1"] = [
         #     'service_history',
-            # 'priorities_html',
-            # 'deliverables_html',
+        # 'priorities_html',
+        # 'deliverables_html',
         # ]
         return context
 
@@ -224,6 +220,7 @@ class InstrumentSubmitUpdateView(LoginRequiredMixin, UpdateView):
         # context = {**my_context, **context}
 
         return context
+
 
 # Not working
 
@@ -300,28 +297,21 @@ class InstrumentUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('ios2:close_me'))
 
 
-
-
 # Moorings #
 ############
 
 class MooringCreateView(LoginRequiredMixin, CreateView):
-
     model = models.Mooring
     template_name = 'ios2/mooring_form.html'
     login_url = '/accounts/login_required/'
     form_class = forms.MooringForm
 
-
     def get_initial(self):
         return {'last_modified_by': self.request.user}
-
 
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy("ios2:mooring_detail", kwargs={"pk": object.id}))
-
-
 
 
 class MooringDetailView(LoginRequiredMixin, DetailView):
@@ -457,7 +447,6 @@ class InstrumentMooringCreateView(LoginRequiredMixin, CreateView):
         }
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
         mooring = models.Mooring.objects.get(pk=self.kwargs['pk'])
         # self.instrument = models.Mooring.objects.get(pk=self.kwargs['pk'])
@@ -480,7 +469,6 @@ class InstrumentMooringCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         # if request.POST:
 
-
         object = form.save()
 
         return HttpResponseRedirect(reverse('ios2:close_me'))
@@ -500,6 +488,7 @@ class InstrumentMooringUpdateView(LoginRequiredMixin, UpdateView):
             'mooring': instrumentmooring.mooring,
             'instrument': instrumentmooring.instrument,
         }
+
     #
     # def get_context_data(self, **kwargs):
     #
@@ -516,7 +505,6 @@ class InstrumentMooringUpdateView(LoginRequiredMixin, UpdateView):
     #     return context
 
     def form_valid(self, form):
-
         object = form.save()
 
         return HttpResponseRedirect(reverse('ios2:close_me'))
@@ -530,14 +518,12 @@ class MooringInstrumentCreateView(LoginRequiredMixin, CreateView):
     form_class = forms.AddMooringToInstrumentForm
 
     def get_initial(self):
-
         instrument = models.Instrument.objects.get(pk=self.kwargs['pk'])
         return {
             'instrument': instrument,
         }
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
         instrument = models.Instrument.objects.get(pk=self.kwargs['pk'])
         context['name'] = instrument
@@ -548,11 +534,9 @@ class MooringInstrumentCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-
         object = form.save()
 
         return HttpResponseRedirect(reverse('ios2:close_me'))
-
 
 
 class MooringInstrumentUpdateView(LoginRequiredMixin, UpdateView):
@@ -562,7 +546,6 @@ class MooringInstrumentUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.EditInstrumentMooringForm
 
     def get_initial(self):
-
         instrumentmooring = models.InstrumentMooring.objects.get(pk=self.kwargs['pk'])
         return {
             'mooring': instrumentmooring.mooring,
@@ -570,7 +553,6 @@ class MooringInstrumentUpdateView(LoginRequiredMixin, UpdateView):
         }
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
 
         tmp = models.InstrumentMooring.objects.get(pk=self.kwargs['pk'])
@@ -583,11 +565,9 @@ class MooringInstrumentUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-
         object = form.save()
 
         return HttpResponseRedirect(reverse('ios2:close_me'))
-
 
 
 class ServiceCreateView(LoginRequiredMixin, CreateView):
@@ -597,19 +577,24 @@ class ServiceCreateView(LoginRequiredMixin, CreateView):
     template_name = 'ios2/service_form_popout.html'
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('ios2:close_me'))
+        my_object = form.save()
+        was_calibrated = form.cleaned_data["was_also_calibrated"]
+        if was_calibrated:
+            my_object.pk = None
+            my_object.save()
+            my_object.category = 1
+            my_object.save()
 
-    # def get_initial(self):
-    #     return {'last_modified_by': self.request.user}
+            return HttpResponseRedirect(reverse('ios2:close_me'))
+
+        # def get_initial(self):
+        #     return {'last_modified_by': self.request.user}
 
     def get_initial(self):
-
         instrument = models.Instrument.objects.get(pk=self.kwargs['instrument'])
         return {
             'instrument': instrument,
         }
-
 
 class ServiceUpdateView(LoginRequiredMixin, UpdateView):
     model = models.ServiceHistory
@@ -621,15 +606,12 @@ class ServiceUpdateView(LoginRequiredMixin, UpdateView):
         object = form.save()
         return HttpResponseRedirect(reverse('ios2:close_me'))
 
-
 def service_delete(request, pk):
-
     object = models.ServiceHistory.objects.get(pk=pk)
     # instrument_id = object.instrument.id
     object.delete()
     messages.success(request, _("The service record has been successfully deleted!!!"))
     return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": object.instrument.id}))
-
 
 # class AddDeploymentCreateView(LoginRequiredMixin, CreateView):
 #     model = models.Mooring
@@ -693,7 +675,6 @@ def service_delete(request, pk):
 #         object = form.save()
 #         return HttpResponseRedirect(reverse('ios2:close_me'))
 
-
 # def mooring_delete(request, pk):
 #     object = models.Deployment.objects.get(pk=pk)
 #     object.delete()
@@ -712,24 +693,17 @@ def service_delete(request, pk):
 #         messages.success(self.request, self.success_message)
 #         return super().delete(request, *args, **kwargs)
 
-
 def mooringtoinstrument_delete(request, pk):
-
     object = models.InstrumentMooring.objects.get(pk=pk)
     # instrument_id = object.instrument.id
     object.delete()
     messages.success(request, _("The mooring has been successfully deleted!!!"))
     return HttpResponseRedirect(reverse_lazy("ios2:instrument_detail", kwargs={"pk": object.instrument.id}))
 
-
 def instrumentonmooring_delete(request, pk):
-
     object = models.InstrumentMooring.objects.get(pk=pk)
     # instrument_id = object.instrument.id
     object.delete()
     messages.success(request, _("The instrument has been successfully deleted!!!"))
     return HttpResponseRedirect(reverse_lazy("ios2:mooring_detail", kwargs={"pk": object.mooring.id}))
     # return HttpResponseRedirect(reverse_lazy("ios2:mooring_detail", kwargs={"pk": instrument_id}))
-
-
-
