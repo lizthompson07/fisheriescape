@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 ###
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
 from . import models
 from . import forms
@@ -923,3 +923,60 @@ class FileDeleteView(SpotAccessRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(SpotAccessRequiredMixin, FormView):
+    template_name = 'spot/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        fiscal_year = str(form.cleaned_data["fiscal_year"])
+        report = int(form.cleaned_data["report"])
+        programs = listrify(form.cleaned_data["programs"])
+
+        if programs == "":
+            sections = "None"
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("projects:report_neg", kwargs={
+                'fy': fiscal_year,
+                'programs': programs,
+            }))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("ihub:report_search"))
+
+
+class NegotiationReport(SpotAccessRequiredMixin, TemplateView):
+    template_name = 'masterlist/report_search.html'
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        fiscal_year = str(form.cleaned_data["fiscal_year"])
+        report = int(form.cleaned_data["report"])
+        programs = listrify(form.cleaned_data["programs"])
+
+        if programs == "":
+            sections = "None"
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("projects:report_neg", kwargs={
+                'fy': fiscal_year,
+                'programs': programs,
+            }))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("ihub:report_search"))
+

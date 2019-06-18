@@ -79,9 +79,10 @@ urlpatterns = [
     # path('file/<int:pk>/delete/', views.file_delete, name="file_delete"),
 
     #
-    # # Reports #
-    # ###########
-    # path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('reports/negotiations/<int:fy>/<str:programs>/', views.NegotiationReport.as_view(), name="report_neg"),
     # path('reports/export-custom-list/<str:provinces>/<str:groupings>/<str:sectors>/<str:regions>/<int:is_indigenous>/<str:species>', views.export_custom_list, name="export_custom_list"),
 
 
