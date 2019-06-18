@@ -449,3 +449,26 @@ class FileForm(forms.ModelForm):
             'date_modified': forms.HiddenInput(),
         }
 
+
+
+
+class ReportSearchForm(forms.Form):
+
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "Negotiations summary"),
+    )
+
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    fiscal_year = forms.ChoiceField(required=True)
+    programs = forms.MultipleChoiceField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        fy_choices.insert(0, (None, "-----"))
+        program_choices = [(obj.id, str(obj)) for obj in models.Program.objects.all() if obj.projects.count() > 0]
+
+        self.fields["fiscal_year"].choices = fy_choices
+        self.fields["programs"].choices = program_choices
