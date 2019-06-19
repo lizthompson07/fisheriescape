@@ -1,9 +1,33 @@
+from django.db.models import Q
+
 from .import models
 
 
 def resave_all():
     for obj in models.GCSample.objects.all():
         obj.save()
+
+def reverse_cond():
+    '''
+    for seasons 2016, 2014 and 2013 sp_cond_ms and spc_ms are reversed. This function will undo the reversal
+    :return: None
+    '''
+    pass
+    # my_probe_qs = models.ProbeMeasurement.objects.filter(Q(sample__season=2016)|Q(sample__season=2014)|Q(sample__season=2013))
+    # for probe in my_probe_qs:
+    #     # print("sp_cond_ms={}; spc_ms={}".format(
+    #     #     probe.sp_cond_ms,
+    #     #     probe.spc_ms,
+    #     # ))
+    #     temp = probe.sp_cond_ms
+    #     probe.sp_cond_ms = probe.spc_ms
+    #     probe.spc_ms = temp
+    #     probe.save()
+    #     # print("sp_cond_ms={}; spc_ms={}".format(
+    #     #     probe.sp_cond_ms,
+    #     #     probe.spc_ms,
+    #     # ))
+
 
 def reconcile_spp():
     '''do not run this twice!!! I am greying out for safe-keeping'''
