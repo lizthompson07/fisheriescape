@@ -930,6 +930,7 @@ class SiteUpdateView(GraisAccessRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('grais:estuary_detail', kwargs={'pk': self.object.estuary.id})
 
+
 class SiteCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.Site
 
@@ -951,6 +952,7 @@ class SiteCreateView(GraisAccessRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('grais:estuary_detail', kwargs={'pk': self.object.estuary.id})
+
 
 class SiteDetailView(GraisAccessRequiredMixin, DetailView):
     model = models.Site
@@ -981,6 +983,7 @@ class SiteDeleteView(GraisAccessRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('grais:estuary_detail', kwargs={'pk': self.object.estuary.id})
 
+
 # SAMPLE #
 ##########
 class GCSampleListView(GraisAccessRequiredMixin, FilterView):
@@ -1009,9 +1012,11 @@ class GCSampleDetailView(GraisAccessRequiredMixin, DetailView):
             'site',
             'traps_set',
             'traps_fished',
-            'bottom_type',
-            'percent_vegetation_cover',
             'samplers',
+            'eelgrass_assessed',
+            'eelgrass_percent_coverage',
+            'vegetation_species',
+            'sediment',
             'season',
             'last_modified',
             'last_modified_by',
@@ -1030,6 +1035,7 @@ class GCSampleUpdateView(GraisAccessRequiredMixin, UpdateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy("grais:gcsample_detail", kwargs={"pk": object.id}))
+
 
 class GCSampleCreateView(GraisAccessRequiredMixin, CreateView):
     model = models.GCSample
