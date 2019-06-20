@@ -4,6 +4,7 @@ from django.core import validators
 from . import models
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
+multi_select_js = {"class": "multi-select"}
 
 
 class StationForm(forms.ModelForm):
@@ -52,9 +53,11 @@ class GCSampleForm(forms.ModelForm):
         model = models.GCSample
         exclude = ['last_modified', 'season']
         widgets = {
-            # 'traps_set': forms.DateInput(attrs={'type': 'date'}),
-            # 'traps_fished': forms.DateInput(attrs={'type': 'date'}),
+            'traps_set': forms.DateTimeInput(attrs=attr_fp_date_time),
+            'traps_fished': forms.DateTimeInput(attrs=attr_fp_date_time),
             'last_modified_by': forms.HiddenInput(),
+            'samplers': forms.SelectMultiple(attrs=multi_select_js),
+            'vegetation_species': forms.SelectMultiple(attrs=multi_select_js),
         }
 
 
