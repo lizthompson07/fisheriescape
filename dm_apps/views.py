@@ -232,6 +232,19 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["ios2"] = {
+            "title": _("IOS Instrument Tracking"),
+            "description": _("IOS Instrument Tracking Application."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('ios2:index'),
+            "icon_path": 'img/icons/sailor.svg',
+            "region": "gulf",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["publications"] = {
             "title": _("Project Inventory"),
             "description": _("Tools for viewing information on completed projects"),
@@ -239,6 +252,19 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('publications:index'),
             "icon_path": 'img/icons/publications.svg',
+            "region": "gulf",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["staff"] = {
+            "title": _("Staff Planning Tool"),
+            "description": _("Tool for staff planning."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('staff:index'),
+            "icon_path": 'img/icons/staff.svg',
             "region": "gulf",
         }
     except NoReverseMatch:
