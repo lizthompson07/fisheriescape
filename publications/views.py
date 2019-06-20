@@ -82,11 +82,11 @@ def lookup_delete(request, lookup, project, theme):
     if project:
         if mod is models.Theme:
             project.theme.remove(val)
-        elif mod is models.HumanComponents:
+        elif mod is models.HumanComponent:
             project.human_component.remove(val)
         elif mod is models.ProgramLinkage:
             project.program_linkage.remove(val)
-        elif mod is models.EcosystemComponents:
+        elif mod is models.EcosystemComponent:
             project.ecosystem_component.remove(val)
         elif issubclass(mod, models.TextLookup):
             val.delete()
