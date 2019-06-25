@@ -82,7 +82,7 @@
             </div>
             <table class="table table-hover table-sm sortable">
                 <thead>
-                <th scope="col" style="width: 120px;">
+                <th scope="col" style="width: 5%">
                     {% trans "Fiscal Year" %}
                 </th>
                 <th scope="col" style="width: 10%">
@@ -90,6 +90,9 @@
                 </th>
                 <th scope="col" style="width: 10%">
                     {% trans "Section" %}
+                </th>
+                <th scope="col" style="width: 5%">
+                    {% trans "Project Code" %}
                 </th>
                 <th scope="col" style="width: 30%">
                     {% trans "Title" %}
@@ -132,6 +135,9 @@
                             <td>{{ obj.section.division.name }}</td>
                             <td>{{ obj.section.name }}</td>
                         {% endif %}
+                        <td>
+                            {{ obj.existing_project_code.code|nz:"" }}
+                        </td>
                         <td>
                             {{ obj.project_title }}
                         </td>
