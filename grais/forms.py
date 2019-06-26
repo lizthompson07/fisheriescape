@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.core import validators
 from . import models
 
+attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
+multi_select_js = {"class": "multi-select"}
+
 
 class StationForm(forms.ModelForm):
     class Meta:
@@ -50,9 +53,11 @@ class GCSampleForm(forms.ModelForm):
         model = models.GCSample
         exclude = ['last_modified', 'season']
         widgets = {
-            # 'traps_set': forms.DateInput(attrs={'type': 'date'}),
-            # 'traps_fished': forms.DateInput(attrs={'type': 'date'}),
+            'traps_set': forms.DateTimeInput(attrs=attr_fp_date_time),
+            'traps_fished': forms.DateTimeInput(attrs=attr_fp_date_time),
             'last_modified_by': forms.HiddenInput(),
+            'samplers': forms.SelectMultiple(attrs=multi_select_js),
+            'vegetation_species': forms.SelectMultiple(attrs=multi_select_js),
         }
 
 
@@ -109,28 +114,9 @@ class ProbeMeasurementForm(forms.ModelForm):
     class Meta:
         fields = ("__all__")
         model = models.ProbeMeasurement
-        labels = {
-            'time_date': "Date / Time (yyyy-mm-dd hh:mm:ss)",
-            'probe_depth': "Probe depth (m)",
-            'probe': "Probe name",
-            'temp_c': "Temp (°C)",
-            'sal_ppt': "Salinity (ppt)",
-            'o2_percent': "Disolved oxygen (%)",
-            'o2_mgl': "Disolved oxygen (mg/l)",
-            'sp_cond_ms': "Specific conductance (mS)",
-            'spc_ms': "Conductivity (mS)",
-            'ph': "pH",
-        }
 
         widgets = {
-            # 'temp_c':forms.NumberInput(attrs={'placeholder':'°C'}),
-            # 'time_date':forms.DateTimeInput(attrs={'placeholder':'yyyy-mm-dd hh:mm:ss'}),
-            # 'sal_ppt':forms.NumberInput(attrs={'placeholder':'ppt'}),
-            # 'o2_percent':forms.NumberInput(attrs={'placeholder':'%'}),
-            # 'o2_mgl':forms.NumberInput(attrs={'placeholder':'mg/l'}),
-            # 'sp_cond_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
-            # 'spc_ms':forms.NumberInput(attrs={'placeholder':'mS'}),
-            # 'probe_depth':forms.NumberInput(attrs={'placeholder':'m'}),
+            'time_date':forms.DateTimeInput(attrs=attr_fp_date_time),
             'last_modified_by': forms.HiddenInput(),
             'sample': forms.HiddenInput(),
 
