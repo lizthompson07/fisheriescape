@@ -66,12 +66,16 @@
             <th scope="col" style="width: 50%">
                 {% trans "Title" %}
             </th>
+            <th scope="col" style="width: 50%">
+                {% trans "Year" %}
+            </th>
             </thead>
             <tbody>
 
             {% for obj in filter.qs %}
                 <tr href="{% url 'publications:prj_detail' obj.id %}">
                     <td>{{ obj.title }}</td>
+                    <td>{{ obj.year }}</td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -36,6 +36,10 @@ class NewProjectForm(forms.ModelForm):
         self.fields['region'].choices = region_choices
         self.fields['division'].choices = division_choices
 
+        if kwargs['initial']['key']:
+            obj = models.Project.objects.get(pk=kwargs['initial']['key'])
+            print(obj.division)
+
 
 class ProjectSubmitForm(forms.ModelForm):
     class Meta:
@@ -78,9 +82,8 @@ class LookupForm(forms.ModelForm):
         fields = ['mult_name','name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
         self._meta.model = kwargs['initial']['lookup']
+        super().__init__(*args, **kwargs)
 
         values = [(t.id, t.name) for t in self._meta.model.objects.all()]
         self.fields['mult_name'].choices = values
