@@ -77,15 +77,15 @@ class Transaction(models.Model):
             self.outstanding_obligation = 0
 
         # if a consignee code was given without a consignee suffix, we should assign a suffix
-        if self.consignee_code and not self.consignee_suffix:
-            # find the greatest suffix for that code
-            my_last_trans = Transaction.objects.filter(fiscal_year=self.fiscal_year, consignee_code=self.consignee_code, consignee_suffix__isnull=False).order_by(
-                "consignee_suffix").last()
-            if my_last_trans:
-                my_suffix = my_last_trans.consignee_suffix + 1
-            else:
-                my_suffix = "{}0001".format(self.fiscal_year_id[-2:])
-            self.consignee_suffix = my_suffix
+        # if self.consignee_code and not self.consignee_suffix:
+        #     # find the greatest suffix for that code
+        #     my_last_trans = Transaction.objects.filter(fiscal_year=self.fiscal_year, consignee_code=self.consignee_code, consignee_suffix__isnull=False).order_by(
+        #         "consignee_suffix").last()
+        #     if my_last_trans:
+        #         my_suffix = my_last_trans.consignee_suffix + 1
+        #     else:
+        #         my_suffix = "{}0001".format(self.fiscal_year_id[-2:])
+        #     self.consignee_suffix = my_suffix
 
         return super().save(*args, **kwargs)
 
