@@ -303,7 +303,12 @@ class MooringSubmitForm(forms.ModelForm):
 
 
 class ServiceForm(forms.ModelForm):
-    # purchase_date = forms.DateField(input_formats=["%Y-%b-%d"])
+    YES_NO_CHOICES = (
+        (True, "Yes"),
+        (False, "No"),
+    )
+    was_also_calibrated = forms.BooleanField(required=False, widget=forms.Select(choices=YES_NO_CHOICES))
+
     class Meta:
         model = models.ServiceHistory
         exclude = [
