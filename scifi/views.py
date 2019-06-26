@@ -66,17 +66,6 @@ def can_modify(user, transaction_id):
                 return my_trans.responsibility_center in [rc for rc in scifi_user.responsibility_centers.all()]
 
 
-def trans_duplicate(request, pk):
-    try:
-        object = models.Transaction.objects.get(pk=pk)
-        object.pk = None
-        object.save()
-
-        return HttpResponseRedirect(reverse_lazy("scifi:trans_edit", kwargs={"pk": object.id}))
-    except models.StaffingPlanFunding.DoesNotExist:
-        return HttpResponseRedirect(reverse_lazy("index"))
-
-
 class SciFiAccessRequiredMixin(LoginRequiredMixin):
     # everyone who is logged in should be able to access scifi
     login_url = '/accounts/login_required/'
