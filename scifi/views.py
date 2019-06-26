@@ -437,6 +437,7 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
             'invoice_cost',
             'outstanding_obligation',
             'reference_number',
+            'regional_f_number|Regional consignee code',
             'invoice_date',
             'in_mrs',
             'amount_paid_in_mrs',
@@ -535,6 +536,7 @@ class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
             'invoice_cost',
             'outstanding_obligation',
             'reference_number',
+            'regional_f_number|Regional consignee code',
             'invoice_date',
             'in_mrs',
             'amount_paid_in_mrs',
@@ -606,6 +608,7 @@ class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
 
     def get_initial(self):
         return {
+            'fiscal_year': fiscal_year(sap_style=True),
             'created_by': self.request.user,
             'do_another': 1,
         }

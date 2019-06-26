@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -10,6 +11,7 @@ YES_NO_CHOICES = (
     (True, "Yes"),
     (False, "No"),
 )
+
 
 class Transaction(models.Model):
     # Choices for transaction_type
@@ -38,8 +40,9 @@ class Transaction(models.Model):
     outstanding_obligation = models.FloatField(blank=True, null=True)
     invoice_cost = models.FloatField(blank=True, null=True)
     reference_number = models.CharField(max_length=50, blank=True, null=True)
-    cosignee_code = models.ForeignKey(shared_models.CosigneeCode, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='transactions')
-    cosignee_suffix = models.CharField(max_length=6, blank=True, null=True, verbose_name=_("cosignee suffix"))
+    consignee_code = models.ForeignKey(shared_models.CosigneeCode, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                       related_name='transactions')
+    consignee_suffix = models.IntegerField(blank=True, null=True, verbose_name=_("consignee suffix"))
     invoice_date = models.DateTimeField(blank=True, null=True)
     in_mrs = models.BooleanField(default=False, verbose_name="In MRS", choices=YES_NO_CHOICES)
     amount_paid_in_mrs = models.FloatField(blank=True, null=True, verbose_name="amount paid in MRS")
@@ -49,7 +52,19 @@ class Transaction(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions")
     exclude_from_rollup = models.BooleanField(default=False, verbose_name="Exclude from rollup", choices=YES_NO_CHOICES)
 
-
+    @property
+    def regional_f_number(self):
+        if self.consignee_code and self.consignee_suffix:
+            return "{}-{}".format(
+                self.consignee_code.code,
+                self.consignee_suffix,
+            )
+        elif self.consignee_code:
+            return "{}".format(
+                self.consignee_code.code,
+            )
+        else:
+            return "n/a"
 
     def __str__(self):
         return "{}".format(self.supplier_description)
@@ -60,13 +75,26 @@ class Transaction(models.Model):
             self.outstanding_obligation = self.obligation_cost - nz(self.invoice_cost, 0)
         else:
             self.outstanding_obligation = 0
-        super().save(*args, **kwargs)
+
+        # if a consignee code was given without a consignee suffix, we should assign a suffix
+        if self.consignee_code and not self.consignee_suffix:
+            # find the greatest suffix for that code
+            my_last_trans = Transaction.objects.filter(fiscal_year=self.fiscal_year, consignee_code=self.consignee_code, consignee_suffix__isnull=False).order_by(
+                "consignee_suffix").last()
+            if my_last_trans:
+                my_suffix = my_last_trans.consignee_suffix + 1
+            else:
+                my_suffix = "{}0001".format(self.fiscal_year_id[-2:])
+            self.consignee_suffix = my_suffix
+
+        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('scifi:trans_detail', kwargs={'pk': self.id})
 
     class Meta:
         ordering = ["-creation_date", ]
+        unique_together = ["consignee_code", "consignee_suffix"]
 
 
 class SciFiUser(models.Model):
