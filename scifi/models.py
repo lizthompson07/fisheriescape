@@ -39,6 +39,7 @@ class Transaction(models.Model):
     invoice_cost = models.FloatField(blank=True, null=True)
     reference_number = models.CharField(max_length=50, blank=True, null=True)
     cosignee_code = models.ForeignKey(shared_models.CosigneeCode, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='transactions')
+    cosignee_suffix = models.CharField(max_length=6, blank=True, null=True, verbose_name=_("cosignee suffix"))
     invoice_date = models.DateTimeField(blank=True, null=True)
     in_mrs = models.BooleanField(default=False, verbose_name="In MRS", choices=YES_NO_CHOICES)
     amount_paid_in_mrs = models.FloatField(blank=True, null=True, verbose_name="amount paid in MRS")
