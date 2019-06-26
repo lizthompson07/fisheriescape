@@ -44,6 +44,7 @@
 
         <div class="row">
             <div class="col-8">
+                <div><span class="label">{% trans "Year" %}:</span> {{ object.year }}</div>
                 {% for field in abstract %}
                     {% verbose_field_display object field format='HTML' %}
                 {% endfor %}
