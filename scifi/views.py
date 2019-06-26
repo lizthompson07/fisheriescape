@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.db.models import TextField, Sum
+from django.db.models import TextField, Sum, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django_filters.views import FilterView
@@ -417,6 +417,20 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
     template_name = 'scifi/transaction_list.html'
     filterset_class = filters.TransactionFilter
     model = models.Transaction
+    queryset = models.Transaction.objects.annotate(
+        search_term=Concat(
+            'supplier_description',
+            Value(" "),
+            'reference_number',
+            Value(" "),
+            'comment',
+            Value(" "),
+            'consignee_code__code',
+            Value("-"),
+            'consignee_suffix',
+            output_field=TextField()
+        )
+    )
 
     # paginate_by = 15
 
