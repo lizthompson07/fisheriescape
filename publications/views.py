@@ -18,6 +18,9 @@ from . import forms
 
 
 def get_mod(mod_str):
+
+    lookup_mod = None
+
     if mod_str == "theme":
         lookup_mod = models.Theme
     elif mod_str == "pillar":
@@ -38,41 +41,26 @@ def get_mod(mod_str):
         lookup_mod = models.SpatialManagementDesignation
     elif mod_str == "spatialproduct":
         lookup_mod = models.SpatialDataProduct
+    elif mod_str == "spatialproductyear":
+        lookup_mod = models.SpatialDataProductYear
     elif mod_str == "sourceinternal":
         lookup_mod = models.SourceDataInternal
     elif mod_str == "sourceexternal":
         lookup_mod = models.SourceDataExternal
+    elif mod_str == "computerlibraries":
+        lookup_mod = models.ComputerLibraries
+    elif mod_str == "fgp":
+        lookup_mod = models.FgpLinkage
+    elif mod_str == "code":
+        lookup_mod = models.CodeSite
+    elif mod_str == "contact_external":
+        lookup_mod = models.ExternalContact
+    elif mod_str == "contact_internal":
+        lookup_mod = models.InternalContact
+    elif mod_str == "geoscope":
+        lookup_mod = models.GeographicScope
 
     return lookup_mod
-
-
-def get_mod_title(mod_str):
-    if mod_str == "theme":
-        title = "Theme"
-    elif mod_str == "pillar":
-        title = "Pillar of Sustainability"
-    elif mod_str == "human":
-        title = "Human Component"
-    elif mod_str == "ecosystem":
-        title = "Ecosystem Component"
-    elif mod_str == "linkage":
-        title = "Linkage to Program"
-    elif mod_str == "site":
-        title = "Site"
-    elif mod_str == "publication":
-        title = "Publication"
-    elif mod_str == "computer_environment":
-        title = "Computer Environment"
-    elif mod_str == "spatial":
-        title = "Spatial Management Designation"
-    elif mod_str == "spatialproduct":
-        title = "Spatial Data Product"
-    elif mod_str == "sourceinternal":
-        title = "Source Data Internal"
-    elif mod_str == "sourceexternal":
-        title = "Source Data External"
-
-    return title
 
 
 def lookup_delete(request, lookup, project, theme):
@@ -84,15 +72,38 @@ def lookup_delete(request, lookup, project, theme):
             project.theme.remove(val)
         elif mod is models.HumanComponent:
             project.human_component.remove(val)
-        elif mod is models.ProgramLinkage:
-            project.program_linkage.remove(val)
         elif mod is models.EcosystemComponent:
             project.ecosystem_component.remove(val)
+        elif mod is models.ProgramLinkage:
+            project.program_linkage.remove(val)
+        elif mod is models.Pillar:
+            project.sustainability_pillar.remove(val)
+        elif mod is models.GeographicScope:
+            project.geographic_scope.remove(val)
         elif issubclass(mod, models.TextLookup):
             val.delete()
 
-    messages.success(request, _("The " + get_mod_title(lookup) + " has been successfully deleted."))
+    messages.success(request, _("The " + mod._meta.verbose_name.title() + " has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("publications:prj_detail", kwargs={"pk": project.id}))
+
+
+def lookup_add(project, mod, val):
+    if project and not mod.objects.filter(pk=val.id, project__id=project.id):
+        if mod is models.Theme:
+            project.theme.add(val)
+        elif mod is models.HumanComponents:
+            project.human_component.add(val)
+        elif mod is models.EcosystemComponents:
+            project.ecosystem_component.add(val)
+        elif mod is models.ProgramLinkage:
+            project.program_linkage.add(val)
+        elif mod is models.Pillar:
+            project.sustainability_pillar.add(val)
+        elif mod is models.GeographicScope:
+            project.geographic_scope.add(val)
+        return True
+
+    return False
 
 
 class CloserTemplateView(TemplateView):
@@ -160,6 +171,7 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_initial(self):
         my_dict = {
+            'key': self.kwargs['pk'],
             'last_modified_by': self.request.user,
         }
 
@@ -198,17 +210,10 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         project = self.object
 
         context["abstract"] =[
-            'abstract'
+            'abstract',
+            'method'
         ]
 
-        comp_env_array = [site for site in models.ComputerEnvironment.objects.filter(project__id=project.id)]
-        sdi_array = [site for site in models.SourceDataInternal.objects.filter(project__id=project.id)]
-        sde_array = [site for site in models.SourceDataExternal.objects.filter(project__id=project.id)]
-        spatial_array = [site for site in models.SpatialManagementDesignation.objects.filter(project__id=project.id)]
-        spatial_product_array = [site for site in models.SpatialDataProduct.objects.filter(project__id=project.id)]
-        site_array = [site for site in models.Site.objects.filter(project__id=project.id)]
-        pub_array = [pub for pub in models.Publication.objects.filter(project__id=project.id)]
-        print(str(project.id) + ": " + str(site_array))
         context["field_list"] = [
             # {
             #     "url": None,
@@ -217,68 +222,104 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             # },
             {
                 "url": "computer_environment",
-                "label": "Computer Environment(s)",
-                "list": comp_env_array
+                "label": models.ComputerEnvironment._meta.verbose_name_plural,
+                "list": models.ComputerEnvironment.objects.filter(project__id=project.id)
             },
             {
                 "url": "spatial",
-                "label": "Spatial Management Designation(s)",
-                "list": spatial_array
+                "label": models.SpatialManagementDesignation._meta.verbose_name_plural,
+                "list": models.SpatialManagementDesignation.objects.filter(project__id=project.id)
             },
             {
                 "url": "spatialproduct",
-                "label": "Spatial Data Product(s)",
-                "list": spatial_product_array
+                "label": models.SpatialDataProduct._meta.verbose_name_plural,
+                "list": models.SpatialDataProduct.objects.filter(project__id=project.id)
+            },
+            {
+                "url": "spatialproductyear",
+                "label": models.SpatialDataProductYear._meta.verbose_name_plural,
+                "list": models.SpatialDataProductYear.objects.filter(project__id=project.id)
+            },
+            {
+                "url": "computerlibraries",
+                "label": models.ComputerLibraries._meta.verbose_name_plural,
+                "list": models.ComputerLibraries.objects.filter(project__id=project.id)
             },
             {
                 "url": "sourceinternal",
-                "label": "Source Data Internal",
-                "list": sdi_array
+                "label": models.SourceDataInternal._meta.verbose_name_plural,
+                "list": models.SourceDataInternal.objects.filter(project__id=project.id)
             },
             {
                 "url": "sourceexternal",
-                "label": "Source Data External",
-                "list": sde_array
+                "label": models.SourceDataExternal._meta.verbose_name_plural,
+                "list": models.SourceDataExternal.objects.filter(project__id=project.id)
             },
             {
                 "url": "site",
-                "label": "Site(s)",
-                "list": site_array
+                "label": models.Site._meta.verbose_name_plural,
+                "list": models.Site.objects.filter(project__id=project.id)
+            },
+            {
+                "url": "fgp",
+                "label": models.FgpLinkage._meta.verbose_name_plural,
+                "list": models.FgpLinkage.objects.filter(project__id=project.id)
+            },
+            {
+                "url": "code",
+                "label": models.CodeSite._meta.verbose_name_plural,
+                "list": models.CodeSite.objects.filter(project__id=project.id)
+            },
+            {
+                "url": "contact_external",
+                "label": models.ExternalContact._meta.verbose_name_plural,
+                "list": models.ExternalContact.objects.filter(project__id=project.id)
+            },
+            {
+                "url": "contact_internal",
+                "label": models.InternalContact._meta.verbose_name_plural,
+                "list": models.InternalContact.objects.filter(project__id=project.id)
             },
             {
                 "url": "publication",
-                "label": "Publications(s)",
-                "list": pub_array
+                "label": models.Publication._meta.verbose_name_plural,
+                "list": models.Publication.objects.filter(project__id=project.id)
             },
         ]
 
         context["lookups"] = [
             {
                 "url": "theme",
-                "label": "Theme",
+                "label": models.Theme._meta.verbose_name_plural,
                 "list": models.Theme.objects.filter(project__id=project.id).order_by("name")
             },
             {
                 "url": "pillar",
-                "label": "Pillar of sustainability",
+                "label": models.Pillar._meta.verbose_name_plural,
                 "list": models.Pillar.objects.filter(project__id=project.id).order_by("name")
             },
             {
                 "url": "human",
-                "label": "Human Component",
+                "label": models.HumanComponent._meta.verbose_name_plural,
                 "list": models.HumanComponent.objects.filter(project__id=project.id).order_by("name")
             },
             {
                 "url": "ecosystem",
-                "label": "Ecosystem Component",
+                "label": models.EcosystemComponent._meta.verbose_name_plural,
                 "list": models.EcosystemComponent.objects.filter(project__id=project.id).order_by("name")
             },
             {
                 "url": "linkage",
-                "label": "Linkage to Program",
+                "label": models.ProgramLinkage._meta.verbose_name_plural,
                 "list": models.ProgramLinkage.objects.filter(project__id=project.id).order_by("name")
             },
+            {
+                "url": "geoscope",
+                "label": models.GeographicScope._meta.verbose_name_plural,
+                "list": models.GeographicScope.objects.filter(project__id=project.id).order_by("name")
+            },
         ]
+        context
         context["field_list_1"] = [
             'human_component',
             'ecosystem_component',
@@ -316,6 +357,7 @@ class LookupAddView(LoginRequiredMixin, CreateView):
         project = models.Project.objects.get(pk=self.kwargs['project'])
         lookup_mod = get_mod(self.kwargs['lookup'])
 
+        print("lookup mod: " + str(lookup_mod))
         return {
             'project': project,
             'lookup': lookup_mod
@@ -325,7 +367,7 @@ class LookupAddView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
-        context['title'] = get_mod_title(self.kwargs['lookup'])
+        context['title'] = get_mod(self.kwargs['lookup'])._meta.verbose_name
         context['url_var'] = self.kwargs['lookup']
 
         return context
@@ -369,16 +411,7 @@ class ChoiceAddView(LookupAddView):
         dirty = False
         # for each lookup make sure it doesn't already exist in the publication variable
         for val in vals:
-            if project and not mod.objects.filter(pk=val.id, project__id=project.id):
-                if mod is models.Theme:
-                    project.theme.add(val)
-                elif mod is models.HumanComponents:
-                    project.human_component.add(val)
-                elif mod is models.ProgramLinkage:
-                    project.program_linkage.add(val)
-                elif mod is models.EcosystemComponents:
-                    project.ecosystem_component.add(val)
-                dirty = True
+            dirty = lookup_add(project, mod, val)
 
         if dirty:
             project.save()
