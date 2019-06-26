@@ -50,13 +50,8 @@
             {% bootstrap_form_errors form %}
             {% csrf_token %}
 
-
             {% for field in form %}
-
-
                 {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
-
-
             {% endfor %}
 
             <div class="btn-group">
@@ -89,35 +84,33 @@
     {% if custom_transaction %}
         var projectObj = {{project_json|safe}};
     {% endif %}
+
+    $("#submit_done").click(function () {
+        $("#id_do_another").val("0")
+    });
+
     document.addEventListener("keydown", function (zEvent) {
         if (zEvent.ctrlKey && zEvent.code === "KeyS") {
-            zEvent.preventDefault()
+            zEvent.preventDefault();
             $("#submit_done")[0].click();
         } else if (zEvent.ctrlKey && zEvent.code === "KeyA") {
-            zEvent.preventDefault()
+            zEvent.preventDefault();
             $("#submit")[0].click();
         }
     });
 
     $("input").keydown(function (event) {
         if (event.key == "Enter") {
-            event.preventDefault()
+            event.preventDefault();
         }
     });
-    $("#id_fiscal_year")[0].focus()
+    $("#id_fiscal_year")[0].focus();
 
     {% if custom_transaction %}
         $("#id_project").change(function () {
             setProjectDefaults();
         });
     {% endif %}
-
-    function uiRefresh() {
-        $('#id_responsibility_center').trigger("chosen:updated");
-        $('#id_business_line').trigger("chosen:updated");
-        $('#id_allotment_code').trigger("chosen:updated");
-        $('#id_line_object').trigger("chosen:updated");
-    }
 
     function clearDefaults() {
         $("#id_responsibility_center").val("");
