@@ -1,4 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import auth
@@ -9,6 +11,7 @@ YES_NO_CHOICES = (
     (True, "Yes"),
     (False, "No"),
 )
+
 
 # Create your models here.
 class Sampler(models.Model):
@@ -181,7 +184,6 @@ class Line(models.Model):
             if not False in lost_list:
                 self.is_lost = True
 
-
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -198,6 +200,7 @@ class Line(models.Model):
     @property
     def surface_species_count(self):
         return sum([s.species.count() for s in self.surfaces.all()])
+
 
 def img_file_name(instance, filename):
     img_name = 'grais/sample_{}/{}'.format(instance.line.sample.id, filename)
@@ -298,18 +301,18 @@ class ProbeMeasurement(models.Model):
     )
 
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="probe_data")
-    probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
-    time_date = models.DateTimeField(blank=True, null=True)
+    probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING, verbose_name="Probe name")
+    time_date = models.DateTimeField(blank=True, null=True, verbose_name="Date / Time (yyyy-mm-dd hh:mm)")
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
     tide_descriptor = models.CharField(max_length=2, choices=TIDE_DESCRIPTOR_CHOICES, blank=True, null=True)
-    probe_depth = models.FloatField(blank=True, null=True)
-    temp_c = models.FloatField(blank=True, null=True)
-    sal_ppt = models.FloatField(blank=True, null=True)
-    o2_percent = models.FloatField(blank=True, null=True)
-    o2_mgl = models.FloatField(blank=True, null=True)
-    sp_cond_ms = models.FloatField(blank=True, null=True)
-    spc_ms = models.FloatField(blank=True, null=True)
-    ph = models.FloatField(blank=True, null=True)
+    probe_depth = models.FloatField(blank=True, null=True, verbose_name="Probe depth (m)")
+    temp_c = models.FloatField(blank=True, null=True, verbose_name="Temp (°C)")
+    sal_ppt = models.FloatField(blank=True, null=True, verbose_name="Salinity (ppt)")
+    o2_percent = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (%)")
+    o2_mgl = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (mg/l)")
+    sp_cond_ms = models.FloatField(blank=True, null=True, verbose_name="Specific conductance (mS)")
+    spc_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (mS)")
+    ph = models.FloatField(blank=True, null=True, verbose_name="pH")
     turbidiy = models.FloatField(blank=True, null=True)
     weather_notes = models.CharField(max_length=1000, blank=True, null=True)
 
@@ -471,17 +474,35 @@ class Site(models.Model):
 
 
 class GCSample(models.Model):
+    # Choices for sediment
+    SAND = 1
+    MUD = 2
+    BOTH = 3
+    SEDIMENT_CHOICES = (
+        (SAND, 'Sand'),
+        (MUD, 'Mud'),
+        (BOTH, 'Sand / Mud'),
+    )
+
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING)
-    traps_set = models.DateTimeField(verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
-    traps_fished = models.DateTimeField(blank=True, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
+    traps_set = models.DateTimeField(verbose_name="Traps set (yyyy-mm-dd hh:mm)")
+    traps_fished = models.DateTimeField(blank=True, null=True, verbose_name="Traps fished (yyyy-mm-dd hh:mm)")
     samplers = models.ManyToManyField(Sampler)
-    bottom_type = models.CharField(max_length=100, blank=True, null=True)
-    percent_vegetation_cover = models.IntegerField(blank=True, null=True, verbose_name="vegetation cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    # bottom_type = models.CharField(max_length=100, blank=True, null=True)
+    # percent_vegetation_cover = models.IntegerField(blank=True, null=True, verbose_name="vegetation cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    eelgrass_assessed = models.NullBooleanField(verbose_name="was eelgrass assessed?")
+    eelgrass_percent_coverage = models.IntegerField(blank=True, null=True, verbose_name="eelgrass coverage (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    vegetation_species = models.ManyToManyField(Species, blank=True, limit_choices_to=Q(id__in=[5, 6, 46, 131, 132, 133, ])) # epi alg, ulva, green alg, brown alg, eelg, algae
+    sediment = models.IntegerField(null=True, blank=True, choices=SEDIMENT_CHOICES)
+
     season = models.IntegerField(null=True, blank=True)
-    last_modified = models.DateTimeField(blank=True, null=True)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
-    # temp_notes = models.CharField(max_length=1000, blank=True, null=True)
+
+    last_modified = models.DateTimeField(blank=True, null=True)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    # dropdown for spp [epi alg, ulva, green alg, brown alg, eelg, algae]
+    # sediment
 
     def save(self, *args, **kwargs):
         self.season = self.traps_set.year
@@ -543,10 +564,11 @@ class GCProbeMeasurement(models.Model):
     cond_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (mS)")
     tide_state = models.CharField(max_length=5, choices=TIDE_STATE_CHOICES, blank=True, null=True)
     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
-    cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)",
+                                      validators=[MinValueValidator(0), MaxValueValidator(100)])
     weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)")
-    # notes = models.TextField(blank=True, null=True)  # this field should be delete once all data has been entered
 
+    # notes = models.TextField(blank=True, null=True)  # this field should be delete once all data has been entered
 
     def __str__(self):
         return "Probe measurement {}".format(self.id)
@@ -611,6 +633,7 @@ class Crab(models.Model):
 
     class Meta:
         ordering = ['trap', 'species', 'id']
+
 
 class Bycatch(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
