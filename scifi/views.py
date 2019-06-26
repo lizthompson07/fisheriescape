@@ -36,10 +36,10 @@ def in_scifi_admin_group(user):
         return user.groups.filter(name='scifi_admin').count() != 0
 
 
-def can_modify(user, transaction):
-    # a user should be able to modify the record if: 1) they created it; 2) they are a scifi user with that RC attached
-    if user:
-        return user.groups.filter(name='scifi_access').count() != 0
+def is_logged_in(user):
+    # a quick check to see if user is logged in
+    if user.id:
+        return True
 
 
 def can_modify(user, transaction_id):
@@ -499,6 +499,7 @@ class TransactionBasicListView(SciFiAccessRequiredMixin, FilterView):
             }
         return kwargs
 
+
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_scifi_admin_group, login_url='/accounts/denied/')
 def toggle_mrs(request, pk, query=None):
@@ -583,6 +584,8 @@ class TransactionDuplicateView(TransactionUpdateView):
     def get_initial(self):
         # This is I think where we'll want to intercept if we need to change some thing from the record being duplicated
         init = super().get_initial()
+        init["creation_date"] = timezone.now()
+        init["created_by"] = self.request.user
         return init
 
     def form_valid(self, form):
@@ -591,6 +594,10 @@ class TransactionDuplicateView(TransactionUpdateView):
         obj.save()
 
         return HttpResponseRedirect(reverse_lazy("scifi:trans_detail", kwargs={"pk": obj.id}))
+
+    def test_func(self):
+        # this view should be available to any user
+        return is_logged_in(self.request.user)
 
 
 class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
@@ -715,7 +722,7 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
             messages.success(self.request,
-                         "The entry has been submitted and an email has been sent to the branch finance manager!")
+                             "The entry has been submitted and an email has been sent to the branch finance manager!")
         else:
             print('not sending email since in dev mode')
             print(email)
