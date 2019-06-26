@@ -578,6 +578,21 @@ class TransactionUpdateView(OnlyThoseAllowedToEditMixin, UpdateView):
         return context
 
 
+class TransactionDuplicateView(TransactionUpdateView):
+
+    def get_initial(self):
+        # This is I think where we'll want to intercept if we need to change some thing from the record being duplicated
+        init = super().get_initial()
+        return init
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.pk = None
+        obj.save()
+
+        return HttpResponseRedirect(reverse_lazy("scifi:trans_detail", kwargs={"pk": obj.id}))
+
+
 class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
     model = models.Transaction
     form_class = forms.TransactionForm
