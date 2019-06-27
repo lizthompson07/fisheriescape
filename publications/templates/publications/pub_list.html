@@ -69,6 +69,9 @@
             <th scope="col" style="width: 50%">
                 {% trans "Year" %}
             </th>
+            <th scope="col" style="width: 50%">
+                {% trans "DFO Contacts" %}
+            </th>
             </thead>
             <tbody>
 
@@ -76,6 +79,7 @@
                 <tr href="{% url 'publications:prj_detail' obj.id %}">
                     <td>{{ obj.title }}</td>
                     <td>{{ obj.year }}</td>
+                    <td>{{ obj.dfo_contact }}</td>
                 </tr>
             {% endfor %}
             </tbody>
