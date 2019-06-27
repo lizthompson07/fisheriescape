@@ -79,6 +79,12 @@ class InternalContact(Lookup):
         verbose_name_plural = "Contact(s) (Internal)"
 
 
+class Organization(Lookup):
+    class Meta:
+        verbose_name = "Organization"
+        verbose_name_plural = "Organization(s)"
+
+
 '''
 TextLookup is intended to be used for many-to-one relationships where a DB table
 has large non-searchable text blobs associated with a single project
@@ -196,6 +202,8 @@ class Project(models.Model):
     sustainability_pillar = models.ManyToManyField(Pillar, verbose_name=_("Pillar(s) of Sustainability"))
     program_linkage = models.ManyToManyField(ProgramLinkage, verbose_name=_("Program Linkage(s)"))
     geographic_scope = models.ManyToManyField(GeographicScope, verbose_name=_("Geographic Scope(s)"))
+    dfo_contact = models.ManyToManyField(InternalContact, verbose_name=_("Contact(s) (Internal)"))
+    organization = models.ManyToManyField(Organization, verbose_name=_("Organization(s)"))
 
     class Meta:
         ordering = ['title', 'division']
