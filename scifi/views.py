@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.db.models import TextField, Sum
+from django.db.models import TextField, Sum, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django_filters.views import FilterView
@@ -36,10 +36,10 @@ def in_scifi_admin_group(user):
         return user.groups.filter(name='scifi_admin').count() != 0
 
 
-def can_modify(user, transaction):
-    # a user should be able to modify the record if: 1) they created it; 2) they are a scifi user with that RC attached
-    if user:
-        return user.groups.filter(name='scifi_access').count() != 0
+def is_logged_in(user):
+    # a quick check to see if user is logged in
+    if user.id:
+        return True
 
 
 def can_modify(user, transaction_id):
@@ -417,6 +417,20 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
     template_name = 'scifi/transaction_list.html'
     filterset_class = filters.TransactionFilter
     model = models.Transaction
+    queryset = models.Transaction.objects.annotate(
+        search_term=Concat(
+            'supplier_description',
+            Value(" "),
+            'reference_number',
+            Value(" "),
+            'comment',
+            Value(" "),
+            'consignee_code__code',
+            Value("-"),
+            'consignee_suffix',
+            output_field=TextField()
+        )
+    )
 
     # paginate_by = 15
 
@@ -437,6 +451,7 @@ class TransactionListView(SciFiAccessRequiredMixin, FilterView):
             'invoice_cost',
             'outstanding_obligation',
             'reference_number',
+            'regional_f_number|Regional consignee code',
             'invoice_date',
             'in_mrs',
             'amount_paid_in_mrs',
@@ -499,6 +514,7 @@ class TransactionBasicListView(SciFiAccessRequiredMixin, FilterView):
             }
         return kwargs
 
+
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_scifi_admin_group, login_url='/accounts/denied/')
 def toggle_mrs(request, pk, query=None):
@@ -534,6 +550,7 @@ class TransactionDetailView(SciFiAccessRequiredMixin, DetailView):
             'invoice_cost',
             'outstanding_obligation',
             'reference_number',
+            'regional_f_number|Regional consignee code',
             'invoice_date',
             'in_mrs',
             'amount_paid_in_mrs',
@@ -583,6 +600,8 @@ class TransactionDuplicateView(TransactionUpdateView):
     def get_initial(self):
         # This is I think where we'll want to intercept if we need to change some thing from the record being duplicated
         init = super().get_initial()
+        init["creation_date"] = timezone.now()
+        init["created_by"] = self.request.user
         return init
 
     def form_valid(self, form):
@@ -592,6 +611,10 @@ class TransactionDuplicateView(TransactionUpdateView):
 
         return HttpResponseRedirect(reverse_lazy("scifi:trans_detail", kwargs={"pk": obj.id}))
 
+    def test_func(self):
+        # this view should be available to any user
+        return is_logged_in(self.request.user)
+
 
 class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
     model = models.Transaction
@@ -599,6 +622,7 @@ class TransactionCreateView(SciFiAdminRequiredMixin, CreateView):
 
     def get_initial(self):
         return {
+            'fiscal_year': fiscal_year(sap_style=True),
             'created_by': self.request.user,
             'do_another': 1,
         }
@@ -715,7 +739,7 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
             messages.success(self.request,
-                         "The entry has been submitted and an email has been sent to the branch finance manager!")
+                             "The entry has been submitted and an email has been sent to the branch finance manager!")
         else:
             print('not sending email since in dev mode')
             print(email)
