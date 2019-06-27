@@ -4,10 +4,10 @@ import datetime
 from publications import models
 
 
-def process_lookup(file_name, mod, complex_parse=False, uppercase=True):
+def process_lookup(file_name, mod, delim=",", complex_parse=False, uppercase=True):
     # This method is intended to work with a file that is ONLY themes
     data_file = open(file_name, encoding='utf-8')
-    reader = csv.reader(data_file, delimiter=',')
+    reader = csv.reader(data_file, delimiter=delim)
 
     # skip the header row
     next(reader, None)
@@ -63,7 +63,7 @@ def add_lookup(model, val_array, var):
                 dirty = True
         except model.DoesNotExist:
             print("=========================== Err: Could not find value matching: " + str(val))
-            exit()
+            # exit()
 
     if dirty:
         project.save()
@@ -87,10 +87,13 @@ process_lookup(data_ecosystem_file_name, models.EcosystemComponent)
 data_geoscope_file_name = r'E:\Projects\Python\publications-inventory\Geo-Scope.csv'
 process_lookup(data_geoscope_file_name, models.GeographicScope)
 
-data_internal_contact_file_name = r'E:\Projects\Python\publications-inventory\internal_contact.csv'
-process_lookup(data_internal_contact_file_name, models.InternalContact)
+data_internal_contact_file_name = r'E:\Projects\Python\publications-inventory\dfo-contacts.txt'
+process_lookup(data_internal_contact_file_name, models.InternalContact, delim="|", complex_parse=False, uppercase=False)
 
-data_tp_file_name = r'E:\Projects\Python\publications-inventory\pub_data3.csv'
+data_organization_file_name = r'E:\Projects\Python\publications-inventory\organizations.txt'
+process_lookup(data_organization_file_name, models.Organization, delim="|", complex_parse=False, uppercase=False)
+
+data_tp_file_name = r'E:\Projects\Python\publications-inventory\pub_data.csv'
 
 tp_reader = csv.reader(open(data_tp_file_name, encoding='utf-8'), delimiter=',')
 
@@ -122,8 +125,8 @@ next(tp_reader, None)
 # *22 Geographic scope
 # 23 Geographic coordinates
 # 24 Spatial Scale
-# **25 Pub year <= partly handled
-# 26 Organization
+# *25 Pub year
+# *26 Organization
 # 27 DFO Region
 # 28 DFO Division
 # *29 Sites
@@ -178,6 +181,8 @@ for line in tp_reader:
         else:
             year = sp_year[0]
 
+    organizations = [s.strip() for s in line[26].split(' | ')]
+
     sites = [s.strip() for s in line[29].split(' | ')]
 
     publications = [p.strip() for p in line[30].split(' | ')]
@@ -209,7 +214,8 @@ for line in tp_reader:
         add_lookup(models.ProgramLinkage, linkages, project.program_linkage)
         add_lookup(models.EcosystemComponent, ecosystems, project.ecosystem_component)
         add_lookup(models.GeographicScope, geographic_scope, project.geographic_scope)
-        add_lookup(models.InternalContact, internal_contact)
+        add_lookup(models.InternalContact, internal_contact, project.dfo_contact)
+        add_lookup(models.Organization, organizations, project.organization)
 
         add_text(models.ComputerEnvironment, computer_environment)
         add_text(models.SourceDataInternal, source_internal)

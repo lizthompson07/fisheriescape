@@ -59,6 +59,8 @@ def get_mod(mod_str):
         lookup_mod = models.InternalContact
     elif mod_str == "geoscope":
         lookup_mod = models.GeographicScope
+    elif mod_str == "organization":
+        lookup_mod = models.Organization
 
     return lookup_mod
 
@@ -276,11 +278,6 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
                 "list": models.ExternalContact.objects.filter(project__id=project.id)
             },
             {
-                "url": "contact_internal",
-                "label": models.InternalContact._meta.verbose_name_plural,
-                "list": models.InternalContact.objects.filter(project__id=project.id)
-            },
-            {
                 "url": "publication",
                 "label": models.Publication._meta.verbose_name_plural,
                 "list": models.Publication.objects.filter(project__id=project.id)
@@ -317,6 +314,16 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
                 "url": "geoscope",
                 "label": models.GeographicScope._meta.verbose_name_plural,
                 "list": models.GeographicScope.objects.filter(project__id=project.id).order_by("name")
+            },
+            {
+                "url": "contact_internal",
+                "label": models.InternalContact._meta.verbose_name_plural,
+                "list": models.InternalContact.objects.filter(project__id=project.id)
+            },
+            {
+                "url": "organization",
+                "label": models.Organization._meta.verbose_name_plural,
+                "list": models.Organization.objects.filter(project__id=project.id).order_by("name")
             },
         ]
         context
@@ -388,7 +395,6 @@ class ChoiceAddView(LookupAddView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.form_class = forms.LookupForm
-        print(self.form_class)
 
     def form_valid(self, form):
         mod = get_mod(self.kwargs['lookup'])
@@ -435,7 +441,6 @@ class TextAddView(LookupAddView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.form_class = forms.TextForm
-        print(self.form_class)
 
     def form_valid(self, form):
         context = self.get_context_data()
