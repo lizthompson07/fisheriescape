@@ -4,6 +4,7 @@ from django.utils import timezone
 from shared_models import models as shared_models
 from . import models
 
+chosen_js_sw = {"class": "chosen-select"}
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
 
@@ -15,6 +16,7 @@ class ResponsibilityCentreForm(forms.ModelForm):
         widgets = {
             "manager": forms.Select(attrs=chosen_js),
         }
+
     def __init__(self, *args, **kwargs):
         USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         User.objects.all().order_by("last_name", "first_name")]
@@ -63,6 +65,7 @@ class ProjectForm(forms.ModelForm):
             "default_line_object": forms.Select(attrs=chosen_js),
         }
 
+
 class TransactionForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
@@ -70,10 +73,11 @@ class TransactionForm(forms.ModelForm):
         model = models.Transaction
         exclude = ["outstanding_obligation"]
         labels = {
-            "fiscal_year": "Fiscal year (SAP style e.g. 2018-2019 = 2019)",
+            # "fiscal_year": "Fiscal year (SAP style e.g. 2018-2019 = 2019)",
+            "consignee_suffix": "Consignee suffix (if left blank, this will be automatically assigned)",
         }
         widgets = {
-            "fiscal_year": forms.NumberInput(),
+            # "fiscal_year": forms.Select(attrs=chosen_js_sw),
             "created_by": forms.HiddenInput(),
             "creation_date": forms.DateInput(attrs={"type": "date"}),
             "expected_purchase_date": forms.DateInput(attrs={"type": "date"}),
@@ -83,8 +87,27 @@ class TransactionForm(forms.ModelForm):
             "allotment_code": forms.Select(attrs=chosen_js),
             "line_object": forms.Select(attrs=chosen_js),
             "project": forms.Select(attrs=chosen_js),
-            "cosignee_code": forms.Select(attrs=chosen_js),
+            "consignee_code": forms.Select(attrs=chosen_js),
         }
+
+    def clean_consignee_suffix(self):
+        my_suffix = self.cleaned_data['consignee_suffix']
+        my_code = self.cleaned_data['consignee_code']
+        my_year = self.cleaned_data['fiscal_year']
+
+        ## it must be exactly 6 chars long
+        if my_suffix:
+            if len(str(my_suffix)) != 6:
+                raise forms.ValidationError("Cosignee suffix must be exactly 6 digits long.")
+
+            ## if must start with the short year. e.g., if fiscal_year_id = 2020, then the suffix must begin with 19####
+            if not str(my_suffix).startswith(str(my_year.id - 1)[-2:]):
+                raise forms.ValidationError("Since the fiscal year for this transaction is {}, the suffix must begin with {}".format(
+                    my_year,
+                    str(my_year.id - 1)[-2:],
+                ))
+
+        return my_suffix
 
 
 class CustomTransactionForm(forms.ModelForm):
@@ -103,8 +126,8 @@ class CustomTransactionForm(forms.ModelForm):
             "expected_purchase_date",
             "obligation_cost",
             "reference_number",
-            "comment",
-
+            "consignee_code",
+            'consignee_suffix',
             # hidden fields
             "created_by",
             "creation_date",
@@ -115,16 +138,17 @@ class CustomTransactionForm(forms.ModelForm):
         labels = {
             "supplier_description": "Expense description",
             "obligation_cost": "Cost estimation",
+            "consignee_suffix": "Consignee suffix (if left blank, this will be automatically assigned)",
         }
 
         widgets = {
-            "fiscal_year": forms.Select(attrs=chosen_js),
+            # "fiscal_year": forms.Select(attrs=chosen_js_sw),
             "responsibility_center": forms.Select(attrs=chosen_js),
             "business_line": forms.Select(attrs=chosen_js),
             "allotment_code": forms.Select(attrs=chosen_js),
             "line_object": forms.Select(attrs=chosen_js),
             "project": forms.Select(attrs=chosen_js),
-            "cosignee_code": forms.Select(attrs=chosen_js),
+            "consignee_code": forms.Select(attrs=chosen_js),
             "comment": forms.Textarea(attrs={"rows": 4}),
             "expected_purchase_date": forms.DateInput(attrs={"type": "date"}),
 
