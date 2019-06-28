@@ -59,6 +59,8 @@ def get_mod(mod_str):
         lookup_mod = models.InternalContact
     elif mod_str == "geoscope":
         lookup_mod = models.GeographicScope
+    elif mod_str == "spatialscale":
+        lookup_mod = models.SpatialScale
     elif mod_str == "organization":
         lookup_mod = models.Organization
 
@@ -76,12 +78,18 @@ def lookup_delete(request, lookup, project, theme):
             project.human_component.remove(val)
         elif mod is models.EcosystemComponent:
             project.ecosystem_component.remove(val)
-        elif mod is models.ProgramLinkage:
-            project.program_linkage.remove(val)
         elif mod is models.Pillar:
             project.sustainability_pillar.remove(val)
+        elif mod is models.ProgramLinkage:
+            project.program_linkage.remove(val)
         elif mod is models.GeographicScope:
             project.geographic_scope.remove(val)
+        elif mod is models.InternalContact:
+            project.dfo_contact.remove(val)
+        elif mod is models.Organization:
+            project.organization.remove(val)
+        elif mod is models.SpatialScale:
+            project.spatial_scale.remove(val)
         elif issubclass(mod, models.TextLookup):
             val.delete()
 
@@ -93,16 +101,22 @@ def lookup_add(project, mod, val):
     if project and not mod.objects.filter(pk=val.id, project__id=project.id):
         if mod is models.Theme:
             project.theme.add(val)
-        elif mod is models.HumanComponents:
+        elif mod is models.HumanComponent:
             project.human_component.add(val)
-        elif mod is models.EcosystemComponents:
+        elif mod is models.EcosystemComponent:
             project.ecosystem_component.add(val)
-        elif mod is models.ProgramLinkage:
-            project.program_linkage.add(val)
         elif mod is models.Pillar:
             project.sustainability_pillar.add(val)
+        elif mod is models.ProgramLinkage:
+            project.program_linkage.add(val)
         elif mod is models.GeographicScope:
             project.geographic_scope.add(val)
+        elif mod is models.InternalContact:
+            project.dfo_contact.add(val)
+        elif mod is models.Organization:
+            project.organization.add(val)
+        elif mod is models.SpatialScale:
+            project.spatial_scale.add(val)
         return True
 
     return False
@@ -211,7 +225,10 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         project = self.object
 
-        context["abstract"] =[
+        context["coordinates"] = models.GeoCoordinate.objects.filter(project__id=project.id)
+        context["divisions"] = shared_models.Division.objects.filter(project__id=project.id)
+        print(str(context["divisions"]))
+        context["abstract"] = [
             'abstract',
             'method'
         ]
@@ -314,6 +331,11 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
                 "url": "geoscope",
                 "label": models.GeographicScope._meta.verbose_name_plural,
                 "list": models.GeographicScope.objects.filter(project__id=project.id).order_by("name")
+            },
+            {
+                "url": "spatialscale",
+                "label": models.SpatialScale._meta.verbose_name_plural,
+                "list": models.SpatialScale.objects.filter(project__id=project.id).order_by("name")
             },
             {
                 "url": "contact_internal",
