@@ -92,15 +92,15 @@
     $("#id_transaction_type").change(function () {
         if($(this).val() == "1") {
             $("#id_obligation_cost").prop("disabled", true);
-            $("label[for=id_invoice_cost]").text("Allocation amount")
+            $("label[for=id_invoice_cost]").text("Allocation amount");
         }
         else if($(this).val() == "2") {
             $("#id_obligation_cost").prop("disabled", true);
-            $("label[for=id_invoice_cost]").text("Adjustment amount")
+            $("label[for=id_invoice_cost]").text("Adjustment amount");
         }
         else if($(this).val() == "3") {
             $("#id_obligation_cost").prop("disabled", false);
-            $("label[for=id_invoice_cost]").text("Invoice cost")
+            $("label[for=id_invoice_cost]").text("Invoice cost");
         }
     });
 
