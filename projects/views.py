@@ -28,8 +28,8 @@ from shared_models import models as shared_models
 help_text_dict = {
     "user": _("This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)"),
     "start_date": _("This is the start date of the project, not the fiscal year"),
-    "is_negotiable ": _("Is this program a part of DFO's core mandate?"),
-    "is_competitive ": _("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
+    "is_negotiable": _("Is this program a part of DFO's core mandate?"),
+    "is_competitive": _("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
     "priorities": _("What will be the project emphasis in this particular fiscal year?"),
     "deliverables": _("Please provide this information in bulleted form, if possible."),
 }
