@@ -85,6 +85,12 @@ class Organization(Lookup):
         verbose_name_plural = "Organization(s)"
 
 
+class SpatialScale(Lookup):
+    class Meta:
+        verbose_name = "Spatial Scale"
+        verbose_name_plural = "Spatial Scale(s)"
+
+
 '''
 TextLookup is intended to be used for many-to-one relationships where a DB table
 has large non-searchable text blobs associated with a single project
@@ -174,6 +180,19 @@ class ExternalContact(TextLookup):
         verbose_name_plural = "Contact(s) (External)"
 
 
+class GeoCoordinate(models.Model):
+
+    north_south = models.FloatField()
+    east_west = models.FloatField()
+
+    class Meta:
+        verbose_name = "Geographic Coordinate"
+        verbose_name_plural = "Geographic Coordinates"
+
+    def __str__(self):
+        return "[{}°N, {}°E]".format(self.north_south, self.east_west)
+
+
 class Project(models.Model):
     # year
     # title
@@ -204,9 +223,14 @@ class Project(models.Model):
     geographic_scope = models.ManyToManyField(GeographicScope, verbose_name=_("Geographic Scope(s)"))
     dfo_contact = models.ManyToManyField(InternalContact, verbose_name=_("Contact(s) (Internal)"))
     organization = models.ManyToManyField(Organization, verbose_name=_("Organization(s)"))
+    spatial_scale = models.ManyToManyField(SpatialScale, verbose_name=_("Spatial Scale(s)"))
+    coordinates = models.ForeignKey(GeoCoordinate, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                    verbose_name=_("Coordinate(s)"))
+
+    division = models.ManyToManyField(shared_models.Division, verbose_name=_("Division(s)"))
 
     class Meta:
-        ordering = ['title', 'division']
+        ordering = ['title']
 
     def __str__(self):
         return "{}".format(self.title)
