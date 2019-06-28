@@ -2,6 +2,7 @@ import csv
 from django.db.utils import IntegrityError, DataError
 import datetime
 from publications import models
+from shared_models import models as shared_models
 
 
 def process_lookup(file_name, mod, delim=",", complex_parse=False, uppercase=True):
@@ -35,10 +36,11 @@ def process_lookup(file_name, mod, delim=",", complex_parse=False, uppercase=Tru
 
 
 def add_text(model, val_array):
-    print("Adding " + model._meta.verbose_name + " to project: " + str(project))
+
     for val in val_array:
         try:
             if val and not model.objects.filter(project=project, value=val).exists():
+                print("Adding " + model._meta.verbose_name + " to project: " + str(project))
                 mod = model(project=project, value=val)
                 mod.save()
         except DataError:
@@ -62,7 +64,7 @@ def add_lookup(model, val_array, var):
                 var.add(obj)
                 dirty = True
         except model.DoesNotExist:
-            print("=========================== Err: Could not find value matching: " + str(val))
+            print("=========================== Err " + model._meta.verbose_name + ": Could not find value matching: " + str(val))
             # exit()
 
     if dirty:
@@ -92,6 +94,9 @@ process_lookup(data_internal_contact_file_name, models.InternalContact, delim="|
 
 data_organization_file_name = r'E:\Projects\Python\publications-inventory\organizations.txt'
 process_lookup(data_organization_file_name, models.Organization, delim="|", complex_parse=False, uppercase=False)
+
+data_spatial_scale_file_name = r'E:\Projects\Python\publications-inventory\spatial-scale.txt'
+process_lookup(data_spatial_scale_file_name, models.SpatialScale)
 
 data_tp_file_name = r'E:\Projects\Python\publications-inventory\pub_data.csv'
 
@@ -123,8 +128,8 @@ next(tp_reader, None)
 # *20 contact (keep as free text)
 # *21 DFO Contact (create code list)
 # *22 Geographic scope
-# 23 Geographic coordinates
-# 24 Spatial Scale
+# *23 Geographic coordinates
+# *24 Spatial Scale
 # *25 Pub year
 # *26 Organization
 # 27 DFO Region
@@ -173,6 +178,10 @@ for line in tp_reader:
 
     geographic_scope = [l.strip().upper() for l in line[22].replace(' and ', ' | ').replace(', ', ' | ').split(' | ')]
 
+    coordinates = [l.strip() for l in line[23].strip().replace("°E", "").replace("°N", "").split(" ")] if line[23].strip() else None
+
+    spatial_scale = [l.strip().upper() for l in line[24].split(' | ')]
+
     year = line[25]
     if '-' in year:
         sp_year = year.split('-')
@@ -182,6 +191,8 @@ for line in tp_reader:
             year = sp_year[0]
 
     organizations = [s.strip() for s in line[26].split(' | ')]
+
+    divisions = [s.strip() for s in line[28].strip().split(' | ')] if line[28].strip() else None
 
     sites = [s.strip() for s in line[29].split(' | ')]
 
@@ -202,6 +213,13 @@ for line in tp_reader:
         project.year = year
         project.save()
 
+    if coordinates:
+        print("coordinates" + str(coordinates))
+        coord = models.GeoCoordinate(north_south=coordinates[0], east_west=coordinates[1])
+        coord.save()
+        project.coordinates = coord
+        project.save()
+
     if not project.method and method:
         print("Setting Method")
         project.method = method
@@ -216,6 +234,7 @@ for line in tp_reader:
         add_lookup(models.GeographicScope, geographic_scope, project.geographic_scope)
         add_lookup(models.InternalContact, internal_contact, project.dfo_contact)
         add_lookup(models.Organization, organizations, project.organization)
+        add_lookup(models.SpatialScale, spatial_scale, project.spatial_scale)
 
         add_text(models.ComputerEnvironment, computer_environment)
         add_text(models.SourceDataInternal, source_internal)
@@ -229,3 +248,19 @@ for line in tp_reader:
         add_text(models.CodeSite, code_site)
         add_text(models.ExternalContact, external_contact)
         add_text(models.Publication, publications)
+
+        if divisions:
+            proj_div = [div for div in project.division.values_list()]
+            dirty = False
+            for division in divisions:
+                print("division: " + str(division))
+                try:
+                    div = shared_models.Division.objects.get(abbrev=division)
+                    if not div in proj_div:
+                        project.division.add(div)
+                        dirty = True
+                except shared_models.Division.DoesNotExist:
+                    print("============ Division " + division + " doesn't exist")
+
+            if dirty:
+                project.save()
