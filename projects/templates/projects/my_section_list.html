@@ -4,6 +4,7 @@
 {% load custom_filters %}
 {% load i18n %}
 {% load bootstrap4 %}
+{% load verbose_names %}
 {% block content %}
 
     {% get_current_language as LANG %}
@@ -100,6 +101,12 @@
                 <th scope="col" style="width: 10%">
                     {% trans "Project Lead" %}
                 </th>
+                <th scope="col" style="width: 10%">
+                    {% trans "Science Programs" %}
+                </th>
+                <th scope="col" style="width: 10%">
+                    {% trans "Tags" %}
+                </th>
                 <th scope="col" style="text-align:center; width: 8%">
                     {% trans "Submitted" %}
                 </th>
@@ -142,16 +149,13 @@
                             {{ obj.project_title }}
                         </td>
                         <td>
-                            {% for staff in obj.staff_members.all %}
-                                {% if staff.lead %}
-                                    {% if staff.user_id %}
-                                        {{ staff.user.first_name }} {{ staff.user.last_name }}
-                                    {% else %}
-                                        {{ staff.name }}
-                                    {% endif %}
-                                    <br>
-                                {% endif %}
-                            {% endfor %}
+                            {{ obj.project_leads }}
+                        </td>
+                        <td>
+                            {% get_field_value obj "programs" %}
+                        </td>
+                        <td>
+                            {% get_field_value obj "tags" %}
                         </td>
 
                         <td class="{% if obj.submitted %}green-font{% else %}red-font{% endif %}" style="text-align:center">

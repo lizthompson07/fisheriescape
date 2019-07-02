@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db.models import Sum, Q
+from django.shortcuts import render
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
@@ -163,6 +164,8 @@ project_field_list = [
     'project_title',
     'section',
     'program',
+    'programs',
+    'tags',
     'responsibility_center',
     'allotment_code',
     'existing_project_code',
@@ -673,6 +676,33 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy('projects:staff_edit', kwargs={"pk": object.id}))
+
+
+
+# this is a temp view DJF created to walkover the `program` field to the new `programs` field
+def temp_formset(request):
+    context = {}
+    # if the formset is being submitted
+    if request.method == 'POST':
+        # choose the appropriate formset based on the `extra` arg
+        formset = forms.TempFormSet(request.POST)
+
+        if formset.is_valid():
+            formset.save()
+            # pass the specimen through the make_flags helper function to assign any QC flags
+
+            # redirect back to the observation_formset with the blind intention of getting another observation
+            return HttpResponseRedirect(reverse("projects:formset"))
+    # otherwise the formset is just being displayed
+    else:
+        # prep the formset...for display
+        formset = forms.TempFormSet(
+            queryset=models.Project.objects.filter(program__isnull=False).filter(programs__isnull=True).order_by("program")
+        )
+    context['formset'] = formset
+    return render(request, 'projects/temp_formset.html', context)
+
+
 
 
 # COLLABORATOR #

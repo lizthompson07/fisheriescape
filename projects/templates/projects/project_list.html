@@ -2,6 +2,7 @@
 {% load static %}
 {% load humanize %}
 {% load custom_filters %}
+{% load verbose_names %}
 {% load i18n %}
 
 {% block content %}
@@ -27,7 +28,7 @@
         </ol>
     </nav>
 
-    <div class="indent-lg">
+    <div class="container-fluid">
         <h1>
             {% trans "All Projects:" %}
         </h1>
@@ -75,11 +76,17 @@
             <th scope="col">
                 {% trans "Section" %}
             </th>
-            <th scope="col" style="width: 50%">
+            <th scope="col" style="width: 35%">
                 {% trans "Title" %}
             </th>
             <th scope="col">
                 {% trans "Project Lead" %}
+            </th>
+            <th scope="col" style="width: 10%">
+                {% trans "Tags" %}
+            </th>
+            <th scope="col" style="text-align:center; width: 8%">
+                {% trans "Submitted" %}
             </th>
             <th scope="col">
                 {% trans "Submitted" %}
@@ -105,6 +112,12 @@
                     </td>
                     <td>
                         {{ obj.project_leads }}
+                    </td>
+                    <td>
+                        {% get_field_value obj "programs" %}
+                    </td>
+                    <td>
+                        {% get_field_value obj "tags" %}
                     </td>
                     <td>{{ obj.submitted|yesno:_("yes,no") }}</td>
                 </tr>
