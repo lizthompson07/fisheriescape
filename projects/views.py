@@ -4,6 +4,7 @@ import os
 import pandas as pd
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -34,6 +35,12 @@ help_text_dict = {
     "priorities": _("What will be the project emphasis in this particular fiscal year?"),
     "deliverables": _("Please provide this information in bulleted form, if possible."),
 }
+
+
+def is_superuser(user):
+    """returns True if user is in specified group"""
+    if user.is_superuser:
+        return True
 
 
 # This function is a bit of a misnomer. It is used to determine whether the user has full access to a record, assuming they are not already a project lead
@@ -493,7 +500,7 @@ class ProjectApprovalUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form_class(self):
         level = self.kwargs["level"]
-        if level=="section":
+        if level == "section":
             return forms.SectionApprovalForm
         elif level == "division":
             return forms.DivisionApprovalForm
@@ -678,8 +685,9 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('projects:staff_edit', kwargs={"pk": object.id}))
 
 
-
 # this is a temp view DJF created to walkover the `program` field to the new `programs` field
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(is_superuser, login_url='/accounts/denied/')
 def temp_formset(request):
     context = {}
     # if the formset is being submitted
@@ -697,12 +705,22 @@ def temp_formset(request):
     else:
         # prep the formset...for display
         formset = forms.TempFormSet(
-            queryset=models.Project.objects.filter(section__division__branch__region__id=1).filter(program__isnull=False).order_by("program")
+            queryset=models.Project.objects.filter(section__division__branch__region__id=1).filter(program__isnull=False).order_by(
+                "program")
         )
     context['formset'] = formset
     return render(request, 'projects/temp_formset.html', context)
 
 
+# this is a temp view DJF created to walkover the `program` field to the new `programs` field
+class MyTempListView(LoginRequiredMixin, ListView):
+    queryset = models.Project.objects.all().order_by(
+        "section__division__branch__region",
+        "section__division",
+        "section",
+        "program",
+    )
+    template_name = 'projects/my_temp_list.html'
 
 
 # COLLABORATOR #
