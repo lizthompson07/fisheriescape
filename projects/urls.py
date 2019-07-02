@@ -31,6 +31,7 @@ urlpatterns = [
 
     #  this was used to walk over program to programs
     path('project-formset/', views.temp_formset, name="formset"),
+    path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
 
 
     # USER #
