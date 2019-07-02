@@ -697,7 +697,7 @@ def temp_formset(request):
     else:
         # prep the formset...for display
         formset = forms.TempFormSet(
-            queryset=models.Project.objects.filter(program__isnull=False).filter(programs__isnull=True).order_by("program")
+            queryset=models.Project.objects.filter(section__division__branch__region__id=1).filter(program__isnull=False).order_by("program")
         )
     context['formset'] = formset
     return render(request, 'projects/temp_formset.html', context)
