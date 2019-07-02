@@ -30,7 +30,7 @@ urlpatterns = [
     path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
 
     #  this was used to walk over program to programs
-    # path('project-formset/', views.temp_formset, name="formset"),
+    path('project-formset/', views.temp_formset, name="formset"),
 
 
     # USER #
