@@ -66,10 +66,10 @@
             <th scope="col" style="width: 50%">
                 {% trans "Title" %}
             </th>
-            <th scope="col" style="width: 50%">
+            <th scope="col">
                 {% trans "Year" %}
             </th>
-            <th scope="col" style="width: 50%">
+            <th scope="col">
                 {% trans "DFO Contacts" %}
             </th>
             </thead>
@@ -79,7 +79,13 @@
                 <tr href="{% url 'publications:prj_detail' obj.id %}">
                     <td>{{ obj.title }}</td>
                     <td>{{ obj.year }}</td>
-                    <td>{{ obj.dfo_contact }}</td>
+                    <td>
+                        <ul class="list-unstyled">
+                    {% for div in obj.dfo_contact.all %}
+                        <li>{{ div }}</li>
+                    {% endfor %}
+                        </ul>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
