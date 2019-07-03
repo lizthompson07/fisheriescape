@@ -12,15 +12,16 @@ class UpperCaseField(forms.CharField):
 
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField()
-    field_order = ['title', 'abstract', 'region', 'division', 'date_last_modified']
+    field_order = ['title', 'abstract', 'method', 'year', 'region', 'division', 'date_last_modified']
 
     class Meta:
         model = models.Project
-        fields = ['title', 'abstract', 'region', 'division']
+        fields = ['title', 'abstract', 'method', 'year', 'region', 'division']
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'title': forms.Textarea(attrs={"rows": 2}),
+            'title': forms.Textarea(attrs={"rows": 1}),
             'abstract': forms.Textarea(attrs={"rows": 4}),
+            'method': forms.Textarea(attrs={"rows": 4}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -36,9 +37,10 @@ class NewProjectForm(forms.ModelForm):
         self.fields['region'].choices = region_choices
         self.fields['division'].choices = division_choices
 
-        if kwargs['initial']['key']:
+        print(kwargs)
+        if 'key' in kwargs['initial'].keys() and kwargs['initial']['key']:
             obj = models.Project.objects.get(pk=kwargs['initial']['key'])
-            print(obj.division)
+            print(obj.division.all())
 
 
 class ProjectSubmitForm(forms.ModelForm):
@@ -65,7 +67,7 @@ class ProjectForm(forms.ModelForm):
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'title': forms.Textarea(attrs={"rows": 3}),
+            'title': forms.Textarea(attrs={"rows": 2}),
         }
 
     def __init__(self, *args, **kwargs):

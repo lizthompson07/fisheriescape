@@ -195,10 +195,11 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class ProjectDeleteView(LoginRequiredMixin, DeleteView):
-    model = models.Project
+    model = models.Publication
     permission_required = "__all__"
-    success_url = reverse_lazy('publications:')
-    success_message = _('The publication was successfully deleted!')
+    success_url = reverse_lazy('publications:index')
+    success_message = _('The project was successfully deleted!')
+    template_name = 'publications/pub_confirm_delete.html'
     login_url = '/accounts/login_required/'
 
     def delete(self, request, *args, **kwargs):
