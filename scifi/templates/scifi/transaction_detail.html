@@ -31,7 +31,7 @@
             <a class="btn btn-danger " href="{% url 'scifi:trans_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
-            <a class="btn btn-success under-dev" href="#">
+            <a class="btn btn-success" href="{% url 'scifi:trans_duplicate' object.id %}">
                 {% trans "Duplicate Record" %}
             </a>
 
