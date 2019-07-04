@@ -44,7 +44,7 @@
                 <div class="col">
                     <br>
                     <input type="submit" value="Filter" class="btn btn-warning btn-sm">
-
+                    <a href="." class="btn btn-sm btn-info">Clear</a>
                 </div>
             </div>
         </form>
@@ -66,12 +66,26 @@
             <th scope="col" style="width: 50%">
                 {% trans "Title" %}
             </th>
+            <th scope="col">
+                {% trans "Year" %}
+            </th>
+            <th scope="col">
+                {% trans "DFO Contacts" %}
+            </th>
             </thead>
             <tbody>
 
             {% for obj in filter.qs %}
                 <tr href="{% url 'publications:prj_detail' obj.id %}">
                     <td>{{ obj.title }}</td>
+                    <td>{{ obj.year }}</td>
+                    <td>
+                        <ul class="list-unstyled">
+                    {% for div in obj.dfo_contact.all %}
+                        <li>{{ div }}</li>
+                    {% endfor %}
+                        </ul>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
