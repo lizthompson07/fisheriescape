@@ -40,6 +40,77 @@ class Program(models.Model):
         ordering = ['name', ]
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    nom = models.CharField(max_length=255, blank=True, null=True, unique=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+# This model will eventually be renamed once we get rid on the original Program table
+class Program2(models.Model):
+    national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True)
+    national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True)
+    program_inventory = models.CharField(max_length=255, blank=True, null=True)
+    funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
+    regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True)
+    regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True)
+    examples = models.CharField(max_length=255, blank=True, null=True)
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("regional_program_name_eng"))):
+            regional_program_name = "{}".format(getattr(self, str(_("regional_program_name_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            regional_program_name = "{}".format(self.regional_program_name_eng)
+
+        # check to see if a french value is given
+        if getattr(self, str(_("national_responsibility_eng"))):
+            national_responsibility = "{}".format(getattr(self, str(_("national_responsibility_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            national_responsibility = "{}".format(self.national_responsibility_eng)
+
+        return "{} - {}".format(regional_program_name, national_responsibility)
+
+    def __str__(self):
+
+        # check to see if a french value is given
+        if getattr(self, str(_("regional_program_name_eng"))):
+            regional_program_name = "{}".format(getattr(self, str(_("regional_program_name_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            regional_program_name = "{}".format(self.regional_program_name_eng)
+
+        # check to see if a french value is given
+        if getattr(self, str(_("national_responsibility_eng"))):
+            national_responsibility = "{}".format(getattr(self, str(_("national_responsibility_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            national_responsibility = "{}".format(self.national_responsibility_eng)
+
+        my_str = "{} - {}".format(national_responsibility, regional_program_name)
+
+        if self.examples:
+            return "{} (e.g., {})".format(my_str, self.examples)
+        else:
+            return "{}".format(my_str)
+
+    class Meta:
+        ordering = [_("national_responsibility_eng"), _("regional_program_name_eng") ]
+
+
 class Status(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
@@ -71,7 +142,9 @@ class Project(models.Model):
     project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                                 verbose_name=_("section"))
-    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("program"))
+    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("old program (retired field)"))
+    programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("linkage to Science programs"))
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"))
 
     # coding
     responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
@@ -101,7 +174,6 @@ class Project(models.Model):
     # HTML field
     deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
 
-
     # data
     #######
     # HTML field
@@ -120,7 +192,7 @@ class Project(models.Model):
     # HTML field
     regional_dm_needs = models.TextField(blank=True, null=True,
                                          verbose_name=_("If yes, please describe"))
-    sectional_dm = models.NullBooleanField( verbose_name=_("Does the program require assistance of the section's data manager"))
+    sectional_dm = models.NullBooleanField(verbose_name=_("Does the program require assistance of the section's data manager"))
     # HTML field
     sectional_dm_needs = models.TextField(blank=True, null=True,
                                           verbose_name=_("If yes, please describe"))
@@ -141,7 +213,8 @@ class Project(models.Model):
     # HTML field
     impacts_if_not_approved = models.TextField(blank=True, null=True, verbose_name=_("impacts if project is not approved"))
 
-    feedback = models.TextField(blank=True, null=True, verbose_name=_("Do you have any feedback you would like to submit about this process"))
+    feedback = models.TextField(blank=True, null=True,
+                                verbose_name=_("Do you have any feedback you would like to submit about this process"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
 
     section_head_approved = models.BooleanField(default=False, verbose_name=_("section head approved"))
@@ -188,6 +261,7 @@ class Project(models.Model):
     @property
     def project_leads(self):
         return listrify([staff for staff in self.staff_members.all() if staff.lead])
+
 
 class EmployeeType(models.Model):
     # cost_type choices
