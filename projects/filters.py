@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 from shared_models import models as shared_models
 import django_filters
 from . import views
+from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
 
@@ -14,6 +15,8 @@ class ProjectFilter(django_filters.FilterSet):
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label=_("Division"))
     section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label=_("Section"))
+    programs = django_filters.ModelChoiceFilter(field_name='programs', lookup_expr='exact', label=_("Programs"), queryset=models.Program2.objects.all())
+    tags = django_filters.ModelChoiceFilter(field_name='tags', lookup_expr='exact', label=_("Tags"), queryset=models.Tag.objects.all())
     submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', label=_("Submitted?"))
 
     def __init__(self, *args, **kwargs):
