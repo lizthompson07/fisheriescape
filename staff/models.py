@@ -27,7 +27,7 @@ class Lookup(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['code', 'name', ]
+        ordering = ['name', ]
 
 
 class StaffingPlanStatus(Lookup):

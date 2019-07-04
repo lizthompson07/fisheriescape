@@ -3,8 +3,6 @@ from django import forms
 from . import views
 from . import models
 
-chosen_js = {"class": "chosen-select-contains"}
-
 
 class FundingForm(forms.ModelForm):
 
@@ -59,23 +57,6 @@ class NewStaffingForm(forms.ModelForm):
             'date_last_modified': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
 
-            "fiscal_year": forms.NumberInput(),
-            "created_by": forms.HiddenInput(),
-            "division": forms.Select(attrs=chosen_js),
-            "section": forms.Select(attrs=chosen_js),
-            "employee_class_level": forms.Select(attrs=chosen_js),
-            "responsibility_center": forms.Select(attrs=chosen_js),
-            "staffing_plan_status": forms.Select(attrs=chosen_js),
-            "funding_type": forms.Select(attrs=chosen_js),
-
-            "work_location": forms.Select(attrs=chosen_js),
-            "position_staffing_option": forms.Select(attrs=chosen_js),
-            "position_tenure": forms.Select(attrs=chosen_js),
-            "position_security": forms.Select(attrs=chosen_js),
-
-            "position_linguistic": forms.Select(attrs=chosen_js),
-            "position_employment_equity": forms.Select(attrs=chosen_js),
-            "reports_to": forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
