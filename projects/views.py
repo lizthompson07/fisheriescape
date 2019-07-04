@@ -4,10 +4,12 @@ import os
 import pandas as pd
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db.models import Sum, Q
+from django.shortcuts import render
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
@@ -28,11 +30,17 @@ from shared_models import models as shared_models
 help_text_dict = {
     "user": _("This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)"),
     "start_date": _("This is the start date of the project, not the fiscal year"),
-    "is_negotiable ": _("Is this program a part of DFO's core mandate?"),
-    "is_competitive ": _("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
+    "is_negotiable": _("Is this program a part of DFO's core mandate?"),
+    "is_competitive": _("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
     "priorities": _("What will be the project emphasis in this particular fiscal year?"),
     "deliverables": _("Please provide this information in bulleted form, if possible."),
 }
+
+
+def is_superuser(user):
+    """returns True if user is in specified group"""
+    if user.is_superuser:
+        return True
 
 
 # This function is a bit of a misnomer. It is used to determine whether the user has full access to a record, assuming they are not already a project lead
@@ -163,6 +171,8 @@ project_field_list = [
     'project_title',
     'section',
     'program',
+    'programs',
+    'tags',
     'responsibility_center',
     'allotment_code',
     'existing_project_code',
@@ -490,7 +500,7 @@ class ProjectApprovalUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form_class(self):
         level = self.kwargs["level"]
-        if level=="section":
+        if level == "section":
             return forms.SectionApprovalForm
         elif level == "division":
             return forms.DivisionApprovalForm
@@ -673,6 +683,44 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy('projects:staff_edit', kwargs={"pk": object.id}))
+
+
+# this is a temp view DJF created to walkover the `program` field to the new `programs` field
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(is_superuser, login_url='/accounts/denied/')
+def temp_formset(request):
+    context = {}
+    # if the formset is being submitted
+    if request.method == 'POST':
+        # choose the appropriate formset based on the `extra` arg
+        formset = forms.TempFormSet(request.POST)
+
+        if formset.is_valid():
+            formset.save()
+            # pass the specimen through the make_flags helper function to assign any QC flags
+
+            # redirect back to the observation_formset with the blind intention of getting another observation
+            return HttpResponseRedirect(reverse("projects:formset"))
+    # otherwise the formset is just being displayed
+    else:
+        # prep the formset...for display
+        formset = forms.TempFormSet(
+            queryset=models.Project.objects.filter(section__division__branch__region__id=1).filter(program__isnull=False).order_by(
+                "program")
+        )
+    context['formset'] = formset
+    return render(request, 'projects/temp_formset.html', context)
+
+
+# this is a temp view DJF created to walkover the `program` field to the new `programs` field
+class MyTempListView(LoginRequiredMixin, ListView):
+    queryset = models.Project.objects.all().order_by(
+        "section__division__branch__region",
+        "section__division",
+        "section",
+        "program",
+    )
+    template_name = 'projects/my_temp_list.html'
 
 
 # COLLABORATOR #
