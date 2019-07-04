@@ -246,8 +246,8 @@ def get_app_dict(request):
 
     try:
         app_dict["publications"] = {
-            "title": _("Project Publications Inventory"),
-            "description": _("Tool for publishing and viewing publications related to completed projects."),
+            "title": _("Project Inventory"),
+            "description": _("Tools for viewing information on completed projects"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('publications:index'),
