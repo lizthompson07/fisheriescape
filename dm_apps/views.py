@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 # check to see if there is a user-defined local configuration file
 # if there is, we we use this as our local configuration, otherwise we use the default
 try:
-    from bio_sci_site.dm_apps import my_conf as local_conf
+    from . import my_conf as local_conf
 except ModuleNotFoundError and ImportError:
     from . import default_conf as local_conf
 
