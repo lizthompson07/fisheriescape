@@ -89,14 +89,14 @@
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            hideAll()
-            configureForm()
+            hideAll();
+            configureForm();
         });
 
         $("#id_report").change(function () {
-            hideAll()
-            configureForm()
-        })
+            hideAll();
+            configureForm();
+        });
 
         $("form").submit(function () {
             var reportChoice = $("#id_report")[0].value;
@@ -104,10 +104,10 @@
             if (reportChoice != 4) {
                 $(this).addClass("hidden");
                 $(".spinner-border").removeClass("hidden");
-                window.setTimeout(closeLoader, 20000)
+                window.setTimeout(closeLoader, 10000)
             }
 
-        })
+        });
 
         function closeLoader() {
             $("form").removeClass("hidden");
