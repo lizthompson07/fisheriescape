@@ -60,6 +60,7 @@ urlpatterns = [
     path('transactions/basic/', views.TransactionBasicListView.as_view(), name="btrans_list"),
     path('transaction/new/', views.TransactionCreateView.as_view(), name="trans_new"),
     path('transaction/<int:pk>/view/', views.TransactionDetailView.as_view(), name="trans_detail"),
+    path('transaction/<int:pk>/duplicate/', views.TransactionDuplicateView.as_view(), name="trans_duplicate"),
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="trans_edit"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="trans_delete"),
     # custom transaction

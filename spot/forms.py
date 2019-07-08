@@ -9,12 +9,15 @@ attr_chosen_contains = {"class": "chosen-select-contains"}
 attr_chosen = {"class": "chosen-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Select Date.."}
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
+attr_fp_date_time_email = {"class": "fp-date-time green-borders", "placeholder": "Select Date and Time.."}
+
+multi_select_js = {"class": "multi-select"}
+class_editable = {"class": "editable"}
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
 )
-
 
 class OrganizationForm(forms.ModelForm):
     class Meta:
@@ -76,11 +79,13 @@ class PersonForm(forms.ModelForm):
             "cell",
             "fax",
             "language",
+            "email_block",
         ]
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'language': forms.Select(attrs=attr_chosen),
+            # 'email_block': forms.Textarea(attrs=class_editable),
         }
 
 
@@ -101,7 +106,6 @@ class NewPersonForm(forms.ModelForm):
             "cell",
             "fax",
             "language",
-            # "notes",
         ]
 
         widgets = {
@@ -113,11 +117,8 @@ class NewPersonForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
-        org_choices.insert(0,(None, "------"))
+        org_choices.insert(0, (None, "------"))
         self.fields['organization'].choices = org_choices
-
-
-
 
 
 class ProjectForm(forms.ModelForm):
@@ -130,7 +131,7 @@ class ProjectForm(forms.ModelForm):
             'language',
             'title',
             'program',
-            'priority_area_or_threat',
+            'priority_area_or_threats',
             'status',
             'regions',
             'start_year',
@@ -142,7 +143,7 @@ class ProjectForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'organization': forms.Select(attrs=attr_chosen_contains),
             'program': forms.Select(attrs=attr_chosen_contains),
-            'priority_area_or_threat': forms.Select(attrs=attr_chosen_contains),
+            'priority_area_or_threats': forms.SelectMultiple(attrs=attr_chosen_contains),
             'language': forms.Select(attrs=attr_chosen_contains),
             'status': forms.Select(attrs=attr_chosen_contains),
             'start_year': forms.Select(attrs=attr_chosen_contains),
@@ -155,7 +156,7 @@ class ProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
-        org_choices.insert(0,(None, "------"))
+        org_choices.insert(0, (None, "------"))
         self.fields['organization'].choices = org_choices
 
 
@@ -170,7 +171,7 @@ class NewProjectForm(forms.ModelForm):
             'language',
             'title',
             'program',
-            'priority_area_or_threat',
+            'priority_area_or_threats',
             'status',
             'start_year',
             'requested_funding_y1',
@@ -186,7 +187,7 @@ class NewProjectForm(forms.ModelForm):
             'initiation_date': forms.HiddenInput(),
             'organization': forms.Select(attrs=attr_chosen_contains),
             'program': forms.Select(attrs=attr_chosen_contains),
-            'priority_area_or_threat': forms.Select(attrs=attr_chosen_contains),
+            'priority_area_or_threats': forms.SelectMultiple(attrs=attr_chosen_contains),
             'language': forms.Select(attrs=attr_chosen_contains),
             'status': forms.Select(attrs=attr_chosen_contains),
             'start_year': forms.Select(attrs=attr_chosen_contains),
@@ -246,6 +247,7 @@ class InitiationForm(forms.ModelForm):
             'requested_funding_y3',
             'requested_funding_y4',
             'requested_funding_y5',
+            'overview',
             'notes',
             'last_modified_by',
         ]
@@ -264,7 +266,6 @@ class EOIForm(forms.ModelForm):
         fields = [
             'project',
             'date_received',
-            'title',
             'description',
             'coordinator_notified',
             'project_eligible',
@@ -278,7 +279,7 @@ class EOIForm(forms.ModelForm):
 
             'feedback': forms.Textarea(attrs={"rows": 5}),
             'coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
-            'date_received': forms.DateInput(attrs={"type":"date"}),
+            'date_received': forms.DateInput(attrs={"type": "date"}),
             'feedback_sent': forms.DateInput(attrs=attr_fp_date),
         }
 
@@ -324,7 +325,7 @@ class NegotiationForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={"rows": 5}),
             'negotiations_workplan_completion_date': forms.DateInput(attrs=attr_fp_date),
             'negotiations_financials_completion_date': forms.DateInput(attrs=attr_fp_date),
-            'negotiation_letter_sent': forms.DateInput(attrs=attr_fp_date_time),
+            'negotiation_letter_sent': forms.DateInput(attrs=attr_fp_date_time_email),
         }
 
 
@@ -356,7 +357,6 @@ class CAAdministrationForm(forms.ModelForm):
             'draft_ca_ready',
             'draft_ca_sent_to_manager',
             'draft_ca_manager_approved',
-            'draft_ca',
             'draft_ca_sent_to_nhq',
             'aip_received',
             'final_ca_received',
@@ -388,6 +388,28 @@ class CAAdministrationForm(forms.ModelForm):
         }
 
 
+class ActivitiesForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'last_modified_by',
+            'activities',
+            'notes',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": 4}),
+            'activities': forms.SelectMultiple(attrs=multi_select_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        my_project = kwargs["instance"]
+        if my_project.program:
+            activity_choices = [(obj.id, str(obj)) for obj in models.Activity.objects.filter(program=my_project.program)]
+            self.fields["activities"].choices = activity_choices
+
+
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = models.Payment
@@ -415,3 +437,38 @@ class PaymentForm(forms.ModelForm):
             'materials_submitted': forms.Select(choices=YES_NO_CHOICES),
             'payment_confirmed': forms.Select(choices=YES_NO_CHOICES),
         }
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+            'uploaded_by': forms.HiddenInput(),
+            'date_modified': forms.HiddenInput(),
+        }
+
+
+
+
+class ReportSearchForm(forms.Form):
+
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "Negotiations summary"),
+    )
+
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    fiscal_year = forms.ChoiceField(required=True)
+    programs = forms.MultipleChoiceField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        fy_choices.insert(0, (None, "-----"))
+        program_choices = [(obj.id, str(obj)) for obj in models.Program.objects.all() if obj.projects.count() > 0]
+
+        self.fields["fiscal_year"].choices = fy_choices
+        self.fields["programs"].choices = program_choices

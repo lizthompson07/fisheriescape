@@ -29,6 +29,11 @@ urlpatterns = [
     path('staff/<int:pk>/delete/', views.staff_delete, name="staff_delete"),
     path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
 
+    #  this was used to walk over program to programs
+    path('project-formset/', views.temp_formset, name="formset"),
+    path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
+
+
     # USER #
     ########
     path('user/new/', views.UserCreateView.as_view(), name="user_new"),
