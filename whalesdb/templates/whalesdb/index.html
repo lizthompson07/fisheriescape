@@ -43,6 +43,30 @@
     <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
         <div class="text-center roboto">
             <h2>
+                {% trans "Deployment" %}
+            </h2>
+        </div>
+        <div class="row">
+
+            {% for dep_obj in deployment %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url dep_obj.url %}" >
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        {% trans dep_obj.title %}
+                    </h5>
+                    <img src="{% static dep_obj.icon %}" class="card-img-top" />
+                </div>
+            </div>
+            {% endfor %}
+       </div>
+
+    </div>
+
+    <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
+        <div class="text-center roboto">
+            <h2>
                 {% trans "Inventory" %}
             </h2>
         </div>
