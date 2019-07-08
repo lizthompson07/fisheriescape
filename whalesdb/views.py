@@ -33,11 +33,23 @@ def get_model_object(obj_name):
     return obj_def
 
 
+class AfterDeploymentForm(CreateView):
+    model = models.DepDeployments
+    fields = []
+
 class IndexView(TemplateView):
     template_name = 'whalesdb/index.html'
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data()
+        context['deployment'] = [
+            {
+                'title': "After Deployment",
+                'url': "whalesdb:create_afterdep",
+                'icon': "img/whales/hydrophone_inventory.svg",
+            },
+        ]
+
         context['data_inventory'] = [
             {
                 'title': "Hydrophone Inventory",

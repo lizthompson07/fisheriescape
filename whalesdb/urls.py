@@ -7,6 +7,8 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
 
+    path('create/afterdep', views.AfterDeploymentForm.as_view(), name="create_afterdep"),
+
     path('<str:lookup>/edit', views.CodeEditView.as_view(), name="code_entry"),
     path('<str:lookup>/list', views.CodeListView.as_view(), name="code_list"),
 
