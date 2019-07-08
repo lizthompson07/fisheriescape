@@ -47,6 +47,15 @@ class Province(models.Model):
         else:
             return "{}".format(self.name)
 
+    @property
+    def tabbrev(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("abbrev_eng"))):
+            return "{}".format(getattr(self, str(_("abbrev_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.abbrev_eng)
+
     class Meta:
         ordering = ['name', ]
 
@@ -164,8 +173,10 @@ class Section(models.Model):
 
     @property
     def shortish_name(self):
-        my_str = "{} - {} - {} - {}".format(self.division.branch.region.abbrev, self.division.branch.abbrev, self.division.abbrev, self.name)
+        my_str = "{} - {} - {} - {}".format(self.division.branch.region.abbrev, self.division.branch.abbrev, self.division.abbrev,
+                                            self.name)
         return my_str
+
 
 class AllotmentCategory(models.Model):
     name = models.CharField(max_length=25)
@@ -235,13 +246,14 @@ class LineObject(models.Model):
 class ResponsibilityCenter(models.Model):
     code = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, null=True)
-    manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,)
+    manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, )
 
     def __str__(self):
         return "{} ({})".format(self.code, self.name)
 
     class Meta:
         ordering = ['code', ]
+
 
 # CONNECTED APPS: scifi
 class CosigneeCode(models.Model):
@@ -357,6 +369,7 @@ class Cruise(models.Model):
             self.season = self.start_date.year
         return super().save(*args, **kwargs)
 
+
 #########################################
 
 # species model
@@ -393,11 +406,12 @@ class Port(models.Model):
     alias_wharf_name = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return "{}, {} ({}{}{})".format(self.port_name, self.get_province_code_display(), self.province_code, self.district_code, self.port_code)
+        return "{}, {} ({}{}{})".format(self.port_name, self.get_province_code_display(), self.province_code, self.district_code,
+                                        self.port_code)
 
     class Meta:
-        ordering = ['port_name','province_code', 'district_code', 'port_code']
-        unique_together = ['province_code','district_code','port_code']
+        ordering = ['port_name', 'province_code', 'district_code', 'port_code']
+        unique_together = ['province_code', 'district_code', 'port_code']
 
 
 class Language(models.Model):

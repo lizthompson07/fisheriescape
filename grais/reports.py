@@ -159,7 +159,7 @@ def generate_species_sample_spreadsheet(species_list=None):
                 obs_month,
                 obs_day,
                 sample.station.station_name,
-                sample.station.province.abbrev,
+                sample.station.province.tabbrev,
                 sample.station.latitude_n,
                 sample.station.longitude_w,
                 at_station,

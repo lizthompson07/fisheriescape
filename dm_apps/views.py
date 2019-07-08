@@ -70,7 +70,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('grais:index'),
             "icon_path": 'img/icons/starfish.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -83,7 +83,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('herring:index'),
             "icon_path": 'img/icons/fish.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -96,7 +96,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('ihub:index'),
             "icon_path": 'img/icons/network.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -109,7 +109,7 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('camp:index'),
             "icon_path": 'img/icons/seine.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -148,7 +148,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('masterlist:index'),
             "icon_path": 'img/icons/connection.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -161,7 +161,7 @@ def get_app_dict(request):
             "access": "open",
             "url": reverse('crab:index'),
             "icon_path": 'img/icons/crab.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -174,7 +174,7 @@ def get_app_dict(request):
             "access": "open",
             "url": reverse('oceanography:index'),
             "icon_path": 'img/icons/boat.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -187,7 +187,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('diets:index'),
             "icon_path": 'img/icons/fork.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -200,7 +200,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('shares:index'),
             "icon_path": 'img/icons/database.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -213,7 +213,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('travel:index'),
             "icon_path": 'img/icons/paper-plane.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -226,20 +226,46 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('spot:index'),
             "icon_path": 'img/icons/agreement.svg',
-            "region": "gulf",
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["ios2"] = {
+            "title": _("IOS Instrument Tracking"),
+            "description": _("IOS Instrument Tracking Application."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('ios2:index'),
+            "icon_path": 'img/icons/sailor.svg',
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
 
     try:
         app_dict["publications"] = {
-            "title": _("Project Publications Inventory"),
-            "description": _("Tool for publishing and viewing publications related to completed projects."),
+            "title": _("Project Inventory"),
+            "description": _("Tools for viewing information on completed projects"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('publications:index'),
             "icon_path": 'img/icons/publications.svg',
-            "region": "gulf",
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["staff"] = {
+            "title": _("Staff Planning Tool"),
+            "description": _("Tool for staff planning."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('staff:index'),
+            "icon_path": 'img/icons/staff.svg',
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -252,7 +278,7 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('whalesdb:index'),
             "icon_path": 'img/whales/whales_dark.svg',
-            "region": "gulf",
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -267,15 +293,15 @@ class IndexView(TemplateView):
         context = super().get_context_data(*args, **kwargs)
         app_odict = get_app_dict(self.request)
         app_dict_shared = OrderedDict()
-        app_dict_gulf = OrderedDict()
+        app_dict_regional = OrderedDict()
         for key in app_odict:
             if app_odict[key]["region"] == "all":
                 app_dict_shared[key] = app_odict[key]
 
-            if app_odict[key]["region"] == "gulf":
-                app_dict_gulf[key] = app_odict[key]
+            if app_odict[key]["region"] == "regional":
+                app_dict_regional[key] = app_odict[key]
 
 
         context["app_dict_shared"] = app_dict_shared
-        context["app_dict_gulf"] = app_dict_gulf
+        context["app_dict_regional"] = app_dict_regional
         return context

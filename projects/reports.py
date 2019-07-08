@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.template.defaultfilters import yesno
 
+from lib.templatetags.verbose_names import get_field_value
 from shared_models import models as shared_models
 from lib.functions.custom_functions import nz
 from lib.functions.verbose_field_name import verbose_field_name
@@ -35,7 +36,6 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
     total_format = workbook.add_format({'bg_color': '#D6D1C0', "align": 'left', "text_wrap": True})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
     bold_format = workbook.add_format({"align": 'left', 'bold': True})
-
 
     # need to assemble a section list
     ## first look at the sections arg; if not null, we don't need anything else
@@ -74,7 +74,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
     # spreadsheet: Project List #
     #############################
     if len(project_list) == 0:
-        worksheet1.write_row(0, 0, ["There are no projects to report",], bold_format)
+        worksheet1.write_row(0, 0, ["There are no projects to report", ], bold_format)
     else:
         # get a project list for the year
 
@@ -83,7 +83,8 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             verbose_field_name(project_list[0], 'project_title'),
             "Section",
             "Division",
-            verbose_field_name(project_list[0], 'program'),
+            verbose_field_name(project_list[0], 'programs'),
+            verbose_field_name(project_list[0], 'tags'),
             "Coding",
             verbose_field_name(project_list[0], 'status'),
             "Project lead",
@@ -171,15 +172,21 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 status = "n/a"
 
             try:
-                lead = str(["{} {}".format(lead.user.first_name, lead.user.last_name) for lead in p.staff_members.filter(lead=True)]).replace(
+                lead = str(
+                    ["{} {}".format(lead.user.first_name, lead.user.last_name) for lead in p.staff_members.filter(lead=True)]).replace(
                     "[", "").replace("]", "").replace("'", "").replace('"', "")
             except:
                 lead = "n/a"
 
             try:
-                program = p.program.name
+                programs = get_field_value(p, "programs")
             except:
-                program = "n/a"
+                programs = "n/a"
+
+            try:
+                tags = get_field_value(p, "tags")
+            except:
+                tags = "n/a"
 
             try:
                 start = p.start_date.strftime('%Y-%m-%d')
@@ -206,28 +213,29 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 p.project_title,
                 division,
                 section,
-                program,
+                programs,
+                tags,
                 p.coding,
                 status,
                 lead,
                 yesno(p.is_approved),
                 start,
                 end,
-                html2text.html2text(p.description),
-                html2text.html2text(p.priorities),
-                html2text.html2text(p.deliverables),
-                html2text.html2text(p.data_collection),
-                html2text.html2text(p.data_sharing),
-                html2text.html2text(p.data_storage),
+                html2text.html2text(nz(p.description, "")),
+                html2text.html2text(nz(p.priorities, "")),
+                html2text.html2text(nz(p.deliverables, "")),
+                html2text.html2text(nz(p.data_collection, "")),
+                html2text.html2text(nz(p.data_sharing, "")),
+                html2text.html2text(nz(p.data_storage, "")),
                 p.metadata_url,
                 p.regional_dm,
-                html2text.html2text(p.regional_dm_needs),
+                html2text.html2text(nz(p.regional_dm_needs, "")),
                 p.sectional_dm,
-                html2text.html2text(p.sectional_dm_needs),
-                html2text.html2text(p.vehicle_needs),
-                html2text.html2text(p.it_needs),
-                html2text.html2text(p.chemical_needs),
-                html2text.html2text(p.ship_needs),
+                html2text.html2text(nz(p.sectional_dm_needs, "")),
+                html2text.html2text(nz(p.vehicle_needs, "")),
+                html2text.html2text(nz(p.it_needs, "")),
+                html2text.html2text(nz(p.chemical_needs, "")),
+                html2text.html2text(nz(p.ship_needs, "")),
                 fte_total,
                 salary_total,
                 ot_total,
@@ -387,7 +395,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
     # spreadsheet: agreement List #
     ##################################
     if len(agreement_list) == 0:
-        worksheet4.write_row(0, 0, ["There are no agreements to report",], bold_format)
+        worksheet4.write_row(0, 0, ["There are no agreements to report", ], bold_format)
     else:
         header = [
             "Project Id",
@@ -477,7 +485,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
     # spreadsheet: Capital List #
     #############################
     if len(capital_list) == 0:
-        worksheet6.write_row(0, 0, ["There are no capital expenditures to report",], bold_format)
+        worksheet6.write_row(0, 0, ["There are no capital expenditures to report", ], bold_format)
     else:
 
         header = [
@@ -522,7 +530,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
     # spreadsheet: GC List #
     ########################
     if len(gc_list) == 0:
-        worksheet7.write_row(0, 0, ["There are no Gs & Cs to report",], bold_format)
+        worksheet7.write_row(0, 0, ["There are no Gs & Cs to report", ], bold_format)
     else:
         header = [
             "Project Id",

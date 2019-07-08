@@ -50,18 +50,13 @@
             {% bootstrap_form_errors form %}
             {% csrf_token %}
 
-
             {% for field in form %}
-
-
                 {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
-
-
             {% endfor %}
 
             <div class="btn-group">
                 {% if object %}
-                    <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+                    <button type="submit" id="submit_done" class="btn btn-sm btn-primary">Save & Done (Ctrl+S)</button>
                     <a class="btn btn-sm btn-secondary" href="{% url 'scifi:trans_detail' object.id %}">Cancel</a>
                 {% else %}
                     <button id="submit" type="submit" class="btn btn-sm btn-success">Save & Next (Ctrl+A)</button>
@@ -89,35 +84,53 @@
     {% if custom_transaction %}
         var projectObj = {{project_json|safe}};
     {% endif %}
+
+    $("#submit_done").click(function () {
+        $("#id_do_another").val("0")
+    });
+
+    $("#id_transaction_type").change(function () {
+        if($(this).val() == "1") {
+            $("#id_obligation_cost").prop("disabled", true);
+            $("label[for=id_invoice_cost]").text("Allocation amount");
+        }
+        else if($(this).val() == "2") {
+            $("#id_obligation_cost").prop("disabled", true);
+            $("label[for=id_invoice_cost]").text("Adjustment amount");
+        }
+        else if($(this).val() == "3") {
+            $("#id_obligation_cost").prop("disabled", false);
+            $("label[for=id_invoice_cost]").text("Invoice cost");
+        }
+    });
+
+
+
+
+
+
     document.addEventListener("keydown", function (zEvent) {
         if (zEvent.ctrlKey && zEvent.code === "KeyS") {
-            zEvent.preventDefault()
+            zEvent.preventDefault();
             $("#submit_done")[0].click();
         } else if (zEvent.ctrlKey && zEvent.code === "KeyA") {
-            zEvent.preventDefault()
+            zEvent.preventDefault();
             $("#submit")[0].click();
         }
     });
 
     $("input").keydown(function (event) {
         if (event.key == "Enter") {
-            event.preventDefault()
+            event.preventDefault();
         }
     });
-    $("#id_fiscal_year")[0].focus()
+    $("#id_fiscal_year")[0].focus();
 
     {% if custom_transaction %}
         $("#id_project").change(function () {
             setProjectDefaults();
         });
     {% endif %}
-
-    function uiRefresh() {
-        $('#id_responsibility_center').trigger("chosen:updated");
-        $('#id_business_line').trigger("chosen:updated");
-        $('#id_allotment_code').trigger("chosen:updated");
-        $('#id_line_object').trigger("chosen:updated");
-    }
 
     function clearDefaults() {
         $("#id_responsibility_center").val("");

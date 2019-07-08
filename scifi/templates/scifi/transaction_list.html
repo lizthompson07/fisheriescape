@@ -32,12 +32,18 @@
 
         <div class="row">
             <div class="col=10">
-                <form class="form" action="." method="get" id="filter-form">
+                <form class="form" action="." method="get" id="filter-form" style="font-size: small">
                     <div class="row">
                         {% for field in filter.form %}
-                            <div class="col">
-                                {% bootstrap_field field placeholder="" size="small" %}
-                            </div>
+                            {% if field.name == "search_term" %}
+                                <div class="col-3">
+                                    {% bootstrap_field field placeholder="" size="small" %}
+                                </div>
+                            {% else %}
+                                <div class="col">
+                                    {% bootstrap_field field placeholder="" size="small" %}
+                                </div>
+                            {% endif %}
                         {% endfor %}
                         <div class="col-2">
                             <br>
