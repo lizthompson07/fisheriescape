@@ -43,7 +43,7 @@
 
 
     var config = {
-        '.chosen-select': {placeholder_text_multiple: "Select multiple"},
+        '.chosen-select': {placeholder_text_multiple: "Select multiple", search_contains: false},
         '.chosen-select-contains': {placeholder_text_multiple: "Select multiple", search_contains: true},
         '.chosen-select-deselect': {allow_single_deselect: true},
         '.chosen-select-no-single': {disable_search_threshold: 10},
@@ -54,7 +54,8 @@
     for (var selector in config) {
         $(selector).chosen(config[selector]);
     }
-
+    $("select.chosen-select-contains").attr("tabindex",-1)
+    $("select.chosen-select").attr("tabindex",-1)
 
     var fpConfig = {
         '.fp-date': {},
@@ -62,6 +63,13 @@
     };
     for (var selector in fpConfig) {
         $(selector).flatpickr(fpConfig[selector]);
+        // gives a way for the user to clear the field!
+        $(selector).keydown(function (event) {
+            if (event.key == "Delete" || event.key == "Escape") {
+                event.preventDefault()
+                $(this).val("");
+            }
+        });
     }
 
     var msConfig = {

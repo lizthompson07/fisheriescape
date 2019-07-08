@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models import Q
+from django.forms import modelformset_factory
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from . import models
@@ -8,12 +9,14 @@ from django.contrib.auth.models import User
 from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
+multi_select_js = {"class": "multi-select"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
     (1, "Yes"),
     (0, "No"),
 )
+
 
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField()
@@ -61,6 +64,7 @@ class ProjectForm(forms.ModelForm):
             'manager_approved',
             'rds_feedback',
             'rds_approved',
+            'program',
         ]
         class_editable = {"class": "editable"}
         widgets = {
@@ -84,10 +88,12 @@ class ProjectForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs={"type": "date"}),
             'last_modified_by': forms.HiddenInput(),
             "section": forms.Select(attrs=chosen_js),
-            "program": forms.Select(attrs=chosen_js),
             "responsibility_center": forms.Select(attrs=chosen_js),
             "allotment_code": forms.Select(attrs=chosen_js),
             "existing_project_code": forms.Select(attrs=chosen_js),
+
+            "tags": forms.SelectMultiple(attrs=chosen_js),
+            "programs": forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
@@ -110,6 +116,7 @@ class ProjectSubmitForm(forms.ModelForm):
             'submitted': forms.HiddenInput(),
         }
 
+
 class SectionApprovalForm(forms.ModelForm):
     class Meta:
         model = models.Project
@@ -123,6 +130,7 @@ class SectionApprovalForm(forms.ModelForm):
             'section_head_approved': forms.HiddenInput(),
         }
 
+
 class DivisionApprovalForm(forms.ModelForm):
     class Meta:
         model = models.Project
@@ -135,6 +143,7 @@ class DivisionApprovalForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'manager_approved': forms.HiddenInput(),
         }
+
 
 class BranchApprovalForm(forms.ModelForm):
     class Meta:
@@ -289,3 +298,20 @@ class UserCreateForm(forms.Form):
             # verify the two emails are the same
             if first_email.lower() != second_email.lower():
                 raise forms.ValidationError(_("Please make sure the two email addresses provided match."))
+
+
+class TempForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = ["project_title", "program", "programs", "tags"]
+        widgets = {
+            'programs': forms.SelectMultiple(attrs=chosen_js),
+            'tags': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+TempFormSet = modelformset_factory(
+    model=models.Project,
+    form=TempForm,
+    extra=0,
+)

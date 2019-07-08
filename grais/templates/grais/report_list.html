@@ -32,6 +32,8 @@
                 <th scope="col">Requestor Type</th>
                 {#                <th scope="col">Report date (yyyy-mm-dd)</th>#}
                 <th scope="col">Species</th>
+                <th scope="col">Latitude</th>
+                <th scope="col">Longitude</th>
                 <th scope="col">Follow-ups</th>
 
             </tr>
@@ -50,6 +52,9 @@
                             ---
                         {% endfor %}
                     </td>
+                    <td>{{ obj.latitude_n}}</td>
+                    <td>{{ obj.longitude_w }}</td>
+
                     <td>{{ obj.followups.count }}</td>
                 </tr>
             {% endfor %}
