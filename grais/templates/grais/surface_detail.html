@@ -22,11 +22,7 @@
         <p>
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'grais:surface_edit' object.id %}">Edit</a>
-{#            {% if object.surface_spp.count > 0 %}#}
-{#                <a class="btn btn-danger disabled" href="{% url 'grais:surface_delete' object.id %}">Delete</a>#}
-{#            {% else %}#}
-                <a class="btn btn-danger" href="{% url 'grais:surface_delete' object.id %}">Delete</a>
-{#            {% endif %}#}
+            <a class="btn btn-danger" href="{% url 'grais:surface_delete' object.id %}">Delete</a>
         </div>
         <div class="btn-group">
             <a class="btn btn-outline-primary" href="{% url "grais:surface_spp_insert" object.id %}"> Add Species</a>
