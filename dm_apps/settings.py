@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'el_pagination',
     'easy_pdf',
-    'tracking',
+                     'tracking',
     'accounts',
     'lib',
     'shared_models',
@@ -189,3 +189,6 @@ else:
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+TRACK_PAGEVIEWS = True
+TRACK_QUERY_STRING = True
+TRACK_REFERER = True
