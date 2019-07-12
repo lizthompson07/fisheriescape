@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'el_pagination',
     'easy_pdf',
+    'tracking',
     'accounts',
     'lib',
     'shared_models',
@@ -84,6 +85,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'tracking.middleware.VisitorTrackingMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -188,3 +190,6 @@ else:
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
+# django-analytical options
+# https://django-analytical.readthedocs.io/en/latest/features.html
+ANALYTICAL_INTERNAL_IPS = ['142.130.6.96', ]
