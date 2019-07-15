@@ -1,26 +1,31 @@
 from django import forms
 from django.core import validators
+from shared_models import models as shared_models
 
 from . import models
 
 #
-# class SiteForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Site
-#         fields = "__all__"
-#
-#
-# class StationForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Station
-#         fields = "__all__"
-#         widgets = {
-#             "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
-#             "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
-#             "description": forms.Textarea(attrs={"rows": "3", }),
-#             "site": forms.HiddenInput(),
-#         }
-#
+class RiverForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.River
+        fields = "__all__"
+
+
+class RiverSiteForm(forms.ModelForm):
+    class Meta:
+        model = models.RiverSite
+        fields = "__all__"
+        widgets = {
+            "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
+            "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
+            "directions": forms.Textarea(attrs={"rows": "3", }),
+        }
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            if kwargs["instance"]:
+                self.fields["river"] = forms.CharField(widget=forms.HiddenInput())
+
 #
 # class NoSiteStationForm(forms.ModelForm):
 #     class Meta:

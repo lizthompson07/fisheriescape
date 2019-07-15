@@ -9,10 +9,10 @@ from shared_models import models as shared_models
 
 
 class RiverSite(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name=_("site name"))
     river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='river_sites', blank=True, null=True)
     stream_order = models.IntegerField(blank=True, null=True)
-    elevation_m = models.FloatField(blank=True, null=True)
+    elevation_m = models.FloatField(blank=True, null=True, verbose_name=_("elevation (m)"))
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
     epsg_id = models.CharField(max_length=255, blank=True, null=True)

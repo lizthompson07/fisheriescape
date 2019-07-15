@@ -15,16 +15,13 @@ from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from easy_pdf.views import PDFTemplateView
 from django_filters.views import FilterView
+from shared_models import models as shared_models
 from . import models
 from . import forms
 from . import filters
 from . import reports
 from lib.functions.custom_functions import nz
 from django.utils.encoding import smart_str
-
-
-class CloserTemplateView(TemplateView):
-    template_name = 'camp/close_me.html'
 
 
 # open basic access up to anybody who is logged in
@@ -44,7 +41,6 @@ class TrapNetAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
-
 
 
 def in_trapnet_admin_group(user):
@@ -68,12 +64,171 @@ class TrapNetAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
     template_name = 'trapnet/index.html'
 
+
+# RIVER #
+#########
+
+class RiverListView(TrapNetAccessRequiredMixin, FilterView):
+    filterset_class = filters.RiverFilter
+    template_name = 'trapnet/river_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        field_list = [
+            'name',
+            'fishing_area_code',
+            'maritime_river_code',
+            'old_maritime_river_code',
+            'cgndb',
+            'parent_cgndb_id',
+            'nbadw_water_body_id',
+            'display_hierarchy|River hierarchy',
+        ]
+        context['field_list'] = field_list
+        context['my_object'] = shared_models.River.objects.first()
+        return context
+
+class RiverUpdateView(TrapNetAdminRequiredMixin, UpdateView):
+    model = shared_models.River
+    form_class = forms.RiverForm
+    template_name = 'trapnet/river_form.html'
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class RiverCreateView(TrapNetAdminRequiredMixin, CreateView):
+    model = shared_models.River
+    form_class = forms.RiverForm
+    template_name = 'trapnet/river_form.html'
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("trapnet:river_detail", kwargs={"pk": my_object.id}))
+
+
+class RiverDetailView(TrapNetAccessRequiredMixin, DetailView):
+    model = shared_models.River
+    template_name = 'trapnet/river_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            'name',
+            'fishing_area_code',
+            'maritime_river_code',
+            'old_maritime_river_code',
+            'cgndb',
+            'parent_cgndb_id',
+            'nbadw_water_body_id',
+            'display_anchored_hierarchy|River hierarchy',
+
+        ]
+        context['field_list'] = field_list
+
+        context['site_field_list'] = [
+            'name',
+            'stream_order',
+            'elevation_m',
+            'province.abbrev_eng',
+            'latitude_n',
+            'longitude_w',
+            'directions',
+        ]
+        context['my_site_object'] = models.RiverSite.objects.first()
+
+        site_list = [[obj.name, obj.latitude_n, obj.longitude_w] for obj in self.object.river_sites.all() if obj.latitude_n and obj.longitude_w]
+        context['site_list'] = site_list
+
+        return context
+
+
+class RiverDeleteView(TrapNetAdminRequiredMixin, DeleteView):
+    model = shared_models.River
+    success_url = reverse_lazy('trapnet:river_list')
+    success_message = 'The river was successfully deleted!'
+    template_name = 'trapnet/river_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# SITE #
+########
+
+class RiverSiteUpdateView(TrapNetAdminRequiredMixin, UpdateView):
+    # permission_required = "__all__"
+    raise_exception = True
+
+    model = models.RiverSite
+    form_class = forms.RiverSiteForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class RiverSiteCreateView(TrapNetAdminRequiredMixin, CreateView):
+    model = models.RiverSite
+
+    form_class = forms.RiverSiteForm
+
+    def get_initial(self):
+        return {'river': self.kwargs.get("river")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs.get("river"):
+            river = models.RiverSite.objects.get(pk=self.kwargs["river"])
+            context['river'] = river
+        return context
+
+
+class RiverSiteDetailView(TrapNetAdminRequiredMixin, DetailView):
+    model = models.RiverSite
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            'name',
+            'river',
+            'stream_order',
+            'elevation_m',
+            'province.abbrev_eng',
+            'latitude_n',
+            'longitude_w',
+            'directions',
+        ]
+        context['field_list'] = field_list
+
+        return context
+
+
+class RiverSiteDeleteView(TrapNetAdminRequiredMixin, DeleteView):
+    model = models.RiverSite
+    success_message = 'The river site was successfully deleted!'
+
+    def get_success_url(self):
+        return reverse_lazy("trapnet:site_detail", kwargs={"pk": self.object.site.id})
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
 #
 # # SAMPLE #
 # ##########
 #
-# class SearchFormView(CampAccessRequiredMixin, FormView):
-#     template_name = 'camp/sample_search.html'
+# class SearchFormView(TrapNetAccessRequiredMixin, FormView):
+#     template_name = 'trapnet/sample_search.html'
 #
 #     form_class = forms.SearchForm
 #
@@ -110,20 +265,20 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #             qs = qs.filter(sample_spp__species=species)
 #
 #         if qs.count() < 1000:
-#             return HttpResponseRedirect(reverse("camp:sample_list",
+#             return HttpResponseRedirect(reverse("trapnet:sample_list",
 #                                                 kwargs={"year": year, "month": month, "site": site, "station": station,
 #                                                         "species": species, }))
 #         else:
 #             messages.error(self.request, "The search requested has returned too many results. Please try again.")
-#             return HttpResponseRedirect(reverse("camp:sample_search"))
+#             return HttpResponseRedirect(reverse("trapnet:sample_search"))
 #
 #
 # # class CloserTemplateView(TemplateView):
 # #     template_name = 'grais/close_me.html'
 #
 #
-# class SampleListView(CampAccessRequiredMixin, ListView):
-#     template_name = "camp/sample_list.html"
+# class SampleListView(TrapNetAccessRequiredMixin, ListView):
+#     template_name = "trapnet/sample_list.html"
 #
 #
 #     def get_queryset(self):
@@ -158,9 +313,9 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return qs
 #
 #
-# class SampleFilterView(CampAccessRequiredMixin, FilterView):
+# class SampleFilterView(TrapNetAccessRequiredMixin, FilterView):
 #     filterset_class = filters.SampleFilter
-#     template_name = "camp/sample_filter.html"
+#     template_name = "trapnet/sample_filter.html"
 #
 #
 #     def get_filterset_kwargs(self, filterset_class):
@@ -170,7 +325,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return kwargs
 #
 #
-# class SampleDetailView(CampAccessRequiredMixin, DetailView):
+# class SampleDetailView(TrapNetAccessRequiredMixin, DetailView):
 #     model = models.Sample
 #
 #
@@ -212,7 +367,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return context
 #
 #
-# class SampleUpdateView(CampAdminRequiredMixin, UpdateView):
+# class SampleUpdateView(TrapNetAdminRequiredMixin, UpdateView):
 #     model = models.Sample
 #     form_class = forms.SampleForm
 #
@@ -229,7 +384,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return context
 #
 #
-# class SampleCreateView(CampAdminRequiredMixin, CreateView):
+# class SampleCreateView(TrapNetAdminRequiredMixin, CreateView):
 #     model = models.Sample
 #     form_class = forms.SampleCreateForm
 #
@@ -251,9 +406,9 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #     #         return HttpResponseRedirect(reverse_lazy(""))
 #
 #
-# class SampleDeleteView(CampAdminRequiredMixin, DeleteView):
+# class SampleDeleteView(TrapNetAdminRequiredMixin, DeleteView):
 #     model = models.Sample
-#     success_url = reverse_lazy('camp:sample_filter')
+#     success_url = reverse_lazy('trapnet:sample_filter')
 #     success_message = 'The sample was successfully deleted!'
 #
 #     def delete(self, request, *args, **kwargs):
@@ -261,153 +416,19 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return super().delete(request, *args, **kwargs)
 #
 #
-# # SITE #
-# ########
-#
-# class SiteListView(CampAccessRequiredMixin, FilterView):
-#     filterset_class = filters.SiteFilter
-#     template_name = "camp/site_list.html"
-#
-#
-#
-# class SiteUpdateView(CampAdminRequiredMixin, UpdateView):
-#     # permission_required = "__all__"
-#     raise_exception = True
-#
-#     model = models.Site
-#     form_class = forms.SiteForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class SiteCreateView(CampAdminRequiredMixin, CreateView):
-#     model = models.Site
-#
-#     form_class = forms.SiteForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class SiteDetailView(CampAccessRequiredMixin, DetailView):
-#     model = models.Site
-#
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#
-#         field_list = [
-#             "site",
-#             "code",
-#             "province",
-#             "description",
-#         ]
-#         context['field_list'] = field_list
-#
-#         station_list = []
-#         for obj in self.object.stations.all():
-#             if obj.latitude_n and obj.longitude_w:
-#                 station_list.append(
-#                     [obj.name, obj.latitude_n, obj.longitude_w]
-#                 )
-#         context['station_list'] = station_list
-#
-#         return context
-#
-#
-# class SiteDeleteView(CampAdminRequiredMixin, DeleteView):
-#     model = models.Site
-#     success_url = reverse_lazy('camp:site_list')
-#     success_message = 'The site was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-# # STATION #
-# ###########
-#
-# class StationUpdateView(CampAdminRequiredMixin, UpdateView):
-#     # permission_required = "__all__"
-#     raise_exception = True
-#
-#     model = models.Station
-#     form_class = forms.StationForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class StationCreateView(CampAdminRequiredMixin, CreateView):
-#     model = models.Station
-#
-#     form_class = forms.StationForm
-#
-#     def get_initial(self):
-#         return {'site': self.kwargs["site"]}
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         site = models.Site.objects.get(pk=self.kwargs["site"])
-#         context['site'] = site
-#         return context
-#
-#
-# class NoSiteStationCreateView(CampAccessRequiredMixin, CreateView):
-#     model = models.Station
-#
-#     form_class = forms.NoSiteStationForm
-#     success_url = reverse_lazy("camp:close_me")
-#
-#
-# class StationDetailView(CampAdminRequiredMixin, DetailView):
-#     model = models.Station
-#
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#
-#         field_list = [
-#             "name",
-#             "site",
-#             "station_number",
-#             "latitude_n",
-#             "longitude_w",
-#             "description",
-#         ]
-#         context['field_list'] = field_list
-#
-#         return context
-#
-#
-# class StationDeleteView(CampAdminRequiredMixin, DeleteView):
-#     model = models.Station
-#     success_message = 'The station was successfully deleted!'
-#
-#     def get_success_url(self):
-#         return reverse_lazy("camp:site_detail", kwargs={"pk": self.object.site.id})
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
 #
 # # SPECIES #
 # ###########
 #
-# class SpeciesListView(CampAccessRequiredMixin, FilterView):
-#     template_name = "camp/species_list.html"
+# class SpeciesListView(TrapNetAccessRequiredMixin, FilterView):
+#     template_name = "trapnet/species_list.html"
 #     filterset_class = filters.SpeciesFilter
 #
 #     queryset = models.Species.objects.annotate(
 #         search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
 #
 #
-# class SpeciesDetailView(CampAccessRequiredMixin, DetailView):
+# class SpeciesDetailView(TrapNetAccessRequiredMixin, DetailView):
 #     model = models.Species
 #
 #
@@ -459,7 +480,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return context
 #
 #
-# class SpeciesUpdateView(CampAdminRequiredMixin, UpdateView):
+# class SpeciesUpdateView(TrapNetAdminRequiredMixin, UpdateView):
 #     model = models.Species
 #
 #     form_class = forms.SpeciesForm
@@ -468,7 +489,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return {'last_modified_by': self.request.user}
 #
 #
-# class SpeciesCreateView(CampAdminRequiredMixin, CreateView):
+# class SpeciesCreateView(TrapNetAdminRequiredMixin, CreateView):
 #     model = models.Species
 #
 #     form_class = forms.SpeciesForm
@@ -477,10 +498,10 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return {'last_modified_by': self.request.user}
 #
 #
-# class SpeciesDeleteView(CampAdminRequiredMixin, CampAccessRequiredMixin, DeleteView):
+# class SpeciesDeleteView(TrapNetAdminRequiredMixin, TrapNetAccessRequiredMixin, DeleteView):
 #     model = models.Species
 #     permission_required = "__all__"
-#     success_url = reverse_lazy('camp:species_list')
+#     success_url = reverse_lazy('trapnet:species_list')
 #     success_message = 'The species was successfully deleted!'
 #
 #     def delete(self, request, *args, **kwargs):
@@ -491,8 +512,8 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 # # SPECIES OBSERVATIONS #
 # ########################
 #
-# class SpeciesObservationInsertView(CampAdminRequiredMixin, TemplateView):
-#     template_name = "camp/species_obs_insert.html"
+# class SpeciesObservationInsertView(TrapNetAdminRequiredMixin, TemplateView):
+#     template_name = "trapnet/species_obs_insert.html"
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -511,7 +532,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #             # html_insert = '<a href="#" class="district_insert" code={p}{d}>{p}{d}</a> - {l}, {prov}'.format(
 #             #         p=d.province_id, d=d.district_id, l=l.replace("'", ""), prov=d.get_province_id_display().upper())
 #             html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / {} / <em>{}</em> / {}</span>'.format(
-#                 reverse("camp:species_obs_new", kwargs={"sample": sample.id, "species": obj.id}),
+#                 reverse("trapnet:species_obs_new", kwargs={"sample": sample.id, "species": obj.id}),
 #                 static("admin/img/icon-addlink.svg"),
 #                 obj.common_name_eng,
 #                 obj.common_name_fre,
@@ -528,9 +549,9 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         return context
 #
 #
-# class SpeciesObservationCreateView(CampAdminRequiredMixin, CreateView):
+# class SpeciesObservationCreateView(TrapNetAdminRequiredMixin, CreateView):
 #     model = models.SpeciesObservation
-#     template_name = 'camp/species_obs_form_popout.html'
+#     template_name = 'trapnet/species_obs_form_popout.html'
 #
 #
 #     def get_form_class(self):
@@ -558,12 +579,12 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #
 #     def form_valid(self, form):
 #         self.object = form.save()
-#         return HttpResponseRedirect(reverse('camp:close_me'))
+#         return HttpResponseRedirect(reverse('shared_models:close_me'))
 #
 #
-# class SpeciesObservationUpdateView(CampAccessRequiredMixin, UpdateView):
+# class SpeciesObservationUpdateView(TrapNetAccessRequiredMixin, UpdateView):
 #     model = models.SpeciesObservation
-#     template_name = 'camp/species_obs_form_popout.html'
+#     template_name = 'trapnet/species_obs_form_popout.html'
 #
 #     def get_form_class(self):
 #         species = self.object.species
@@ -574,7 +595,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #
 #     def form_valid(self, form):
 #         self.object = form.save()
-#         return HttpResponseRedirect(reverse('camp:close_me'))
+#         return HttpResponseRedirect(reverse('shared_models:close_me'))
 #
 #
 # def species_observation_delete(request, pk, backto):
@@ -583,16 +604,16 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #     messages.success(request, "The species has been successfully deleted from {}.".format(object.sample))
 #
 #     if backto == "detail":
-#         return HttpResponseRedirect(reverse_lazy("camp:sample_detail", kwargs={"pk": object.sample.id}))
+#         return HttpResponseRedirect(reverse_lazy("trapnet:sample_detail", kwargs={"pk": object.sample.id}))
 #     else:
-#         return HttpResponseRedirect(reverse_lazy("camp:species_obs_search", kwargs={"sample": object.sample.id}))
+#         return HttpResponseRedirect(reverse_lazy("trapnet:species_obs_search", kwargs={"sample": object.sample.id}))
 #
 #
 # # REPORTS #
 # ###########
 #
-# class ReportSearchFormView(CampAccessRequiredMixin, FormView):
-#     template_name = 'camp/report_search.html'
+# class ReportSearchFormView(TrapNetAccessRequiredMixin, FormView):
+#     template_name = 'trapnet/report_search.html'
 #     form_class = forms.ReportSearchForm
 #
 #     def get_initial(self):
@@ -617,7 +638,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #         report = int(form.cleaned_data["report"])
 #
 #         if report == 1:
-#             return HttpResponseRedirect(reverse("camp:species_report", kwargs={"species_list": species_list}))
+#             return HttpResponseRedirect(reverse("trapnet:species_report", kwargs={"species_list": species_list}))
 #         elif report == 2:
 #             try:
 #                 site = int(form.cleaned_data["site"])
@@ -626,24 +647,24 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #                 print("no site provided")
 #
 #             if site:
-#                 return HttpResponseRedirect(reverse("camp:species_richness", kwargs={"site": site}))
+#                 return HttpResponseRedirect(reverse("trapnet:species_richness", kwargs={"site": site}))
 #             else:
-#                 return HttpResponseRedirect(reverse("camp:species_richness"))
+#                 return HttpResponseRedirect(reverse("trapnet:species_richness"))
 #         elif report == 3:
 #             site = int(form.cleaned_data["site"])
 #             year = int(form.cleaned_data["year"])
-#             return HttpResponseRedirect(reverse("camp:watershed_report", kwargs={"site": site, "year": year}))
+#             return HttpResponseRedirect(reverse("trapnet:watershed_report", kwargs={"site": site, "year": year}))
 #
 #         elif report == 4:
 #             site = int(form.cleaned_data["site"])
 #             year = int(form.cleaned_data["year"])
-#             return HttpResponseRedirect(reverse("camp:watershed_xlsx", kwargs={"site": site, "year": year}))
+#             return HttpResponseRedirect(reverse("trapnet:watershed_xlsx", kwargs={"site": site, "year": year}))
 #
 #         elif report == 5:
-#             return HttpResponseRedirect(reverse("camp:watershed_csv"))
+#             return HttpResponseRedirect(reverse("trapnet:watershed_csv"))
 #
 #         elif report == 6:
-#             return HttpResponseRedirect(reverse("camp:ais_export", kwargs={
+#             return HttpResponseRedirect(reverse("trapnet:ais_export", kwargs={
 #                 'species_list': ais_species_list,
 #             }))
 #         else:
@@ -659,9 +680,9 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #     for root, dirs, files in os.walk(target_dir):
 #         for file in files:
 #             if "report_temp" in file:
-#                 my_file = "camp/temp/{}".format(file)
+#                 my_file = "trapnet/temp/{}".format(file)
 #
-#     return render(request, "camp/report_display.html", {"report_path": my_file})
+#     return render(request, "trapnet/report_display.html", {"report_path": my_file})
 #
 #
 # def report_species_richness(request, site=None):
@@ -670,19 +691,19 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #     else:
 #         reports.generate_species_richness_report()
 #
-#     return render(request, "camp/report_display.html")
+#     return render(request, "trapnet/report_display.html")
 #
 #
 # class AnnualWatershedReportTemplateView(PDFTemplateView):
-#     template_name = 'camp/report_watershed_display.html'
+#     template_name = 'trapnet/report_watershed_display.html'
 #
 #     def get_pdf_filename(self):
-#         site = models.Site.objects.get(pk=self.kwargs['site']).site
+#         site = models.trapnet.objects.get(pk=self.kwargs['site']).site
 #         return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
 #
 #     def get_context_data(self, **kwargs):
 #         reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
-#         site = models.Site.objects.get(pk=self.kwargs['site']).site
+#         site = models.trapnet.objects.get(pk=self.kwargs['site']).site
 #         return super().get_context_data(
 #             pagesize="A4 landscape",
 #             title="Annual Report for {}_{}".format(site, self.kwargs['year']),
@@ -691,7 +712,7 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
 #
 #
 # def annual_watershed_spreadsheet(request, site, year):
-#     my_site = models.Site.objects.get(pk=site)
+#     my_site = models.trapnet.objects.get(pk=site)
 #     file_url = reports.generate_annual_watershed_spreadsheet(my_site, year)
 #
 #     if os.path.exists(file_url):

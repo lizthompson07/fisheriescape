@@ -2,11 +2,24 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
-    # path('search/', views.SearchFormView.as_view(), name="sample_search"),
-    # # path('dataflow/', views.DataFlowTemplateView.as_view(), name ="dataflow" ),
-    #
+
+    # RIVER #
+    #########
+    path('rivers/', views.RiverListView.as_view(), name="river_list"),
+    path('river/new/', views.RiverCreateView.as_view(), name="river_new"),
+    path('river/<int:pk>/view/', views.RiverDetailView.as_view(), name="river_detail"),
+    path('river/<int:pk>/edit/', views.RiverUpdateView.as_view(), name="river_edit"),
+    path('river/<int:pk>/delete/', views.RiverDeleteView.as_view(), name="river_delete"),
+
+    # RIVER SITE #
+    ##############
+    path('river/<int:river>/site/new/', views.RiverSiteCreateView.as_view(), name="site_new"),
+    path('site/new/', views.RiverSiteCreateView.as_view(), name="site_new"),
+    path('site/<int:pk>/view/', views.RiverSiteDetailView.as_view(), name="site_detail"),
+    path('site/<int:pk>/edit/', views.RiverSiteUpdateView.as_view(), name="site_edit"),
+    path('site/<int:pk>/delete/', views.RiverSiteDeleteView.as_view(), name="site_delete"),
+
     # # SAMPLE #
     # ##########
     # # path('samples/', views.SampleFilterView.as_view(), name ="sample_list" ),
@@ -17,13 +30,6 @@ urlpatterns = [
     # path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
     # path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
     #
-    # # SITE #
-    # ########
-    # path('sites/', views.SiteListView.as_view(), name="site_list"),
-    # path('site/new/', views.SiteCreateView.as_view(), name="site_new"),
-    # path('site/<int:pk>/view/', views.SiteDetailView.as_view(), name="site_detail"),
-    # path('site/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),
-    # path('site/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),
     #
     # # STATION #
     # ###########
