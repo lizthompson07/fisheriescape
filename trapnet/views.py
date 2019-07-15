@@ -163,15 +163,15 @@ class RiverDeleteView(TrapNetAdminRequiredMixin, DeleteView):
 ########
 
 class RiverSiteUpdateView(TrapNetAdminRequiredMixin, UpdateView):
-    # permission_required = "__all__"
-    raise_exception = True
-
     model = models.RiverSite
     form_class = forms.RiverSiteForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("trapnet:site_detail", kwargs={"pk":my_object.id}))
 
 class RiverSiteCreateView(TrapNetAdminRequiredMixin, CreateView):
     model = models.RiverSite
@@ -184,10 +184,13 @@ class RiverSiteCreateView(TrapNetAdminRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.kwargs.get("river"):
-            river = models.RiverSite.objects.get(pk=self.kwargs["river"])
+            river = shared_models.River.objects.get(pk=self.kwargs["river"])
             context['river'] = river
         return context
 
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("trapnet:site_detail", kwargs={"pk":my_object.id}))
 
 class RiverSiteDetailView(TrapNetAdminRequiredMixin, DetailView):
     model = models.RiverSite
