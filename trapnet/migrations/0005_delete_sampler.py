@@ -6,12 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('river', '0003_auto_20190712_1606'),
+        ('trapnet', '0004_remove_trap_samplers'),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='trap',
-            name='samplers',
+        migrations.DeleteModel(
+            name='Sampler',
         ),
     ]

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('river', '0002_observation_operatingcondition_origin_precipitationcategory_sampler_sex_species_status_trap_winddire'),
+        ('trapnet', '0002_observation_operatingcondition_origin_precipitationcategory_sampler_sex_species_status_trap_winddire'),
     ]
 
     operations = [

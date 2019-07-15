@@ -28,17 +28,17 @@ class CloserTemplateView(TemplateView):
 
 
 # open basic access up to anybody who is logged in
-def in_camp_group(user):
+def in_trapnet_group(user):
     if user:
         # return user.groups.filter(name='camp_access').count() != 0
         return True
 
 
-class CampAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class TrapNetAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return in_camp_group(self.request.user)
+        return in_trapnet_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -48,16 +48,16 @@ class CampAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 
-def in_camp_admin_group(user):
+def in_trapnet_admin_group(user):
     if user:
         return user.groups.filter(name='camp_admin').count() != 0
 
 
-class CampAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class TrapNetAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return in_camp_admin_group(self.request.user)
+        return in_trapnet_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -66,8 +66,8 @@ class CampAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class IndexTemplateView(CampAccessRequiredMixin, TemplateView):
-    template_name = 'camp/index.html'
+class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
+    template_name = 'trapnet/index.html'
 
 #
 # # SAMPLE #
