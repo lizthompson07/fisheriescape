@@ -1,32 +1,33 @@
-{% extends "camp/camp_base.html" %}
+{% extends "trapnet/trapnet_base.html" %}
 {% load static %}
 {% block title %}CAMP db{% endblock title %}
 {% block content %}
 
-{# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
-<div class="container">
-  <div class="jumbotron">
-    <h1>TrapNet: Diadromous Team Data Entry Portal</h1>
-  </div>
-</div>
+    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1>TrapNet</h1>
+            <hr>
+            <h3>Diadromous Team Data Entry Portal</h3>
+        </div>
 
-{#<div class="container">#}
-{#  <h2>Please select among the following items:</h2>#}
-{#  <table class="table table-hover">#}
-{#    <tbody>#}
-{#      <tr><td><a href="{% url 'camp:search'  %}">Explore the Data</a></td></tr>#}
-{#      <tr><td><a href="#" class="under-dev">Data Extraction Tool</a></td></tr>#}
-{##}
-{#    </tbody>#}
-{#  </table>#}
-{#</div>#}
-<div align="center">
-    <img src="{% static "/img/trapnet/alt-salmon-saumon.jpg" %}" class="rounded" width="500px" alt="...">
+        <ul>
+            <li>
+                <a href="">Smolt Wheel Program</a>
+            </li>
+            <li>
+                <a href="">Electrofishing Program</a>
+            </li>
+        </ul>
 
-</div>
-<div align="center">
-    <p style="font-size: small">Photo credit: Jeffrey C. Domm</p>
-</div>
+        <div align="center">
+            <img src="{% static "/img/trapnet/alt-salmon-saumon.jpg" %}" class="rounded" width="500px" alt="...">
+        </div>
+        <div align="center">
+            <p style="font-size: small">Photo credit: Jeffrey C. Domm</p>
+        </div>
+    </div>
+
 
 
 

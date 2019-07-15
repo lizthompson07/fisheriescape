@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 
@@ -435,10 +437,85 @@ class River(models.Model):
     fishing_area_code = models.CharField(max_length=255, blank=True, null=True)
     maritime_river_code = models.IntegerField(blank=True, null=True)
     old_maritime_river_code = models.IntegerField(blank=True, null=True)
-    cgndb = models.CharField(max_length=255, blank=True, null=True)
-    river_hierarchy = models.CharField(max_length=1000, blank=True, null=True)
-    parent_cgndb_id = models.CharField(max_length=255, blank=True, null=True)
-    nbadw_water_body_id = models.IntegerField(blank=True, null=True)
+    cgndb = models.CharField(max_length=255, blank=True, null=True, unique=True, verbose_name=_("GCNDB key"))
+    parent_cgndb_id = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Parent GCNDB key"))
+    nbadw_water_body_id = models.IntegerField(blank=True, null=True, verbose_name=_("NDADW water body ID"))
+    parent_river = models.ForeignKey('River', on_delete=models.DO_NOTHING, related_name="children_rivers", blank=True, null=True)
+
+    @property
+    def display_hierarchy(self):
+        my_str = "{}".format(self.name)
+        next_higher = self.parent_river
+
+        if next_higher:
+            my_str = "{} > {}".format(next_higher.name, my_str)
+            next_higher = self.parent_river.parent_river
+
+            if next_higher:
+                my_str = "{} > {}".format(next_higher.name, my_str)
+                next_higher = self.parent_river.parent_river.parent_river
+
+                if next_higher:
+                    my_str = "{} > {}".format(next_higher.name, my_str)
+                    next_higher = self.parent_river.parent_river.parent_river.parent_river
+
+                    if next_higher:
+                        my_str = "{} > {}".format(next_higher.name, my_str)
+                        next_higher = self.parent_river.parent_river.parent_river.parent_river.parent_river
+
+                        if next_higher:
+                            my_str = "{} > {}".format(next_higher.name, my_str)
+                            next_higher = self.parent_river.parent_river.parent_river.parent_river.parent_river.parent_river
+
+                            if next_higher:
+                                my_str = "{} > {}".format(next_higher.name, my_str)
+                                next_higher = self.parent_river.parent_river.parent_river.parent_river.parent_river.parent_river.parent_river
+
+                                if next_higher:
+                                    my_str = "{} > {}".format(next_higher.name, my_str)
+
+        return my_str
+
+    @property
+    def display_anchored_hierarchy(self):
+        my_str = "{}".format(self.name)
+        next_higher = self.parent_river
+
+        if next_higher:
+            my_str = "<a href='{}'>{}</a> > {}".format(reverse("trapnet:river_detail", kwargs={"pk": next_higher.id}), next_higher.name,
+                                                       my_str)
+            next_higher = self.parent_river.parent_river
+
+            if next_higher:
+                my_str = "<a href='{}'>{}</a> > {}".format(reverse("trapnet:river_detail", kwargs={"pk": next_higher.id}), next_higher.name,
+                                                           my_str)
+                next_higher = self.parent_river.parent_river.parent_river
+
+                if next_higher:
+                    my_str = "<a href='{}'>{}</a> > {}".format(reverse("trapnet:river_detail", kwargs={"pk": next_higher.id}),
+                                                               next_higher.name, my_str)
+                    next_higher = self.parent_river.parent_river.parent_river.parent_river
+
+                    if next_higher:
+                        my_str = "<a href='{}'>{}</a> > {}".format(reverse("trapnet:river_detail", kwargs={"pk": next_higher.id}),
+                                                                   next_higher.name, my_str)
+                        next_higher = self.parent_river.parent_river.parent_river.parent_river.parent_river
+
+                        if next_higher:
+                            my_str = "<a href='{}'>{}</a> > {}".format(reverse("trapnet:river_detail", kwargs={"pk": next_higher.id}),
+                                                                       next_higher.name, my_str)
+                            next_higher = self.parent_river.parent_river.parent_river.parent_river.parent_river.parent_river
+
+                            if next_higher:
+                                my_str = "<a href='{}'>{}</a> > {}".format(reverse("trapnet:river_detail", kwargs={"pk": next_higher.id}),
+                                                                           next_higher.name, my_str)
+                                next_higher = self.parent_river.parent_river.parent_river.parent_river.parent_river.parent_river.parent_river
+
+                                if next_higher:
+                                    my_str = "<a href='{}'>{}</a> > {}".format(
+                                        reverse("trapnet:river_detail", kwargs={"pk": next_higher.id}), next_higher.name, my_str)
+
+        return mark_safe(my_str)
 
     def __str__(self):
         return "{} ({})".format(self.name, self.fishing_area_code)
