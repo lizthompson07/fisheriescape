@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('shared_models', '0021_auto_20190712_1534'),
-        ('river', '0001_initial'),
+        ('trapnet', '0001_initial'),
     ]
 
     operations = [

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('river', '0005_delete_sampler'),
+        ('trapnet', '0005_delete_sampler'),
     ]
 
     operations = [

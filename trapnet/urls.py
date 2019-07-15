@@ -66,4 +66,4 @@ urlpatterns = [
 
 ]
 
-app_name = 'river'
+app_name = 'trapnet'
