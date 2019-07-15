@@ -30,8 +30,7 @@ class CloserTemplateView(TemplateView):
 # open basic access up to anybody who is logged in
 def in_trapnet_group(user):
     if user:
-        # return user.groups.filter(name='camp_access').count() != 0
-        return True
+        return user.groups.filter(name='trapnet_access').count() != 0
 
 
 class TrapNetAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
