@@ -277,7 +277,7 @@ def get_app_dict(request):
             "status": "dev",
             "access": "login-required",
             "url": reverse('trapnet:index'),
-            "icon_path": 'img/icons/trapnet.svg',
+            "icon_path": 'img/icons/river.svg',
             "region": "regional",
         }
     except NoReverseMatch:
