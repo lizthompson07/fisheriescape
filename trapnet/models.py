@@ -10,6 +10,7 @@ from shared_models import models as shared_models
 
 class RiverSite(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("site name"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='river_sites', blank=True, null=True)
     river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='river_sites', blank=True, null=True)
     stream_order = models.IntegerField(blank=True, null=True)
     elevation_m = models.FloatField(blank=True, null=True, verbose_name=_("elevation (m)"))
@@ -20,10 +21,12 @@ class RiverSite(models.Model):
     coordinate_precision = models.FloatField(blank=True, null=True)
     coordinate_accuracy = models.FloatField(blank=True, null=True)
     directions = models.TextField(blank=True, null=True)
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='river_sites', blank=True, null=True)
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.province.tabbrev)
+        try:
+            return "{} ({})".format(self.name, self.province.tabbrev)
+        except AttributeError:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['province', 'name']

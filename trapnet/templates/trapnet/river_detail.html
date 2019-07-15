@@ -72,29 +72,40 @@
         </div>
         {#  Station list  #}
         <br><br>
+        <div class="row">
+            <div class="col">
         <h4>
             <b>Sites on this river:</b>
-
         </h4>
-        <table class="table table-sm table-hover sortable">
-            <thead>
-            <tr>
-                {% for field in site_field_list %}
-                    <th scope="col">{% get_verbose_label my_site_object field %}</th>
-                {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-            {% for obj in object.river_sites.all %}
-                {% url 'trapnet:site_detail' obj.id as my_url %}
-                <tr href="{{ my_url }}">
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'trapnet:site_new' object.id  %}" class="btn btn-sm btn-primary">New Site</a>
+            </div>
+        </div>
+        {% if object.river_sites.count == 0 %}
+            <em>No sites have been entered for this river</em>
+        {% else %}
+            <table class="table table-sm table-hover sortable">
+                <thead>
+                <tr>
                     {% for field in site_field_list %}
-                        <td>{% get_field_value obj field %}</td>
+                        <th scope="col">{% get_verbose_label my_site_object field %}</th>
                     {% endfor %}
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for obj in object.river_sites.all %}
+                    {% url 'trapnet:site_detail' obj.id as my_url %}
+                    <tr href="{{ my_url }}">
+                        {% for field in site_field_list %}
+                            <td>{% get_field_value obj field %}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
     </div>
 
 
@@ -114,7 +125,7 @@
                 marker = new google.maps.Marker({
                     position: new google.maps.LatLng(locations[i][1], locations[i][2]),
                     map: map,
-                    label: locations[i][0],
+                    label: {text: locations[i][0], color: "#fffff9"},
                     //icon: locations[i][3]
                 });
 
