@@ -132,9 +132,9 @@ except RuntimeError:
 
 
 try:
-    urlpatterns += i18n_patterns(path('wheel/', include('river.urls')), prefix_default_language=True)
+    urlpatterns += i18n_patterns(path('trapnet/', include('trapnet.urls')), prefix_default_language=True)
 except RuntimeError:
-    print("not connecting river app")
+    print("not connecting TrapNet")
 
 
 if not settings.PRODUCTION_SERVER:
