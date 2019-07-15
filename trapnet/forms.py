@@ -21,10 +21,10 @@ class RiverSiteForm(forms.ModelForm):
             "directions": forms.Textarea(attrs={"rows": "3", }),
         }
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            if kwargs["instance"]:
-                self.fields["river"] = forms.CharField(widget=forms.HiddenInput())
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kwargs.get("instance") or kwargs.get("initial"):
+            self.fields["river"].widget = forms.HiddenInput()
 
 #
 # class NoSiteStationForm(forms.ModelForm):
