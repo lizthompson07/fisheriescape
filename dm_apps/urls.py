@@ -132,9 +132,9 @@ except RuntimeError:
 
 
 try:
-    urlpatterns += i18n_patterns(path('wheel/', include('wheel.urls')), prefix_default_language=True)
+    urlpatterns += i18n_patterns(path('wheel/', include('river.urls')), prefix_default_language=True)
 except RuntimeError:
-    print("not connecting wheel app")
+    print("not connecting river app")
 
 
 if not settings.PRODUCTION_SERVER:
