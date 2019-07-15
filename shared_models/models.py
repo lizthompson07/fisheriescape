@@ -434,23 +434,14 @@ class River(models.Model):
     name = models.CharField(max_length=255)
     fishing_area_code = models.CharField(max_length=255, blank=True, null=True)
     maritime_river_code = models.IntegerField(blank=True, null=True)
-    cgndb = models.IntegerField(blank=True, null=True)
+    old_maritime_river_code = models.IntegerField(blank=True, null=True)
+    cgndb = models.CharField(max_length=255, blank=True, null=True)
     river_hierarchy = models.CharField(max_length=1000, blank=True, null=True)
     parent_cgndb_id = models.CharField(max_length=255, blank=True, null=True)
     nbadw_water_body_id = models.IntegerField(blank=True, null=True)
-    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, related_name='rivers', blank=True, null=True)
-    stream_order = models.IntegerField(blank=True, null=True)
-    elevation_m = models.FloatField(blank=True, null=True)
-    latitude_n = models.FloatField(blank=True, null=True)
-    longitude_w = models.FloatField(blank=True, null=True)
-    epsg_id = models.CharField(max_length=255, blank=True, null=True)
-    coordinate_resolution = models.FloatField(blank=True, null=True)
-    coordinate_precision = models.FloatField(blank=True, null=True)
-    coordinate_accuracy = models.FloatField(blank=True, null=True)
-    directions = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.province.tabbrev)
+        return "{} ({})".format(self.name, self.fishing_area_code)
 
     class Meta:
-        ordering = ['province', 'name']
+        ordering = ['name']
