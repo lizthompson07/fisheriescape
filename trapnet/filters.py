@@ -1,6 +1,16 @@
 import django_filters
 from . import models
+from shared_models import models as shared_models
 from django import forms
+
+
+class RiverFilter(django_filters.FilterSet):
+    class Meta:
+        model = shared_models.River
+        fields = {
+            'name': ['icontains'],
+        }
+
 #
 # class SampleFilter(django_filters.FilterSet):
 #     SeasonExact = django_filters.NumberFilter(field_name='year', label="From year", lookup_expr='exact', widget= forms.NumberInput(attrs={'style':"width: 4em"}))
@@ -23,13 +33,7 @@ from django import forms
 # #
 # #
 #
-# class SiteFilter(django_filters.FilterSet):
-#     class Meta:
-#         model = models.Site
-#         fields = {
-#             'site':['icontains'],
-#             'province':['exact'],
-#         }
+
 #
 # # class ReportFilter(django_filters.FilterSet):
 # #     class Meta:
