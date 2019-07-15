@@ -3,6 +3,7 @@ import logging
 from datetime import timedelta
 
 from django import forms
+from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.contrib.auth.decorators import permission_required
 from django.utils.timezone import now
@@ -72,3 +73,17 @@ def dashboard(request):
         'page_visits': page_visits,
     }
     return render(request, 'tracking/dashboard.html', context)
+
+
+@permission_required('tracking.visitor_log')
+def user_history(request, user):
+    my_user = User.objects.get(pk=user)
+
+    # get the last 100 page visits
+    page_visits = Pageview.objects.filter(visitor__user=my_user).order_by("-view_time")
+
+    context = {
+        'my_user': my_user,
+        'page_visits': page_visits,
+    }
+    return render(request, 'tracking/user_history.html', context)

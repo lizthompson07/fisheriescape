@@ -66,4 +66,4 @@ urlpatterns = [
 
 ]
 
-app_name = 'wheel'
+app_name = 'river'
