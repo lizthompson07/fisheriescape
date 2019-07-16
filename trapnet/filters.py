@@ -12,9 +12,9 @@ class RiverFilter(django_filters.FilterSet):
         }
 
 
-class TrapFilter(django_filters.FilterSet):
+class SampleFilter(django_filters.FilterSet):
     class Meta:
-        model = models.Trap
+        model = models.Sample
         fields = {
             'season': ['exact'],
             'site__river': ['exact'],

@@ -20,13 +20,13 @@ urlpatterns = [
     path('site/<int:pk>/edit/', views.RiverSiteUpdateView.as_view(), name="site_edit"),
     path('site/<int:pk>/delete/', views.RiverSiteDeleteView.as_view(), name="site_delete"),
 
-    # TRAP #
-    ########
-    path('traps/', views.TrapListView.as_view(), name="trap_list"),
-    path('trap/new/', views.TrapCreateView.as_view(), name="trap_new"),
-    path('trap/<int:pk>/view/', views.TrapDetailView.as_view(), name="trap_detail"),
-    path('trap/<int:pk>/edit/', views.TrapUpdateView.as_view(), name="trap_edit"),
-    path('trap/<int:pk>/delete/', views.TrapDeleteView.as_view(), name="trap_delete"),
+    # SAMPLE #
+    ##########
+    path('samples/', views.SampleListView.as_view(), name="trap_list"),
+    path('sample/new/', views.SampleCreateView.as_view(), name="trap_new"),
+    path('sample/<int:pk>/view/', views.SampleDetailView.as_view(), name="trap_detail"),
+    path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="trap_edit"),
+    path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="trap_delete"),
 
 
     #

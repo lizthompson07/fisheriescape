@@ -28,9 +28,9 @@ class RiverSiteForm(forms.ModelForm):
             self.fields["river"].widget = forms.HiddenInput()
 
 
-class TrapForm(forms.ModelForm):
+class SampleForm(forms.ModelForm):
     class Meta:
-        model = models.Trap
+        model = models.Sample
         exclude = ["last_modified", 'season']
         widgets = {
             "site": forms.HiddenInput(),
