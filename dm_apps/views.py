@@ -270,6 +270,19 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
+        app_dict["trapnet"] = {
+            "title": _("TrapNet"),
+            "description": _("Diadromous Data Entry Tool."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('trapnet:index'),
+            "icon_path": 'img/icons/river.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
     return OrderedDict(app_dict)
 
 
