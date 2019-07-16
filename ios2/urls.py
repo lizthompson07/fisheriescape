@@ -13,23 +13,23 @@ urlpatterns = [
     ############
     # path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
     # path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
-    path('ios2/', views.InstrumentListView.as_view(), name="instrument_list"),
-    path('ios2/new/', views.InstrumentCreateView.as_view(), name="instrument_new"),
-    path('ios2/<int:pk>/view', views.InstrumentDetailView.as_view(), name="instrument_detail"),
-    path('ios2/<int:pk>/submit', views.InstrumentSubmitUpdateView.as_view(), name="instrument_submit"),
-    path('ios2/<int:pk>/print', views.InstrumentPrintDetailView.as_view(), name="instrument_print"),
-    path('ios2/<int:pk>/delete', views.InstrumentDeleteView.as_view(), name="instrument_delete"),
-    path('ios2/<int:pk>/edit', views.InstrumentUpdateView.as_view(), name="instrument_edit"),
+    path('instruments/', views.InstrumentListView.as_view(), name="instrument_list"),
+    path('instruments/new/', views.InstrumentCreateView.as_view(), name="instrument_new"),
+    path('instruments/<int:pk>/view', views.InstrumentDetailView.as_view(), name="instrument_detail"),
+    path('instruments/<int:pk>/submit', views.InstrumentSubmitUpdateView.as_view(), name="instrument_submit"),
+    path('instruments/<int:pk>/print', views.InstrumentPrintDetailView.as_view(), name="instrument_print"),
+    path('instruments/<int:pk>/delete', views.InstrumentDeleteView.as_view(), name="instrument_delete"),
+    path('instruments/<int:pk>/edit', views.InstrumentUpdateView.as_view(), name="instrument_edit"),
 
     # Moorings
-    path('ios2/mooring/', views.MooringListView.as_view(), name="mooring_list"),
-    path('ios2/mooring/new/', views.MooringCreateView.as_view(), name="mooring_new"),
-    path('ios2/mooring/<int:pk>/view', views.MooringDetailView.as_view(), name="mooring_detail"),
+    path('moorings/', views.MooringListView.as_view(), name="mooring_list"),
+    path('moorings/new/', views.MooringCreateView.as_view(), name="mooring_new"),
+    path('moorings/<int:pk>/view', views.MooringDetailView.as_view(), name="mooring_detail"),
 
-    path('ios2/mooring/<int:pk>/submit', views.MooringSubmitUpdateView.as_view(), name="mooring_submit"),
-    path('ios2/mooring/<int:pk>/print', views.MooringPrintDetailView.as_view(), name="mooring_print"),
-    path('ios2/mooring/<int:pk>/delete', views.MooringDeleteView.as_view(), name="mooring_delete"),
-    path('ios2/mooring/<int:pk>/edit', views.MooringUpdateView.as_view(), name="mooring_edit"),
+    path('moorings/<int:pk>/submit', views.MooringSubmitUpdateView.as_view(), name="mooring_submit"),
+    path('moorings/<int:pk>/print', views.MooringPrintDetailView.as_view(), name="mooring_print"),
+    path('moorings/<int:pk>/delete', views.MooringDeleteView.as_view(), name="mooring_delete"),
+    path('moorings/<int:pk>/edit', views.MooringUpdateView.as_view(), name="mooring_edit"),
 
 
     # InstrumentDeployments #
@@ -45,8 +45,8 @@ urlpatterns = [
 
     # Add instruments to moorings #
     # ############
-    path('ios2/mooring/<int:pk>/addinstrument', views.InstrumentMooringCreateView.as_view(), name="add_instrument"),
-    path('ios2/<int:pk>/adddeployment', views.MooringInstrumentCreateView.as_view(), name="add_deployment"),
+    path('moorings/<int:pk>/addinstrument', views.InstrumentMooringCreateView.as_view(), name="add_instrument"),
+    path('instruments/<int:pk>/adddeployment', views.MooringInstrumentCreateView.as_view(), name="add_deployment"),
 
     path('deploymentinstrument/<int:pk>/edit/', views.MooringInstrumentUpdateView.as_view(),
          name="deploymentinstrument_edit"),
