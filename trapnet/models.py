@@ -35,8 +35,8 @@ class RiverSite(models.Model):
 class Species(models.Model):
     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
-    life_stage_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage")
-    life_stage_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage")
+    life_stage_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage name (English)")
+    life_stage_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage name (French)")
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
