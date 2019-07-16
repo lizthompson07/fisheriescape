@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>{{ my_user }} - History</h1>
+<p>(<a href="{% url 'tracking:tracking-dashboard' %}">Back</a> to tracking main)</p>
+
+
+<ul>
+    {% for visit in page_visits %}
+        <li>
+            {{ visit.visitor.user }} visited <a href="{{ visit.url|safe }}">{{ visit.url|safe }}</a> ({{ visit.view_time }})
+        </li>
+    {% endfor %}
+
+</ul>
+</body>
+</html>
