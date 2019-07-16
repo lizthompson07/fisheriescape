@@ -9,6 +9,7 @@
 *.pyc
 *.cpython*
 *.accdb
+*.xlsx
 
 # Packages #
 ############

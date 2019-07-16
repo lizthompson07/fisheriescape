@@ -711,7 +711,7 @@ class ResourceSpeciesFilterView(FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
-        search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
+        search_term=Concat('text_value_eng', Value(' '), 'details', Value(' '), 'uid', output_field=TextField())).filter(
         is_taxonomic=True).order_by('text_value_eng')
 
     def get_context_data(self, **kwargs):
