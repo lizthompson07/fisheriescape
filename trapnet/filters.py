@@ -11,6 +11,15 @@ class RiverFilter(django_filters.FilterSet):
             'name': ['icontains'],
         }
 
+
+class TrapFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Trap
+        fields = {
+            'season': ['exact'],
+            'site__river': ['exact'],
+        }
+
 #
 # class SampleFilter(django_filters.FilterSet):
 #     SeasonExact = django_filters.NumberFilter(field_name='year', label="From year", lookup_expr='exact', widget= forms.NumberInput(attrs={'style':"width: 4em"}))
