@@ -65,6 +65,76 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, TemplateView):
     template_name = 'trapnet/index.html'
 
 
+# SPECIES #
+###########
+
+class SpeciesListView(TrapNetAccessRequiredMixin, FilterView):
+    template_name = "trapnet/species_list.html"
+    filterset_class = filters.SpeciesFilter
+    queryset = models.Species.objects.annotate(
+        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['my_object'] = models.Species.objects.first()
+        context["field_list"] = [
+            'code',
+            'full_name|Species',
+            'scientific_name',
+            'tsn',
+            'aphia_id',
+        ]
+        return context
+
+class SpeciesDetailView(TrapNetAccessRequiredMixin, DetailView):
+    model = models.Species
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+        context["field_list"] = [
+            'code',
+            'common_name_eng',
+            'common_name_fre',
+            'life_stage_eng',
+            'life_stage_fre',
+            'scientific_name',
+            'tsn',
+            'aphia_id',
+            'notes',
+        ]
+
+        return context
+
+
+class SpeciesUpdateView(TrapNetAdminRequiredMixin, UpdateView):
+    model = models.Species
+
+    form_class = forms.SpeciesForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class SpeciesCreateView(TrapNetAdminRequiredMixin, CreateView):
+    model = models.Species
+
+    form_class = forms.SpeciesForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class SpeciesDeleteView(TrapNetAdminRequiredMixin, TrapNetAccessRequiredMixin, DeleteView):
+    model = models.Species
+    permission_required = "__all__"
+    success_url = reverse_lazy('trapnet:species_list')
+    success_message = 'The species was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
 # RIVER #
 #########
 
@@ -533,96 +603,6 @@ class SampleDeleteView(TrapNetAdminRequiredMixin, DeleteView):
 #
 #
 #
-# # SPECIES #
-# ###########
-#
-# class SpeciesListView(TrapNetAccessRequiredMixin, FilterView):
-#     template_name = "trapnet/species_list.html"
-#     filterset_class = filters.SpeciesFilter
-#
-#     queryset = models.Species.objects.annotate(
-#         search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
-#
-#
-# class SpeciesDetailView(TrapNetAccessRequiredMixin, DetailView):
-#     model = models.Species
-#
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#         context["field_list"] = [
-#             'common_name_eng',
-#             'common_name_fre',
-#             'scientific_name',
-#             'ais',
-#             'code',
-#             'tsn',
-#             'aphia_id',
-#             'notes',
-#         ]
-#
-#         # get a list of x,y coords for the species
-#         locations = []
-#
-#         # i want a queryset that has [species, station name, lat, lon, count of stn]
-#
-#         qs = models.SpeciesObservation.objects.filter(species=self.object).values(
-#             'species_id',
-#             'sample__station__id',
-#             'sample__station__name',
-#             'sample__station__site__site',
-#             'sample__station__latitude_n',
-#             'sample__station__longitude_w'
-#         ).distinct().annotate(dcount=Count('sample__station__id'))
-#
-#         for obj in qs:
-#             if obj["sample__station__latitude_n"] and obj["sample__station__longitude_w"]:
-#                 year_last_seen = models.SpeciesObservation.objects.filter(species=self.object.id).filter(
-#                     sample__station=obj["sample__station__id"]).order_by(
-#                     "-sample__start_date").first().sample.start_date.year
-#                 locations.append(
-#                     [
-#                         "{} ({})".format(obj["sample__station__name"], obj["sample__station__site__site"]),
-#                         obj["sample__station__latitude_n"],
-#                         obj["sample__station__longitude_w"],
-#                         obj["dcount"],
-#                         year_last_seen,
-#                     ]
-#                 )
-#
-#         context["locations"] = locations
-#
-#         return context
-#
-#
-# class SpeciesUpdateView(TrapNetAdminRequiredMixin, UpdateView):
-#     model = models.Species
-#
-#     form_class = forms.SpeciesForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class SpeciesCreateView(TrapNetAdminRequiredMixin, CreateView):
-#     model = models.Species
-#
-#     form_class = forms.SpeciesForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class SpeciesDeleteView(TrapNetAdminRequiredMixin, TrapNetAccessRequiredMixin, DeleteView):
-#     model = models.Species
-#     permission_required = "__all__"
-#     success_url = reverse_lazy('trapnet:species_list')
-#     success_message = 'The species was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
 #
 #
 # # SPECIES OBSERVATIONS #

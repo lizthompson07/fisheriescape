@@ -5,7 +5,12 @@ from shared_models import models as shared_models
 from . import models
 
 
-#
+class SpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.Species
+        fields = "__all__"
+
+
 class RiverForm(forms.ModelForm):
     class Meta:
         model = shared_models.River
@@ -52,11 +57,8 @@ class SampleForm(forms.ModelForm):
 #         }
 #
 #
-# class SpeciesForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Species
-#         fields = "__all__"
-#
+
+
 #
 # class SearchForm(forms.Form):
 #
