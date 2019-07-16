@@ -1,0 +1,75 @@
++ River
+  wheel code, across the time-series 6 locations have been used:
+    Butters
+    Kedgwick
+    LittleMain (only one year 2003)
+    Matapedia (only 3 years 2015-2017)
+    Moses
+   Upsalquitch
++ Year
+  year of entry 	
++ Month	
+  month of entry
++ Day
+  day of entry	
++ Time.Start
+  time at which sampling started in hh:mm	
++ Time.Released	
+  time at which marked fish were release in hh:mm	
++ Species
+  species code as used in oracle data base, i can provide you the list I have for confirmation	
++ First.Tag
+  code of the first tag used for that sample 	
++ Last.Tag
+  code of the last tag used for that sample
+  only used if fih are entered in batch (Freq>1)
+  if Freq == 1, it is left blank 
++ Status
+  coding for the status of the samples being processes
+    M: mortality
+    MR: mortality recapture
+    MS: mortality sampled 
+    MZ: mortality research removal (fish euthanasied)
+    R: released, unsampled
+    RI: released, injury
+    RL: released lost
+    RR: released, recapture
+    RRL: released, recapture, lost
+    RS: released, sampled
+    RT: released, tagged
+    UST: ultra-sonic tagging
++ Origin
+  A: adipose clipped (hatchery)
+  W: wild	
++ Freq	
+  number of individual fish sampled (can be >1 when fish are sampled in batch)
++ ForkLength
+  fork length of the sample in mm	
++ Total.Length
+  total length of the sample in mm
+  certain species dont have a a forked caudal fin (lampreys, eels) so total length is used	
++ Weight
+  weight of the sample in grams	
++ Sex
+  sex of sample (mostly salmon samples)
+    M: male
+    F: female
+    Mp: precocious male
+    U: unknown 	
++ Smolt.Age
+  age of smolt, should only be available for samples with species code = 1732
+  but there are a few rainbow trouts that were also aged and are entered in this column	
++ Location.Tagged
+  column for recaptured fish, indicated where the fish was tagged. 
+  I haven't check for errors has in this column as I have a stript that checks for released tagged	
++ Date.Tagged
+   column for recaptured fish, indicated when the fish was tagged. 
+  I haven't check for errors has in this column as I have a stript that checks for released tagged
++ Scale ID Number
+  scales samples are taken and put in an enveloppe. the scale ID corresponds to the ID on the enveloppe
++ tags removed	
+  This was added by me to clean up the data frame, sometimes the Freq column did not match (Last.Tag - First.Tag)
+  because some of the broken removed tags were not accounted for. 
+  this column is just the list of tag briken/removed (as recorded in log sheets) separated by a space
++ Comments
+  anything ranging from description of sample to edit of the perticular line of the dataframe

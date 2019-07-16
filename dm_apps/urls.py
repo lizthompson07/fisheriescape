@@ -25,6 +25,7 @@ from accounts import views as acc_views
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
+    path('tracking/', include('tracking.urls')),
 ]
 
 urlpatterns += i18n_patterns(
@@ -133,6 +134,12 @@ try:
     urlpatterns += i18n_patterns(path('whalesdb/', include('whalesdb.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting whalesdb app")
+
+try:
+    urlpatterns += i18n_patterns(path('trapnet/', include('trapnet.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting TrapNet")
+
 
 if not settings.PRODUCTION_SERVER:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

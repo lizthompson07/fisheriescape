@@ -280,6 +280,16 @@ def get_app_dict(request):
             "icon_path": 'img/whales/whales_dark.svg',
             "region": "regional",
         }
+
+        app_dict["trapnet"] = {
+            "title": _("TrapNet"),
+            "description": _("Diadromous Data Entry Tool."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('trapnet:index'),
+            "icon_path": 'img/icons/river.svg',
+            "region": "regional",
+        }
     except NoReverseMatch:
         pass
 
