@@ -4,6 +4,14 @@ from . import views
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    # SPECIES #
+    ###########
+    path('species/', views.SpeciesListView.as_view(), name="species_list"),
+    path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
+    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
+    path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
+    path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+
     # RIVER #
     #########
     path('rivers/', views.RiverListView.as_view(), name="river_list"),
@@ -28,7 +36,6 @@ urlpatterns = [
     path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="trap_edit"),
     path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="trap_delete"),
 
-
     #
     #
     # # STATION #
@@ -39,13 +46,7 @@ urlpatterns = [
     # path('station/<int:pk>/edit/', views.StationUpdateView.as_view(), name="station_edit"),
     # path('station/<int:pk>/delete/', views.StationDeleteView.as_view(), name="station_delete"),
     #
-    # # SPECIES #
-    # ###########
-    # path('species/', views.SpeciesListView.as_view(), name="species_list"),
-    # path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
-    # path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
-    # path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
-    # path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+
     #
     # # SPECIES OBSERVATIONS #
     # ########################
