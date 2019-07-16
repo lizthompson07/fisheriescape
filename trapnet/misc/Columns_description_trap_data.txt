@@ -1,0 +1,49 @@
++ River
+  wheel code, across the time-series 6 locations have been used:
+    Butters
+    Kedgwick
+    LittleMain (only one year 2003)
+    Matapedia (only 3 years 2015-2017)
+    Moses
+   Upsalquitch
++ Year
+  year of entry 	
++ Month	
+  month of entry
++ Day
+  day of entry		
++ Time_arrival
+  time at which the crew arrived at the wheel	
++ Time_departure
+  time at which the crew left the wheel	
++ Airtemp_arrival
+  air temperature at arrival 	
++ Airtemp_min
+  min air temperature since the last visit to the wheel	
++ Airtemp_max	
+  max air temperature since the last visit to the wheel
++ Cloud_cover_pcent
+  percentage of clouds (not sure how this is actually measured!) 	
++ Precipitation	
+  not standardized indication on rain/snow at the time of sampling
++ Wind
+  not standardized information on strength and direction	
++ Water_level
+  not standardized
+  it can be actual depth or sometimes it starts at 0 the day of installation and folluwing measurements are +/- xx in relation to the initial 0 
++ Discharge_m3_sec
+  water discharge in cubic metre/sec	
++ Water_temperature_shore
+  temperature at the shore (degree C)	
++ VEMCO	
+  temperature in the wheel trap (degree C)	
++ RPM_arrival
+  rotation per minute of the drum at time of arrival	
++ RPM_departure	
+  rotation per minute of the drum at time of departure
++ Operating_condition
+  currently not standardized but typically indicates if the wheel is jammed or not	
++ Crew
+  personnel sampling on the day	
++ Comments
+  anything

@@ -61,7 +61,26 @@
             </div>
 
             <div class="col">
-               {% include "shares/_shares.html" %}
+                {% include "shares/_shares.html" %}
+            </div>
+            <div class="col">
+                <h3>
+                    Add {{ object.username }} to glfscidm002:
+                </h3>
+                <ol>
+                    <li>
+                        Create the user in linux and in samba:
+                        <code>~/create_smb_user.sh {{object.username}}</code>
+                    </li>
+                     <li>
+                        Enter the password: <br>
+                        <code>{{object.password}}</code>
+                    </li>
+                    <li>
+                        Add the user to the appropriate share(s):<br> <code>sudo nano /etc/samba/smb.conf</code>
+                    </li>
+                    <li>Update the user status to "activated"</li>
+                </ol>
             </div>
         </div>
     </div>

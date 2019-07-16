@@ -1,0 +1,36 @@
+{% extends "trapnet/trapnet_base.html" %}
+{% load static %}
+{% block content %}
+
+    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1>TrapNet</h1>
+            <hr>
+            <h3>Diadromous Team Data Entry Portal</h3>
+        </div>
+        <h3>
+        <ul>
+            <li>
+                <a href="{% url 'trapnet:trap_list' %}">Smolt Wheel Program</a>
+            </li>
+            <li>
+                <a href="">Electrofishing Program</a>
+            </li>
+        </ul>
+
+        </h3>
+
+        <div align="center">
+            <img src="{% static "/img/trapnet/alt-salmon-saumon.jpg" %}" class="rounded" width="500px" alt="...">
+        </div>
+        <div align="center">
+            <p style="font-size: small">Photo credit: Jeffrey C. Domm</p>
+        </div>
+    </div>
+
+
+
+
+
+{% endblock content %}
