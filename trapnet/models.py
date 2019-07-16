@@ -95,17 +95,31 @@ class OperatingCondition(models.Model):
         ordering = ['name', ]
 
 
+class TrapType(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    code = models.CharField(max_length=5, blank=True, null=True)
+
+    def __str__(self):
+        return "{}".format(getattr(self, str(_("name"))))
+
+    class Meta:
+        ordering = ['name', ]
+
+
 class Trap(models.Model):
     site = models.ForeignKey(RiverSite, related_name='traps', on_delete=models.DO_NOTHING)
-    arrival_date = models.DateTimeField(verbose_name="arrival")
-    departure_date = models.DateTimeField(blank=True, null=True, verbose_name="departure")
-    air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="Water temperature (°C)")
-    max_air_temp = models.FloatField(null=True, blank=True, verbose_name="Water temperature (°C)")
-    percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-    wind_speed = models.ForeignKey(WindSpeed, related_name='traps', on_delete=models.DO_NOTHING)
-    wind_direction = models.ForeignKey(WindDirection, related_name='traps', on_delete=models.DO_NOTHING)
+    trap_type = models.ForeignKey(TrapType, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
+    arrival_date = models.DateTimeField(verbose_name="arrival date/time")
+    departure_date = models.DateTimeField(blank=True, null=True, verbose_name="departure date/time")
+    air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
+    min_air_temp = models.FloatField(null=True, blank=True, verbose_name="min air temperature (°C)")
+    max_air_temp = models.FloatField(null=True, blank=True, verbose_name="max air temperature (°C)")
+    percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover (%)")
     precipitation_category = models.ForeignKey(PrecipitationCategory, related_name='traps', on_delete=models.DO_NOTHING)
     precipitation_comment = models.CharField(max_length=255, blank=True, null=True)
+    wind_speed = models.ForeignKey(WindSpeed, related_name='traps', on_delete=models.DO_NOTHING)
+    wind_direction = models.ForeignKey(WindDirection, related_name='traps', on_delete=models.DO_NOTHING)
     water_depth_m = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
     water_level_delta_m = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
     discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
