@@ -28,11 +28,7 @@
         <h1>{{ object }}</h1>
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'grais:line_edit' object.id %}">Edit</a>
-            {% if object.surfaces.count > 0 %}
-                <a class="btn btn-danger disabled" href="{% url 'grais:line_edit' object.id %}">Delete</a>
-            {% else %}
-                <a class="btn btn-danger" href="{% url 'grais:line_delete'  object.id %}">Delete</a>
-            {% endif %}
+            <a class="btn btn-danger" href="{% url 'grais:line_delete'  object.id %}">Delete</a>
         </div>
 
 
