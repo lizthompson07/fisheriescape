@@ -35,6 +35,8 @@ class RiverSite(models.Model):
 class Species(models.Model):
     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
+    life_stage_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage")
+    life_stage_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage")
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
@@ -42,13 +44,23 @@ class Species(models.Model):
     notes = models.TextField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return self.common_name_eng
+        return getattr(self, str(_("common_name_eng")))
+
+    @property
+    def full_name(self):
+        if getattr(self, str(_("life_stage_eng"))):
+            return "{} ({})".format(
+                getattr(self, str(_("common_name_eng"))),
+                getattr(self, str(_("life_stage_eng"))).lower(),
+            )
+        else:
+            return str(self)
 
     class Meta:
         ordering = ['common_name_eng']
 
     def get_absolute_url(self):
-        return reverse("camp:species_detail", kwargs={"pk": self.id})
+        return reverse("trapnet:species_detail", kwargs={"pk": self.id})
 
 
 class WindSpeed(models.Model):
