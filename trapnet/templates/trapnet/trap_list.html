@@ -1,6 +1,8 @@
 {% extends "trapnet/trapnet_base.html" %}
 {% load static %}
 {% load verbose_names %}
+{% load el_pagination_tags %}
+{% load bootstrap4 %}
 
 {% block content %}
     <nav aria-label="breadcrumb">
@@ -11,7 +13,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                Rivers
+                Traps
             </li>
 
         </ol>
@@ -19,25 +21,33 @@
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Rivers</h1>
+        <h1 class="big-header">Traps</h1>
 
-        <form class="form" action="." method="get">
-            {% for field in filter.form %}
-                {{ field.label }}: &nbsp; {{ field }}&nbsp;&nbsp;
-            {% endfor %}
-            <input type="submit" value="Filter" class="btn btn btn-warning">
+        <form class="form" action="." method="get" style="width: 40%">
+            <div class="row">
+                {% for field in filter.form %}
+                    <div class="col">
+                        {% bootstrap_field field %}
+                    </div>
+                {% endfor %}
+                <div class="col-1">
+                    <br><input type="submit" value="Filter" class="btn btn btn-warning">
+                </div>
+            </div>
         </form>
-        <br><br>
+        <br>
+        {% paginate 50 filter.qs as filter_list %}
 
         <div class="row">
             <div class="col">
                 (click on a header to sort table)
             </div>
             <div class="col" style="text-align: center">
-                <em>displaying {{ filter.qs.count }} of {{ object_list.count }}</em>
+                {% show_pages %}
+                <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'trapnet:river_new' %}" class="btn btn-sm btn-primary">New</a>
+                <a href="{% url 'trapnet:trap_new'  %}" class="btn btn-sm btn-primary">New</a>
             </div>
         </div>
         <table class="table table-sm table-hover sortable">
@@ -49,21 +59,13 @@
             </tr>
             </thead>
             <tbody>
-            {% for object in filter.qs %}
-                {% url 'trapnet:river_detail' object.id as my_url %}
+            {% for object in filter_list %}
+                {% url 'trapnet:trap_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
 
                     {% for field in field_list %}
-                        {% if "cgndb" in field %}
-                            {% get_field_value object field as my_key %}
-                            <td>
-                                {% if not my_key == "n/a" %}
-                                    <a href="http://geogratis.gc.ca/services/geoname/en/geonames/{{ my_key }}">
-                                        {{ my_key }}
-                                    </a>
-                                {% endif %}
-                            </td>
-
+                        {% if "date" in field %}
+                            <td>{% get_field_value object field display_time=True %}</td>
                         {% else %}
                             <td>{% get_field_value object field %}</td>
                         {% endif %}

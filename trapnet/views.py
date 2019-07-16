@@ -88,6 +88,7 @@ class RiverListView(TrapNetAccessRequiredMixin, FilterView):
         context['my_object'] = shared_models.River.objects.first()
         return context
 
+
 class RiverUpdateView(TrapNetAdminRequiredMixin, UpdateView):
     model = shared_models.River
     form_class = forms.RiverForm
@@ -142,7 +143,8 @@ class RiverDetailView(TrapNetAccessRequiredMixin, DetailView):
         ]
         context['my_site_object'] = models.RiverSite.objects.first()
 
-        site_list = [[obj.name, obj.latitude_n, obj.longitude_w] for obj in self.object.river_sites.all() if obj.latitude_n and obj.longitude_w]
+        site_list = [[obj.name, obj.latitude_n, obj.longitude_w] for obj in self.object.river_sites.all() if
+                     obj.latitude_n and obj.longitude_w]
         context['site_list'] = site_list
 
         return context
@@ -171,7 +173,8 @@ class RiverSiteUpdateView(TrapNetAdminRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("trapnet:site_detail", kwargs={"pk":my_object.id}))
+        return HttpResponseRedirect(reverse_lazy("trapnet:site_detail", kwargs={"pk": my_object.id}))
+
 
 class RiverSiteCreateView(TrapNetAdminRequiredMixin, CreateView):
     model = models.RiverSite
@@ -190,7 +193,8 @@ class RiverSiteCreateView(TrapNetAdminRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("trapnet:site_detail", kwargs={"pk":my_object.id}))
+        return HttpResponseRedirect(reverse_lazy("trapnet:site_detail", kwargs={"pk": my_object.id}))
+
 
 class RiverSiteDetailView(TrapNetAdminRequiredMixin, DetailView):
     model = models.RiverSite
@@ -225,6 +229,116 @@ class RiverSiteDeleteView(TrapNetAdminRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+# TRAP #
+########
+
+class TrapListView(TrapNetAccessRequiredMixin, FilterView):
+    filterset_class = filters.TrapFilter
+    template_name = 'trapnet/trap_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        field_list = [
+            'season',
+            'trap_type',
+            'site',
+            'arrival_date',
+            'departure_date',
+        ]
+        context['field_list'] = field_list
+        context['my_object'] = models.Trap.objects.first()
+        return context
+
+
+class TrapUpdateView(TrapNetAdminRequiredMixin, UpdateView):
+    model = models.Trap
+    form_class = forms.TrapForm
+    template_name = 'trapnet/trap_form.html'
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class TrapCreateView(TrapNetAdminRequiredMixin, CreateView):
+    model = models.Trap
+    form_class = forms.TrapForm
+    template_name = 'trapnet/trap_form.html'
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+            'last_modified_by': self.request.user
+        }
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("trapnet:trap_detail", kwargs={"pk": my_object.id}))
+
+
+class TrapDetailView(TrapNetAccessRequiredMixin, DetailView):
+    model = models.Trap
+    template_name = 'trapnet/trap_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            'site',
+            'trap_type',
+            'arrival_date',
+            'departure_date',
+            'air_temp_arrival',
+            'min_air_temp',
+            'max_air_temp',
+            'percent_cloud_cover',
+            'precipitation_category',
+            'precipitation_comment',
+            'wind_speed',
+            'wind_direction',
+            'water_depth_m',
+            'water_level_delta_m',
+            'discharge_m3_sec',
+            'water_temp_shore_c',
+            'water_temp_trap_c',
+            'rpm_arrival',
+            'rpm_departure',
+            'operating_condition',
+            'operating_condition_comment',
+            'notes',
+            'season',
+            'last_modified',
+            'last_modified_by',
+        ]
+        context['field_list'] = field_list
+
+        # context['site_field_list'] = [
+        #     'name',
+        #     'stream_order',
+        #     'elevation_m',
+        #     'province.abbrev_eng',
+        #     'latitude_n',
+        #     'longitude_w',
+        #     'directions',
+        # ]
+        # context['my_site_object'] = models.TrapSite.objects.first()
+        #
+        # site_list = [[obj.name, obj.latitude_n, obj.longitude_w] for obj in self.object.river_sites.all() if obj.latitude_n and obj.longitude_w]
+        # context['site_list'] = site_list
+
+        return context
+
+
+class TrapDeleteView(TrapNetAdminRequiredMixin, DeleteView):
+    model = models.Trap
+    success_url = reverse_lazy('trapnet:trap_list')
+    success_message = 'The trap was successfully deleted!'
+    template_name = 'trapnet/trap_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
 #
 # # SAMPLE #

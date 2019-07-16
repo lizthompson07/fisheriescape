@@ -14,3 +14,8 @@ def population_parents():
                 river.parent_river = parent_river
                 river.save()
 
+
+def resave_traps():
+    for trap in models.Trap.objects.all():
+        trap.save()
+
