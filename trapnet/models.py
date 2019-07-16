@@ -95,7 +95,7 @@ class OperatingCondition(models.Model):
         ordering = ['name', ]
 
 
-class TrapType(models.Model):
+class SampleType(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=5, blank=True, null=True)
@@ -107,19 +107,19 @@ class TrapType(models.Model):
         ordering = ['name', ]
 
 
-class Trap(models.Model):
-    site = models.ForeignKey(RiverSite, related_name='traps', on_delete=models.DO_NOTHING)
-    trap_type = models.ForeignKey(TrapType, related_name='traps', on_delete=models.DO_NOTHING)
+class Sample(models.Model):
+    site = models.ForeignKey(RiverSite, related_name='samples', on_delete=models.DO_NOTHING)
+    sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING)
     arrival_date = models.DateTimeField(verbose_name="arrival date/time")
     departure_date = models.DateTimeField(blank=True, null=True, verbose_name="departure date/time")
     air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
     min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)")
     max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)")
     percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover (%)")
-    precipitation_category = models.ForeignKey(PrecipitationCategory, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
+    precipitation_category = models.ForeignKey(PrecipitationCategory, related_name='samples', on_delete=models.DO_NOTHING, blank=True, null=True)
     precipitation_comment = models.CharField(max_length=255, blank=True, null=True)
-    wind_speed = models.ForeignKey(WindSpeed, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
-    wind_direction = models.ForeignKey(WindDirection, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
+    wind_speed = models.ForeignKey(WindSpeed, related_name='samples', on_delete=models.DO_NOTHING, blank=True, null=True)
+    wind_direction = models.ForeignKey(WindDirection, related_name='samples', on_delete=models.DO_NOTHING, blank=True, null=True)
     water_depth_m = models.FloatField(null=True, blank=True, verbose_name="water depth (m)")
     water_level_delta_m = models.FloatField(null=True, blank=True, verbose_name="water level delta (m)")
     discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="discharge (m3/s)")
@@ -127,7 +127,7 @@ class Trap(models.Model):
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
     rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="RPM at start")
     rpm_departure = models.FloatField(null=True, blank=True, verbose_name="RPM at end")
-    operating_condition = models.ForeignKey(OperatingCondition, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
+    operating_condition = models.ForeignKey(OperatingCondition, related_name='samples', on_delete=models.DO_NOTHING, blank=True, null=True)
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
     samplers = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
@@ -188,7 +188,7 @@ class Sex(models.Model):
 
 
 class Observation(models.Model):
-    trap = models.ForeignKey(Trap, on_delete=models.CASCADE, related_name="observations")
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="observations")
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
     first_tag = models.CharField(max_length=50, blank=True, null=True)
     last_tag = models.CharField(max_length=50, blank=True, null=True)
@@ -209,6 +209,6 @@ class Observation(models.Model):
     def save(self, *args, **kwargs):
         return super().save(*args, **kwargs)
 
-    class Meta:
-        unique_together = [["trap", "species"], ]
+    # class Meta:
+        # unique_together = [["trap", "species"], ]
         # ordering = ["-sample__year"] THIS IS WAY TOO SLOW!

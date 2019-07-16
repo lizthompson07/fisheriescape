@@ -230,45 +230,44 @@ class RiverSiteDeleteView(TrapNetAdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# TRAP #
-########
+# SAMPLE #
+##########
 
-class TrapListView(TrapNetAccessRequiredMixin, FilterView):
-    filterset_class = filters.TrapFilter
-    template_name = 'trapnet/trap_list.html'
+class SampleListView(TrapNetAccessRequiredMixin, FilterView):
+    filterset_class = filters.SampleFilter
+    template_name = 'trapnet/sample_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         field_list = [
             'season',
-            'trap_type',
+            'sample_type',
             'site',
             'arrival_date',
             'departure_date',
         ]
         context['field_list'] = field_list
-        context['my_object'] = models.Trap.objects.first()
+        context['my_object'] = models.Sample.objects.first()
         return context
 
 
-class TrapUpdateView(TrapNetAdminRequiredMixin, UpdateView):
-    model = models.Trap
-    form_class = forms.TrapForm
+class SampleUpdateView(TrapNetAdminRequiredMixin, UpdateView):
+    model = models.Sample
+    form_class = forms.SampleForm
     template_name = 'trapnet/trap_form.html'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class TrapCreateView(TrapNetAdminRequiredMixin, CreateView):
-    model = models.Trap
-    form_class = forms.TrapForm
-    template_name = 'trapnet/trap_form.html'
+class SampleCreateView(TrapNetAdminRequiredMixin, CreateView):
+    model = models.Sample
+    form_class = forms.SampleForm
+    template_name = 'trapnet/sample_form.html'
 
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,
-            'last_modified_by': self.request.user
         }
 
     def form_valid(self, form):
@@ -276,9 +275,9 @@ class TrapCreateView(TrapNetAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("trapnet:trap_detail", kwargs={"pk": my_object.id}))
 
 
-class TrapDetailView(TrapNetAccessRequiredMixin, DetailView):
-    model = models.Trap
-    template_name = 'trapnet/trap_detail.html'
+class SampleDetailView(TrapNetAccessRequiredMixin, DetailView):
+    model = models.Sample
+    template_name = 'trapnet/sample_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -286,7 +285,7 @@ class TrapDetailView(TrapNetAccessRequiredMixin, DetailView):
 
         field_list = [
             'site',
-            'trap_type',
+            'sample_type',
             'arrival_date',
             'departure_date',
             'air_temp_arrival',
@@ -330,11 +329,11 @@ class TrapDetailView(TrapNetAccessRequiredMixin, DetailView):
         return context
 
 
-class TrapDeleteView(TrapNetAdminRequiredMixin, DeleteView):
-    model = models.Trap
+class SampleDeleteView(TrapNetAdminRequiredMixin, DeleteView):
+    model = models.Sample
     success_url = reverse_lazy('trapnet:trap_list')
-    success_message = 'The trap was successfully deleted!'
-    template_name = 'trapnet/trap_confirm_delete.html'
+    success_message = 'The sample was successfully deleted!'
+    template_name = 'trapnet/sample_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
