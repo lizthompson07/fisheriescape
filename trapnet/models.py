@@ -24,7 +24,7 @@ class RiverSite(models.Model):
 
     def __str__(self):
         try:
-            return "{} ({})".format(self.name, self.province.tabbrev)
+            return "{} ({})".format(self.name, self.river.name)
         except AttributeError:
             return "{}".format(self.name)
 
@@ -109,36 +109,36 @@ class TrapType(models.Model):
 
 class Trap(models.Model):
     site = models.ForeignKey(RiverSite, related_name='traps', on_delete=models.DO_NOTHING)
-    trap_type = models.ForeignKey(TrapType, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
+    trap_type = models.ForeignKey(TrapType, related_name='traps', on_delete=models.DO_NOTHING)
     arrival_date = models.DateTimeField(verbose_name="arrival date/time")
     departure_date = models.DateTimeField(blank=True, null=True, verbose_name="departure date/time")
     air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
-    min_air_temp = models.FloatField(null=True, blank=True, verbose_name="min air temperature (°C)")
-    max_air_temp = models.FloatField(null=True, blank=True, verbose_name="max air temperature (°C)")
+    min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)")
+    max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)")
     percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover (%)")
-    precipitation_category = models.ForeignKey(PrecipitationCategory, related_name='traps', on_delete=models.DO_NOTHING)
+    precipitation_category = models.ForeignKey(PrecipitationCategory, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
     precipitation_comment = models.CharField(max_length=255, blank=True, null=True)
-    wind_speed = models.ForeignKey(WindSpeed, related_name='traps', on_delete=models.DO_NOTHING)
-    wind_direction = models.ForeignKey(WindDirection, related_name='traps', on_delete=models.DO_NOTHING)
-    water_depth_m = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-    water_level_delta_m = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-    discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-    water_temp_shore_c = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-    water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-    rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-    rpm_departure = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-    operating_condition = models.ForeignKey(OperatingCondition, related_name='traps', on_delete=models.DO_NOTHING)
+    wind_speed = models.ForeignKey(WindSpeed, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
+    wind_direction = models.ForeignKey(WindDirection, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
+    water_depth_m = models.FloatField(null=True, blank=True, verbose_name="water depth (m)")
+    water_level_delta_m = models.FloatField(null=True, blank=True, verbose_name="water level delta (m)")
+    discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="discharge (m3/s)")
+    water_temp_shore_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at shore (°C)")
+    water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
+    rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="RPM at start")
+    rpm_departure = models.FloatField(null=True, blank=True, verbose_name="RPM at end")
+    operating_condition = models.ForeignKey(OperatingCondition, related_name='traps', on_delete=models.DO_NOTHING, blank=True, null=True)
+    operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
+    samplers = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     season = models.IntegerField(null=True, blank=True)
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="wheel_sample_last_modified_by")
-    samplers = models.TextField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.year = self.arrival_date.year
+        self.season = self.arrival_date.year
         self.last_modified = timezone.now()
-
         super().save(*args, **kwargs)
 
     class Meta:

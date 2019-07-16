@@ -1,6 +1,5 @@
 {% extends "trapnet/trapnet_base.html" %}
 {% load static %}
-{% block title %}CAMP db{% endblock title %}
 {% block content %}
 
     {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
@@ -13,7 +12,7 @@
         <h3>
         <ul>
             <li>
-                <a href="">Smolt Wheel Program</a>
+                <a href="{% url 'trapnet:trap_list' %}">Smolt Wheel Program</a>
             </li>
             <li>
                 <a href="">Electrofishing Program</a>

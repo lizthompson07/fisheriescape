@@ -4,6 +4,7 @@ from shared_models import models as shared_models
 
 from . import models
 
+
 #
 class RiverForm(forms.ModelForm):
     class Meta:
@@ -25,6 +26,18 @@ class RiverSiteForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if kwargs.get("instance") or kwargs.get("initial"):
             self.fields["river"].widget = forms.HiddenInput()
+
+
+class TrapForm(forms.ModelForm):
+    class Meta:
+        model = models.Trap
+        exclude = ["last_modified", 'season']
+        widgets = {
+            "site": forms.HiddenInput(),
+            "last_modified_by": forms.HiddenInput(),
+            "samplers": forms.Textarea(attrs={"rows": "2", }),
+            "notes": forms.Textarea(attrs={"rows": "3", }),
+        }
 
 #
 # class NoSiteStationForm(forms.ModelForm):
