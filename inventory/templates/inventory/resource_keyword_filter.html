@@ -43,7 +43,8 @@
             <thead>
             <th></th>
             <th>Scientific</th>
-            <th>Vernacular</th>
+            <th style="padding-left: 20px">Vernacular</th>
+            <th style="padding-left: 20px">UID</th>
             </thead>
             <tbody>
             {% for obj in filter.qs %}
@@ -56,8 +57,11 @@
                     <td>
                         <em>{{ obj.text_value_eng }}</em>
                     </td>
-                    <td>
+                    <td style="padding-left: 20px">
                         {{ obj.details }}
+                    </td>
+                    <td style="padding-left: 20px">
+                        {{ obj.uid}}
                     </td>
                     <td>
                         (<a href="{% url 'inventory:keyword_detail' resource.id obj.id %}">view</a>)
