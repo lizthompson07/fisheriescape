@@ -22,6 +22,9 @@ class CrsCruises(models.Model):
         managed = False
         db_table = 'crs_cruises'
 
+    def __str__(self):
+        return "{} : {} - {}".format(self.crs_name, self.crs_start_date, self.crs_end_date)
+
 
 class DepDeployments(models.Model):
     dep_id = models.BigIntegerField(primary_key=True)
@@ -33,6 +36,9 @@ class DepDeployments(models.Model):
     class Meta:
         managed = False
         db_table = 'dep_deployments'
+
+    def __str__(self):
+        return "{}".format(self.dep_name)
 
 
 class EcaCalibrationEvent(models.Model):
@@ -104,6 +110,9 @@ class EmmMakeModel(models.Model):
         managed = False
         db_table = 'emm_make_model'
 
+    def __str__(self):
+        return "{} {}".format(self.emm_make, self.emm_model)
+
 
 class EprEquipmentParameters(models.Model):
     emm = models.OneToOneField(EmmMakeModel, models.DO_NOTHING, primary_key=True)
@@ -122,6 +131,9 @@ class EqaAdcBitsCode(models.Model):
     class Meta:
         managed = False
         db_table = 'eqa_adc_bits_code'
+
+    def __str__(self):
+        return "{}".format(self.eqa_name)
 
 
 class EqhHydrophoneProperties(models.Model):
@@ -165,6 +177,9 @@ class EqtEquipmentTypeCode(models.Model):
         managed = False
         db_table = 'eqt_equipment_type_code'
 
+    def __str__(self):
+        return "{}".format(self.eqt_name)
+
 
 class MorMooringSetups(models.Model):
     mor_id = models.BigIntegerField(primary_key=True)
@@ -180,6 +195,9 @@ class MorMooringSetups(models.Model):
         managed = False
         db_table = 'mor_mooring_setups'
 
+    def __str__(self):
+        return "{} - {:0.5} m - {} hydrophones".format(self.mor_name, self.mor_max_depth, self.mor_num_hydrophones)
+
 
 class PrjProjects(models.Model):
     prj_id = models.BigIntegerField(primary_key=True)
@@ -190,6 +208,9 @@ class PrjProjects(models.Model):
     class Meta:
         managed = False
         db_table = 'prj_projects'
+
+    def __str__(self):
+        return "{}".format(self.prj_name)
 
 
 class PrmParameterCode(models.Model):
@@ -277,6 +298,9 @@ class SetStationEventCode(models.Model):
         managed = False
         db_table = 'set_station_event_code'
 
+    def __str__(self):
+        return "{} - {}".format(self.set_name, self.set_description)
+
 
 class SteStationEvents(models.Model):
     ste_id = models.BigIntegerField(primary_key=True)
@@ -312,6 +336,9 @@ class StnStations(models.Model):
     class Meta:
         managed = False
         db_table = 'stn_stations'
+
+    def __str__(self):
+        return "{} [{:.5}, {:.5}]".format(self.stn_name, self.stn_planned_lat, self.stn_planned_lon)
 
 
 class TeaTeamMembers(models.Model):
