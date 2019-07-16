@@ -14,7 +14,7 @@
 
     <div class="row">
         <div class="col-1">
-       {% with "Add "|add:lookup.label as btn_label %}
+        {% with "Add "|add:lookup.label as btn_label %}
         <a class="btn btn-primary" href="#"
            onclick="return popitup('{% url 'whalesdb:code_entry' lookup.url %}','popoutWindow')"
             title="{% trans btn_label%}">+</a>
@@ -26,11 +26,13 @@
         <table class="table">
             <thead>
             <tr>
-                <th>ID</th><th>Value</th>
+                {% for field in lookup.fields %}
+                <th>{{ field }}</th>
+                {% endfor %}
             </tr>
             </thead>
             <tbody>
-            {% for elm in code_list %}
+            {% for elm in object_list %}
                 <tr>
                     {% for v in elm %}
                     <td>{{ v }} </td>
