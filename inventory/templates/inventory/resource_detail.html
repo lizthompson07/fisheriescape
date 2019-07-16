@@ -18,10 +18,8 @@
         #floating-panel {
         {#position: absolute;#} left: 25%;
             z-index: 5;
-            {#background-color: #ffffff;#}
-            padding: 5px;
-            {#border: 1px solid #adadad;#}
-            text-align: center;
+        {#background-color: #ffffff;#} padding: 5px;
+        {#border: 1px solid #adadad;#} text-align: center;
             font-family: 'Roboto', 'sans-serif';
             line-height: 30px;
             padding-left: 10px;
@@ -88,11 +86,14 @@
             <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap">
                 Export as XML (HNAP)
             </a>
-            {% if user.is_superuser %}
-                <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">
-                    Delete
-                </a>
-            {% endif %}
+            {% for group in user.groups.all %}
+                {% if group.id == 13 %}
+                    <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">
+                        Delete
+                    </a>
+                {% endif %}
+
+            {% endfor %}
         {% endwith %}
 
     </div>
@@ -264,13 +265,11 @@
     </div>
     <div class="text-center">
         <h5>
-            <a href="{% url 'inventory:resource_full_detail' object.id  %}">
+            <a href="{% url 'inventory:resource_full_detail' object.id %}">
                 (click here to view the entire record)
             </a>
         </h5>
     </div>
-
-
 
 
     <script type="text/javascript">
@@ -283,7 +282,6 @@
             }
         })
     </script>
-
 
 
 {% endblock content %}
