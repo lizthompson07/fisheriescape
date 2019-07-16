@@ -3,6 +3,7 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import TextField
@@ -24,11 +25,29 @@ def in_grais_group(user):
         return user.groups.filter(name='grais_access').count() != 0
 
 
+def in_grais_admin_group(user):
+    if user:
+        return user.groups.filter(name='grais_admin').count() != 0
+
+
 class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
         return in_grais_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GraisAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_grais_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -80,7 +99,7 @@ class SampleDetailView(GraisAccessRequiredMixin, DetailView):
         return context
 
 
-class SampleUpdateView(GraisAccessRequiredMixin, UpdateView):
+class SampleUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.Sample
     form_class = forms.SampleForm
 
@@ -88,7 +107,7 @@ class SampleUpdateView(GraisAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class SampleCreateView(GraisAccessRequiredMixin, CreateView):
+class SampleCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Sample
     form_class = forms.SampleForm
 
@@ -96,7 +115,7 @@ class SampleCreateView(GraisAccessRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-class SampleDeleteView(GraisAccessRequiredMixin, DeleteView):
+class SampleDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.Sample
     success_url = reverse_lazy('grais:sample_list')
     success_message = 'The sample was successfully deleted!'
@@ -130,7 +149,8 @@ class SampleNoteCreateView(GraisAccessRequiredMixin, CreateView):
             "author": self.request.user
         }
 
-
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
 def sample_note_delete(request, pk):
     note = models.SampleNote.objects.get(pk=pk)
     note.delete()
@@ -146,7 +166,7 @@ class StationListView(GraisAccessRequiredMixin, FilterView):
     template_name = "grais/station_list.html"
 
 
-class StationUpdateView(GraisAccessRequiredMixin, UpdateView):
+class StationUpdateView(GraisAdminRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
     model = models.Station
@@ -156,7 +176,7 @@ class StationUpdateView(GraisAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class StationCreateView(GraisAccessRequiredMixin, CreateView):
+class StationCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Station
     form_class = forms.StationForm
 
@@ -175,7 +195,7 @@ class StationDetailView(GraisAccessRequiredMixin, UpdateView):
         return context
 
 
-class StationDeleteView(GraisAccessRequiredMixin, DeleteView):
+class StationDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.Station
     success_url = reverse_lazy('grais:station_list')
     success_message = 'The station was successfully deleted!'
@@ -188,14 +208,14 @@ class StationDeleteView(GraisAccessRequiredMixin, DeleteView):
 # PERSON #
 ##########
 
-class PersonUpdateView(GraisAccessRequiredMixin, UpdateView):
+class PersonUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.Sampler
     fields = ('__all__')
     template_name = 'grais/person_form_popout.html'
     success_url = reverse_lazy("grais:close_me")
 
 
-class PersonCreateView(GraisAccessRequiredMixin, CreateView):
+class PersonCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Sampler
     fields = ('__all__')
     template_name = 'grais/person_form_popout.html'
@@ -211,7 +231,7 @@ class PersonDetailView(GraisAccessRequiredMixin, UpdateView):
 # PROBE DATA #
 ##############
 
-class ProbeMeasurementCreateView(GraisAccessRequiredMixin, CreateView):
+class ProbeMeasurementCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
     template_name = 'grais/probe_measurement_form.html'
@@ -235,7 +255,7 @@ class ProbeMeasurementDetailView(GraisAccessRequiredMixin, UpdateView):
     template_name = 'grais/probe_measurement_detail.html'
 
 
-class ProbeMeasurementUpdateView(GraisAccessRequiredMixin, UpdateView):
+class ProbeMeasurementUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.ProbeMeasurement
     form_class = forms.ProbeMeasurementForm
     template_name = 'grais/probe_measurement_form.html'
@@ -244,7 +264,7 @@ class ProbeMeasurementUpdateView(GraisAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, DeleteView):
+class ProbeMeasurementDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.ProbeMeasurement
     template_name = "grais/probe_measurement_confirm_delete.html"
     success_message = 'The probe measurement was successfully deleted!'
@@ -260,7 +280,7 @@ class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, DeleteView):
 # LINES #
 #########
 
-class LineCreateView(GraisAccessRequiredMixin, CreateView):
+class LineCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Line
     form_class = forms.LineCreateForm
     template_name = 'grais/line_form.html'
@@ -295,7 +315,7 @@ class LineCreateView(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class LineDetailView(LoginRequiredMixin, DetailView):
+class LineDetailView(GraisAccessRequiredMixin, DetailView):
     model = models.Line
     template_name = 'grais/line_detail.html'
 
@@ -305,7 +325,7 @@ class LineDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class LineUpdateView(LoginRequiredMixin, UpdateView):
+class LineUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.Line
     form_class = forms.LineForm
 
@@ -313,7 +333,7 @@ class LineUpdateView(LoginRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class LineDeleteView(LoginRequiredMixin, DeleteView):
+class LineDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.Line
     template_name = "grais/line_confirm_delete.html"
     success_message = 'The line was successfully deleted!'
@@ -354,7 +374,7 @@ class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
         return context
 
 
-class SpeciesUpdateView(GraisAccessRequiredMixin, UpdateView):
+class SpeciesUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.Species
     form_class = forms.SpeciesForm
 
@@ -362,7 +382,7 @@ class SpeciesUpdateView(GraisAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class SpeciesCreateView(GraisAccessRequiredMixin, CreateView):
+class SpeciesCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Species
     form_class = forms.SpeciesForm
 
@@ -370,7 +390,7 @@ class SpeciesCreateView(GraisAccessRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-class SpeciesCreatePopoutView(GraisAccessRequiredMixin, CreateView):
+class SpeciesCreatePopoutView(GraisAdminRequiredMixin, CreateView):
     model = models.Species
     form_class = forms.SpeciesForm
     template_name = 'grais/species_form_popout.html'
@@ -385,7 +405,7 @@ class SpeciesCreatePopoutView(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
-class SpeciesDeleteView(GraisAccessRequiredMixin, DeleteView):
+class SpeciesDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.Species
     success_url = reverse_lazy('grais:species_list')
     success_message = 'The species was successfully deleted!'
@@ -415,7 +435,7 @@ class SurfaceDetailView(GraisAccessRequiredMixin, UpdateView):
         return context
 
 
-class SurfaceUpdateView(GraisAccessRequiredMixin, UpdateView):
+class SurfaceUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.Surface
     form_class = forms.SurfaceForm
 
@@ -423,7 +443,7 @@ class SurfaceUpdateView(GraisAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class SurfaceCreateView(GraisAccessRequiredMixin, CreateView):
+class SurfaceCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Surface
     form_class = forms.SurfaceForm
 
@@ -440,7 +460,7 @@ class SurfaceCreateView(GraisAccessRequiredMixin, CreateView):
         }
 
 
-class SurfaceDeleteView(GraisAccessRequiredMixin, DeleteView):
+class SurfaceDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.Surface
     template_name = "grais/surface_confirm_delete.html"
     success_message = 'The surface was successfully deleted!'
@@ -457,7 +477,7 @@ class SurfaceDeleteView(GraisAccessRequiredMixin, DeleteView):
 ########################################################
 
 # this is shared between SampleSpecies and LineSpecies
-class SpeciesObservationInsertView(TemplateView):
+class SpeciesObservationInsertView(GraisAdminRequiredMixin, TemplateView):
     template_name = "grais/species_obs_insert.html"
 
     def get_context_data(self, **kwargs):
@@ -497,7 +517,7 @@ class SpeciesObservationInsertView(TemplateView):
         return context
 
 
-class SpeciesObservationCreatePopoutView(GraisAccessRequiredMixin, CreateView):
+class SpeciesObservationCreatePopoutView(GraisAdminRequiredMixin, CreateView):
     template_name = 'grais/species_obs_form_popout.html'
     form_class = forms.SurfaceSpeciesForm
 
@@ -544,7 +564,7 @@ class SpeciesObservationCreatePopoutView(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
-class SpeciesObservationUpdatePopoutView(GraisAccessRequiredMixin, UpdateView):
+class SpeciesObservationUpdatePopoutView(GraisAdminRequiredMixin, UpdateView):
     template_name = 'grais/species_obs_form_popout.html'
 
     def get_form_class(self):
@@ -564,6 +584,8 @@ class SpeciesObservationUpdatePopoutView(GraisAccessRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
 def species_observation_delete(request, type, pk, backto):
     if type == "sample":
         object = models.SampleSpecies.objects.get(pk=pk)
@@ -586,7 +608,7 @@ def species_observation_delete(request, type, pk, backto):
 # SURFACE SPECIES #
 ###################
 
-class SurfacaeSpeciesInsertView(TemplateView):
+class SurfacaeSpeciesInsertView(GraisAdminRequiredMixin, TemplateView):
     template_name = "grais/surface_species_insert.html"
 
     def get_context_data(self, **kwargs):
@@ -617,7 +639,7 @@ class SurfacaeSpeciesInsertView(TemplateView):
         return context
 
 
-class SurfaceSpeciesCreatePopoutView(GraisAccessRequiredMixin, CreateView):
+class SurfaceSpeciesCreatePopoutView(GraisAdminRequiredMixin, CreateView):
     model = models.SurfaceSpecies
     template_name = 'grais/surface_species_form_popout.html'
     form_class = forms.SurfaceSpeciesForm
@@ -644,7 +666,7 @@ class SurfaceSpeciesCreatePopoutView(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
-class SurfaceSpeciesUpdatePopoutView(GraisAccessRequiredMixin, UpdateView):
+class SurfaceSpeciesUpdatePopoutView(GraisAdminRequiredMixin, UpdateView):
     model = models.SurfaceSpecies
     template_name = 'grais/surface_species_form_popout.html'
     form_class = forms.SurfaceSpeciesForm
@@ -847,6 +869,8 @@ class FollowUpCreateView(GraisAccessRequiredMixin, CreateView):
         }
 
 
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
 def follow_up_delete(request, pk):
     followup = models.FollowUp.objects.get(pk=pk)
     followup.delete()
@@ -862,7 +886,7 @@ class EstuaryListView(GraisAccessRequiredMixin, FilterView):
     template_name = "grais/estuary_list.html"
 
 
-class EstuaryUpdateView(GraisAccessRequiredMixin, UpdateView):
+class EstuaryUpdateView(GraisAdminRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
 
@@ -873,7 +897,7 @@ class EstuaryUpdateView(GraisAccessRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class EstuaryCreateView(GraisAccessRequiredMixin, CreateView):
+class EstuaryCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Estuary
 
     form_class = forms.EstuaryForm
@@ -904,7 +928,7 @@ class EstuaryDetailView(GraisAccessRequiredMixin, DetailView):
         return context
 
 
-class EstuaryDeleteView(GraisAccessRequiredMixin, DeleteView):
+class EstuaryDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.Estuary
     success_url = reverse_lazy('grais:estuary_list')
     success_message = 'The sstuary was successfully deleted!'
@@ -917,7 +941,7 @@ class EstuaryDeleteView(GraisAccessRequiredMixin, DeleteView):
 # SITE #
 ########
 
-class SiteUpdateView(GraisAccessRequiredMixin, UpdateView):
+class SiteUpdateView(GraisAdminRequiredMixin, UpdateView):
     # permission_required = "__all__"
     raise_exception = True
 
@@ -931,7 +955,7 @@ class SiteUpdateView(GraisAccessRequiredMixin, UpdateView):
         return reverse_lazy('grais:estuary_detail', kwargs={'pk': self.object.estuary.id})
 
 
-class SiteCreateView(GraisAccessRequiredMixin, CreateView):
+class SiteCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Site
 
     form_class = forms.SiteForm
@@ -971,7 +995,7 @@ class SiteDetailView(GraisAccessRequiredMixin, DetailView):
         return context
 
 
-class SiteDeleteView(GraisAccessRequiredMixin, DeleteView):
+class SiteDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.Site
     success_url = reverse_lazy('grais:site_list')
     success_message = 'The site was successfully deleted!'
@@ -1025,7 +1049,7 @@ class GCSampleDetailView(GraisAccessRequiredMixin, DetailView):
         return context
 
 
-class GCSampleUpdateView(GraisAccessRequiredMixin, UpdateView):
+class GCSampleUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.GCSample
     form_class = forms.GCSampleForm
 
@@ -1037,7 +1061,7 @@ class GCSampleUpdateView(GraisAccessRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("grais:gcsample_detail", kwargs={"pk": object.id}))
 
 
-class GCSampleCreateView(GraisAccessRequiredMixin, CreateView):
+class GCSampleCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.GCSample
     form_class = forms.GCSampleForm
 
@@ -1049,7 +1073,7 @@ class GCSampleCreateView(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("grais:gcsample_detail", kwargs={"pk": object.id}))
 
 
-class GCSampleDeleteView(GraisAccessRequiredMixin, DeleteView):
+class GCSampleDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.GCSample
     success_url = reverse_lazy('grais:gcsample_list')
     success_message = 'The sample was successfully deleted!'
@@ -1062,7 +1086,7 @@ class GCSampleDeleteView(GraisAccessRequiredMixin, DeleteView):
 # GC PROBE DATA #
 ##############
 
-class GCProbeMeasurementCreateView(GraisAccessRequiredMixin, CreateView):
+class GCProbeMeasurementCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.GCProbeMeasurement
     form_class = forms.GCProbeMeasurementForm
     template_name = 'grais/gcprobe_measurement_form.html'
@@ -1084,13 +1108,13 @@ class GCProbeMeasurementCreateView(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("grais:gcprobe_measurement_detail", kwargs={"pk": object.id}))
 
 
-class GCProbeMeasurementDetailView(GraisAccessRequiredMixin, UpdateView):
+class GCProbeMeasurementDetailView(GraisAdminRequiredMixin, UpdateView):
     model = models.GCProbeMeasurement
     form_class = forms.GCProbeMeasurementForm
     template_name = 'grais/gcprobe_measurement_detail.html'
 
 
-class GCProbeMeasurementUpdateView(GraisAccessRequiredMixin, UpdateView):
+class GCProbeMeasurementUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.GCProbeMeasurement
     form_class = forms.GCProbeMeasurementForm
     template_name = 'grais/gcprobe_measurement_form.html'
@@ -1103,7 +1127,7 @@ class GCProbeMeasurementUpdateView(GraisAccessRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("grais:gcprobe_measurement_detail", kwargs={"pk": object.id}))
 
 
-class GCProbeMeasurementDeleteView(GraisAccessRequiredMixin, DeleteView):
+class GCProbeMeasurementDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.GCProbeMeasurement
     template_name = "grais/gcprobe_measurement_confirm_delete.html"
     success_message = 'The probe measurement was successfully deleted!'
@@ -1119,7 +1143,7 @@ class GCProbeMeasurementDeleteView(GraisAccessRequiredMixin, DeleteView):
 # TRAP #
 #########
 
-class TrapCreateView(GraisAccessRequiredMixin, CreateView):
+class TrapCreateView(GraisAdminRequiredMixin, CreateView):
     model = models.Trap
     form_class = forms.TrapForm
 
@@ -1180,7 +1204,7 @@ class TrapDetailView(GraisAccessRequiredMixin, DetailView):
         return context
 
 
-class TrapUpdateView(GraisAccessRequiredMixin, UpdateView):
+class TrapUpdateView(GraisAdminRequiredMixin, UpdateView):
     model = models.Trap
     form_class = forms.TrapForm
 
@@ -1192,7 +1216,7 @@ class TrapUpdateView(GraisAccessRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": object.id}))
 
 
-class TrapDeleteView(GraisAccessRequiredMixin, DeleteView):
+class TrapDeleteView(GraisAdminRequiredMixin, DeleteView):
     model = models.Trap
     success_message = 'The trap was successfully deleted!'
 
@@ -1207,7 +1231,7 @@ class TrapDeleteView(GraisAccessRequiredMixin, DeleteView):
 # CRAB #
 #########
 
-class CrabCreateViewPopout(GraisAccessRequiredMixin, CreateView):
+class CrabCreateViewPopout(GraisAdminRequiredMixin, CreateView):
     template_name = 'grais/crab_form_popout.html'
     form_class = forms.CrabForm
     model = models.Crab
@@ -1232,7 +1256,7 @@ class CrabCreateViewPopout(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
-class CrabUpdateViewPopout(GraisAccessRequiredMixin, UpdateView):
+class CrabUpdateViewPopout(GraisAdminRequiredMixin, UpdateView):
     template_name = 'grais/crab_form_popout.html'
     form_class = forms.CrabForm
     model = models.Crab
@@ -1249,6 +1273,8 @@ class CrabUpdateViewPopout(GraisAccessRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
 def crab_delete(request, pk):
     crab = models.Crab.objects.get(pk=pk)
     crab.delete()
@@ -1259,7 +1285,7 @@ def crab_delete(request, pk):
 # Bycatch #
 #########
 
-class BycatchCreateViewPopout(GraisAccessRequiredMixin, CreateView):
+class BycatchCreateViewPopout(GraisAdminRequiredMixin, CreateView):
     template_name = 'grais/crab_form_popout.html'
     form_class = forms.BycatchForm
     model = models.Bycatch
@@ -1284,7 +1310,7 @@ class BycatchCreateViewPopout(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
-class BycatchUpdateViewPopout(GraisAccessRequiredMixin, CreateView):
+class BycatchUpdateViewPopout(GraisAdminRequiredMixin, CreateView):
     template_name = 'grais/crab_form_popout.html'
     form_class = forms.BycatchForm
     model = models.Bycatch
@@ -1301,6 +1327,8 @@ class BycatchUpdateViewPopout(GraisAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
 def bycatch_delete(request, pk):
     bycatch = models.Bycatch.objects.get(pk=pk)
     bycatch.delete()
