@@ -38,12 +38,13 @@
             {#            <a href="{% url 'trapnet:station_new' object.id %}" class="btn btn btn-success ">New Site</a>#}
 
             <a class="btn btn-danger" href="{% url 'trapnet:trap_delete' object.id %}">Delete</a>
+            <a class="btn btn-primary" href="{% url 'trapnet:obs_insert' object.id  %}">Add / Modify Observations</a>
         </p>
 
         <br><br>
         <div class="row">
             <div class="col-4">
-            <h3>Trap Details:</h3>
+                <h3>Trap Details:</h3>
                 <table class="table table-sm table-striped">
                     {% for field in field_list %}
                         {% verbose_td_display object field %}
@@ -54,44 +55,24 @@
 
             <div class="col">
                 <div id="map"></div>
-            </div>
-        </div>
-        {#  Station list  #}
-        <br><br>
-        <div class="row">
-            <div class="col">
+                <br><br>
                 <h4>
-                    <b>Fish Caught:</b>
+                    <b>Summary of Fish Caught:</b>
                 </h4>
-            </div>
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'trapnet:site_new' object.id %}" class="btn btn-sm btn-primary">New Site</a>
+                <table class="table table-sm table-striped" style="width: 40%">
+                    <tr>
+                        <th>Total number of observations</th>
+                        <td>{{ object.observations.count }}</td>
+                    </tr>
+                    <tr>
+                        <th>Species caught</th>
+                        <td>{{ object.species_list}}</td>
+                    </tr>
+                </table>
+
             </div>
         </div>
-        {% if object.river_sites.count == 0 %}
-            <em>No sites have been entered for this river</em>
-        {% else %}
-            <table class="table table-sm table-hover sortable">
-                <thead>
-                <tr>
-                    {% for field in site_field_list %}
-                        <th scope="col">{% get_verbose_label my_site_object field %}</th>
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for obj in object.river_sites.all %}
-                    {% url 'trapnet:site_detail' obj.id as my_url %}
-                    <tr href="{{ my_url }}">
-                        {% for field in site_field_list %}
-                            <td>{% get_field_value obj field %}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-
+        <br><br>
     </div>
 
     <script>

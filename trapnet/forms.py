@@ -44,6 +44,18 @@ class SampleForm(forms.ModelForm):
             "notes": forms.Textarea(attrs={"rows": "3", }),
         }
 
+class ObservationForm(forms.ModelForm):
+    class Meta:
+        model = models.Observation
+        fields = "__all__"
+        widgets = {
+            'species': forms.HiddenInput(),
+            'sample': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": "3"}),
+        }
+
+
+
 #
 # class NoSiteStationForm(forms.ModelForm):
 #     class Meta:

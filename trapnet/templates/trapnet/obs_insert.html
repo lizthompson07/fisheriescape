@@ -2,46 +2,59 @@
 {% load static %}
 {% load custom_filters %}
 {% load bootstrap4 %}
+{% load verbose_names %}
 
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'trapnet:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:sample_search' %}"> All samples </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:sample_detail' sample.id %}"> {{sample}} </a></li>
-            <li class="breadcrumb-item active" aria-current="page"> Insert Species </li>
+            <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_list' %}"> Samples </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_detail' sample.id %}"> {{ sample }} </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> Manage observations</li>
         </ol>
     </nav>
 
-    <div class="container">
+    <div class="container-fluid">
         {#  <h1>Add Species to {{sample}}</h1>#}
 
 
         <div class="row">
 
-            <div class="col" style="font-size: .9em">
+            <div class="col-3" style="font-size: .9em">
 
-                <label for="user_input">What species would you like to add? (enter any part of name)</label>
+                <label for="user_input">What species would you like to add? (enter any part of name or code)</label>
                 <input type="text" id="user_input" class="form-control"></input>
-
-                <br><br>
-                <h5>Results <br>(common eng / common fre / latin / code):</h5>
-                <hr>
-                <div id="species-list" class="" style="font: 0.85em;"></div>
+                <br>
+                <div id="species-list" class="" style="font-size: small;"></div>
                 <hr>
                 <br>
                 Species not in list? Click <a class="" href="{% url 'trapnet:species_new' %}" target="_blank">here</a>
                 to add a new one.
 
-
-
             </div>
 
             <div class="col">
+                <h3>Observations:</h3>
+                <table class="table table-sm table-hover sortable">
+                    <thead>
+                    <tr>
+                        {% for field in obs_field_list %}
+                            <th scope="col">{% get_verbose_label my_obs_object field %}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for object in sample.observations.all %}
+                        {% url 'trapnet:obs_edit' object.id as my_url %}
+                        <tr pop href="{{ my_url }}">
 
-
-                <h3>Added:</h3>
-                {% include "camp/_species_list.html" %}
+                            {% for field in obs_field_list %}
+                                    <td>{% get_field_value object field nullmark="--" %}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
 
             </div>
 

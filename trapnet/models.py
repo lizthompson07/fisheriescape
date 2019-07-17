@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from lib.functions.custom_functions import nz
+from lib.functions.custom_functions import nz, listrify
 from shared_models import models as shared_models
 
 
@@ -44,7 +44,13 @@ class Species(models.Model):
     notes = models.TextField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return getattr(self, str(_("common_name_eng")))
+        if getattr(self, str(_("life_stage_eng"))):
+            return "{} ({})".format(
+                getattr(self, str(_("common_name_eng"))),
+                getattr(self, str(_("life_stage_eng"))).lower(),
+            )
+        else:
+            return getattr(self, str(_("common_name_eng")))
 
     @property
     def full_name(self):
@@ -54,7 +60,7 @@ class Species(models.Model):
                 getattr(self, str(_("life_stage_eng"))).lower(),
             )
         else:
-            return str(self)
+            return getattr(self, str(_("common_name_eng")))
 
     class Meta:
         ordering = ['common_name_eng']
@@ -128,7 +134,8 @@ class Sample(models.Model):
     min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)")
     max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)")
     percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover (%)")
-    precipitation_category = models.ForeignKey(PrecipitationCategory, related_name='samples', on_delete=models.DO_NOTHING, blank=True, null=True)
+    precipitation_category = models.ForeignKey(PrecipitationCategory, related_name='samples', on_delete=models.DO_NOTHING, blank=True,
+                                               null=True)
     precipitation_comment = models.CharField(max_length=255, blank=True, null=True)
     wind_speed = models.ForeignKey(WindSpeed, related_name='samples', on_delete=models.DO_NOTHING, blank=True, null=True)
     wind_direction = models.ForeignKey(WindDirection, related_name='samples', on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -148,13 +155,17 @@ class Sample(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="wheel_sample_last_modified_by")
 
+    @property
+    def species_list(self):
+        return listrify(list(set([str(obs.species) for obs in self.observations.all()])))
+
     def save(self, *args, **kwargs):
         self.season = self.arrival_date.year
         self.last_modified = timezone.now()
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ['-arrival_date',]
+        ordering = ['-arrival_date', ]
         # unique_together = [["start_date", "station"], ]
 
     def get_absolute_url(self):
@@ -191,6 +202,7 @@ class Status(models.Model):
 class Sex(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
+    code = models.CharField(max_length=5, blank=True, null=True)
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -200,20 +212,20 @@ class Sex(models.Model):
 
 
 class Observation(models.Model):
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="observations")
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="observations", blank=True, null=True)
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     first_tag = models.CharField(max_length=50, blank=True, null=True)
     last_tag = models.CharField(max_length=50, blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations")
-    origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations")
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
+    origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     count = models.IntegerField(blank=True, null=True)
     fork_length = models.FloatField(blank=True, null=True)
     total_length = models.FloatField(blank=True, null=True)
     weight = models.FloatField(blank=True, null=True)
-    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations")
+    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     smolt_age = models.IntegerField(blank=True, null=True)
-    location_tagged = models.ForeignKey(shared_models.River, related_name='smolt_observations', on_delete=models.DO_NOTHING)
-    date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="departure")
+    location_tagged = models.CharField(max_length=500, blank=True, null=True)
+    date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="date tagged")
     scale_id_number = models.CharField(max_length=50, blank=True, null=True)
     tags_removed = models.CharField(max_length=250, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
@@ -222,5 +234,5 @@ class Observation(models.Model):
         return super().save(*args, **kwargs)
 
     # class Meta:
-        # unique_together = [["trap", "species"], ]
-        # ordering = ["-sample__year"] THIS IS WAY TOO SLOW!
+    # unique_together = [["trap", "species"], ]
+    # ordering = ["-sample__year"] THIS IS WAY TOO SLOW!

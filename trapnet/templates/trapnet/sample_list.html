@@ -47,7 +47,7 @@
                 <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'trapnet:trap_new'  %}" class="btn btn-sm btn-primary">New</a>
+                <a href="{% url 'trapnet:trap_new' %}" class="btn btn-sm btn-primary">New</a>
             </div>
         </div>
         <table class="table table-sm table-hover sortable">
@@ -56,6 +56,7 @@
                 {% for field in field_list %}
                     <th scope="col">{% get_verbose_label my_object field %}</th>
                 {% endfor %}
+                <th scope="col">Number of observations</th>
             </tr>
             </thead>
             <tbody>
@@ -71,6 +72,7 @@
                         {% endif %}
 
                     {% endfor %}
+                    <td>{{object.observations.count}}</td>
                 </tr>
             {% endfor %}
             </tbody>
