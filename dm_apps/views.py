@@ -271,16 +271,6 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["whalesdb"] = {
-            "title": _("Whale Equipment Deployment Inventory"),
-            "description": _("Tool for managing whale equipment, deployments and recordings."),
-            "status": "dev",
-            "access": "login-required",
-            "url": reverse('whalesdb:index'),
-            "icon_path": 'img/whales/whales_dark.svg',
-            "region": "regional",
-        }
-
         app_dict["trapnet"] = {
             "title": _("TrapNet"),
             "description": _("Diadromous Data Entry Tool."),
@@ -288,6 +278,19 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('trapnet:index'),
             "icon_path": 'img/icons/river.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["whalesdb"] = {
+            "title": _("Whale Equipment Deployment Inventory"),
+            "description": _("Tool for managing whale equipment, deployments and recordings."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('whalesdb:index'),
+            "icon_path": 'img/whales/whales_dark.svg',
             "region": "regional",
         }
     except NoReverseMatch:
