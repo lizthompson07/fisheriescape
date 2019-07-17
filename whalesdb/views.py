@@ -268,9 +268,9 @@ class CreateChannel(CreateTemplate):
         eqr_id = self.kwargs['eqr_id']
         eqr = models.EqrRecorderProperties.objects.get(pk=eqr_id)
         models.EcpChannelProperties(emm=eqr, ecp_channel_no=form.cleaned_data['ecp_channel_no'],
-                                    eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
-                                    ecp_voltage_range=form.cleaned_data['ecp_voltage_range'],
-                                    ecp_gain=form.cleaned_data['ecp_gain']).save(force_insert=True)
+                                       eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
+                                       ecp_voltage_range=form.cleaned_data['ecp_voltage_range'],
+                                       ecp_gain=form.cleaned_data['ecp_gain']).save(force_insert=True)
 
         return HttpResponseRedirect(reverse("whalesdb:close_me"))
 
@@ -284,10 +284,10 @@ class CreateHydrophone(CreateTemplate):
         form.save(commit=False)
 
         emm = models.EmmMakeModel(eqt=models.EqtEquipmentTypeCode.objects.get(pk=form.cleaned_data['eqt']),
-                                  emm_make=form.cleaned_data['emm_make'],
-                                  emm_model=form.cleaned_data['emm_model'],
-                                  emm_depth_rating=form.cleaned_data['emm_depth_rating'],
-                                  emm_description=form.cleaned_data['emm_description'])
+                                     emm_make=form.cleaned_data['emm_make'],
+                                     emm_model=form.cleaned_data['emm_model'],
+                                     emm_depth_rating=form.cleaned_data['emm_depth_rating'],
+                                     emm_description=form.cleaned_data['emm_description'])
 
         emm.save(force_insert=True)
 
@@ -301,8 +301,8 @@ class CreateHydrophone(CreateTemplate):
         emm = models.EmmMakeModel.objects.all().order_by("-pk")[0]
 
         eqh = models.EqhHydrophoneProperties(emm=emm,
-                                             eqh_range_min=form.cleaned_data['eqh_range_min'],
-                                             eqh_range_max=form.cleaned_data['eqh_range_max'])
+                                                eqh_range_min=form.cleaned_data['eqh_range_min'],
+                                                eqh_range_max=form.cleaned_data['eqh_range_max'])
         eqh.save()
         return HttpResponseRedirect(reverse('whalesdb:list_hydrophone'))
 
@@ -315,10 +315,10 @@ class CreateRecorder(CreateTemplate):
         form.save(commit=False)
 
         emm = models.EmmMakeModel(eqt=models.EqtEquipmentTypeCode.objects.get(pk=form.cleaned_data['eqt']),
-                                  emm_make=form.cleaned_data['emm_make'],
-                                  emm_model=form.cleaned_data['emm_model'],
-                                  emm_depth_rating=form.cleaned_data['emm_depth_rating'],
-                                  emm_description=form.cleaned_data['emm_description'])
+                                     emm_make=form.cleaned_data['emm_make'],
+                                     emm_model=form.cleaned_data['emm_model'],
+                                     emm_depth_rating=form.cleaned_data['emm_depth_rating'],
+                                     emm_description=form.cleaned_data['emm_description'])
 
         emm.save(force_insert=True)
 
@@ -332,8 +332,8 @@ class CreateRecorder(CreateTemplate):
         emm = models.EmmMakeModel.objects.all().order_by("-pk")[0]
 
         eqr = models.EqrRecorderProperties(emm=emm,
-                                           eqc_max_channels=form.cleaned_data['eqc_max_channels'],
-                                           eqc_max_sample_rate=form.cleaned_data['eqc_max_sample_rate'])
+                                              eqc_max_channels=form.cleaned_data['eqc_max_channels'],
+                                              eqc_max_sample_rate=form.cleaned_data['eqc_max_sample_rate'])
         eqr.save()
 
         return HttpResponseRedirect(reverse('whalesdb:details_recorder', kwargs={'pk': eqr.pk}))
