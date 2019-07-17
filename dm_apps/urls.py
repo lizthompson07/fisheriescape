@@ -132,7 +132,8 @@ except RuntimeError:
 
 try:
     urlpatterns += i18n_patterns(path('whalesdb/', include('whalesdb.urls')), prefix_default_language=True)
-except RuntimeError:
+except RuntimeError as e:
+    print(e)
     print("not connecting whalesdb app")
 
 try:

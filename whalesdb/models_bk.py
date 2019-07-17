@@ -65,9 +65,8 @@ class EccCalibrationValue(models.Model):
 
 
 class EcpChannelProperties(models.Model):
-    ecp_id = models.BigIntegerField(primary_key=True)
     emm = models.ForeignKey('EqrRecorderProperties', models.DO_NOTHING)
-    ecp_channel_no = models.BigIntegerField()
+    ecp_channel_no = models.BigIntegerField(primary_key=True)
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', models.DO_NOTHING, db_column='eqa_adc_bits')
     ecp_voltage_range = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     ecp_gain = models.BigIntegerField(blank=True, null=True)
@@ -90,8 +89,7 @@ class EdaEquipmentAttachments(models.Model):
 
 
 class EhaHydrophoneAttachements(models.Model):
-    eha_id = models.BigIntegerField(primary_key=True)
-    eda = models.ForeignKey(EdaEquipmentAttachments, models.DO_NOTHING)
+    eda = models.OneToOneField(EdaEquipmentAttachments, models.DO_NOTHING, primary_key=True)
     eqp = models.ForeignKey('EqpEquipment', models.DO_NOTHING)
 
     class Meta:
@@ -117,8 +115,7 @@ class EmmMakeModel(models.Model):
 
 
 class EprEquipmentParameters(models.Model):
-    epr_id = models.BigIntegerField(primary_key=True)
-    emm = models.ForeignKey(EmmMakeModel, models.DO_NOTHING)
+    emm = models.OneToOneField(EmmMakeModel, models.DO_NOTHING, primary_key=True)
     prm = models.ForeignKey('PrmParameterCode', models.DO_NOTHING)
 
     class Meta:
