@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models import Count, TextField
+from django.db.models import Count, TextField, Value
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
@@ -86,8 +86,10 @@ class SpeciesListView(TrapNetAccessRequiredMixin, FilterView):
         ]
         return context
 
+
 class SpeciesDetailView(TrapNetAccessRequiredMixin, DetailView):
     model = models.Species
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
@@ -382,19 +384,15 @@ class SampleDetailView(TrapNetAccessRequiredMixin, DetailView):
         ]
         context['field_list'] = field_list
 
-        # context['site_field_list'] = [
-        #     'name',
-        #     'stream_order',
-        #     'elevation_m',
-        #     'province.abbrev_eng',
-        #     'latitude_n',
-        #     'longitude_w',
-        #     'directions',
-        # ]
-        # context['my_site_object'] = models.TrapSite.objects.first()
-        #
-        # site_list = [[obj.name, obj.latitude_n, obj.longitude_w] for obj in self.object.river_sites.all() if obj.latitude_n and obj.longitude_w]
-        # context['site_list'] = site_list
+        context['obs_field_list'] = [
+            'species',
+            'status',
+            'origin',
+            'count',
+            'fork_length',
+            'total_length',
+        ]
+        context['my_obs_object'] = models.Observation.objects.first()
 
         return context
 
@@ -408,6 +406,100 @@ class SampleDeleteView(TrapNetAdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+# OBSERVATIONS #
+################
+
+class ObservationInsertView(TrapNetAccessRequiredMixin, TemplateView):
+    template_name = "trapnet/obs_insert.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sample = models.Sample.objects.get(pk=self.kwargs['sample'])
+        context['sample'] = sample
+
+        queryset = models.Species.objects.all()
+        # get a list of species
+        species_list = []
+        for obj in queryset:
+            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
+                reverse("trapnet:obs_new", kwargs={"sample": sample.id, "species": obj.id}),
+                static("admin/img/icon-addlink.svg"),
+                str(obj),
+                obj.scientific_name,
+                obj.code
+            )
+            species_list.append(html_insert)
+        context['species_list'] = species_list
+        context['obs_field_list'] = [
+            'species',
+            'first_tag',
+            'last_tag',
+            'status',
+            'origin',
+            'count',
+            'fork_length',
+            'total_length',
+            'weight',
+            'sex',
+            'smolt_age',
+            'location_tagged',
+            'date_tagged',
+            'scale_id_number',
+            'tags_removed',
+            'notes',
+        ]
+        context['my_obs_object'] = models.Observation.objects.first()
+
+        return context
+
+
+class ObservationCreateView(TrapNetAccessRequiredMixin, CreateView):
+    model = models.Observation
+    template_name = 'trapnet/obs_form_popout.html'
+    form_class = forms.ObservationForm
+
+    def get_initial(self):
+        sample = models.Sample.objects.get(pk=self.kwargs['sample'])
+        species = models.Species.objects.get(pk=self.kwargs['species'])
+        return {
+            'sample': sample,
+            'species': species,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        species = models.Species.objects.get(id=self.kwargs['species'])
+        sample = models.Sample.objects.get(id=self.kwargs['sample'])
+        context['species'] = species
+        context['sample'] = sample
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
+
+
+class ObservationUpdateView(TrapNetAccessRequiredMixin, UpdateView):
+    model = models.Observation
+    template_name = 'trapnet/obs_form_popout.html'
+    form_class = forms.ObservationForm
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
+
+
+def species_observation_delete(request, pk, backto):
+    object = models.Observation.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, "The species has been successfully deleted from {}.".format(object.sample))
+
+    if backto == "detail":
+        return HttpResponseRedirect(reverse_lazy("camp:sample_detail", kwargs={"pk": object.sample.id}))
+    else:
+        return HttpResponseRedirect(reverse_lazy("camp:species_obs_search", kwargs={"sample": object.sample.id}))
 
 #
 # # SAMPLE #
