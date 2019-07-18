@@ -20,7 +20,7 @@ from . import models
 from . import forms
 from . import filters
 from . import reports
-from lib.functions.custom_functions import nz
+from lib.functions.custom_functions import nz, listrify
 from django.utils.encoding import smart_str
 
 
@@ -513,46 +513,56 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
-        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
-        ais_species_list = str(form.cleaned_data["ais_species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'","").replace('"',"")
+        # ais_species_list = str(form.cleaned_data["ais_species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'","").replace('"',"")
+
         report = int(form.cleaned_data["report"])
+        my_year = form.cleaned_data["year"] if form.cleaned_data["year"] else "None"
+        my_sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else "None"
 
         if report == 1:
-            return HttpResponseRedirect(reverse("trapnet:species_report", kwargs={"species_list": species_list}))
+            return HttpResponseRedirect(reverse("trapnet:sample_report", kwargs={"year": my_year, "sites":my_sites}))
         elif report == 2:
-            try:
-                site = int(form.cleaned_data["site"])
-            except:
-                site = None
-                print("no site provided")
+            return HttpResponseRedirect(reverse("trapnet:entry_report", kwargs={"year": my_year, "sites":my_sites}))
 
-            if site:
-                return HttpResponseRedirect(reverse("trapnet:species_richness", kwargs={"site": site}))
-            else:
-                return HttpResponseRedirect(reverse("trapnet:species_richness"))
-        elif report == 3:
-            site = int(form.cleaned_data["site"])
-            year = int(form.cleaned_data["year"])
-            return HttpResponseRedirect(reverse("trapnet:watershed_report", kwargs={"site": site, "year": year}))
-
-        elif report == 4:
-            site = int(form.cleaned_data["site"])
-            year = int(form.cleaned_data["year"])
-            return HttpResponseRedirect(reverse("trapnet:watershed_xlsx", kwargs={"site": site, "year": year}))
-
-        elif report == 5:
-            return HttpResponseRedirect(reverse("trapnet:watershed_csv"))
-
-        elif report == 6:
-            return HttpResponseRedirect(reverse("trapnet:ais_export", kwargs={
-                'species_list': ais_species_list,
-            }))
+        # elif report == 2:
+        #     try:
+        #         site = int(form.cleaned_data["site"])
+        #     except:
+        #         site = None
+        #         print("no site provided")
+        #
+        #     if site:
+        #         return HttpResponseRedirect(reverse("trapnet:species_richness", kwargs={"site": site}))
+        #     else:
+        #         return HttpResponseRedirect(reverse("trapnet:species_richness"))
+        # elif report == 3:
+        #     site = int(form.cleaned_data["site"])
+        #     year = int(form.cleaned_data["year"])
+        #     return HttpResponseRedirect(reverse("trapnet:watershed_report", kwargs={"site": site, "year": year}))
+        #
+        # elif report == 4:
+        #     site = int(form.cleaned_data["site"])
+        #     year = int(form.cleaned_data["year"])
+        #     return HttpResponseRedirect(reverse("trapnet:watershed_xlsx", kwargs={"site": site, "year": year}))
+        #
+        # elif report == 5:
+        #     return HttpResponseRedirect(reverse("trapnet:watershed_csv"))
+        #
+        # elif report == 6:
+        #     return HttpResponseRedirect(reverse("trapnet:ais_export", kwargs={
+        #         'species_list': ais_species_list,
+        #     }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
 
-def export_sample_data(request, year):
-    response = reports.generate_sample_report(year)
+def export_sample_data(request, year, sites):
+    response = reports.generate_sample_report(year, sites)
+    return response
+
+
+def export_entry_data(request, year, sites):
+    response = reports.generate_entry_report(year, sites)
     return response
 
 #

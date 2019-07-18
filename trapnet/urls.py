@@ -46,15 +46,8 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    # path('reports/<str:species_list>/species-count/', views.report_species_count, name="species_report"),
-    # path('reports/species-richness/', views.report_species_richness, name="species_richness"),
-    # path('reports/species-richness/site/<int:site>/', views.report_species_richness, name="species_richness"),
-    # path('reports/annual-watershed-report/site/<int:site>/year/<int:year>',
-    #      views.AnnualWatershedReportTemplateView.as_view(), name="watershed_report"),
-    # path('reports/annual-watershed-spreadsheet/site/<int:site>/year/<int:year>', views.annual_watershed_spreadsheet,
-    #      name="watershed_xlsx"),
-    # path('reports/fgp-csv-export/', views.fgp_export, name="watershed_csv"),
-    # path('reports/ais-export/species-list/<str:species_list>/', views.ais_export, name="ais_export"),
+    path('reports/samples/<str:year>/<str:sites>/', views.export_sample_data, name="sample_report"),
+    path('reports/entries/<str:year>/<str:sites>/', views.export_entry_data, name="entry_report"),
 
 ]
 

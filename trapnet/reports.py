@@ -1,36 +1,18 @@
-import statistics
-import pandas
 import unicodecsv as csv
-import xlsxwriter as xlsxwriter
 from django.http import HttpResponse
-from django.template.defaultfilters import yesno
-from django.utils import timezone
-from math import pi
-
-from bokeh.io import show, export_png, export_svgs
-from bokeh.models import SingleIntervalTicker, ColumnDataSource, HoverTool, LabelSet, Label, Title
-from bokeh.plotting import figure, output_file, save
-from bokeh import palettes
-from bokeh.transform import cumsum
-from django.db.models import Sum, Q
-from shutil import rmtree
-from django.conf import settings
-
-from lib.functions.custom_functions import nz
 from . import models
-import numpy as np
-import os
-import pandas as pd
 
 
-
-def generate_sample_report(year):
+def generate_sample_report(year, sites):
     if year != "None":
         qs = models.Sample.objects.filter(season=year)
         filename = "sample_report_{}.csv".format(year)
     else:
         qs = models.Sample.objects.all()
         filename = "sample_report_all_years.csv"
+
+    if sites != "None":
+        qs = qs.filter(site_id__in=sites.split(","))
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -39,64 +21,166 @@ def generate_sample_report(year):
 
     # headers are based on csv provided by GD
     writer.writerow([
-        'River',
-        'Year',
-        'Month',
-        'Day',
-        'Time_arrival',
-        'Time_departure',
-        'Airtemp_arrival',
-        'Airtemp_min',
-        'Airtemp_max',
-        'Cloud_cover_pcent',
-        'Precipitation',
-        'Wind',
-        'Water_level',
-        'Discharge_m3_sec',
-        'Water_temperature_shore',
-        'VEMCO',
-        'RPM_arrival',
-        'RPM_departure',
-        'Operating_condition',
-        'Crew',
-        'Comments',
+        # 'River',
+        # 'Year',
+        # 'Month',
+        # 'Day',
+        # 'Time_arrival',
+        # 'Time_departure',
+        # 'Airtemp_arrival',
+        # 'Airtemp_min',
+        # 'Airtemp_max',
+        # 'Cloud_cover_pcent',
+        # 'Precipitation',
+        # 'Wind',
+        # 'Water_level',
+        # 'Discharge_m3_sec',
+        # 'Water_temperature_shore',
+        # 'VEMCO',
+        # 'RPM_arrival',
+        # 'RPM_departure',
+        # 'Operating_condition',
+        # 'Crew',
+        # 'Comments',
+        'id',
+        'site',
+        'sample_type',
+        'arrival_date',
+        'departure_date',
+        'year',
+        'month',
+        'day',
+        'arrival_time',
+        'departure_time',
+        'air_temp_arrival',
+        'min_air_temp',
+        'max_air_temp',
+        'percent_cloud_cover',
+        'precipitation_category',
+        'precipitation_comment',
+        'wind_speed',
+        'wind_direction',
+        'water_depth_m',
+        'water_level_delta_m',
+        'discharge_m3_sec',
+        'water_temp_shore_c',
+        'water_temp_trap_c',
+        'rpm_arrival',
+        'rpm_departure',
+        'operating_condition',
+        'operating_condition_comment',
+        'samplers',
+        'notes',
+        'season',
+        'last_modified',
+        'last_modified_by',
     ])
 
     for sample in qs:
-        if sample.sample_date:
-            sample_date = sample.sample_date.strftime('%Y-%m-%d')
-        else:
-            sample_date = None
-
-        if sample.port:
-            district = "{}{}".format(sample.port.province_code, sample.port.district_code)
-        else:
-            district = None
-
         writer.writerow(
             [
                 sample.id,
+                sample.site,
+                sample.sample_type,
+                sample.arrival_date,
+                sample.departure_date,
+                sample.arrival_date.year,
+                sample.arrival_date.month,
+                sample.arrival_date.day,
+                sample.arrival_date.strftime("%H:%M"),
+                sample.departure_date.strftime("%H:%M"),
+                sample.air_temp_arrival,
+                sample.min_air_temp,
+                sample.max_air_temp,
+                sample.percent_cloud_cover,
+                sample.precipitation_category,
+                sample.precipitation_comment,
+                sample.wind_speed,
+                sample.wind_direction,
+                sample.water_depth_m,
+                sample.water_level_delta_m,
+                sample.discharge_m3_sec,
+                sample.water_temp_shore_c,
+                sample.water_temp_trap_c,
+                sample.rpm_arrival,
+                sample.rpm_departure,
+                sample.operating_condition,
+                sample.operating_condition_comment,
+                sample.samplers,
+                sample.notes,
                 sample.season,
-                sample.get_type_display(),
-                sample_date,
-                sample.sampler_ref_number,
-                str(sample.sampler),
-                str(sample.port),
-                district,
-                sample.survey_id,
-                sample.latitude_n,
-                sample.longitude_w,
-                str(sample.fishing_area),
-                str(sample.gear),
-                sample.experimental_net_used,
-                sample.vessel_cfvn,
-                str(sample.mesh_size),
-                sample.total_fish_measured,
-                sample.lf_count,
-                sample.total_fish_preserved,
-                sample.catch_weight_lbs,
-                sample.sample_weight_lbs,
-                sample.remarks,
+                sample.last_modified,
+                sample.last_modified_by,
+            ])
+
+    return response
+
+
+def generate_entry_report(year, sites):
+    if year != "None":
+        qs = models.Entry.objects.filter(sample__season=year)
+        filename = "entry_report_{}.csv".format(year)
+    else:
+        qs = models.Entry.objects.all()
+        filename = "entry_report_all_years.csv"
+
+    if sites != "None":
+        qs = qs.filter(sample__site_id__in=sites.split(","))
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    writer = csv.writer(response)
+
+    # headers are based on csv provided by GD
+    writer.writerow([
+        'sample_id',
+        'site_name',
+        'species_name',
+        'species_code',
+        'first_tag',
+        'last_tag',
+        'status_name',
+        'status_code',
+        'origin_code',
+        'frequency',
+        'fork_length',
+        'total_length',
+        'weight',
+        'sex',
+        'smolt_age',
+        'location_tagged',
+        'date_tagged',
+        'scale_id_number',
+        'tags_removed',
+        'notes',
+    ])
+
+    for entry in qs:
+        origin = entry.origin.code if entry.origin else None
+
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.sample.site,
+                entry.species,
+                entry.species.code,
+                entry.first_tag,
+                entry.last_tag,
+                entry.status.name,
+                entry.status.code,
+                origin,
+                entry.frequency,
+                entry.fork_length,
+                entry.total_length,
+                entry.weight,
+                entry.sex,
+                entry.smolt_age,
+                entry.location_tagged,
+                entry.date_tagged,
+                entry.scale_id_number,
+                entry.tags_removed,
+                entry.notes,
             ])
 
     return response

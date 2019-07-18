@@ -130,7 +130,7 @@ class Sample(models.Model):
     site = models.ForeignKey(RiverSite, related_name='samples', on_delete=models.DO_NOTHING)
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING)
     arrival_date = models.DateTimeField(verbose_name="arrival date/time")
-    departure_date = models.DateTimeField(blank=True, null=True, verbose_name="departure date/time")
+    departure_date = models.DateTimeField(verbose_name="departure date/time")
     air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
     min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)")
     max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)")
@@ -184,7 +184,7 @@ class Origin(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        return "{} - {}".format(self.code, getattr(self, str(_("name"))))
 
     class Meta:
         ordering = ['name', ]
@@ -219,7 +219,7 @@ class Entry(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries")
     first_tag = models.CharField(max_length=50, blank=True, null=True)
     last_tag = models.CharField(max_length=50, blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries")
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
