@@ -7,6 +7,7 @@ from . import models
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
 attr_fp_date = {"class": "fp-date", "placeholder": "Select Date.."}
 multi_select_js = {"class": "multi-select"}
+chosen_js = {"class": "chosen-select-contains"}
 
 
 class SpeciesForm(forms.ModelForm):
