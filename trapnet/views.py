@@ -500,6 +500,124 @@ def species_observation_delete(request, pk, backto):
     else:
         return HttpResponseRedirect(reverse_lazy("camp:species_obs_search", kwargs={"sample": object.sample.id}))
 
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(TrapNetAccessRequiredMixin, FormView):
+    template_name = 'trapnet/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
+        ais_species_list = str(form.cleaned_data["ais_species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'","").replace('"',"")
+        report = int(form.cleaned_data["report"])
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("trapnet:species_report", kwargs={"species_list": species_list}))
+        elif report == 2:
+            try:
+                site = int(form.cleaned_data["site"])
+            except:
+                site = None
+                print("no site provided")
+
+            if site:
+                return HttpResponseRedirect(reverse("trapnet:species_richness", kwargs={"site": site}))
+            else:
+                return HttpResponseRedirect(reverse("trapnet:species_richness"))
+        elif report == 3:
+            site = int(form.cleaned_data["site"])
+            year = int(form.cleaned_data["year"])
+            return HttpResponseRedirect(reverse("trapnet:watershed_report", kwargs={"site": site, "year": year}))
+
+        elif report == 4:
+            site = int(form.cleaned_data["site"])
+            year = int(form.cleaned_data["year"])
+            return HttpResponseRedirect(reverse("trapnet:watershed_xlsx", kwargs={"site": site, "year": year}))
+
+        elif report == 5:
+            return HttpResponseRedirect(reverse("trapnet:watershed_csv"))
+
+        elif report == 6:
+            return HttpResponseRedirect(reverse("trapnet:ais_export", kwargs={
+                'species_list': ais_species_list,
+            }))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("ihub:report_search"))
+
+def export_sample_data(request, year):
+    response = reports.generate_sample_report(year)
+    return response
+
+#
+# def report_species_count(request, species_list):
+#     reports.generate_species_count_report(species_list)
+#     # find the name of the file
+#     base_dir = os.path.dirname(os.path.abspath(__file__))
+#     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
+#     for root, dirs, files in os.walk(target_dir):
+#         for file in files:
+#             if "report_temp" in file:
+#                 my_file = "trapnet/temp/{}".format(file)
+#
+#     return render(request, "trapnet/report_display.html", {"report_path": my_file})
+#
+#
+# def report_species_richness(request, site=None):
+#     if site:
+#         reports.generate_species_richness_report(site)
+#     else:
+#         reports.generate_species_richness_report()
+#
+#     return render(request, "trapnet/report_display.html")
+#
+#
+# class AnnualWatershedReportTemplateView(PDFTemplateView):
+#     template_name = 'trapnet/report_watershed_display.html'
+#
+#     def get_pdf_filename(self):
+#         site = models.trapnet.objects.get(pk=self.kwargs['site']).site
+#         return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
+#
+#     def get_context_data(self, **kwargs):
+#         reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
+#         site = models.trapnet.objects.get(pk=self.kwargs['site']).site
+#         return super().get_context_data(
+#             pagesize="A4 landscape",
+#             title="Annual Report for {}_{}".format(site, self.kwargs['year']),
+#             **kwargs
+#         )
+#
+#
+# def annual_watershed_spreadsheet(request, site, year):
+#     my_site = models.trapnet.objects.get(pk=site)
+#     file_url = reports.generate_annual_watershed_spreadsheet(my_site, year)
+#
+#     if os.path.exists(file_url):
+#         with open(file_url, 'rb') as fh:
+#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+#             response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
+#             return response
+#     raise Http404
+#
+#
+# def fgp_export(request):
+#     response = reports.generate_fgp_export()
+#     return response
+#
+#
+# def ais_export(request, species_list):
+#     response = reports.generate_ais_spreadsheet(species_list)
+#     return response
+
+
+
 #
 # # SAMPLE #
 # ##########
@@ -796,125 +914,3 @@ def species_observation_delete(request, pk, backto):
 #         return HttpResponseRedirect(reverse_lazy("trapnet:species_obs_search", kwargs={"sample": object.sample.id}))
 #
 #
-# # REPORTS #
-# ###########
-#
-# class ReportSearchFormView(TrapNetAccessRequiredMixin, FormView):
-#     template_name = 'trapnet/report_search.html'
-#     form_class = forms.ReportSearchForm
-#
-#     def get_initial(self):
-#         # default the year to the year of the latest samples
-#
-#         # 2019/04/03 - P. Upson
-#         # I've added a check here to see if there's any data in the DB before retrieving the .first() cursor
-#         # If the DB is empty calling:
-#         #    models.Sample.objects.all().order_by("-start_date").first().start_date.year
-#         # will cause an error (essentially a null pointer exception)
-#
-#         res = models.Sample.objects.all().order_by("-start_date")
-#         return {"year": res.first().start_date.year if res.exists() else ""}
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         return context
-#
-#     def form_valid(self, form):
-#         species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "")
-#         ais_species_list = str(form.cleaned_data["ais_species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'","").replace('"',"")
-#         report = int(form.cleaned_data["report"])
-#
-#         if report == 1:
-#             return HttpResponseRedirect(reverse("trapnet:species_report", kwargs={"species_list": species_list}))
-#         elif report == 2:
-#             try:
-#                 site = int(form.cleaned_data["site"])
-#             except:
-#                 site = None
-#                 print("no site provided")
-#
-#             if site:
-#                 return HttpResponseRedirect(reverse("trapnet:species_richness", kwargs={"site": site}))
-#             else:
-#                 return HttpResponseRedirect(reverse("trapnet:species_richness"))
-#         elif report == 3:
-#             site = int(form.cleaned_data["site"])
-#             year = int(form.cleaned_data["year"])
-#             return HttpResponseRedirect(reverse("trapnet:watershed_report", kwargs={"site": site, "year": year}))
-#
-#         elif report == 4:
-#             site = int(form.cleaned_data["site"])
-#             year = int(form.cleaned_data["year"])
-#             return HttpResponseRedirect(reverse("trapnet:watershed_xlsx", kwargs={"site": site, "year": year}))
-#
-#         elif report == 5:
-#             return HttpResponseRedirect(reverse("trapnet:watershed_csv"))
-#
-#         elif report == 6:
-#             return HttpResponseRedirect(reverse("trapnet:ais_export", kwargs={
-#                 'species_list': ais_species_list,
-#             }))
-#         else:
-#             messages.error(self.request, "Report is not available. Please select another report.")
-#             return HttpResponseRedirect(reverse("ihub:report_search"))
-#
-#
-# def report_species_count(request, species_list):
-#     reports.generate_species_count_report(species_list)
-#     # find the name of the file
-#     base_dir = os.path.dirname(os.path.abspath(__file__))
-#     target_dir = os.path.join(base_dir, 'templates', 'camp', 'temp')
-#     for root, dirs, files in os.walk(target_dir):
-#         for file in files:
-#             if "report_temp" in file:
-#                 my_file = "trapnet/temp/{}".format(file)
-#
-#     return render(request, "trapnet/report_display.html", {"report_path": my_file})
-#
-#
-# def report_species_richness(request, site=None):
-#     if site:
-#         reports.generate_species_richness_report(site)
-#     else:
-#         reports.generate_species_richness_report()
-#
-#     return render(request, "trapnet/report_display.html")
-#
-#
-# class AnnualWatershedReportTemplateView(PDFTemplateView):
-#     template_name = 'trapnet/report_watershed_display.html'
-#
-#     def get_pdf_filename(self):
-#         site = models.trapnet.objects.get(pk=self.kwargs['site']).site
-#         return "{} Annual Report {}.pdf".format(self.kwargs['year'], site)
-#
-#     def get_context_data(self, **kwargs):
-#         reports.generate_annual_watershed_report(self.kwargs["site"], self.kwargs["year"])
-#         site = models.trapnet.objects.get(pk=self.kwargs['site']).site
-#         return super().get_context_data(
-#             pagesize="A4 landscape",
-#             title="Annual Report for {}_{}".format(site, self.kwargs['year']),
-#             **kwargs
-#         )
-#
-#
-# def annual_watershed_spreadsheet(request, site, year):
-#     my_site = models.trapnet.objects.get(pk=site)
-#     file_url = reports.generate_annual_watershed_spreadsheet(my_site, year)
-#
-#     if os.path.exists(file_url):
-#         with open(file_url, 'rb') as fh:
-#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-#             response['Content-Disposition'] = 'inline; filename="CAMP Data for {}_{}.xlsx"'.format(my_site.site, year)
-#             return response
-#     raise Http404
-#
-#
-# def fgp_export(request):
-#     response = reports.generate_fgp_export()
-#     return response
-#
-#
-# def ais_export(request, species_list):
-#     response = reports.generate_ais_spreadsheet(species_list)
-#     return response

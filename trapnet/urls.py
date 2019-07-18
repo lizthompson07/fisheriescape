@@ -36,36 +36,16 @@ urlpatterns = [
     path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="trap_edit"),
     path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="trap_delete"),
 
-    # OBSERVATIONS #
-    ################
-    path('sample/<int:sample>/observation/insert/', views.EntryInsertView.as_view(), name="obs_insert"),
-    path('sample/<int:sample>/new-observation/add/species/<int:species>/', views.EntryCreateView.as_view(), name="obs_new"),
-    path('observation/<int:pk>/edit/', views.EntryUpdateView.as_view(), name="obs_edit"),
-    path('observation/<int:pk>/delete/', views.species_observation_delete, name="obs_delete"),
+    # ENTRY #
+    #########
+    path('sample/<int:sample>/entry/insert/', views.EntryInsertView.as_view(), name="obs_insert"),
+    path('sample/<int:sample>/new-entry/add/species/<int:species>/', views.EntryCreateView.as_view(), name="obs_new"),
+    path('entry/<int:pk>/edit/', views.EntryUpdateView.as_view(), name="obs_edit"),
+    path('entry/<int:pk>/delete/', views.species_observation_delete, name="obs_delete"),
 
-    # # STATION #
-    # ###########
-    # path('site/<int:site>/new-station/', views.StationCreateView.as_view(), name="station_new"),
-    # path('new-station/', views.NoSiteStationCreateView.as_view(), name="station_new"),
-    # path('station/<int:pk>/view/', views.StationDetailView.as_view(), name="station_detail"),
-    # path('station/<int:pk>/edit/', views.StationUpdateView.as_view(), name="station_edit"),
-    # path('station/<int:pk>/delete/', views.StationDeleteView.as_view(), name="station_delete"),
-    #
-
-    #
-    # # SPECIES OBSERVATIONS #
-    # ########################
-    # path('sample/<int:sample>/species/insert/', views.SpeciesObservationInsertView.as_view(),
-    #      name="species_obs_search"),
-    # path('sample/<int:sample>/species/<int:species>/add/', views.SpeciesObservationCreateView.as_view(),
-    #      name="species_obs_new"),
-    # path('species-observation/<int:pk>/edit/', views.SpeciesObservationUpdateView.as_view(), name="species_obs_edit"),
-    # path('species-observation/<int:pk>/delete/return-to-<str:backto>/', views.species_observation_delete,
-    #      name="species_obs_delete"),
-    #
-    # # Reports #
-    # ###########
-    # path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     # path('reports/<str:species_list>/species-count/', views.report_species_count, name="species_report"),
     # path('reports/species-richness/', views.report_species_richness, name="species_richness"),
     # path('reports/species-richness/site/<int:site>/', views.report_species_richness, name="species_richness"),
