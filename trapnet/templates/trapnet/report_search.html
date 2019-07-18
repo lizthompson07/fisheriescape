@@ -32,13 +32,8 @@
             {% csrf_token %}
             {% for field in form %}
 
-                {% if field.name == "species" %}
-                    <div class="species_div">
-                        {% bootstrap_field field placeholder="" %}
-
-                    </div>
-                {% elif field.name == "section" %}
-                    <div class="section_div">
+                {% if field.name == "sites" %}
+                    <div class="sites_div">
                         {% bootstrap_field field placeholder="" %}
 
                     </div>
@@ -67,23 +62,25 @@
     <script type="application/javascript">
 
         function hideAll() {
-            {#$(".section_div").addClass("gone");#}
+            $(".sites_div").addClass("gone");
+            $(".year_div").addClass("gone");
 
             $("#id_report").prop('required', true);
 
         }
 
         function configureForm() {
-            var reportChoice = $("#id_report")[0].value;
+            var reportChoice = $("#id_report").val();
             // masterlist count report
             if (reportChoice == 1) {
-                {#$(".section_div").removeClass("gone");#}
-                {#$("#id_section").multiSelect()#}
+                $(".sites_div").removeClass("gone");
+                $(".year_div").removeClass("gone");
+                $("#id_sites").multiSelect()
 
             } else if (reportChoice == 2) {
-                {#$(".section_div").removeClass("gone");#}
-                {#$("#id_section").multiSelect()#}
-
+                $(".sites_div").removeClass("gone");
+                $(".year_div").removeClass("gone");
+                $("#id_sites").multiSelect()
             }
         }
 
