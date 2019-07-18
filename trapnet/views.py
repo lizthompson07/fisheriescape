@@ -45,7 +45,7 @@ class TrapNetAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 def in_trapnet_admin_group(user):
     if user:
-        return user.groups.filter(name='camp_admin').count() != 0
+        return user.groups.filter(name='trapnet_admin').count() != 0
 
 
 class TrapNetAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -126,7 +126,7 @@ class SpeciesCreateView(TrapNetAdminRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-class SpeciesDeleteView(TrapNetAdminRequiredMixin, TrapNetAccessRequiredMixin, DeleteView):
+class SpeciesDeleteView(TrapNetAdminRequiredMixin, DeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('trapnet:species_list')
