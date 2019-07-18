@@ -73,31 +73,13 @@ class ReportSearchForm(forms.Form):
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (optional)")
+    sites = forms.MultipleChoiceField(required=False, label="Sites (optional)")
 
-    # species = forms.MultipleChoiceField(required=False)
-    # ais_species = forms.MultipleChoiceField(required=False, label="AIS species")
     # site = forms.ChoiceField(required=False)
+    # ais_species = forms.MultipleChoiceField(required=False, label="AIS species")
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     SITE_CHOICES = [(obj.id, str(obj)) for obj in models.Site.objects.all()]
-    #     SITE_CHOICES.insert(0, tuple((None, "All Sites")))
-    #
-    #     SPECIES_CHOICES = [(obj.id, str(obj)) for obj in models.Species.objects.all().order_by("common_name_eng")]
-    #     SPECIES_CHOICES.insert(0, tuple((None, "-------")))
-    #
-    #     AIS_CHOICES = [(obj.id, "{} - {}".format(obj.common_name_eng, obj.scientific_name)) for obj in
-    #                    models.Species.objects.filter(ais=True).order_by("common_name_eng")]
-    #
-    #     self.fields['site'].choices = SITE_CHOICES
-    #     self.fields['species'].choices = SPECIES_CHOICES
-    #     self.fields['ais_species'].choices = AIS_CHOICES
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.all() if obj.samples.count() > 0]
+        self.fields['sites'].choices = site_choices
 
-        # SPECIES_CHOICES = ((None, "---"),)
-        # for obj in models.Species.objects.all().order_by("common_name_eng"):
-        #     SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
-        #
-        # SITE_CHOICES = ((None, "All Stations"),)
-        # for obj in models.Site.objects.all():
-        #     SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
