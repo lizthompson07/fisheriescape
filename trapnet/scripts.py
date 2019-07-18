@@ -21,7 +21,7 @@ def population_parents():
 
 
 def resave_traps():
-    for trap in models.Trap.objects.all():
+    for trap in models.Sample.objects.filter(season__isnull=True):
         trap.save()
 
 
@@ -82,7 +82,7 @@ def import_smolt_2():
         for row in my_csv:
             # if there is no sample id, we have to assign one before creating the new observation
             if not row["sample_id"]:
-                if int(row["id"]) >= 0:
+                if int(row["id"]) > 0:
                     # find the sample
                     site = models.RiverSite.objects.get(pk=row["River"])
 
@@ -119,37 +119,37 @@ def import_smolt_2():
 
                     else:
                         # there has been only 1 hit and we can create the observation in the db
-                        my_obs, created = models.Observation.objects.get_or_create(
+                        my_obs, created = models.Entry.objects.get_or_create(
                             id=int(row["id"]),
                         )
+                        if created:
 
+                            species = models.Species.objects.get(code=row["Species"]) if row["Species"] else None
+                            status = models.Status.objects.get(code=row["Status"]) if row["Status"] else None
+                            origin = models.Origin.objects.get(code=row["Origin"]) if row["Origin"] else None
+                            sex = models.Sex.objects.get(code=row["Sex"]) if row["Sex"] else None
+                            my_date = datetime.datetime.strptime(row["DateTagged"], "%m/%d/%Y") if row["DateTagged"] else None
 
-                        species = models.Species.objects.get(code=row["Species"]) if row["Species"] else None
-                        status = models.Status.objects.get(code=row["Status"]) if row["Status"] else None
-                        origin = models.Origin.objects.get(code=row["Origin"]) if row["Origin"] else None
-                        sex = models.Sex.objects.get(code=row["Sex"]) if row["Sex"] else None
-                        my_date = datetime.datetime.strptime(row["DateTagged"], "%m/%d/%Y") if row["DateTagged"] else None
+                            my_obs.species = species
+                            my_obs.sample = my_samples.first()
+                            my_obs.first_tag = nz(row["FirstTag"].strip(), None)
+                            my_obs.last_tag = nz(row["LastTag"].strip(), None)
+                            my_obs.status = status
+                            my_obs.origin = origin
+                            my_obs.frequency = nz(row["Freq"].strip(), None)
+                            my_obs.fork_length = nz(row["ForkLength"].strip(), None)
+                            my_obs.total_length = nz(row["TotalLength"].strip(), None)
+                            my_obs.weight = nz(row["Weight"].strip(), None)
+                            my_obs.sex = sex
+                            my_obs.smolt_age = nz(row["SmoltAge"].strip(), None)
+                            my_obs.location_tagged = nz(row["LocationTagged"].strip(), None)
+                            my_obs.date_tagged = my_date
+                            my_obs.scale_id_number = nz(row["Scale ID Number"].strip(), None)
+                            my_obs.tags_removed = nz(row["tags removed"].strip(), None)
+                            my_obs.notes = nz(row["Comments"].strip(), None)
 
-                        my_obs.species = species
-                        my_obs.sample = my_samples.first()
-                        my_obs.first_tag = nz(row["FirstTag"].strip(), None)
-                        my_obs.last_tag = nz(row["LastTag"].strip(), None)
-                        my_obs.status = status
-                        my_obs.origin = origin
-                        my_obs.frequency = nz(row["Freq"].strip(), None)
-                        my_obs.fork_length = nz(row["ForkLength"].strip(), None)
-                        my_obs.total_length = nz(row["TotalLength"].strip(), None)
-                        my_obs.weight = nz(row["Weight"].strip(), None)
-                        my_obs.sex = sex
-                        my_obs.smolt_age = nz(row["SmoltAge"].strip(), None)
-                        my_obs.location_tagged = nz(row["LocationTagged"].strip(), None)
-                        my_obs.date_tagged = my_date
-                        my_obs.scale_id_number = nz(row["Scale ID Number"].strip(), None)
-                        my_obs.tags_removed = nz(row["tags removed"].strip(), None)
-                        my_obs.notes = nz(row["Comments"].strip(), None)
-
-                        try:
-                            my_obs.save()
-                        except Exception as e:
-                            print(e)
-                            print(my_obs.species_id)
+                            try:
+                                my_obs.save()
+                            except Exception as e:
+                                print(e)
+                                print(my_obs.species_id)

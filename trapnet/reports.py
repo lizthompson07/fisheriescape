@@ -22,6 +22,88 @@ import numpy as np
 import os
 import pandas as pd
 
+
+
+def generate_sample_report(year):
+    if year != "None":
+        qs = models.Sample.objects.filter(season=year)
+        filename = "sample_report_{}.csv".format(year)
+    else:
+        qs = models.Sample.objects.all()
+        filename = "sample_report_all_years.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    writer = csv.writer(response)
+
+    # headers are based on csv provided by GD
+    writer.writerow([
+        'River',
+        'Year',
+        'Month',
+        'Day',
+        'Time_arrival',
+        'Time_departure',
+        'Airtemp_arrival',
+        'Airtemp_min',
+        'Airtemp_max',
+        'Cloud_cover_pcent',
+        'Precipitation',
+        'Wind',
+        'Water_level',
+        'Discharge_m3_sec',
+        'Water_temperature_shore',
+        'VEMCO',
+        'RPM_arrival',
+        'RPM_departure',
+        'Operating_condition',
+        'Crew',
+        'Comments',
+    ])
+
+    for sample in qs:
+        if sample.sample_date:
+            sample_date = sample.sample_date.strftime('%Y-%m-%d')
+        else:
+            sample_date = None
+
+        if sample.port:
+            district = "{}{}".format(sample.port.province_code, sample.port.district_code)
+        else:
+            district = None
+
+        writer.writerow(
+            [
+                sample.id,
+                sample.season,
+                sample.get_type_display(),
+                sample_date,
+                sample.sampler_ref_number,
+                str(sample.sampler),
+                str(sample.port),
+                district,
+                sample.survey_id,
+                sample.latitude_n,
+                sample.longitude_w,
+                str(sample.fishing_area),
+                str(sample.gear),
+                sample.experimental_net_used,
+                sample.vessel_cfvn,
+                str(sample.mesh_size),
+                sample.total_fish_measured,
+                sample.lf_count,
+                sample.total_fish_preserved,
+                sample.catch_weight_lbs,
+                sample.sample_weight_lbs,
+                sample.remarks,
+            ])
+
+    return response
+
+
+
+
 #
 # def generate_species_count_report(species_list):
 #     # start assigning files and by cleaning the temp dir
