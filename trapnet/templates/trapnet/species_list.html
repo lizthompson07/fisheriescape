@@ -69,18 +69,13 @@
                 <tr href="{{ my_url }}">
 
                     {% for field in field_list %}
-                        {% if "cgndb" in field %}
+                        {% if "scientific" in field %}
                             {% get_field_value object field as my_key %}
                             <td>
-                                {% if not my_key == "n/a" %}
-                                    <a href="http://geogratis.gc.ca/services/geoname/en/geonames/{{ my_key }}">
-                                        {{ my_key }}
-                                    </a>
-                                {% endif %}
+                                <em>{% get_field_value object field nullmark="" %}</em>
                             </td>
-
                         {% else %}
-                            <td>{% get_field_value object field %}</td>
+                            <td>{% get_field_value object field nullmark="" %}</td>
                         {% endif %}
 
                     {% endfor %}
