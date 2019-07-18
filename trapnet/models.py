@@ -214,7 +214,7 @@ class Sex(models.Model):
         ordering = ['name', ]
 
 
-class Observation(models.Model):
+class Entry(models.Model):
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", blank=True, null=True)
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     first_tag = models.CharField(max_length=50, blank=True, null=True)
