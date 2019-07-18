@@ -77,7 +77,14 @@
                 $(".year_div").removeClass("gone");
                 $("#id_sites").multiSelect();
 
-            } else if (reportChoice == 2) {
+            }
+            else if (reportChoice == 2) {
+                $(".sites_div").removeClass("gone");
+                $(".year_div").removeClass("gone");
+                $("#id_sites").multiSelect();
+                alert("Please note that running this report for all sites/years will take several minutes to complete. The resulting fileis approximately 10 MB in size.")
+            }
+            else if (reportChoice == 3) {
                 $(".sites_div").removeClass("gone");
                 $(".year_div").removeClass("gone");
                 $("#id_sites").multiSelect();
