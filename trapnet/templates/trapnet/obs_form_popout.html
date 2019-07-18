@@ -16,7 +16,7 @@
             </h3>
         {% else %}
             <h3>
-                {{ sample }} - New Observation of {{ species }}
+                {{ sample }} - New Entry of {{ species }}
             </h3>
 
         {% endif %}<br>
@@ -48,7 +48,7 @@
 
         $("#id_first_tag")[0].focus()
 
-        //the smolt age should only be available for observations with species code 1732
+        //the smolt age should only be available for entries with species code 1732
         if($("#id_species").val()!= 15) {
             $("#id_smolt_age").prop("disabled", true)
         }

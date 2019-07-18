@@ -158,7 +158,7 @@ class Sample(models.Model):
 
     @property
     def species_list(self):
-        my_list = list(set([str(obs.species) for obs in self.observations.all()]))
+        my_list = list(set([str(obs.species) for obs in self.entries.all()]))
         my_list.sort()
         return mark_safe(listrify(my_list,"<br>"))
 
@@ -215,17 +215,17 @@ class Sex(models.Model):
 
 
 class Observation(models.Model):
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="observations", blank=True, null=True)
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", blank=True, null=True)
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     first_tag = models.CharField(max_length=50, blank=True, null=True)
     last_tag = models.CharField(max_length=50, blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
-    origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
+    origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     count = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
     total_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
-    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
+    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     smolt_age = models.IntegerField(blank=True, null=True)
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="date tagged")
