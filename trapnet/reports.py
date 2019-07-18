@@ -186,22 +186,21 @@ def generate_entry_report(year, sites):
     return response
 
 
-
 def generate_open_data_ver_1_report(year, sites):
     """
-    This is a view designed for FGP / open maps view. The
+    This is a view designed for FGP / open maps view. The resulting csv will summarize data per site per year
+
     :param year:
     :param sites:
     :return:
     """
 
-
     if year != "None":
         qs = models.Entry.objects.filter(sample__season=year)
-        filename = "entry_report_{}.csv".format(year)
+        filename = "open_data_ver1_report_{}.csv".format(year)
     else:
         qs = models.Entry.objects.all()
-        filename = "entry_report_all_years.csv"
+        filename = "open_data_ver1_report_all_years.csv"
 
     if sites != "None":
         qs = qs.filter(sample__site_id__in=sites.split(","))
@@ -212,60 +211,53 @@ def generate_open_data_ver_1_report(year, sites):
     writer = csv.writer(response)
 
     # headers are based on csv provided by GD
-    writer.writerow([
-        'sample_id',
+    species_list = [models.Species.objects.get(pk=obj["species"]) for obj in qs.order_by("species").values("species").distinct()]
+
+    header_row = [
+        'year',
         'site_name',
-        'species_name',
-        'species_code',
-        'first_tag',
-        'last_tag',
-        'status_name',
-        'status_code',
-        'origin_code',
-        'frequency',
-        'fork_length',
-        'total_length',
-        'weight',
-        'sex',
-        'smolt_age',
-        'location_tagged',
-        'date_tagged',
-        'scale_id_number',
-        'tags_removed',
-        'notes',
-    ])
+        'site_latitude',
+        'site_longitude',
+    ]
 
-    for entry in qs:
-        origin = entry.origin.code if entry.origin else None
+    for species in species_list:
+        addendum = [
+            "{} abundance".format(species),
+            "{} avg. fork length".format(species),
+            "{} avg. weight".format(species),
+        ]
+        header_row.extend(addendum)
 
-        writer.writerow(
-            [
-                entry.sample_id,
-                entry.sample.site,
-                entry.species,
-                entry.species.code,
-                entry.first_tag,
-                entry.last_tag,
-                entry.status.name,
-                entry.status.code,
-                origin,
-                entry.frequency,
-                entry.fork_length,
-                entry.total_length,
-                entry.weight,
-                entry.sex,
-                entry.smolt_age,
-                entry.location_tagged,
-                entry.date_tagged,
-                entry.scale_id_number,
-                entry.tags_removed,
-                entry.notes,
-            ])
+    writer.writerow(header_row)
+    #
+    # for entry in qs:
+    #     origin = entry.origin.code if entry.origin else None
+    #
+    #     writer.writerow(
+    #         [
+    #             entry.sample_id,
+    #             entry.sample.site,
+    #             entry.species,
+    #             entry.species.code,
+    #             entry.first_tag,
+    #             entry.last_tag,
+    #             entry.status.name,
+    #             entry.status.code,
+    #             origin,
+    #             entry.frequency,
+    #             entry.fork_length,
+    #             entry.total_length,
+    #             entry.weight,
+    #             entry.sex,
+    #             entry.smolt_age,
+    #             entry.location_tagged,
+    #             entry.date_tagged,
+    #             entry.scale_id_number,
+    #             entry.tags_removed,
+    #             entry.notes,
+    #         ])
 
     return response
-
-
-
 
 #
 # def generate_species_count_report(species_list):
