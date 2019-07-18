@@ -53,7 +53,7 @@ class SampleForm(forms.ModelForm):
 
 class EntryForm(forms.ModelForm):
     class Meta:
-        model = models.Observation
+        model = models.Entry
         fields = "__all__"
         widgets = {
             'species': forms.HiddenInput(),
