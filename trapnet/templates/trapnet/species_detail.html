@@ -49,9 +49,32 @@
 
         <div class="row">
             <div class="col">
-                <table class="table table-sm table-striped">
+                <table class="table table-sm table-striped" style="width: auto;">
                     {% for field in field_list %}
-                        {% verbose_td_display object field %}
+                        {% if field == "tsn" and object.tsn %}
+                            <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                <td>
+
+                                    <a href="https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value={{ object.tsn }}#null"
+                                       target="_blank">
+                                        {{ object.tsn }}
+                                    </a>
+                                </td>
+
+                            </tr>
+                        {% elif field == "scientific_name" %}
+                            <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                <td>
+                                    <em>{% get_field_value object field %}</em>
+
+                                </td>
+
+                            </tr>
+                        {% else %}
+                            {% verbose_td_display object field %}
+                        {% endif %}
                     {% endfor %}
                 </table>
 
