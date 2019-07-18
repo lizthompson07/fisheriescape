@@ -10,7 +10,7 @@
             <li class="breadcrumb-item"><a href="{% url 'trapnet:index' %}"> Home </a></li>
             <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_list' %}"> Samples </a></li>
             <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_detail' sample.id %}"> {{ sample }} </a></li>
-            <li class="breadcrumb-item active" aria-current="page"> Manage observations</li>
+            <li class="breadcrumb-item active" aria-current="page"> Manage entries</li>
         </ol>
     </nav>
 
@@ -33,7 +33,7 @@
         </div>
         {#            </div>#}
         <br><br>
-        <h3>Existing observations:</h3>
+        <h3>Existing entries:</h3>
         <table class="table table-sm table-hover sortable" style="font-size: small;">
             <thead>
             <tr>
@@ -52,7 +52,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for object in sample.observations.all %}
+            {% for object in sample.entries.all %}
                 {% url 'trapnet:obs_edit' object.id as my_url %}
                 <tr pop href="{{ my_url }}">
                     <td>{{ forloop.counter }}</td>

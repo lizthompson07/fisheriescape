@@ -411,7 +411,7 @@ class SampleDeleteView(TrapNetAdminRequiredMixin, DeleteView):
 # OBSERVATIONS #
 ################
 
-class ObservationInsertView(TrapNetAccessRequiredMixin, TemplateView):
+class EntryInsertView(TrapNetAccessRequiredMixin, TemplateView):
     template_name = "trapnet/obs_insert.html"
 
     def get_context_data(self, **kwargs):
@@ -454,10 +454,10 @@ class ObservationInsertView(TrapNetAccessRequiredMixin, TemplateView):
         return context
 
 
-class ObservationCreateView(TrapNetAccessRequiredMixin, CreateView):
+class EntryCreateView(TrapNetAccessRequiredMixin, CreateView):
     model = models.Observation
     template_name = 'trapnet/obs_form_popout.html'
-    form_class = forms.ObservationForm
+    form_class = forms.EntryForm
 
     def get_initial(self):
         sample = models.Sample.objects.get(pk=self.kwargs['sample'])
@@ -480,10 +480,10 @@ class ObservationCreateView(TrapNetAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
-class ObservationUpdateView(TrapNetAccessRequiredMixin, UpdateView):
+class EntryUpdateView(TrapNetAccessRequiredMixin, UpdateView):
     model = models.Observation
     template_name = 'trapnet/obs_form_popout.html'
-    form_class = forms.ObservationForm
+    form_class = forms.EntryForm
 
     def form_valid(self, form):
         self.object = form.save()
@@ -491,7 +491,7 @@ class ObservationUpdateView(TrapNetAccessRequiredMixin, UpdateView):
 
 
 def species_observation_delete(request, pk, backto):
-    object = models.Observation.objects.get(pk=pk)
+    object = models.Entry.objects.get(pk=pk)
     object.delete()
     messages.success(request, "The species has been successfully deleted from {}.".format(object.sample))
 

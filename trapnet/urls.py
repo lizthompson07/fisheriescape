@@ -38,9 +38,9 @@ urlpatterns = [
 
     # OBSERVATIONS #
     ################
-    path('sample/<int:sample>/observation/insert/', views.ObservationInsertView.as_view(), name="obs_insert"),
-    path('sample/<int:sample>/new-observation/add/species/<int:species>/', views.ObservationCreateView.as_view(), name="obs_new"),
-    path('observation/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="obs_edit"),
+    path('sample/<int:sample>/observation/insert/', views.EntryInsertView.as_view(), name="obs_insert"),
+    path('sample/<int:sample>/new-observation/add/species/<int:species>/', views.EntryCreateView.as_view(), name="obs_new"),
+    path('observation/<int:pk>/edit/', views.EntryUpdateView.as_view(), name="obs_edit"),
     path('observation/<int:pk>/delete/', views.species_observation_delete, name="obs_delete"),
 
     # # STATION #
