@@ -523,38 +523,12 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("trapnet:sample_report", kwargs={"year": my_year, "sites":my_sites}))
         elif report == 2:
             return HttpResponseRedirect(reverse("trapnet:entry_report", kwargs={"year": my_year, "sites":my_sites}))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": my_year, "sites":my_sites}))
 
-        # elif report == 2:
-        #     try:
-        #         site = int(form.cleaned_data["site"])
-        #     except:
-        #         site = None
-        #         print("no site provided")
-        #
-        #     if site:
-        #         return HttpResponseRedirect(reverse("trapnet:species_richness", kwargs={"site": site}))
-        #     else:
-        #         return HttpResponseRedirect(reverse("trapnet:species_richness"))
-        # elif report == 3:
-        #     site = int(form.cleaned_data["site"])
-        #     year = int(form.cleaned_data["year"])
-        #     return HttpResponseRedirect(reverse("trapnet:watershed_report", kwargs={"site": site, "year": year}))
-        #
-        # elif report == 4:
-        #     site = int(form.cleaned_data["site"])
-        #     year = int(form.cleaned_data["year"])
-        #     return HttpResponseRedirect(reverse("trapnet:watershed_xlsx", kwargs={"site": site, "year": year}))
-        #
-        # elif report == 5:
-        #     return HttpResponseRedirect(reverse("trapnet:watershed_csv"))
-        #
-        # elif report == 6:
-        #     return HttpResponseRedirect(reverse("trapnet:ais_export", kwargs={
-        #         'species_list': ais_species_list,
-        #     }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("ihub:report_search"))
+            return HttpResponseRedirect(reverse("trapnet:report_search"))
 
 def export_sample_data(request, year, sites):
     response = reports.generate_sample_report(year, sites)
