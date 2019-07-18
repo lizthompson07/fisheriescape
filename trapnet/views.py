@@ -388,7 +388,7 @@ class SampleDetailView(TrapNetAccessRequiredMixin, DetailView):
             'species',
             'status',
             'origin',
-            'count',
+            'frequency',
             'fork_length',
             'total_length',
         ]
@@ -438,7 +438,7 @@ class EntryInsertView(TrapNetAccessRequiredMixin, TemplateView):
             'last_tag',
             'status',
             'origin',
-            'count',
+            'frequency',
             'fork_length',
             'total_length',
             'weight',

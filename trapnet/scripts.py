@@ -136,7 +136,7 @@ def import_smolt_2():
                         my_obs.last_tag = nz(row["LastTag"].strip(), None)
                         my_obs.status = status
                         my_obs.origin = origin
-                        my_obs.count = nz(row["Freq"].strip(), None)
+                        my_obs.frequency = nz(row["Freq"].strip(), None)
                         my_obs.fork_length = nz(row["ForkLength"].strip(), None)
                         my_obs.total_length = nz(row["TotalLength"].strip(), None)
                         my_obs.weight = nz(row["Weight"].strip(), None)
