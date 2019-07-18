@@ -565,6 +565,11 @@ def export_entry_data(request, year, sites):
     response = reports.generate_entry_report(year, sites)
     return response
 
+
+def export_open_data_ver1(request, year, sites):
+    response = reports.generate_open_data_ver_1_report(year, sites)
+    return response
+
 #
 # def report_species_count(request, species_list):
 #     reports.generate_species_count_report(species_list)
