@@ -187,6 +187,85 @@ def generate_entry_report(year, sites):
 
 
 
+def generate_open_data_ver_1_report(year, sites):
+    """
+    This is a view designed for FGP / open maps view. The
+    :param year:
+    :param sites:
+    :return:
+    """
+
+
+    if year != "None":
+        qs = models.Entry.objects.filter(sample__season=year)
+        filename = "entry_report_{}.csv".format(year)
+    else:
+        qs = models.Entry.objects.all()
+        filename = "entry_report_all_years.csv"
+
+    if sites != "None":
+        qs = qs.filter(sample__site_id__in=sites.split(","))
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    writer = csv.writer(response)
+
+    # headers are based on csv provided by GD
+    writer.writerow([
+        'sample_id',
+        'site_name',
+        'species_name',
+        'species_code',
+        'first_tag',
+        'last_tag',
+        'status_name',
+        'status_code',
+        'origin_code',
+        'frequency',
+        'fork_length',
+        'total_length',
+        'weight',
+        'sex',
+        'smolt_age',
+        'location_tagged',
+        'date_tagged',
+        'scale_id_number',
+        'tags_removed',
+        'notes',
+    ])
+
+    for entry in qs:
+        origin = entry.origin.code if entry.origin else None
+
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.sample.site,
+                entry.species,
+                entry.species.code,
+                entry.first_tag,
+                entry.last_tag,
+                entry.status.name,
+                entry.status.code,
+                origin,
+                entry.frequency,
+                entry.fork_length,
+                entry.total_length,
+                entry.weight,
+                entry.sex,
+                entry.smolt_age,
+                entry.location_tagged,
+                entry.date_tagged,
+                entry.scale_id_number,
+                entry.tags_removed,
+                entry.notes,
+            ])
+
+    return response
+
+
+
 
 #
 # def generate_species_count_report(species_list):
