@@ -326,7 +326,7 @@ class SampleListView(TrapNetAccessRequiredMixin, FilterView):
 class SampleUpdateView(TrapNetAdminRequiredMixin, UpdateView):
     model = models.Sample
     form_class = forms.SampleForm
-    template_name = 'trapnet/trap_form.html'
+    template_name = 'trapnet/sample_form.html'
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -423,12 +423,12 @@ class ObservationInsertView(TrapNetAccessRequiredMixin, TemplateView):
         # get a list of species
         species_list = []
         for obj in queryset:
-            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
+            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} - {} - <em>{}</em> </span>'.format(
                 reverse("trapnet:obs_new", kwargs={"sample": sample.id, "species": obj.id}),
                 static("admin/img/icon-addlink.svg"),
+                obj.code,
                 str(obj),
                 obj.scientific_name,
-                obj.code
             )
             species_list.append(html_insert)
         context['species_list'] = species_list
@@ -451,7 +451,6 @@ class ObservationInsertView(TrapNetAccessRequiredMixin, TemplateView):
             'notes',
         ]
         context['my_obs_object'] = models.Observation.objects.first()
-
         return context
 
 

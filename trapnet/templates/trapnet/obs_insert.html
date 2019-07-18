@@ -17,55 +17,67 @@
     <div class="container-fluid">
         {#  <h1>Add Species to {{sample}}</h1>#}
 
-
         <div class="row">
 
-            <div class="col-3" style="font-size: .9em">
+            <div class="col-4" style="font-size: .9em">
+                <h3>Add new species:</h3>
 
                 <label for="user_input">What species would you like to add? (enter any part of name or code)</label>
-                <input type="text" id="user_input" class="form-control"></input>
+                <input type="text" id="user_input" class="form-control"/>
                 <br>
                 <div id="species-list" class="" style="font-size: small;"></div>
                 <hr>
-                <br>
                 Species not in list? Click <a class="" href="{% url 'trapnet:species_new' %}" target="_blank">here</a>
                 to add a new one.
-
             </div>
-
-            <div class="col">
-                <h3>Observations:</h3>
-                <table class="table table-sm table-hover sortable">
-                    <thead>
-                    <tr>
-                        {% for field in obs_field_list %}
-                            <th scope="col">{% get_verbose_label my_obs_object field %}</th>
-                        {% endfor %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for object in sample.observations.all %}
-                        {% url 'trapnet:obs_edit' object.id as my_url %}
-                        <tr pop href="{{ my_url }}">
-
-                            {% for field in obs_field_list %}
-                                    <td>{% get_field_value object field nullmark="--" %}</td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-
-            </div>
-
-
         </div>
+        {#            </div>#}
+        <br><br>
+        <h3>Existing observations:</h3>
+        <table class="table table-sm table-hover sortable" style="font-size: small;">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                {% for field in obs_field_list %}
+                    {% if field == "species" or field == "status" or field == "notes" %}
+                        {% if field == "notes" %}
+                            <th scope="col" style="width: 150px">{% get_verbose_label my_obs_object field %}</th>
+                        {% else %}
+                            <th scope="col">{% get_verbose_label my_obs_object field %}</th>
+                        {% endif %}
+                    {% else %}
+                        <th scope="col" class="center-col">{% get_verbose_label my_obs_object field %}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in sample.observations.all %}
+                {% url 'trapnet:obs_edit' object.id as my_url %}
+                <tr pop href="{{ my_url }}">
+                    <td>{{ forloop.counter }}</td>
 
+                    {% for field in obs_field_list %}
+                        {% if field == "species" or field == "status" or field == "notes" %}
+                            <td>{% get_field_value object field nullmark="--" %}</td>
+
+                        {% else %}
+                            <td class="center-col">{% get_field_value object field nullmark="--" %}</td>
+                        {% endif %}
+
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
     </div>
 
 
-    </div>
+
+
+
+
 
     <script type="application/javascript">
         var speciesList = {{ species_list |safe }}

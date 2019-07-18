@@ -47,7 +47,7 @@
                 <h3>Trap Details:</h3>
                 <table class="table table-sm table-striped">
                     {% for field in field_list %}
-                        {% verbose_td_display object field %}
+                        {% verbose_td_display object field display_time=True %}
                     {% endfor %}
 
                 </table>
@@ -57,7 +57,7 @@
                 <div id="map"></div>
                 <br><br>
                 <h4>
-                    <b>Summary of Fish Caught:</b>
+                    <b>Observation Summary:</b>
                 </h4>
                 <table class="table table-sm table-striped" style="width: 40%">
                     <tr>
