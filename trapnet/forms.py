@@ -51,7 +51,7 @@ class SampleForm(forms.ModelForm):
             "departure_date": forms.DateTimeInput(attrs=attr_fp_date_time),
         }
 
-class ObservationForm(forms.ModelForm):
+class EntryForm(forms.ModelForm):
     class Meta:
         model = models.Observation
         fields = "__all__"

@@ -38,7 +38,7 @@
             {#            <a href="{% url 'trapnet:station_new' object.id %}" class="btn btn btn-success ">New Site</a>#}
 
             <a class="btn btn-danger" href="{% url 'trapnet:trap_delete' object.id %}">Delete</a>
-            <a class="btn btn-primary" href="{% url 'trapnet:obs_insert' object.id  %}">Add / Modify Observations</a>
+            <a class="btn btn-primary" href="{% url 'trapnet:obs_insert' object.id  %}">Add / Modify Entries</a>
         </p>
 
         <br><br>
@@ -57,12 +57,12 @@
                 <div id="map"></div>
                 <br><br>
                 <h4>
-                    <b>Observation Summary:</b>
+                    <b>Entry Summary:</b>
                 </h4>
                 <table class="table table-sm table-striped" style="width: 40%">
                     <tr>
-                        <th>Total number of observations</th>
-                        <td>{{ object.observations.count }}</td>
+                        <th>Total number of entries</th>
+                        <td>{{ object.entries.count }}</td>
                     </tr>
                     <tr>
                         <th>Species caught</th>
