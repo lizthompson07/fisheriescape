@@ -392,7 +392,7 @@ class SampleDetailView(TrapNetAccessRequiredMixin, DetailView):
             'fork_length',
             'total_length',
         ]
-        context['my_obs_object'] = models.Observation.objects.first()
+        context['my_obs_object'] = models.Entry.objects.first()
 
         return context
 
@@ -450,12 +450,12 @@ class EntryInsertView(TrapNetAccessRequiredMixin, TemplateView):
             'tags_removed',
             'notes',
         ]
-        context['my_obs_object'] = models.Observation.objects.first()
+        context['my_obs_object'] = models.Entry.objects.first()
         return context
 
 
 class EntryCreateView(TrapNetAccessRequiredMixin, CreateView):
-    model = models.Observation
+    model = models.Entry
     template_name = 'trapnet/obs_form_popout.html'
     form_class = forms.EntryForm
 
@@ -481,7 +481,7 @@ class EntryCreateView(TrapNetAccessRequiredMixin, CreateView):
 
 
 class EntryUpdateView(TrapNetAccessRequiredMixin, UpdateView):
-    model = models.Observation
+    model = models.Entry
     template_name = 'trapnet/obs_form_popout.html'
     form_class = forms.EntryForm
 
