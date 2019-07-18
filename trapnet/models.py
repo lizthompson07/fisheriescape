@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from lib.functions.custom_functions import nz, listrify
@@ -157,7 +158,9 @@ class Sample(models.Model):
 
     @property
     def species_list(self):
-        return listrify(list(set([str(obs.species) for obs in self.observations.all()])))
+        my_list = list(set([str(obs.species) for obs in self.observations.all()]))
+        my_list.sort()
+        return mark_safe(listrify(my_list,"<br>"))
 
     def save(self, *args, **kwargs):
         self.season = self.arrival_date.year
@@ -169,7 +172,7 @@ class Sample(models.Model):
         # unique_together = [["start_date", "station"], ]
 
     def get_absolute_url(self):
-        return reverse("camp:sample_detail", kwargs={"pk": self.id})
+        return reverse("trapnet:trap_detail", kwargs={"pk": self.id})
 
     def __str__(self):
         return "Sample {}".format(self.id)
@@ -218,15 +221,15 @@ class Observation(models.Model):
     last_tag = models.CharField(max_length=50, blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
-    count = models.IntegerField(blank=True, null=True)
-    fork_length = models.FloatField(blank=True, null=True)
-    total_length = models.FloatField(blank=True, null=True)
-    weight = models.FloatField(blank=True, null=True)
+    count = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
+    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+    total_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+    weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     smolt_age = models.IntegerField(blank=True, null=True)
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="date tagged")
-    scale_id_number = models.CharField(max_length=50, blank=True, null=True)
+    scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"))
     tags_removed = models.CharField(max_length=250, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 

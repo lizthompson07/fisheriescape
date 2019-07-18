@@ -4,6 +4,10 @@ from shared_models import models as shared_models
 
 from . import models
 
+attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
+attr_fp_date = {"class": "fp-date", "placeholder": "Select Date.."}
+multi_select_js = {"class": "multi-select"}
+
 
 class SpeciesForm(forms.ModelForm):
     class Meta:
@@ -42,6 +46,8 @@ class SampleForm(forms.ModelForm):
             "last_modified_by": forms.HiddenInput(),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
             "notes": forms.Textarea(attrs={"rows": "3", }),
+            "arrival_date": forms.DateTimeInput(attrs=attr_fp_date_time),
+            "departure_date": forms.DateTimeInput(attrs=attr_fp_date_time),
         }
 
 class ObservationForm(forms.ModelForm):
@@ -52,6 +58,7 @@ class ObservationForm(forms.ModelForm):
             'species': forms.HiddenInput(),
             'sample': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": "3"}),
+            "date_tagged": forms.DateTimeInput(attrs=attr_fp_date),
         }
 
 

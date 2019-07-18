@@ -23,8 +23,10 @@
 
         <form method="post" class="form">
             {% csrf_token %}
+            {% for field in form %}
+                {% bootstrap_field field placeholder="" %}
+            {% endfor %}
 
-            {% bootstrap_form form %}
 
             {% buttons %}
                 <button type="submit" class="btn btn-success" onclick="refreshParent()">Submit</button>
@@ -44,7 +46,13 @@
             window.opener.location.reload();
         }
 
-        console.log(123)
+        $("#id_first_tag")[0].focus()
+
+        //the smolt age should only be available for observations with species code 1732
+        if($("#id_species").val()!= 15) {
+            $("#id_smolt_age").prop("disabled", true)
+        }
+
     </script>
 
 {% endblock %}
