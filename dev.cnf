@@ -1,5 +1,5 @@
 [client]
-host = glf-sci-dm
+host = dmapps
 port = 3306
 database = glf_sci_site_dev
 user = glf_sci_dev_user
