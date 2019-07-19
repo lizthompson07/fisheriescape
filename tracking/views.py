@@ -1,25 +1,35 @@
 import logging
+import os
 
 from datetime import timedelta
+from shutil import rmtree
 
+from bokeh import palettes
+from bokeh.io import output_file, save
+from bokeh.models import Title
+from bokeh.plotting import figure
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from django.shortcuts import render
 from django.contrib.auth.decorators import permission_required
+from django.utils import timezone
 from django.utils.timezone import now
 
-from tracking.models import Visitor, Pageview
+from tracking.models import Visitor, Pageview, VisitSummary
 from tracking.settings import TRACK_PAGEVIEWS
+import numpy as np
+
 
 log = logging.getLogger(__file__)
 
 # tracking wants to accept more formats than default, here they are
 input_formats = [
-    '%Y-%m-%d %H:%M:%S',    # '2006-10-25 14:30:59'
-    '%Y-%m-%d %H:%M',       # '2006-10-25 14:30'
-    '%Y-%m-%d',             # '2006-10-25'
-    '%Y-%m',                # '2006-10'
-    '%Y',                   # '2006'
+    '%Y-%m-%d %H:%M:%S',  # '2006-10-25 14:30:59'
+    '%Y-%m-%d %H:%M',  # '2006-10-25 14:30'
+    '%Y-%m-%d',  # '2006-10-25'
+    '%Y-%m',  # '2006-10'
+    '%Y',  # '2006'
 ]
 
 
@@ -57,11 +67,12 @@ def dashboard(request):
         pageview_stats = Pageview.objects.stats(start_time, end_time)
     else:
         pageview_stats = None
-    
+
     # get the last 100 page visits
     page_visits = Pageview.objects.all().order_by("-view_time")
     if len(page_visits) > 101:
         page_visits = page_visits[:100]
+
 
     context = {
         'form': form,
@@ -72,6 +83,16 @@ def dashboard(request):
         'pageview_stats': pageview_stats,
         'page_visits': page_visits,
     }
+    context = summarize_data(context)
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    target_dir = os.path.join(base_dir, 'templates', 'tracking', 'temp')
+    for root, dirs, files in os.walk(target_dir):
+        for file in files:
+            if "report_temp" in file:
+                my_file = "tracking/temp/{}".format(file)
+
+    context["report_path"]= my_file
     return render(request, 'tracking/dashboard.html', context)
 
 
@@ -87,3 +108,130 @@ def user_history(request, user):
         'page_visits': page_visits,
     }
     return render(request, 'tracking/user_history.html', context)
+
+
+def summarize_data(context):
+    # prelim...
+
+    # capture all lines of page view table in 2 summary tables
+    for view in Pageview.objects.filter(summarized=False):
+        # what app were they using?
+        url_list = view.url.split("/")
+        app_name = url_list[2] if len(url_list) > 2 else None
+
+        # who is the user?
+        my_user = view.visitor.user
+
+        if my_user and app_name and app_name not in ["", "accounts", "login_required", "denied", "reset", "password-reset", "auth", "login",]:
+
+            # what is the date?
+            my_date = timezone.datetime(view.view_time.year, view.view_time.month, view.view_time.day)
+
+            # add view to visitSummary table
+            # print(app_name)
+            visit_summary_obj, created = VisitSummary.objects.get_or_create(
+                date=my_date,
+                application_name=app_name,
+                user=my_user,
+            )
+
+            visit_summary_obj.page_visits += 1
+            visit_summary_obj.save()
+
+        # mark the view as summarized.
+        view.summarized = True
+        view.save()
+
+
+    # get the list of apps
+    app_list = [visit["application_name"] for visit in VisitSummary.objects.all().values("application_name").order_by("application_name").distinct()]
+    app_dict = {}
+    final_app_dict = {}
+    for app in app_list:
+        # create a new file containing data
+        result = VisitSummary.objects.filter(application_name=app).values('application_name').order_by("application_name").distinct().annotate(dsum=Sum('page_visits'))
+        app_dict[app] = result[0]["dsum"]
+    for key, value in sorted(app_dict.items(), key=lambda item: item[1], reverse=True):
+        final_app_dict[key] = value
+    context["app_dict"] = final_app_dict
+
+    # get the list of users
+    user_list = [visit["user"] for visit in
+                VisitSummary.objects.all().values("user").order_by("user").distinct()]
+    user_dict = {}
+    final_user_dict = {}
+    for user in user_list:
+        # create a new file containing data
+        result = VisitSummary.objects.filter(user=user).values('user').order_by(
+            "user").distinct().annotate(dsum=Sum('page_visits'))
+        user_dict[str(User.objects.get(pk=user))] = result[0]["dsum"]
+    for key, value in sorted(user_dict.items(), key=lambda item: item[1], reverse=True):
+        final_user_dict[key] = value
+    context["user_dict"] = final_user_dict
+
+    generate_page_visit_report(app_list)
+
+    # delete any records older then three days
+    Pageview.objects.filter(summarized=True).filter(view_time__lte=timezone.now() - timezone.timedelta(days=3)).delete()
+    return context
+
+
+def generate_page_visit_report(app_list):
+    # start assigning files and by cleaning the temp dir
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    target_dir = os.path.join(base_dir, 'templates', 'tracking', 'temp')
+    target_file = os.path.join(target_dir, 'report_temp_{}.html'.format(timezone.now().strftime("%H%M%S")))
+    # target_file = os.path.join(target_dir, 'report_temp.html')
+
+    try:
+        rmtree(target_dir)
+    except:
+        print("no such dir.")
+    os.mkdir(target_dir)
+
+    # output to static HTML file
+    output_file(target_file)
+
+    p = figure(
+        tools="pan,box_zoom,wheel_zoom,reset,save",
+        x_axis_label='Date',
+        y_axis_label='Pageviews',
+        plot_width=1000, plot_height=800,
+        x_axis_type="datetime",
+    )
+
+    # p.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
+
+    # generate color palette
+    if len(app_list) <= 2:
+        colors = palettes.Set1[3][:len(app_list)]
+    elif len(app_list) <= 9:
+        colors = palettes.Set1[len(app_list)]
+    else:
+        colors = palettes.Category20[len(app_list)]
+
+    # get a list of days
+    date_list = [date["date"] for date in VisitSummary.objects.all().values("date").order_by("date").distinct()]
+    # prime counter variable
+    i = 0
+    for app in app_list:
+        # create a new file containing data
+        qs = VisitSummary.objects.filter(application_name=app).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
+
+        dates = [i["date"] for i in qs]
+        counts = [i["dsum"] for i in qs]
+        legend_title = "{}".format(app)
+        p.line(dates, counts, legend=legend_title, line_color=colors[i], line_width=1)
+        p.circle(dates, counts, legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3)
+        i += 1
+
+    total_count = []
+    for date in date_list:
+        # create a new file containing data
+        result = VisitSummary.objects.filter(date=date).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
+        total_count.append(result[0]["dsum"])
+
+    p.line(date_list, total_count, legend="total", line_color='black', line_width=3)
+    p.circle(date_list, total_count, legend="total", fill_color='black', line_color="black", size=5)
+    p.legend.location = "top_left"
+    save(p)

@@ -104,18 +104,19 @@ class Pageview(models.Model):
 
 
 class VisitSummary(models.Model):
-    date = models.DateTimeField()
-    application_name = models.CharField(max_length=20, blank=True, null=True)
+    date = models.DateField()
+    application_name = models.CharField(max_length=100, blank=True, null=True)
     page_visits = models.IntegerField(default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta(object):
         ordering = ('-date',)
+        unique_together = [("date","application_name", "user"),]
 
-
-class UserSummary(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    application_name = models.CharField(max_length=20, blank=True, null=True)
-    page_visits = models.IntegerField(default=0)
-
-    class Meta(object):
-        ordering = ('user',)
+# class UserSummary(models.Model):
+#     application_name = models.CharField(max_length=100, blank=True, null=True)
+#     page_visits = models.IntegerField(default=0)
+#
+#     class Meta(object):
+#         ordering = ('user',)
+#         unique_together = [("user","application_name"),]
