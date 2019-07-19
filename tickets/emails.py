@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.template import loader
 
-from_email = 'DoNotReply@DFOScienceDataManagement.com'
+from_email = 'DoNotReply@DMApps.com'
 admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
 
