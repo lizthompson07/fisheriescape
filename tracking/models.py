@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
@@ -94,8 +95,27 @@ class Pageview(models.Model):
     query_string = models.TextField(null=True, editable=False)
     method = models.CharField(max_length=20, null=True)
     view_time = models.DateTimeField()
+    summarized = models.BooleanField(default=False)
 
     objects = PageviewManager()
 
     class Meta(object):
         ordering = ('-view_time',)
+
+
+class VisitSummary(models.Model):
+    date = models.DateTimeField()
+    application_name = models.CharField(max_length=20, blank=True, null=True)
+    page_visits = models.IntegerField(default=0)
+
+    class Meta(object):
+        ordering = ('-date',)
+
+
+class UserSummary(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    application_name = models.CharField(max_length=20, blank=True, null=True)
+    page_visits = models.IntegerField(default=0)
+
+    class Meta(object):
+        ordering = ('user',)
