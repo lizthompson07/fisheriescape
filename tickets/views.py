@@ -625,7 +625,7 @@ def create_github_issue(request, pk):
     my_ticket = models.Ticket.objects.get(pk=pk)
     my_user = request.user
     my_repo = get_github_repo()
-    descr = "{} _[Added to GitHub by {} {}. Ticket created in DM Tickets by {} {}. Full ticket available [here](http://glf-sci-dm{}).]_".format(
+    descr = "{} _[Added to GitHub by {} {}. Ticket created in DM Tickets by {} {}. Full ticket available [here](http://dmapps{}).]_".format(
         my_ticket.description,
         my_user.first_name,
         my_user.last_name,
@@ -725,7 +725,7 @@ def edit_github_issue(ticket, user):
     my_ticket = models.Ticket.objects.get(pk=ticket)
     my_user = User.objects.get(pk=user)
     my_repo = get_github_repo()
-    descr = "{} _[Added to GitHub by {} {}. Ticket created in DM Tickets by {} {}. Full ticket available [here](http://glf-sci-dm{}).]_".format(
+    descr = "{} _[Added to GitHub by {} {}. Ticket created in DM Tickets by {} {}. Full ticket available [here](http://dmapps{}).]_".format(
         my_ticket.description,
         my_user.first_name,
         my_user.last_name,
