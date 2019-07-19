@@ -1,30 +1,86 @@
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% load custom_filters %}
+
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Dashboard - django-tracking2</title>
-    </head>
-    <body>
-        <h1>Dashboard - django-tracking2</h1>
-        <div id="tracking-filters">
-            <form method="GET">
-                {{ form.as_table }}
-                <input type="submit" name="submit" value="submit" />
-            </form>
+<head>
+    <title>Dashboard - django-tracking2</title>
+</head>
+<body>
+<div class="container-fluid">
+    <h1>Dashboard - django-tracking2</h1>
+    <div class="row">
+        <div class="col-5">
+            <div id="tracking-filters">
+                <form method="GET">
+                    {{ form.as_table }}
+                    <input type="submit" name="submit" value="submit"/>
+                </form>
+            </div>
+            <div id="tracking-info">
+                <p>
+                    Visitor tracking began on
+                    {{ track_start_time|date:"Y-m-d H:i:s" }}
+                </p>
+                {% if warn_incomplete %}
+                    <p class=warning>
+                        The start time precedes the oldest tracked visitor, thus
+                        the stats are not complete for the specified range.
+                    </p>
+                {% endif %}
+            </div>
+            <div id="tracking-stats">
+                {% include "tracking/snippets/stats.html" %}
+            </div>
         </div>
-        <div id="tracking-info">
-            <p>
-                Visitor tracking began on
-                {{ track_start_time|date:"Y-m-d H:i:s" }}
-            </p>
-            {% if warn_incomplete %}
-            <p class=warning>
-                The start time precedes the oldest tracked visitor, thus
-                the stats are not complete for the specified range.
-            </p>
-            {% endif %}
+        <div class="col justify-content-center">
+            <h2>Site activity over time:</h2>
+
+            <div class="text-center">
+                {% include report_path %}
+            </div>
+
+            <h2>list of applications:</h2>
+
+            <table class="table table-sm table-striped" style="width: auto">
+                <thead>
+                <th>Application name</th>
+                <th>Pageviews</th>
+                </thead>
+                <tbody>
+                {% for app in app_dict %}
+                    <tr>
+                        <td>{{ app }}</td>
+                        <td>{{ app_dict|lookup:app }}</td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+            <br>
+            <br>
+            <h2>list of users:</h2>
+            <table class="table table-sm table-striped" style="width: auto">
+                <thead>
+                <th>Username</th>
+                <th>Pageviews</th>
+                </thead>
+                <tbody>
+                {% for user in user_dict %}
+                    <tr>
+                        <td>{{ user }}</td>
+                        <td>{{ user_dict|lookup:user }}</td>
+
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+
         </div>
-        <div id="tracking-stats">
-            {% include "tracking/snippets/stats.html" %}
-        </div>
-    </body>
+    </div>
+</div>
+</body>
 </html>
