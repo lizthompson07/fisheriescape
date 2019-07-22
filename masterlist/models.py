@@ -6,6 +6,12 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
 
+# Choices for YesNo
+YESNO_CHOICES = (
+    (1, "Yes"),
+    (0, "No"),
+)
+
 class Sector(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
@@ -117,7 +123,7 @@ class Organization(models.Model):
 
 
 class Person(models.Model):
-    designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
+    designation = models.CharField(max_length=25, verbose_name=_("title"), blank=True, null=True)
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone"))
@@ -137,6 +143,7 @@ class Person(models.Model):
 
     old_id = models.IntegerField(blank=True, null=True)
     connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
+    ihub_vetted = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("vetted by iHub"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
