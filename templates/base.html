@@ -28,9 +28,6 @@
         </div>
     </div>
 
-    {% autoescape off %}
-        {% bootstrap_messages size='small' %}
-    {% endautoescape %}
 
 </head>
 
@@ -101,6 +98,9 @@
     </div>
 </nav>
 
+{% autoescape off %}
+    {% bootstrap_messages size='small' %}
+{% endautoescape %}
 
 {% block body %}{% endblock body %}
 

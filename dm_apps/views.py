@@ -1,6 +1,8 @@
 from collections import OrderedDict
 
+from django.contrib import messages
 from django.urls import reverse, NoReverseMatch
+from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
 
@@ -288,6 +290,10 @@ def get_app_dict(request):
 
 class IndexView(TemplateView):
     template_name = 'index.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        messages.info(request, mark_safe(_("Please note that this site is only intended for the storage of <b>unclassified information</b>.")))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
