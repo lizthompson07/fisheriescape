@@ -47,23 +47,26 @@
         <br><br>
 
         <div class="row">
-            <div class="col-3">
+            <div class="col">
                 <h3>
                     {% trans "Organization Detail:" %}
                 </h3>
-
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
+                <table class="table table-sm table-striped">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field %}
+                    {% endfor %}
+                </table>
                 <br>
 
                 <h3>
-                    {% trans "Extended Detail:" %}
+                    {% trans "iHub Only:" %}
                 </h3>
-
-                {% for field in field_list_2 %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
+                <table class="table table-sm table-striped">
+                    {% for field in field_list_2 %}
+                        {% verbose_td_display object field %}
+                    {% endfor %}
+                </table>
+                <br>
                 <br>
 
             </div>

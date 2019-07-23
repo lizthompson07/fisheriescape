@@ -11,6 +11,10 @@
         .ms-container {
             width: 100%;
         }
+
+        label {
+            font-weight: bold;
+        }
     </style>
 
     <nav aria-label="breadcrumb">
@@ -47,7 +51,10 @@
         <form method="post" class="form">
             {% csrf_token %}
 
-            {% bootstrap_form form %}
+            {% for field in form %}
+                {% bootstrap_field field placeholder="" %}
+
+            {% endfor %}
 
             {% buttons %}
                 {% if object %}

@@ -85,7 +85,7 @@ class ReportSearchForm(forms.Form):
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = ml_models.Organization
-        exclude = ["date_last_modified", ]
+        exclude = ["date_last_modified", "old_id"]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
         }
