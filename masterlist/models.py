@@ -8,6 +8,7 @@ from shared_models import models as shared_models
 
 # Choices for YesNo
 YESNO_CHOICES = (
+    (None, "------"),
     (1, "Yes"),
     (0, "No"),
 )
@@ -52,7 +53,8 @@ class Organization(models.Model):
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
     abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
-    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
+    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("street address"))
+    mailing_address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("mailing address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
@@ -66,13 +68,19 @@ class Organization(models.Model):
     sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
 
     # ihub only
-    website = models.URLField(blank=True, null=True, verbose_name=_("website (iHub only)"))
-    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election (iHub only)"))
-    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term (iHub only)"))
-    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve (iHub only)"))
-    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve (iHub only)"))
-    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve (iHub only)"))
-    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN (iHub only)"))
+    legal_band_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("legal band name"))
+    former_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("former name"))
+    website = models.URLField(blank=True, null=True, verbose_name=_("website"))
+    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election"))
+    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term"))
+    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve"))
+    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve"))
+    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve"))
+    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN"))
+    processing_plant = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("processing plant on reserve?"))
+    wharf = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Wharf on reserve?"))
+    consultation_protocol = models.TextField(blank=True, null=True, verbose_name=_("consultation protocol"))
+    council_quorum = models.IntegerField(blank=True, null=True, verbose_name=_("council quorum"))
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))

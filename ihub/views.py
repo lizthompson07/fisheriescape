@@ -74,6 +74,7 @@ class IndexTemplateView(SiteLoginRequiredMixin, TemplateView):
         messages.info(request, mark_safe(_("Please note that only <b>unclassified information</b> may be entered into this application.")))
         return super().dispatch(request, *args, **kwargs)
 
+
 # PERSON #
 ##########
 
@@ -230,20 +231,28 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
             'name_ind',
             'abbrev',
             'address',
+            'mailing_address',
             'city',
             'postal_code',
             'province',
             'phone',
             'fax',
+            'notes',
         ]
         context["field_list_2"] = [
+            'legal_band_name',
+            'former_name',
+            'website',
             'next_election',
             'election_term',
             'population_on_reserve',
             'population_off_reserve',
             'population_other_reserve',
             'fin',
-            'notes',
+            'processing_plant',
+            'wharf',
+            'consultation_protocol',
+            'council_quorum',
         ]
         return context
 
@@ -257,6 +266,7 @@ class OrganizationUpdateView(iHubAdminRequiredMixin, UpdateView):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
+
 class OrganizationCreateView(iHubAdminRequiredMixin, CreateView):
     model = ml_models.Organization
     template_name = 'ihub/organization_form.html'
@@ -265,6 +275,7 @@ class OrganizationCreateView(iHubAdminRequiredMixin, CreateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
+
 
 class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.Organization
@@ -343,10 +354,12 @@ class MemberUpdateView(iHubAdminRequiredMixin, UpdateView):
             'last_modified_by': self.request.user,
         }
 
+
 class MemberDeleteView(iHubAdminRequiredMixin, DeleteView):
     model = ml_models.OrganizationMember
     template_name = 'ihub/member_confirm_delete_popout.html'
     success_url = reverse_lazy("ihub:close_me")
+
 
 # ENTRY #
 #########
@@ -612,10 +625,10 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
         if report == 1:
             return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs=
             {
-                "fy": nz(fy,"None"),
-                "orgs": nz(orgs,"None"),
-                "sectors": nz(sectors,"None"),
-             }))
+                "fy": nz(fy, "None"),
+                "orgs": nz(orgs, "None"),
+                "sectors": nz(sectors, "None"),
+            }))
 
         elif report == 2:
             return HttpResponseRedirect(reverse("ihub:report_q", kwargs={"org": org}))
@@ -670,14 +683,19 @@ class OrganizationCueCard(PDFTemplateView):
         context = super().get_context_data(**kwargs)
         org = ml_models.Organization.objects.get(pk=self.kwargs["org"])
         context["org"] = org
+
         context["org_field_list_1"] = [
             'name_eng',
             'name_fre',
             'name_ind',
             'abbrev',
+            'legal_band_name',
+            'former_name',
+            'website',
         ]
         context["org_field_list_2"] = [
             'address',
+            'mailing_address',
             'city',
             'postal_code',
             'province',
@@ -690,9 +708,13 @@ class OrganizationCueCard(PDFTemplateView):
             'population_on_reserve',
             'population_off_reserve',
             'population_other_reserve',
+            'fin',
         ]
         context["org_field_list_4"] = [
-            'fin',
+            'processing_plant',
+            'wharf',
+            'consultation_protocol',
+            'council_quorum',
             'notes',
         ]
 
@@ -980,7 +1002,6 @@ def manage_funding_purposes(request):
     context['title'] = "Manage Funding Purposes"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
-
 
 # @login_required(login_url='/accounts/login_required/')
 # @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
