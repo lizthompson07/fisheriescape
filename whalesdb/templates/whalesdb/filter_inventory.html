@@ -6,7 +6,7 @@
 {% load verbose_names %}
 
 {% block tab_title %}
-    {% trans "Make and Model" %}
+    {% trans title %}
 {% endblock tab_title %}
 
 {% block body %}
@@ -43,11 +43,13 @@
             <tbody>
 
             {% for obj in filter.qs %}
-            <tr>
-                {% for lbl in fields %}
-                <td>{% get_field_value obj lbl.key %}</td>
-                {% endfor %}
-            </tr>
+                {% if detail_type is 'emm' %}
+                <tr href="{% url detail_object obj.emm.emm_id %}" >
+                    {% for lbl in fields %}
+                    <td>{% get_field_value obj lbl.key %}</td>
+                    {% endfor %}
+                </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
         </table>

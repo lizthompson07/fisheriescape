@@ -22,6 +22,40 @@ def get_short_labels(for_model):
             'eqh_range_min': _("Bottom frequency"),
             'eqh_range_max': _("Top frequency"),
         }
+    elif for_model is models.EcpChannelProperties:
+        labels = {
+            'ecp_channel_no': _("Channel number"),
+            'eqa_adc_bits': _("ADC Bits"),
+            'ecp_voltage_range': _("Voltage Range"),
+            'ecp_gain': _("Gain in dB."),
+        }
+    elif for_model is models.EprEquipmentParameters:
+        labels = {
+            'prm': _("Equipment Parameters"),
+        }
+    elif for_model is models.RecRecordingEvents:
+        labels = {
+            'tea_id_setup_by': _("Team member who programmed the recording setup"),
+            'rec_date_of_system_chk': _("Recording date of the system check (Time in UTC)"),
+            'tea_id_checked_by': _("Team member who prefored the System Check"),
+            'rec_date_first_recording': _("Date of first recording when the equipment is turned on for deployment."),
+            'rec_date_last_recording': _("Date of last recording"),
+            'rec_total_memory_used': _("Total memory used for number of recorded files"),
+            'rec_hf_mem': _("High Frequency Memory usage in Gigabytes (GB)"),
+            'rec_lf_mem': _("Low Frequency Memory usage in Gigabytes (GB)"),
+            'rec_date_data_download': _("Date the data has been downloaded from equipment"),
+            'rec_data_store_url': _("URL of the location the data storage"),
+            'tea_id_downloaded_by': _("Team member who backed up the data"),
+            'rec_date_data_backed_up': _("Date data was backed up"),
+            'rec_data_backup_url': _("URL of the data backup location"),
+            'tea_id_backed_up_by': _("Team member who backed up the data"),
+            'rec_channel_count': _("The number of channels used to record data, one recording per channel"),
+            'rec_notes': _("Comments on the recording and data"),
+            'rtt': _("Time zone data files use. Should be UTC, but occasionally for legacy data  will be in some "
+                     "local format."),
+            'rec_first_in_water': _("First in water recording"),
+            'rec_last_in_water': _("Last in water recording"),
+        }
 
     return labels
 
@@ -162,6 +196,10 @@ def get_labels(for_model):
             'ecp_voltage_range': _("Voltage Range"),
             'ecp_gain': _("How much a channel is amplified in dB."),
         }
+    elif for_model is models.EprEquipmentParameters:
+        labels = {
+            'prm': _("The parameter type attached to a piece of equipment"),
+        }
 
     return labels
 
@@ -285,7 +323,21 @@ class EmmMakeModelForm(forms.ModelForm):
         fields = labels.keys()
 
 
+class EprEquipmentParametersForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EprEquipmentParameters
+        labels = get_labels(model)
+        fields = labels.keys()
+
+
 class EcpChannelPropertiesForm(forms.ModelForm):
+
+    def get_initial_for_field(self, field, field_name):
+        if field_name is 'ecp_channel_no':
+            return 1
+
+        return super().get_initial_for_field(field, field_name)
 
     class Meta:
         model = models.EcpChannelProperties

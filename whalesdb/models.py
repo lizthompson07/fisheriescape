@@ -224,6 +224,9 @@ class PrmParameterCode(models.Model):
         managed = False
         db_table = 'prm_parameter_code'
 
+    def __str__(self):
+        return "{}".format(self.prm_name)
+
 
 class RecRecordingEvents(models.Model):
     rec_id = models.BigIntegerField(primary_key=True)
