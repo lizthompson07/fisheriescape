@@ -137,6 +137,7 @@ class ProjectForm(forms.ModelForm):
             'start_year',
             'project_length',
             'date_completed',
+            'summary',
             'last_modified_by',
         ]
         widgets = {

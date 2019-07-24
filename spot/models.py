@@ -163,6 +163,7 @@ class Project(models.Model):
                                    default=fiscal_year(sap_style=True, next=True))
     project_length = models.IntegerField(blank=True, null=True)
     date_completed = models.DateTimeField(blank=True, null=True)
+    summary = models.TextField(blank=True, null=True, verbose_name=_("summary"))
     old_id = models.IntegerField(blank=True, null=True)
     eccc_id = models.CharField(max_length=50, blank=True, null=True)
 
