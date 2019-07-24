@@ -69,7 +69,35 @@
             </div>
             {% endfor %}
        </div>
+        {% if sec.code %}
+        <div class="text-center roboto">
+            <h2>
+                {% trans sec.title|add:" Code List" %}
+            </h2>
+        </div>
+        <div class="row">
 
+            {% for dep_obj in sec.code %}
+
+            {% if dep_obj.type == "codelist" %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url 'whalesdb:code_list' dep_obj.url %}" >
+            {% else %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url dep_obj.url %}" >
+            {% endif %}
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        {% trans dep_obj.title %}
+                    </h5>
+                    <img src="{% static dep_obj.icon %}" class="card-img-top" />
+                </div>
+            </div>
+            {% endfor %}
+       </div>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
