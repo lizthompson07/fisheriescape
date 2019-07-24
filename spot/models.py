@@ -186,7 +186,7 @@ class Project(models.Model):
     overview = models.TextField(blank=True, null=True, verbose_name=_("project overview"))
 
     ## Regional Review
-    regional_score = models.DecimalField(max_digits=18, decimal_places=0, blank=True, null=True, verbose_name=_("regional score"))
+    regional_score = models.FloatField(blank=True, null=True, verbose_name=_("regional score"))
     rank = models.IntegerField(blank=True, null=True, verbose_name=_("project rank"))
     application_submission_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date/time of application submission"))
     submission_accepted = models.NullBooleanField(verbose_name=_("was the submission accepted?"))

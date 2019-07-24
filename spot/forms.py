@@ -248,6 +248,7 @@ class InitiationForm(forms.ModelForm):
             'requested_funding_y3',
             'requested_funding_y4',
             'requested_funding_y5',
+            'priority_area_or_threats',
             'overview',
             'notes',
             'last_modified_by',
@@ -258,6 +259,8 @@ class InitiationForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={"rows": 3}),
             'initiation_date': forms.DateInput(attrs=attr_fp_date),
             'initiation_acknowledgement_sent': forms.DateInput(attrs=attr_fp_date),
+            'priority_area_or_threats': forms.SelectMultiple(attrs=attr_chosen_contains),
+
         }
 
 
@@ -282,6 +285,7 @@ class EOIForm(forms.ModelForm):
             'coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
             'date_received': forms.DateInput(attrs={"type": "date"}),
             'feedback_sent': forms.DateInput(attrs=attr_fp_date),
+
         }
 
 
