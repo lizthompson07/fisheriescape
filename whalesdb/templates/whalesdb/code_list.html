@@ -15,9 +15,15 @@
     <div class="row">
         <div class="col-1">
         {% with "Add "|add:lookup.label as btn_label %}
-        <a class="btn btn-primary" href="#"
-           onclick="return popitup('{% url 'whalesdb:code_entry' lookup.url %}','popoutWindow')"
-            title="{% trans btn_label%}">+</a>
+            {% if lookup.entry == 'code_entry' %}
+            <a class="btn btn-primary" href="#"
+               onclick="return popitup('{% url 'whalesdb:code_entry' lookup.url %}','popoutWindow')"
+                title="{% trans btn_label%}">+</a>
+            {% else %}
+            <a class="btn btn-primary" href="#"
+               onclick="return popitup('{% url 'whalesdb:'|add:lookup.entry %}','popoutWindow')"
+                title="{% trans btn_label%}">+</a>
+            {% endif %}
         {% endwith %}
         </div>
         <h2>{{lookup.label}}</h2>
