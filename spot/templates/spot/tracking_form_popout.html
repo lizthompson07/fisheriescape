@@ -31,7 +31,7 @@
                         {% if object.file %}
                             <a href="{{ object.file.file.url }}">Yes</a>
                         {% else %}
-                            <span class="red-font">No, click <a href="#" pop-href="{% url 'spot:file_new' object.id 3 %}">here</a> to upload it.</span>
+                            <span class="red-font">No, click <a href="#" pop-href="{% url 'spot:file_new' object.project.id 3 %}">here</a> to upload it.</span>
                         {% endif %}
                     </p>
                 {% elif field.name == "application_submission_date" %}
