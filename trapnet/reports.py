@@ -222,9 +222,9 @@ def generate_open_data_ver_1_report(year, sites):
 
     for species in species_list:
         addendum = [
-            "{} abundance".format(species),
-            "{} avg. fork length".format(species),
-            "{} avg. weight".format(species),
+            "{}_abundance".format(species),
+            "{} avg_fork_length".format(species),
+            "{} avg_weight".format(species),
         ]
         header_row.extend(addendum)
 
