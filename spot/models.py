@@ -129,10 +129,10 @@ def draft_ca_file_directory_path(instance, filename):
 
 
 class Activity(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="activities", verbose_name=_("funding program"),
                                 blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
     category_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description (English)"))
     category_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description (French)"))
 
@@ -149,7 +149,42 @@ class Activity(models.Model):
             return "{} - {}".format(self.category_eng, self.name)
 
     class Meta:
-        ordering = [_('category_eng'), _('name'), ]
+        ordering = ["program",_('category_eng'), _('name'), ]
+
+
+class Species(models.Model):
+    common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
+    common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
+    scientific_name = models.CharField(max_length=255, blank=True, null=True)
+    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
+    aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("common_name_eng"))):
+            return "{}".format(getattr(self, str(_("common_name_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.common_name_eng)
+
+    class Meta:
+        ordering = ['common_name_eng']
+
+
+class Watershed(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [ _('name'), ]
 
 
 class Project(models.Model):
@@ -230,7 +265,9 @@ class Project(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="gc_projects")
     people = models.ManyToManyField(ml_models.Person, through="ProjectPerson", blank=True)
-    activities = models.ManyToManyField(Activity, blank=True)
+    activities = models.ManyToManyField(Activity, blank=True, verbose_name=_("activities"))
+    spp = models.ManyToManyField(Species, blank=True, verbose_name=_("species"))
+    watersheds = models.ManyToManyField(Watershed, blank=True, verbose_name=_("watersheds"))
 
     def __str__(self):
         return "{} ({})".format(truncate(self.title, 50), self.organization.abbrev)

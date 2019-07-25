@@ -393,18 +393,22 @@ class CAAdministrationForm(forms.ModelForm):
         }
 
 
-class ActivitiesForm(forms.ModelForm):
+class AttributesForm(forms.ModelForm):
     class Meta:
         model = models.Project
         fields = [
             'last_modified_by',
             'activities',
+            'spp',
+            'watersheds',
             'notes',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": 4}),
             'activities': forms.SelectMultiple(attrs=multi_select_js),
+            'spp': forms.SelectMultiple(attrs=multi_select_js),
+            'watersheds': forms.SelectMultiple(attrs=multi_select_js),
         }
 
     def __init__(self, *args, **kwargs):
@@ -477,3 +481,42 @@ class ReportSearchForm(forms.Form):
 
         self.fields["fiscal_year"].choices = fy_choices
         self.fields["programs"].choices = program_choices
+
+
+
+
+class ActivityForm(forms.ModelForm):
+    class Meta:
+        model = models.Activity
+        fields = "__all__"
+
+ActivityFormSet = modelformset_factory(
+    model=models.Activity,
+    form=ActivityForm,
+    extra=1,
+)
+
+
+
+class SpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.Species
+        fields = "__all__"
+
+SpeciesFormSet = modelformset_factory(
+    model=models.Species,
+    form=SpeciesForm,
+    extra=1,
+)
+
+
+class WatershedForm(forms.ModelForm):
+    class Meta:
+        model = models.Watershed
+        fields = "__all__"
+
+WatershedFormSet = modelformset_factory(
+    model=models.Watershed,
+    form=WatershedForm,
+    extra=1,
+)

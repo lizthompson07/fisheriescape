@@ -85,6 +85,13 @@ urlpatterns = [
     path('reports/negotiations/<int:fy>/<str:programs>/', views.NegotiationReport.as_view(), name="report_neg"),
     # path('reports/export-custom-list/<str:provinces>/<str:groupings>/<str:sectors>/<str:regions>/<int:is_indigenous>/<str:species>', views.export_custom_list, name="export_custom_list"),
 
-
+    # SETTINGS #
+    ############
+    path('settings/activities/', views.manage_activities, name="manage_activities"),
+    path('settings/species/', views.manage_species, name="manage_species"),
+    path('settings/watersheds/', views.manage_watersheds, name="manage_watersheds"),
+    path('settings/activity/<int:pk>/delete/', views.delete_activity, name="delete_activity"),
+    path('settings/species/<int:pk>/delete/', views.delete_species, name="delete_species"),
+    path('settings/watersheds/<int:pk>/delete/', views.delete_watershed, name="delete_watershed"),
 
 ]
