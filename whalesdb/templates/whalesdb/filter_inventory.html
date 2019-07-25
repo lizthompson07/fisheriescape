@@ -43,7 +43,7 @@
             <tbody>
 
             {% for obj in filter.qs %}
-                {% if detail_type is 'emm' %}
+                {% if detail_type == 'emm' %}
                 <tr href="{% url detail_object obj.emm.emm_id %}" >
                     {% for lbl in fields %}
                     <td>{% get_field_value obj lbl.key %}</td>
