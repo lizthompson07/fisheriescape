@@ -47,6 +47,36 @@
                             <span class="red-font">No, click  <a href="#" pop-href="{% url 'spot:file_new' object.id 6 %}">here</a> to upload it.</span>
                         {% endif %}
                     </p>
+                {% elif field.name == "recommended_overprogramming" %}
+                    {% bootstrap_field field size='small' placeholder="" %}
+                    <p>
+                        <b>
+                            {% trans "Project evaluation file uploaded?" %}
+                        </b>
+                        {% if object.project_evaluation_file %}
+                            <a href="{{ object.project_evaluation_file.file.url }}">Yes</a>
+
+                        {% else %}
+                            <span class="red-font">No, click  <a href="#" pop-href="{% url 'spot:file_new' object.id 8 %}">here</a> to upload it.</span>
+                        {% endif %}
+                    </p>
+
+                {% elif field.name == "project_eligible" %}
+                    {% bootstrap_field field size='small' placeholder="" %}
+                    <p>
+                        <b>
+                            {% trans "EOI evaluation file uploaded?" %}
+                        </b>
+                        {% if object.eoi_evaluation_file %}
+                            <a href="{{ object.eoi_evaluation_file.file.url }}">Yes</a>
+
+                        {% else %}
+                            <span class="red-font">No, click  <a href="#" pop-href="{% url 'spot:file_new' object.project.id 7 %}">here</a> to upload it.</span>
+                        {% endif %}
+                    </p>
+
+
+
                 {% elif field.name == "risk_assessment_score" %}
                     {% bootstrap_field field size='small' placeholder="" %}
                     <p>
