@@ -19,7 +19,7 @@
         </ol>
     </nav>
 
-    <div class="container">
+    <div class="container-fluid">
 
         <h1 class="big-header">Species List </h1>
         <p>TOTAL: {{ object_list.count }}</p>
@@ -28,7 +28,7 @@
         <form class="form" action="." method="get">
             <div class="row">
                 {% for field in filter.form %}
-                    <div class="col-3">
+                    <div class="col">
                         {% bootstrap_field field placeholder="" size="small" %}
                     </div>
                 {% endfor %}

@@ -72,17 +72,20 @@ class SpeciesListView(SARSearchAccessRequiredMixin, FilterView):
     template_name = "sar_search/species_list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
-        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
+        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['my_object'] = models.Species.objects.first()
         context["field_list"] = [
-            'code',
             'full_name|Species',
             'scientific_name',
+            'taxon',
+            'sara_status',
+            'cosewic_status',
+            'sara_schedule',
+            'province_range',
             'tsn',
-            'aphia_id',
         ]
         return context
 
@@ -94,14 +97,17 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
         context["field_list"] = [
-            'code',
             'common_name_eng',
             'common_name_fre',
-            'life_stage_eng',
-            'life_stage_fre',
             'scientific_name',
+            'population_eng',
+            'population_fre',
             'tsn',
-            'aphia_id',
+            'taxon',
+            'sara_status',
+            'cosewic_status',
+            'sara_schedule',
+            'province_range',
             'notes',
         ]
 
