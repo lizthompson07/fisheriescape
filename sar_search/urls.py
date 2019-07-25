@@ -4,6 +4,17 @@ from . import views
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    # SETTINGS #
+    ############
+    path('settings/taxa/', views.manage_taxa, name="manage_taxa"),
+    path('settings/taxon/<int:pk>/delete/', views.delete_taxon, name="delete_taxon"),
+    path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
+    path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
+    path('settings/schedules/', views.manage_schedules, name="manage_schedules"),
+    path('settings/schedule/<int:pk>/delete/', views.delete_schedule, name="delete_schedule"),
+    path('settings/counties/', views.manage_counties, name="manage_counties"),
+    path('settings/county/<int:pk>/delete/', views.delete_county, name="delete_county"),
+
     # SPECIES #
     ###########
     path('species/', views.SpeciesListView.as_view(), name="species_list"),
