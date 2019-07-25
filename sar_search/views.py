@@ -1003,7 +1003,6 @@ def manage_schedules(request):
     context['formset'] = formset
     context["my_object"] = qs.first()
     context["field_list"] = [
-        'code',
         'name',
         'nom',
         'description_eng',

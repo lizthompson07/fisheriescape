@@ -47,6 +47,19 @@ SpeciesStatusFormSet = modelformset_factory(
 )
 
 
+class SARAScheduleForm(forms.ModelForm):
+    class Meta:
+        model = models.SARASchedule
+        fields = "__all__"
+
+
+SARAScheduleFormSet = modelformset_factory(
+    model=models.SARASchedule,
+    form=SARAScheduleForm,
+    extra=1,
+)
+
+
 class CountyForm(forms.ModelForm):
     class Meta:
         model = models.County

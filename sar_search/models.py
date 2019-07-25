@@ -1,13 +1,14 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from shared_models import models as shared_models
 
 
 class Taxon(models.Model):
     code = models.CharField(max_length=10)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))
@@ -17,24 +18,23 @@ class Taxon(models.Model):
 
 
 class SARASchedule(models.Model):
-    code = models.CharField(max_length=5)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-    description_eng = models.CharField(max_length=1000, blank=True, null=True)
-    description_fre = models.CharField(max_length=1000, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
+    description_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("english description"))
+    description_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french description"))
 
     def __str__(self):
-        return "{} - {}".format(self.code, getattr(self, str(_("name"))))
+        return "{}".format(getattr(self, str(_("name"))))
 
     class Meta:
         ordering = ['name', ]
 
 class SpeciesStatus(models.Model):
     code = models.CharField(max_length=5)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-    description_eng = models.CharField(max_length=1000, blank=True, null=True)
-    description_fre = models.CharField(max_length=1000, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
+    description_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("english description"))
+    description_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french description"))
 
     def __str__(self):
         return "{} - {}".format(self.code, getattr(self, str(_("name"))))
@@ -45,8 +45,8 @@ class SpeciesStatus(models.Model):
 
 class County(models.Model):
     code = models.CharField(max_length=5)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='counties', blank=True, null=True)
 
     def __str__(self):
@@ -70,6 +70,8 @@ class Species(models.Model):
     province_range = models.ManyToManyField(shared_models.Province, blank=True)
     notes = models.TextField(max_length=255, null=True, blank=True)
 
+    def get_absolute_url(self):
+        return reverse("sar_search:species_detail", kwargs={"pk": self.id})
 
     def __str__(self):
         if getattr(self, str(_("population_eng"))):
