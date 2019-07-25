@@ -44,13 +44,18 @@ urlpatterns = [
     path('project/<int:pk>/eoi/', views.EOIUpdateView.as_view(), name="eoi"),
     path('project/<int:pk>/ca-checklist/', views.CAChecklistUpdateView.as_view(), name="ca_checklist"),
 
-
     # PROJECT PERSON #
     ##################
     path('project/<int:project>/person/new/', views.ProjectPersonCreateView.as_view(), name="project_person_new"),
     path('project-person/<int:pk>/edit/', views.ProjectPersonUpdateView.as_view(), name="project_person_edit"),
     path('project-person/<int:pk>/delete/', views.ProjectPersonDeleteView.as_view(), name="project_person_delete"),
     path('user-to-person/<int:user>/return-to/<str:view_name>/pk/<int:pk>/', views.user_to_person, name="user_to_person"),
+
+    # SITE #
+    ########
+    path('project/<int:project>/site/new/', views.SiteCreateView.as_view(), name="site_new"),
+    path('site/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),
+    path('site/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),
 
     # PROJECT YEAR #
     ################
@@ -61,7 +66,6 @@ urlpatterns = [
 
     # Tracking views
     path('project-year/<int:pk>/tracking/<str:step>/', views.TrackingUpdateView.as_view(), name="tracking"),
-
 
     # PAYMENT #
     ###########

@@ -1,4 +1,6 @@
 import os
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -393,6 +395,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
         context["current_fy"] = fiscal_year()
         context["field_list"] = [
             'id',
@@ -408,6 +411,11 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'project_length',
             'date_completed',
         ]
+
+        site_list = [["{} ({})".format(obj.name, obj.site_type), obj.lat, obj.long] for obj in self.object.sites.all() if
+                     obj.lat and obj.long]
+        context['site_list'] = site_list
+
         return context
 
 
@@ -930,6 +938,66 @@ class FileDeleteView(SpotAccessRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+
+# SITE #
+########
+class SiteCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.Site
+    template_name = 'spot/site_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.SiteForm
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+
+class SiteUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.Site
+    template_name = 'spot/site_form_popout.html'
+    form_class = forms.SiteForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class SiteDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/site_confirm_delete.html'
+    model = models.Site
+    success_url = reverse_lazy('spot:close_me')
+    success_message = 'The site was successfully removed!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
 
 
 # REPORTS #
