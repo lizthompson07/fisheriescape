@@ -285,7 +285,7 @@ class Project(models.Model):
     def end_year(self):
         return self.years.order_by("fiscal_year").last().fiscal_year.full
 
-    #PEOPLE
+    # PEOPLE
     @property
     def pp(self):
         return self.project_people.get(role=1).person
@@ -298,6 +298,10 @@ class Project(models.Model):
     @property
     def application_file(self):
         return File.objects.get(project=self, file_type_id=6)
+
+    @property
+    def project_evaluation_file(self):
+        return File.objects.get(project=self, file_type_id=8)
 
     @property
     def risk_assessment_file(self):
@@ -433,6 +437,10 @@ class ExpressionOfInterest(models.Model):
     @property
     def file(self):
         return File.objects.get(project=self.project, file_type_id=3)
+
+    @property
+    def eoi_evaluation_file(self):
+        return File.objects.get(project=self.project, file_type_id=7)
 
 
 class ProjectYear(models.Model):
