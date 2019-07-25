@@ -75,6 +75,15 @@ def get_model_object(obj_name):
             'entry': obj_name,
             'fields': [_("ID"), _("Name"), _("Description")]
         }
+    elif obj_name == 'team':
+        obj_def = {
+            'label': "Team Member",
+            'url': obj_name,
+            'order': "tea_id",
+            'model': models.TeaTeamMembers,
+            'entry': obj_name,
+            'fields': [_("ID"), _("Last Name"), _("First Name")]
+        }
 
     return obj_def
 
@@ -146,12 +155,14 @@ class IndexView(TemplateView):
                         'url': "whalesdb:create_rst",
                         'icon': "img/whales/record_stage.svg"
                     },
+                ],
+                'code': [
                     {
+                        'type': 'codelist',
                         'title': "Team Member",
-                        'url': "whalesdb:create_tea",
+                        'url': "team",
                         'icon': "img/whales/team.svg"
                     }
-
                 ]
             },
             {
@@ -313,9 +324,9 @@ class CreateChannel(CreateTemplate):
         emm = models.EqrRecorderProperties.objects.get(pk=emm_id)
 
         ecp = models.EcpChannelProperties(emm=emm, ecp_channel_no=form.cleaned_data['ecp_channel_no'],
-                                       eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
-                                       ecp_voltage_range=form.cleaned_data['ecp_voltage_range'],
-                                       ecp_gain=form.cleaned_data['ecp_gain'])
+                                          eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
+                                          ecp_voltage_range=form.cleaned_data['ecp_voltage_range'],
+                                          ecp_gain=form.cleaned_data['ecp_gain'])
 
         ecp.save()
 
@@ -354,8 +365,8 @@ class CreateHydrophone(CreateEMM):
         emm = super().form_valid(form)
 
         eqh = models.EqhHydrophoneProperties(emm=emm,
-                                                eqh_range_min=form.cleaned_data['eqh_range_min'],
-                                                eqh_range_max=form.cleaned_data['eqh_range_max'])
+                                             eqh_range_min=form.cleaned_data['eqh_range_min'],
+                                             eqh_range_max=form.cleaned_data['eqh_range_max'])
         eqh.save()
         return HttpResponseRedirect(reverse('whalesdb:details_hydrophone', kwargs={'pk': eqh.pk}))
 
@@ -368,8 +379,8 @@ class CreateRecorder(CreateEMM):
         emm = super().form_valid(form)
 
         eqr = models.EqrRecorderProperties(emm=emm,
-                                              eqc_max_channels=form.cleaned_data['eqc_max_channels'],
-                                              eqc_max_sample_rate=form.cleaned_data['eqc_max_sample_rate'])
+                                           eqc_max_channels=form.cleaned_data['eqc_max_channels'],
+                                           eqc_max_sample_rate=form.cleaned_data['eqc_max_sample_rate'])
         eqr.save()
 
         return HttpResponseRedirect(reverse('whalesdb:details_recorder', kwargs={'pk': eqr.pk}))
@@ -548,6 +559,17 @@ class CodeEditView(CreateView):
 
         n_obj = obj_def['model'](n_id, n_val)
         n_obj.save()
+
+        return HttpResponseRedirect(reverse('whalesdb:close_me'))
+
+
+class TeaCodeEditView(CreateView):
+
+    template_name = "whalesdb/code_entry.html"
+    form_class = forms.CreateTeamForm
+
+    def form_valid(self, form):
+        form.save()
 
         return HttpResponseRedirect(reverse('whalesdb:close_me'))
 
