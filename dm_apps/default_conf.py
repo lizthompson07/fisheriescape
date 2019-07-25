@@ -60,7 +60,9 @@ APP_DICT = {
     'staff': "Staff Planning Tool",
     'publications': "Project Publications Inventory",
     'trapnet': "TrapNet",
+    'sar_search': "SAR Search",
 }
+
 MY_INSTALLED_APPS = [app for app in APP_DICT]
 SHOW_TICKETS_APP = True
 
