@@ -244,6 +244,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
             'former_name',
             'website',
             'next_election',
+            'new_coucil_effective_date',
             'election_term',
             'population_on_reserve',
             'population_off_reserve',
@@ -705,12 +706,13 @@ class OrganizationCueCard(PDFTemplateView):
         context["org_field_list_3"] = [
             'next_election',
             'election_term',
+            'new_coucil_effective_date',
             'population_on_reserve',
             'population_off_reserve',
             'population_other_reserve',
-            'fin',
         ]
         context["org_field_list_4"] = [
+            'fin',
             'processing_plant',
             'wharf',
             'consultation_protocol',
