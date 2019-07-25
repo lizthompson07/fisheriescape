@@ -18,20 +18,20 @@
 {% endblock left_unauth %}
 
 {% block left_auth %}
-    {# Samples #}
-{#    <li class="nav-item dropdown">#}
-{#        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"#}
-{#           aria-expanded="false">#}
-{#            Settings#}
-{#        </a>#}
-{#        <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
-{#            <a class="dropdown-item" href="{% url 'sar_search:species_list' %}">Species</a>#}
-{#            <a class="dropdown-item" href="{% url 'sar_search:river_list' %}">Rivers</a>#}
-{#            <a class="dropdown-item" href="{% url 'sar_search:site_list' %}">Sites</a>#}
-{#        </div>#}
-{#    </li>#}
-
     <li class="nav-item"><a class="nav-link" href="{% url 'sar_search:species_list' %}">Species</a></li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+           aria-expanded="false">
+            Settings
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'sar_search:manage_taxa' %}">Manage taxon</a>
+            <a class="dropdown-item" href="{% url 'sar_search:manage_statuses' %}">Manage species statuses</a>
+            <a class="dropdown-item" href="{% url 'sar_search:manage_schedules' %}">Manage SARA Schedules</a>
+            <a class="dropdown-item" href="{% url 'sar_search:manage_counties' %}">Manage counties</a>
+        </div>
+    </li>
+
 {#    <li class="nav-item"><a class="nav-link" href="{% url 'sar_search:report_search' %}">Reports</a></li>#}
 
 {% endblock left_auth %}

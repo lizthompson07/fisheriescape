@@ -940,7 +940,6 @@ class FileDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-
 # SITE #
 ########
 class SiteCreateView(SpotAccessRequiredMixin, CreateView):
@@ -996,8 +995,6 @@ class SiteDeleteView(SpotAccessRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
-
 
 
 # REPORTS #
@@ -1137,18 +1134,24 @@ def manage_watersheds(request):
     return render(request, 'spot/manage_settings_small.html', context)
 
 
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
 def delete_activity(request, pk):
     my_obj = models.Activity.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("spot:manage_activities"))
 
 
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
 def delete_species(request, pk):
     my_obj = models.Species.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("spot:manage_species"))
 
 
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
 def delete_watershed(request, pk):
     my_obj = models.Watershed.objects.get(pk=pk)
     my_obj.delete()

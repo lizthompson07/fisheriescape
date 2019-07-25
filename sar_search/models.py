@@ -5,7 +5,7 @@ from shared_models import models as shared_models
 
 
 class Taxon(models.Model):
-    abbrev = models.CharField(max_length=10)
+    code = models.CharField(max_length=10)
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
 
