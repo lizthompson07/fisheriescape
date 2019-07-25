@@ -1,0 +1,138 @@
+{% extends "sar_search/sar_search_base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:trap_list' %}"> Samples </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:trap_detail' sample.id %}"> {{ sample }} </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> Manage entries</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        {#  <h1>Add Species to {{sample}}</h1>#}
+
+        <div class="row">
+
+            <div class="col-4" style="font-size: .9em">
+                <h3>Add new species:</h3>
+
+                <label for="user_input">What species would you like to add? (enter any part of name or code)</label>
+                <input type="text" id="user_input" class="form-control"/>
+                <br>
+                <div id="species-list" class="" style="font-size: small;"></div>
+                <hr>
+                Species not in list? Click <a class="" href="{% url 'sar_search:species_new' %}" target="_blank">here</a>
+                to add a new one.
+            </div>
+        </div>
+        {#            </div>#}
+        <br><br>
+        <h3>Existing entries:</h3>
+        <table class="table table-sm table-hover sortable" style="font-size: small;">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                {% for field in obs_field_list %}
+                    {% if field == "species" or field == "status" or field == "notes" %}
+                        {% if field == "notes" %}
+                            <th scope="col" style="width: 150px">{% get_verbose_label my_obs_object field %}</th>
+                        {% else %}
+                            <th scope="col">{% get_verbose_label my_obs_object field %}</th>
+                        {% endif %}
+                    {% else %}
+                        <th scope="col" class="center-col">{% get_verbose_label my_obs_object field %}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in sample.entries.all %}
+                {% url 'sar_search:obs_edit' object.id as my_url %}
+                <tr pop href="{{ my_url }}">
+                    <td>{{ forloop.counter }}</td>
+
+                    {% for field in obs_field_list %}
+                        {% if field == "species" or field == "status" or field == "notes" %}
+                            <td>{% get_field_value object field nullmark="--" %}</td>
+
+                        {% else %}
+                            <td class="center-col">{% get_field_value object field nullmark="--" %}</td>
+                        {% endif %}
+
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+
+
+
+
+
+
+    <script type="application/javascript">
+        var speciesList = {{ species_list |safe }}
+
+
+            $(".delete-me").click(function () {
+                var objectId = $(this)[0].getAttribute("val");
+
+                var userInput = "";
+                while (userInput !== "n" && userInput !== "y") {
+                    userInput = prompt("Are you sure you want to delete this species from the sample? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+                }
+                if (userInput === "y") {
+                    $("#secrect-delete-btn-" + objectId)[0].click();
+                }
+            })
+
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            $("#user_input").focus()
+
+
+        });
+
+        $("#user_input").keydown(function (event) {
+            if (event.key == "Enter") {
+                $(".add-btn")[0].click()
+            }
+        })
+
+        $("#user_input").keyup(function (e) {
+            $("#species-list").html("")
+            if (this.value.length >= 2) {
+                for (var i = 0; i < speciesList.length; i++) {
+                    // console.log(123);
+                    var re = new RegExp(this.value, 'gi');
+
+                    if (speciesList[i].match(re)) {
+                        $("#species-list").html(
+                            $("#species-list").html() + speciesList[i] + '<br>')
+                    }
+                }
+                $(".add-btn").click(function () {
+                    $("#user_input").val("")
+                    $("#species-list").html("")
+                    $("#user_input").focus()
+                    var targetURL = this.getAttribute("target-url")
+                    popitup(targetURL, "popoutWindow")
+                })
+
+            }
+        });
+
+
+    </script>
+
+{% endblock content %}
