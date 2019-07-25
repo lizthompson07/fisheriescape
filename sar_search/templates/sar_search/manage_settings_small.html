@@ -72,12 +72,15 @@
                                 {% if "tax" in title|lower %}
                                     <a id="secrect-delete-btn-{{ form.instance.id }}"
                                        href="{% url 'sar_search:delete_taxon' form.instance.id %}" class="hidden"></a>
-                                {% elif "species" in title|lower %}
+                                {% elif "statuses" in title|lower %}
                                     <a id="secrect-delete-btn-{{ form.instance.id }}"
-                                       href="{% url 'sar_search:delete_species' form.instance.id %}" class="hidden"></a>
-                                {% elif "watershed" in title|lower %}
+                                       href="{% url 'sar_search:delete_status' form.instance.id %}" class="hidden"></a>
+                                {% elif "schedule" in title|lower %}
                                     <a id="secrect-delete-btn-{{ form.instance.id }}"
-                                       href="{% url 'sar_search:delete_watershed' form.instance.id %}" class="hidden"></a>
+                                       href="{% url 'sar_search:delete_schedule' form.instance.id %}" class="hidden"></a>
+                                {% elif "count" in title|lower %}
+                                    <a id="secrect-delete-btn-{{ form.instance.id }}"
+                                       href="{% url 'sar_search:delete_county' form.instance.id %}" class="hidden"></a>
                                 {% endif %}
 
                             </td>
