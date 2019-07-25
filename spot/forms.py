@@ -219,6 +219,16 @@ class ProjectPersonForm(forms.ModelForm):
         }
 
 
+class SiteForm(forms.ModelForm):
+    class Meta:
+        model = models.Site
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
 class ProjectYearForm(forms.ModelForm):
     class Meta:
         model = models.ProjectYear
