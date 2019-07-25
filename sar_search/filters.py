@@ -6,8 +6,19 @@ from django import forms
 chosen_js = {"class": "chosen-select-contains"}
 
 class SpeciesFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains',
+    common_name_eng = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains',
                                             widget=forms.TextInput())
+
+    class Meta:
+        model = models.Species
+        fields = {
+            'common_name_eng': ['exact'],
+            'taxon': ['exact'],
+            'cosewic_status': ['exact'],
+            'sara_status': ['exact'],
+            'sara_schedule': ['exact'],
+            'province_range': ['exact'],
+        }
 
 #
 # class RiverFilter(django_filters.FilterSet):
