@@ -142,6 +142,7 @@ class SpeciesDeleteView(SARSearchAdminRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
 #
 # # RIVER #
 # #########
@@ -909,3 +910,147 @@ class SpeciesDeleteView(SARSearchAdminRequiredMixin, DeleteView):
 # #         return HttpResponseRedirect(reverse_lazy("sar_search:species_obs_search", kwargs={"sample": object.sample.id}))
 # #
 # #
+
+
+# SETTINGS #
+############
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def manage_taxa(request):
+    qs = models.Taxon.objects.all()
+    if request.method == 'POST':
+        formset = forms.TaxonFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Taxa have been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_taxa"))
+    else:
+        formset = forms.TaxonFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Taxa"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'code',
+        'name',
+        'nom',
+    ]
+    return render(request, 'sar_search/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def delete_taxon(request, pk):
+    my_obj = models.Taxon.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("sar_search:manage_taxa"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def manage_statuses(request):
+    qs = models.SpeciesStatus.objects.all()
+    if request.method == 'POST':
+        formset = forms.SpeciesStatusFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Species status has been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_statuses"))
+    else:
+        formset = forms.SpeciesStatusFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Species Statuses"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'code',
+        'name',
+        'nom',
+        'description_eng',
+        'description_fre',
+    ]
+    return render(request, 'sar_search/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def delete_status(request, pk):
+    my_obj = models.SpeciesStatus.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("sar_search:manage_statuses"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def manage_schedules(request):
+    qs = models.SARASchedule.objects.all()
+    if request.method == 'POST':
+        formset = forms.SARAScheduleFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "schedules have been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_schedules"))
+    else:
+        formset = forms.SARAScheduleFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage SARA Schedules"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'code',
+        'name',
+        'nom',
+        'description_eng',
+        'description_fre',
+    ]
+    return render(request, 'sar_search/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def delete_schedule(request, pk):
+    my_obj = models.SARASchedule.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("sar_search:manage_schedules"))
+
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def manage_counties(request):
+    qs = models.County.objects.all()
+    if request.method == 'POST':
+        formset = forms.CountyFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "counties have been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_counties"))
+    else:
+        formset = forms.CountyFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Counties"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'code',
+        'name',
+        'nom',
+        'province',
+    ]
+    return render(request, 'sar_search/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def delete_county(request, pk):
+    my_obj = models.SARASchedule.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("sar_search:manage_counties"))
