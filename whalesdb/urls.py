@@ -36,6 +36,7 @@ urlpatterns = [
     path('list/recorder', views.ListRecorder.as_view(), name="list_recorder"),
 
     path('station_event/edit', views.SetCodeEditView.as_view(), name="station_event"),
+    path('team/edit', views.TeaCodeEditView.as_view(), name="team"),
 
     path('<str:lookup>/edit', views.CodeEditView.as_view(), name="code_entry"),
     path('<str:lookup>/list', views.CodeListView.as_view(), name="code_list"),
