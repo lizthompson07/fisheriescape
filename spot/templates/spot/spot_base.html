@@ -25,25 +25,25 @@
 
 {% block left_auth %}
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:org_list'  %}">
+        <a class="nav-link" href="{% url 'spot:org_list' %}">
             {% trans "Organizations" %}
         </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:person_list'  %}">
+        <a class="nav-link" href="{% url 'spot:person_list' %}">
             {% trans "People" %}
         </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:project_list'  %}">
+        <a class="nav-link" href="{% url 'spot:project_list' %}">
             {% trans "Project Tracking" %}
         </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:report_search'  %}">
+        <a class="nav-link" href="{% url 'spot:report_search' %}">
             {% trans "Reports" %}
         </a>
     </li>
@@ -57,14 +57,9 @@
                     Settings
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    {#                    <a class="dropdown-item" href="{% url 'spot:manage_sectors' %}">Manage Sectors</a>#}
-                    {#                    <a class="dropdown-item" href="{% url 'spot:manage_roles' %}">Manage Member Roles</a>#}
-                    {#                    <a class="dropdown-item" href="{% url 'spot:manage_orgs' %}">Manage Organizations</a>#}
-                    {#                    <a class="dropdown-item" href="{% url 'spot:manage_statuses' %}">Manage Statuses</a>#}
-                    {#                    <a class="dropdown-item" href="{% url 'spot:manage_entry_types' %}">Manage Entry Types</a>#}
-                    {#                    <a class="dropdown-item" href="{% url 'spot:manage_funding_purposes' %}">Manage Funding Purposes</a>#}
-                    {#                    <a class="dropdown-item" href="{% url 'spot:manage_regions' %}">Manage DFO Regions</a>#}
-                    {#                    <a class="dropdown-item" href="{% url 'spot:manage_groupings' %}">Manage Groupings</a>#}
+                    <a class="dropdown-item" href="{% url 'spot:manage_activities' %}">Manage Activities</a>
+                    <a class="dropdown-item" href="{% url 'spot:manage_species' %}">Manage Species</a>
+                    <a class="dropdown-item" href="{% url 'spot:manage_watersheds' %}">Manage Watersheds</a>
                 </div>
             </li>
 
