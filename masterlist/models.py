@@ -5,13 +5,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
-
 # Choices for YesNo
 YESNO_CHOICES = (
     (None, "------"),
-    (1, "Yes"),
-    (0, "No"),
+    (True, "Yes"),
+    (False, "No"),
 )
+
 
 class Sector(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
@@ -46,6 +46,9 @@ class Grouping(models.Model):
         ordering = ['name', ]
 
 
+def audio_file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
+    return 'ihub/org_{}/{}'.format(instance.id, filename)
 
 
 class Organization(models.Model):
@@ -73,14 +76,16 @@ class Organization(models.Model):
     website = models.URLField(blank=True, null=True, verbose_name=_("website"))
     next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election"))
     election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term"))
+    new_coucil_effective_date = models.DateTimeField(blank=True, null=True, verbose_name=_("date that the new council holds office"))
     population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve"))
     population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve"))
     population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve"))
     fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN"))
     processing_plant = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("processing plant on reserve?"))
-    wharf = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Wharf on reserve?"))
+    wharf = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("wharf on reserve?"))
     consultation_protocol = models.TextField(blank=True, null=True, verbose_name=_("consultation protocol"))
     council_quorum = models.IntegerField(blank=True, null=True, verbose_name=_("council quorum"))
+    audio_file = models.FileField(upload_to=audio_file_directory_path, verbose_name=_("audio file"), blank=True, null=True)
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -140,7 +145,8 @@ class Person(models.Model):
     email_2 = models.EmailField(blank=True, null=True, verbose_name=_("work email 2"))
     cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone (mobile)"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
+    language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                 verbose_name=_("language preference"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     email_block = models.TextField(blank=True, null=True, verbose_name=_("email block"))
     organizations = models.ManyToManyField(Organization, through="OrganizationMember", verbose_name=_("membership"), blank=True)
