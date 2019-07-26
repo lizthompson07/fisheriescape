@@ -14,9 +14,10 @@
         table, td {
             font-size: small;
         }
-      /* Set the size of the div element that contains the map */
+
+        /* Set the size of the div element that contains the map */
         #map {
-            height: 500px; /* The height is 400 pixels */
+            height: 200px; /* The height is 400 pixels */
             width: 100%; /* The width is the width of the web page */
         }
 
@@ -77,14 +78,19 @@
             </div>
 
             <div class="col">
-                <div class="">
-                    <h1>{{ object }}</h1>
-                    {% include "spot/_status.html" %}
+                <div class="row">
+                    <div class="col-8">
+                        <h1>{{ object }}</h1>
+                        {% include "spot/_status.html" %}
+                    </div>
+                    <div class="col">
+                        <div id="map"></div>
+                    </div>
                 </div>
                 <br><br>
 
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-3">
                         {% include "spot/_project_years.html" %}
                         {% include "spot/_project_people.html" %}
                         {% include "spot/_file.html" %}
@@ -106,30 +112,16 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-2">
-            </div>
-            <div class="col">
-                <div id="map"></div>
-            </div>
-        </div>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
 
     </div>
 
     <script>
         function initialize() {
-            var locations = {{ site_list | safe }}
+            var locations = {{ site_list | safe }};
 
-                window.map = new google.maps.Map(document.getElementById('map'), {
-                    mapTypeId: google.maps.MapTypeId.SATELLITE
-                });
+            window.map = new google.maps.Map(document.getElementById('map'), {
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+            });
 
             var infowindow = new google.maps.InfoWindow();
 
@@ -153,6 +145,8 @@
             }
 
             map.fitBounds(bounds);
+            {#map.setCenter(bounds.getCenter());#}
+            {#map.setZoom(10)#}
 
         }
 
@@ -161,9 +155,11 @@
             script.type = 'text/javascript';
             script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
             document.body.appendChild(script);
+
         }
 
         window.onload = loadScript();
+
 
     </script>
 
