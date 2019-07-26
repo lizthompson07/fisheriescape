@@ -238,7 +238,7 @@ def generate_open_data_ver_1_report(year, sites):
     writer.writerow(header_row)
 
     # lets start by getting a list of samples and years
-    samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
+    # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
     sites = [models.RiverSite.objects.get(pk=obj["sample__site"]) for obj in qs.order_by("sample__site").values("sample__site").distinct()]
     years = [obj["sample__season"] for obj in qs.order_by("sample__season").values("sample__season").distinct()]
 
@@ -247,23 +247,26 @@ def generate_open_data_ver_1_report(year, sites):
             data_row = [
                 year,
                 site,
+                site.latitude_n,
+                site.longitude_w,
+                "",
+                "",
+                "",
             ]
             for species in species_list:
-                # addendum = [
-                #     qs.order_by("sample__site").values("sample__site")
-                #
-                #     qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").annotate(dsum=Sum("invoice_cost")).first()["dsum"]
-                #     ,
-                #     "{}_avg_fork_length".format(species.abbrev),
-                #     "{}_avg_weight".format(species.abbrev),
-                # ]
+                addendum = [
+                    qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").aggregate(
+                        dsum=Sum("frequency"))["dsum"],
+                    "",
+                    "",
+                ]
                 data_row.extend(addendum)
 
             writer.writerow(data_row)
 
 
-    project_adjustments = models.Entry.objects.filter(season=year, ).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
-                                transaction_type=2).filter(allotment_code=ac).values(
-                                "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+    # project_adjustments = models.Entry.objects.filter(season=year, ).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
+    #                             transaction_type=2).filter(allotment_code=ac).values(
+    #                             "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
 
     return response

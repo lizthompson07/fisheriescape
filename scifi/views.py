@@ -869,9 +869,13 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project allocation
                 try:
                     project_allocations = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
-                            transaction_type=1).filter(allotment_code=ac).values("project").order_by(
-                            "project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                        models.Transaction.objects.filter(
+                            project_id=p.id,
+                            exclude_from_rollup=False,
+                            fiscal_year=fy,
+                            transaction_type=1,
+                            allotment_code=ac
+                        ).values("project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
                 except TypeError:
                     project_allocations = 0
 
