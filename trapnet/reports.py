@@ -379,7 +379,6 @@ def generate_open_data_ver_1_report(year, sites):
                     davg=Avg("sample__max_air_temp"))["davg"],3),
                 floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
                     davg=Avg("sample__water_temp_shore_c"))["davg"],3),
-
             ]
 
             for species in species_list:
