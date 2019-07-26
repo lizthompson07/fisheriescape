@@ -1,6 +1,8 @@
 import unicodecsv as csv
 from django.db.models import Sum, Avg
 from django.http import HttpResponse
+from django.template.defaultfilters import floatformat
+
 from . import models
 
 
@@ -371,12 +373,12 @@ def generate_open_data_ver_1_report(year, sites):
                 site,
                 site.latitude_n,
                 site.longitude_w,
-                qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__air_temp_arrival"))["davg"],
-                qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__max_air_temp"))["davg"],
-                qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__water_temp_shore_c"))["davg"],
+                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+                    davg=Avg("sample__air_temp_arrival"))["davg"],3),
+                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+                    davg=Avg("sample__max_air_temp"))["davg"],3),
+                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+                    davg=Avg("sample__water_temp_shore_c"))["davg"],3),
 
             ]
 
@@ -384,10 +386,10 @@ def generate_open_data_ver_1_report(year, sites):
                 addendum = [
                     qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").aggregate(
                         dsum=Sum("frequency"))["dsum"],
-                    qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
-                        "fork_length").aggregate(davg=Avg("fork_length"))["davg"],
-                    qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
-                        "weight").aggregate(davg=Avg("weight"))["davg"],
+                    floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
+                        "fork_length").aggregate(davg=Avg("fork_length"))["davg"],3),
+                    floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
+                        "weight").aggregate(davg=Avg("weight"))["davg"],3),
                 ]
                 data_row.extend(addendum)
 
