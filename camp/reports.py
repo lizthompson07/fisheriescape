@@ -1235,10 +1235,10 @@ def generate_fgp_data_dictionary():
         "scientific",
         "tsn",
         "sav",
-        "sav_level",
+        "total_sav",
         "adults",
         "yoy",
-        "total_inds_obs",
+        "total_ind",
     ]
 
     descr_eng = [
@@ -1352,10 +1352,10 @@ def generate_fgp_export():
         "scientific",
         "tsn",
         "sav",
-        "sav_level",
+        "total_sav",
         "adults",
         "yoy",
-        "total_inds_obs",
+        "total_ind",
     ])
 
     for obs in models.SpeciesObservation.objects.all():
@@ -1387,10 +1387,10 @@ def generate_fgp_export():
                 obs.species.scientific_name,
                 obs.species.tsn,
                 obs.species.sav,
+                obs.total_sav,
                 obs.adults,
                 obs.yoy,
                 obs.total_non_sav,
-                obs.total_sav,
             ])
     return response
 
