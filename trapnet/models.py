@@ -38,6 +38,7 @@ class Species(models.Model):
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
     life_stage_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage name (English)")
     life_stage_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage name (French)")
+    abbrev = models.CharField(max_length=10, verbose_name="abbreviation", unique=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
@@ -160,7 +161,7 @@ class Sample(models.Model):
     def species_list(self):
         my_list = list(set([str(obs.species) for obs in self.entries.all()]))
         my_list.sort()
-        return mark_safe(listrify(my_list,"<br>"))
+        return mark_safe(listrify(my_list, "<br>"))
 
     def save(self, *args, **kwargs):
         self.season = self.arrival_date.year

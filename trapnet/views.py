@@ -72,7 +72,7 @@ class SpeciesListView(TrapNetAccessRequiredMixin, FilterView):
     template_name = "trapnet/species_list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
-        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
+        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', 'abbrev', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -81,6 +81,7 @@ class SpeciesListView(TrapNetAccessRequiredMixin, FilterView):
             'code',
             'full_name|Species',
             'scientific_name',
+            'abbrev',
             'tsn',
             'aphia_id',
         ]
@@ -99,6 +100,7 @@ class SpeciesDetailView(TrapNetAccessRequiredMixin, DetailView):
             'common_name_fre',
             'life_stage_eng',
             'life_stage_fre',
+            'abbrev',
             'scientific_name',
             'tsn',
             'aphia_id',
@@ -520,15 +522,16 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, FormView):
         my_sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else "None"
 
         if report == 1:
-            return HttpResponseRedirect(reverse("trapnet:sample_report", kwargs={"year": my_year, "sites":my_sites}))
+            return HttpResponseRedirect(reverse("trapnet:sample_report", kwargs={"year": my_year, "sites": my_sites}))
         elif report == 2:
-            return HttpResponseRedirect(reverse("trapnet:entry_report", kwargs={"year": my_year, "sites":my_sites}))
+            return HttpResponseRedirect(reverse("trapnet:entry_report", kwargs={"year": my_year, "sites": my_sites}))
         elif report == 3:
-            return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": my_year, "sites":my_sites}))
+            return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": my_year, "sites": my_sites}))
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("trapnet:report_search"))
+
 
 def export_sample_data(request, year, sites):
     response = reports.generate_sample_report(year, sites)
@@ -604,7 +607,6 @@ def export_open_data_ver1(request, year, sites):
 # def ais_export(request, species_list):
 #     response = reports.generate_ais_spreadsheet(species_list)
 #     return response
-
 
 
 #
