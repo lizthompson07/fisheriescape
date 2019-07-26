@@ -20,16 +20,16 @@
             <th style="width: 100px">
                 {% trans "Year" %}
             </th>
-            <th>
+            <th style="width: 120px">
                 {% trans "Funding" %}
             </th>
-            <th>
+            <th style="width: 120px">
                 {% trans "Payments issued" %}
             </th>
-            <th>
+            <th style="width: 120px">
                 {% trans "Open balance" %}
             </th>
-            <th>
+            <th class="center-col">
                 {% trans "Year completed?" %}
             </th>
 
@@ -55,7 +55,7 @@
                 <td>
                     {{ obj.annual_funding|subtract:obj.payments_issued|currency:True }}
                 </td>
-                <td>
+                <td class="center-col">
                     {{ obj.year_complete|yesno:"yes,no,no" }}
                 </td>
             </tr>
