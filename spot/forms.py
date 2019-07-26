@@ -19,6 +19,7 @@ YES_NO_CHOICES = (
     (False, _("No")),
 )
 
+
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = ml_models.Organization
@@ -469,10 +470,7 @@ class FileForm(forms.ModelForm):
         }
 
 
-
-
 class ReportSearchForm(forms.Form):
-
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Negotiations summary"),
@@ -493,12 +491,11 @@ class ReportSearchForm(forms.Form):
         self.fields["programs"].choices = program_choices
 
 
-
-
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = models.Activity
         fields = "__all__"
+
 
 ActivityFormSet = modelformset_factory(
     model=models.Activity,
@@ -507,26 +504,28 @@ ActivityFormSet = modelformset_factory(
 )
 
 
-
-# class SpeciesForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Species
-#         fields = "__all__"
-#
-# SpeciesFormSet = modelformset_factory(
-#     model=models.Species,
-#     form=SpeciesForm,
-#     extra=1,
-# )
-
-
 class WatershedForm(forms.ModelForm):
     class Meta:
         model = models.Watershed
         fields = "__all__"
 
+
 WatershedFormSet = modelformset_factory(
     model=models.Watershed,
     form=WatershedForm,
+    extra=1,
+)
+
+
+
+class DrainageBasinForm(forms.ModelForm):
+    class Meta:
+        model = models.DrainageBasin
+        fields = "__all__"
+
+
+DrainageBasinFormSet = modelformset_factory(
+    model=models.DrainageBasin,
+    form=DrainageBasinForm,
     extra=1,
 )
