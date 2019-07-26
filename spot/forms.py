@@ -508,16 +508,16 @@ ActivityFormSet = modelformset_factory(
 
 
 
-class SpeciesForm(forms.ModelForm):
-    class Meta:
-        model = models.Species
-        fields = "__all__"
-
-SpeciesFormSet = modelformset_factory(
-    model=models.Species,
-    form=SpeciesForm,
-    extra=1,
-)
+# class SpeciesForm(forms.ModelForm):
+#     class Meta:
+#         model = models.Species
+#         fields = "__all__"
+#
+# SpeciesFormSet = modelformset_factory(
+#     model=models.Species,
+#     form=SpeciesForm,
+#     extra=1,
+# )
 
 
 class WatershedForm(forms.ModelForm):
