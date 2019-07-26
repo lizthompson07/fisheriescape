@@ -579,12 +579,27 @@ class ServiceCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         my_object = form.save()
         was_calibrated = form.cleaned_data["was_also_calibrated"]
+        was_xxx = form.cleaned_data
+        print(was_xxx)
+        print(form)
+        print('------------')
         if was_calibrated:
             my_object.pk = None
+            # print(my_object)
+            # print('------------.......')
+            # print(form.category)
+
             my_object.save()
             my_object.category = 1
             my_object.save()
 
+            return HttpResponseRedirect(reverse('ios2:close_me'))
+        else:
+            my_object.save()
+
+            print('myobject', my_object, 'myobject')
+            print(my_object.pk)
+            # my_object.
             return HttpResponseRedirect(reverse('ios2:close_me'))
 
         # def get_initial(self):
@@ -596,6 +611,7 @@ class ServiceCreateView(LoginRequiredMixin, CreateView):
             'instrument': instrument,
         }
 
+
 class ServiceUpdateView(LoginRequiredMixin, UpdateView):
     model = models.ServiceHistory
     login_url = '/accounts/login_required/'
@@ -605,6 +621,7 @@ class ServiceUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse('ios2:close_me'))
+
 
 def service_delete(request, pk):
     object = models.ServiceHistory.objects.get(pk=pk)
