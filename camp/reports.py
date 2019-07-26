@@ -1235,10 +1235,11 @@ def generate_fgp_data_dictionary():
         "scientific",
         "tsn",
         "sav",
-        "total_sav",
+        "sav_level",
         "adults",
         "yoy",
         "total_ind",
+        "total_all",
     ]
 
     descr_eng = [
@@ -1267,11 +1268,12 @@ def generate_fgp_data_dictionary():
         "species name in French",
         "scientific name",
         "ITIS taxonomic serial number (TSN)",
-        "submerged aquatic vegetation (SAV)",
+        "Is the species submerged aquatic vegetation (SAV)?",
         "SAV level observed",
         "count of adults",
         "count of young-of-the-year",
         "total number of individuals observed",
+        "total (SAV and non-SAV)",
     ]
     descr_fra = [
         "l'année de l’observation",
@@ -1299,11 +1301,12 @@ def generate_fgp_data_dictionary():
         "nom de l'espèce en français",
         "nom scientifique",
         "numéro de série taxonomique ITIS (TSN)",
-        "végétation aquatique submergée (VAS)",
+        "l'espèce est-elle une végétation aquatique submergée (VAS)?",
         "VAS niveau observé",
         "nombre d’adultes",
         "nombre de jeunes de l'année",
         "nombre total d'individus observés",
+        "total (VAS et non-VAS)",
     ]
 
     writer.writerow(header)
@@ -1352,10 +1355,11 @@ def generate_fgp_export():
         "scientific",
         "tsn",
         "sav",
-        "total_sav",
+        "sav_level",
         "adults",
         "yoy",
         "total_ind",
+        "total_all",
     ])
 
     for obs in models.SpeciesObservation.objects.all():
@@ -1391,6 +1395,7 @@ def generate_fgp_export():
                 obs.adults,
                 obs.yoy,
                 obs.total_non_sav,
+                obs.total_non_sav + obs.total_sav,
             ])
     return response
 
