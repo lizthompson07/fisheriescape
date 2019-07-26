@@ -66,9 +66,10 @@ class EntryForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "---"),
-        (1, "List of samples (trap data) (.CSV)"),
-        (2, "List of entries (fish data) (.CSV)"),
-        (3, "OPEN DATA - summary by site by year (.CSV)"),
+        (1, "List of samples (trap data) (CSV)"),
+        (2, "List of entries (fish data) (CSV)"),
+        (3, "OPEN DATA - summary by site by year (CSV)"),
+        (4, "OPEN DATA - data dictionary (CSV)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
