@@ -207,3 +207,209 @@ def generate_species_sample_spreadsheet(species_list=None):
 
     workbook.close()
     return target_url
+
+
+
+
+def generate_open_data_ver_1_data_dictionary():
+    """
+    Generates the data dictionary for open data report version 1
+    """
+
+    filename = "open_data_ver1_data_dictionary.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    writer.writerow("")
+    writer.writerow(["Abiotic variables / Variables abiotiques:".upper(),])
+    writer.writerow(["#########################################",])
+    # write the header
+    header = [
+        "name__nom",
+        "description_en",
+        "description_fr",
+    ]
+    writer.writerow(header)
+
+    field_names = [
+        'year',
+        'site_name',
+        'site_latitude',
+        'site_longitude',
+        'avg_air_temp_arrival',
+        'avg_max_air_temp',
+        'avg_water_temp_shore',
+    ]
+
+    descr_eng = [
+        "sample year",
+        "name of site and river",
+        "site latitude (decimal degrees)",
+        "site longitude (decimal degrees)",
+        "average air temperature on arrival (degrees C)",
+        "average max air temperature (degrees C)",
+        "average water temperature taken from shore (degrees C)",
+    ]
+    descr_fra = [
+        "année-échantillon",
+        "nom du site et de la rivière",
+        "latitude du site (degrés décimaux)",
+        "longitude du site (degrés décimaux)",
+        "température moyenne de l'air à l'arrivée (degrés C)",
+        "température maximale moyenne de l'air (degrés C)",
+        "température moyenne de l'eau prise du rivage (degrés C)",
+    ]
+
+    for i in range(0, len(field_names)):
+        writer.writerow([
+            field_names[i],
+            descr_eng[i],
+            descr_fra[i],
+        ])
+
+    writer.writerow("")
+    writer.writerow("")
+    writer.writerow("")
+    writer.writerow(["Biotic variables / Variables biotiques:".upper(),])
+    writer.writerow(["#######################################",])
+    field_names = [
+        "X_abundance",
+        "X_avg_fork_length",
+        "X_avg_weight",
+    ]
+
+    descr_eng = [
+        "total abundance of species X for a given site and year",
+        "mean fork length (mm) of species X for a given site and year",
+        "mean weight (g) of species X for a given site and year",
+    ]
+    descr_fra = [
+        "Abondance totale de l'espèce X pour un site et une année donnés",
+        "longueur à la fourche moyenne (mm) de l'espèce X pour un site et une année donnés",
+        "poids moyen (g) de l'espèce X pour un site et une année donnés",
+    ]
+    for i in range(0, len(field_names)):
+        writer.writerow([
+            field_names[i],
+            descr_eng[i],
+            descr_fra[i],
+        ])
+
+    writer.writerow("")
+    writer.writerow("")
+    writer.writerow("")
+    writer.writerow(["Species / Espèces:".upper()])
+    writer.writerow(["##################"])
+    # write the header
+    header = [
+        "code",
+        "common_name_en__nom_commun_en",
+        "common_name_en__nom_commun_fr",
+        "life_stage_en__étape_de_vie_en",
+        "life_stage_fr__étape_de_vie_fr",
+        "scientific_name__nom_scientifique",
+        "ITIS_TSN",
+    ]
+    writer.writerow(header)
+
+    for sp in models.Species.objects.all():
+        life_stage_eng = sp.life_stage.name if sp.life_stage else None
+        life_stage_fra = sp.life_stage.nom if sp.life_stage else None
+
+        writer.writerow([
+            sp.abbrev,
+            sp.common_name_eng,
+            sp.common_name_fre,
+            life_stage_eng,
+            life_stage_fra,
+            sp.scientific_name,
+            sp.tsn,
+        ])
+
+    return response
+
+
+def generate_open_data_ver_1_report(year=None):
+    """
+    This is a view designed for FGP / open maps view.
+    :param year: int
+    :return: http response
+    """
+
+    if year != "None":
+        qs = models.Sample.objects.filter(season=year)
+        filename = "open_data_ver1_report_{}.csv".format(year)
+    else:
+        qs = models.Sample.objects.all()
+        filename = "open_data_ver1_report_all_years.csv"
+
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    # headers are based on csv provided by GD
+    # Botrylloïdes violaceus, Botryllus shlosseri, Caprella mutica, Ciona intestinalis, Codium fragile, Membranipora membranacea, Styela clava
+    species_id_list = [48, 24, 47, 23, 55, 59, 25]
+    species_qs = models.Species.objects.filter(id__in=species_id_list)
+
+    header_row = [
+        'year',
+        'site_name',
+        'site_latitude',
+        'site_longitude',
+        'avg_air_temp_arrival',
+        'avg_max_air_temp',
+        'avg_water_temp_shore',
+    ]
+
+    for species in species_qs:
+        addendum = [
+            "{}_abundance".format(species.abbrev),
+            "{}_avg_fork_length".format(species.abbrev),
+            "{}_avg_weight".format(species.abbrev),
+        ]
+        header_row.extend(addendum)
+
+    writer.writerow(header_row)
+
+    # lets start by getting a list of samples and years
+    # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
+    sites = [models.RiverSite.objects.get(pk=obj["sample__site"]) for obj in qs.order_by("sample__site").values("sample__site").distinct()]
+    years = [obj["sample__season"] for obj in qs.order_by("sample__season").values("sample__season").distinct()]
+
+    for year in years:
+        for site in sites:
+            data_row = [
+                year,
+                site,
+                site.latitude_n,
+                site.longitude_w,
+                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+                    davg=Avg("sample__air_temp_arrival"))["davg"],3),
+                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+                    davg=Avg("sample__max_air_temp"))["davg"],3),
+                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+                    davg=Avg("sample__water_temp_shore_c"))["davg"],3),
+            ]
+
+            for species in species_list:
+                addendum = [
+                    qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").aggregate(
+                        dsum=Sum("frequency"))["dsum"],
+                    floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
+                        "fork_length").aggregate(davg=Avg("fork_length"))["davg"],3),
+                    floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
+                        "weight").aggregate(davg=Avg("weight"))["davg"],3),
+                ]
+                data_row.extend(addendum)
+
+            writer.writerow(data_row)
+
+    return response

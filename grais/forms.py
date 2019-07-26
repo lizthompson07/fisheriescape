@@ -266,6 +266,8 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "---"),
         (1, "Biofouling: Species observations by sample"),
+        (2, "Open Data: Biofouling monitoring program - Version 1"),
+        (3, "Open Data: Data dictionary - Version 1"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
