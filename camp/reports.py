@@ -1363,6 +1363,17 @@ def generate_fgp_export():
     ])
 
     for obs in models.SpeciesObservation.objects.all():
+        if obs.species.sav:
+            total_sav = total = obs.total_sav
+            adults = None
+            yoy = None
+            total_non_sav = None
+        else:
+            total_sav = None
+            adults = obs.adults
+            yoy = obs.yoy
+            total_non_sav = total = obs.total_non_sav
+
         writer.writerow(
             [
                 obs.sample.year,
@@ -1391,11 +1402,11 @@ def generate_fgp_export():
                 obs.species.scientific_name,
                 obs.species.tsn,
                 obs.species.sav,
-                obs.total_sav,
-                obs.adults,
-                obs.yoy,
-                obs.total_non_sav,
-                nz(obs.total_non_sav,0) + nz(obs.total_sav,0),
+                total_sav,
+                adults,
+                yoy,
+                total_non_sav,
+                total,
             ])
     return response
 

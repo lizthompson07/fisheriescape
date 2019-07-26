@@ -228,6 +228,12 @@ def generate_open_data_ver_1_report(year, sites):
         ]
         header_row.extend(addendum)
 
+    header_row.extend([
+     'avg_air_temp_on_arrival',
+     'avg_max_air_temp',
+     'avg_water_temp',
+    ])
+
     writer.writerow(header_row)
     #
     # for entry in qs:
