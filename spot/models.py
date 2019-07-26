@@ -2,6 +2,7 @@ import datetime
 import os
 
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.dispatch import receiver
 from django.urls import reverse
@@ -690,8 +691,8 @@ class Site(models.Model):
     project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="sites")
     name = models.CharField(max_length=255, verbose_name=_("site name"))
     site_type = models.ForeignKey(SiteType, on_delete=models.DO_NOTHING, related_name="sites", verbose_name=_("site type"))
-    lat = models.CharField(max_length=255, verbose_name=_("latitude N (DD.dddddd)"), blank=True, null=True)
-    long = models.CharField(max_length=255, verbose_name=_("longitude W (DD.dddddd)"), blank=True, null=True)
+    lat = models.FloatField(max_length=255, verbose_name=_("latitude (DD.dddddd)"), blank=True, null=True)
+    long = models.FloatField(max_length=255, verbose_name=_("longitude (DD.dddddd)"), blank=True, null=True, validators=[MaxValueValidator(0),])
     restoration_type = models.ForeignKey(RestorationType, on_delete=models.DO_NOTHING, related_name="sites", verbose_name=_("restoration type (optional)"), blank=True, null=True)
     width = models.CharField(max_length=255, verbose_name=_("width (optional)"), blank=True, null=True)
     depth = models.CharField(max_length=255, verbose_name=_("depth (optional)"), blank=True, null=True)
