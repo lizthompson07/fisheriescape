@@ -32,12 +32,21 @@ class RiverSite(models.Model):
     class Meta:
         ordering = ['province', 'name']
 
+class LifeStage(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return "{}".format(getattr(self, str(_("name"))))
+
+    class Meta:
+        ordering = ['name', ]
+
 
 class Species(models.Model):
     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
-    life_stage_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage name (English)")
-    life_stage_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="life stage name (French)")
+    life_stage = models.ForeignKey(LifeStage, related_name='species', on_delete=models.DO_NOTHING, blank=True, null=True)
     abbrev = models.CharField(max_length=10, verbose_name="abbreviation", unique=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
@@ -46,23 +55,15 @@ class Species(models.Model):
     notes = models.TextField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        if getattr(self, str(_("life_stage_eng"))):
-            return "{} ({})".format(
-                getattr(self, str(_("common_name_eng"))),
-                getattr(self, str(_("life_stage_eng"))).lower(),
-            )
-        else:
-            return getattr(self, str(_("common_name_eng")))
+        my_str = getattr(self, str(_("common_name_eng")))
+        if self.life_stage:
+            my_str += " ({})".format(self.life_stage)
+        return my_str
 
+    # This is just for the sake of views.SpeciesListView
     @property
     def full_name(self):
-        if getattr(self, str(_("life_stage_eng"))):
-            return "{} ({})".format(
-                getattr(self, str(_("common_name_eng"))),
-                getattr(self, str(_("life_stage_eng"))).lower(),
-            )
-        else:
-            return getattr(self, str(_("common_name_eng")))
+        return str(self)
 
     class Meta:
         ordering = ['common_name_eng']

@@ -49,6 +49,7 @@ urlpatterns = [
     path('reports/samples/<str:year>/<str:sites>/', views.export_sample_data, name="sample_report"),
     path('reports/entries/<str:year>/<str:sites>/', views.export_entry_data, name="entry_report"),
     path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
+    path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
 
 ]
 
