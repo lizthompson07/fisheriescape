@@ -1395,7 +1395,7 @@ def generate_fgp_export():
                 obs.adults,
                 obs.yoy,
                 obs.total_non_sav,
-                obs.total_non_sav + obs.total_sav,
+                nz(obs.total_non_sav,0) + nz(obs.total_sav,0),
             ])
     return response
 
