@@ -235,6 +235,10 @@ def generate_open_data_ver_1_report(year, sites):
     ])
 
     writer.writerow(header_row)
+
+
+
+
     #
     # for entry in qs:
     #     origin = entry.origin.code if entry.origin else None
