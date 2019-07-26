@@ -871,7 +871,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                     project_allocations = \
                         models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
                             transaction_type=1).filter(allotment_code=ac).values("project").order_by(
-                            "project").aggregate(dsum=Sum("invoice_cost")).first()["dsum"]
+                            "project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
                 except TypeError:
                     project_allocations = 0
 
@@ -886,7 +886,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                     project_adjustments = \
                         models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
                             transaction_type=2).filter(allotment_code=ac).values(
-                            "project").order_by("project").aggregate(dsum=Sum("invoice_cost")).first()["dsum"]
+                            "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
                 except TypeError:
                     project_adjustments = 0
 
@@ -899,7 +899,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                     project_obligations = \
                         models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
                             transaction_type=3).filter(allotment_code=ac).values(
-                            "project").order_by("project").aggregate(
+                            "project").order_by("project").distinct().annotate(
                             dsum=Sum("outstanding_obligation")).first()[
                             "dsum"]
                 except TypeError:
@@ -915,7 +915,7 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                         nz(models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(
                             fiscal_year=fy).filter(
                             transaction_type=3).filter(allotment_code=ac).values(
-                            "project").order_by("project").aggregate(dsum=Sum("invoice_cost")).first()[
+                            "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()[
                                "dsum"], 0)
                 except TypeError:
                     project_expenditures = 0

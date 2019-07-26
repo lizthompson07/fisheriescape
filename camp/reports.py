@@ -72,7 +72,7 @@ def generate_species_count_report(species_list):
         # create a new file containing data
         qs = models.SpeciesObservation.objects.filter(species=sp_id).values(
             'sample__year'
-        ).aggregate(dsum=Sum('total_non_sav'))
+        ).distinct().annotate(dsum=Sum('total_non_sav'))
 
         years = [i["sample__year"] for i in qs]
         counts = [i["dsum"] for i in qs]
@@ -136,7 +136,7 @@ def generate_sub_pie_chart(site, year, target_file):
         s_code = "{} / {}".format(models.Species.objects.get(pk=s).common_name_eng, models.Species.objects.get(pk=s).common_name_fre)
         s_sum = models.SpeciesObservation.objects.filter(sample__station__site_id=site).filter(
             sample__year=year).filter(
-            species_id=s).order_by("species").values('species').aggregate(
+            species_id=s).order_by("species").values('species').distinct().annotate(
             dsum=Sum('total_non_sav'))
         try:
             x[s_code] = s_sum[0]["dsum"]
@@ -149,7 +149,7 @@ def generate_sub_pie_chart(site, year, target_file):
         s_code = 'Other / autres'
         cum_mod = cum_mod.filter(~Q(species_id=s))
 
-    cum_mod = cum_mod.order_by('sample__station__site_id').values('sample__station__site_id').aggregate(
+    cum_mod = cum_mod.order_by('sample__station__site_id').values('sample__station__site_id').distinct().annotate(
         dsum=Sum('total_non_sav'))
     try:
         x[s_code] = cum_mod[0]["dsum"]
@@ -184,7 +184,7 @@ def generate_sub_pie_chart(site, year, target_file):
             line_color="white", fill_color='color', legend='legend_label', source=data)
     p.legend.label_text_font_size = LEGEND_FONT_SIZE
     total_mod = models.SpeciesObservation.objects.filter(sample__station__site_id=site).filter(
-        sample__year=year).order_by('sample__station__site_id').values('sample__station__site_id').aggregate(
+        sample__year=year).order_by('sample__station__site_id').values('sample__station__site_id').distinct().annotate(
         dsum=Sum('total_non_sav'))
     total_abundance = total_mod[0]["dsum"]
     citation = Label(x=0.45, y=-0.7,
@@ -739,7 +739,7 @@ def generate_sub_green_crab_1(site, target_file):
 
     for year in years:
         green_crab_sum = models.SpeciesObservation.objects.filter(sample__station__site_id=site).filter(
-            sample__year=year).filter(species_id=18).filter(Q(sample__month=6)).order_by("species").values('species').aggregate(
+            sample__year=year).filter(species_id=18).filter(Q(sample__month=6)).order_by("species").values('species').distinct().annotate(
             dsum=Sum('total_non_sav'))
         try:
             counts.append(green_crab_sum[0]["dsum"])
@@ -811,7 +811,7 @@ def generate_sub_green_crab_2(site, target_file):
     for year in years:
         green_crab_sum = models.SpeciesObservation.objects.filter(sample__station__site_id=site).filter(sample__year=year).filter(
             species_id=18).filter(Q(sample__month=6) | Q(sample__month=7) | Q(sample__month=8)).order_by("species").values(
-            'species').aggregate(dsum=Sum('total_non_sav'))
+            'species').distinct().annotate(dsum=Sum('total_non_sav'))
 
         try:
             counts.append(green_crab_sum[0]["dsum"])
@@ -978,7 +978,7 @@ def generate_annual_watershed_spreadsheet(site, year):
         # total count
         total = models.SpeciesObservation.objects.filter(sample=s).filter(species__sav=False).values(
             'sample_id'
-        ).aggregate(dsum=Sum('total_non_sav'))
+        ).distinct().annotate(dsum=Sum('total_non_sav'))
         data_row.append(total[0]['dsum'])
 
         # store data_row in a dataframe

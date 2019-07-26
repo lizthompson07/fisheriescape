@@ -249,14 +249,14 @@ def generate_open_data_ver_1_report(year, sites):
                 site,
             ]
             for species in species_list:
-                addendum = [
-                    qs.order_by("sample__site").values("sample__site")
-
-                    qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").annotate(dsum=Sum("invoice_cost")).first()["dsum"]
-                    ,
-                    "{}_avg_fork_length".format(species.abbrev),
-                    "{}_avg_weight".format(species.abbrev),
-                ]
+                # addendum = [
+                #     qs.order_by("sample__site").values("sample__site")
+                #
+                #     qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                #     ,
+                #     "{}_avg_fork_length".format(species.abbrev),
+                #     "{}_avg_weight".format(species.abbrev),
+                # ]
                 data_row.extend(addendum)
 
             writer.writerow(data_row)
