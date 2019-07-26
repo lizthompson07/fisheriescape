@@ -409,6 +409,9 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'regions',
             'start_year',
             'project_length',
+            'activities',
+            'watersheds',
+            'spp',
             'date_completed',
         ]
 
