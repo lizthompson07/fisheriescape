@@ -413,6 +413,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'watersheds',
             'spp',
             'date_completed',
+            'summary',
         ]
 
         site_list = [["{} ({})".format(obj.name, obj.site_type), obj.lat, obj.long] for obj in self.object.sites.all() if
