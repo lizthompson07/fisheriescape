@@ -92,10 +92,12 @@ urlpatterns = [
     # SETTINGS #
     ############
     path('settings/activities/', views.manage_activities, name="manage_activities"),
-    path('settings/species/', views.manage_species, name="manage_species"),
-    path('settings/watersheds/', views.manage_watersheds, name="manage_watersheds"),
     path('settings/activity/<int:pk>/delete/', views.delete_activity, name="delete_activity"),
-    path('settings/species/<int:pk>/delete/', views.delete_species, name="delete_species"),
-    path('settings/watersheds/<int:pk>/delete/', views.delete_watershed, name="delete_watershed"),
+
+    path('settings/basins/', views.manage_basins, name="manage_basins"),
+    path('settings/basin/<int:pk>/delete/', views.delete_basin, name="delete_basin"),
+
+    path('settings/watersheds/', views.manage_watersheds, name="manage_watersheds"),
+    path('settings/watershed/<int:pk>/delete/', views.delete_watershed, name="delete_watershed"),
 
 ]

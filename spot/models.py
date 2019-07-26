@@ -130,49 +130,40 @@ def draft_ca_file_directory_path(instance, filename):
 
 
 class Activity(models.Model):
+    #choices for habitat
+    FW = 1
+    MAR =2
+    HABITAT_CHOICES = (
+        (FW, _("Freshwater")),
+        (MAR, _("Marine")),
+    )
+
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="activities", verbose_name=_("funding program"),
                                 blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
-    category_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description (English)"))
-    category_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description (French)"))
+    habitat = models.IntegerField(blank=True, null=True, choices=HABITAT_CHOICES)
+    category_eng = models.CharField(max_length=1000, verbose_name=_("category/type (English)"))
+    category_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("category/type (French)"))
 
     def __str__(self):
         # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            if getattr(self, str(_("category_eng"))):
-                return "{} - {}".format(getattr(self, str(_("category_eng"))), getattr(self, str(_("name"))))
-            else:
-                return "{} - {}".format(self.category_eng, getattr(self, str(_("name"))))
+        my_str = "{}".format(getattr(self, str(_("category_eng"))))
 
-        # if there is no translated term, just pull from the english field
+        if self.habitat:
+            my_str += " ({}) - ".format(self.get_habitat_display())
         else:
-            return "{} - {}".format(self.category_eng, self.name)
+            my_str += " - "
+
+        my_str +=  "{}".format(getattr(self, str(_("name"))))
+        return my_str
 
     class Meta:
         ordering = ["program", _('category_eng'), _('name'), ]
 
 
-# class Species(models.Model):
-#     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
-#     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
-#     scientific_name = models.CharField(max_length=255, blank=True, null=True)
-#     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
-#     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
-#
-#     def __str__(self):
-#         # check to see if a french value is given
-#         if getattr(self, str(_("common_name_eng"))):
-#             return "{}".format(getattr(self, str(_("common_name_eng"))))
-#         # if there is no translated term, just pull from the english field
-#         else:
-#             return "{}".format(self.common_name_eng)
-#
-#     class Meta:
-#         ordering = ['common_name_eng']
 
-
-class Watershed(models.Model):
+class DrainageBasin(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
 
@@ -183,6 +174,25 @@ class Watershed(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
+class Watershed(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name="watersheds")
+    drainage_basin = models.ForeignKey(DrainageBasin, on_delete=models.DO_NOTHING, related_name="watersheds")
+    notes = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("notes"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}, {} ({})".format(getattr(self, str(_("name"))), self.province.tabbrev, self.drainage_basin)
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}, {} ({})".format(self.name, self.province.tabbrev, self.drainage_basin)
 
     class Meta:
         ordering = [_('name'), ]
