@@ -1072,9 +1072,10 @@ def manage_activities(request):
     context['formset'] = formset
     context["my_object"] = qs.first()
     context["field_list"] = [
+        'program',
         'name',
         'nom',
-        'program',
+        'habitat',
         'category_eng',
         'category_fre',
     ]
@@ -1083,30 +1084,10 @@ def manage_activities(request):
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
-def manage_species(request):
-    qs = models.Species.objects.all()
-    if request.method == 'POST':
-        formset = forms.SpeciesFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Species have been successfully updated")
-            return HttpResponseRedirect(reverse("spot:manage_species"))
-    else:
-        formset = forms.SpeciesFormSet(
-            queryset=qs)
-    context = {}
-    context['title'] = "Manage Species"
-    context['formset'] = formset
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'common_name_eng',
-        'common_name_fre',
-        'scientific_name',
-        'tsn',
-        'aphia_id',
-    ]
-    return render(request, 'spot/manage_settings_small.html', context)
+def delete_activity(request, pk):
+    my_obj = models.Activity.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("spot:manage_activities"))
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -1130,24 +1111,11 @@ def manage_watersheds(request):
     context["field_list"] = [
         'name',
         'nom',
+        'province',
+        'drainage_basin',
+        'notes',
     ]
     return render(request, 'spot/manage_settings_small.html', context)
-
-
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
-def delete_activity(request, pk):
-    my_obj = models.Activity.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("spot:manage_activities"))
-
-
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
-def delete_species(request, pk):
-    my_obj = models.Species.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("spot:manage_species"))
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -1156,3 +1124,36 @@ def delete_watershed(request, pk):
     my_obj = models.Watershed.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("spot:manage_watersheds"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
+def manage_basins(request):
+    qs = models.DrainageBasin.objects.all()
+    if request.method == 'POST':
+        formset = forms.DrainageBasinFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Drainage Basins have been successfully updated")
+            return HttpResponseRedirect(reverse("spot:manage_basins"))
+    else:
+        formset = forms.DrainageBasinFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Drainage Basins"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    return render(request, 'spot/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
+def delete_basin(request, pk):
+    my_obj = models.DrainageBasin.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("spot:manage_basins"))
