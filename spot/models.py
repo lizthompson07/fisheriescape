@@ -13,6 +13,7 @@ from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from masterlist import models as ml_models
+from sar_search import models as sar_models
 
 
 class Status(models.Model):
@@ -152,23 +153,23 @@ class Activity(models.Model):
         ordering = ["program", _('category_eng'), _('name'), ]
 
 
-class Species(models.Model):
-    common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
-    common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
-    scientific_name = models.CharField(max_length=255, blank=True, null=True)
-    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
-    aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("common_name_eng"))):
-            return "{}".format(getattr(self, str(_("common_name_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.common_name_eng)
-
-    class Meta:
-        ordering = ['common_name_eng']
+# class Species(models.Model):
+#     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
+#     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
+#     scientific_name = models.CharField(max_length=255, blank=True, null=True)
+#     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
+#     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
+#
+#     def __str__(self):
+#         # check to see if a french value is given
+#         if getattr(self, str(_("common_name_eng"))):
+#             return "{}".format(getattr(self, str(_("common_name_eng"))))
+#         # if there is no translated term, just pull from the english field
+#         else:
+#             return "{}".format(self.common_name_eng)
+#
+#     class Meta:
+#         ordering = ['common_name_eng']
 
 
 class Watershed(models.Model):
@@ -266,7 +267,7 @@ class Project(models.Model):
                                          related_name="gc_projects")
     people = models.ManyToManyField(ml_models.Person, through="ProjectPerson", blank=True)
     activities = models.ManyToManyField(Activity, blank=True, verbose_name=_("activities"))
-    spp = models.ManyToManyField(Species, blank=True, verbose_name=_("species"))
+    spp = models.ManyToManyField(sar_models.Species, blank=True, verbose_name=_("species"))
     watersheds = models.ManyToManyField(Watershed, blank=True, verbose_name=_("watersheds"))
 
     def __str__(self):
