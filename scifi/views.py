@@ -869,13 +869,13 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project allocation
                 try:
                     project_allocations = \
-                        models.Transaction.objects.filter(
+                        nz(models.Transaction.objects.filter(
                             project_id=p.id,
                             exclude_from_rollup=False,
                             fiscal_year=fy,
                             transaction_type=1,
                             allotment_code=ac
-                        ).values("project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                        ).values("invoice_cost").order_by("invoice_cost").aggregate(dsum=Sum("invoice_cost"))["dsum"], 0)
                 except TypeError:
                     project_allocations = 0
 
@@ -888,9 +888,13 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project adjustments
                 try:
                     project_adjustments = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
-                            transaction_type=2).filter(allotment_code=ac).values(
-                            "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()["dsum"]
+                        nz(models.Transaction.objects.filter(
+                            project_id=p.id,
+                            exclude_from_rollup=False,
+                            fiscal_year=fy,
+                            transaction_type=2,
+                            allotment_code=ac
+                        ).values("invoice_cost").order_by("invoice_cost").aggregate(dsum=Sum("invoice_cost"))["dsum"], 0)
                 except TypeError:
                     project_adjustments = 0
 
@@ -901,11 +905,14 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project obligations
                 try:
                     project_obligations = \
-                        models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(fiscal_year=fy).filter(
-                            transaction_type=3).filter(allotment_code=ac).values(
-                            "project").order_by("project").distinct().annotate(
-                            dsum=Sum("outstanding_obligation")).first()[
-                            "dsum"]
+                        nz(models.Transaction.objects.filter(
+                            project_id=p.id,
+                            exclude_from_rollup=False,
+                            fiscal_year=fy,
+                            transaction_type=3,
+                            allotment_code=ac
+                        ).values("outstanding_obligation").order_by("outstanding_obligation").aggregate(dsum=Sum("outstanding_obligation"))[
+                               "dsum"], 0)
                 except TypeError:
                     project_obligations = 0
 
@@ -916,11 +923,13 @@ class AccountSummaryTemplateView(SciFiAccessRequiredMixin, TemplateView):
                 # project expenditures
                 try:
                     project_expenditures = \
-                        nz(models.Transaction.objects.filter(project_id=p.id).filter(exclude_from_rollup=False).filter(
-                            fiscal_year=fy).filter(
-                            transaction_type=3).filter(allotment_code=ac).values(
-                            "project").order_by("project").distinct().annotate(dsum=Sum("invoice_cost")).first()[
-                               "dsum"], 0)
+                        nz(models.Transaction.objects.filter(
+                            project_id=p.id,
+                            exclude_from_rollup=False,
+                            fiscal_year=fy,
+                            transaction_type=3,
+                            allotment_code=ac
+                        ).values("invoice_cost").order_by("invoice_cost").aggregate(dsum=Sum("invoice_cost"))["dsum"], 0)
                 except TypeError:
                     project_expenditures = 0
 
