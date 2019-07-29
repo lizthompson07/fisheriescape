@@ -16,7 +16,7 @@ from django.db.models import Sum, Q
 from shutil import rmtree
 from django.conf import settings
 
-from lib.functions.custom_functions import nz
+from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
 import numpy as np
@@ -347,32 +347,26 @@ def generate_open_data_ver_1_report(year=None):
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
-    # headers are based on csv provided by GD
     # Botrylloïdes violaceus, Botryllus shlosseri, Caprella mutica, Ciona intestinalis, Codium fragile, Membranipora membranacea, Styela clava
     species_id_list = [48, 24, 47, 23, 55, 59, 25]
     species_qs = models.Species.objects.filter(id__in=species_id_list)
 
     header_row = [
         'Sampling year',
-        'Date in',
-        'Date out',
         'Station code',
         'Station name',
-        'Season',
+        'Date in',
+        'Date out',
         'Weeks',
-        'Latitudfsdfsdfsdfsde',
-        'Longitude',
         'Station Description',
-        'Structure type',
+        'Collector Latitude',
+        'Collector Longitude',
         'Collector ID',
         'Surface Type',
         'Surface ID',
-        'Other species',
-        'Comments Fauna',
-        'Probe Sample Date',
-        'Probe Sample time',
-        'Probe Depth',
         'Probe Type',
+        'Probe Sample Date/Time',
+        'Probe Depth',
         'Temperture C',
         'Sal ppt',
         'O2 percent',
@@ -380,9 +374,10 @@ def generate_open_data_ver_1_report(year=None):
         'SpCond - mS',
         'Spc - mS',
         'pH',
-        'pHmV',
+        'Turbidity',
+        'Weather Notes',
         'Samplers',
-        'Comments',
+        'Other species',
     ]
     # C. intestinalis % cover,  # 23
     # B. schlosseri % cover,  # 24
@@ -401,9 +396,10 @@ def generate_open_data_ver_1_report(year=None):
             second_name = species.scientific_name.split(" ")[1]
         display_name = "{}. {}".format(first_name, second_name, )
         header_row.append("{} % cover".format(display_name))
+
+        # if species id is 24 or 48, we want color morph notes as well
         if species.id in [24, 48]:
             header_row.append("{} Color Notes".format(display_name))
-
 
     writer.writerow(header_row)
 
@@ -425,35 +421,36 @@ def generate_open_data_ver_1_report(year=None):
     )
 
     for surface in surfaces:
-        sp_23 = models.SurfaceSpecies.objects.get(species_id=23, surface=surface).percent_coverage
-        sp_24 = models.SurfaceSpecies.objects.get(species_id=24, surface=surface).percent_coverage
-        sp_24_col = models.SurfaceSpecies.objects.get(species_id=24, surface=surface).notes
-        sp_48_col = models.SurfaceSpecies.objects.get(species_id=48, surface=surface).notes
 
         # Try getting hold of the last probe sample taken
         my_probe = surface.line.sample.probe_data.order_by("time_date").last()
         if my_probe:
-            my_probe.probe,
-            my_probe.time_date,
-            my_probe.probe_depth,
-            my_probe.temp_c,
-            my_probe.sal_ppt,
-            my_probe.o2_percent,
-            my_probe.o2_mgl,
-            my_probe.sp_cond_ms,
-            my_probe.spc_ms,
-            my_probe.ph,
-            my_probe.turbidity,
+            probe = my_probe.probe
+            time_date = my_probe.time_date.strftime("%Y-%m-%d %H:%M")
+            probe_depth = my_probe.probe_depth
+            temp_c = my_probe.temp_c
+            sal = my_probe.sal_ppt
+            o2p = my_probe.o2_percent
+            o2m = my_probe.o2_mgl
+            spcond = my_probe.sp_cond_ms
+            spc = my_probe.spc_ms
+            ph = my_probe.ph
+            turb = my_probe.turbidity
+            weather = my_probe.weather_notes
+        else:
+            probe = time_date = probe_depth = temp_c = sal = o2p = o2m = spcond = spc = ph = turb = weather = None
 
-            # pH,
-            # pHmV,
+        # summarize all of the samplers
+        samplers = listrify(["{} ({})".format(obj, obj.organization) for obj in surface.line.sample.samplers.all()])
+        # summarize all of the "other" species
+        other_spp = listrify([str(sp) for sp in surface.species.all() if sp.id not in species_id_list])
 
         data_row = [
             surface.line.sample.season,
             surface.line.sample.station_id,
             surface.line.sample.station,
-            surface.line.sample.date_deployed,
-            surface.line.sample.date_retrieved,
+            surface.line.sample.date_deployed.strftime("%Y-%m-%d"),
+            surface.line.sample.date_retrieved.strftime("%Y-%m-%d") if surface.line.sample.date_retrieved else None,
             surface.line.sample.weeks_deployed,
             surface.line.sample.station.site_desc,
             surface.line.latitude_n,
@@ -461,52 +458,32 @@ def generate_open_data_ver_1_report(year=None):
             surface.line.collector,
             surface.get_surface_type_display(),
             surface.label,
-            # Sample Date,
-            # Sample time,
-            # Prob Depth,
-            # Prob Type,
-            # Temperture C,
-            # Sal ppt,
-            # O2 percent,
-            # O2 mg-l,
-            # SpCond - mS,
-            # Spc - mS,
-            # pH,
-            # pHmV,
-            # Sampler,
-            # Affiliation,
-            # Other species,
-            # Comments,
+            probe, time_date, probe_depth, temp_c, sal, o2p, o2m, spcond, spc, ph, turb, weather,
+            samplers,
+            other_spp,
         ]
 
+        for species in species_qs:
+            try:
+                data_row.append(
+                    models.SurfaceSpecies.objects.get(species=species, surface=surface).percent_coverage
+                )
+            except models.SurfaceSpecies.DoesNotExist:
 
+                data_row.append(
+                    0
+                )
 
-
-
-        #
-        # data_row = [
-        #     year,
-        #     site,
-        #     site.latitude_n,
-        #     site.longitude_w,
-        #     floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-        #         davg=Avg("sample__air_temp_arrival"))["davg"], 3),
-        #     floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-        #         davg=Avg("sample__max_air_temp"))["davg"], 3),
-        #     floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-        #         davg=Avg("sample__water_temp_shore_c"))["davg"], 3),
-        # ]
-        #
-        # for species in species_list:
-        #     addendum = [
-        #         qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").aggregate(
-        #             dsum=Sum("frequency"))["dsum"],
-        #         floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
-        #             "fork_length").aggregate(davg=Avg("fork_length"))["davg"], 3),
-        #         floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
-        #             "weight").aggregate(davg=Avg("weight"))["davg"], 3),
-        #     ]
-        #     data_row.extend(addendum)
+            # if species id is 24 or 48, we want color morph notes as well
+            if species.id in [24, 48]:
+                try:
+                    data_row.append(
+                        models.SurfaceSpecies.objects.get(species=species, surface=surface).notes
+                    )
+                except models.SurfaceSpecies.DoesNotExist:
+                    data_row.append(
+                        None
+                    )
 
         writer.writerow(data_row)
 
