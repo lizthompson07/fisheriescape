@@ -1315,7 +1315,7 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
     def form_valid(self, form):
         species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
         report = int(form.cleaned_data["report"])
-        year = int(form.cleaned_data["year"])
+        year = form.cleaned_data["year"]
 
         if report == 1:
             return HttpResponseRedirect(reverse("grais:spp_sample_xlsx", kwargs={"species_list": species_list}))
