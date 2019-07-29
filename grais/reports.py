@@ -369,7 +369,7 @@ def generate_open_data_ver_1_report(year=None):
     """
 
     # determine the filename based on whether we are looking at all years vs. a single year
-    filename = "open_data_ver1_report_{}.csv".format(year) if year != "None" else "open_data_ver1_report_all_years.csv"
+    filename = "open_data_ver1_report_{}.csv".format(year) if year and year != "None" else "open_data_ver1_report_all_years.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -437,7 +437,7 @@ def generate_open_data_ver_1_report(year=None):
     # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
     # years = [obj["season"] for obj in samples.order_by("season").values("season").distinct()]
 
-    samples = models.Sample.objects.all().order_by("date_deployed")
+    samples = models.Sample.objects.all()
 
     # if there is a year provided, filter by only this year
     print(year)
@@ -449,7 +449,7 @@ def generate_open_data_ver_1_report(year=None):
         line__sample_id__in=[obj["id"] for obj in samples.order_by("id").values("id").distinct()],
         line__is_lost=False,
         is_lost=False,
-    )
+    ).order_by("line__sample__date_deployed")
 
     for surface in surfaces:
 
