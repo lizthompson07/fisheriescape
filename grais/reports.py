@@ -338,12 +338,8 @@ def generate_open_data_ver_1_report(year=None):
     :return: http response
     """
 
-    if year != "None":
-        samples = models.Sample.objects.filter(season=year).order_by("date_deployed")
-        filename = "open_data_ver1_report_{}.csv".format(year)
-    else:
-        samples = models.Sample.objects.all().order_by("date_deployed")
-        filename = "open_data_ver1_report_all_years.csv"
+    # determine the filename based on whether we are looking at all years vs. a single year
+    filename = "open_data_ver1_report_{}.csv".format(year) if year != "None" else "open_data_ver1_report_all_years.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -364,28 +360,19 @@ def generate_open_data_ver_1_report(year=None):
         'Station name',
         'Season',
         'Weeks',
-        'Latitude',
+        'Latitudfsdfsdfsdfsde',
         'Longitude',
         'Station Description',
         'Structure type',
         'Collector ID',
-        'Collector Type',
+        'Surface Type',
         'Surface ID',
-        'C. intestinalis % cover',  # 23
-        'B. schlosseri % cover',  # 24
-        'B. schlosseri Color Morph',
-        'B. violaceus % cover',  # 48
-        'B. violaceus Color Morph',
-        'S. clava % cover',  # 25
-        'M. membranacea % cover',  # 59
-        'C. mutica % cover',  # 47
-        'C. fragile fragile % cover',  # 55
         'Other species',
         'Comments Fauna',
-        'Sample Date',
-        'Sample time',
-        'Prob Depth',
-        'Prob Type',
+        'Probe Sample Date',
+        'Probe Sample time',
+        'Probe Depth',
+        'Probe Type',
         'Temperture C',
         'Sal ppt',
         'O2 percent',
@@ -394,18 +381,29 @@ def generate_open_data_ver_1_report(year=None):
         'Spc - mS',
         'pH',
         'pHmV',
-        'Sampler',
-        'Affiliation',
+        'Samplers',
         'Comments',
     ]
+    # C. intestinalis % cover,  # 23
+    # B. schlosseri % cover,  # 24
+    # B. schlosseri Color Morph,
+    # B. violaceus % cover,  # 48
+    # B. violaceus Color Morph,
+    # S. clava % cover,  # 25
+    # M. membranacea % cover,  # 59
+    # C. mutica % cover,  # 47
+    # C. fragile fragile % cover,  # 55
+    for species in species_qs:
+        first_name = species.scientific_name.split(" ")[0][:1].upper()
+        if len(species.scientific_name.split(" ")) > 2:
+            second_name = " ".join(species.scientific_name.split(" ")[1:])
+        else:
+            second_name = species.scientific_name.split(" ")[1]
+        display_name = "{}. {}".format(first_name, second_name, )
+        header_row.append("{} % cover".format(display_name))
+        if species.id in [24, 48]:
+            header_row.append("{} Color Notes".format(display_name))
 
-    # for species in species_qs:
-    #     addendum = [
-    #         "{}_abundance".format(species.abbrev),
-    #         "{}_avg_fork_length".format(species.abbrev),
-    #         "{}_avg_weight".format(species.abbrev),
-    #     ]
-    #     header_row.extend(addendum)
 
     writer.writerow(header_row)
 
@@ -413,33 +411,56 @@ def generate_open_data_ver_1_report(year=None):
     # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
     # years = [obj["season"] for obj in samples.order_by("season").values("season").distinct()]
 
-    for sample in samples:
+    samples = models.Sample.objects.all().order_by("date_deployed")
+
+    # if there is a year provided, filter by only this year
+    if year != "None":
+        samples = samples.filter(season=year)
+
+    # make sure to exclude the lost lines and surfaces; this is sort of redundant since if a line is line, all surfaces should also be labelled as lost.
+    surfaces = models.Surface.objects.filter(
+        line__sample_id__in=[obj["id"] for obj in samples.order_by("id").values("id").distinct()],
+        line__is_lost=False,
+        is_lost=False,
+    )
+
+    for surface in surfaces:
+        sp_23 = models.SurfaceSpecies.objects.get(species_id=23, surface=surface).percent_coverage
+        sp_24 = models.SurfaceSpecies.objects.get(species_id=24, surface=surface).percent_coverage
+        sp_24_col = models.SurfaceSpecies.objects.get(species_id=24, surface=surface).notes
+        sp_48_col = models.SurfaceSpecies.objects.get(species_id=48, surface=surface).notes
+
+        # Try getting hold of the last probe sample taken
+        my_probe = surface.line.sample.probe_data.order_by("time_date").last()
+        if my_probe:
+            my_probe.probe,
+            my_probe.time_date,
+            my_probe.probe_depth,
+            my_probe.temp_c,
+            my_probe.sal_ppt,
+            my_probe.o2_percent,
+            my_probe.o2_mgl,
+            my_probe.sp_cond_ms,
+            my_probe.spc_ms,
+            my_probe.ph,
+            my_probe.turbidity,
+
+            # pH,
+            # pHmV,
+
         data_row = [
-            sample.season,
-            sample.date_deployed,
-            sample.date_retrieved,
-            sample.station_id,
-            sample.station,
-            # Season,
-            # Weeks,
-            # Latitude,
-            # Longitude,
-            # Station Description,
-            # Structure type,
-            # Collector ID,
-            # Collector Type,
-            # Surface ID,
-            # C. intestinalis % cover,  # 23
-            # B. schlosseri % cover,  # 24
-            # B. schlosseri Color Morph,
-            # B. violaceus % cover,  # 48
-            # B. violaceus Color Morph,
-            # S. clava % cover,  # 25
-            # M. membranacea % cover,  # 59
-            # C. mutica % cover,  # 47
-            # C. fragile fragile % cover,  # 55
-            # Other species,
-            # Comments Fauna,
+            surface.line.sample.season,
+            surface.line.sample.station_id,
+            surface.line.sample.station,
+            surface.line.sample.date_deployed,
+            surface.line.sample.date_retrieved,
+            surface.line.sample.weeks_deployed,
+            surface.line.sample.station.site_desc,
+            surface.line.latitude_n,
+            surface.line.longitude_w,
+            surface.line.collector,
+            surface.get_surface_type_display(),
+            surface.label,
             # Sample Date,
             # Sample time,
             # Prob Depth,
@@ -454,8 +475,13 @@ def generate_open_data_ver_1_report(year=None):
             # pHmV,
             # Sampler,
             # Affiliation,
+            # Other species,
             # Comments,
         ]
+
+
+
+
 
         #
         # data_row = [
@@ -483,6 +509,5 @@ def generate_open_data_ver_1_report(year=None):
         #     data_row.extend(addendum)
 
         writer.writerow(data_row)
-
 
     return response
