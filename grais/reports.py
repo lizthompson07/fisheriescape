@@ -18,6 +18,7 @@ from django.conf import settings
 
 from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
+from lib.templatetags.custom_filters import percentage
 from . import models
 import numpy as np
 import os
@@ -221,10 +222,10 @@ def generate_open_data_ver_1_data_dictionary():
     response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
+    species_id_list = [48, 24, 47, 23, 55, 59, 25]
+    species_qs = models.Species.objects.filter(id__in=species_id_list)
 
-    writer.writerow("")
-    writer.writerow(["Abiotic variables / Variables abiotiques:".upper(), ])
-    writer.writerow(["#########################################", ])
+
     # write the header
     header = [
         "name__nom",
@@ -234,98 +235,127 @@ def generate_open_data_ver_1_data_dictionary():
     writer.writerow(header)
 
     field_names = [
-        'year',
-        'site_name',
-        'site_latitude',
-        'site_longitude',
-        'avg_air_temp_arrival',
-        'avg_max_air_temp',
-        'avg_water_temp_shore',
+        'Sampling year',
+        'Station code',
+        'Station name',
+        'Date in',
+        'Date out',
+        'Weeks',
+        'Station Description',
+        'Collector Latitude',
+        'Collector Longitude',
+        'Collector ID',
+        'Surface Type',
+        'Surface ID',
+        'Probe Type',
+        'Probe Sample Date/Time',
+        'Probe Depth',
+        'Temperture C',
+        'Sal ppt',
+        'O2 percent',
+        'O2 mg-l',
+        'SpCond - mS',
+        'Spc - mS',
+        'pH',
+        'Turbidity',
+        'Weather Notes',
+        'Samplers',
+        'Other species',
+    ]
+
+    descr_fra = [
+        "Année d'échantillonnage",
+        "Code de la station",
+        "Nom de la station",
+        "Date de la mise à l'eau (yyyy-mm-dd)",
+        "Date de sortie de l'eau (yyyy-mm-dd)",
+        "Durée de la saison période d'immersion en semaines",
+        "Description de la station",
+        "Latitude du collecteur (degrés décimaux)",
+        "Longitude du collecteur (degrés décimaux)",
+        "Numéro du collecteur",
+        "Type de surface (plaque ou pétri)",
+        "Numéro du surface",
+        "Modèle de la sonde",
+        "Date et heure de l'échantillonnage des paramètres physico-chimiques de l'eau (yyyy-mm-dd hh:mm)",
+        "Profondeur de la sonde (m)",
+        "Température de l'eau au moment de l'échantillonnage (degrés C)",
+        "Salinité de l'eau au moment de l'échatillonnage (ppt)",
+        "Oxygène dissout (%)",
+        "Oxygène dissout (mg/L)",
+        "Conductance spécifique",
+        "Conductivité",
+        "Valeur mesurée",
+        "pH",
+        "Description météo",
+        "noms des échantillonneurs et nom de l’organisme responsable",
+        "Autre espèces présentes sur le surface",
     ]
 
     descr_eng = [
-        "sample year",
-        "name of site and river",
-        "site latitude (decimal degrees)",
-        "site longitude (decimal degrees)",
-        "average air temperature on arrival (degrees C)",
-        "average max air temperature (degrees C)",
-        "average water temperature taken from shore (degrees C)",
+        "Sample year",
+        "Station code",
+        "Station name",
+        "Date of deployment (yyyy-mm-dd)",
+        "Date of retrieval (yyyy-mm-dd)",
+        "Duration in number of weeks",
+        "Station description",
+        "Latitude of the collector (decimal degrees)",
+        "Longitude of the collector (decimal degrees)",
+        "Collector identifier",
+        "Surface type (plate or petri dish)",
+        "Surface identifier",
+        "Probe make",
+        "Date and time of probe sample (yyyy-mm-dd hh:mm)",
+        "Probe depth (m)",
+        "Water temperature (degrés C)",
+        "Salinity (ppt)",
+        "Dissolved oxygen (%)",
+        "Dissolved oxygen (mg/L)",
+        "Specific conductance (mS)",
+        "Conductivity (mS)",
+        "pH",
+        "Turbidité",
+        "Weather description",
+        "Names of samplers and their organization affiliations",
+        "Other species present on surface",
     ]
-    descr_fra = [
-        "année-échantillon",
-        "nom du site et de la rivière",
-        "latitude du site (degrés décimaux)",
-        "longitude du site (degrés décimaux)",
-        "température moyenne de l'air à l'arrivée (degrés C)",
-        "température maximale moyenne de l'air (degrés C)",
-        "température moyenne de l'eau prise du rivage (degrés C)",
-    ]
+
+    for species in species_qs:
+
+        first_name = species.scientific_name.split(" ")[0][:1].upper()
+        if len(species.scientific_name.split(" ")) > 2:
+            second_name = " ".join(species.scientific_name.split(" ")[1:])
+        else:
+            second_name = species.scientific_name.split(" ")[1]
+        display_name = "{}. {}".format(first_name, second_name, )
+        field_names.append("{} % cover".format(display_name))
+
+        # if species id is 24 or 48, we want color morph notes as well
+        if species.id in [24, 48]:
+            field_names.append("{} Color Notes".format(display_name))
+
+        descr_fra.append(
+            "% de recouvrement de {}".format(species.scientific_name)
+        )
+        descr_eng.append(
+            "% coverage of {}".format(species.scientific_name)
+        )
+
+        # if species id is 24 or 48, we want color morph notes as well
+        if species.id in [24, 48]:
+            descr_fra.append(
+                "Patrons de couleur de {}".format(species.scientific_name)
+            )
+            descr_eng.append(
+                "Color morph notes for {}".format(species.scientific_name)
+            )
 
     for i in range(0, len(field_names)):
         writer.writerow([
             field_names[i],
             descr_eng[i],
             descr_fra[i],
-        ])
-
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow(["Biotic variables / Variables biotiques:".upper(), ])
-    writer.writerow(["#######################################", ])
-    field_names = [
-        "X_abundance",
-        "X_avg_fork_length",
-        "X_avg_weight",
-    ]
-
-    descr_eng = [
-        "total abundance of species X for a given site and year",
-        "mean fork length (mm) of species X for a given site and year",
-        "mean weight (g) of species X for a given site and year",
-    ]
-    descr_fra = [
-        "Abondance totale de l'espèce X pour un site et une année donnés",
-        "longueur à la fourche moyenne (mm) de l'espèce X pour un site et une année donnés",
-        "poids moyen (g) de l'espèce X pour un site et une année donnés",
-    ]
-    for i in range(0, len(field_names)):
-        writer.writerow([
-            field_names[i],
-            descr_eng[i],
-            descr_fra[i],
-        ])
-
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow(["Species / Espèces:".upper()])
-    writer.writerow(["##################"])
-    # write the header
-    header = [
-        "code",
-        "common_name_en__nom_commun_en",
-        "common_name_en__nom_commun_fr",
-        "life_stage_en__étape_de_vie_en",
-        "life_stage_fr__étape_de_vie_fr",
-        "scientific_name__nom_scientifique",
-        "ITIS_TSN",
-    ]
-    writer.writerow(header)
-
-    for sp in models.Species.objects.all():
-        life_stage_eng = sp.life_stage.name if sp.life_stage else None
-        life_stage_fra = sp.life_stage.nom if sp.life_stage else None
-
-        writer.writerow([
-            sp.abbrev,
-            sp.common_name_eng,
-            sp.common_name_fre,
-            life_stage_eng,
-            life_stage_fra,
-            sp.scientific_name,
-            sp.tsn,
         ])
 
     return response
@@ -410,7 +440,8 @@ def generate_open_data_ver_1_report(year=None):
     samples = models.Sample.objects.all().order_by("date_deployed")
 
     # if there is a year provided, filter by only this year
-    if year != "None":
+    print(year)
+    if year and year != "None":
         samples = samples.filter(season=year)
 
     # make sure to exclude the lost lines and surfaces; this is sort of redundant since if a line is line, all surfaces should also be labelled as lost.
@@ -466,7 +497,7 @@ def generate_open_data_ver_1_report(year=None):
         for species in species_qs:
             try:
                 data_row.append(
-                    models.SurfaceSpecies.objects.get(species=species, surface=surface).percent_coverage
+                    percentage(models.SurfaceSpecies.objects.get(species=species, surface=surface).percent_coverage, 0)
                 )
             except models.SurfaceSpecies.DoesNotExist:
 
