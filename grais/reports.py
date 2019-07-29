@@ -1,28 +1,15 @@
 import statistics
-import pandas
 import unicodecsv as csv
 import xlsxwriter as xlsxwriter
 from django.http import HttpResponse
-from django.template.defaultfilters import yesno
+from django.template.defaultfilters import floatformat
 from django.utils import timezone
-from math import pi
-
-from bokeh.io import show, export_png, export_svgs
-from bokeh.models import SingleIntervalTicker, ColumnDataSource, HoverTool, LabelSet, Label, Title
-from bokeh.plotting import figure, output_file, save
-from bokeh import palettes
-from bokeh.transform import cumsum
-from django.db.models import Sum, Q
-from shutil import rmtree
 from django.conf import settings
 
 from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
-from lib.templatetags.custom_filters import percentage
 from . import models
-import numpy as np
 import os
-import pandas as pd
 
 
 def generate_species_sample_spreadsheet(species_list=None):
@@ -225,7 +212,6 @@ def generate_open_data_ver_1_data_dictionary():
     species_id_list = [48, 24, 47, 23, 55, 59, 25]
     species_qs = models.Species.objects.filter(id__in=species_id_list)
 
-
     # write the header
     header = [
         "name__nom",
@@ -409,15 +395,6 @@ def generate_open_data_ver_1_report(year=None):
         'Samplers',
         'Other species',
     ]
-    # C. intestinalis % cover,  # 23
-    # B. schlosseri % cover,  # 24
-    # B. schlosseri Color Morph,
-    # B. violaceus % cover,  # 48
-    # B. violaceus Color Morph,
-    # S. clava % cover,  # 25
-    # M. membranacea % cover,  # 59
-    # C. mutica % cover,  # 47
-    # C. fragile fragile % cover,  # 55
     for species in species_qs:
         first_name = species.scientific_name.split(" ")[0][:1].upper()
         if len(species.scientific_name.split(" ")) > 2:
@@ -433,12 +410,7 @@ def generate_open_data_ver_1_report(year=None):
 
     writer.writerow(header_row)
 
-    # lets start by getting a list of samples and years
-    # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
-    # years = [obj["season"] for obj in samples.order_by("season").values("season").distinct()]
-
     samples = models.Sample.objects.all()
-
     # if there is a year provided, filter by only this year
     print(year)
     if year and year != "None":
@@ -497,7 +469,7 @@ def generate_open_data_ver_1_report(year=None):
         for species in species_qs:
             try:
                 data_row.append(
-                    percentage(models.SurfaceSpecies.objects.get(species=species, surface=surface).percent_coverage, 0)
+                    floatformat(nz(models.SurfaceSpecies.objects.get(species=species, surface=surface).percent_coverage, 0) * 100, 0)
                 )
             except models.SurfaceSpecies.DoesNotExist:
 
