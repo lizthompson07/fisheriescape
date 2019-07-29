@@ -209,8 +209,6 @@ def generate_species_sample_spreadsheet(species_list=None):
     return target_url
 
 
-
-
 def generate_open_data_ver_1_data_dictionary():
     """
     Generates the data dictionary for open data report version 1
@@ -225,8 +223,8 @@ def generate_open_data_ver_1_data_dictionary():
     writer = csv.writer(response)
 
     writer.writerow("")
-    writer.writerow(["Abiotic variables / Variables abiotiques:".upper(),])
-    writer.writerow(["#########################################",])
+    writer.writerow(["Abiotic variables / Variables abiotiques:".upper(), ])
+    writer.writerow(["#########################################", ])
     # write the header
     header = [
         "name__nom",
@@ -274,8 +272,8 @@ def generate_open_data_ver_1_data_dictionary():
     writer.writerow("")
     writer.writerow("")
     writer.writerow("")
-    writer.writerow(["Biotic variables / Variables biotiques:".upper(),])
-    writer.writerow(["#######################################",])
+    writer.writerow(["Biotic variables / Variables biotiques:".upper(), ])
+    writer.writerow(["#######################################", ])
     field_names = [
         "X_abundance",
         "X_avg_fork_length",
@@ -341,12 +339,11 @@ def generate_open_data_ver_1_report(year=None):
     """
 
     if year != "None":
-        qs = models.Sample.objects.filter(season=year)
+        samples = models.Sample.objects.filter(season=year).order_by("date_deployed")
         filename = "open_data_ver1_report_{}.csv".format(year)
     else:
-        qs = models.Sample.objects.all()
+        samples = models.Sample.objects.all().order_by("date_deployed")
         filename = "open_data_ver1_report_all_years.csv"
-
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -360,56 +357,132 @@ def generate_open_data_ver_1_report(year=None):
     species_qs = models.Species.objects.filter(id__in=species_id_list)
 
     header_row = [
-        'year',
-        'site_name',
-        'site_latitude',
-        'site_longitude',
-        'avg_air_temp_arrival',
-        'avg_max_air_temp',
-        'avg_water_temp_shore',
+        'Sampling year',
+        'Date in',
+        'Date out',
+        'Station code',
+        'Station name',
+        'Season',
+        'Weeks',
+        'Latitude',
+        'Longitude',
+        'Station Description',
+        'Structure type',
+        'Collector ID',
+        'Collector Type',
+        'Surface ID',
+        'C. intestinalis % cover',  # 23
+        'B. schlosseri % cover',  # 24
+        'B. schlosseri Color Morph',
+        'B. violaceus % cover',  # 48
+        'B. violaceus Color Morph',
+        'S. clava % cover',  # 25
+        'M. membranacea % cover',  # 59
+        'C. mutica % cover',  # 47
+        'C. fragile fragile % cover',  # 55
+        'Other species',
+        'Comments Fauna',
+        'Sample Date',
+        'Sample time',
+        'Prob Depth',
+        'Prob Type',
+        'Temperture C',
+        'Sal ppt',
+        'O2 percent',
+        'O2 mg-l',
+        'SpCond - mS',
+        'Spc - mS',
+        'pH',
+        'pHmV',
+        'Sampler',
+        'Affiliation',
+        'Comments',
     ]
 
-    for species in species_qs:
-        addendum = [
-            "{}_abundance".format(species.abbrev),
-            "{}_avg_fork_length".format(species.abbrev),
-            "{}_avg_weight".format(species.abbrev),
-        ]
-        header_row.extend(addendum)
+    # for species in species_qs:
+    #     addendum = [
+    #         "{}_abundance".format(species.abbrev),
+    #         "{}_avg_fork_length".format(species.abbrev),
+    #         "{}_avg_weight".format(species.abbrev),
+    #     ]
+    #     header_row.extend(addendum)
 
     writer.writerow(header_row)
 
     # lets start by getting a list of samples and years
     # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
-    sites = [models.RiverSite.objects.get(pk=obj["sample__site"]) for obj in qs.order_by("sample__site").values("sample__site").distinct()]
-    years = [obj["sample__season"] for obj in qs.order_by("sample__season").values("sample__season").distinct()]
+    # years = [obj["season"] for obj in samples.order_by("season").values("season").distinct()]
 
-    for year in years:
-        for site in sites:
-            data_row = [
-                year,
-                site,
-                site.latitude_n,
-                site.longitude_w,
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__air_temp_arrival"))["davg"],3),
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__max_air_temp"))["davg"],3),
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__water_temp_shore_c"))["davg"],3),
-            ]
+    for sample in samples:
+        data_row = [
+            sample.season,
+            sample.date_deployed,
+            sample.date_retrieved,
+            sample.station_id,
+            sample.station,
+            # Season,
+            # Weeks,
+            # Latitude,
+            # Longitude,
+            # Station Description,
+            # Structure type,
+            # Collector ID,
+            # Collector Type,
+            # Surface ID,
+            # C. intestinalis % cover,  # 23
+            # B. schlosseri % cover,  # 24
+            # B. schlosseri Color Morph,
+            # B. violaceus % cover,  # 48
+            # B. violaceus Color Morph,
+            # S. clava % cover,  # 25
+            # M. membranacea % cover,  # 59
+            # C. mutica % cover,  # 47
+            # C. fragile fragile % cover,  # 55
+            # Other species,
+            # Comments Fauna,
+            # Sample Date,
+            # Sample time,
+            # Prob Depth,
+            # Prob Type,
+            # Temperture C,
+            # Sal ppt,
+            # O2 percent,
+            # O2 mg-l,
+            # SpCond - mS,
+            # Spc - mS,
+            # pH,
+            # pHmV,
+            # Sampler,
+            # Affiliation,
+            # Comments,
+        ]
 
-            for species in species_list:
-                addendum = [
-                    qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").aggregate(
-                        dsum=Sum("frequency"))["dsum"],
-                    floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
-                        "fork_length").aggregate(davg=Avg("fork_length"))["davg"],3),
-                    floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
-                        "weight").aggregate(davg=Avg("weight"))["davg"],3),
-                ]
-                data_row.extend(addendum)
+        #
+        # data_row = [
+        #     year,
+        #     site,
+        #     site.latitude_n,
+        #     site.longitude_w,
+        #     floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+        #         davg=Avg("sample__air_temp_arrival"))["davg"], 3),
+        #     floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+        #         davg=Avg("sample__max_air_temp"))["davg"], 3),
+        #     floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
+        #         davg=Avg("sample__water_temp_shore_c"))["davg"], 3),
+        # ]
+        #
+        # for species in species_list:
+        #     addendum = [
+        #         qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").aggregate(
+        #             dsum=Sum("frequency"))["dsum"],
+        #         floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
+        #             "fork_length").aggregate(davg=Avg("fork_length"))["davg"], 3),
+        #         floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
+        #             "weight").aggregate(davg=Avg("weight"))["davg"], 3),
+        #     ]
+        #     data_row.extend(addendum)
 
-            writer.writerow(data_row)
+        writer.writerow(data_row)
+
 
     return response
