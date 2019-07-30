@@ -413,16 +413,15 @@ class ReportSearchFormView(DietsAccessRequired, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        year = int(form.cleaned_data["year"])
         my_year = form.cleaned_data["year"] if form.cleaned_data["year"] else "None"
         my_cruise = form.cleaned_data["cruise"] if form.cleaned_data["cruise"] else "None"
 
 
 
         if report == 1:
-            return HttpResponseRedirect(reverse("diets:prey_summary_list", kwargs={'year': year}))
+            return HttpResponseRedirect(reverse("diets:prey_summary_list", kwargs={'year': my_year}))
         if report == 2:
-            return HttpResponseRedirect(reverse("diets:export_data_report", kwargs={'year': my_year, 'cruise': cruise}))
+            return HttpResponseRedirect(reverse("diets:export_data_report", kwargs={'year': my_year, 'cruise': my_cruise}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("diet:report_search"))

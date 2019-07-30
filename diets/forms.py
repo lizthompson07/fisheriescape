@@ -79,14 +79,13 @@ class ReportSearchForm(forms.Form):
     report_choices.insert(0, (None, "------"))
 
     report = forms.ChoiceField(required=True, choices=report_choices)
-
     year = forms.IntegerField(required=False, label="Year (optional)")
     cruise = forms.ChoiceField(required=False, label="Cruise (optional)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # year_choices = [(y["season"], y["season"]) for y in shared_models.Cruise.objects.order_by("-season").values('season').distinct()]
         cruise_choices = [(obj.id, "{} ({})".format(obj.mission_name, obj.season)) for obj in shared_models.Cruise.objects.all() if obj.predators.count() > 0]
+        cruise_choices.insert(0, (None, "------"))
+
         self.fields['cruise'].choices = cruise_choices
-        # self.fields['year'] = forms.ChoiceField(required=False, choices=year_choices)
