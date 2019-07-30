@@ -70,6 +70,7 @@ class ReportSearchForm(forms.Form):
         (2, "List of entries (fish data) (CSV)"),
         (3, "OPEN DATA - summary by site by year (CSV)"),
         (4, "OPEN DATA - data dictionary (CSV)"),
+        (5, "OPEN DATA - web mapping service (WMS) report (CSV)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
