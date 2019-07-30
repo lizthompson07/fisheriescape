@@ -205,8 +205,8 @@ def generate_open_data_ver_1_data_dictionary():
     writer = csv.writer(response)
 
     writer.writerow("")
-    writer.writerow(["Abiotic variables / Variables abiotiques:".upper(),])
-    writer.writerow(["#########################################",])
+    writer.writerow(["Abiotic variables / Variables abiotiques:".upper(), ])
+    writer.writerow(["#########################################", ])
     # write the header
     header = [
         "name__nom",
@@ -254,22 +254,25 @@ def generate_open_data_ver_1_data_dictionary():
     writer.writerow("")
     writer.writerow("")
     writer.writerow("")
-    writer.writerow(["Biotic variables / Variables biotiques:".upper(),])
-    writer.writerow(["#######################################",])
+    writer.writerow(["Biotic variables / Variables biotiques:".upper(), ])
+    writer.writerow(["#######################################", ])
     field_names = [
         "X_abundance",
         "X_avg_fork_length",
+        "X_avg_total_length",
         "X_avg_weight",
     ]
 
     descr_eng = [
         "total abundance of species X for a given site and year",
         "mean fork length (mm) of species X for a given site and year",
+        "mean total length (mm) of species X for a given site and year; this is only provided for American eel",
         "mean weight (g) of species X for a given site and year",
     ]
     descr_fra = [
         "Abondance totale de l'espèce X pour un site et une année donnés",
         "longueur à la fourche moyenne (mm) de l'espèce X pour un site et une année donnés",
+        "longueur totale moyenne (mm) de l'espèce X pour un site et une année donnés; prévu que pour l'anguille d'Amérique",
         "poids moyen (g) de l'espèce X pour un site et une année donnés",
     ]
     for i in range(0, len(field_names)):
@@ -322,11 +325,12 @@ def generate_open_data_ver_1_report(year, sites):
     :return: http response
     """
 
+    # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
     if year != "None":
-        qs = models.Entry.objects.filter(sample__season=year)
+        qs = models.Entry.objects.filter(sample__season=year).filter(sample__site__exclude_data_from_site=False)
         filename = "open_data_ver1_report_{}.csv".format(year)
     else:
-        qs = models.Entry.objects.all()
+        qs = models.Entry.objects.all().filter(sample__site__exclude_data_from_site=False)
         filename = "open_data_ver1_report_all_years.csv"
 
     if sites != "None":
@@ -352,11 +356,18 @@ def generate_open_data_ver_1_report(year, sites):
     ]
 
     for species in species_list:
-        addendum = [
-            "{}_abundance".format(species.abbrev),
-            "{}_avg_fork_length".format(species.abbrev),
-            "{}_avg_weight".format(species.abbrev),
-        ]
+        if species.id == 54:
+            addendum = [
+                "{}_abundance".format(species.abbrev),
+                "{}_avg_total_length".format(species.abbrev),
+                "{}_avg_weight".format(species.abbrev),
+            ]
+        else:
+            addendum = [
+                "{}_abundance".format(species.abbrev),
+                "{}_avg_fork_length".format(species.abbrev),
+                "{}_avg_weight".format(species.abbrev),
+            ]
         header_row.extend(addendum)
 
     writer.writerow(header_row)
@@ -374,22 +385,34 @@ def generate_open_data_ver_1_report(year, sites):
                 site.latitude_n,
                 site.longitude_w,
                 floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__air_temp_arrival"))["davg"],3),
+                    davg=Avg("sample__air_temp_arrival"))["davg"], 3),
                 floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__max_air_temp"))["davg"],3),
+                    davg=Avg("sample__max_air_temp"))["davg"], 3),
                 floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__water_temp_shore_c"))["davg"],3),
+                    davg=Avg("sample__water_temp_shore_c"))["davg"], 3),
             ]
 
             for species in species_list:
-                addendum = [
-                    qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by("frequency").aggregate(
-                        dsum=Sum("frequency"))["dsum"],
-                    floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
-                        "fork_length").aggregate(davg=Avg("fork_length"))["davg"],3),
-                    floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
-                        "weight").aggregate(davg=Avg("weight"))["davg"],3),
-                ]
+                if species.id == 54:
+                    addendum = [
+                        qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
+                            "frequency").aggregate(
+                            dsum=Sum("frequency"))["dsum"],
+                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
+                            "fork_length").aggregate(davg=Avg("total_length"))["davg"], 3),
+                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
+                            "weight").aggregate(davg=Avg("weight"))["davg"], 3),
+                    ]
+                else:
+                    addendum = [
+                        qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
+                            "frequency").aggregate(
+                            dsum=Sum("frequency"))["dsum"],
+                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
+                            "fork_length").aggregate(davg=Avg("fork_length"))["davg"], 3),
+                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
+                            "weight").aggregate(davg=Avg("weight"))["davg"], 3),
+                    ]
                 data_row.extend(addendum)
 
             writer.writerow(data_row)

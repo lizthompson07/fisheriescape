@@ -25,6 +25,15 @@ def resave_traps():
         trap.save()
 
 
+def comment_samples_from_matapedia():
+    for sample in models.Sample.objects.filter(site_id=338):
+        if sample.notes:
+            sample.notes += "; Data collected and owned by the Gespe'gewaq Mi'gmaq Resource Council (GMRC)."
+        else:
+            sample.notes = "Data collected and owned by the Gespe'gewaq Mi'gmaq Resource Council (GMRC)."
+        sample.save()
+
+
 def import_smolt_1():
     # open the csv we want to read
     rootdir = "C:\\Users\\fishmand\\Desktop\\dump"
