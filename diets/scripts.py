@@ -14,7 +14,7 @@ def import_old_data():
         my_csv = csv.DictReader(csv_read_file)
 
         for row in my_csv:
-            if int(row["N_orderUhl"]) >= 8919:
+            if int(row["N_orderUhl"]) >= 17490:
                 # first get the predator
                 my_pred, created = models.Predator.objects.get_or_create(
                     old_seq_num=row["SeqNoUhl"].strip(),
@@ -24,7 +24,7 @@ def import_old_data():
                 # if the predator is being created, populate it with stuff
                 # if created or not my_pred.processing_date:
                 my_pred.cruise_id = nz(row["cruise_id"].strip(), None)
-                my_pred.processing_date = timezone.datetime(int(row["year_pro"]), int(row["month_pro"]), int(row["day_pro"]))
+                my_pred.processing_date = timezone.datetime(int(row["year_pro"]), int(row["month_pro"]), int(row["day_pro"]), tzinfo=timezone.now().tzinfo)
                 my_pred.set = nz(row["Set"].strip(), None)
                 my_pred.fish_number = nz(row["FishNo"].strip(), None)
                 my_pred.somatic_length_cm = nz(row["PredLen"].strip(), None)

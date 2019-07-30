@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.template.defaultfilters import yesno
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
-from lib.functions.custom_functions import nz
+from lib.functions.custom_functions import nz, listrify
 from . import models
 import numpy as np
 
@@ -70,24 +70,19 @@ def generate_progress_report(year):
     return response
 
 
-
-
-
 def export_data(year, cruise):
     """
     Generic data export
     """
 
-    # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
-    if year != "None":
-        qs = models.Entry.objects.filter(sample__season=year).filter(sample__site__exclude_data_from_site=False)
-        filename = "open_data_ver1_report_{}.csv".format(year)
-    else:
-        qs = models.Entry.objects.all().filter(sample__site__exclude_data_from_site=False)
-        filename = "open_data_ver1_report_all_years.csv"
+    filename = "diet_db_export_{}.csv".format(timezone.now().strftime("%Y-%m-%d"))
+    qs = models.Prey.objects.all()
 
-    if sites != "None":
-        qs = qs.filter(sample__site_id__in=sites.split(","))
+    if year != "None":
+        qs = qs.filter(predator__processing_date__year=year)
+
+    if cruise != "None":
+        qs = qs.filter(predator__cruise_id=cruise)
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -95,79 +90,77 @@ def export_data(year, cruise):
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
-    # headers are based on csv provided by GD
-    species_list = [models.Species.objects.get(pk=obj["species"]) for obj in qs.order_by("species").values("species").distinct()]
-
     header_row = [
-        'year',
-        'site_name',
-        'site_latitude',
-        'site_longitude',
-        'avg_air_temp_arrival',
-        'avg_max_air_temp',
-        'avg_water_temp_shore',
+
+        # from predator
+        'cruise_name',
+        'cruise_number',
+        'cruise_year',
+        'set',
+        'fish_number',
+        'samplers',
+        'processing_date',
+        'processing_year',
+        'predator_id',
+        'stomach_id',
+        'predator_species_code',
+        'predator_species_common_name',
+        'predator_species_latin_name',
+        'somatic_length_cm',
+        'stomach_wt_g',
+        'content_wt_g',
+        'predator_comments',
+
+        # from prey
+        'prey_id',
+        'prey_species_code',
+        'prey_species_common_name',
+        'prey_species_latin_name',
+        'digestion_level_id',
+        'digestion_level_description',
+        'somatic_length_mm',
+        'length_comment',
+        'number_of_prey',
+        'somatic_wt_g',
+        'prey_comments',
+
     ]
-
-    for species in species_list:
-        if species.id == 54:
-            addendum = [
-                "{}_abundance".format(species.abbrev),
-                "{}_avg_total_length".format(species.abbrev),
-                "{}_avg_weight".format(species.abbrev),
-            ]
-        else:
-            addendum = [
-                "{}_abundance".format(species.abbrev),
-                "{}_avg_fork_length".format(species.abbrev),
-                "{}_avg_weight".format(species.abbrev),
-            ]
-        header_row.extend(addendum)
-
     writer.writerow(header_row)
 
-    # lets start by getting a list of samples and years
-    # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
-    sites = [models.RiverSite.objects.get(pk=obj["sample__site"]) for obj in qs.order_by("sample__site").values("sample__site").distinct()]
-    years = [obj["sample__season"] for obj in qs.order_by("sample__season").values("sample__season").distinct()]
+    for prey in qs:
+        writer.writerow([
+            # from predator
+            prey.predator.cruise.mission_name if prey.predator.cruise else None,
+            prey.predator.cruise.mission_number if prey.predator.cruise else None,
+            prey.predator.cruise.season if prey.predator.cruise else None,
+            prey.predator.set,
+            prey.predator.fish_number,
+            listrify([obj for obj in prey.predator.samplers.all()]),
+            prey.predator.processing_date.strftime('%Y-%m-%d') if prey.predator.processing_date else None,
+            prey.predator.processing_date.year if prey.predator.processing_date else None,
+            prey.predator.id,
+            prey.predator.stomach_id,
+            prey.predator.species.id if prey.predator.species else None,
+            prey.predator.species.common_name_eng if prey.predator.species else None,
+            prey.predator.species.scientific_name if prey.predator.species else None,
+            prey.predator.somatic_length_cm,
+            prey.predator.stomach_wt_g,
+            prey.predator.content_wt_g,
+            prey.predator.comments,
 
-    for year in years:
-        for site in sites:
-            data_row = [
-                year,
-                site,
-                site.latitude_n,
-                site.longitude_w,
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__air_temp_arrival"))["davg"], 3),
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__max_air_temp"))["davg"], 3),
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__water_temp_shore_c"))["davg"], 3),
-            ]
+            # from prey
+            prey.id,
+            prey.species.id if prey.species else None,
+            prey.species.common_name_eng if prey.species else None,
+            prey.species.scientific_name if prey.species else None,
+            prey.digestion_level.id if prey.digestion_level else None,
+            prey.digestion_level.level if prey.digestion_level else None,
+            prey.somatic_length_mm,
+            prey.length_comment,
+            prey.number_of_prey,
+            prey.somatic_wt_g,
+            prey.comments,
+        ])
 
-            for species in species_list:
-                if species.id == 54:
-                    addendum = [
-                        qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
-                            "frequency").aggregate(
-                            dsum=Sum("frequency"))["dsum"],
-                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
-                            "fork_length").aggregate(davg=Avg("total_length"))["davg"], 3),
-                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
-                            "weight").aggregate(davg=Avg("weight"))["davg"], 3),
-                    ]
-                else:
-                    addendum = [
-                        qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
-                            "frequency").aggregate(
-                            dsum=Sum("frequency"))["dsum"],
-                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
-                            "fork_length").aggregate(davg=Avg("fork_length"))["davg"], 3),
-                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
-                            "weight").aggregate(davg=Avg("weight"))["davg"], 3),
-                    ]
-                data_row.extend(addendum)
-
-            writer.writerow(data_row)
 
     return response
