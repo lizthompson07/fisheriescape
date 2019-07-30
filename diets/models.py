@@ -47,10 +47,10 @@ class Sampler(models.Model):
 
 
 class Predator(models.Model):
-    cruise = models.ForeignKey(shared_models.Cruise, related_name='predators', on_delete=models.DO_NOTHING)
-    samplers = models.ManyToManyField(Sampler)
+    cruise = models.ForeignKey(shared_models.Cruise, related_name='predators', on_delete=models.DO_NOTHING, blank=True, null=True)
+    samplers = models.ManyToManyField(Sampler, blank=True)
     stomach_id = models.CharField(max_length=10, blank=True, null=True, verbose_name="stomach ID", unique=True)
-    processing_date = models.DateTimeField(verbose_name="processing date", default=timezone.now)
+    processing_date = models.DateTimeField(verbose_name="processing date", default=timezone.now, blank=True, null=True)
     set = models.IntegerField(blank=True, null=True)
     species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING, verbose_name="predator species")
     fish_number = models.IntegerField(blank=True, null=True)
@@ -108,7 +108,7 @@ class Prey(models.Model):
     comments = models.TextField(blank=True, null=True)
 
     # not used
-    sensor_used = models.BooleanField(default=False)
+    censored_length = models.BooleanField(default=False)
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
 
     # meta
