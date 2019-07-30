@@ -116,7 +116,7 @@ class Prey(models.Model):
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
 
     # meta
-    old_id = models.IntegerField(blank=True, null=True, unique=True)
+    old_id = models.IntegerField(blank=True, null=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
 
