@@ -55,6 +55,7 @@ urlpatterns = [
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     path('progress-report/<int:year>/', views.PreySummaryListView.as_view(), name="prey_summary_list"),
     path('progress-report/<int:year>/export', views.export_prey_summary, name="export_prey_summary"),
+    path('reports/export-data/<int:year>/<int:cruise>/', views.export_data_report, name="export_data_report"),
 
 ]
 
