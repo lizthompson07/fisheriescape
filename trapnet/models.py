@@ -22,6 +22,7 @@ class RiverSite(models.Model):
     coordinate_precision = models.FloatField(blank=True, null=True)
     coordinate_accuracy = models.FloatField(blank=True, null=True)
     directions = models.TextField(blank=True, null=True)
+    exclude_data_from_site = models.BooleanField(default=False, verbose_name=_("Exclude all data from this site?"))
 
     def __str__(self):
         try:

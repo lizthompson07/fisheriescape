@@ -3,15 +3,6 @@ from .import models
 import os
 import csv
 
-def resave_all():
-    for predator in models.Predator.objects.all():
-        predator.save()
-
-def resave_all_obs():
-    species_obs = models.SpeciesObservation.objects.filter(species__sav=True)
-    for obj in species_obs:
-        obj.save()
-
 def seed_db():
 
     # open the csv we want to read

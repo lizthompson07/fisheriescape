@@ -285,6 +285,7 @@ class RiverSiteDetailView(TrapNetAdminRequiredMixin, DetailView):
             'latitude_n',
             'longitude_w',
             'directions',
+            'exclude_data_from_site',
         ]
         context['field_list'] = field_list
 
@@ -309,6 +310,7 @@ class RiverSiteDeleteView(TrapNetAdminRequiredMixin, DeleteView):
 class SampleListView(TrapNetAccessRequiredMixin, FilterView):
     filterset_class = filters.SampleFilter
     template_name = 'trapnet/sample_list.html'
+    queryset = models.Sample.objects.filter(site__exclude_data_from_site=False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
