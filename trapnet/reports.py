@@ -3,6 +3,7 @@ from django.db.models import Sum, Avg
 from django.http import HttpResponse
 from django.template.defaultfilters import floatformat
 
+from lib.functions.custom_functions import listrify
 from . import models
 
 
@@ -416,5 +417,78 @@ def generate_open_data_ver_1_report(year, sites):
                 data_row.extend(addendum)
 
             writer.writerow(data_row)
+
+    return response
+
+
+def generate_open_data_ver_1_wms_report():
+    """
+    Simple report for web mapping service on FGP
+    """
+    # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
+    qs = models.Entry.objects.all().filter(sample__site__exclude_data_from_site=False)
+    filename = "open_data_ver1_wms_report.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    # headers are based on csv provided by GD
+    species_list = [models.Species.objects.get(pk=obj["species"]) for obj in qs.order_by("species").values("species").distinct()]
+
+    header_row_eng = [
+        'Site name',
+        'Site latitude',
+        'Site longitude',
+        'Seasons in operation',
+        'List of species caught (English)',
+        'List of species caught (French)',
+        'Total number of fish caught',
+        'Average (mean) number of fish caught',
+    ]
+
+    header_row_fre = [
+        'Nom de site',
+        'Latitude de site',
+        'Longitude de site',
+        'Saisons en opération',
+        'Liste des espèces capturées (anglais)',
+        'Liste des espèces capturées (français)',
+        'Nombre total de poisson capturées',
+        'Nombre moyen (moyen) de poissons capturés',
+    ]
+
+    writer.writerow(header_row_eng)
+    writer.writerow(header_row_fre)
+
+    # lets start by getting a list of samples and years
+    # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
+    sites = [models.RiverSite.objects.get(pk=obj["sample__site"]) for obj in qs.order_by("sample__site").values("sample__site").distinct()]
+
+    for site in sites:
+        seasons = listrify(
+            [obj["sample__season"] for obj in qs.filter(sample__site=site).order_by("sample__season").values("sample__season").distinct()])
+        spp_list_eng = listrify([models.Species.objects.get(pk=obj["species"]).common_name_eng for obj in
+                                 qs.filter(sample__site=site).order_by("species").values("species").distinct()])
+        spp_list_fra = listrify([models.Species.objects.get(pk=obj["species"]).common_name_fre for obj in
+                                 qs.filter(sample__site=site).order_by("species").values("species").distinct()])
+        total_freq = qs.filter(sample__site=site, ).values("frequency").order_by("frequency").aggregate(
+            dsum=Sum("frequency"))["dsum"]
+        avg_freq = floatformat(int(total_freq) / len(seasons.split(",")), 2)
+
+        data_row = [
+            site,
+            site.latitude_n,
+            site.longitude_w,
+            seasons,
+            spp_list_eng,
+            spp_list_fra,
+            total_freq,
+            avg_freq,
+        ]
+
+        writer.writerow(data_row)
 
     return response
