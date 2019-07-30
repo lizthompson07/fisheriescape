@@ -84,6 +84,10 @@ class Predator(models.Model):
             self.stomach_id = self.stomach_id.upper()
         return super().save(*args, **kwargs)
 
+    @property
+    def season(self):
+        return self.processing_date.year
+
 
 class DigestionLevel(models.Model):
     code = models.IntegerField(unique=True)
