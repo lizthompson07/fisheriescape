@@ -49,7 +49,7 @@ class PredatorForm(forms.ModelForm):
 class PreyForm(forms.ModelForm):
     class Meta:
         model = models.Prey
-        exclude = ["stomach_wt_g", "sensor_used", "date_last_modified"]
+        exclude = ["stomach_wt_g", "censored_length", "old_id", "date_last_modified"]
         widgets = {
             'species': forms.HiddenInput(),
             'predator': forms.HiddenInput(),
@@ -59,7 +59,6 @@ class PreyForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-
     field_order = ["cruise", "species"]
 
     def __init__(self, *args, **kwargs):
@@ -73,18 +72,21 @@ class SearchForm(forms.Form):
 
 
 class ReportSearchForm(forms.Form):
-    report = forms.ChoiceField(required=True)
-    year = forms.ChoiceField(required=True)
+    report_choices = [
+        (1, "Summary of Prey Species"),
+        (2, "Data export (csv)"),
+    ]
+    report_choices.insert(0, (None, "------"))
+
+    report = forms.ChoiceField(required=True, choices=report_choices)
+
+    year = forms.IntegerField(required=False, label="Year (optional)")
+    cruise = forms.ChoiceField(required=False, label="Cruise (optional)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        report_choices = [
-            (1, "Summary of Prey Species"),
-        ]
-        report_choices.insert(0, (None, "------"))
-
-        year_choices = [(y["season"], y["season"]) for y in shared_models.Cruise.objects.order_by("-season").values('season').distinct()]
-
-        self.fields['report'] = forms.ChoiceField(required=False, choices=report_choices)
-        self.fields['year'] = forms.ChoiceField(required=False, choices=year_choices)
+        # year_choices = [(y["season"], y["season"]) for y in shared_models.Cruise.objects.order_by("-season").values('season').distinct()]
+        cruise_choices = [(obj.id, "{} ({})".format(obj.mission_name, obj.season)) for obj in shared_models.Cruise.objects.all() if obj.predators.count() > 0]
+        self.fields['cruise'].choices = cruise_choices
+        # self.fields['year'] = forms.ChoiceField(required=False, choices=year_choices)
