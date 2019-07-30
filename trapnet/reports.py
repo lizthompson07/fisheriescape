@@ -8,10 +8,10 @@ from . import models
 
 def generate_sample_report(year, sites):
     if year != "None":
-        qs = models.Sample.objects.filter(season=year)
+        qs = models.Sample.objects.filter(season=year).filter(site__exclude_data_from_site=False)
         filename = "sample_report_{}.csv".format(year)
     else:
-        qs = models.Sample.objects.all()
+        qs = models.Sample.objects.all().filter(site__exclude_data_from_site=False)
         filename = "sample_report_all_years.csv"
 
     if sites != "None":
@@ -122,10 +122,10 @@ def generate_sample_report(year, sites):
 
 def generate_entry_report(year, sites):
     if year != "None":
-        qs = models.Entry.objects.filter(sample__season=year)
+        qs = models.Entry.objects.filter(sample__season=year).filter(sample__site__exclude_data_from_site=False)
         filename = "entry_report_{}.csv".format(year)
     else:
-        qs = models.Entry.objects.all()
+        qs = models.Entry.objects.all().filter(sample__site__exclude_data_from_site=False)
         filename = "entry_report_all_years.csv"
 
     if sites != "None":
