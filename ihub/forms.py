@@ -7,6 +7,7 @@ from masterlist import models as ml_models
 from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
+multi_select_js = {"class": "multi-select"}
 
 
 class EntryCreateForm(forms.ModelForm):
@@ -88,6 +89,12 @@ class OrganizationForm(forms.ModelForm):
         exclude = ["date_last_modified", "old_id"]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            # multiselects
+            'grouping': forms.SelectMultiple(attrs=multi_select_js),
+            'regions': forms.SelectMultiple(attrs=multi_select_js),
+            'sectors': forms.SelectMultiple(attrs=multi_select_js),
+            'reserves': forms.SelectMultiple(attrs=multi_select_js),
+            'orgs': forms.SelectMultiple(attrs=multi_select_js),
         }
 
 
@@ -278,6 +285,19 @@ RegionFormSet = modelformset_factory(
     extra=1,
 )
 
+
+
+class ReserveForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.Reserve
+        fields = "__all__"
+
+
+ReserveFormSet = modelformset_factory(
+    model=ml_models.Reserve,
+    form=ReserveForm,
+    extra=1,
+)
 
 class GroupingForm(forms.ModelForm):
     class Meta:

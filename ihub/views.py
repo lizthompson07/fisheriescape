@@ -254,6 +254,8 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
             'wharf',
             'consultation_protocol',
             'council_quorum',
+            'reserves',
+            'orgs',
         ]
         return context
 
@@ -717,6 +719,8 @@ class OrganizationCueCard(PDFTemplateView):
             'wharf',
             'consultation_protocol',
             'council_quorum',
+            'reserves',
+            'orgs',
             'notes',
         ]
 
@@ -877,6 +881,7 @@ def manage_sectors(request):
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Sectors have been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_sectors"))
     else:
         formset = forms.SectorFormSet(
             queryset=qs)
@@ -891,28 +896,6 @@ def manage_sectors(request):
     return render(request, 'ihub/manage_settings_small.html', context)
 
 
-#
-# def manage_roles(request):
-#     qs = models.MemberRole.objects.all()
-#     if request.method == 'POST':
-#         formset = forms.MemberRoleFormSet(request.POST, )
-#         if formset.is_valid():
-#             formset.save()
-#             # do something with the formset.cleaned_data
-#             messages.success(request, "Member roles have been successfully updated")
-#     else:
-#         formset = forms.MemberRoleFormSet(
-#             queryset=qs)
-#     context = {}
-#     context['title'] = "Manage Member Roles"
-#     context['formset'] = formset
-#     context["my_object"] = qs.first()
-#     context["field_list"] = [
-#         'name',
-#         'nom',
-#     ]
-#     return render(request, 'ihub/manage_settings_small.html', context)
-
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_orgs(request):
@@ -923,6 +906,7 @@ def manage_orgs(request):
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Organizations have been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_orgs"))
     else:
         formset = forms.OrganizationFormSet(
             queryset=qs)
@@ -942,6 +926,7 @@ def manage_statuses(request):
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Statuses have been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_statuses"))
     else:
         formset = forms.StatusFormSet(
             queryset=qs)
@@ -967,6 +952,7 @@ def manage_entry_types(request):
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Entry types have been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_entry_types"))
     else:
         formset = forms.EntryTypeFormSet(
             queryset=qs)
@@ -992,6 +978,7 @@ def manage_funding_purposes(request):
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Funding purposes have been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_funding_purposes"))
     else:
         formset = forms.FundingPurposeFormSet(
             queryset=qs)
@@ -1005,49 +992,27 @@ def manage_funding_purposes(request):
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
 
-# @login_required(login_url='/accounts/login_required/')
-# @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
-# def manage_regions(request):
-#     qs = shared_models.Region.objects.all()
-#     if request.method == 'POST':
-#         formset = forms.RegionFormSet(request.POST, )
-#         if formset.is_valid():
-#             formset.save()
-#             # do something with the formset.cleaned_data
-#             messages.success(request, "DFO regions have been successfully updated")
-#     else:
-#         formset = forms.RegionFormSet(
-#             queryset=qs)
-#     context = {}
-#     context["my_object"] = qs.first()
-#     context["field_list"] = [
-#         'name',
-#         'nom',
-#     ]
-#     context['title'] = "Manage DFO Regions"
-#     context['formset'] = formset
-#     return render(request, 'ihub/manage_settings_small.html', context)
 
 
-# @login_required(login_url='/accounts/login_required/')
-# @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
-# def manage_groupings(request):
-#     qs = ml_models.Grouping.objects.filter(is_indigenous=True)
-#     if request.method == 'POST':
-#         formset = forms.GroupingFormSet(request.POST, )
-#         if formset.is_valid():
-#             formset.save()
-#             # do something with the formset.cleaned_data
-#             messages.success(request, "Groupings have been successfully updated")
-#     else:
-#         formset = forms.GroupingFormSet(
-#             queryset=qs)
-#     context = {}
-#     context["my_object"] = qs.first()
-#     context["field_list"] = [
-#         'name',
-#         'nom',
-#     ]
-#     context['title'] = "Manage Groupings"
-#     context['formset'] = formset
-#     return render(request, 'ihub/manage_settings_small.html', context)
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+def manage_reserves(request):
+    qs = ml_models.Reserve.objects.all()
+    if request.method == 'POST':
+        formset = forms.ReserveFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Reverse list has been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_reserves"))
+    else:
+        formset = forms.ReserveFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+    ]
+    context['title'] = "Manage Reserve List"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
