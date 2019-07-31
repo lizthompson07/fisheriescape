@@ -46,6 +46,16 @@ class Grouping(models.Model):
         ordering = ['name', ]
 
 
+class Reserve(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+
+    def __str__(self):
+        return "{}".format(getattr(self, str(_("name"))))
+
+    class Meta:
+        ordering = ['name', ]
+
+
 def audio_file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
     return 'ihub/org_{}/{}'.format(instance.id, filename)
@@ -85,6 +95,9 @@ class Organization(models.Model):
     wharf = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("wharf on reserve?"))
     consultation_protocol = models.TextField(blank=True, null=True, verbose_name=_("consultation protocol"))
     council_quorum = models.IntegerField(blank=True, null=True, verbose_name=_("council quorum"))
+    reserves = models.ManyToManyField(Reserve, verbose_name=_("Associated reserves"), blank=True)
+    orgs = models.ManyToManyField("Organization", verbose_name=_("Associated organizations"), blank=True,
+                                  limit_choices_to={'grouping__is_indigenous': 1}, )
     audio_file = models.FileField(upload_to=audio_file_directory_path, verbose_name=_("audio file"), blank=True, null=True)
 
     # metadata
