@@ -111,6 +111,14 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
             'notes',
         ]
 
+        context["range_field_list"] = [
+            'name',
+            'county',
+            'range_type',
+            # 'source',
+            'date_last_modified',
+        ]
+
         return context
 
 
@@ -137,6 +145,72 @@ class SpeciesDeleteView(SARSearchAdminRequiredMixin, DeleteView):
     permission_required = "__all__"
     success_url = reverse_lazy('sar_search:species_list')
     success_message = 'The species was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# RANGE #
+#########
+
+class RangeUpdateView(SARSearchAdminRequiredMixin, UpdateView):
+    model = models.Range
+    form_class = forms.RangeForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("sar_search:range_detail", kwargs={"pk": my_object.id}))
+
+
+class RangeCreateView(SARSearchAdminRequiredMixin, CreateView):
+    model = models.Range
+
+    form_class = forms.RangeForm
+
+    def get_initial(self):
+        return {'species': self.kwargs.get("species")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs.get("species"):
+            species = models.Species.objects.get(pk=self.kwargs["species"])
+            context['species'] = species
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("sar_search:range_detail", kwargs={"pk": my_object.id}))
+
+
+class RangeDetailView(SARSearchAdminRequiredMixin, DetailView):
+    model = models.Range
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            'name',
+            'county',
+            'range_type',
+            'source',
+            'date_last_modified',
+        ]
+        context['field_list'] = field_list
+
+        return context
+
+
+class RangeDeleteView(SARSearchAdminRequiredMixin, DeleteView):
+    model = models.Range
+    success_message = 'The range was successfully deleted!'
+
+    def get_success_url(self):
+        return reverse_lazy("sar_search:range_detail", kwargs={"pk": self.object.site.id})
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -240,73 +314,6 @@ class SpeciesDeleteView(SARSearchAdminRequiredMixin, DeleteView):
 #         return super().delete(request, *args, **kwargs)
 #
 #
-# # SITE #
-# ########
-#
-# class RiverSiteUpdateView(SARSearchAdminRequiredMixin, UpdateView):
-#     model = models.RiverSite
-#     form_class = forms.RiverSiteForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#     def form_valid(self, form):
-#         my_object = form.save()
-#         return HttpResponseRedirect(reverse_lazy("sar_search:site_detail", kwargs={"pk": my_object.id}))
-#
-#
-# class RiverSiteCreateView(SARSearchAdminRequiredMixin, CreateView):
-#     model = models.RiverSite
-#
-#     form_class = forms.RiverSiteForm
-#
-#     def get_initial(self):
-#         return {'river': self.kwargs.get("river")}
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         if self.kwargs.get("river"):
-#             river = shared_models.River.objects.get(pk=self.kwargs["river"])
-#             context['river'] = river
-#         return context
-#
-#     def form_valid(self, form):
-#         my_object = form.save()
-#         return HttpResponseRedirect(reverse_lazy("sar_search:site_detail", kwargs={"pk": my_object.id}))
-#
-#
-# class RiverSiteDetailView(SARSearchAdminRequiredMixin, DetailView):
-#     model = models.RiverSite
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#
-#         field_list = [
-#             'name',
-#             'river',
-#             'stream_order',
-#             'elevation_m',
-#             'province.abbrev_eng',
-#             'latitude_n',
-#             'longitude_w',
-#             'directions',
-#         ]
-#         context['field_list'] = field_list
-#
-#         return context
-#
-#
-# class RiverSiteDeleteView(SARSearchAdminRequiredMixin, DeleteView):
-#     model = models.RiverSite
-#     success_message = 'The river site was successfully deleted!'
-#
-#     def get_success_url(self):
-#         return reverse_lazy("sar_search:site_detail", kwargs={"pk": self.object.site.id})
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
 #
 #
 # # SAMPLE #
@@ -1017,7 +1024,6 @@ def delete_schedule(request, pk):
     my_obj = models.SARASchedule.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("sar_search:manage_schedules"))
-
 
 
 @login_required(login_url='/accounts/login_required/')
