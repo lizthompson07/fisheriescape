@@ -30,6 +30,7 @@ class RangeForm(forms.ModelForm):
             # "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             # "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             # "directions": forms.Textarea(attrs={"rows": "3", }),
+            "counties": forms.SelectMultiple(attrs=multi_select_js),
             "last_modified_by": forms.HiddenInput(),
             "species": forms.HiddenInput(),
 
@@ -91,6 +92,30 @@ CountyFormSet = modelformset_factory(
     model=models.County,
     form=CountyForm,
     extra=1,
+)
+
+
+class CoordForm(forms.ModelForm):
+    class Meta:
+        model = models.RangePoints
+        fields = "__all__"
+        widgets = {
+            "range": forms.HiddenInput(),
+
+        }
+    
+
+CoordFormSet = modelformset_factory(
+    model=models.RangePoints,
+    form=CoordForm,
+    extra=1,
+)
+
+
+CoordFormSetNoExtra = modelformset_factory(
+    model=models.RangePoints,
+    form=CoordForm,
+    extra=0,
 )
 
 #

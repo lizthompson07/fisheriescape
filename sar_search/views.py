@@ -113,7 +113,7 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
 
         context["range_field_list"] = [
             'name',
-            'county',
+            'counties',
             'range_type',
             # 'source',
             'date_last_modified',
@@ -195,7 +195,7 @@ class RangeDetailView(SARSearchAdminRequiredMixin, DetailView):
 
         field_list = [
             'name',
-            'county',
+            'counties',
             'range_type',
             'source',
             'date_last_modified',
@@ -210,11 +210,55 @@ class RangeDeleteView(SARSearchAdminRequiredMixin, DeleteView):
     success_message = 'The range was successfully deleted!'
 
     def get_success_url(self):
-        return reverse_lazy("sar_search:range_detail", kwargs={"pk": self.object.site.id})
+        return reverse_lazy("sar_search:species_detail", kwargs={"pk": self.object.species.id})
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def manage_coords(request, range):
+    qs = models.RangePoints.objects.filter(range=range)
+    if request.method == 'POST':
+        formset = forms.CoordFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "coords have been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_coords", kwargs={"range": range}))
+    else:
+        my_range = models.Range.objects.get(pk=range)
+        print(my_range.range_type)
+        if my_range.range_type == 1 and my_range.points.count() >= 1:
+            formset = forms.CoordFormSetNoExtra(
+                queryset=qs,
+                initial=[{"range": range}],
+            )
+        else:
+            formset = forms.CoordFormSet(
+                queryset=qs,
+                initial=[{"range": range}],
+            )
+    context = {}
+    context['title'] = "Manage Range Coordinates"
+    context['formset'] = formset
+    context["range"] = my_range
+    context["my_object"] = models.RangePoints.objects.first()
+    context["field_list"] = [
+        'latitude_n',
+        'longitude_w',
+    ]
+    return render(request, 'sar_search/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def delete_coord(request, pk):
+    my_obj = models.RangePoints.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("sar_search:manage_coords", kwargs={"range": my_obj.range.id}))
 
 
 #

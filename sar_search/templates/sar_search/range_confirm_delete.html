@@ -6,9 +6,9 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:site_list' %}"> All Sites </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:range_detail' object.site.id %}"> {{ object.site }} </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:station_detail' object.id %}"> {{ object }} </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' object.species.id %}"> {{ object.species }} </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:range_detail' object.id %}"> {{ object }} </a></li>
             <li class="breadcrumb-item active" aria-current="page"> Delete</li>
         </ol>
     </nav>

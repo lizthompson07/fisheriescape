@@ -31,6 +31,11 @@ urlpatterns = [
     path('range/<int:pk>/view/', views.RangeDetailView.as_view(), name="range_detail"),
     path('range/<int:pk>/edit/', views.RangeUpdateView.as_view(), name="range_edit"),
     path('range/<int:pk>/delete/', views.RangeDeleteView.as_view(), name="range_delete"),
+    # points
+    path('range/<int:range>/manage-coords/', views.manage_coords, name="manage_coords"),
+    path('range-point/<int:pk>/delete/', views.delete_coord, name="delete_coord"),
+
+
     #
     # # SAMPLE #
     # ##########

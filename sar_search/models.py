@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from shared_models import models as shared_models
+from shapely.geometry import Polygon
 
 
 class Taxon(models.Model):
@@ -78,7 +79,8 @@ class Species(models.Model):
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="sar_spp")
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
+                                         related_name="sar_spp")
 
     def get_absolute_url(self):
         return reverse("sar_search:species_detail", kwargs={"pk": self.id})
@@ -123,7 +125,7 @@ class Range(models.Model):
 
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name='ranges', blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("range name"))
-    county = models.ForeignKey(County, on_delete=models.DO_NOTHING, related_name='ranges', blank=True, null=True)
+    counties = models.ManyToManyField(County, blank=True)
     range_type = models.IntegerField(verbose_name=_("range type"), choices=RANGE_TYPE_CHOICES)
     source = models.CharField(max_length=1000, verbose_name=_("source"))
 
@@ -141,11 +143,29 @@ class Range(models.Model):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
 
+    def get_polygon(self):
+        if self.range_type == 3 and self.points.count() > 0:
+            point_list = [(point.latitude_n, point.longitude_w) for point in self.points.all()]
+            return Polygon(point_list)
+
+    def coords(self):
+        if self.range_type == 1 and self.points.count() > 0:
+            return {"x": self.points.first().latitude_n,
+                    "y": self.points.first().longitude_w}
+        elif self.range_type == 3 and self.points.count() > 0:
+            my_polygon = self.get_polygon()
+            return {"x": my_polygon.centroid.coords[0][0],
+                    "y": my_polygon.centroid.coords[0][1]}
 
 class RangePoints(models.Model):
     range = models.ForeignKey(Range, on_delete=models.DO_NOTHING, related_name='points', blank=True, null=True)
-    latitude_n = models.FloatField(blank=True, null=True)
-    longitude_w = models.FloatField(blank=True, null=True)
+    latitude_n = models.FloatField()
+    longitude_w = models.FloatField()
 
     class Meta:
         ordering = ['range', ]
+
+    def save(self, *args, **kwargs):
+        if self.longitude_w and self.longitude_w > 0:
+            self.longitude_w = -self.longitude_w
+        return super().save(*args, **kwargs)
