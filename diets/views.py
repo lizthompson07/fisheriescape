@@ -447,7 +447,8 @@ class PreySummaryListView(DietsAccessRequired, TemplateView):
         prey_dict = {}
         for species in prey_spp_list:
             # want to get a list of predators that ate this species
-            pred_list = [models.Predator.objects.get(pk=p["id"]) for p in models.Predator.objects.filter(prey_items__species=species).order_by("stomach_id").values("id").distinct()]
+            pred_list = [models.Predator.objects.get(pk=p["id"]) for p in models.Predator.objects.filter(
+                prey_items__species=species, stomach_id__isnull=False).order_by("stomach_id").values("id").distinct()]
             prey_dict[species.id] = pred_list
         context["prey_dict"] = prey_dict
         return context
