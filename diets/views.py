@@ -441,8 +441,9 @@ class PreySummaryListView(DietsAccessRequired, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         prey_spp_list = [models.Species.objects.get(pk=p["species_id"]) for p in
-                         models.Prey.objects.order_by(
-                             "species__scientific_name").values("species_id").distinct()]
+                         models.Prey.objects.filter(
+                            predator__stomach_id__isnull=False
+                         ).order_by("species__scientific_name").values("species_id").distinct()]
         context["prey_spp_list"] = prey_spp_list
         prey_dict = {}
         for species in prey_spp_list:
