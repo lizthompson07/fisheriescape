@@ -37,7 +37,7 @@
             {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
             <a class="btn btn-warning" href="{% url 'sar_search:range_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'sar_search:range_delete' object.id %}">Delete</a>
-            <a class="btn btn-primary" href="{% url 'sar_search:range_delete' object.id %}">Manage Points</a>
+            <a class="btn btn-primary" href="{% url 'sar_search:manage_coords' object.id %}">Set / Modify Coordinates</a>
         </div>
 
         <br><br>
@@ -54,12 +54,156 @@
             </div>
         </div>
     </div>
+
+{% endblock content %}
+{% block body_js %}
     <script>
+        function initialize() {
+
+            window.map = new google.maps.Map(document.getElementById('map'), {
+                mapTypeId: google.maps.MapTypeId.SATELLITE,
+            });
+            var infowindow = new google.maps.InfoWindow();
+            var bounds = new google.maps.LatLngBounds();
+
+            {% if object.range_type == 1 %}
+
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
+                    map: map,
+                    label: {text: "{{object.name}}", color: "#ffffff"},
+                });
+
+                bounds.extend(marker.position);
+
+            {% elif object.range_type == 3 %}
+
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
+                    map: map,
+                    label: {text: "{{object.name}}", color: "#ffffff"},
+                });
+
+
+                // extend bounds var
+                bounds.extend(marker.position);
+                {% for point in object.points.all %}
+                    bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
+                {% endfor %}
+
+                // Define the LatLng coordinates for the polygon's path.
+                var polygonCoords = [
+                    {% for point in object.points.all %}
+                        {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                    {% endfor %}
+                ];
+
+                // Construct the stratum.
+                var color = '#ea4544';
+                var myPolygon = new google.maps.Polygon({
+                    paths: polygonCoords,
+                    strokeColor: 'white',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: color,
+                    fillOpacity: 0.35
+                });
+                myPolygon.setMap(map);
+                {#bounds.extend(myPolygon.getBounds());#}
+
+                map.fitBounds(bounds);
+                // add a click event on the polygon
+
+
+            {% endif %}
+
+
+            map.fitBounds(bounds);
+
+        }
+
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+
+        }
+
+        window.onload = loadScript();
+
+    </script>
+
+
+    <script>
+
+        {% if range.range_type == 1 %}
+
+            marker = new google.maps.Marker({
+                position: new google.maps.LatLng({{range.coords.x}}, {{range.coords.y}}),
+                map: map,
+                {#label: {text: "{{range.name}}", color: "#ffffff"},#}
+            });
+
+            bounds.extend(marker.position);
+            google.maps.event.addListener(marker, 'click', (function (marker) {
+                return function () {
+                    infowindow.setContent('<a href="{% url 'sar_search:range_detail' range.id %}">{{range.name}}</a>');
+                    infowindow.open(map, marker);
+                }
+            })(marker));
+        {% elif range.range_type == 3 %}
+
+            marker = new google.maps.Marker({
+                position: new google.maps.LatLng({{range.coords.x}}, {{range.coords.y}}),
+                map: map,
+                {#label: {text: "{{range.name}}", color: "#ffffff"},#}
+            });
+            google.maps.event.addListener(marker, 'click', (function (marker) {
+                return function () {
+                    infowindow.setContent('<a href="{% url 'sar_search:range_detail' range.id %}">{{range.name}}</a>');
+                    infowindow.open(map, marker);
+                }
+            })(marker));
+
+            // extend bounds var
+            bounds.extend(marker.position);
+            {% for point in range.points.stratum.points.all %}
+                bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
+            {% endfor %}
+
+            // Define the LatLng coordinates for the polygon's path.
+            var polygonCoords = [
+                {% for point in object.station.stratum.points.all %}
+                    {lat: {{point.latitude}}, lng: {{point.longitude}}},
+                {% endfor %}
+            ];
+
+            // Construct the stratum.
+            var color = '#ea4544';
+            var myPolygon = new google.maps.Polygon({
+                paths: polygonCoords,
+                strokeColor: 'white',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: color,
+                fillOpacity: 0.35
+            });
+            myPolygon.setMap(map);
+            {#bounds.extend(myPolygon.getBounds());#}
+
+            map.fitBounds(bounds);
+            // add a click event on the polygon
+
+
+        {% endif %}
+
+
 
         // Initialize and add the map
         function initMap() {
             // The location of Uluru
-            var uluru = {lat: {{object.latitude_n}}, lng: {{object.longitude_w}}};
+            var uluru = {lat: {{object.coords.x}}, lng: {{object.coords.y}}};
             // The map, centered at Uluru
             var map = new google.maps.Map(
                 document.getElementById('map'), {
@@ -74,7 +218,7 @@
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
     </script>
+{% endblock %}
 
 
 
-{% endblock content %}
