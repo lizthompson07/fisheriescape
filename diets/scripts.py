@@ -14,7 +14,7 @@ def import_old_data():
         my_csv = csv.DictReader(csv_read_file)
 
         for row in my_csv:
-            if int(row["N_orderUhl"]) >= 17490:
+            if int(row["N_orderUhl"]) >= 30920:
                 # first get the predator
                 my_pred, created = models.Predator.objects.get_or_create(
                     old_seq_num=row["SeqNoUhl"].strip(),
