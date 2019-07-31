@@ -74,6 +74,7 @@ urlpatterns = [
     path('settings/status/', views.manage_statuses, name="manage_statuses"),
     path('settings/entry-types/', views.manage_entry_types, name="manage_entry_types"),
     path('settings/funding-purpose/', views.manage_funding_purposes, name="manage_funding_purposes"),
+    path('settings/reserves/', views.manage_reserves, name="manage_reserves"),
     # path('settings/regions/', views.manage_regions, name="manage_regions"),
     # path('settings/groupings/', views.manage_groupings, name="manage_groupings"),
 
