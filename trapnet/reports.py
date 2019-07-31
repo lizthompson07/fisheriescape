@@ -438,6 +438,30 @@ def generate_open_data_ver_1_wms_report():
     # headers are based on csv provided by GD
     species_list = [models.Species.objects.get(pk=obj["species"]) for obj in qs.order_by("species").values("species").distinct()]
 
+    select_species_dict = {
+        "fish_gr_1": {
+            "codes": [1732],
+            "eng": "Altantic salmons (smolts)",
+            "fra": "de saumons atlantiques (saumoneau)",
+        },
+        "fish_gr_2": {
+            "codes": [3410],
+            "eng": "American eels",
+            "fra": "d'anguilles d'Amériques",
+        },
+        "fish_gr_3": {
+            "codes": [140,150,151,152],
+            "eng": "lampreys",
+            "fra": "de lamproies",
+        },
+        "fish_gr_4": {
+            "codes": [2621, 2631, 2620, 2630, 2640],
+            "eng": "dace",
+            "fra": "de vandoise",
+        },
+
+    }
+
     header_row_eng = [
         'Site name',
         'Site latitude',
@@ -446,10 +470,10 @@ def generate_open_data_ver_1_wms_report():
         'List of species caught (English)',
         'List of species caught (French)',
         'Total number of fish caught',
-        'Average (mean) number of fish caught',
+        'Mean annual number of fish caught',
     ]
 
-    header_row_fre = [
+    header_row_fra = [
         'Nom de site',
         'Latitude de site',
         'Longitude de site',
@@ -457,11 +481,21 @@ def generate_open_data_ver_1_wms_report():
         'Liste des espèces capturées (anglais)',
         'Liste des espèces capturées (français)',
         'Nombre total de poisson capturées',
-        'Nombre moyen (moyen) de poissons capturés',
+        'Nombre annuel moyen de poissons capturés',
     ]
 
+
+    for key in select_species_dict:
+        header_row_eng.extend([
+            'Total number of {} caught'.format(select_species_dict[key]["eng"]),
+            'Mean annual number of {} caught'.format(select_species_dict[key]["eng"]),
+        ])
+        header_row_fra.extend([
+            'Nombre total {} capturées'.format(select_species_dict[key]["fra"]),
+            'Nombre annuel moyen {} capturés'.format(select_species_dict[key]["fra"]),
+        ])
     writer.writerow(header_row_eng)
-    writer.writerow(header_row_fre)
+    writer.writerow(header_row_fra)
 
     # lets start by getting a list of samples and years
     # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
@@ -488,6 +522,19 @@ def generate_open_data_ver_1_wms_report():
             total_freq,
             avg_freq,
         ]
+
+        for key in select_species_dict:
+            freq_sum = qs.filter(
+                sample__site=site,
+                species__code__in=select_species_dict[key]["codes"]
+            ).values("frequency").order_by("frequency").aggregate(
+                dsum=Sum("frequency"))["dsum"]
+            freq_avg = floatformat(int(freq_sum) / len(seasons.split(",")), 2)
+
+            data_row.extend([
+                freq_sum,
+                freq_avg,
+            ])
 
         writer.writerow(data_row)
 
