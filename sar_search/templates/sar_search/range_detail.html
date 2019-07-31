@@ -23,8 +23,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:river_list' %}"> Rivers </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:river_detail' object.river.id %}"> {{ object.river }} </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' object.species.id %}"> {{ object.species }} </a></li>
             <li class="breadcrumb-item active" aria-current="page"> {{ object }}</li>
         </ol>
     </nav>
@@ -33,11 +33,12 @@
 
         <br>
         <h1>{{ object }}</h1>
-        <p>
+        <div class="btn-group">
             {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
-            <a class="btn btn-warning" href="{% url 'sar_search:site_edit' object.id %}">Edit</a>
-            <a class="btn btn-danger" href="{% url 'sar_search:site_delete' object.id %}">Delete</a>
-        </p>
+            <a class="btn btn-warning" href="{% url 'sar_search:range_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'sar_search:range_delete' object.id %}">Delete</a>
+            <a class="btn btn-primary" href="{% url 'sar_search:range_delete' object.id %}">Manage Points</a>
+        </div>
 
         <br><br>
         <div class="row">

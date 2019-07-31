@@ -23,7 +23,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:river_list' %}"> Rivers </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
             <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
         </ol>
     </nav>
@@ -82,7 +82,7 @@
                 <a href="{% url 'sar_search:site_new' object.id  %}" class="btn btn-sm btn-primary">New Site</a>
             </div>
         </div>
-        {% if object.river_sites.count == 0 %}
+        {% if object.species_sites.count == 0 %}
             <em>No sites have been entered for this river</em>
         {% else %}
             <table class="table table-sm table-hover sortable">
@@ -94,8 +94,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for obj in object.river_sites.all %}
-                    {% url 'sar_search:site_detail' obj.id as my_url %}
+                {% for obj in object.species_sites.all %}
+                    {% url 'sar_search:range_detail' obj.id as my_url %}
                     <tr href="{{ my_url }}">
                         {% for field in site_field_list %}
                             <td>{% get_field_value obj field %}</td>

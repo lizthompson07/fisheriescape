@@ -3,18 +3,19 @@
 {% load bootstrap4 %}
 {% block content %}
 
-    {% if river or object %}
+    {% if species or object %}
 
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'sar_search:river_list' %}"> Rivers </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
                 {% if object %}
-                    <li class="breadcrumb-item"><a href="{% url 'sar_search:river_detail' object.river.id %}"> {{ object.river }} </a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'sar_search:site_detail' object.id %}"> {{ object }} </a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' object.species.id %}"> {{ object.species }} </a>
+                    </li>
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:range_detail' object.id %}"> {{ object }} </a></li>
                     <li class="breadcrumb-item active" aria-current="page"> Edit</li>
                 {% else %}
-                    <li class="breadcrumb-item"><a href="{% url 'sar_search:river_detail' river.id %}"> {{ river }} </a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' species.id %}"> {{ species }} </a></li>
                     <li class="breadcrumb-item active" aria-current="page"> New</li>
                 {% endif %}
 
@@ -32,11 +33,14 @@
     <div class="container">
 
 
-        {% if object.id %}
-            <h1>{{ object }}</h1><br>
-        {% else %}
-            <h1>New Site {% if river %}on the {{ river }}{% endif %}</h1>
-        {% endif %}
+        <h1>
+            {% if object %}
+                {{ object }}
+            {% else %}
+                New Range for {{ species }}
+            {% endif %}
+        </h1>
+                <br>
 
         <form method="post" class="form">
             {% csrf_token %}
