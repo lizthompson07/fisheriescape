@@ -14,7 +14,7 @@
 
     <style type="text/css">
         #map {
-            height: 300px; /* The height is 400 pixels */
+            height: 100%; /* The height is 400 pixels */
             width: 100%; /* The width is the width of the web page */
         }
 
@@ -45,7 +45,7 @@
         <br><br>
 
         <div class="row">
-            <div class="col">
+            <div class="col-3">
                 <table class="table table-sm table-striped" style="width: auto;">
                     {% for field in field_list %}
                         {% if field == "tsn" and object.tsn %}
@@ -77,48 +77,132 @@
 
             </div>
             <div class="col">
-                <div class="map">
-                </div>
+                <div id="map"></div>
             </div>
         </div>
-        <br><br>
-        <div class="row justify-content-center">
-            <div class="col-8">
-                {% if object.ranges.count > 0 %}
+    </div>
+    <br><br>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <h3>Range List</h3>
+            {% if object.ranges.count > 0 %}
 
-                    <table class="table table-sm table-hover sortable" >
-                        <thead>
-                        <tr>
+                <table class="table table-sm table-hover sortable">
+                    <thead>
+                    <tr>
+                        {% for field in range_field_list %}
+                            <th scope="col">{% get_verbose_label object.ranges.first field %}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in object.ranges.all %}
+                        {% url 'sar_search:range_detail' obj.id as my_url %}
+                        <tr href="{{ my_url }}">
                             {% for field in range_field_list %}
-                                <th scope="col">{% get_verbose_label object.ranges.first field %}</th>
+                                <td>{% get_field_value obj field nullmark="" %}</td>
                             {% endfor %}
                         </tr>
-                        </thead>
-                        <tbody>
-                        {% for obj in object.ranges.all %}
-                            {% url 'sar_search:range_detail' obj.id as my_url %}
-                            <tr href="{{ my_url }}">
-                                {% for field in range_field_list %}
-                                    <td>{% get_field_value obj field nullmark="" %}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <div class="text-center">
-                        <em>
-                            No ranges have been added for this species. You can add a range by clicking on the button at the top of the
-                            page.
-                        </em>
-                    </div>
-                {% endif %}
-            </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="text-center">
+                    <em>
+                        No ranges have been added for this species. You can add a range by clicking on the button at the top of the
+                        page.
+                    </em>
+                </div>
+            {% endif %}
         </div>
+    </div>
 
     </div>
 
 
-
-
 {% endblock content %}
+{% block body_js %}
+    <script>
+        function initialize() {
+
+            window.map = new google.maps.Map(document.getElementById('map'), {
+                mapTypeId: google.maps.MapTypeId.SATELLITE,
+            });
+            var infowindow = new google.maps.InfoWindow();
+            var bounds = new google.maps.LatLngBounds();
+
+            {% for range in object.ranges.all %}
+                {% if range.range_type == 1 %}
+
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng({{range.coords.x}}, {{range.coords.y}}),
+                        map: map,
+                        {#label: {text: "{{range.name}}", color: "#ffffff"},#}
+                    });
+
+                    bounds.extend(marker.position);
+                    google.maps.event.addListener(marker, 'click', (function (marker) {
+                        return function () {
+                            infowindow.setContent('<a href="{% url 'sar_search:range_detail' range.id %}">{{range.name}}</a>');
+                            infowindow.open(map, marker);
+                        }
+                    })(marker));
+                {% elif range.range_type == 3 %}
+
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng({{range.coords.x}}, {{range.coords.y}}),
+                        map: map,
+                        label: {text: "{{range.name}}", color: "#ffffff"},
+                    });
+
+
+                    // extend bounds var
+                    bounds.extend(marker.position);
+                    {% for point in range.points.all %}
+                        bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
+                    {% endfor %}
+
+                    // Define the LatLng coordinates for the polygon's path.
+                    var polygonCoords = [
+                        {% for point in range.points.all %}
+                            {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                        {% endfor %}
+                    ];
+
+                    // Construct the stratum.
+                    var color = '#ea4544';
+                    var myPolygon = new google.maps.Polygon({
+                        paths: polygonCoords,
+                        strokeColor: 'white',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: color,
+                        fillOpacity: 0.35
+                    });
+                    myPolygon.setMap(map);
+                    {#bounds.extend(myPolygon.getBounds());#}
+
+                    map.fitBounds(bounds);
+                    // add a click event on the polygon
+
+
+                {% endif %}
+
+            {% endfor %}
+
+            map.fitBounds(bounds);
+
+        }
+
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+
+        }
+
+        window.onload = loadScript();
+
+    </script>
+{% endblock %}
