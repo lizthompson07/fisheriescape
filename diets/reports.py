@@ -70,7 +70,7 @@ def generate_progress_report(year):
     return response
 
 
-def export_data(year, cruise):
+def export_data(year, cruise, spp):
     """
     Generic data export
     """
@@ -83,6 +83,9 @@ def export_data(year, cruise):
 
     if cruise != "None":
         qs = qs.filter(predator__cruise_id=cruise)
+
+    if spp != "None":
+        qs = qs.filter(predator__species_id__in=spp.split(","))
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')

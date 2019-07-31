@@ -81,6 +81,7 @@ class ReportSearchForm(forms.Form):
     report = forms.ChoiceField(required=True, choices=report_choices)
     year = forms.IntegerField(required=False, label="Year (optional)")
     cruise = forms.ChoiceField(required=False, label="Cruise (optional)")
+    spp = forms.MultipleChoiceField(required=False, label="Species (optional)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,3 +90,6 @@ class ReportSearchForm(forms.Form):
         cruise_choices.insert(0, (None, "------"))
 
         self.fields['cruise'].choices = cruise_choices
+
+        spp_choices = [(obj.id, str(obj)) for obj in models.Species.objects.all() if obj.predators.count() > 0]
+        self.fields['spp'].choices = spp_choices
