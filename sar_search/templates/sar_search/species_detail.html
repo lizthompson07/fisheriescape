@@ -31,19 +31,16 @@
 
     </style>
 
-    <div class="container">
+    <div class="container-fluid">
 
         <br>
         <h1>{{ object }}</h1>
-        <p>
+        <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'sar_search:species_edit' object.id %}">Edit</a>
-            {% if object.sample_spp.count == 0 %}
-                <a class="btn btn-danger" href="{% url 'sar_search:species_delete' object.id %}">Delete</a>
-            {% else %}
-                <a class="btn btn-danger disabled" href="{% url 'sar_search:species_delete' object.id %}">Delete</a>
-            {% endif %}
+            <a class="btn btn-danger" href="{% url 'sar_search:species_delete' object.id %}">Delete</a>
+            <a class="btn btn-primary" href="{% url 'sar_search:range_new' object.id %}">Add New Range</a>
+        </div>
 
-        </p>
 
         <br><br>
 
@@ -79,12 +76,49 @@
                 </table>
 
             </div>
+            <div class="col">
+                <div class="map">
+                </div>
+            </div>
+        </div>
+        <br><br>
+        <div class="row justify-content-center">
+            <div class="col-8">
+                {% if object.ranges.count > 0 %}
 
-
+                    <table class="table table-sm table-hover sortable" >
+                        <thead>
+                        <tr>
+                            {% for field in range_field_list %}
+                                <th scope="col">{% get_verbose_label object.ranges.first field %}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for obj in object.ranges.all %}
+                            {% url 'sar_search:range_detail' obj.id as my_url %}
+                            <tr href="{{ my_url }}">
+                                {% for field in range_field_list %}
+                                    <td>{% get_field_value obj field nullmark="" %}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="text-center">
+                        <em>
+                            No ranges have been added for this species. You can add a range by clicking on the button at the top of the
+                            page.
+                        </em>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
-
     </div>
+
+
 
 
 {% endblock content %}

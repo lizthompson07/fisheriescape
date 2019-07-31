@@ -11,7 +11,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                Rivers
+                Species
             </li>
 
         </ol>
@@ -19,7 +19,7 @@
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Rivers</h1>
+        <h1 class="big-header">Species</h1>
 
         <form class="form" action="." method="get">
             {% for field in filter.form %}
@@ -50,7 +50,7 @@
             </thead>
             <tbody>
             {% for object in filter.qs %}
-                {% url 'sar_search:river_detail' object.id as my_url %}
+                {% url 'sar_search:species_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
 
                     {% for field in field_list %}

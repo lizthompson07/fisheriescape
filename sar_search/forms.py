@@ -15,10 +15,31 @@ chosen_js = {"class": "chosen-select-contains"}
 class SpeciesForm(forms.ModelForm):
     class Meta:
         model = models.Species
-        fields = "__all__"
+        exclude = ["date_last_modified",]
         widgets = {
             "province_range": forms.SelectMultiple(attrs=multi_select_js),
+            "last_modified_by": forms.HiddenInput(),
         }
+
+
+class RangeForm(forms.ModelForm):
+    class Meta:
+        model = models.Range
+        exclude = ["date_last_modified",]
+        widgets = {
+            # "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
+            # "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
+            # "directions": forms.Textarea(attrs={"rows": "3", }),
+            "last_modified_by": forms.HiddenInput(),
+            "species": forms.HiddenInput(),
+
+        }
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if kwargs.get("instance") or kwargs.get("initial"):
+    #         self.fields["river"].widget = forms.HiddenInput()
+
 
 
 class TaxonForm(forms.ModelForm):
@@ -79,21 +100,7 @@ CountyFormSet = modelformset_factory(
 #         fields = "__all__"
 #
 #
-# class RiverSiteForm(forms.ModelForm):
-#     class Meta:
-#         model = models.RiverSite
-#         fields = "__all__"
-#         widgets = {
-#             "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
-#             "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
-#             "directions": forms.Textarea(attrs={"rows": "3", }),
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         if kwargs.get("instance") or kwargs.get("initial"):
-#             self.fields["river"].widget = forms.HiddenInput()
-#
+
 #
 # class SampleForm(forms.ModelForm):
 #     class Meta:

@@ -22,22 +22,15 @@ urlpatterns = [
     path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
     path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
     path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
-    #
-    # # RIVER #
-    # #########
-    # path('rivers/', views.RiverListView.as_view(), name="river_list"),
-    # path('river/new/', views.RiverCreateView.as_view(), name="river_new"),
-    # path('river/<int:pk>/view/', views.RiverDetailView.as_view(), name="river_detail"),
-    # path('river/<int:pk>/edit/', views.RiverUpdateView.as_view(), name="river_edit"),
-    # path('river/<int:pk>/delete/', views.RiverDeleteView.as_view(), name="river_delete"),
-    #
-    # # RIVER SITE #
-    # ##############
-    # path('river/<int:river>/site/new/', views.RiverSiteCreateView.as_view(), name="site_new"),
-    # path('site/new/', views.RiverSiteCreateView.as_view(), name="site_new"),
-    # path('site/<int:pk>/view/', views.RiverSiteDetailView.as_view(), name="site_detail"),
-    # path('site/<int:pk>/edit/', views.RiverSiteUpdateView.as_view(), name="site_edit"),
-    # path('site/<int:pk>/delete/', views.RiverSiteDeleteView.as_view(), name="site_delete"),
+
+
+    # RANGE #
+    #########
+    path('species/<int:species>/range/new/', views.RangeCreateView.as_view(), name="range_new"),
+    # path('range/new/', views.RangeCreateView.as_view(), name="range_new"),
+    path('range/<int:pk>/view/', views.RangeDetailView.as_view(), name="range_detail"),
+    path('range/<int:pk>/edit/', views.RangeUpdateView.as_view(), name="range_edit"),
+    path('range/<int:pk>/delete/', views.RangeDeleteView.as_view(), name="range_delete"),
     #
     # # SAMPLE #
     # ##########
