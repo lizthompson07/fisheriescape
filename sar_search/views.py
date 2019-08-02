@@ -84,8 +84,8 @@ class SpeciesListView(SARSearchAccessRequiredMixin, FilterView):
             'sara_status',
             'cosewic_status',
             'sara_schedule',
-            'province_range',
-            'tsn',
+            # 'province_range',
+            # 'tsn',
         ]
         return context
 
@@ -111,10 +111,10 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
             'notes',
         ]
 
-        context["range_field_list"] = [
+        context["record_field_list"] = [
             'name',
             'counties',
-            'range_type',
+            'record_type',
             # 'source',
             'date_last_modified',
         ]
@@ -154,22 +154,22 @@ class SpeciesDeleteView(SARSearchAdminRequiredMixin, DeleteView):
 # RANGE #
 #########
 
-class RangeUpdateView(SARSearchAdminRequiredMixin, UpdateView):
-    model = models.Range
-    form_class = forms.RangeForm
+class RecordUpdateView(SARSearchAdminRequiredMixin, UpdateView):
+    model = models.Record
+    form_class = forms.RecordForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("sar_search:range_detail", kwargs={"pk": my_object.id}))
+        return HttpResponseRedirect(reverse_lazy("sar_search:record_detail", kwargs={"pk": my_object.id}))
 
 
-class RangeCreateView(SARSearchAdminRequiredMixin, CreateView):
-    model = models.Range
+class RecordCreateView(SARSearchAdminRequiredMixin, CreateView):
+    model = models.Record
 
-    form_class = forms.RangeForm
+    form_class = forms.RecordForm
 
     def get_initial(self):
         return {'species': self.kwargs.get("species")}
@@ -183,11 +183,11 @@ class RangeCreateView(SARSearchAdminRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("sar_search:range_detail", kwargs={"pk": my_object.id}))
+        return HttpResponseRedirect(reverse_lazy("sar_search:record_detail", kwargs={"pk": my_object.id}))
 
 
-class RangeDetailView(SARSearchAdminRequiredMixin, DetailView):
-    model = models.Range
+class RecordDetailView(SARSearchAdminRequiredMixin, DetailView):
+    model = models.Record
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -196,7 +196,7 @@ class RangeDetailView(SARSearchAdminRequiredMixin, DetailView):
         field_list = [
             'name',
             'counties',
-            'range_type',
+            'record_type',
             'source',
             'date_last_modified',
         ]
@@ -205,9 +205,9 @@ class RangeDetailView(SARSearchAdminRequiredMixin, DetailView):
         return context
 
 
-class RangeDeleteView(SARSearchAdminRequiredMixin, DeleteView):
-    model = models.Range
-    success_message = 'The range was successfully deleted!'
+class RecordDeleteView(SARSearchAdminRequiredMixin, DeleteView):
+    model = models.Record
+    success_message = 'The record was successfully deleted!'
 
     def get_success_url(self):
         return reverse_lazy("sar_search:species_detail", kwargs={"pk": self.object.species.id})
@@ -219,33 +219,33 @@ class RangeDeleteView(SARSearchAdminRequiredMixin, DeleteView):
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
-def manage_coords(request, range):
-    qs = models.RangePoints.objects.filter(range=range)
+def manage_coords(request, record):
+    qs = models.RecordPoints.objects.filter(record=record)
+    my_record = models.Record.objects.get(pk=record)
     if request.method == 'POST':
         formset = forms.CoordFormSet(request.POST, )
         if formset.is_valid():
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "coords have been successfully updated")
-            return HttpResponseRedirect(reverse("sar_search:manage_coords", kwargs={"range": range}))
+            return HttpResponseRedirect(reverse("sar_search:manage_coords", kwargs={"record": record}))
     else:
-        my_range = models.Range.objects.get(pk=range)
-        print(my_range.range_type)
-        if my_range.range_type == 1 and my_range.points.count() >= 1:
+        print(my_record.record_type)
+        if my_record.record_type == 1 and my_record.points.count() >= 1:
             formset = forms.CoordFormSetNoExtra(
                 queryset=qs,
-                initial=[{"range": range}],
+                initial=[{"record": record}],
             )
         else:
             formset = forms.CoordFormSet(
                 queryset=qs,
-                initial=[{"range": range}],
+                initial=[{"record": record}],
             )
     context = {}
-    context['title'] = "Manage Range Coordinates"
+    context['title'] = "Manage Record Coordinates"
     context['formset'] = formset
-    context["range"] = my_range
-    context["my_object"] = models.RangePoints.objects.first()
+    context["record"] = my_record
+    context["my_object"] = models.RecordPoints.objects.first()
     context["field_list"] = [
         'latitude_n',
         'longitude_w',
@@ -256,9 +256,9 @@ def manage_coords(request, range):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
 def delete_coord(request, pk):
-    my_obj = models.RangePoints.objects.get(pk=pk)
+    my_obj = models.RecordPoints.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("sar_search:manage_coords", kwargs={"range": my_obj.range.id}))
+    return HttpResponseRedirect(reverse("sar_search:manage_coords", kwargs={"record": my_obj.record.id}))
 
 
 #

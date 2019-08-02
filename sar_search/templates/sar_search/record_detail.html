@@ -35,9 +35,15 @@
         <h1>{{ object }}</h1>
         <div class="btn-group">
             {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
-            <a class="btn btn-warning" href="{% url 'sar_search:range_edit' object.id %}">Edit</a>
-            <a class="btn btn-danger" href="{% url 'sar_search:range_delete' object.id %}">Delete</a>
+            <a class="btn btn-warning" href="{% url 'sar_search:record_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'sar_search:record_delete' object.id %}">Delete</a>
             <a class="btn btn-primary" href="{% url 'sar_search:manage_coords' object.id %}">Set / Modify Coordinates</a>
+
+            {% if not object.record_type == 1 %}
+                <a class="btn btn-success under-dev" href="#">Import from Spreadsheet</a>
+
+            {% endif %}
+
         </div>
 
         <br><br>
@@ -66,7 +72,7 @@
             var infowindow = new google.maps.InfoWindow();
             var bounds = new google.maps.LatLngBounds();
 
-            {% if object.range_type == 1 %}
+            {% if object.record_type == 1 %}
 
                 marker = new google.maps.Marker({
                     position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
@@ -76,8 +82,48 @@
 
                 bounds.extend(marker.position);
 
-            {% elif object.range_type == 3 %}
 
+            {% elif object.record_type == 2 %}
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
+                    map: map,
+                    label: {text: "{{object.name}}", color: "#ffffff"},
+                });
+
+
+                // extend bounds var
+                bounds.extend(marker.position);
+                {% for point in object.points.all %}
+                    bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
+                {% endfor %}
+
+                // Define the LatLng coordinates for the polygon's path.
+                var lineCoords = [
+                    {% for point in object.points.all %}
+                        {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                    {% endfor %}
+                ];
+
+                // Construct the stratum.
+                var color = '#ea4544';
+                var myLine= new google.maps.Polyline({
+                    path: lineCoords,
+                    strokeColor: 'red',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 3,
+                    {#fillColor: color,#}
+                    {#fillOpacity: 0.35#}
+                });
+                myLine.setMap(map);
+                {#bounds.extend(myPolygon.getBounds());#}
+
+                map.fitBounds(bounds);
+                // add a click event on the polygon
+
+
+
+
+            {% elif object.record_type == 3 %}
                 marker = new google.maps.Marker({
                     position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
                     map: map,
@@ -137,38 +183,38 @@
 
     <script>
 
-        {% if range.range_type == 1 %}
+        {% if record.record_type == 1 %}
 
             marker = new google.maps.Marker({
-                position: new google.maps.LatLng({{range.coords.x}}, {{range.coords.y}}),
+                position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
                 map: map,
-                {#label: {text: "{{range.name}}", color: "#ffffff"},#}
+                {#label: {text: "{{record.name}}", color: "#ffffff"},#}
             });
 
             bounds.extend(marker.position);
             google.maps.event.addListener(marker, 'click', (function (marker) {
                 return function () {
-                    infowindow.setContent('<a href="{% url 'sar_search:range_detail' range.id %}">{{range.name}}</a>');
+                    infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
                     infowindow.open(map, marker);
                 }
             })(marker));
-        {% elif range.range_type == 3 %}
+        {% elif record.record_type == 3 %}
 
             marker = new google.maps.Marker({
-                position: new google.maps.LatLng({{range.coords.x}}, {{range.coords.y}}),
+                position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
                 map: map,
-                {#label: {text: "{{range.name}}", color: "#ffffff"},#}
+                {#label: {text: "{{record.name}}", color: "#ffffff"},#}
             });
             google.maps.event.addListener(marker, 'click', (function (marker) {
                 return function () {
-                    infowindow.setContent('<a href="{% url 'sar_search:range_detail' range.id %}">{{range.name}}</a>');
+                    infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
                     infowindow.open(map, marker);
                 }
             })(marker));
 
             // extend bounds var
             bounds.extend(marker.position);
-            {% for point in range.points.stratum.points.all %}
+            {% for point in record.points.stratum.points.all %}
                 bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
             {% endfor %}
 
