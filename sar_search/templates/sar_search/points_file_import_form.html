@@ -1,0 +1,111 @@
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+{% block content %}
+    <style>
+        table, td, th {
+            border: black 1px solid;
+        }
+
+        .red-font {
+            color: red;
+            font-weight: bold;
+
+        }
+
+    </style>
+
+    <script>
+        window.resizeTo(width = 1000, height = 800);
+    </script>
+    <div class="container">
+
+        <h1>
+            {% trans "Point list import form:" %}
+        </h1>
+        <ul>
+            <li>
+                {% trans "the file must be in csv format" %}
+            </li>
+            <li>
+                {% trans "the order of the columns in the file is NOT important" %}
+            </li>
+            <li>
+                {% trans "the file must have the follow format: " %}
+            </li>
+        </ul>
+        <table>
+            <thead>
+            <th>latitude</th>
+            <th>longitude</th>
+
+            </thead>
+            <tr>
+
+                <td>
+                    <em>
+                        <ul>
+                            <li>positive float</li>
+                            <li>point latitude</li>
+                        </ul>
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        <ul>
+                            <li>negative float</li>
+                            <li>point longitude</li>
+                        </ul>
+                    </em>
+                </td>
+
+            </tr>
+
+        </table>
+        <br><br>
+        EXAMPLE:
+        <table>
+            <thead>
+            <th>latitude</th>
+            <th>longitude</th>
+            </thead>
+
+            <tr>
+                <td>46.024333</td>
+                <td>-63.4577</td>
+            </tr>
+            <tr>
+                <td>47.03333333</td>
+                <td>-63.9</td>
+            </tr>
+            <tr>
+                <td>47.044323</td>
+                <td>-63.4456</td>
+            </tr>
+        </table>
+
+
+        <br><br>
+
+        <form method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+
+                <h2 class="red-font">WARNING: running this function will overwrite any existing points in this record.</h2>
+                <h3>Please select the file to upload:</h3>
+                {{ field }}
+            {% endfor %}
+
+            <br>
+            <br>
+
+            <button type="submit" class="btn btn-success">{% trans "Submit" %}</button>
+            <br>
+            <br>
+            <a class="btn btn-secondary" href="#" onclick="window.close()">{% trans "Cancel" %}</a>
+
+        </form>
+
+    </div>
+
+{% endblock content %}

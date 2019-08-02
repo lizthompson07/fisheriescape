@@ -25,7 +25,7 @@ class SpeciesForm(forms.ModelForm):
 class RecordForm(forms.ModelForm):
     class Meta:
         model = models.Record
-        exclude = ["date_last_modified",]
+        exclude = ["date_last_modified","temp_file"]
         widgets = {
             # "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             # "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),

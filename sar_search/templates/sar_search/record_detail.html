@@ -40,7 +40,7 @@
             <a class="btn btn-primary" href="{% url 'sar_search:manage_coords' object.id %}">Set / Modify Coordinates</a>
 
             {% if not object.record_type == 1 %}
-                <a class="btn btn-success under-dev" href="#">Import from Spreadsheet</a>
+                <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">Import Points from CSV</a>
 
             {% endif %}
 
