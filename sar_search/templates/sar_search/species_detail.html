@@ -39,6 +39,10 @@
             <a class="btn btn-warning" href="{% url 'sar_search:species_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'sar_search:species_delete' object.id %}">Delete</a>
             <a class="btn btn-primary" href="{% url 'sar_search:record_new' object.id %}">Add New Record</a>
+            {% if not object.record_type == 1 %}
+                <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">Import Records from CSV</a>
+
+            {% endif %}
         </div>
 
 
@@ -133,20 +137,21 @@
 
             {% for record in object.records.all %}
                 {% if record.record_type == 1 %}
-
-                    marker = new google.maps.Marker({
-                        position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
-                        map: map,
-                        {#label: {text: "{{record.name}}", color: "#ffffff"},#}
-                    });
-
-                    bounds.extend(marker.position);
-                    google.maps.event.addListener(marker, 'click', (function (marker) {
-                        return function () {
-                            infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
-                            infowindow.open(map, marker);
-                        }
-                    })(marker));
+                    {% for point in record.points.all %}
+                        var marker = new google.maps.Marker({
+                            position: new google.maps.LatLng({{point.latitude_n}}, {{point.longitude_w}}),
+                            map: map,
+                            //label: {text: "{{point.record.name}}", color: "#ffffff"},
+                        });
+                        bounds.extend(marker.position);
+                        google.maps.event.addListener(marker, 'click', (function (marker) {
+                            return function () {
+                                infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
+                                infowindow.open(map, marker);
+                            }
+                        })(marker));
+                    {% endfor %}
+                    map.fitBounds(bounds);
 
                 {% elif record.record_type == 2 %}
                     marker = new google.maps.Marker({
@@ -154,7 +159,12 @@
                         map: map,
                         label: {text: "{{record.name}}", color: "#ffffff"},
                     });
-
+                    google.maps.event.addListener(marker, 'click', (function (marker) {
+                        return function () {
+                            infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
+                            infowindow.open(map, marker);
+                        }
+                    })(marker));
 
                     // extend bounds var
                     bounds.extend(marker.position);
@@ -192,7 +202,12 @@
                         map: map,
                         label: {text: "{{record.name}}", color: "#ffffff"},
                     });
-
+                    google.maps.event.addListener(marker, 'click', (function (marker) {
+                        return function () {
+                            infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
+                            infowindow.open(map, marker);
+                        }
+                    })(marker));
 
                     // extend bounds var
                     bounds.extend(marker.position);
