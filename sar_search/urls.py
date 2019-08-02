@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
@@ -31,10 +32,10 @@ urlpatterns = [
     path('record/<int:pk>/view/', views.RecordDetailView.as_view(), name="record_detail"),
     path('record/<int:pk>/edit/', views.RecordUpdateView.as_view(), name="record_edit"),
     path('record/<int:pk>/delete/', views.RecordDeleteView.as_view(), name="record_delete"),
+    path('record/<int:pk>/import-points-from-file/', views.PointsImportFileView.as_view(), name="file_import"),
     # points
     path('record/<int:record>/manage-coords/', views.manage_coords, name="manage_coords"),
     path('record-point/<int:pk>/delete/', views.delete_coord, name="delete_coord"),
-
 
     #
     # # SAMPLE #
@@ -60,5 +61,4 @@ urlpatterns = [
     # path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
 
 ]
-
 app_name = 'sar_search'
