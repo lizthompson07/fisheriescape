@@ -112,8 +112,8 @@ class Species(models.Model):
         ordering = ['common_name_eng']
 
 
-class Range(models.Model):
-    # choice for range type:
+class Record(models.Model):
+    # choice for record type:
     POINT = 1
     LINE = 2
     POLYGON = 3
@@ -123,10 +123,10 @@ class Range(models.Model):
         (POLYGON, "polygon"),
     )
 
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name='ranges', blank=True, null=True)
-    name = models.CharField(max_length=255, verbose_name=_("range name"))
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name='records', blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("record name"))
     counties = models.ManyToManyField(County, blank=True)
-    range_type = models.IntegerField(verbose_name=_("range type"), choices=RANGE_TYPE_CHOICES)
+    record_type = models.IntegerField(verbose_name=_("record type"), choices=RANGE_TYPE_CHOICES)
     source = models.CharField(max_length=1000, verbose_name=_("source"))
 
     # metadata
@@ -144,26 +144,28 @@ class Range(models.Model):
         return super().save(*args, **kwargs)
 
     def get_polygon(self):
-        if self.range_type == 3 and self.points.count() > 0:
+        if self.record_type in [2, 3] and self.points.count() > 0:
             point_list = [(point.latitude_n, point.longitude_w) for point in self.points.all()]
             return Polygon(point_list)
 
     def coords(self):
-        if self.range_type == 1 and self.points.count() > 0:
+        if self.record_type == 1 and self.points.count() > 0:
             return {"x": self.points.first().latitude_n,
                     "y": self.points.first().longitude_w}
-        elif self.range_type == 3 and self.points.count() > 0:
+        elif self.record_type in [2, 3] and self.points.count() > 0:
             my_polygon = self.get_polygon()
             return {"x": my_polygon.centroid.coords[0][0],
                     "y": my_polygon.centroid.coords[0][1]}
 
-class RangePoints(models.Model):
-    range = models.ForeignKey(Range, on_delete=models.DO_NOTHING, related_name='points', blank=True, null=True)
+
+class RecordPoints(models.Model):
+    record = models.ForeignKey(Record, on_delete=models.DO_NOTHING, related_name='points', blank=True, null=True)
+    # record = models.IntegerField(blank=True, null=True)
     latitude_n = models.FloatField()
     longitude_w = models.FloatField()
 
     class Meta:
-        ordering = ['range', ]
+        ordering = ['record', ]
 
     def save(self, *args, **kwargs):
         if self.longitude_w and self.longitude_w > 0:

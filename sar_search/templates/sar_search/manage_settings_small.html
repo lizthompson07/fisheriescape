@@ -32,8 +32,8 @@
             {% if "coord" in title|lower %}
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' range.species.id %}"> {{ range.species }} </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'sar_search:range_detail' range.id %}"> {{ range }} </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' record.species.id %}"> {{ record.species }} </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'sar_search:record_detail' record.id %}"> {{ record }} </a></li>
             {% else %}
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}">{% trans "Home" %}</a></li>
             {% endif %}
@@ -110,11 +110,6 @@
             <p>
                 <button id="submit" type="submit" class="btn btn-primary">Save</button>
                 <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">Back</a>
-
-                {% if "coord" in title|lower %}
-                    <a class="btn btn-success under-dev" href="#">Import from Spreadsheet</a>
-
-                {% endif %}
             </p>
 
         </form>

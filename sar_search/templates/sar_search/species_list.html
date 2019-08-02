@@ -61,6 +61,7 @@
                 {% for field in field_list %}
                     <th scope="col">{% get_verbose_label my_object field %}</th>
                 {% endfor %}
+                    <th scope="col">Number of Records</th>
             </tr>
             </thead>
             <tbody>
@@ -79,6 +80,7 @@
                         {% endif %}
 
                     {% endfor %}
+                    <td class="center-col">{{object.records.count}}</td>
                 </tr>
             {% endfor %}
             </tbody>

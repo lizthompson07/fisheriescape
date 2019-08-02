@@ -26,14 +26,14 @@ urlpatterns = [
 
     # RANGE #
     #########
-    path('species/<int:species>/range/new/', views.RangeCreateView.as_view(), name="range_new"),
-    # path('range/new/', views.RangeCreateView.as_view(), name="range_new"),
-    path('range/<int:pk>/view/', views.RangeDetailView.as_view(), name="range_detail"),
-    path('range/<int:pk>/edit/', views.RangeUpdateView.as_view(), name="range_edit"),
-    path('range/<int:pk>/delete/', views.RangeDeleteView.as_view(), name="range_delete"),
+    path('species/<int:species>/record/new/', views.RecordCreateView.as_view(), name="record_new"),
+    # path('record/new/', views.RecordCreateView.as_view(), name="record_new"),
+    path('record/<int:pk>/view/', views.RecordDetailView.as_view(), name="record_detail"),
+    path('record/<int:pk>/edit/', views.RecordUpdateView.as_view(), name="record_edit"),
+    path('record/<int:pk>/delete/', views.RecordDeleteView.as_view(), name="record_delete"),
     # points
-    path('range/<int:range>/manage-coords/', views.manage_coords, name="manage_coords"),
-    path('range-point/<int:pk>/delete/', views.delete_coord, name="delete_coord"),
+    path('record/<int:record>/manage-coords/', views.manage_coords, name="manage_coords"),
+    path('record-point/<int:pk>/delete/', views.delete_coord, name="delete_coord"),
 
 
     #

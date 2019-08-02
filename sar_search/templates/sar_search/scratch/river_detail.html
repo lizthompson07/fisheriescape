@@ -95,7 +95,7 @@
                 </thead>
                 <tbody>
                 {% for obj in object.species_sites.all %}
-                    {% url 'sar_search:range_detail' obj.id as my_url %}
+                    {% url 'sar_search:record_detail' obj.id as my_url %}
                     <tr href="{{ my_url }}">
                         {% for field in site_field_list %}
                             <td>{% get_field_value obj field %}</td>
