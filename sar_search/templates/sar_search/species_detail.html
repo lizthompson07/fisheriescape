@@ -38,7 +38,7 @@
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'sar_search:species_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'sar_search:species_delete' object.id %}">Delete</a>
-            <a class="btn btn-primary" href="{% url 'sar_search:range_new' object.id %}">Add New Range</a>
+            <a class="btn btn-primary" href="{% url 'sar_search:record_new' object.id %}">Add New Record</a>
         </div>
 
 
@@ -84,22 +84,22 @@
     <br><br>
     <div class="row justify-content-center">
         <div class="col-8">
-            <h3>Range List</h3>
-            {% if object.ranges.count > 0 %}
+            <h3>Record List</h3>
+            {% if object.records.count > 0 %}
 
                 <table class="table table-sm table-hover sortable">
                     <thead>
                     <tr>
-                        {% for field in range_field_list %}
-                            <th scope="col">{% get_verbose_label object.ranges.first field %}</th>
+                        {% for field in record_field_list %}
+                            <th scope="col">{% get_verbose_label object.records.first field %}</th>
                         {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
-                    {% for obj in object.ranges.all %}
-                        {% url 'sar_search:range_detail' obj.id as my_url %}
+                    {% for obj in object.records.all %}
+                        {% url 'sar_search:record_detail' obj.id as my_url %}
                         <tr href="{{ my_url }}">
-                            {% for field in range_field_list %}
+                            {% for field in record_field_list %}
                                 <td>{% get_field_value obj field nullmark="" %}</td>
                             {% endfor %}
                         </tr>
@@ -109,7 +109,7 @@
             {% else %}
                 <div class="text-center">
                     <em>
-                        No ranges have been added for this species. You can add a range by clicking on the button at the top of the
+                        No records have been added for this species. You can add a record by clicking on the button at the top of the
                         page.
                     </em>
                 </div>
@@ -131,40 +131,78 @@
             var infowindow = new google.maps.InfoWindow();
             var bounds = new google.maps.LatLngBounds();
 
-            {% for range in object.ranges.all %}
-                {% if range.range_type == 1 %}
+            {% for record in object.records.all %}
+                {% if record.record_type == 1 %}
 
                     marker = new google.maps.Marker({
-                        position: new google.maps.LatLng({{range.coords.x}}, {{range.coords.y}}),
+                        position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
                         map: map,
-                        {#label: {text: "{{range.name}}", color: "#ffffff"},#}
+                        {#label: {text: "{{record.name}}", color: "#ffffff"},#}
                     });
 
                     bounds.extend(marker.position);
                     google.maps.event.addListener(marker, 'click', (function (marker) {
                         return function () {
-                            infowindow.setContent('<a href="{% url 'sar_search:range_detail' range.id %}">{{range.name}}</a>');
+                            infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
                             infowindow.open(map, marker);
                         }
                     })(marker));
-                {% elif range.range_type == 3 %}
 
+                {% elif record.record_type == 2 %}
                     marker = new google.maps.Marker({
-                        position: new google.maps.LatLng({{range.coords.x}}, {{range.coords.y}}),
+                        position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
                         map: map,
-                        label: {text: "{{range.name}}", color: "#ffffff"},
+                        label: {text: "{{record.name}}", color: "#ffffff"},
                     });
 
 
                     // extend bounds var
                     bounds.extend(marker.position);
-                    {% for point in range.points.all %}
+                    {% for point in record.points.all %}
+                        bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
+                    {% endfor %}
+
+                    // Define the LatLng coordinates for the polygon's path.
+                    var lineCoords = [
+                        {% for point in record.points.all %}
+                            {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                        {% endfor %}
+                    ];
+
+                    // Construct the stratum.
+                    var color = '#ea4544';
+                    var myLine = new google.maps.Polyline({
+                        path: lineCoords,
+                        strokeColor: 'red',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 3,
+                        {#fillColor: color,#}
+                        {#fillOpacity: 0.35#}
+                    });
+                    myLine.setMap(map);
+                    {#bounds.extend(myPolygon.getBounds());#}
+
+                    map.fitBounds(bounds);
+                    // add a click event on the polygon
+
+                {% elif record.record_type == 3 %}
+
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
+                        map: map,
+                        label: {text: "{{record.name}}", color: "#ffffff"},
+                    });
+
+
+                    // extend bounds var
+                    bounds.extend(marker.position);
+                    {% for point in record.points.all %}
                         bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
                     {% endfor %}
 
                     // Define the LatLng coordinates for the polygon's path.
                     var polygonCoords = [
-                        {% for point in range.points.all %}
+                        {% for point in record.points.all %}
                             {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
                         {% endfor %}
                     ];

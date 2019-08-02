@@ -22,9 +22,9 @@ class SpeciesForm(forms.ModelForm):
         }
 
 
-class RangeForm(forms.ModelForm):
+class RecordForm(forms.ModelForm):
     class Meta:
-        model = models.Range
+        model = models.Record
         exclude = ["date_last_modified",]
         widgets = {
             # "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
@@ -97,7 +97,7 @@ CountyFormSet = modelformset_factory(
 
 class CoordForm(forms.ModelForm):
     class Meta:
-        model = models.RangePoints
+        model = models.RecordPoints
         fields = "__all__"
         widgets = {
             "range": forms.HiddenInput(),
@@ -106,14 +106,14 @@ class CoordForm(forms.ModelForm):
     
 
 CoordFormSet = modelformset_factory(
-    model=models.RangePoints,
+    model=models.RecordPoints,
     form=CoordForm,
     extra=1,
 )
 
 
 CoordFormSetNoExtra = modelformset_factory(
-    model=models.RangePoints,
+    model=models.RecordPoints,
     form=CoordForm,
     extra=0,
 )
