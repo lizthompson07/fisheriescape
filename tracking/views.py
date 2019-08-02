@@ -122,7 +122,7 @@ def summarize_data(context):
         # who is the user?
         my_user = view.visitor.user
 
-        if my_user and app_name and app_name not in ["", "accounts", "login_required", "denied", "reset", "password-reset", "auth", "login",]:
+        if my_user and app_name and app_name not in ["", "accounts", "login_required", "denied", "reset", "password-reset", "auth", "login", "setlang", "shared", "tracking"]:
 
             # what is the date?
             my_date = timezone.datetime(view.view_time.year, view.view_time.month, view.view_time.day)
@@ -207,8 +207,10 @@ def generate_page_visit_report(app_list):
         colors = palettes.Set1[3][:len(app_list)]
     elif len(app_list) <= 9:
         colors = palettes.Set1[len(app_list)]
-    else:
+    elif len(app_list) <= 20:
         colors = palettes.Category20[len(app_list)]
+    else:
+        colors = palettes.viridis(len(app_list))
 
     # get a list of days
     date_list = [date["date"] for date in VisitSummary.objects.all().values("date").order_by("date").distinct()]
