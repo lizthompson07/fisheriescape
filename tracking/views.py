@@ -180,17 +180,16 @@ def summarize_data(context, user=None):
                      VisitSummary.objects.all().values("user").order_by("user").distinct()]
         user_dict = {}
         final_user_dict = {}
-        for user in user_list:
+        for my_user in user_list:
             # create a new file containing data
-            result = VisitSummary.objects.filter(user=user).values('user').order_by(
+            result = VisitSummary.objects.filter(user=my_user).values('user').order_by(
                 "user").distinct().annotate(dsum=Sum('page_visits'))
-            user_dict[User.objects.get(pk=user)] = result[0]["dsum"]
+            user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
 
         for key, value in sorted(user_dict.items(), key=lambda item: item[1], reverse=True):
             final_user_dict[key] = value
 
         context["user_dict"] = final_user_dict
-
     generate_page_visit_report(app_list, user=user)
 
     # delete any records older then three days
