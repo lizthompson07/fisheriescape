@@ -69,7 +69,9 @@
                 <tbody>
                 {% for user in user_dict %}
                     <tr>
-                        <td>{{ user }}</td>
+                        <td>
+                            <a href="{% url 'tracking:user_history' user.id %}">{{ user }}</a>
+                        </td>
                         <td>{{ user_dict|lookup:user }}</td>
 
                     </tr>
