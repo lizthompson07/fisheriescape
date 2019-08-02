@@ -1,3 +1,4 @@
+import requests
 import unicodecsv as csv
 import os
 
@@ -259,6 +260,36 @@ def delete_coord(request, pk):
     my_obj = models.RecordPoints.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("sar_search:manage_coords", kwargs={"record": my_obj.record.id}))
+
+
+class PointsImportFileView(SARSearchAdminRequiredMixin, UpdateView):
+    model = models.Record
+    fields = ["temp_file", ]
+    template_name = 'sar_search/points_file_import_form.html'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        # now we need to do some magic with the file...
+
+        # load the file
+        url = self.request.META.get("HTTP_ORIGIN") + my_object.temp_file.url
+        r = requests.get(url)
+        # print(r.text.splitlines())
+        csv_reader = csv.DictReader(r.iter_lines())
+        # delete all existing points
+        my_object.points.all().delete()
+
+        for row in csv_reader:
+            my_new_point = models.RecordPoints.objects.create(
+                record=my_object,
+                latitude_n=row["latitude"],
+                longitude_w=row["longitude"],
+            )
+
+        # clear the file in my object
+        my_object.temp_file = None
+        my_object.save()
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
 #
