@@ -280,10 +280,11 @@ class PointsImportFileView(SARSearchAdminRequiredMixin, UpdateView):
         my_object.points.all().delete()
 
         for row in csv_reader:
+            print(row)
             my_new_point = models.RecordPoints.objects.create(
                 record=my_object,
-                latitude_n=row["latitude"],
-                longitude_w=row["longitude"],
+                latitude_n=float(row["latitude"]),
+                longitude_w=float(row["longitude"]),
             )
 
         # clear the file in my object

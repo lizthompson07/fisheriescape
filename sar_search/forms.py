@@ -100,7 +100,7 @@ class CoordForm(forms.ModelForm):
         model = models.RecordPoints
         fields = "__all__"
         widgets = {
-            "range": forms.HiddenInput(),
+            "record": forms.HiddenInput(),
 
         }
     
