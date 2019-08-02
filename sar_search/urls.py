@@ -23,16 +23,16 @@ urlpatterns = [
     path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
     path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
     path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+    path('species/<int:pk>/import-points-from-file/', views.RecordImportFileView.as_view(), name="file_import"),
 
 
-    # RANGE #
-    #########
+    # RECORD #
+    ##########
     path('species/<int:species>/record/new/', views.RecordCreateView.as_view(), name="record_new"),
     # path('record/new/', views.RecordCreateView.as_view(), name="record_new"),
     path('record/<int:pk>/view/', views.RecordDetailView.as_view(), name="record_detail"),
     path('record/<int:pk>/edit/', views.RecordUpdateView.as_view(), name="record_edit"),
     path('record/<int:pk>/delete/', views.RecordDeleteView.as_view(), name="record_delete"),
-    path('record/<int:pk>/import-points-from-file/', views.PointsImportFileView.as_view(), name="file_import"),
     # points
     path('record/<int:record>/manage-coords/', views.manage_coords, name="manage_coords"),
     path('record-point/<int:pk>/delete/', views.delete_coord, name="delete_coord"),

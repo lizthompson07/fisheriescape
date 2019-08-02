@@ -15,7 +15,7 @@ chosen_js = {"class": "chosen-select-contains"}
 class SpeciesForm(forms.ModelForm):
     class Meta:
         model = models.Species
-        exclude = ["date_last_modified",]
+        exclude = ["date_last_modified", "temp_file"]
         widgets = {
             "province_range": forms.SelectMultiple(attrs=multi_select_js),
             "last_modified_by": forms.HiddenInput(),
@@ -25,7 +25,7 @@ class SpeciesForm(forms.ModelForm):
 class RecordForm(forms.ModelForm):
     class Meta:
         model = models.Record
-        exclude = ["date_last_modified","temp_file"]
+        exclude = ["date_last_modified"]
         widgets = {
             # "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             # "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
