@@ -74,14 +74,17 @@
 
             {% if object.record_type == 1 %}
 
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
-                    map: map,
-                    label: {text: "{{object.name}}", color: "#ffffff"},
-                });
-
-                bounds.extend(marker.position);
-
+                // extend bounds var
+                {% for point in object.points.all %}
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng({{point.latitude_n}}, {{point.longitude_w}}),
+                        map: map,
+                        //label: {text: "{{point.record.name}}", color: "#ffffff"},
+                    });
+                    bounds.extend(marker.position);
+                {% endfor %}
+                map.fitBounds(bounds);
+                // add a click event on the polygon
 
             {% elif object.record_type == 2 %}
                 marker = new google.maps.Marker({
@@ -106,7 +109,7 @@
 
                 // Construct the stratum.
                 var color = '#ea4544';
-                var myLine= new google.maps.Polyline({
+                var myLine = new google.maps.Polyline({
                     path: lineCoords,
                     strokeColor: 'red',
                     strokeOpacity: 0.8,
@@ -163,7 +166,6 @@
 
             {% endif %}
 
-
             map.fitBounds(bounds);
 
         }
@@ -173,97 +175,12 @@
             script.type = 'text/javascript';
             script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
             document.body.appendChild(script);
-
         }
 
         window.onload = loadScript();
 
     </script>
 
-
-    <script>
-
-        {% if record.record_type == 1 %}
-
-            marker = new google.maps.Marker({
-                position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
-                map: map,
-                {#label: {text: "{{record.name}}", color: "#ffffff"},#}
-            });
-
-            bounds.extend(marker.position);
-            google.maps.event.addListener(marker, 'click', (function (marker) {
-                return function () {
-                    infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
-                    infowindow.open(map, marker);
-                }
-            })(marker));
-        {% elif record.record_type == 3 %}
-
-            marker = new google.maps.Marker({
-                position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
-                map: map,
-                {#label: {text: "{{record.name}}", color: "#ffffff"},#}
-            });
-            google.maps.event.addListener(marker, 'click', (function (marker) {
-                return function () {
-                    infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
-                    infowindow.open(map, marker);
-                }
-            })(marker));
-
-            // extend bounds var
-            bounds.extend(marker.position);
-            {% for point in record.points.stratum.points.all %}
-                bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
-            {% endfor %}
-
-            // Define the LatLng coordinates for the polygon's path.
-            var polygonCoords = [
-                {% for point in object.station.stratum.points.all %}
-                    {lat: {{point.latitude}}, lng: {{point.longitude}}},
-                {% endfor %}
-            ];
-
-            // Construct the stratum.
-            var color = '#ea4544';
-            var myPolygon = new google.maps.Polygon({
-                paths: polygonCoords,
-                strokeColor: 'white',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: color,
-                fillOpacity: 0.35
-            });
-            myPolygon.setMap(map);
-            {#bounds.extend(myPolygon.getBounds());#}
-
-            map.fitBounds(bounds);
-            // add a click event on the polygon
-
-
-        {% endif %}
-
-
-
-        // Initialize and add the map
-        function initMap() {
-            // The location of Uluru
-            var uluru = {lat: {{object.coords.x}}, lng: {{object.coords.y}}};
-            // The map, centered at Uluru
-            var map = new google.maps.Map(
-                document.getElementById('map'), {
-                    zoom: 17,
-                    center: uluru,
-                    mapTypeId: google.maps.MapTypeId.SATELLITE,
-                });
-            // The marker, positioned at Uluru
-            var marker = new google.maps.Marker({position: uluru, map: map});
-        }
-    </script>
-    <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
-    </script>
 {% endblock %}
 
 

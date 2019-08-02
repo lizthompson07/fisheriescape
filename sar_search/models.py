@@ -79,6 +79,7 @@ class Species(models.Model):
                                       blank=True, null=True)
     province_range = models.ManyToManyField(shared_models.Province, blank=True)
     notes = models.TextField(max_length=255, null=True, blank=True)
+    temp_file = models.FileField(upload_to='temp_file', null=True)
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -115,13 +116,45 @@ class Species(models.Model):
         ordering = ['common_name_eng']
 
 
+@receiver(models.signals.post_delete, sender=Species)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.temp_file:
+        if os.path.isfile(instance.temp_file.path):
+            os.remove(instance.temp_file.path)
+
+
+@receiver(models.signals.pre_save, sender=Species)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Species.objects.get(pk=instance.pk).temp_file
+    except Species.DoesNotExist:
+        return False
+
+    new_file = instance.temp_file
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
 class Record(models.Model):
     # choice for record type:
     POINT = 1
     LINE = 2
     POLYGON = 3
     RANGE_TYPE_CHOICES = (
-        (POINT, "point"),
+        (POINT, "points"),
         (LINE, "line"),
         (POLYGON, "polygon"),
     )
@@ -131,7 +164,7 @@ class Record(models.Model):
     counties = models.ManyToManyField(County, blank=True)
     record_type = models.IntegerField(verbose_name=_("record type"), choices=RANGE_TYPE_CHOICES)
     source = models.CharField(max_length=1000, verbose_name=_("source"))
-    temp_file = models.FileField(upload_to='temp_file', null=True)
+    # temp_file = models.FileField(upload_to='temp_file', null=True)
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -161,46 +194,43 @@ class Record(models.Model):
             return {"x": my_polygon.centroid.coords[0][0],
                     "y": my_polygon.centroid.coords[0][1]}
 
-
-
-
-
-@receiver(models.signals.post_delete, sender=Record)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.temp_file:
-        if os.path.isfile(instance.temp_file.path):
-            os.remove(instance.temp_file.path)
-
-
-@receiver(models.signals.pre_save, sender=Record)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = Record.objects.get(pk=instance.pk).temp_file
-    except Record.DoesNotExist:
-        return False
-
-    new_file = instance.temp_file
-    if not old_file == new_file and old_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
-
+#
+# @receiver(models.signals.post_delete, sender=Record)
+# def auto_delete_file_on_delete(sender, instance, **kwargs):
+#     """
+#     Deletes file from filesystem
+#     when corresponding `MediaFile` object is deleted.
+#     """
+#     if instance.temp_file:
+#         if os.path.isfile(instance.temp_file.path):
+#             os.remove(instance.temp_file.path)
+#
+#
+# @receiver(models.signals.pre_save, sender=Record)
+# def auto_delete_file_on_change(sender, instance, **kwargs):
+#     """
+#     Deletes old file from filesystem
+#     when corresponding `MediaFile` object is updated
+#     with new file.
+#     """
+#     if not instance.pk:
+#         return False
+#
+#     try:
+#         old_file = Record.objects.get(pk=instance.pk).temp_file
+#     except Record.DoesNotExist:
+#         return False
+#
+#     new_file = instance.temp_file
+#     if not old_file == new_file and old_file:
+#         if os.path.isfile(old_file.path):
+#             os.remove(old_file.path)
 
 
 class RecordPoints(models.Model):
-    record = models.ForeignKey(Record, on_delete=models.DO_NOTHING, related_name='points', blank=True, null=True)
+    record = models.ForeignKey(Record, on_delete=models.CASCADE, related_name='points', blank=True, null=True)
     # record = models.IntegerField(blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("site name"), blank=True, null=True)
     latitude_n = models.FloatField()
     longitude_w = models.FloatField()
 
