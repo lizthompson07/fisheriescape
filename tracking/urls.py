@@ -5,8 +5,7 @@ from tracking.views import dashboard, user_history
 
 urlpatterns = [
     url(r'^$', dashboard, name='tracking-dashboard'),
-    path('<int:user>/', user_history , name="user_history")
-
+    path('user/<int:user>/', user_history , name="user_history")
 ]
 
 app_name = "tracking"
