@@ -61,7 +61,8 @@ urlpatterns = [
          views.AnnualWatershedReportTemplateView.as_view(), name="watershed_report"),
     path('reports/annual-watershed-spreadsheet/site/<int:site>/year/<int:year>', views.annual_watershed_spreadsheet,
          name="watershed_xlsx"),
-    path('reports/fgp-csv-export/', views.fgp_export, name="watershed_csv"),
+    path('reports/fgp-csv-export/', views.fgp_export, name="fgp_report"),
+    path('reports/fgp-csv-export-dictionary/', views.fgp_dictionary_export, name="fgp_dictionary"),
     path('reports/ais-export/species-list/<str:species_list>/', views.ais_export, name="ais_export"),
 
 ]

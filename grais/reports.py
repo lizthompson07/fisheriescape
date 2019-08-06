@@ -1,27 +1,15 @@
 import statistics
-import pandas
 import unicodecsv as csv
 import xlsxwriter as xlsxwriter
 from django.http import HttpResponse
-from django.template.defaultfilters import yesno
+from django.template.defaultfilters import floatformat
 from django.utils import timezone
-from math import pi
-
-from bokeh.io import show, export_png, export_svgs
-from bokeh.models import SingleIntervalTicker, ColumnDataSource, HoverTool, LabelSet, Label, Title
-from bokeh.plotting import figure, output_file, save
-from bokeh import palettes
-from bokeh.transform import cumsum
-from django.db.models import Sum, Q
-from shutil import rmtree
 from django.conf import settings
 
-from lib.functions.custom_functions import nz
+from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
-import numpy as np
 import os
-import pandas as pd
 
 
 def generate_species_sample_spreadsheet(species_list=None):
@@ -207,3 +195,398 @@ def generate_species_sample_spreadsheet(species_list=None):
 
     workbook.close()
     return target_url
+
+
+def generate_open_data_ver_1_data_dictionary():
+    """
+    Generates the data dictionary for open data report version 1
+    """
+
+    filename = "open_data_ver1_data_dictionary.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+    species_id_list = [48, 24, 47, 23, 55, 59, 25]
+    species_qs = models.Species.objects.filter(id__in=species_id_list)
+
+    # write the header
+    header = [
+        "name__nom",
+        "description_en",
+        "description_fr",
+    ]
+    writer.writerow(header)
+
+    field_names = [
+        'Sampling year',
+        'Station code',
+        'Station name',
+        'Date in',
+        'Date out',
+        'Weeks',
+        'Station Description',
+        'Collector Latitude',
+        'Collector Longitude',
+        'Collector ID',
+        'Surface Type',
+        'Surface ID',
+        'Probe Type',
+        'Probe Sample Date/Time',
+        'Probe Depth',
+        'Temperture C',
+        'Sal ppt',
+        'O2 percent',
+        'O2 mg-l',
+        'SpCond - mS',
+        'Spc - mS',
+        'pH',
+        'Turbidity',
+        'Weather Notes',
+        'Samplers',
+        'Other species',
+    ]
+
+    descr_fra = [
+        "Année d'échantillonnage",
+        "Code de la station",
+        "Nom de la station",
+        "Date de la mise à l'eau (aaaa-mm-jj)",
+        "Date de sortie de l'eau (aaaa-mm-jj)",
+        "Durée de la saison période d'immersion en semaines",
+        "Description de la station",
+        "Latitude du collecteur (degrés décimaux)",
+        "Longitude du collecteur (degrés décimaux)",
+        "Numéro du collecteur",
+        "Type de surface (plaque ou pétri)",
+        "Numéro du surface",
+        "Modèle de la sonde",
+        "Date et heure de l'échantillonnage des paramètres physico-chimiques de l'eau (aaaa-mm-jj hh:mm)",
+        "Profondeur de la sonde (m)",
+        "Température de l'eau au moment de l'échantillonnage (degrés C)",
+        "Salinité de l'eau au moment de l'échatillonnage (ppt)",
+        "Oxygène dissout (%)",
+        "Oxygène dissout (mg/L)",
+        "Conductance spécifique (mS)",
+        "Conductivité (mS)",
+        "pH",
+        "Turbidité",
+        "Description météo",
+        "noms des échantillonneurs et nom de l’organisme responsable",
+        "Autre espèces présentes sur le surface",
+    ]
+
+    descr_eng = [
+        "Sample year",
+        "Station code",
+        "Station name",
+        "Date of deployment (yyyy-mm-dd)",
+        "Date of retrieval (yyyy-mm-dd)",
+        "Duration in number of weeks",
+        "Station description",
+        "Latitude of the collector (decimal degrees)",
+        "Longitude of the collector (decimal degrees)",
+        "Collector identifier",
+        "Surface type (plate or petri dish)",
+        "Surface identifier",
+        "Probe model name",
+        "Date and time of probe sample (yyyy-mm-dd hh:mm)",
+        "Probe depth (m)",
+        "Water temperature (degrés C)",
+        "Salinity (ppt)",
+        "Dissolved oxygen (%)",
+        "Dissolved oxygen (mg/L)",
+        "Specific conductance (mS)",
+        "Conductivity (mS)",
+        "pH",
+        "Turbidity",
+        "Weather description",
+        "Names of samplers and their organization affiliations",
+        "Other species present on surface",
+    ]
+
+    for species in species_qs:
+
+        first_name = species.scientific_name.split(" ")[0][:1].upper()
+        if len(species.scientific_name.split(" ")) > 2:
+            second_name = " ".join(species.scientific_name.split(" ")[1:])
+        else:
+            second_name = species.scientific_name.split(" ")[1]
+        display_name = "{}. {}".format(first_name, second_name, )
+        field_names.append("{} % cover".format(display_name))
+
+        # if species id is 24 or 48, we want color morph notes as well
+        if species.id in [24, 48]:
+            field_names.append("{} Color Notes".format(display_name))
+
+        descr_fra.append(
+            "% de recouvrement de {}".format(species.scientific_name)
+        )
+        descr_eng.append(
+            "% coverage of {}".format(species.scientific_name)
+        )
+
+        # if species id is 24 or 48, we want color morph notes as well
+        if species.id in [24, 48]:
+            descr_fra.append(
+                "Patrons de couleur de {}".format(species.scientific_name)
+            )
+            descr_eng.append(
+                "Color morph notes for {}".format(species.scientific_name)
+            )
+
+    for i in range(0, len(field_names)):
+        writer.writerow([
+            field_names[i],
+            descr_eng[i],
+            descr_fra[i],
+        ])
+
+    return response
+
+
+def generate_open_data_ver_1_report(year=None):
+    """
+    This is a view designed for FGP / open maps view.
+    :param year: int
+    :return: http response
+    """
+
+    # determine the filename based on whether we are looking at all years vs. a single year
+    filename = "open_data_ver1_report_{}.csv".format(year) if year and year != "None" else "open_data_ver1_report_all_years.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    # Botrylloïdes violaceus, Botryllus shlosseri, Caprella mutica, Ciona intestinalis, Codium fragile, Membranipora membranacea, Styela clava
+    species_id_list = [48, 24, 47, 23, 55, 59, 25]
+    species_qs = models.Species.objects.filter(id__in=species_id_list)
+
+    header_row = [
+        'Sampling year',
+        'Station code',
+        'Station name',
+        'Date in',
+        'Date out',
+        'Weeks',
+        'Station Description',
+        'Collector Latitude',
+        'Collector Longitude',
+        'Collector ID',
+        'Surface Type',
+        'Surface ID',
+        'Probe Type',
+        'Probe Sample Date/Time',
+        'Probe Depth',
+        'Temperture C',
+        'Sal ppt',
+        'O2 percent',
+        'O2 mg-l',
+        'SpCond - mS',
+        'Spc - mS',
+        'pH',
+        'Turbidity',
+        'Weather Notes',
+        'Samplers',
+        'Other species',
+    ]
+    for species in species_qs:
+        first_name = species.scientific_name.split(" ")[0][:1].upper()
+        if len(species.scientific_name.split(" ")) > 2:
+            second_name = " ".join(species.scientific_name.split(" ")[1:])
+        else:
+            second_name = species.scientific_name.split(" ")[1]
+        display_name = "{}. {}".format(first_name, second_name, )
+        header_row.append("{} % cover".format(display_name))
+
+        # if species id is 24 or 48, we want color morph notes as well
+        if species.id in [24, 48]:
+            header_row.append("{} Color Notes".format(display_name))
+
+    writer.writerow(header_row)
+
+    samples = models.Sample.objects.all()
+    # if there is a year provided, filter by only this year
+    print(year)
+    if year and year != "None":
+        samples = samples.filter(season=year)
+
+    # make sure to exclude the lost lines and surfaces; this is sort of redundant since if a line is line, all surfaces should also be labelled as lost.
+    surfaces = models.Surface.objects.filter(
+        line__sample_id__in=[obj["id"] for obj in samples.order_by("id").values("id").distinct()],
+        line__is_lost=False,
+        is_lost=False,
+    ).order_by("line__sample__date_deployed")
+
+    for surface in surfaces:
+
+        # Try getting hold of the last probe sample taken
+        my_probe = surface.line.sample.probe_data.order_by("time_date").last()
+        if my_probe:
+            probe = my_probe.probe
+            time_date = my_probe.time_date.strftime("%Y-%m-%d %H:%M")
+            probe_depth = my_probe.probe_depth
+            temp_c = my_probe.temp_c
+            sal = my_probe.sal_ppt
+            o2p = my_probe.o2_percent
+            o2m = my_probe.o2_mgl
+            spcond = my_probe.sp_cond_ms
+            spc = my_probe.spc_ms
+            ph = my_probe.ph
+            turb = my_probe.turbidity
+            weather = my_probe.weather_notes
+        else:
+            probe = time_date = probe_depth = temp_c = sal = o2p = o2m = spcond = spc = ph = turb = weather = None
+
+        # summarize all of the samplers
+        samplers = listrify(["{} ({})".format(obj, obj.organization) for obj in surface.line.sample.samplers.all()])
+        # summarize all of the "other" species
+        other_spp = listrify([str(sp) for sp in surface.species.all() if sp.id not in species_id_list])
+
+        data_row = [
+            surface.line.sample.season,
+            surface.line.sample.station_id,
+            surface.line.sample.station,
+            surface.line.sample.date_deployed.strftime("%Y-%m-%d"),
+            surface.line.sample.date_retrieved.strftime("%Y-%m-%d") if surface.line.sample.date_retrieved else None,
+            surface.line.sample.weeks_deployed,
+            surface.line.sample.station.site_desc,
+            surface.line.latitude_n,
+            surface.line.longitude_w,
+            surface.line.collector,
+            surface.get_surface_type_display(),
+            surface.label,
+            probe, time_date, probe_depth, temp_c, sal, o2p, o2m, spcond, spc, ph, turb, weather,
+            samplers,
+            other_spp,
+        ]
+
+        for species in species_qs:
+            try:
+                data_row.append(
+                    floatformat(nz(models.SurfaceSpecies.objects.get(species=species, surface=surface).percent_coverage, 0) * 100, 0)
+                )
+            except models.SurfaceSpecies.DoesNotExist:
+
+                data_row.append(
+                    0
+                )
+
+            # if species id is 24 or 48, we want color morph notes as well
+            if species.id in [24, 48]:
+                try:
+                    data_row.append(
+                        models.SurfaceSpecies.objects.get(species=species, surface=surface).notes
+                    )
+                except models.SurfaceSpecies.DoesNotExist:
+                    data_row.append(
+                        None
+                    )
+
+        writer.writerow(data_row)
+
+    return response
+
+
+def generate_open_data_ver_1_wms_report(year=None):
+    """
+    Simple report for web mapping service on FGP
+    """
+
+    # Botrylloïdes violaceus, Botryllus shlosseri, Caprella mutica, Ciona intestinalis, Codium fragile, Membranipora membranacea, Styela clava
+    species_id_list = [48, 24, 47, 23, 55, 59, 25]
+    species_qs = models.Species.objects.filter(id__in=species_id_list)
+
+    filename = "open_data_ver1_wms_report.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    header_row_eng = [
+        'Season(s)',
+        'Station code',
+        'Station name',
+        'Station province',
+        'Station description',
+        'Station latitude',
+        'Station longitude',
+        'List of other species observed',
+    ]
+
+    header_row_fra = [
+        'Saison(s)',
+        'Code de station',
+        'Nom de station',
+        'province de station',
+        'Description de station',
+        'Latitude de station',
+        'Longitude de station',
+        'Liste des espèces observées',
+    ]
+
+    for species in species_qs:
+        first_name = species.scientific_name.split(" ")[0][:1].upper()
+        if len(species.scientific_name.split(" ")) > 2:
+            second_name = " ".join(species.scientific_name.split(" ")[1:])
+        else:
+            second_name = species.scientific_name.split(" ")[1]
+        display_name = "{}. {}".format(first_name, second_name, )
+        header_row_eng.append("{} detected?".format(display_name))
+        header_row_fra.append("{} détecté?".format(display_name))
+
+    writer.writerow(header_row_eng)
+    writer.writerow(header_row_fra)
+
+    samples = models.Sample.objects.all()
+    # if there is a year provided, filter by only this year
+    if year and year != "None":
+        samples = samples.filter(season=year)
+
+    stations = [models.Station.objects.get(pk=obj["station"]) for obj in samples.order_by("station").values("station").distinct()]
+    # make sure to exclude the lost lines and surfaces; this is sort of redundant since if a line is line, all surfaces should also be labelled as lost.
+    surfacespecies = models.SurfaceSpecies.objects.filter(
+        surface__line__sample_id__in=[obj["id"] for obj in samples.order_by("id").values("id").distinct()],
+        surface__line__is_lost=False,
+        surface__is_lost=False,
+    )
+
+    for station in stations:
+        other_spp = listrify([str(models.Species.objects.get(pk=obj["species"])) for obj in
+                              surfacespecies.filter(surface__line__sample__station=station).order_by("species").values("species").distinct()
+                              if obj["species"] not in species_id_list])
+        seasons = listrify(
+            [obj["surface__line__sample__season"] for obj in
+             surfacespecies.filter(surface__line__sample__station=station).order_by("surface__line__sample__season").values(
+                 "surface__line__sample__season").distinct()])
+        data_row = [
+            seasons,
+            station.id,
+            station.station_name,
+            "{} / {}".format(station.province.abbrev_eng, station.province.abbrev_fre),
+            station.site_desc,
+            station.latitude_n,
+            station.longitude_w,
+            other_spp,
+        ]
+
+        for species in species_qs:
+            spp_count = surfacespecies.filter(
+                surface__line__sample__station=station,
+                species=species,
+            ).count()
+            if spp_count > 0:
+                data_row.append(True)
+            else:
+                data_row.append(False)
+
+        writer.writerow(data_row)
+
+    return response

@@ -30,40 +30,54 @@
     <div class="indent-lg">
 
         <h1>{{ object }}</h1>
+        <div class="row">
+            <div class="col">
+                <div class="btn-group">
+                    <a class="btn btn-warning" href="{% url 'ihub:org_edit' object.id %}">
+                        {% trans "Edit" %}
+                    </a>
+                    <a class="btn btn-danger " href="{% url 'ihub:org_delete' object.id %}">
+                        {% trans "Delete" %}
+                    </a>
+                    <a class="btn btn-success" href="{% url 'ihub:report_q' object.id %}">
+                        {% trans "Cue Card" %}
+                    </a>
 
-
-        <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'ihub:org_edit' object.id %}">
-                {% trans "Edit" %}
-            </a>
-            <a class="btn btn-danger " href="{% url 'ihub:org_delete' object.id %}">
-                {% trans "Delete" %}
-            </a>
-            <a class="btn btn-success" href="{% url 'ihub:report_q' object.id %}">
-                {% trans "Cue Card" %}
-            </a>
-
+                </div>
+            </div>
+            <div class="col">
+                {% if object.audio_file %}
+                    <audio controls>
+                        <source src="{{ object.audio_file.url }}" type="audio/ogg">
+                        Your browser does not support the audio element.
+                    </audio>
+                {% endif %}
+            </div>
         </div>
+
         <br><br>
 
         <div class="row">
-            <div class="col-3">
+            <div class="col">
                 <h3>
                     {% trans "Organization Detail:" %}
                 </h3>
-
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
+                <table class="table table-sm table-striped">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field %}
+                    {% endfor %}
+                </table>
                 <br>
 
                 <h3>
-                    {% trans "Extended Detail:" %}
+                    {% trans "iHub Only:" %}
                 </h3>
-
-                {% for field in field_list_2 %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
+                <table class="table table-sm table-striped">
+                    {% for field in field_list_2 %}
+                        {% verbose_td_display object field %}
+                    {% endfor %}
+                </table>
+                <br>
                 <br>
 
             </div>

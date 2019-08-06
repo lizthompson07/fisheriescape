@@ -31,7 +31,7 @@
                         {% if object.file %}
                             <a href="{{ object.file.file.url }}">Yes</a>
                         {% else %}
-                            <span class="red-font">No, click <a href="#" pop-href="{% url 'spot:file_new' object.id 3 %}">here</a> to upload it.</span>
+                            <span class="red-font">No, click <a href="#" pop-href="{% url 'spot:file_new' object.project.id 3 %}">here</a> to upload it.</span>
                         {% endif %}
                     </p>
                 {% elif field.name == "application_submission_date" %}
@@ -47,6 +47,36 @@
                             <span class="red-font">No, click  <a href="#" pop-href="{% url 'spot:file_new' object.id 6 %}">here</a> to upload it.</span>
                         {% endif %}
                     </p>
+                {% elif field.name == "recommended_overprogramming" %}
+                    {% bootstrap_field field size='small' placeholder="" %}
+                    <p>
+                        <b>
+                            {% trans "Project evaluation file uploaded?" %}
+                        </b>
+                        {% if object.project_evaluation_file %}
+                            <a href="{{ object.project_evaluation_file.file.url }}">Yes</a>
+
+                        {% else %}
+                            <span class="red-font">No, click  <a href="#" pop-href="{% url 'spot:file_new' object.id 8 %}">here</a> to upload it.</span>
+                        {% endif %}
+                    </p>
+
+                {% elif field.name == "project_eligible" %}
+                    {% bootstrap_field field size='small' placeholder="" %}
+                    <p>
+                        <b>
+                            {% trans "EOI evaluation file uploaded?" %}
+                        </b>
+                        {% if object.eoi_evaluation_file %}
+                            <a href="{{ object.eoi_evaluation_file.file.url }}">Yes</a>
+
+                        {% else %}
+                            <span class="red-font">No, click  <a href="#" pop-href="{% url 'spot:file_new' object.project.id 7 %}">here</a> to upload it.</span>
+                        {% endif %}
+                    </p>
+
+
+
                 {% elif field.name == "risk_assessment_score" %}
                     {% bootstrap_field field size='small' placeholder="" %}
                     <p>
@@ -157,8 +187,8 @@
     {% block body_js %}
 
         <script>
-            {% if view.kwargs.step == "activities" %}
-                window.resizeTo(width = 1200, height = 850);
+            {% if view.kwargs.step == "attributes" %}
+                window.resizeTo(width = 1500, height = 900);
             {% else %}
                 window.resizeTo(width = 1000, height = 850);
             {% endif %}
