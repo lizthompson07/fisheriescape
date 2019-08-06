@@ -1,9 +1,13 @@
 import os
+
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import TextField
 from django.db.models.functions import Concat
+from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
@@ -391,6 +395,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
         context["current_fy"] = fiscal_year()
         context["field_list"] = [
             'id',
@@ -404,8 +409,17 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'regions',
             'start_year',
             'project_length',
+            'activities',
+            'watersheds',
+            'spp',
             'date_completed',
+            'summary',
         ]
+
+        site_list = [["{} ({})".format(obj.name, obj.site_type), obj.lat, obj.long] for obj in self.object.sites.all() if
+                     obj.lat and obj.long]
+        context['site_list'] = site_list
+
         return context
 
 
@@ -678,7 +692,7 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
 
     def get_queryset(self, *args, **kwargs):
         if self.kwargs["step"] == "initiation" or self.kwargs["step"] == "review" or self.kwargs["step"] == "negotiations" or self.kwargs[
-            "step"] == "ca-admin" or self.kwargs["step"] == "activities":
+            "step"] == "ca-admin" or self.kwargs["step"] == "attributes":
             return models.Project.objects.all()
         elif self.kwargs["step"] == "my-update":
             return models.ProjectYear.objects.all()
@@ -694,8 +708,8 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
             return forms.NegotiationForm
         elif self.kwargs["step"] == "ca-admin":
             return forms.CAAdministrationForm
-        elif self.kwargs["step"] == "activities":
-            return forms.ActivitiesForm
+        elif self.kwargs["step"] == "attributes":
+            return forms.AttributesForm
         else:
             return forms.ProjectYearForm
 
@@ -713,8 +727,8 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
             context["email"] = emails.MasterEmail(my_object, "negotiations")
         elif step_name == "ca-admin":
             step_name = "CA Administration"
-        elif step_name == "activities":
-            step_name = "Activity Types"
+        elif step_name == "attributes":
+            step_name = "Project Attributes"
         context["step_name"] = step_name
         return context
 
@@ -735,22 +749,22 @@ class TrackingUpdateView(SpotAccessRequiredMixin, UpdateView):
                     my_year.annual_funding = my_object.recommended_funding_y1
                     my_year.save()
             if my_object.recommended_funding_y2:
-                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+1)
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id + 1)
                 if created:
                     my_year.annual_funding = my_object.recommended_funding_y2
                     my_year.save()
             if my_object.recommended_funding_y3:
-                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+2)
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id + 2)
                 if created:
                     my_year.annual_funding = my_object.recommended_funding_y3
                     my_year.save()
             if my_object.recommended_funding_y4:
-                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+3)
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id + 3)
                 if created:
                     my_year.annual_funding = my_object.recommended_funding_y4
                     my_year.save()
             if my_object.recommended_funding_y5:
-                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id+4)
+                my_year, created = models.ProjectYear.objects.get_or_create(project=my_object, fiscal_year_id=my_object.start_year_id + 4)
                 if created:
                     my_year.annual_funding = my_object.recommended_funding_y5
                     my_year.save()
@@ -869,7 +883,6 @@ class PaymentDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-
 # FILE #
 ########
 
@@ -883,9 +896,9 @@ class FileCreateView(SpotAccessRequiredMixin, CreateView):
         super().get_initial()
         my_project = models.Project.objects.get(pk=self.kwargs['project'])
         my_dict = {
-              'project': my_project,
-              'uploaded_by': self.request.user,
-          }
+            'project': my_project,
+            'uploaded_by': self.request.user,
+        }
         if self.kwargs.get("type"):
             my_dict['file_type'] = models.FileType.objects.get(pk=self.kwargs.get("type"))
         return my_dict
@@ -899,6 +912,7 @@ class FileCreateView(SpotAccessRequiredMixin, CreateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse('spot:close_me'))
+
 
 class FileUpdateView(SpotAccessRequiredMixin, UpdateView):
     model = models.File
@@ -929,6 +943,62 @@ class FileDeleteView(SpotAccessRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+# SITE #
+########
+class SiteCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.Site
+    template_name = 'spot/site_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.SiteForm
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+
+class SiteUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.Site
+    template_name = 'spot/site_form_popout.html'
+    form_class = forms.SiteForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse('spot:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class SiteDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/site_confirm_delete.html'
+    model = models.Site
+    success_url = reverse_lazy('spot:close_me')
+    success_message = 'The site was successfully removed!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
 
 # REPORTS #
@@ -963,7 +1033,6 @@ class ReportSearchFormView(SpotAccessRequiredMixin, FormView):
 class NegotiationReport(SpotAccessRequiredMixin, TemplateView):
     template_name = 'masterlist/report_search.html'
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
@@ -985,3 +1054,110 @@ class NegotiationReport(SpotAccessRequiredMixin, TemplateView):
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
 
+
+# SETTINGS #
+############
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
+def manage_activities(request):
+    qs = models.Activity.objects.all()
+    if request.method == 'POST':
+        formset = forms.ActivityFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Activities have been successfully updated")
+            return HttpResponseRedirect(reverse("spot:manage_activities"))
+    else:
+        formset = forms.ActivityFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Activities"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'program',
+        'name',
+        'nom',
+        'habitat',
+        'category_eng',
+        'category_fre',
+    ]
+    return render(request, 'spot/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
+def delete_activity(request, pk):
+    my_obj = models.Activity.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("spot:manage_activities"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
+def manage_watersheds(request):
+    qs = models.Watershed.objects.all()
+    if request.method == 'POST':
+        formset = forms.WatershedFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Watersheds have been successfully updated")
+            return HttpResponseRedirect(reverse("spot:manage_watersheds"))
+    else:
+        formset = forms.WatershedFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Watersheds"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'province',
+        'drainage_basin',
+        'notes',
+    ]
+    return render(request, 'spot/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
+def delete_watershed(request, pk):
+    my_obj = models.Watershed.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("spot:manage_watersheds"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
+def manage_basins(request):
+    qs = models.DrainageBasin.objects.all()
+    if request.method == 'POST':
+        formset = forms.DrainageBasinFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Drainage Basins have been successfully updated")
+            return HttpResponseRedirect(reverse("spot:manage_basins"))
+    else:
+        formset = forms.DrainageBasinFormSet(
+            queryset=qs)
+    context = {}
+    context['title'] = "Manage Drainage Basins"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    return render(request, 'spot/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_spot_admin_group, login_url='/accounts/denied/')
+def delete_basin(request, pk):
+    my_obj = models.DrainageBasin.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("spot:manage_basins"))

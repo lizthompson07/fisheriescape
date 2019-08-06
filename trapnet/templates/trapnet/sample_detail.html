@@ -1,0 +1,101 @@
+{% extends "trapnet/trapnet_base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block header %}
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 500px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+
+        .label {
+            font-weight: bold;
+
+        }
+    </style>
+
+{% endblock header %}
+
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'trapnet:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_list' %}"> Samples </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+
+        <br>
+        <h1>{{ object }}</h1>
+        <p>
+            {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
+            <a class="btn btn-warning" href="{% url 'trapnet:trap_edit' object.id %}">Edit</a>
+            {#            <a href="{% url 'trapnet:station_new' object.id %}" class="btn btn btn-success ">New Site</a>#}
+
+            <a class="btn btn-danger" href="{% url 'trapnet:trap_delete' object.id %}">Delete</a>
+            <a class="btn btn-primary" href="{% url 'trapnet:obs_insert' object.id  %}">Add / Modify Entries</a>
+        </p>
+
+        <br><br>
+        <div class="row">
+            <div class="col-4">
+                <h3>Trap Details:</h3>
+                <table class="table table-sm table-striped">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field display_time=True %}
+                    {% endfor %}
+
+                </table>
+            </div>
+
+            <div class="col">
+                <div id="map"></div>
+                <br><br>
+                <h4>
+                    <b>Entry Summary:</b>
+                </h4>
+                <table class="table table-sm table-striped" style="width: 40%">
+                    <tr>
+                        <th>Total number of entries</th>
+                        <td>{{ object.entries.count }}</td>
+                    </tr>
+                    <tr>
+                        <th>Species caught</th>
+                        <td>{{ object.species_list}}</td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+        <br><br>
+    </div>
+
+    <script>
+
+        // Initialize and add the map
+        function initMap() {
+            // The location of Uluru
+            var uluru = {lat: {{object.site.latitude_n}}, lng: {{object.site.longitude_w}}};
+            // The map, centered at Uluru
+            var map = new google.maps.Map(
+                document.getElementById('map'), {
+                    zoom: 17,
+                    center: uluru,
+                    mapTypeId: google.maps.MapTypeId.SATELLITE,
+                });
+            // The marker, positioned at Uluru
+            var marker = new google.maps.Marker({position: uluru, map: map});
+        }
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
+    </script>
+
+
+
+{% endblock content %}

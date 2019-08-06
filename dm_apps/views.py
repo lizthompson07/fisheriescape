@@ -1,6 +1,8 @@
 from collections import OrderedDict
 
+from django.contrib import messages
 from django.urls import reverse, NoReverseMatch
+from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
 
@@ -92,7 +94,7 @@ def get_app_dict(request):
         app_dict["ihub"] = {
             "title": _("iHub"),
             "description": _("Indigenous Hub entry management and reporting tool."),
-            "status": "beta",
+            "status": "production",
             "access": "permission-required",
             "url": reverse('ihub:index'),
             "icon_path": 'img/icons/network.svg',
@@ -131,37 +133,11 @@ def get_app_dict(request):
         app_dict["scifi"] = {
             "title": _("SciFi"),
             "description": _("Gulf Science finance tracking and reporting tool."),
-            "status": "beta",
+            "status": "production",
             "access": "permission-required",
             "url": reverse('scifi:index'),
             "icon_path": 'img/icons/money1.svg',
             "region": "all",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["masterlist"] = {
-            "title": _("MasterList"),
-            "description": _("Regional master list and consultation instructions."),
-            "status": "dev",
-            "access": "permission-required",
-            "url": reverse('masterlist:index'),
-            "icon_path": 'img/icons/connection.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["snowcrab"] = {
-            "title": _("Snow Crab"),
-            "description": _("front-end application for the Gulf snow crab monitoring dataset"),
-            "status": "dev",
-            "access": "open",
-            "url": reverse('crab:index'),
-            "icon_path": 'img/icons/crab.svg',
-            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -183,7 +159,7 @@ def get_app_dict(request):
         app_dict["diets"] = {
             "title": _("Marine Diets"),
             "description": _("Stomach contents analysis database / application."),
-            "status": "beta",
+            "status": "production",
             "access": "permission-required",
             "url": reverse('diets:index'),
             "icon_path": 'img/icons/fork.svg',
@@ -192,18 +168,7 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-    try:
-        app_dict["shares"] = {
-            "title": _("Gulf Shares"),
-            "description": _("Administrative tool for managing gulf region shares."),
-            "status": "production",
-            "access": "permission-required",
-            "url": reverse('shares:index'),
-            "icon_path": 'img/icons/database.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
+
 
     try:
         app_dict["travel"] = {
@@ -222,10 +187,23 @@ def get_app_dict(request):
         app_dict["spot"] = {
             "title": _("Grants & Contributions"),
             "description": _("Gulf Region application for the tracking of Gs & Cs."),
-            "status": "dev",
+            "status": "beta",
             "access": "permission-required",
             "url": reverse('spot:index'),
             "icon_path": 'img/icons/agreement.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["trapnet"] = {
+            "title": _("TrapNet"),
+            "description": _("Diadromous Data Entry Tool."),
+            "status": "beta",
+            "access": "login-required",
+            "url": reverse('trapnet:index'),
+            "icon_path": 'img/icons/river.svg',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -270,14 +248,56 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+
+
     try:
-        app_dict["trapnet"] = {
-            "title": _("TrapNet"),
-            "description": _("Diadromous Data Entry Tool."),
+        app_dict["sar_search"] = {
+            "title": _("SAR Search"),
+            "description": _("Species at Risk Search Tool."),
             "status": "dev",
             "access": "login-required",
-            "url": reverse('trapnet:index'),
-            "icon_path": 'img/icons/river.svg',
+            "url": reverse('sar_search:index'),
+            "icon_path": 'img/icons/beetle.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+
+    try:
+        app_dict["shares"] = {
+            "title": _("Gulf Shares"),
+            "description": _("Administrative tool for managing gulf region shares."),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('shares:index'),
+            "icon_path": 'img/icons/database.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["snowcrab"] = {
+            "title": _("Snow Crab"),
+            "description": _("front-end application for the Gulf snow crab monitoring dataset"),
+            "status": "dev",
+            "access": "open",
+            "url": reverse('crab:index'),
+            "icon_path": 'img/icons/crab.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["masterlist"] = {
+            "title": _("MasterList"),
+            "description": _("Regional master list and consultation instructions."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('masterlist:index'),
+            "icon_path": 'img/icons/connection.svg',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -288,6 +308,11 @@ def get_app_dict(request):
 
 class IndexView(TemplateView):
     template_name = 'index.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        messages.info(request,
+                      mark_safe(_("Please note that this site is only intended for the storage of <b>unclassified information</b>.")))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -300,7 +325,6 @@ class IndexView(TemplateView):
 
             if app_odict[key]["region"] == "regional":
                 app_dict_regional[key] = app_odict[key]
-
 
         context["app_dict_shared"] = app_dict_shared
         context["app_dict_regional"] = app_dict_regional

@@ -77,7 +77,7 @@
                     {% bootstrap_field field %}
                 {% endif %}
             {% endfor %}
-            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Search"><br><br>
+            <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
 
 
         </form>
@@ -104,27 +104,33 @@
         }
 
         function configureForm() {
-            var reportChoice = $("#id_report")[0].value;
+            var reportChoice = $("#id_report").val();
             // species count report
             if (reportChoice == 1) {
                 $(".species_div").removeClass("gone");
                 $("#id_species").prop('required', true);
-                $("#id_species").multiSelect()
+                $("#id_species").multiSelect();
 
+            }
+            else if (reportChoice == 2 ) {
+                $(".year_div").removeClass("gone");
+                alert("Please note that running this report for all years will take several minutes to complete.");
+            }
+            else if (reportChoice == 4) {
+                $(".year_div").removeClass("gone");
             }
 
         }
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            hideAll()
-            configureForm()
+            hideAll();
+            configureForm();
         });
 
         $("#id_report").change(function () {
-            hideAll()
-            configureForm()
-            console.log("test")
+            hideAll();
+            configureForm();
         })
 
         $("form").submit(function () {
@@ -133,7 +139,7 @@
             if (reportChoice != 4) {
                 $(this).addClass("hidden");
                 $(".loader").removeClass("hidden");
-                window.setTimeout(closeLoader, 5000)
+                window.setTimeout(closeLoader, 5000);
             }
         });
 

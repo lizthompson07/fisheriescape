@@ -4,7 +4,6 @@
 {% load verbose_names %}
 {% load i18n %}
 {% block content %}
-
     <style>
         .indent-lg {
             margin-left: 5em;
@@ -60,7 +59,7 @@
                 {% for form in formset %}
                     <tr>
                         {% for field in form %}
-                            <td>
+                            <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
                                 {% bootstrap_field field size='small' show_label=False placeholder="" %}
                             </td>
                         {% endfor %}
@@ -91,3 +90,14 @@
         </form>
     </div>
 {% endblock content %}
+{% block body_js %}
+    <script type="application/javascript">
+        $(".color-cell").each(function () {
+            let myColor = $(this).attr("color-value");
+            $(this).children().children("input").css("background-color",myColor);
+        });
+
+
+    </script>
+
+{% endblock %}

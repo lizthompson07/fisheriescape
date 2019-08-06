@@ -3,6 +3,12 @@ from . import models
 from shared_models import models as shared_models
 from django import forms
 
+chosen_js = {"class": "chosen-select-contains"}
+
+class SpeciesFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains',
+                                            widget=forms.TextInput())
+
 
 class RiverFilter(django_filters.FilterSet):
     class Meta:
@@ -12,57 +18,21 @@ class RiverFilter(django_filters.FilterSet):
         }
 
 
-class TrapFilter(django_filters.FilterSet):
+class SampleFilter(django_filters.FilterSet):
     class Meta:
-        model = models.Trap
+        model = models.Sample
         fields = {
             'season': ['exact'],
-            'site__river': ['exact'],
+            'site': ['exact'],
         }
 
-#
-# class SampleFilter(django_filters.FilterSet):
-#     SeasonExact = django_filters.NumberFilter(field_name='year', label="From year", lookup_expr='exact', widget= forms.NumberInput(attrs={'style':"width: 4em"}))
-#     MonthExact = django_filters.NumberFilter(field_name='month', label="From month", lookup_expr='exact', widget= forms.NumberInput(attrs={'style':"width: 4em"}))
-#
-#     class Meta:
-#         model = models.Sample
-#         fields = {
-#             'station':['exact'],
-#         }
-#
-# #
-# # class StationFilter(django_filters.FilterSet):
-# #     class Meta:
-# #         model = models.Station
-# #         fields = {
-# #             'station_name':['icontains'],
-# #             'province':['exact'],
-# #         }
-# #
-# #
-#
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-#
-# # class ReportFilter(django_filters.FilterSet):
-# #     class Meta:
-# #         model = models.IncidentalReport
-# #         fields = {
-# #             'season':['exact'],
-# #             'report_type':['exact'],
-# #         }
-# #
-# #
-# # class SpeciesFilter(django_filters.FilterSet):
-# #     class Meta:
-# #         model = models.Species
-# #         fields = {
-# #             'common_name_eng': ['icontains'],
-# #             'common_name_fre': ['icontains'],
-# #             'code': ['icontains'],
-# #         }
-# #
-#
-#
-# class SpeciesFilter(django_filters.FilterSet):
-#     search_term = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains', widget= forms.TextInput())
+        season = self.data.get("season")
+        if season:
+            site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.all() if obj.samples.filter(season=season).count() > 1]
+        else:
+            site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.all() if obj.samples.count() > 1]
+
+        self.filters["site"] = django_filters.ChoiceFilter(field_name="site", choices=site_choices, label="Site", widget=forms.Select(attrs=chosen_js))
