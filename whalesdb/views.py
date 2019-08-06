@@ -1,6 +1,6 @@
-from django.views.generic import TemplateView, CreateView, ListView, DetailView
+from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
@@ -79,7 +79,7 @@ def get_model_object(obj_name):
         obj_def = {
             'label': "Team Member",
             'url': obj_name,
-            'order': "tea_id",
+            'order': "tea_last_name",
             'model': models.TeaTeamMembers,
             'entry': obj_name,
             'fields': [_("ID"), _("Last Name"), _("First Name")]
@@ -98,28 +98,33 @@ class IndexView(TemplateView):
                 'title': 'Deployment',
                 'forms': [
                     {
-                        'title': "Create Cruise",
-                        'url': "whalesdb:create_crs",
-                        'icon': 'img/icons/boat.svg',
-                    },
-                    {
-                        'title': "Create Station",
-                        'url': "whalesdb:create_stn",
+                        'obj_name': 'stn',
+                        'title': "Stations",
+                        'url': "whalesdb:list_obj",
                         'icon': "img/whales/station.svg",
                     },
                     {
+                        'obj_name': 'prj',
                         'title': "Create Project",
-                        'url': "whalesdb:create_prj",
+                        'url': "whalesdb:list_obj",
                         'icon': "img/whales/project.svg",
                     },
                     {
+                        'obj_name': 'mor',
                         'title': "Create Mooring Setup",
-                        'url': "whalesdb:create_mor",
+                        'url': "whalesdb:list_obj",
                         'icon': "img/whales/equipment.svg",
                     },
                     {
+                        'obj_name': 'crs',
+                        'title': "Create Cruise",
+                        'url': "whalesdb:list_obj",
+                        'icon': 'img/icons/boat.svg',
+                    },
+                    {
+                        'obj_name': 'dep',
                         'title': "Create Deployment",
-                        'url': "whalesdb:create_dep",
+                        'url': "whalesdb:list_obj",
                         'icon': "img/whales/deployment.svg",
                     },
                     {
@@ -235,7 +240,7 @@ class CloserNoRefreshTemplateView(TemplateView):
     template_name = 'whalesdb/close_me_no_refresh.html'
 
 
-class CreateTemplate(CreateView):
+class UpdateTemplate(UpdateView):
     template_name = "whalesdb/create_default.html"
     success_url = "#"
     cancel_url = "whalesdb:index"
@@ -248,30 +253,95 @@ class CreateTemplate(CreateView):
         context = super().get_context_data(**kwargs)
         context["cancel_url"] = self.cancel_url
 
+        if hasattr(self, 'obj_name'):
+            context['obj_name'] = self.obj_name
+
         if 'pop' in self.kwargs:
             context["pop"] = True
 
         return context
 
 
-class CreateDeploymentForm(CreateTemplate):
-    form_class = forms.CreateDeploymentForm
+class CreateTemplate(CreateView):
+    template_name = "whalesdb/create_default.html"
+    success_url = "#"
+    cancel_url = "whalesdb:index"
+
+    def get_initial(self):
+        print(self.kwargs)
+        if 'pop' in self.kwargs:
+            self.template_name = "whalesdb/create_default_no_head.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cancel_url"] = self.cancel_url
+
+        if hasattr(self, 'obj_name'):
+            context['obj_name'] = self.obj_name
+
+        if 'pop' in self.kwargs:
+            context["pop"] = True
+
+        return context
 
 
-class CreateMooringForm(CreateTemplate):
-    form_class = forms.CreateMooringForm
+def get_smart_object(obj_name):
+    obj_def = {}
+    if obj_name == 'stn':
+        obj_def = {
+            'model': models.StnStations,
+            'form_class': forms.StationForm,
+        }
+    elif obj_name == 'prj':
+        obj_def = {
+            'model': models.PrjProjects,
+            'form_class': forms.ProjectForm,
+        }
+    elif obj_name == 'mor':
+        obj_def = {
+            'model': models.MorMooringSetups,
+            'form_class': forms.MooringForm,
+        }
+    elif obj_name == 'crs':
+        obj_def = {
+            'model': models.CrsCruises,
+            'form_class': forms.CruiseForm,
+        }
+    elif obj_name == 'dep':
+        obj_def = {
+            'model': models.DepDeployments,
+            'form_class': forms.DeploymentForm,
+        }
+
+    return obj_def
 
 
-class CreateStationForm(CreateTemplate):
-    form_class = forms.CreateStationForm
+class CreateSmartForm(CreateTemplate):
+
+    def setup(self, request, *args, **kwargs):
+        obj_def = get_smart_object(kwargs['obj_name'])
+
+        self.model = obj_def['model']
+        self.form_class = obj_def['form_class']
+        self.success_url = reverse_lazy('whalesdb:list_obj', kwargs={'obj_name': kwargs['obj_name']})
+        self.cancel_url = obj_def['url'] if 'url' in obj_def else 'whalesdb:list_obj'
+        self.obj_name = kwargs['obj_name']
+
+        super().setup(request, *args, **kwargs)
 
 
-class CreateProjectForm(CreateTemplate):
-    form_class = forms.CreateProjectForm
+class UpdateSmartForm(UpdateTemplate):
 
+    def setup(self, request, *args, **kwargs):
+        obj_def = get_smart_object(kwargs['obj_name'])
 
-class CreateCruiseForm(CreateTemplate):
-    form_class = forms.CreateCruiseForm
+        self.model = obj_def['model']
+        self.form_class = obj_def['form_class']
+        self.success_url = reverse_lazy('whalesdb:list_obj', kwargs={'obj_name': kwargs['obj_name']})
+        self.cancel_url = obj_def['url'] if 'url' in obj_def else 'whalesdb:list_obj'
+        self.obj_name = kwargs['obj_name']
+
+        super().setup(request, *args, **kwargs)
 
 
 class CreateStationEventForm(CreateTemplate):
@@ -453,16 +523,18 @@ class ListGeneric(FilterView):
         labels = forms.get_short_labels(self.model)
         context['fields'] = get_fields(labels)
         context['new_object'] = self.create_link
-        context['detail_object'] = self.detail_link
+        context['detail_object'] = self.detail_link if hasattr(self, 'detail_link') else self.create_link
+        context["detail_type"] = self.detail_type if hasattr(self, 'detail_type') else 'general'
+        context["title"] = self.title
+
+        if hasattr(self, 'obj_name'):
+            context['obj_name'] = self.obj_name
+
         return context
 
 
 class ListEMM(ListGeneric):
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(object_list=object_list, **kwargs)
-        context['detail_type'] = 'emm'
-        return context
+    detail_type = 'emm'
 
 
 class ListRecorder(ListEMM):
@@ -470,13 +542,7 @@ class ListRecorder(ListEMM):
     filterset_class = filters.FilterRecorder
     create_link = "whalesdb:create_recorder"
     detail_link = "whalesdb:details_recorder"
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(object_list=object_list, **kwargs)
-
-        context["title"] = "Recorder Equipment"
-
-        return context
+    title = "Recorder Equipment"
 
 
 class ListHydrophone(ListEMM):
@@ -484,28 +550,72 @@ class ListHydrophone(ListEMM):
     filterset_class = filters.FilterHydrophone
     create_link = "whalesdb:create_hydrophone"
     detail_link = "whalesdb:details_hydrophone"
+    title = "Hydrophone Equipment"
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(object_list=object_list, **kwargs)
 
-        context["title"] = "Hydrophone Equipment"
+def get_smart_list(obj_name):
+    obj_def = {}
+    if obj_name == 'stn':
+        obj_def = {
+            'model': models.StnStations,
+            'filter_class': filters.FilterStations,
+            'create_link': 'whalesdb:create_obj',
+            'title': "Stations",
+            'obj_name': obj_name
+        }
+    elif obj_name == 'prj':
+        obj_def = {
+            'model': models.PrjProjects,
+            'filter_class': filters.FilterProjects,
+            'create_link': 'whalesdb:create_obj',
+            'title': "Projects",
+            'obj_name': obj_name
+        }
+    elif obj_name == 'mor':
+        obj_def = {
+            'model': models.MorMooringSetups,
+            'filter_class': filters.FilterMoorings,
+            'title': "Mooring Setups",
+            'obj_name': obj_name
+        }
+    elif obj_name == 'crs':
+        obj_def = {
+            'model': models.CrsCruises,
+            'filter_class': filters.FilterCruises,
+            'title': "Cruises",
+            'obj_name': obj_name
+        }
+    elif obj_name == 'dep':
+        obj_def = {
+            'model': models.DepDeployments,
+            'filter_class': filters.FilterDeployments,
+            'title': "Deployments",
+            'obj_name': obj_name
+        }
 
-        return context
+    return obj_def
+
+
+class ListSmart(ListGeneric):
+
+    def setup(self, request, *args, **kwargs):
+        obj_def = get_smart_list(kwargs['obj_name'])
+        self.model = obj_def['model']
+        self.filterset_class = obj_def['filter_class']
+        self.create_link = obj_def['create_link'] if 'create_link' in obj_def else 'whalesdb:create_obj'
+        self.title = obj_def['title']
+
+        if 'obj_name' in obj_def:
+            self.obj_name = obj_def['obj_name']
+
+        return super().setup(request, *args, **kwargs)
 
 
 class ListRecordEvent(ListGeneric):
     model = models.RecRecordingEvents
     filterset_class = filters.FilterRecordEvent
     create_link = "whalesdb:create_rec"
-    detail_link = "whalesdb:list_rec"
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(object_list=object_list, **kwargs)
-
-        context["detail_type"] = 'rec'
-        context["title"] = "Recording Event"
-
-        return context
+    title = "Recording Event"
 
 
 class CodeListView(ListView):
@@ -583,7 +693,7 @@ class SetCodeEditView(CreateView):
         # save the form but don't commit changes. Get the value from the cleaned data array
         form.save(commit=False)
 
-        obj = models.SetStationEventCode.objects.all().order_by('-set_name').values_list()
+        obj = models.SetStationEventCode.objects.all().order_by('set_name').values_list()
 
         n_id = 1
         if obj and obj[0][0]:
