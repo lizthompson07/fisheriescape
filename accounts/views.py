@@ -27,7 +27,9 @@ class CloserTemplateView(TemplateView):
 
 
 def access_denied(request):
-    a_tag = mark_safe('<a href="#" class="request-access-button">this</a>')
+
+    my_url = reverse("accounts:request_access")
+    a_tag = mark_safe('<a pop-href="{}" href="#" class="request-access-button">this</a>'.format(my_url))
     denied_message = "Sorry, you are not authorized to view this page. You can request access using {} form.".format(
         a_tag)
     messages.error(request, mark_safe(denied_message))

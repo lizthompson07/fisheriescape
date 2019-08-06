@@ -1,3 +1,4 @@
+from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
@@ -106,6 +107,7 @@ class PredatorFilterView(DietsAccessRequired, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Predator.objects.first()
         context["field_list"] = [
+            'season|Season',
             'id',
             'stomach_id',
             'species.common_name_eng',
@@ -412,13 +414,25 @@ class ReportSearchFormView(DietsAccessRequired, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        year = int(form.cleaned_data["year"])
+        my_year = form.cleaned_data["year"] if form.cleaned_data["year"] else "None"
+        my_cruise = form.cleaned_data["cruise"] if form.cleaned_data["cruise"] else "None"
+        my_spp = listrify(form.cleaned_data["spp"]) if len(form.cleaned_data["spp"]) > 0 else "None"
+
+
 
         if report == 1:
-            return HttpResponseRedirect(reverse("diets:prey_summary_list", kwargs={'year': year}))
+            return HttpResponseRedirect(reverse("diets:prey_summary_list")) # , kwargs={'year': my_year}
+        if report == 2:
+            return HttpResponseRedirect(reverse("diets:export_data_report", kwargs={'year': my_year, 'cruise': my_cruise, 'spp': my_spp}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("diet:report_search"))
+
+
+def export_data_report(request, year, cruise, spp):
+    response = reports.export_data(year, cruise, spp)
+    return response
+
 
 
 class PreySummaryListView(DietsAccessRequired, TemplateView):
@@ -427,13 +441,15 @@ class PreySummaryListView(DietsAccessRequired, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         prey_spp_list = [models.Species.objects.get(pk=p["species_id"]) for p in
-                         models.Prey.objects.filter(predator__cruise__season=self.kwargs["year"]).order_by(
-                             "species__scientific_name").values("species_id").distinct()]
+                         models.Prey.objects.filter(
+                            predator__stomach_id__isnull=False
+                         ).order_by("species__scientific_name").values("species_id").distinct()]
         context["prey_spp_list"] = prey_spp_list
         prey_dict = {}
         for species in prey_spp_list:
             # want to get a list of predators that ate this species
-            pred_list = [models.Predator.objects.get(pk=p["id"]) for p in models.Predator.objects.filter(cruise__season=self.kwargs["year"]).filter(prey_items__species=species).order_by("stomach_id").values("id").distinct()]
+            pred_list = [models.Predator.objects.get(pk=p["id"]) for p in models.Predator.objects.filter(
+                prey_items__species=species, stomach_id__isnull=False).order_by("stomach_id").values("id").distinct()]
             prey_dict[species.id] = pred_list
         context["prey_dict"] = prey_dict
         return context
