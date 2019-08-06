@@ -1195,47 +1195,185 @@ def generate_annual_watershed_spreadsheet(site, year):
     return target_url
 
 
+def generate_fgp_data_dictionary():
+    # figure out the filename
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="camp_data_dictionary.csv"'
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+    # write the header
+
+    header = [
+        "name_nom",
+        "description_en",
+        "description_fr",
+    ]
+    field_names = [
+        "year",
+        "month",
+        "prov",
+        "site",
+        "station",
+        "latitude",
+        "longitude",
+        "start_date",
+        "end_date",
+        "ammonia",
+        "d_o",
+        "nitrates",
+        "nitrite",
+        "phosphate",
+        "sal",
+        "silicate",
+        "water_temp",
+        "gravel",
+        "mud",
+        "rock",
+        "sand",
+        "species_eng",
+        "species_fra",
+        "scientific",
+        "tsn",
+        "sav",
+        "sav_level",
+        "adults",
+        "yoy",
+        "total_ind",
+        "total_all",
+    ]
+
+    descr_eng = [
+        "year of observation",
+        "month of observation",
+        "province",
+        "camp site",
+        "camp station",
+        "latitude (decimal degrees)",
+        "longitude (decimal degrees)",
+        "sample start date/time",
+        "sample end date/time",
+        "ammonia",
+        "dissolved oxygen",
+        "nitrates",
+        "nitrite",
+        "phosphate",
+        "salinity",
+        "silicate",
+        "water temperature (degrees C)",
+        "gravel (%)",
+        "mud (%)",
+        "rock (%)",
+        "sand (%)",
+        "species name in English",
+        "species name in French",
+        "scientific name",
+        "ITIS taxonomic serial number (TSN)",
+        "Is the species submerged aquatic vegetation (SAV)?",
+        "SAV level observed",
+        "count of adults",
+        "count of young-of-the-year",
+        "total number of individuals observed",
+        "total (SAV and non-SAV)",
+    ]
+    descr_fra = [
+        "l'année de l’observation",
+        "le mois de l’observation",
+        "province",
+        "site de PSCA",
+        "station de PSCA",
+        "latitude (degrés décimaux)",
+        "longitude (degrés décimaux)",
+        "date / heure de début",
+        "date / heure de fin",
+        "ammoniac",
+        "oxygène dissous",
+        "nitrates",
+        "nitrite",
+        "phosphate",
+        "salinité",
+        "silicate",
+        "température de l'eau (degrés C)",
+        "gravier (%)",
+        "boue (%)",
+        "roche (%)",
+        "sable (%)",
+        "nom de l'espèce en anglais",
+        "nom de l'espèce en français",
+        "nom scientifique",
+        "numéro de série taxonomique ITIS (TSN)",
+        "l'espèce est-elle une végétation aquatique submergée (VAS)?",
+        "VAS niveau observé",
+        "nombre d’adultes",
+        "nombre de jeunes de l'année",
+        "nombre total d'individus observés",
+        "total (VAS et non-VAS)",
+    ]
+
+    writer.writerow(header)
+
+    for i in range(0, len(field_names)):
+        writer.writerow([
+            field_names[i],
+            descr_eng[i],
+            descr_fra[i],
+        ])
+
+    return response
+
+
 def generate_fgp_export():
     # figure out the filename
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="fgp_dataset_for_camp.csv"'
+    response['Content-Disposition'] = 'attachment; filename="camp_dataset.csv"'
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
     # write the header
     writer.writerow([
-        "year / année",
-        "month / mois",
-        "province",
+        "year",
+        "month",
+        "prov",
         "site",
         "station",
-        "latitude (n)",
-        "longitude (w)",
-        "start date / date de début",
-        "end date / date de fin",
-        "ammonia / ammoniac",
-        "dissolved oxygen / oxygène dissous",
+        "latitude",
+        "longitude",
+        "start_date",
+        "end_date",
+        "ammonia",
+        "d_o",
         "nitrates",
         "nitrite",
         "phosphate",
-        "salinity / salinité",
+        "sal",
         "silicate",
-        "water temperature / température de l'eau (C)",
-        "gravel / gravier (%)",
-        "mud / boue (%)",
-        "rock / roche (%)",
-        "sand / sable (%)",
-        "species name (English) / nom de l'espèce (anglais)",
-        "species name (French) / nom de l'espèce (français)",
-        "scientific name / nom scientifique",
-        "ITIS TSN ID",
-        "submerged aquatic vegetation (SAV) / végétation aquatique submergée (VAS)",
-        "SAV level observed / VAS niveau observé",
-        "adults / adultes",
-        "young of the year / jeune de l'année",
-        "total number of individuals observed / total nombre d'individus observés",
+        "water_temp",
+        "gravel",
+        "mud",
+        "rock",
+        "sand",
+        "species_eng",
+        "species_fra",
+        "scientific",
+        "tsn",
+        "sav",
+        "sav_level",
+        "adults",
+        "yoy",
+        "total_ind",
+        "total_all",
     ])
 
     for obs in models.SpeciesObservation.objects.all():
+        if obs.species.sav:
+            total_sav = total = obs.total_sav
+            adults = None
+            yoy = None
+            total_non_sav = None
+        else:
+            total_sav = None
+            adults = obs.adults
+            yoy = obs.yoy
+            total_non_sav = total = obs.total_non_sav
+
         writer.writerow(
             [
                 obs.sample.year,
@@ -1264,10 +1402,11 @@ def generate_fgp_export():
                 obs.species.scientific_name,
                 obs.species.tsn,
                 obs.species.sav,
-                obs.adults,
-                obs.yoy,
-                obs.total_non_sav,
-                obs.total_sav,
+                total_sav,
+                adults,
+                yoy,
+                total_non_sav,
+                total,
             ])
     return response
 

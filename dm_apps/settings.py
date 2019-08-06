@@ -15,7 +15,7 @@ import os
 from django.utils.translation import gettext_lazy as _
 
 # Custom variables
-WEB_APP_NAME = "ScienceDataManagement"
+WEB_APP_NAME = "DMApps"
 
 # check to see if there is a user-defined local configuration file
 # if there is, we we use this as our local configuration, otherwise we use the default

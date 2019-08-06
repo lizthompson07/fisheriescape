@@ -55,12 +55,14 @@ APP_DICT = {
     'masterlist': 'Masterlist',
     'shares': 'Gulf Shares',
     'travel': 'Travel Management System',
-    'spot': 'Grants & Contributions (Spot)',  # dependency on masterlist
+    'sar_search': "SAR Search",
+    'spot': 'Grants & Contributions (Spot)',  # dependency on masterlist, sar_search
     'ios2': 'Instruments',
     'staff': "Staff Planning Tool",
     'publications': "Project Publications Inventory",
     'trapnet': "TrapNet",
 }
+
 MY_INSTALLED_APPS = [app for app in APP_DICT]
 SHOW_TICKETS_APP = True
 

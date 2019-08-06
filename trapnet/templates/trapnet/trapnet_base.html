@@ -25,12 +25,13 @@
             Settings
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'trapnet:species_list' %}">Species</a>
             <a class="dropdown-item" href="{% url 'trapnet:river_list' %}">Rivers</a>
 {#            <a class="dropdown-item" href="{% url 'trapnet:site_list' %}">Sites</a>#}
         </div>
     </li>
 
-    <li class="nav-item"><a class="nav-link" href="#">Reports</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'trapnet:report_search' %}">Reports</a></li>
 
 {% endblock left_auth %}
 {% block left_admin %}

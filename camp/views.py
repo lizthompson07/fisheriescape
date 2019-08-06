@@ -641,7 +641,10 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("camp:watershed_xlsx", kwargs={"site": site, "year": year}))
 
         elif report == 5:
-            return HttpResponseRedirect(reverse("camp:watershed_csv"))
+            return HttpResponseRedirect(reverse("camp:fgp_report"))
+
+        elif report == 7:
+            return HttpResponseRedirect(reverse("camp:fgp_dictionary"))
 
         elif report == 6:
             return HttpResponseRedirect(reverse("camp:ais_export", kwargs={
@@ -705,6 +708,11 @@ def annual_watershed_spreadsheet(request, site, year):
 
 def fgp_export(request):
     response = reports.generate_fgp_export()
+    return response
+
+
+def fgp_dictionary_export(request):
+    response = reports.generate_fgp_data_dictionary()
     return response
 
 
