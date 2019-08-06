@@ -5,6 +5,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
+# Choices for YesNo
+YESNO_CHOICES = (
+    (None, "------"),
+    (True, "Yes"),
+    (False, "No"),
+)
+
 
 class Sector(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
@@ -39,6 +46,19 @@ class Grouping(models.Model):
         ordering = ['name', ]
 
 
+class Reserve(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+
+    def __str__(self):
+        return "{}".format(getattr(self, str(_("name"))))
+
+    class Meta:
+        ordering = ['name', ]
+
+
+def audio_file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
+    return 'ihub/org_{}/{}'.format(instance.id, filename)
 
 
 class Organization(models.Model):
@@ -46,7 +66,8 @@ class Organization(models.Model):
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
     abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
-    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
+    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("street address"))
+    mailing_address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("mailing address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
@@ -60,13 +81,24 @@ class Organization(models.Model):
     sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
 
     # ihub only
-    website = models.URLField(blank=True, null=True, verbose_name=_("website (iHub only)"))
-    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election (iHub only)"))
-    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term (iHub only)"))
-    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve (iHub only)"))
-    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve (iHub only)"))
-    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve (iHub only)"))
-    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN (iHub only)"))
+    legal_band_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("legal band name"))
+    former_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("former name"))
+    website = models.URLField(blank=True, null=True, verbose_name=_("website"))
+    next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election"))
+    election_term = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("election term"))
+    new_coucil_effective_date = models.DateTimeField(blank=True, null=True, verbose_name=_("date that the new council holds office"))
+    population_on_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on reserve"))
+    population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve"))
+    population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve"))
+    fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN"))
+    processing_plant = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("processing plant on reserve?"))
+    wharf = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("wharf on reserve?"))
+    consultation_protocol = models.TextField(blank=True, null=True, verbose_name=_("consultation protocol"))
+    council_quorum = models.IntegerField(blank=True, null=True, verbose_name=_("council quorum"))
+    reserves = models.ManyToManyField(Reserve, verbose_name=_("Associated reserves"), blank=True)
+    orgs = models.ManyToManyField("Organization", verbose_name=_("Associated organizations"), blank=True,
+                                  limit_choices_to={'grouping__is_indigenous': 1}, )
+    audio_file = models.FileField(upload_to=audio_file_directory_path, verbose_name=_("audio file"), blank=True, null=True)
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -117,7 +149,7 @@ class Organization(models.Model):
 
 
 class Person(models.Model):
-    designation = models.CharField(max_length=25, verbose_name=_("designation"), blank=True, null=True)
+    designation = models.CharField(max_length=25, verbose_name=_("title"), blank=True, null=True)
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone"))
@@ -126,7 +158,8 @@ class Person(models.Model):
     email_2 = models.EmailField(blank=True, null=True, verbose_name=_("work email 2"))
     cell = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone (mobile)"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
+    language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                 verbose_name=_("language preference"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     email_block = models.TextField(blank=True, null=True, verbose_name=_("email block"))
     organizations = models.ManyToManyField(Organization, through="OrganizationMember", verbose_name=_("membership"), blank=True)
@@ -137,6 +170,7 @@ class Person(models.Model):
 
     old_id = models.IntegerField(blank=True, null=True)
     connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
+    ihub_vetted = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("vetted by iHub"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()

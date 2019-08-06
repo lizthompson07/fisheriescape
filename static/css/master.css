@@ -35,6 +35,9 @@
     font-size: 6em;
 }
 
+.center-col{
+    text-align: center;
+}
 
 /*.modal {*/
 /*display: none; !* Hidden by default *!*/
