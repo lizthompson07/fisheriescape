@@ -137,10 +137,10 @@ class InstrumentMooring(models.Model):
     orientation = models.TextField(blank=True, null=True, verbose_name=_("Orientation"),
                                    choices=ORIENTATION_CHOICES)
 
-
     def __str__(self):
 
         return "{}".format(self.instrument) + " {}".format(self.mooring)
+
     class Meta:
         # ordering = ['mooring', 'mooring_number']
         # auto_created = True
@@ -149,8 +149,8 @@ class InstrumentMooring(models.Model):
 
 class ServiceHistory(models.Model):
     # category choices:
-    CALIB = 1#'Calibration'
-    REPAIR = 2#'Repair'
+    CALIB = 1  #'Calibration'
+    REPAIR = 2  # 'Repair'
     REPAIRCALIB = 3
 
     CATEGORY_CHOICES = (
@@ -174,16 +174,55 @@ class ServiceHistory(models.Model):
     def __str__(self):
         return "{}".format(self.get_category_display())
 
+
+
+    # @property
+    # def next_calib_date(self):
+    #     next_calib_date = self.next_service_date[0]
+    #     from django.db.models import F
+    #     from datetime import date
+    #     # today = date.today()
+    #     # today = date(int(today.year), int(today.month), int(today.day))
+    #     # next_calib_date = 'None'
+    #     # for i in ServiceHistory.objects.values('next_service_date'):
+    #     #
+    #     #     print(i.type)
+    #     #     if i > date.today():
+    #     #         next_calib_date = i
+    #     #         break
+    #     # print('iiii')
+    #     # return self.years.order_by("fiscal_year").last().fiscal_year.full
+    #     # next_calib_date = ServiceHistory.objects.order_by("next_service_date").all().first()
+    #     # # next_calib_date = ServiceHistory.objects.values('next_service_date').\
+    #     # #     order_by(F('next_service_date').desc(nulls_last=True))[0]
+    #     # print(next_calib_date, 'ccccc')
+    #     # next_calib_date = ServiceHistory.objects.filter(next_service_date = today).order_by("id")
+    #     # filter(sample_id=self.kwargs["sample"]).order_by("id"):
+    #     # self.next_service_date
+    #         # = "{} - {} - {} - {}".format(self.division.branch.region.name, self.division.branch.name, self.division.name, self.name)
+    #     return next_calib_date
+
     class Meta:
         get_latest_by = ['service_date']
 
 
+
 @receiver(post_save, sender=ServiceHistory, dispatch_uid="update_next_service_date")
 def update_next_service_date(sender, instance, **kwargs):
+    print('......', instance.instrument.date_of_next_service)
+    # print('......', instance.date_of_next_service)
     if instance.instrument.date_of_next_service is not None:
-        if instance.instrument.date_of_next_service < instance.next_service_date:
-            instance.instrument.date_of_next_service = instance.next_service_date
-            instance.instrument.save()
+        if instance.next_service_date is not None:
+            print(instance.instrument.date_of_next_service, '+++++++++')
+            if instance.instrument.date_of_next_service < instance.next_service_date:
+                instance.instrument.date_of_next_service = instance.next_service_date
+                instance.instrument.save()
+            # else:
+            #     instance.instrument.save()
+        # else:
+        #     print(instance.instrument.date_of_next_service, '-----++++')
+        #     instance.instrument.date_of_next_service = instance.instrument.date_of_next_service
+        #     instance.instrument.save()
     else:
         instance.instrument.date_of_next_service = instance.next_service_date
         instance.instrument.save()
