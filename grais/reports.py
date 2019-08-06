@@ -511,18 +511,22 @@ def generate_open_data_ver_1_wms_report(year=None):
     writer = csv.writer(response)
 
     header_row_eng = [
+        'Season(s)',
         'Station code',
         'Station name',
         'Station province',
+        'Station description',
         'Station latitude',
         'Station longitude',
         'List of other species observed',
     ]
 
     header_row_fra = [
-        'code de station',
+        'Saison(s)',
+        'Code de station',
         'Nom de station',
         'province de station',
+        'Description de station',
         'Latitude de station',
         'Longitude de station',
         'Liste des espèces observées',
@@ -558,11 +562,16 @@ def generate_open_data_ver_1_wms_report(year=None):
         other_spp = listrify([str(models.Species.objects.get(pk=obj["species"])) for obj in
                               surfacespecies.filter(surface__line__sample__station=station).order_by("species").values("species").distinct()
                               if obj["species"] not in species_id_list])
-
+        seasons = listrify(
+            [obj["surface__line__sample__season"] for obj in
+             surfacespecies.filter(surface__line__sample__station=station).order_by("surface__line__sample__season").values(
+                 "surface__line__sample__season").distinct()])
         data_row = [
+            seasons,
             station.id,
             station.station_name,
-            "{} / {}".format(station.province.abbrev_eng,station.province.abbrev_fre),
+            "{} / {}".format(station.province.abbrev_eng, station.province.abbrev_fre),
+            station.site_desc,
             station.latitude_n,
             station.longitude_w,
             other_spp,
