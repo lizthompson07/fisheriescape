@@ -14,6 +14,8 @@ from django.utils import timezone
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django.urls import reverse_lazy, reverse
 from django_filters.views import FilterView
+
+from lib.templatetags.custom_filters import nz
 from . import models
 from . import forms
 from . import filters
@@ -1324,6 +1326,9 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
                 "year"] else HttpResponseRedirect(reverse("grais:od1_report"))
         elif report == 3:
             return HttpResponseRedirect(reverse("grais:od1_dictionary"))
+        elif report == 4:
+            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year})) if form.cleaned_data[
+                "year"] else HttpResponseRedirect(reverse("grais:od1_wms"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -1346,4 +1351,8 @@ def export_open_data_ver1(request, year=None):
 
 def export_open_data_ver1_dictionary(request):
     response = reports.generate_open_data_ver_1_data_dictionary()
+    return response
+
+def export_open_data_ver1_wms(request, year=None):
+    response = reports.generate_open_data_ver_1_wms_report(year)
     return response
