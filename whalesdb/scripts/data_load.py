@@ -74,16 +74,16 @@ def load_parameter_types():
 def load_equipment_type_codes():
     data_array = [
         {
-            'prm_id': 1,
-            'prm_name': 'Acoustic recorder'
+            'eqt_id': 1,
+            'eqt_name': 'Acoustic recorder'
         },
         {
-            'prm_id': 2,
-            'prm_name': 'Environmental sensor'
+            'eqt_id': 2,
+            'eqt_name': 'Environmental sensor'
         },
         {
-            'prm_id': 3,
-            'prm_name': 'OTN receiver'
+            'eqt_id': 3,
+            'eqt_name': 'OTN receiver'
         },
 
     ]

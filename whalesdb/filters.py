@@ -1,4 +1,3 @@
-from django.utils.translation import gettext_lazy as _
 from django_filters import FilterSet
 
 from . import models
@@ -27,6 +26,43 @@ class FilterHydrophone(GenericFilterSet):
     class Meta:
         model = models.EqhHydrophoneProperties
         fields = ['emm', 'eqh_range_max', 'eqh_range_min']
+
+
+class FilterDeployments(GenericFilterSet):
+
+    class Meta:
+        model = models.DepDeployments
+        fields = ['dep_name', 'stn', 'prj', 'mor', ]
+
+
+class FilterCruises(GenericFilterSet):
+
+    class Meta:
+        model = models.CrsCruises
+        fields = ['crs_name', 'crs_pi_name', 'crs_institute_name', 'crs_geographic_location', 'crs_start_date',
+                  'crs_end_date', 'crs_notes', ]
+
+
+class FilterMoorings(GenericFilterSet):
+
+    class Meta:
+        model = models.MorMooringSetups
+        fields = ['mor_name', 'mor_max_depth', 'mor_num_hydrophones', 'mor_link_setup_image',
+                  'mor_additional_equipment', 'mor_general_moor_description', 'more_notes', ]
+
+
+class FilterStations(GenericFilterSet):
+
+    class Meta:
+        model = models.StnStations
+        fields = ['stn_name', 'stn_planned_lat', 'stn_planned_lon', 'stn_planned_depth', 'stn_notes', ]
+
+
+class FilterProjects(GenericFilterSet):
+
+    class Meta:
+        model = models.PrjProjects
+        fields = ['prj_name', 'prj_descrption', 'prj_url', ]
 
 
 class FilterRecordEvent(GenericFilterSet):

@@ -8,7 +8,9 @@ from django.forms.models import inlineformset_factory
 
 
 def get_short_labels(for_model):
-    labels = []
+
+    # You can override the longer more descriptive labels from get_labels()
+    # here. If not overriden the else clause will just call get_labels()
 
     if for_model is models.EqrRecorderProperties:
         labels = {
@@ -33,29 +35,8 @@ def get_short_labels(for_model):
         labels = {
             'prm': _("Equipment Parameters"),
         }
-    elif for_model is models.RecRecordingEvents:
-        labels = {
-            'tea_id_setup_by': _("Team member who programmed the recording setup"),
-            'rec_date_of_system_chk': _("Recording date of the system check (Time in UTC)"),
-            'tea_id_checked_by': _("Team member who prefored the System Check"),
-            'rec_date_first_recording': _("Date of first recording when the equipment is turned on for deployment."),
-            'rec_date_last_recording': _("Date of last recording"),
-            'rec_total_memory_used': _("Total memory used for number of recorded files"),
-            'rec_hf_mem': _("High Frequency Memory usage in Gigabytes (GB)"),
-            'rec_lf_mem': _("Low Frequency Memory usage in Gigabytes (GB)"),
-            'rec_date_data_download': _("Date the data has been downloaded from equipment"),
-            'rec_data_store_url': _("URL of the location the data storage"),
-            'tea_id_downloaded_by': _("Team member who backed up the data"),
-            'rec_date_data_backed_up': _("Date data was backed up"),
-            'rec_data_backup_url': _("URL of the data backup location"),
-            'tea_id_backed_up_by': _("Team member who backed up the data"),
-            'rec_channel_count': _("The number of channels used to record data, one recording per channel"),
-            'rec_notes': _("Comments on the recording and data"),
-            'rtt': _("Time zone data files use. Should be UTC, but occasionally for legacy data  will be in some "
-                     "local format."),
-            'rec_first_in_water': _("First in water recording"),
-            'rec_last_in_water': _("Last in water recording"),
-        }
+    else:
+        labels = get_labels(for_model)
 
     return labels
 
@@ -204,7 +185,7 @@ def get_labels(for_model):
     return labels
 
 
-class CreateDeploymentForm(forms.ModelForm):
+class DeploymentForm(forms.ModelForm):
 
     class Meta:
         model = models.DepDeployments
@@ -212,7 +193,7 @@ class CreateDeploymentForm(forms.ModelForm):
         fields = labels.keys()
 
 
-class CreateMooringForm(forms.ModelForm):
+class MooringForm(forms.ModelForm):
 
     class Meta:
         model = models.MorMooringSetups
@@ -225,7 +206,7 @@ class CreateMooringForm(forms.ModelForm):
         }
 
 
-class CreateProjectForm(forms.ModelForm):
+class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = models.PrjProjects
@@ -236,7 +217,7 @@ class CreateProjectForm(forms.ModelForm):
         }
 
 
-class CreateStationForm(forms.ModelForm):
+class StationForm(forms.ModelForm):
 
     class Meta:
         model = models.StnStations
@@ -247,7 +228,7 @@ class CreateStationForm(forms.ModelForm):
         }
 
 
-class CreateCruiseForm(forms.ModelForm):
+class CruiseForm(forms.ModelForm):
 
     class Meta:
         model = models.CrsCruises

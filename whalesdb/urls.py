@@ -7,11 +7,8 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
 
-    path('create/deployment', views.CreateDeploymentForm.as_view(), name="create_dep"),
-    path('create/mooring', views.CreateMooringForm.as_view(), name="create_mor"),
-    path('create/station', views.CreateStationForm.as_view(), name="create_stn"),
-    path('create/project', views.CreateProjectForm.as_view(), name="create_prj"),
-    path('create/cruise', views.CreateCruiseForm.as_view(), name="create_crs"),
+    path('create/<str:obj_name>', views.CreateSmartForm.as_view(), name="create_obj"),
+
     path('create/station_event', views.CreateStationEventForm.as_view(), name="create_ste"),
 
     path('create/record_event', views.CreateRecordEventForm.as_view(), name="create_rec"),
@@ -24,11 +21,15 @@ urlpatterns = [
     path('create/parameter/<str:pop>/<int:emm_id>/', views.CreateParameter.as_view(), name="create_parameter"),
     path('create/channel/<str:pop>/<int:emm_id>/',  views.CreateChannel.as_view(), name="create_channel"),
 
+    path('update/<str:obj_name>/<int:pk>', views.UpdateSmartForm.as_view(), name="create_obj"),
+
     path('delete/parameter/<str:url>/<int:emm_id>/<int:prm_id>/', views.par_delete, name="delete_parameter"),
     path('delete/channel/<int:ecp_id>/', views.ecp_delete, name="delete_channel"),
 
     path('details/<int:pk>/hydrophone', views.DetailsHydrophone.as_view(), name="details_hydrophone"),
     path('details/<int:pk>/recorder', views.DetailsRecorder.as_view(), name="details_recorder"),
+
+    path('list/<str:obj_name>', views.ListSmart.as_view(), name="list_obj"),
 
     path('list/record_event', views.ListRecordEvent.as_view(), name="list_rec"),
 
