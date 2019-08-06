@@ -356,3 +356,7 @@ class TeaTeamMembers(models.Model):
         managed = False
         db_table = 'tea_team_members'
         unique_together = (('tea_last_name', 'tea_first_name'),)
+        ordering = ['tea_last_name', 'tea_first_name']
+
+    def __str__(self):
+        return "{}, {}".format(self.tea_last_name, self.tea_first_name)

@@ -23,7 +23,11 @@
                     {% trans "Close" %}
                 </a>
              {% else %}
+                {% if obj_name %}
+                <a class="btn btn-secondary" href="{% url cancel_url obj_name %}">
+                {% else %}
                 <a class="btn btn-secondary" href="{% url cancel_url %}">
+                {% endif %}
                     {% trans "Cancel" %}
                 </a>
              {% endif %}
