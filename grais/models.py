@@ -313,7 +313,7 @@ class ProbeMeasurement(models.Model):
     sp_cond_ms = models.FloatField(blank=True, null=True, verbose_name="Specific conductance (mS)")
     spc_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (mS)")
     ph = models.FloatField(blank=True, null=True, verbose_name="pH")
-    turbidiy = models.FloatField(blank=True, null=True)
+    turbidity = models.FloatField(blank=True, null=True)
     weather_notes = models.CharField(max_length=1000, blank=True, null=True)
 
     def __str__(self):

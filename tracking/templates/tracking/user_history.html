@@ -1,17 +1,57 @@
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% load custom_filters %}
+
 <!DOCTYPE html>
 <html>
 <body>
-<h1>{{ my_user }} - History</h1>
+<h1>{{ my_user }}</h1>
 <p>(<a href="{% url 'tracking:tracking-dashboard' %}">Back</a> to tracking main)</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <div class="text-center">
+                {% include report_path %}
+            </div>
+            <br><br>
+            <h2>App Usage History</h2>
+
+            <table class="table table-sm table-striped" style="width: auto">
+                <thead>
+                <th>Application name</th>
+                <th>Pageviews</th>
+                </thead>
+                <tbody>
+                {% for app in app_dict %}
+                    <tr>
+                        <td>{{ app }}</td>
+                        <td>{{ app_dict|lookup:app }}</td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+            <br><br>
 
 
-<ul>
-    {% for visit in page_visits %}
-        <li>
-            {{ visit.visitor.user }} visited <a href="{{ visit.url|safe }}">{{ visit.url|safe }}</a> ({{ visit.view_time }})
-        </li>
-    {% endfor %}
+        </div>
+        <div class="col">
+            <h2>Recent History</h2>
+            <ul>
+                {% for visit in page_visits %}
+                    <li>
+                        {{ visit.visitor.user }} visited <a href="{{ visit.url|safe }}">{{ visit.url|safe }}</a> ({{ visit.view_time }})
+                    </li>
+                {% empty %}
+                    <em>No site visits in the past few days...</em>
+                {% endfor %}
+            </ul>
+        </div>
 
-</ul>
+
+    </div>
+</div>
+
+
 </body>
 </html>

@@ -1,0 +1,46 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h4>
+        {% trans "Sites:" %}
+    </h4>
+</div>
+
+{% if object.sites.count == 0 %}
+    <em>
+        {% trans "No sites have been added to this project" %}
+    </em><br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "Site Type" %}
+            </th>
+            <th>
+                {% trans "Name" %}
+            </th>
+
+        </tr>
+        <tbody>
+        {% for obj in object.sites.all %}
+            <tr href="{% url 'spot:site_edit' obj.id %}" pop data-toggle="tooltip" title="click to edit this site">
+                <td>
+                    {{ obj.site_type }}
+                </td>
+                <td>
+                    {{ obj.name}}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<a class="" href="#" pop-href="{% url 'spot:site_new' object.id %}">
+    {% trans "(Add a site)" %}
+</a>
+
+<br>
+<br>

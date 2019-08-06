@@ -159,8 +159,9 @@ class ReportSearchForm(forms.Form):
         (1, "Species counts by year"),
         (3, "Annual watershed report (PDF)"),
         (4, "Annual watershed spreadsheet (XLSX)"),
-        (5, "Dataset export for FGP (CSV)"),
         (6, "AIS export (CSV)"),
+        (5, "OPEN DATA: export for FGP (CSV)"),
+        (7, "OPEN DATA: data dictionary for FGP (CSV)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
