@@ -266,11 +266,15 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "---"),
         (1, "Biofouling: Species observations by sample"),
+        (2, "Open Data Report - Version 1: Biofouling monitoring program"),
+        (3, "Open Data Report - Version 1: Data dictionary"),
+        (4, "Open Data Report - Version 1: Web mapping service (WMS) report (CSV)"),
+
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     species = forms.MultipleChoiceField(required=False)
-    year = forms.CharField(required=False, widget=forms.NumberInput())
+    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (optional)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

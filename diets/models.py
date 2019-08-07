@@ -3,42 +3,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from shared_models import models as shared_models
-#
-# class Vessel(models.Model):
-#     name = models.CharField(max_length=255)
-#     call_sign = models.CharField(max_length=56, null=True, blank=True)
-#
-#     def __str__(self):
-#         if self.call_sign:
-#             return "{} {}".format(self.name, self.call_sign)
-#         else:
-#             return "{}".format(self.name)
-#
-#     class Meta:
-#         ordering = ['name', ]
-#
-#
-# class Cruise(models.Model):
-#     cruise_number = models.CharField(max_length=255)
-#     description = models.CharField(max_length=255, null=True, blank=True)
-#     chief_scientist = models.CharField(max_length=255)
-#     samplers = models.CharField(max_length=255, null=True, blank=True)
-#     start_date = models.DateTimeField(null=True, blank=True)
-#     end_date = models.DateTimeField(null=True, blank=True)
-#     notes = models.CharField(max_length=255, null=True, blank=True)
-#     season = models.IntegerField(null=True, blank=True)
-#     vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="missions", blank=True, null=True)
-#
-#     def __str__(self):
-#         return "{}".format(self.cruise_number)
-#
-#     def get_absolute_url(self):
-#         return reverse('diets:cruise_detail', kwargs={'pk': self.id})
-#
-#     def save(self, *args, **kwargs):
-#         if self.start_date:
-#             self.season = self.start_date.year
-#         return super().save(*args, **kwargs)
 
 
 class Species(models.Model):
@@ -69,6 +33,7 @@ class Species(models.Model):
     def full_name(self):
         return "{} (<em>{}</em>)".format(self.common_name_eng, self.scientific_name)
 
+
 class Sampler(models.Model):
     first_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255, blank=True, null=True)
@@ -82,10 +47,10 @@ class Sampler(models.Model):
 
 
 class Predator(models.Model):
-    cruise = models.ForeignKey(shared_models.Cruise, related_name='predators', on_delete=models.DO_NOTHING)
-    samplers = models.ManyToManyField(Sampler)
+    cruise = models.ForeignKey(shared_models.Cruise, related_name='predators', on_delete=models.DO_NOTHING, blank=True, null=True)
+    samplers = models.ManyToManyField(Sampler, blank=True)
     stomach_id = models.CharField(max_length=10, blank=True, null=True, verbose_name="stomach ID", unique=True)
-    processing_date = models.DateTimeField(verbose_name="processing date", default=timezone.now)
+    processing_date = models.DateTimeField(verbose_name="processing date", default=timezone.now, blank=True, null=True)
     set = models.IntegerField(blank=True, null=True)
     species = models.ForeignKey(Species, related_name='predators', on_delete=models.DO_NOTHING, verbose_name="predator species")
     fish_number = models.IntegerField(blank=True, null=True)
@@ -119,6 +84,10 @@ class Predator(models.Model):
             self.stomach_id = self.stomach_id.upper()
         return super().save(*args, **kwargs)
 
+    @property
+    def season(self):
+        return self.processing_date.year
+
 
 class DigestionLevel(models.Model):
     code = models.IntegerField(unique=True)
@@ -141,10 +110,13 @@ class Prey(models.Model):
     number_of_prey = models.IntegerField(blank=True, null=True, verbose_name="number of prey")
     somatic_wt_g = models.FloatField(null=True, blank=True, verbose_name="body weight (g)")
     comments = models.TextField(blank=True, null=True)
+
     # not used
-    sensor_used = models.BooleanField(default=False)
+    censored_length = models.BooleanField(default=False)
     stomach_wt_g = models.FloatField(null=True, blank=True, verbose_name="stomach weight (g)")
+
     # meta
+    old_id = models.IntegerField(blank=True, null=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
 

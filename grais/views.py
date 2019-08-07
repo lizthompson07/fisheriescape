@@ -14,6 +14,8 @@ from django.utils import timezone
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django.urls import reverse_lazy, reverse
 from django_filters.views import FilterView
+
+from lib.templatetags.custom_filters import nz
 from . import models
 from . import forms
 from . import filters
@@ -148,6 +150,7 @@ class SampleNoteCreateView(GraisAccessRequiredMixin, CreateView):
             "sample": sample,
             "author": self.request.user
         }
+
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
@@ -804,42 +807,6 @@ def report_species_observation_add(request, report, species):
     return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
 
 
-# REPORTS #
-###########
-
-class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
-    template_name = 'grais/report_search.html'
-    form_class = forms.ReportSearchForm
-
-    # def get_initial(self):
-    #     # default the year to the year of the latest samples
-    #     return {"year": models.Sample.objects.all().order_by("season").first().start_date.year}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-        report = int(form.cleaned_data["report"])
-
-        if report == 1:
-            return HttpResponseRedirect(reverse("grais:spp_sample_xlsx", kwargs={"species_list": species_list}))
-        else:
-            messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("grais:report_search"))
-
-
-def species_sample_spreadsheet_export(request, species_list):
-    file_url = reports.generate_species_sample_spreadsheet(species_list)
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="grais export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
-            return response
-    raise Http404
-
-
 # FOLLOWUP #
 ############
 
@@ -1334,3 +1301,58 @@ def bycatch_delete(request, pk):
     bycatch.delete()
     messages.success(request, "The bycatch has been successfully removed from this trap.")
     return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": bycatch.trap.id}))
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
+    template_name = 'grais/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        report = int(form.cleaned_data["report"])
+        year = form.cleaned_data["year"]
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("grais:spp_sample_xlsx", kwargs={"species_list": species_list}))
+        elif report == 2:
+            return HttpResponseRedirect(reverse("grais:od1_report", kwargs={"year": year})) if form.cleaned_data[
+                "year"] else HttpResponseRedirect(reverse("grais:od1_report"))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("grais:od1_dictionary"))
+        elif report == 4:
+            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year})) if form.cleaned_data[
+                "year"] else HttpResponseRedirect(reverse("grais:od1_wms"))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("grais:report_search"))
+
+
+def species_sample_spreadsheet_export(request, species_list):
+    file_url = reports.generate_species_sample_spreadsheet(species_list)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="grais export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def export_open_data_ver1(request, year=None):
+    response = reports.generate_open_data_ver_1_report(year)
+    return response
+
+
+def export_open_data_ver1_dictionary(request):
+    response = reports.generate_open_data_ver_1_data_dictionary()
+    return response
+
+def export_open_data_ver1_wms(request, year=None):
+    response = reports.generate_open_data_ver_1_wms_report(year)
+    return response

@@ -19,6 +19,7 @@ YES_NO_CHOICES = (
     (False, _("No")),
 )
 
+
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = ml_models.Organization
@@ -137,6 +138,7 @@ class ProjectForm(forms.ModelForm):
             'start_year',
             'project_length',
             'date_completed',
+            'summary',
             'last_modified_by',
         ]
         widgets = {
@@ -218,6 +220,16 @@ class ProjectPersonForm(forms.ModelForm):
         }
 
 
+class SiteForm(forms.ModelForm):
+    class Meta:
+        model = models.Site
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
 class ProjectYearForm(forms.ModelForm):
     class Meta:
         model = models.ProjectYear
@@ -247,6 +259,7 @@ class InitiationForm(forms.ModelForm):
             'requested_funding_y3',
             'requested_funding_y4',
             'requested_funding_y5',
+            'priority_area_or_threats',
             'overview',
             'notes',
             'last_modified_by',
@@ -257,6 +270,8 @@ class InitiationForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={"rows": 3}),
             'initiation_date': forms.DateInput(attrs=attr_fp_date),
             'initiation_acknowledgement_sent': forms.DateInput(attrs=attr_fp_date),
+            'priority_area_or_threats': forms.SelectMultiple(attrs=attr_chosen_contains),
+
         }
 
 
@@ -281,6 +296,7 @@ class EOIForm(forms.ModelForm):
             'coordinator_notified': forms.DateInput(attrs=attr_fp_date_time),
             'date_received': forms.DateInput(attrs={"type": "date"}),
             'feedback_sent': forms.DateInput(attrs=attr_fp_date),
+
         }
 
 
@@ -388,18 +404,22 @@ class CAAdministrationForm(forms.ModelForm):
         }
 
 
-class ActivitiesForm(forms.ModelForm):
+class AttributesForm(forms.ModelForm):
     class Meta:
         model = models.Project
         fields = [
             'last_modified_by',
             'activities',
+            'spp',
+            'watersheds',
             'notes',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": 4}),
             'activities': forms.SelectMultiple(attrs=multi_select_js),
+            'spp': forms.SelectMultiple(attrs=multi_select_js),
+            'watersheds': forms.SelectMultiple(attrs=multi_select_js),
         }
 
     def __init__(self, *args, **kwargs):
@@ -450,10 +470,7 @@ class FileForm(forms.ModelForm):
         }
 
 
-
-
 class ReportSearchForm(forms.Form):
-
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Negotiations summary"),
@@ -472,3 +489,43 @@ class ReportSearchForm(forms.Form):
 
         self.fields["fiscal_year"].choices = fy_choices
         self.fields["programs"].choices = program_choices
+
+
+class ActivityForm(forms.ModelForm):
+    class Meta:
+        model = models.Activity
+        fields = "__all__"
+
+
+ActivityFormSet = modelformset_factory(
+    model=models.Activity,
+    form=ActivityForm,
+    extra=1,
+)
+
+
+class WatershedForm(forms.ModelForm):
+    class Meta:
+        model = models.Watershed
+        fields = "__all__"
+
+
+WatershedFormSet = modelformset_factory(
+    model=models.Watershed,
+    form=WatershedForm,
+    extra=1,
+)
+
+
+
+class DrainageBasinForm(forms.ModelForm):
+    class Meta:
+        model = models.DrainageBasin
+        fields = "__all__"
+
+
+DrainageBasinFormSet = modelformset_factory(
+    model=models.DrainageBasin,
+    form=DrainageBasinForm,
+    extra=1,
+)

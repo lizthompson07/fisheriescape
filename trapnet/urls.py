@@ -4,6 +4,14 @@ from . import views
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    # SPECIES #
+    ###########
+    path('species/', views.SpeciesListView.as_view(), name="species_list"),
+    path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
+    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
+    path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
+    path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+
     # RIVER #
     #########
     path('rivers/', views.RiverListView.as_view(), name="river_list"),
@@ -20,55 +28,29 @@ urlpatterns = [
     path('site/<int:pk>/edit/', views.RiverSiteUpdateView.as_view(), name="site_edit"),
     path('site/<int:pk>/delete/', views.RiverSiteDeleteView.as_view(), name="site_delete"),
 
-    # TRAP #
-    ########
-    path('traps/', views.TrapListView.as_view(), name="trap_list"),
-    path('trap/new/', views.TrapCreateView.as_view(), name="trap_new"),
-    path('trap/<int:pk>/view/', views.TrapDetailView.as_view(), name="trap_detail"),
-    path('trap/<int:pk>/edit/', views.TrapUpdateView.as_view(), name="trap_edit"),
-    path('trap/<int:pk>/delete/', views.TrapDeleteView.as_view(), name="trap_delete"),
+    # SAMPLE #
+    ##########
+    path('samples/', views.SampleListView.as_view(), name="trap_list"),
+    path('sample/new/', views.SampleCreateView.as_view(), name="trap_new"),
+    path('sample/<int:pk>/view/', views.SampleDetailView.as_view(), name="trap_detail"),
+    path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="trap_edit"),
+    path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="trap_delete"),
 
+    # ENTRY #
+    #########
+    path('sample/<int:sample>/entry/insert/', views.EntryInsertView.as_view(), name="obs_insert"),
+    path('sample/<int:sample>/new-entry/add/species/<int:species>/', views.EntryCreateView.as_view(), name="obs_new"),
+    path('entry/<int:pk>/edit/', views.EntryUpdateView.as_view(), name="obs_edit"),
+    path('entry/<int:pk>/delete/', views.species_observation_delete, name="obs_delete"),
 
-    #
-    #
-    # # STATION #
-    # ###########
-    # path('site/<int:site>/new-station/', views.StationCreateView.as_view(), name="station_new"),
-    # path('new-station/', views.NoSiteStationCreateView.as_view(), name="station_new"),
-    # path('station/<int:pk>/view/', views.StationDetailView.as_view(), name="station_detail"),
-    # path('station/<int:pk>/edit/', views.StationUpdateView.as_view(), name="station_edit"),
-    # path('station/<int:pk>/delete/', views.StationDeleteView.as_view(), name="station_delete"),
-    #
-    # # SPECIES #
-    # ###########
-    # path('species/', views.SpeciesListView.as_view(), name="species_list"),
-    # path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
-    # path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
-    # path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
-    # path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
-    #
-    # # SPECIES OBSERVATIONS #
-    # ########################
-    # path('sample/<int:sample>/species/insert/', views.SpeciesObservationInsertView.as_view(),
-    #      name="species_obs_search"),
-    # path('sample/<int:sample>/species/<int:species>/add/', views.SpeciesObservationCreateView.as_view(),
-    #      name="species_obs_new"),
-    # path('species-observation/<int:pk>/edit/', views.SpeciesObservationUpdateView.as_view(), name="species_obs_edit"),
-    # path('species-observation/<int:pk>/delete/return-to-<str:backto>/', views.species_observation_delete,
-    #      name="species_obs_delete"),
-    #
-    # # Reports #
-    # ###########
-    # path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    # path('reports/<str:species_list>/species-count/', views.report_species_count, name="species_report"),
-    # path('reports/species-richness/', views.report_species_richness, name="species_richness"),
-    # path('reports/species-richness/site/<int:site>/', views.report_species_richness, name="species_richness"),
-    # path('reports/annual-watershed-report/site/<int:site>/year/<int:year>',
-    #      views.AnnualWatershedReportTemplateView.as_view(), name="watershed_report"),
-    # path('reports/annual-watershed-spreadsheet/site/<int:site>/year/<int:year>', views.annual_watershed_spreadsheet,
-    #      name="watershed_xlsx"),
-    # path('reports/fgp-csv-export/', views.fgp_export, name="watershed_csv"),
-    # path('reports/ais-export/species-list/<str:species_list>/', views.ais_export, name="ais_export"),
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('reports/samples/<str:year>/<str:sites>/', views.export_sample_data, name="sample_report"),
+    path('reports/entries/<str:year>/<str:sites>/', views.export_entry_data, name="entry_report"),
+    path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
+    path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
+    path('reports/opendata1/wms/', views.export_open_data_ver1_wms, name="od1_wms"),
 
 ]
 
