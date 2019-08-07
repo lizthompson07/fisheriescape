@@ -1586,6 +1586,7 @@ def generate_od_dict():
         "sample_id",
         "year",
         "month",
+        "day",
         "prov",
         "site",
         "station",
@@ -1628,6 +1629,7 @@ def generate_od_dict():
         "unique identifier of sample",
         "year of observation",
         "month of observation",
+        "day of observation",
         "province",
         "name of site and province",
         "camp station",
@@ -1669,6 +1671,7 @@ def generate_od_dict():
         "identifiant unique de l'échantillon",
         "l'année de l’observation",
         "le mois de l’observation",
+        "le jour de l’observation",
         "province",
         "site de PSCA",
         "station de PSCA",
@@ -1703,6 +1706,7 @@ def generate_od_dict():
         "nombre d'espèces observées",
         "nombre de jeunes de l'année pour une espèce donnée",
         "nombre d'adultes pour une espèce donnée",
+        "nombre total pour une espèce donnée",
         "nombre moyen d'individus (par échantillon) pour une espèce donnée",
     ]
 
