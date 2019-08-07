@@ -1461,7 +1461,7 @@ def generate_od2_report():
 
     # lets start by getting a list of stations and years
     stations = [models.Station.objects.get(pk=obj["sample__station"]) for obj in
-                qs.order_by("sample__station").values("sample__station").distinct()]
+                qs.order_by("sample__station__site","sample__station").values("sample__station").distinct()]
     years = [obj["sample__year"] for obj in qs.order_by("sample__year").values("sample__year").distinct()]
     for year in years:
         for station in stations:
