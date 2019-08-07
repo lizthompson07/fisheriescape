@@ -61,10 +61,13 @@ urlpatterns = [
          views.AnnualWatershedReportTemplateView.as_view(), name="watershed_report"),
     path('reports/annual-watershed-spreadsheet/site/<int:site>/year/<int:year>', views.annual_watershed_spreadsheet,
          name="watershed_xlsx"),
-    path('reports/fgp-csv-export/', views.fgp_export, name="fgp_report"),
-    path('reports/fgp-csv-export-dictionary/', views.fgp_dictionary_export, name="fgp_dictionary"),
     path('reports/ais-export/species-list/<str:species_list>/', views.ais_export, name="ais_export"),
-    path('reports/opendata1/wms/', views.export_open_data_ver1_wms, name="fgp_wms"),
+
+    #OPEN DATA REPORTS
+    path('reports/od/wms/', views.export_open_data_wms, name="od_wms"),
+    path('reports/od1/report/csv/', views.od1_export, name="od1_report"),
+    path('reports/od1/dictionary/', views.od1_dict_export, name="od1_dict"),
+    path('reports/od2-csv-export/', views.od2_export, name="od2_report"),
 
 ]
 

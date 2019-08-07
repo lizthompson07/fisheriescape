@@ -641,18 +641,24 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("camp:watershed_xlsx", kwargs={"site": site, "year": year}))
 
         elif report == 5:
-            return HttpResponseRedirect(reverse("camp:fgp_report"))
+            return HttpResponseRedirect(reverse("camp:od1_report"))
 
         elif report == 7:
-            return HttpResponseRedirect(reverse("camp:fgp_dictionary"))
+            return HttpResponseRedirect(reverse("camp:od1_dict"))
 
         elif report == 8:
-            return HttpResponseRedirect(reverse("camp:fgp_wms"))
+            return HttpResponseRedirect(reverse("camp:od_wms"))
 
         elif report == 6:
             return HttpResponseRedirect(reverse("camp:ais_export", kwargs={
                 'species_list': ais_species_list,
             }))
+        elif report == 9:
+            return HttpResponseRedirect(reverse("camp:od2_report"))
+
+        # elif report == 10:
+        #     return HttpResponseRedirect(reverse("camp:od1_dict"))
+
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
@@ -709,13 +715,13 @@ def annual_watershed_spreadsheet(request, site, year):
     raise Http404
 
 
-def fgp_export(request):
-    response = reports.generate_fgp_export()
+def od1_export(request):
+    response = reports.generate_od1_report()
     return response
 
 
-def fgp_dictionary_export(request):
-    response = reports.generate_fgp_data_dictionary()
+def od1_dict_export(request):
+    response = reports.generate_od1_dict()
     return response
 
 
@@ -724,6 +730,10 @@ def ais_export(request, species_list):
     return response
 
 
-def export_open_data_ver1_wms(request):
-    response = reports.generate_open_data_ver_1_wms_report()
+def export_open_data_wms(request):
+    response = reports.generate_open_data_wms_report()
+    return response
+
+def od2_export(request):
+    response = reports.generate_od2_report()
     return response
