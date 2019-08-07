@@ -1360,6 +1360,8 @@ def generate_open_data_species_list():
 
 
 def generate_od1_report():
+    """The resulting csv will return a csv with all species obs and related metadata"""
+
     # figure out the filename
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="camp_species_observations.csv"'
@@ -1371,12 +1373,10 @@ def generate_od1_report():
         "year",
         "month",
         "day",
-        "prov",
         "site",
         "station",
         "latitude",
         "longitude",
-        "sample_id",
         "species_code",
         "sav",
         "sav_level",
@@ -1386,7 +1386,7 @@ def generate_od1_report():
         "total_all",
     ])
 
-    for obs in models.SpeciesObservation.objects.all():
+    for obs in models.SpeciesObservation.objects.all().order_by("-sample__start_date"):
         if obs.species.sav:
             total_sav = total = obs.total_sav
             adults = None
@@ -1403,12 +1403,11 @@ def generate_od1_report():
                 obs.sample.id,
                 obs.sample.year,
                 obs.sample.month,
-                "{} - {}".format(obs.sample.station.site.province.province_eng, obs.sample.station.site.province.province_fre),
-                obs.sample.station.site.site,
+                obs.sample.start_date.day,
+                obs.sample.station.site,
                 obs.sample.station.name,
                 obs.sample.station.latitude_n,
                 obs.sample.station.longitude_w,
-                obs.sample.id,
                 obs.species.code,
                 obs.species.sav,
                 total_sav,
@@ -1421,10 +1420,7 @@ def generate_od1_report():
 
 
 def generate_od2_report():
-    """
-    This is a view designed for FGP / open maps view. The resulting csv will summarize data per station per year
-    :return: http response
-    """
+    """The resulting csv will summarize data per station per year"""
 
     # grab all observations but exclude SAV
     qs = models.SpeciesObservation.objects.filter(species__sav=False)
@@ -1506,12 +1502,12 @@ def generate_od2_report():
                     data_row.extend(addendum)
 
                 writer.writerow(data_row)
-
-
     return response
 
 
 def generate_od3_report():
+    """camp sample report"""
+
     # figure out the filename
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="camp_samples.csv"'
