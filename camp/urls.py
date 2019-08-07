@@ -65,9 +65,10 @@ urlpatterns = [
 
     #OPEN DATA REPORTS
     path('reports/od/wms/', views.export_open_data_wms, name="od_wms"),
+    path('reports/od/spp-list/', views.export_open_data_spp_list, name="od_spp_list"),
+    path('reports/od/dictionary/', views.od_dict_export, name="od_dict"),
     path('reports/od1/report/csv/', views.od1_export, name="od1_report"),
-    path('reports/od1/dictionary/', views.od1_dict_export, name="od1_dict"),
-    path('reports/od2-csv-export/', views.od2_export, name="od2_report"),
+    path('reports/od2/report/csv/', views.od2_export, name="od2_report"),
 
 ]
 

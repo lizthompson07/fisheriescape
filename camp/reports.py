@@ -1195,222 +1195,6 @@ def generate_annual_watershed_spreadsheet(site, year):
     return target_url
 
 
-def generate_od1_dict():
-    # figure out the filename
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="camp_data_dictionary.csv"'
-    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
-    writer = csv.writer(response)
-    # write the header
-
-    header = [
-        "name_nom",
-        "description_en",
-        "description_fr",
-    ]
-    field_names = [
-        "year",
-        "month",
-        "prov",
-        "site",
-        "station",
-        "latitude",
-        "longitude",
-        "start_date",
-        "end_date",
-        "ammonia",
-        "d_o",
-        "nitrates",
-        "nitrite",
-        "phosphate",
-        "sal",
-        "silicate",
-        "water_temp",
-        "gravel",
-        "mud",
-        "rock",
-        "sand",
-        "species_eng",
-        "species_fra",
-        "scientific",
-        "tsn",
-        "sav",
-        "sav_level",
-        "adults",
-        "yoy",
-        "total_ind",
-        "total_all",
-    ]
-
-    descr_eng = [
-        "year of observation",
-        "month of observation",
-        "province",
-        "camp site",
-        "camp station",
-        "latitude (decimal degrees)",
-        "longitude (decimal degrees)",
-        "sample start date/time",
-        "sample end date/time",
-        "ammonia",
-        "dissolved oxygen",
-        "nitrates",
-        "nitrite",
-        "phosphate",
-        "salinity",
-        "silicate",
-        "water temperature (degrees C)",
-        "gravel (%)",
-        "mud (%)",
-        "rock (%)",
-        "sand (%)",
-        "species name in English",
-        "species name in French",
-        "scientific name",
-        "ITIS taxonomic serial number (TSN)",
-        "Is the species submerged aquatic vegetation (SAV)?",
-        "SAV level observed",
-        "count of adults",
-        "count of young-of-the-year",
-        "total number of individuals observed",
-        "total (SAV and non-SAV)",
-    ]
-    descr_fra = [
-        "l'année de l’observation",
-        "le mois de l’observation",
-        "province",
-        "site de PSCA",
-        "station de PSCA",
-        "latitude (degrés décimaux)",
-        "longitude (degrés décimaux)",
-        "date / heure de début",
-        "date / heure de fin",
-        "ammoniac",
-        "oxygène dissous",
-        "nitrates",
-        "nitrite",
-        "phosphate",
-        "salinité",
-        "silicate",
-        "température de l'eau (degrés C)",
-        "gravier (%)",
-        "boue (%)",
-        "roche (%)",
-        "sable (%)",
-        "nom de l'espèce en anglais",
-        "nom de l'espèce en français",
-        "nom scientifique",
-        "numéro de série taxonomique ITIS (TSN)",
-        "l'espèce est-elle une végétation aquatique submergée (VAS)?",
-        "VAS niveau observé",
-        "nombre d’adultes",
-        "nombre de jeunes de l'année",
-        "nombre total d'individus observés",
-        "total (VAS et non-VAS)",
-    ]
-
-    writer.writerow(header)
-
-    for i in range(0, len(field_names)):
-        writer.writerow([
-            field_names[i],
-            descr_eng[i],
-            descr_fra[i],
-        ])
-
-    return response
-
-
-def generate_od1_report():
-    # figure out the filename
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="camp_dataset.csv"'
-    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
-    writer = csv.writer(response)
-    # write the header
-    writer.writerow([
-        "year",
-        "month",
-        "prov",
-        "site",
-        "station",
-        "latitude",
-        "longitude",
-        "start_date",
-        "end_date",
-        "ammonia",
-        "d_o",
-        "nitrates",
-        "nitrite",
-        "phosphate",
-        "sal",
-        "silicate",
-        "water_temp",
-        "gravel",
-        "mud",
-        "rock",
-        "sand",
-        "species_eng",
-        "species_fra",
-        "scientific",
-        "tsn",
-        "sav",
-        "sav_level",
-        "adults",
-        "yoy",
-        "total_ind",
-        "total_all",
-    ])
-
-    for obs in models.SpeciesObservation.objects.all():
-        if obs.species.sav:
-            total_sav = total = obs.total_sav
-            adults = None
-            yoy = None
-            total_non_sav = None
-        else:
-            total_sav = None
-            adults = obs.adults
-            yoy = obs.yoy
-            total_non_sav = total = obs.total_non_sav
-
-        writer.writerow(
-            [
-                obs.sample.year,
-                obs.sample.month,
-                "{} - {}".format(obs.sample.station.site.province.province_eng, obs.sample.station.site.province.province_fre),
-                obs.sample.station.site.site,
-                obs.sample.station.name,
-                obs.sample.station.latitude_n,
-                obs.sample.station.longitude_w,
-                obs.sample.start_date,
-                obs.sample.end_date,
-                obs.sample.ammonia,
-                obs.sample.dissolved_o2,
-                obs.sample.nitrates,
-                obs.sample.nitrite,
-                obs.sample.phosphate,
-                obs.sample.salinity,
-                obs.sample.silicate,
-                obs.sample.h2o_temperature_c,
-                obs.sample.percent_gravel,
-                obs.sample.percent_mud,
-                obs.sample.percent_rock,
-                obs.sample.percent_sand,
-                obs.species.common_name_eng,
-                obs.species.common_name_fre,
-                obs.species.scientific_name,
-                obs.species.tsn,
-                obs.species.sav,
-                total_sav,
-                adults,
-                yoy,
-                total_non_sav,
-                total,
-            ])
-    return response
-
-
 def generate_ais_spreadsheet(species_list):
     # figure out the filename
     response = HttpResponse(content_type='text/csv')
@@ -1531,21 +1315,126 @@ def generate_open_data_wms_report():
             avg_freq,
         ]
 
-        # for key in select_species_dict:
-        #     freq_sum = qs.filter(
-        #         sample__station=station,
-        #         species__code__in=select_species_dict[key]["codes"]
-        #     ).values("frequency").order_by("frequency").aggregate(
-        #         dsum=Sum("frequency"))["dsum"]
-        #     freq_avg = floatformat(int(freq_sum) / len(seasons.split(",")), 2)
-        #
-        #     data_row.extend([
-        #         freq_sum,
-        #         freq_avg,
-        #     ])
-
         writer.writerow(data_row)
 
+    return response
+
+
+def generate_open_data_species_list():
+    """
+    Generates the species list for open data
+    """
+
+    filename = "open_data_species_list.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    # write the header
+    header = [
+        "code",
+        "common_name_en__nom_commun_en",
+        "common_name_en__nom_commun_fr",
+        "scientific_name__nom_scientifique",
+        "ITIS_TSN",
+    ]
+    writer.writerow(header)
+
+    for sp in models.Species.objects.all():
+        writer.writerow([
+            sp.code,
+            sp.common_name_eng,
+            sp.common_name_fre,
+            sp.scientific_name,
+            sp.tsn,
+        ])
+    return response
+
+
+def generate_od1_report():
+    # figure out the filename
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="species_observations.csv"'
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+    # write the header
+    writer.writerow([
+        "year",
+        "month",
+        "prov",
+        "site",
+        "station",
+        "latitude",
+        "longitude",
+        "start_date",
+        "end_date",
+        "ammonia",
+        "do",
+        "nitrates",
+        "nitrite",
+        "phosphate",
+        "sal",
+        "silicate",
+        "water_temp",
+        "gravel",
+        "mud",
+        "rock",
+        "sand",
+        "species_code",
+        "sav",
+        "sav_level",
+        "adults",
+        "yoy",
+        "total_ind",
+        "total_all",
+    ])
+
+    for obs in models.SpeciesObservation.objects.all():
+        if obs.species.sav:
+            total_sav = total = obs.total_sav
+            adults = None
+            yoy = None
+            total_non_sav = None
+        else:
+            total_sav = None
+            adults = obs.adults
+            yoy = obs.yoy
+            total_non_sav = total = obs.total_non_sav
+
+        writer.writerow(
+            [
+                obs.sample.year,
+                obs.sample.month,
+                "{} - {}".format(obs.sample.station.site.province.province_eng, obs.sample.station.site.province.province_fre),
+                obs.sample.station.site.site,
+                obs.sample.station.name,
+                obs.sample.station.latitude_n,
+                obs.sample.station.longitude_w,
+                obs.sample.start_date,
+                obs.sample.end_date,
+                obs.sample.ammonia,
+                obs.sample.dissolved_o2,
+                obs.sample.nitrates,
+                obs.sample.nitrite,
+                obs.sample.phosphate,
+                obs.sample.salinity,
+                obs.sample.silicate,
+                obs.sample.h2o_temperature_c,
+                obs.sample.percent_gravel,
+                obs.sample.percent_mud,
+                obs.sample.percent_rock,
+                obs.sample.percent_sand,
+                obs.species.code,
+                obs.species.sav,
+                total_sav,
+                adults,
+                yoy,
+                total_non_sav,
+                total,
+            ])
     return response
 
 
@@ -1557,7 +1446,7 @@ def generate_od2_report():
 
     # grab all observations but exclude SAV
     qs = models.SpeciesObservation.objects.filter(species__sav=False)
-    filename = "open_data_ver2_report_all_years.csv"
+    filename = "summary_by_station_by_year.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -1570,10 +1459,10 @@ def generate_od2_report():
 
     header_row = [
         'year',
-        'site_name',
-        'station_name',
-        'station_latitude',
-        'station_longitude',
+        'site',
+        'station',
+        'latitude',
+        'longitude',
         'number_of_samples',
         'avg_water_temp',
         'avg_sal',
@@ -1594,80 +1483,91 @@ def generate_od2_report():
     stations = [models.Station.objects.get(pk=obj["sample__station"]) for obj in
                 qs.order_by("sample__station").values("sample__station").distinct()]
     years = [obj["sample__year"] for obj in qs.order_by("sample__year").values("sample__year").distinct()]
-
     for year in years:
         for station in stations:
             sample_count = models.Sample.objects.filter(station=station, year=year).count()
-
-            data_row = [
-                year,
-                station.site,
-                station.name,
-                station.latitude_n,
-                station.longitude_w,
-                sample_count,
-                floatformat(
-                    qs.filter(sample__year=year, sample__station=station, ).values("sample").order_by("sample").distinct().aggregate(
-                        davg=Avg("sample__h2o_temperature_c"))["davg"], 3),
-                floatformat(
-                    qs.filter(sample__year=year, sample__station=station, ).values("sample").order_by("sample").distinct().aggregate(
-                        davg=Avg("sample__salinity"))["davg"], 3),
-                floatformat(
-                    qs.filter(sample__year=year, sample__station=station, ).values("sample").order_by("sample").distinct().aggregate(
-                        davg=Avg("sample__dissolved_o2"))["davg"], 3),
-            ]
-
-            for species in species_list:
-                addendum = [
+            if sample_count > 0:
+                data_row = [
+                    year,
+                    station.site,
+                    station.name,
+                    station.latitude_n,
+                    station.longitude_w,
+                    sample_count,
                     floatformat(
-                        qs.filter(sample__year=year, sample__station=station, ).values("yoy").order_by("yoy").distinct().aggregate(
-                            davg=Avg("yoy"))["davg"], 3),
+                        qs.filter(sample__year=year, sample__station=station, ).values("sample").order_by("sample").distinct().aggregate(
+                            davg=Avg("sample__h2o_temperature_c"))["davg"], 3),
                     floatformat(
-                        qs.filter(sample__year=year, sample__station=station, ).values("adults").order_by("adults").distinct().aggregate(
-                            davg=Avg("adults"))["davg"], 3),
+                        qs.filter(sample__year=year, sample__station=station, ).values("sample").order_by("sample").distinct().aggregate(
+                            davg=Avg("sample__salinity"))["davg"], 3),
                     floatformat(
-                        qs.filter(sample__year=year, sample__station=station, ).values("total_non_sav").order_by("total_non_sav").distinct().aggregate(
-                            davg=Avg("total_non_sav"))["davg"], 3),
+                        qs.filter(sample__year=year, sample__station=station, ).values("sample").order_by("sample").distinct().aggregate(
+                            davg=Avg("sample__dissolved_o2"))["davg"], 3),
                 ]
-                data_row.extend(addendum)
 
-            writer.writerow(data_row)
+                for species in species_list:
+                    addendum = [
+                        floatformat(
+                            qs.filter(sample__year=year, sample__station=station, species=species).values("yoy").order_by(
+                                "yoy").distinct().aggregate(davg=Avg("yoy"))["davg"], 3),
+                        floatformat(
+                            qs.filter(sample__year=year, sample__station=station, species=species).values("adults").order_by(
+                                "adults").distinct().aggregate(davg=Avg("adults"))["davg"], 3),
+                        floatformat(
+                            qs.filter(sample__year=year, sample__station=station, species=species).values("total_non_sav").order_by(
+                                "total_non_sav").distinct().aggregate(davg=Avg("total_non_sav"))["davg"], 3),
+                    ]
+                    data_row.extend(addendum)
+
+                writer.writerow(data_row)
 
     return response
 
 
-
-
-def generate_open_data_ver_2_dict():
-    """
-    Generates the data dictionary for open data report version 1
-    """
-
-    filename = "open_data_ver2_data_dictionary.csv"
-
-    # Create the HttpResponse object with the appropriate CSV header.
+def generate_od_dict():
+    # figure out the filename
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response['Content-Disposition'] = 'attachment; filename="camp_data_dictionary.csv"'
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
-
-    # writer.writerow("")
-    # writer.writerow(["Abiotic variables / Variables abiotiques:".upper(), ])
-    # writer.writerow(["#########################################", ])
     # write the header
+
     header = [
-        "name__nom",
+        "name_nom",
         "description_en",
         "description_fr",
     ]
-    writer.writerow(header)
-
     field_names = [
-        'year',
-        'site_name',
-        'station_name',
-        'station_latitude',
-        'station_longitude',
+        "year",
+        "month",
+        "prov",
+        "site",
+        "station",
+        "latitude",
+        "longitude",
+        "start_date",
+        "end_date",
+        "ammonia",
+        "do",
+        "nitrates",
+        "nitrite",
+        "phosphate",
+        "sal",
+        "silicate",
+        "water_temp",
+        "gravel",
+        "mud",
+        "rock",
+        "sand",
+        "species_code",
+        "tsn",
+        "sav",
+        "sav_level",
+        "adults",
+        "yoy",
+        "total_ind",
+        "total_all",
+        "--------------",
         'number_of_samples',
         'avg_water_temp',
         'avg_sal',
@@ -1675,99 +1575,169 @@ def generate_open_data_ver_2_dict():
         "[SPECIES_CODE]_YOY",
         "[SPECIES_CODE]_adults",
         "[SPECIES_CODE]_total",
+
     ]
 
     descr_eng = [
-        "sample year",
+        "year of observation",
+        "month of observation",
+        "province",
         "name of site and province",
-        "name of sampling station",
+        "camp station",
         "station latitude (decimal degrees)",
         "station longitude (decimal degrees)",
+        "sample start date/time",
+        "sample end date/time",
+        "ammonia",
+        "dissolved oxygen",
+        "nitrates",
+        "nitrite",
+        "phosphate",
+        "salinity",
+        "silicate",
+        "water temperature (degrees C)",
+        "gravel (%)",
+        "mud (%)",
+        "rock (%)",
+        "sand (%)",
+        "species code",
+        "ITIS taxonomic serial number (TSN)",
+        "Is the species submerged aquatic vegetation (SAV)?",
+        "SAV level observed",
+        "count of adults",
+        "count of young-of-the-year",
+        "total number of individuals observed",
+        "total (SAV and non-SAV)",
+        "--------------",
         "number of samples collected at the station in that year",
         "average water temperature (degrees C) at station",
         "average salinity at station",
         "average dissolved oxygen (mg/L) at station",
-        "average ",
+        "average count of the young-of-the-year for a given species",
+        "average count of the adults for a given species",
+        "average count of all individuals for a given species",
     ]
     descr_fra = [
-        "année-échantillon",
-        "nom du site et de la province",
-        "nom de la station",
+        "l'année de l’observation",
+        "le mois de l’observation",
+        "province",
+        "site de PSCA",
+        "station de PSCA",
         "latitude de la station (degrés décimaux)",
         "longitude de la station (degrés décimaux)",
+        "date / heure de début",
+        "date / heure de fin",
+        "ammoniac",
+        "oxygène dissous",
+        "nitrates",
+        "nitrite",
+        "phosphate",
+        "salinité",
+        "silicate",
+        "température de l'eau (degrés C)",
+        "gravier (%)",
+        "boue (%)",
+        "roche (%)",
+        "sable (%)",
+        "code de l'espèce",
+        "numéro de série taxonomique ITIS (TSN)",
+        "l'espèce est-elle une végétation aquatique submergée (VAS)?",
+        "VAS niveau observé",
+        "nombre d’adultes",
+        "nombre de jeunes de l'année",
+        "nombre total d'individus observés",
+        "total (VAS et non-VAS)",
+        "--------------",
         "nombre d'échantillons recueillis à la station pour cette année",
         "température moyenne de l'eau (degrés C) à la station",
         "salinité moyenne à la station",
         "oxygène dissous (mg / L) à la station",
+        "nombre moyen de jeunes de l'année pour une espèce donnée",
+        "nombre moyen d'adultes pour une espèce donnée",
+        "nombre moyen d'individus pour une espèce donnée",
     ]
 
-    for i in range(0, len(field_names)):
-        writer.writerow([
-            field_names[i],
-            descr_eng[i],
-            descr_fra[i],
-        ])
-
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow(["Biotic variables / Variables biotiques:".upper(), ])
-    writer.writerow(["#######################################", ])
-    field_names = [
-        "X_abundance",
-        "X_avg_fork_length",
-        "X_avg_total_length",
-        "X_avg_weight",
-    ]
-
-    descr_eng = [
-        "total abundance of species X for a given site and year",
-        "mean fork length (mm) of species X for a given site and year",
-        "mean total length (mm) of species X for a given site and year; this is only provided for American eel",
-        "mean weight (g) of species X for a given site and year",
-    ]
-    descr_fra = [
-        "Abondance totale de l'espèce X pour un site et une année donnés",
-        "longueur à la fourche moyenne (mm) de l'espèce X pour un site et une année donnés",
-        "longueur totale moyenne (mm) de l'espèce X pour un site et une année donnés; prévu que pour l'anguille d'Amérique",
-        "poids moyen (g) de l'espèce X pour un site et une année donnés",
-    ]
-    for i in range(0, len(field_names)):
-        writer.writerow([
-            field_names[i],
-            descr_eng[i],
-            descr_fra[i],
-        ])
-
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow(["Species / Espèces:".upper()])
-    writer.writerow(["##################"])
-    # write the header
-    header = [
-        "code",
-        "common_name_en__nom_commun_en",
-        "common_name_en__nom_commun_fr",
-        "life_stage_en__étape_de_vie_en",
-        "life_stage_fr__étape_de_vie_fr",
-        "scientific_name__nom_scientifique",
-        "ITIS_TSN",
-    ]
     writer.writerow(header)
 
-    for sp in models.Species.objects.all():
-        life_stage_eng = sp.life_stage.name if sp.life_stage else None
-        life_stage_fra = sp.life_stage.nom if sp.life_stage else None
-
+    for i in range(0, len(field_names)):
         writer.writerow([
-            sp.abbrev,
-            sp.common_name_eng,
-            sp.common_name_fre,
-            life_stage_eng,
-            life_stage_fra,
-            sp.scientific_name,
-            sp.tsn,
+            field_names[i],
+            descr_eng[i],
+            descr_fra[i],
         ])
 
     return response
+
+#
+# def generate_open_data_ver_2_dict():
+#     """
+#     Generates the data dictionary for open data report version 2
+#     """
+#
+#     filename = "open_data_ver2_data_dictionary.csv"
+#
+#     # Create the HttpResponse object with the appropriate CSV header.
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+#     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+#     writer = csv.writer(response)
+#
+#     # write the header
+#     header = [
+#         "name__nom",
+#         "description_en",
+#         "description_fr",
+#     ]
+#     writer.writerow(header)
+#
+#     field_names = [
+#         'year',
+#         'site_name',
+#         'station_name',
+#         'station_latitude',
+#         'station_longitude',
+#         'number_of_samples',
+#         'avg_water_temp',
+#         'avg_sal',
+#         'avg_do',
+#         "[SPECIES_CODE]_YOY",
+#         "[SPECIES_CODE]_adults",
+#         "[SPECIES_CODE]_total",
+#     ]
+#
+#     descr_eng = [
+#         "sample year",
+#         "name of site and province",
+#         "name of sampling station",
+#         "station latitude (decimal degrees)",
+#         "station longitude (decimal degrees)",
+#         "number of samples collected at the station in that year",
+#         "average water temperature (degrees C) at station",
+#         "average salinity at station",
+#         "average dissolved oxygen (mg/L) at station",
+#         "average count of the young-of-the-year for a given species",
+#         "average count of the adults for a given species",
+#         "average count of all individuals for a given species",
+#     ]
+#     descr_fra = [
+#         "année-échantillon",
+#         "nom du site et de la province",
+#         "nom de la station",
+#         "latitude de la station (degrés décimaux)",
+#         "longitude de la station (degrés décimaux)",
+#         "nombre d'échantillons recueillis à la station pour cette année",
+#         "température moyenne de l'eau (degrés C) à la station",
+#         "salinité moyenne à la station",
+#         "oxygène dissous (mg / L) à la station",
+#         "nombre moyen de jeunes de l'année pour une espèce donnée",
+#         "nombre moyen d'adultes pour une espèce donnée",
+#         "nombre moyen d'individus pour une espèce donnée",
+#     ]
+#
+#     for i in range(0, len(field_names)):
+#         writer.writerow([
+#             field_names[i],
+#             descr_eng[i],
+#             descr_fra[i],
+#         ])
+#     return response
