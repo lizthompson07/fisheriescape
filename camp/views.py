@@ -644,10 +644,13 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("camp:od1_report"))
 
         elif report == 7:
-            return HttpResponseRedirect(reverse("camp:od1_dict"))
+            return HttpResponseRedirect(reverse("camp:od_dict"))
 
         elif report == 8:
             return HttpResponseRedirect(reverse("camp:od_wms"))
+
+        elif report == 11:
+            return HttpResponseRedirect(reverse("camp:od_spp_list"))
 
         elif report == 6:
             return HttpResponseRedirect(reverse("camp:ais_export", kwargs={
@@ -657,7 +660,7 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("camp:od2_report"))
 
         # elif report == 10:
-        #     return HttpResponseRedirect(reverse("camp:od1_dict"))
+        #     return HttpResponseRedirect(reverse("camp:od_dict"))
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -720,8 +723,8 @@ def od1_export(request):
     return response
 
 
-def od1_dict_export(request):
-    response = reports.generate_od1_dict()
+def od_dict_export(request):
+    response = reports.generate_od_dict()
     return response
 
 
@@ -732,6 +735,11 @@ def ais_export(request, species_list):
 
 def export_open_data_wms(request):
     response = reports.generate_open_data_wms_report()
+    return response
+
+
+def export_open_data_spp_list(request):
+    response = reports.generate_open_data_species_list()
     return response
 
 def od2_export(request):
