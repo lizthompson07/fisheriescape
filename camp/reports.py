@@ -1500,7 +1500,6 @@ def generate_od2_report():
                         total/sample_count if total else None,
                     ]
                     data_row.extend(addendum)
-
                 writer.writerow(data_row)
     return response
 
@@ -1621,7 +1620,6 @@ def generate_od_dict():
         "[SPECIES_CODE]_YOY",
         "[SPECIES_CODE]_adults",
         "[SPECIES_CODE]_total",
-
     ]
 
     descr_eng = [
