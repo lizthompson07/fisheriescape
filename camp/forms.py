@@ -162,6 +162,7 @@ class ReportSearchForm(forms.Form):
         (6, "AIS export (CSV)"),
         (5, "OPEN DATA: export for FGP (CSV)"),
         (7, "OPEN DATA: data dictionary for FGP (CSV)"),
+        (8, "OPEN DATA: web mapping services report (CSV)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
