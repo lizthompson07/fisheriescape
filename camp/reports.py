@@ -1617,9 +1617,11 @@ def generate_od_dict():
         'avg_water_temp',
         'avg_sal',
         'avg_do',
+        'spp_count',
         "[SPECIES_CODE]_YOY",
         "[SPECIES_CODE]_adults",
         "[SPECIES_CODE]_total",
+        "[SPECIES_CODE]_avg_total",
     ]
 
     descr_eng = [
@@ -1657,9 +1659,11 @@ def generate_od_dict():
         "average water temperature (degrees C) at station",
         "average salinity at station",
         "average dissolved oxygen (mg/L) at station",
-        "average count of the young-of-the-year for a given species",
-        "average count of the adults for a given species",
-        "average count of all individuals for a given species",
+        "number of species observed",
+        "count of the young-of-the-year for a given species",
+        "count of the adults for a given species",
+        "count of all individuals for a given species",
+        "average number of individuals (per sample) for a given species",
     ]
     descr_fra = [
         "identifiant unique de l'échantillon",
@@ -1696,9 +1700,10 @@ def generate_od_dict():
         "température moyenne de l'eau (degrés C) à la station",
         "salinité moyenne à la station",
         "oxygène dissous (mg / L) à la station",
-        "nombre moyen de jeunes de l'année pour une espèce donnée",
-        "nombre moyen d'adultes pour une espèce donnée",
-        "nombre moyen d'individus pour une espèce donnée",
+        "nombre d'espèces observées",
+        "nombre de jeunes de l'année pour une espèce donnée",
+        "nombre d'adultes pour une espèce donnée",
+        "nombre moyen d'individus (par échantillon) pour une espèce donnée",
     ]
 
     writer.writerow(header)
