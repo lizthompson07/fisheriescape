@@ -1489,9 +1489,9 @@ def generate_od2_report():
 
                 for species in species_list:
                     yoy_sum = qs.filter(sample__year=year, sample__station=station, species=species).values("yoy").order_by(
-                        "yoy").distinct().aggregate(dsum=Avg("yoy"))["dsum"]
+                        "yoy").distinct().aggregate(dsum=Sum("yoy"))["dsum"]
                     adult_sum = qs.filter(sample__year=year, sample__station=station, species=species).values("adults").order_by(
-                        "adults").distinct().aggregate(dsum=Avg("adults"))["dsum"]
+                        "adults").distinct().aggregate(dsum=Sum("adults"))["dsum"]
                     total = zero2val(nz(yoy_sum,0)+nz(adult_sum,0),None)
                     addendum = [
                         yoy_sum,
