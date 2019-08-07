@@ -28,16 +28,15 @@
         <h1 class="big-header">
             {% trans "People" %}
         </h1>
-        <p>TOTAL: {{ object_list.count }}</p>
 
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
                 {% for field in filter.form %}
-                    <div class="col-5">
+                    <div class="col">
                         {% bootstrap_field field placeholder="" size="small" %}
                     </div>
                 {% endfor %}
-                <div class="col-3">
+                <div class="col-1">
                     <br>
                     <input type="submit" value="Filter" class="btn btn-sm btn-warning">
                 </div>
@@ -71,14 +70,19 @@
                     <thead>
                     <tr>
                         {% for field in field_list %}
-                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                            {% if field == "last_name" %}
+                            <th scope="col" style="width: 10%;">{% get_verbose_label my_object field %}</th>
+
+                            {% else %}
+                            <th scope="col" style="width: 10%;">{% get_verbose_label my_object field %}</th>
+                            {% endif %}
                         {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
                     {% for object in filter.qs %}
                         {% url 'ihub:person_detail' object.id as my_url %}
-                        <tr href="{{ my_url }}">
+                        <tr href="{{ my_url }}" class="{% if object.ihub_vetted %}good{% endif %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
