@@ -659,6 +659,9 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
         elif report == 9:
             return HttpResponseRedirect(reverse("camp:od2_report"))
 
+        elif report == 12:
+            return HttpResponseRedirect(reverse("camp:od3_report"))
+
         # elif report == 10:
         #     return HttpResponseRedirect(reverse("camp:od_dict"))
 
@@ -744,4 +747,8 @@ def export_open_data_spp_list(request):
 
 def od2_export(request):
     response = reports.generate_od2_report()
+    return response
+
+def od3_export(request):
+    response = reports.generate_od3_report()
     return response

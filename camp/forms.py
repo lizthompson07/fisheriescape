@@ -165,6 +165,7 @@ class ReportSearchForm(forms.Form):
         (7, "OPEN DATA: data dictionary (CSV)"),
         (5, "OPEN DATA - Version 1: Species observations (CSV)"),
         (9, "OPEN DATA - Version 2: Summary by station by year (CSV)"),
+        (12, "OPEN DATA - Version 3: CAMP samples (CSV)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
