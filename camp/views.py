@@ -646,6 +646,9 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
         elif report == 7:
             return HttpResponseRedirect(reverse("camp:fgp_dictionary"))
 
+        elif report == 8:
+            return HttpResponseRedirect(reverse("camp:fgp_wms"))
+
         elif report == 6:
             return HttpResponseRedirect(reverse("camp:ais_export", kwargs={
                 'species_list': ais_species_list,
@@ -718,4 +721,9 @@ def fgp_dictionary_export(request):
 
 def ais_export(request, species_list):
     response = reports.generate_ais_spreadsheet(species_list)
+    return response
+
+
+def export_open_data_ver1_wms(request):
+    response = reports.generate_open_data_ver_1_wms_report()
     return response

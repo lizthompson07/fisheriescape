@@ -64,6 +64,7 @@ urlpatterns = [
     path('reports/fgp-csv-export/', views.fgp_export, name="fgp_report"),
     path('reports/fgp-csv-export-dictionary/', views.fgp_dictionary_export, name="fgp_dictionary"),
     path('reports/ais-export/species-list/<str:species_list>/', views.ais_export, name="ais_export"),
+    path('reports/opendata1/wms/', views.export_open_data_ver1_wms, name="fgp_wms"),
 
 ]
 
