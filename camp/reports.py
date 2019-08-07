@@ -16,7 +16,8 @@ from django.db.models import Sum, Q, Avg, Count
 from shutil import rmtree
 from django.conf import settings
 
-from lib.functions.custom_functions import nz, listrify
+from lib.functions.custom_functions import listrify
+from lib.templatetags.custom_filters import nz, zero2val
 from . import models
 import numpy as np
 import os
@@ -1493,12 +1494,12 @@ def generate_od2_report():
                         "yoy").distinct().aggregate(dsum=Avg("yoy"))["dsum"]
                     adult_sum = qs.filter(sample__year=year, sample__station=station, species=species).values("adults").order_by(
                         "adults").distinct().aggregate(dsum=Avg("adults"))["dsum"]
-
+                    total = zero2val(nz(yoy_sum,0)+nz(adult_sum,0),None)
                     addendum = [
                         yoy_sum,
                         adult_sum,
-                        yoy_sum+adult_sum,
-                        yoy_sum+adult_sum/sample_count,
+                        total,
+                        total/sample_count if total else None,
                     ]
                     data_row.extend(addendum)
 
