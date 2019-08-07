@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% block bug_create %}{% url 'tickets:bug_create' 'sar_search' %}{% endblock bug_create %}
+
+{% block title %}SAR Search{% endblock title %}
+
+{% block body %}
+    {% block content %}{% endblock content %}
+{% endblock body %}
+
+{% block left_all %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'sar_search:index' %}">SAR Search</a></li>
+{% endblock left_all %}
+
+{% block left_unauth %}
+
+{% endblock left_unauth %}
+
+{% block left_auth %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'sar_search:species_list' %}">Species</a></li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+           aria-expanded="false">
+            Settings
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'sar_search:manage_taxa' %}">Manage Taxon</a>
+            <a class="dropdown-item" href="{% url 'sar_search:manage_statuses' %}">Manage Species Statuses</a>
+            <a class="dropdown-item" href="{% url 'sar_search:manage_schedules' %}">Manage SARA Schedules</a>
+            <a class="dropdown-item" href="{% url 'sar_search:manage_counties' %}">Manage Counties</a>
+        </div>
+    </li>
+
+{#    <li class="nav-item"><a class="nav-link" href="{% url 'sar_search:report_search' %}">Reports</a></li>#}
+
+{% endblock left_auth %}
+{% block left_admin %}
+{% endblock left_admin %}

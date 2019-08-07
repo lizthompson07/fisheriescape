@@ -141,6 +141,11 @@ try:
 except RuntimeError:
     print("not connecting TrapNet")
 
+try:
+    urlpatterns += i18n_patterns(path('sar-search/', include('sar_search.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting SAR Search")
+
 
 if not settings.PRODUCTION_SERVER:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -33,7 +33,7 @@
             </div>
         </form>
 
-{#        {% paginate 40 filter.qs as filter_list %}#}
+        {% paginate 100 filter.qs as filter_list %}
         <br>
 
 
@@ -42,8 +42,8 @@
                 (click on a header to sort table)
             </div>
             <div class="col" style="text-align: center">
-{#                {% show_pages %}#}
-                <em>displaying all {{ filter.qs.count }} records</em>
+                {% show_pages %}
+                <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
                 <a href="{% url 'diets:predator_new' %}" class="btn btn-sm btn-primary">New Predator</a>
@@ -51,27 +51,27 @@
         </div>
 
         {% if filter.qs.count > 0 %}
-        <table class="table table-sm table-hover sortable">
-            <thead>
-            <tr>
-                {% for field in field_list %}
-                    <th scope="col">{% get_verbose_label my_object field %}</th>
-                {% endfor %}
-                <th scope="col">Prey items</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for object in filter.qs %}
-                {% url 'diets:predator_detail' object.id as my_url %}
-                <tr href="{{ my_url }}">
+            <table class="table table-sm table-hover sortable">
+                <thead>
+                <tr>
                     {% for field in field_list %}
-                        <td>{% get_field_value object field %}</td>
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
                     {% endfor %}
-                    <td>{{ object.prey_items.count }}</td>
+                    <th scope="col">Prey items</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for object in filter_list %}
+                    {% url 'diets:predator_detail' object.id as my_url %}
+                    <tr href="{{ my_url }}">
+                        {% for field in field_list %}
+                            <td>{% get_field_value object field %}</td>
+                        {% endfor %}
+                        <td>{{ object.prey_items.count }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         {% else %}
             <em>No records to display.</em>
         {% endif %}

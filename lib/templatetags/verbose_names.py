@@ -59,7 +59,7 @@ def get_verbose_label(instance, field_name):
 
 
 @register.simple_tag
-def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None):
+def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="n/a"):
     """
     Returns verbose_name for a field.
     To return a field from a foreign key, send in the field name as such: "user.first_name".
@@ -117,7 +117,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             else:
                 field_value = getattr(instance, field_name)
         else:
-            field_value = "n/a"
+            field_value = nullmark
 
     # TODO: specify special formatting
     if format == "currency":

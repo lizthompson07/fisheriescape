@@ -166,6 +166,14 @@ class SupplemantInformation:
             else:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
 
+        # Sampling Method
+        if self.resource.sampling_method_eng != None and self.resource.sampling_method_eng != "":
+            xml_temp = "SAMPLING METHODS:\n{}".format(self.resource.sampling_method_eng)
+            if xml_block is None:
+                xml_block = xml_temp
+            else:
+                xml_block = "{}\n\n{}".format(xml_block, xml_temp)
+
         # citations
         if self.resource.citations.count() > 0:
             citation_list = ""
@@ -203,6 +211,14 @@ class SupplemantInformation:
         # Physical sample description
         if self.resource.physical_sample_descr_fre != None and self.resource.physical_sample_descr_fre != "":
             xml_temp = "DÉTAILS DE L'ÉCHANTILLON PHYSIQUE :\n{}".format(self.resource.physical_sample_descr_fre)
+            if xml_block is None:
+                xml_block = xml_temp
+            else:
+                xml_block = "{}\n\n{}".format(xml_block, xml_temp)
+
+        # Sampling method
+        if self.resource.sampling_method_fre != None and self.resource.sampling_method_fre != "":
+            xml_temp = "MÉTHODES D'ÉCHANTILLONNAGE :\n{}".format(self.resource.sampling_method_fre)
             if xml_block is None:
                 xml_block = xml_temp
             else:

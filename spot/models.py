@@ -2,6 +2,7 @@ import datetime
 import os
 
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.dispatch import receiver
 from django.urls import reverse
@@ -13,6 +14,7 @@ from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from masterlist import models as ml_models
+from sar_search import models as sar_models
 
 
 class Status(models.Model):
@@ -129,27 +131,72 @@ def draft_ca_file_directory_path(instance, filename):
 
 
 class Activity(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+    #choices for habitat
+    FW = 1
+    MAR =2
+    HABITAT_CHOICES = (
+        (FW, _("Freshwater")),
+        (MAR, _("Marine")),
+    )
+
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="activities", verbose_name=_("funding program"),
                                 blank=True, null=True)
-    category_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description (English)"))
-    category_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description (French)"))
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+    habitat = models.IntegerField(blank=True, null=True, choices=HABITAT_CHOICES)
+    category_eng = models.CharField(max_length=1000, verbose_name=_("category/type (English)"))
+    category_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("category/type (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        my_str = "{}".format(getattr(self, str(_("category_eng"))))
+
+        if self.habitat:
+            my_str += " ({}) - ".format(self.get_habitat_display())
+        else:
+            my_str += " - "
+
+        my_str +=  "{}".format(getattr(self, str(_("name"))))
+        return my_str
+
+    class Meta:
+        ordering = ["program", _('category_eng'), _('name'), ]
+
+
+
+class DrainageBasin(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
 
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
-            if getattr(self, str(_("category_eng"))):
-                return "{} - {}".format(getattr(self, str(_("category_eng"))), getattr(self, str(_("name"))))
-            else:
-                return "{} - {}".format(self.category_eng, getattr(self, str(_("name"))))
-
+            return "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{} - {}".format(self.category_eng, self.name)
+            return "{}".format(self.name)
 
     class Meta:
-        ordering = [_('category_eng'), _('name'), ]
+        ordering = [_('name'), ]
+
+
+class Watershed(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name="watersheds")
+    drainage_basin = models.ForeignKey(DrainageBasin, on_delete=models.DO_NOTHING, related_name="watersheds")
+    notes = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("notes"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}, {} ({})".format(getattr(self, str(_("name"))), self.province.tabbrev, self.drainage_basin)
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}, {} ({})".format(self.name, self.province.tabbrev, self.drainage_basin)
+
+    class Meta:
+        ordering = [_('name'), ]
 
 
 class Project(models.Model):
@@ -163,6 +210,7 @@ class Project(models.Model):
                                    default=fiscal_year(sap_style=True, next=True))
     project_length = models.IntegerField(blank=True, null=True)
     date_completed = models.DateTimeField(blank=True, null=True)
+    summary = models.TextField(blank=True, null=True, verbose_name=_("summary"))
     old_id = models.IntegerField(blank=True, null=True)
     eccc_id = models.CharField(max_length=50, blank=True, null=True)
 
@@ -185,7 +233,7 @@ class Project(models.Model):
     overview = models.TextField(blank=True, null=True, verbose_name=_("project overview"))
 
     ## Regional Review
-    regional_score = models.DecimalField(max_digits=18, decimal_places=0, blank=True, null=True, verbose_name=_("regional score"))
+    regional_score = models.FloatField(blank=True, null=True, verbose_name=_("regional score"))
     rank = models.IntegerField(blank=True, null=True, verbose_name=_("project rank"))
     application_submission_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date/time of application submission"))
     submission_accepted = models.NullBooleanField(verbose_name=_("was the submission accepted?"))
@@ -229,7 +277,9 @@ class Project(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="gc_projects")
     people = models.ManyToManyField(ml_models.Person, through="ProjectPerson", blank=True)
-    activities = models.ManyToManyField(Activity, blank=True)
+    activities = models.ManyToManyField(Activity, blank=True, verbose_name=_("activities"))
+    spp = models.ManyToManyField(sar_models.Species, blank=True, verbose_name=_("species"))
+    watersheds = models.ManyToManyField(Watershed, blank=True, verbose_name=_("watersheds"))
 
     def __str__(self):
         return "{} ({})".format(truncate(self.title, 50), self.organization.abbrev)
@@ -284,7 +334,7 @@ class Project(models.Model):
     def end_year(self):
         return self.years.order_by("fiscal_year").last().fiscal_year.full
 
-    #PEOPLE
+    # PEOPLE
     @property
     def pp(self):
         return self.project_people.get(role=1).person
@@ -297,6 +347,10 @@ class Project(models.Model):
     @property
     def application_file(self):
         return File.objects.get(project=self, file_type_id=6)
+
+    @property
+    def project_evaluation_file(self):
+        return File.objects.get(project=self, file_type_id=8)
 
     @property
     def risk_assessment_file(self):
@@ -432,6 +486,10 @@ class ExpressionOfInterest(models.Model):
     @property
     def file(self):
         return File.objects.get(project=self.project, file_type_id=3)
+
+    @property
+    def eoi_evaluation_file(self):
+        return File.objects.get(project=self.project, file_type_id=7)
 
 
 class ProjectYear(models.Model):
@@ -580,6 +638,79 @@ class ReportChecklist(models.Model):
         return super().save(*args, **kwargs)
 
 
+class RestorationTypeCategory(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
+class RestorationType(models.Model):
+    restoration_type_category = models.ForeignKey(RestorationTypeCategory, on_delete=models.DO_NOTHING, related_name="types")
+    name = models.TextField(verbose_name=_("name (English)"))
+    nom = models.TextField(blank=True, null=True, verbose_name=_("name (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
+class SiteType(models.Model):
+    name = models.TextField(verbose_name=_("name (English)"))
+    nom = models.TextField(blank=True, null=True, verbose_name=_("name (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
+class Site(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="sites")
+    name = models.CharField(max_length=255, verbose_name=_("site name"))
+    site_type = models.ForeignKey(SiteType, on_delete=models.DO_NOTHING, related_name="sites", verbose_name=_("site type"))
+    lat = models.FloatField(max_length=255, verbose_name=_("latitude (DD.dddddd)"), blank=True, null=True)
+    long = models.FloatField(max_length=255, verbose_name=_("longitude (DD.dddddd)"), blank=True, null=True, validators=[MaxValueValidator(0),])
+    restoration_type = models.ForeignKey(RestorationType, on_delete=models.DO_NOTHING, related_name="sites", verbose_name=_("restoration type (optional)"), blank=True, null=True)
+    width = models.CharField(max_length=255, verbose_name=_("width (optional)"), blank=True, null=True)
+    depth = models.CharField(max_length=255, verbose_name=_("depth (optional)"), blank=True, null=True)
+    substrate = models.CharField(max_length=255, verbose_name=_("substrate (optional)"), blank=True, null=True)
+    comments = models.TextField(verbose_name=_("comments"), blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
 class SiteVisit(models.Model):
     project_year = models.OneToOneField(ProjectYear, on_delete=models.DO_NOTHING, related_name="site_visits")
     date_of_visit = models.DateTimeField(blank=True, null=True, default=timezone.now)
@@ -637,62 +768,6 @@ class SiteVisit(models.Model):
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
-
-
-class RestorationTypeCategory(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = [_('name'), ]
-
-
-class RestorationType(models.Model):
-    restoration_type_category = models.ForeignKey(RestorationTypeCategory, on_delete=models.DO_NOTHING, related_name="types")
-    name = models.TextField(verbose_name=_("name (English)"))
-    nom = models.TextField(blank=True, null=True, verbose_name=_("name (French)"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = [_('name'), ]
-
-
-class Site(models.Model):
-    site_visit = models.ForeignKey(SiteVisit, on_delete=models.DO_NOTHING, related_name="sites")
-    restoration_type = models.ForeignKey(RestorationType, on_delete=models.DO_NOTHING, related_name="sites")
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    width = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    depth = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    substrate = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    lat = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    long = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    comments = models.TextField(verbose_name=_("comments"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = [_('name'), ]
 
 
 def file_directory_path(instance, filename):
