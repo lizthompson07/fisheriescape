@@ -69,6 +69,7 @@ urlpatterns = [
     path('reports/od/dictionary/', views.od_dict_export, name="od_dict"),
     path('reports/od1/report/csv/', views.od1_export, name="od1_report"),
     path('reports/od2/report/csv/', views.od2_export, name="od2_report"),
+    path('reports/od3/report/csv/', views.od3_export, name="od3_report"),
 
 ]
 
