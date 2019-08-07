@@ -1367,8 +1367,10 @@ def generate_od1_report():
     writer = csv.writer(response)
     # write the header
     writer.writerow([
+        "sample_id",
         "year",
         "month",
+        "day",
         "prov",
         "site",
         "station",
@@ -1520,6 +1522,7 @@ def generate_od3_report():
         "sample_id",
         "year",
         "month",
+        "day",
         "prov",
         "site",
         "station",
@@ -1547,7 +1550,8 @@ def generate_od3_report():
                 sample.id,
                 sample.year,
                 sample.month,
-                "{} - {}".format(sample.station.site.province.province_eng, sample.station.site.province.province_fre),
+                sample.start_date.day,
+                "{} / {}".format(sample.station.site.province.abbrev_eng, sample.station.site.province.abbrev_fre),
                 sample.station.site.site,
                 sample.station.name,
                 sample.station.latitude_n,
@@ -1562,10 +1566,10 @@ def generate_od3_report():
                 sample.salinity,
                 sample.silicate,
                 sample.h2o_temperature_c,
-                sample.percent_gravel,
-                sample.percent_mud,
-                sample.percent_rock,
-                sample.percent_sand,
+                nz(sample.percent_gravel, 0),
+                nz(sample.percent_mud, 0),
+                nz(sample.percent_rock, 0),
+                nz(sample.percent_sand, 0),
             ])
     return response
 
