@@ -1245,12 +1245,12 @@ def generate_ais_spreadsheet(species_list):
     return response
 
 
-def generate_open_data_wms_report():
+def generate_open_data_wms_report(lang=1):
     """
     Simple report for web mapping service on FGP
     """
-    qs = models.SpeciesObservation.objects.filter(species__sav=False)
-    filename = "camp_station_summary.csv"
+    qs = models.SpeciesObservation.objects.all()
+    filename = "camp_station_summary_eng.csv" if lang == 1 else "camp_station_summary_fra.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -1258,36 +1258,20 @@ def generate_open_data_wms_report():
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
-    header_row_eng = [
-        'Site',
-        'Station',
-        'Station latitude',
-        'Station longitude',
-        'Seasons in operation [# samples]',
-        'List of species caught (English)',
-        'List of species caught (French)',
-        'SAV present (English)',
-        'SAV present (French)',
-        'Total number of fish caught',
-        'Mean annual number of fish caught',
+    header_row = [
+        'site',
+        'province',
+        'station',
+        'station_latitude' if lang == 1 else "latitude_de_station",
+        'station_longitude' if lang == 1 else "longitude_de_station",
+        'seasons_in_operation_and_samples_collected' if lang == 1 else "saisons_en_opération_et_nombre_échontillions",
+        'list_of_species_caught' if lang == 1 else "liste_des_espèces_capturées",
+        'list_of_SAV' if lang == 1 else "list_de_VAS",
+        'total_number_of_fish_caught' if lang == 1 else "nombre_total_de_poisson_capturées",
+        'mean_annual_number_of_fish_caught' if lang == 1 else "nombre_annuel_moyen_de_poissons_capturés",
     ]
 
-    header_row_fra = [
-        'Site',
-        'Station',
-        'Latitude de station',
-        'Longitude de station',
-        "Saisons en opération [nombre d'échontillions]",
-        'Liste des espèces capturées (anglais)',
-        'Liste des espèces capturées (français)',
-        'VAS présent (anglais)',
-        'VAS présent (français)',
-        'Nombre total de poisson capturées',
-        'Nombre annuel moyen de poissons capturés',
-    ]
-
-    writer.writerow(header_row_eng)
-    writer.writerow(header_row_fra)
+    writer.writerow(header_row)
 
     # lets start by getting a list of samples and years
     # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
@@ -1300,22 +1284,33 @@ def generate_open_data_wms_report():
                 obj["sample__year"],
                 models.Sample.objects.filter(station=station, year=obj["sample__year"]).count(),
             ) for obj in qs.filter(sample__station=station).order_by("sample__year").values("sample__year").distinct()])
-        spp_list_eng = listrify([models.Species.objects.get(pk=obj["species"]).common_name_eng for obj in
-                                 qs.filter(sample__station=station, species__SAV=False).order_by("species").values("species").distinct()])
-        spp_list_fra = listrify([models.Species.objects.get(pk=obj["species"]).common_name_fre for obj in
-                                 qs.filter(sample__station=station).order_by("species").values("species").distinct()])
+
+        if lang == 1:
+            spp_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_eng for obj in
+                                 qs.filter(sample__station=station, species__sav=False).order_by("species").values("species").distinct()])
+            vas_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_eng for obj in
+                                 qs.filter(sample__station=station, species__sav=True).order_by("species").values("species").distinct()])
+        else:
+            spp_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_fre for obj in
+                                 qs.filter(sample__station=station, species__sav=False).order_by("species").values("species").distinct()])
+            vas_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_fre for obj in
+                                 qs.filter(sample__station=station, species__sav=True).order_by("species").values("species").distinct()])
+
+
+
         total_freq = qs.filter(sample__station=station, ).values("total_non_sav").order_by("total_non_sav").aggregate(
             dsum=Sum("total_non_sav"))["dsum"]
         avg_freq = floatformat(int(total_freq) / len(years.split(",")), 2)
 
         data_row = [
-            str(station.site),
+            station.site.site,
+            station.site.province.abbrev_eng if lang == 1 else station.site.province.abbrev_fre,
             station.name,
             station.latitude_n,
             station.longitude_w,
             years,
-            spp_list_eng,
-            spp_list_fra,
+            spp_list,
+            vas_list,
             total_freq,
             avg_freq,
         ]
@@ -1461,7 +1456,7 @@ def generate_od2_report():
 
     # lets start by getting a list of stations and years
     stations = [models.Station.objects.get(pk=obj["sample__station"]) for obj in
-                qs.order_by("sample__station__site","sample__station").values("sample__station").distinct()]
+                qs.order_by("sample__station__site", "sample__station").values("sample__station").distinct()]
     years = [obj["sample__year"] for obj in qs.order_by("sample__year").values("sample__year").distinct()]
     for year in years:
         for station in stations:
@@ -1484,7 +1479,7 @@ def generate_od2_report():
                         qs.filter(sample__year=year, sample__station=station, ).values("sample").order_by("sample").distinct().aggregate(
                             davg=Avg("sample__dissolved_o2"))["davg"], 3),
                     qs.filter(sample__year=year, sample__station=station, ).values("species").order_by("species").distinct().aggregate(
-                            dcount=Count("species"))["dcount"]
+                        dcount=Count("species"))["dcount"]
                 ]
 
                 for species in species_list:
@@ -1492,12 +1487,12 @@ def generate_od2_report():
                         "yoy").distinct().aggregate(dsum=Sum("yoy"))["dsum"]
                     adult_sum = qs.filter(sample__year=year, sample__station=station, species=species).values("adults").order_by(
                         "adults").distinct().aggregate(dsum=Sum("adults"))["dsum"]
-                    total = zero2val(nz(yoy_sum,0)+nz(adult_sum,0),None)
+                    total = zero2val(nz(yoy_sum, 0) + nz(adult_sum, 0), None)
                     addendum = [
                         yoy_sum,
                         adult_sum,
                         total,
-                        total/sample_count if total else None,
+                        total / sample_count if total else None,
                     ]
                     data_row.extend(addendum)
                 writer.writerow(data_row)

@@ -64,7 +64,7 @@ urlpatterns = [
     path('reports/ais-export/species-list/<str:species_list>/', views.ais_export, name="ais_export"),
 
     #OPEN DATA REPORTS
-    path('reports/od/wms/', views.export_open_data_wms, name="od_wms"),
+    path('reports/od/wms/<int:lang>/', views.export_open_data_wms, name="od_wms"),
     path('reports/od/spp-list/', views.export_open_data_spp_list, name="od_spp_list"),
     path('reports/od/dictionary/', views.od_dict_export, name="od_dict"),
     path('reports/od1/report/csv/', views.od1_export, name="od1_report"),
