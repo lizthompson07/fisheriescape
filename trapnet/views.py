@@ -531,7 +531,9 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, FormView):
         elif report == 4:
             return HttpResponseRedirect(reverse("trapnet:od1_dictionary"))
         elif report == 5:
-            return HttpResponseRedirect(reverse("trapnet:od1_wms"))
+            return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 1}))
+        elif report == 6:
+            return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 2}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("trapnet:report_search"))
@@ -555,8 +557,8 @@ def export_open_data_ver1_dictionary(request):
     response = reports.generate_open_data_ver_1_data_dictionary()
     return response
 
-def export_open_data_ver1_wms(request):
-    response = reports.generate_open_data_ver_1_wms_report()
+def export_open_data_ver1_wms(request, lang):
+    response = reports.generate_open_data_ver_1_wms_report(lang)
     return response
 
 #
