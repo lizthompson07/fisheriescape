@@ -75,7 +75,7 @@ class Species(models.Model):
 
     common_name = models.CharField(max_length=255, blank=True, null=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
-    abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name="abbreviation")
+    abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name="abbreviation", unique=True)
     epibiont_type = models.CharField(max_length=10, blank=True, null=True, choices=EPIBIONT_TYPE_CHOICES)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="Taxonomic Serial Number")
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
