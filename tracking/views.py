@@ -154,7 +154,7 @@ def summarize_data(context, user=None):
     # get the list of apps
     if not user:
         app_list = [visit["application_name"] for visit in
-                VisitSummary.objects.all().values("application_name").order_by("application_name").distinct()]
+                    VisitSummary.objects.all().values("application_name").order_by("application_name").distinct()]
     else:
         app_list = [visit["application_name"] for visit in
                     VisitSummary.objects.filter(user=user).values("application_name").order_by("application_name").distinct()]
@@ -174,8 +174,30 @@ def summarize_data(context, user=None):
         final_app_dict[key] = value
     context["app_dict"] = final_app_dict
 
+    # now for today
+    app_dict = {}
+    final_app_dict = {}
+    for app in app_list:
+        # create a new file containing data
+        if not user:
+            result = VisitSummary.objects.filter(application_name=app, date__year=timezone.now().year, date__month=timezone.now().month,
+                                                 date__day=timezone.now().day).values('page_visits').order_by(
+                "page_visits").aggregate(dsum=Sum('page_visits'))
+        else:
+            result = VisitSummary.objects.filter(application_name=app, user=user, date__year=timezone.now().year,
+                                                 date__month=timezone.now().month,
+                                                 date__day=timezone.now().day).values('page_visits').order_by(
+                "page_visits").aggregate(dsum=Sum('page_visits'))
+
+        if result["dsum"]:
+            app_dict[app] = result["dsum"]
+
+    for key, value in sorted(app_dict.items(), key=lambda item: item[1], reverse=True):
+        final_app_dict[key] = value
+    context["app_dict_today"] = final_app_dict
+
     if not user:
-    # get the list of users
+        # get the list of users
         user_list = [visit["user"] for visit in
                      VisitSummary.objects.all().values("user").order_by("user").distinct()]
         user_dict = {}
@@ -190,6 +212,25 @@ def summarize_data(context, user=None):
             final_user_dict[key] = value
 
         context["user_dict"] = final_user_dict
+
+        # get the list of users for TODAY
+        user_list = [visit["user"] for visit in
+                     VisitSummary.objects.all().values("user").order_by("user").distinct()]
+        user_dict = {}
+        final_user_dict = {}
+        for my_user in user_list:
+            # create a new file containing data
+            result = VisitSummary.objects.filter(user=my_user, date__year=timezone.now().year, date__month=timezone.now().month,
+                                                 date__day=timezone.now().day).values('page_visits').order_by(
+                "page_visits").distinct().aggregate(dsum=Sum('page_visits'))
+            if result["dsum"]:
+                user_dict[User.objects.get(pk=my_user)] = result["dsum"]
+
+        for key, value in sorted(user_dict.items(), key=lambda item: item[1], reverse=True):
+            final_user_dict[key] = value
+
+        context["user_dict_today"] = final_user_dict
+
     generate_page_visit_report(app_list, user=user)
 
     # delete any records older then three days
@@ -243,9 +284,11 @@ def generate_page_visit_report(app_list, user=None):
     for app in app_list:
         # create a new file containing data
         if not user:
-            qs = VisitSummary.objects.filter(application_name=app).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
+            qs = VisitSummary.objects.filter(application_name=app).values('date').order_by("date").distinct().annotate(
+                dsum=Sum('page_visits'))
         else:
-            qs = VisitSummary.objects.filter(application_name=app, user=user).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
+            qs = VisitSummary.objects.filter(application_name=app, user=user).values('date').order_by("date").distinct().annotate(
+                dsum=Sum('page_visits'))
         dates = [i["date"] for i in qs]
         counts = [i["dsum"] for i in qs]
         legend_title = "{}".format(app)
@@ -259,7 +302,8 @@ def generate_page_visit_report(app_list, user=None):
         if not user:
             result = VisitSummary.objects.filter(date=date).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
         else:
-            result = VisitSummary.objects.filter(date=date, user=user).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
+            result = VisitSummary.objects.filter(date=date, user=user).values('date').order_by("date").distinct().annotate(
+                dsum=Sum('page_visits'))
         total_count.append(result[0]["dsum"])
 
     p.line(date_list, total_count, legend="total", line_color='black', line_width=3)
