@@ -368,6 +368,7 @@ class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
         context["field_list"] = [
             'id',
             'common_name',
+            'common_name_fra',
             'scientific_name',
             'abbrev',
             'epibiont_type',
