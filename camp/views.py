@@ -647,7 +647,10 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("camp:od_dict"))
 
         elif report == 8:
-            return HttpResponseRedirect(reverse("camp:od_wms"))
+            return HttpResponseRedirect(reverse("camp:od_wms", kwargs={"lang":1}))
+
+        elif report == 13:
+            return HttpResponseRedirect(reverse("camp:od_wms", kwargs={"lang":2}))
 
         elif report == 11:
             return HttpResponseRedirect(reverse("camp:od_spp_list"))
@@ -736,8 +739,8 @@ def ais_export(request, species_list):
     return response
 
 
-def export_open_data_wms(request):
-    response = reports.generate_open_data_wms_report()
+def export_open_data_wms(request, lang):
+    response = reports.generate_open_data_wms_report(lang)
     return response
 
 
