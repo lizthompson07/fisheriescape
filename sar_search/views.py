@@ -81,15 +81,16 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
 
             bbox = box(
                 float(self.kwargs.get("n")),
-                float(self.kwargs.get("s")),
                 float(self.kwargs.get("e")),
+                float(self.kwargs.get("s")),
                 float(self.kwargs.get("w")),
             )
-
+            print(bbox)
             species_list = list(set(
                 [models.Species.objects.get(pk=obj.record.species.id) for obj in models.RecordPoints.objects.all() if
                  bbox.contains(obj.point)]
             ))
+            print(species_list)
         else:
             species_list = [models.Species.objects.get(pk=obj["record__species"]) for obj in
                             models.RecordPoints.objects.values("record__species").order_by("record__species").distinct()]
@@ -101,9 +102,7 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
         species_list = []
         for obj in models.Species.objects.all():
             for record in obj.records.all():
-                print(record)
                 if not record.coords():
-                    print(obj)
                     species_list.append(obj)
         context['non_spatial_species_list'] = list(set(species_list))
 
