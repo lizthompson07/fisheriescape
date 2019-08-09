@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from shared_models import models as shared_models
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 
 
 class Taxon(models.Model):
@@ -194,6 +194,7 @@ class Record(models.Model):
             return {"x": my_polygon.centroid.coords[0][0],
                     "y": my_polygon.centroid.coords[0][1]}
 
+
 #
 # @receiver(models.signals.post_delete, sender=Record)
 # def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -228,7 +229,7 @@ class Record(models.Model):
 
 
 class RecordPoints(models.Model):
-    record = models.ForeignKey(Record, on_delete=models.CASCADE, related_name='points', blank=True, null=True)
+    record = models.ForeignKey(Record, on_delete=models.CASCADE, related_name='points')
     # record = models.IntegerField(blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("site name"), blank=True, null=True)
     latitude_n = models.FloatField()
@@ -241,3 +242,7 @@ class RecordPoints(models.Model):
         if self.longitude_w and self.longitude_w > 0:
             self.longitude_w = -self.longitude_w
         return super().save(*args, **kwargs)
+
+    @property
+    def point(self):
+        return Point(self.latitude_n, self.longitude_w)

@@ -48,20 +48,40 @@
         }
     </style>
     <div class="row">
-    <div class="col">
-    <div id="floating-panel">
-        <form action="" method="POST">
-            {% csrf_token %}
-            {{ form }}
-            <input class="btn btn-sm btn-primary" type="submit" value="Set bounding box" style="margin-left: 20px "></input>
-            <a class="btn btn-sm btn-warning" style="margin-left: 20px" href="{% url 'sar_search:map' %}">Reset</a>
-        </form>
-    </div>
-    <div id="map"></div>
-    </div>
-    <div class="col-3">
-        <h3>SAR Report:</h3>
-    </div>
+        <div class="col">
+            <div id="floating-panel">
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{ form }}
+                    <input class="btn btn-sm btn-primary" type="submit" value="Search bounding box" style="margin-left: 20px "></input>
+                    <a class="btn btn-sm btn-warning" style="margin-left: 20px" href="{% url 'sar_search:map' %}">Reset</a>
+                </form>
+            </div>
+            <div id="map"></div>
+        </div>
+        <div class="col-3">
+            <h3>SAR Report:</h3>
+            <br>
+            <h5>List of species intersecting with bounding box:</h5>
+            <ul>
+                {% for sp in spatial_species_list %}
+                    <li>{{ sp }}</li>
+                {% empty %}
+                    <em>No species to display...</em>
+                {% endfor %}
+            </ul>
+            <br>
+            <h5>List of species without spatial informations:</h5>
+            <ul>
+                {% for sp in non_spatial_species_list %}
+                    <li class="red-font">{{ sp }}</li>
+                {% empty %}
+                    <em>No species to display...</em>
+                {% endfor %}
+            </ul>
+
+
+        </div>
     </div>
 
 {% endblock content %}
