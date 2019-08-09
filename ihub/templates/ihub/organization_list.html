@@ -77,6 +77,7 @@
                         {% for field in field_list %}
                             <th scope="col">{% get_verbose_label my_object field %}</th>
                         {% endfor %}
+                        <th scope="col">Audio recording</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -86,6 +87,18 @@
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
+                            <td>
+                                {% if object.audio_file %}
+
+{#                                    <audio controls style="width: 100px; height: 10px">#}
+{#                                        <source src="{{ object.audio_file.url }}" type="audio/ogg">#}
+{#                                        Your browser does not support the audio element.#}
+{#                                    </audio>#}
+{#                                    #}
+                                    <a href="{{ object.audio_file.url }}">Listen</a>
+                                {% endif %}
+
+                            </td>
 
                         </tr>
                     {% endfor %}
