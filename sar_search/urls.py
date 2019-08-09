@@ -5,6 +5,11 @@ from . import views
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    # SAR MAP #
+    path('map/', views.SARMapTemplateView.as_view(), name="map"),
+    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/', views.SARMapTemplateView.as_view(), name="map"),
+
+
     # SETTINGS #
     ############
     path('settings/taxa/', views.manage_taxa, name="manage_taxa"),
