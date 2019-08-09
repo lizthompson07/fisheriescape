@@ -195,6 +195,18 @@ class Person(models.Model):
         return "{} {}".format(self.first_name, self.last_name)
 
     @property
+    def full_name_with_title(self):
+        my_str = ""
+        if self.designation:
+            my_str += "{} ".format(self.designation)
+
+        my_str += "{}".format(self.first_name)
+
+        if self.last_name:
+            my_str += " {}".format(self.last_name) if my_str != "" else "{}".format(self.last_name)
+        return my_str
+
+    @property
     def contact_card_no_name(self):
         my_str = ""
         if self.phone_1:
