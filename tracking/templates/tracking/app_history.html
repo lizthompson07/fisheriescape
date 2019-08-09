@@ -1,0 +1,43 @@
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html>
+<body>
+<h1>{{ my_app }}</h1>
+<p>(<a href="{% url 'tracking:tracking-dashboard' %}">Back</a> to tracking main)</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <div class="text-center">
+                {% include report_path %}
+            </div>
+        </div>
+        <div class="col">
+            <h2>list of users:</h2>
+            <table class="table table-sm table-striped" style="width: auto">
+                <thead>
+                <th>Username</th>
+                <th>Pageviews</th>
+                </thead>
+                <tbody>
+                {% for user in user_dict %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'tracking:user_history' user.id %}">{{ user }}</a>
+                        </td>
+                        <td>{{ user_dict|lookup:user }}</td>
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <br><br>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
