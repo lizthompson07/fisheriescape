@@ -34,6 +34,10 @@ else:
 # if this setting = False, static and mediafiles will be served by the development server.
 PRODUCTION_SERVER = False
 
+# this property is only looked at if PRODUCTION_SERVER = True. By setting DEBUG = True, you will override the default programming to set
+# DEBUG = False when using a prod server
+DEBUG = False
+
 # add your hostname here.
 ALLOWED_HOSTS = ['127.0.0.1', ]
 
