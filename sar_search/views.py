@@ -29,9 +29,9 @@ from django.utils.encoding import smart_str
 
 # open basic access up to anybody who is logged in
 def in_sar_search_group(user):
-    if user:
-        return user.groups.filter(name='sar_search_access').count() != 0
-
+    if user.id:
+        # return user.groups.filter(name='sar_search_access').count() != 0
+        return True
 
 class SARSearchAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
@@ -247,7 +247,7 @@ class RecordCreateView(SARSearchAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("sar_search:record_detail", kwargs={"pk": my_object.id}))
 
 
-class RecordDetailView(SARSearchAdminRequiredMixin, DetailView):
+class RecordDetailView(SARSearchAccessRequiredMixin, DetailView):
     model = models.Record
 
     def get_context_data(self, **kwargs):
@@ -259,6 +259,7 @@ class RecordDetailView(SARSearchAdminRequiredMixin, DetailView):
             'counties',
             'record_type',
             'source',
+            'last_modified_by',
             'date_last_modified',
         ]
         context['field_list'] = field_list
