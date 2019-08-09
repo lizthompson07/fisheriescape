@@ -6,7 +6,7 @@ from shutil import rmtree
 
 from bokeh import palettes
 from bokeh.io import output_file, save
-from bokeh.models import Title
+from bokeh.models import Title, HoverTool, ColumnDataSource, Legend
 from bokeh.plotting import figure
 from django import forms
 from django.contrib.auth.models import User
@@ -119,7 +119,26 @@ def user_history(request, user):
     return render(request, 'tracking/user_history.html', context)
 
 
-def summarize_data(context, user=None):
+@permission_required('tracking.visitor_log')
+def app_history(request, app):
+    context = {
+        'my_app': app,
+    }
+    context = summarize_data(context, None, app)
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    target_dir = os.path.join(base_dir, 'templates', 'tracking', 'temp')
+    for root, dirs, files in os.walk(target_dir):
+        for file in files:
+            if "report_temp" in file:
+                my_file = "tracking/temp/{}".format(file)
+
+    context["report_path"] = my_file
+
+    return render(request, 'tracking/app_history.html', context)
+
+
+def summarize_data(context, user=None, app=None):
     # prelim...
 
     # capture all lines of page view table in 2 summary tables
@@ -151,52 +170,56 @@ def summarize_data(context, user=None):
         view.summarized = True
         view.save()
 
-    # get the list of apps
-    if not user:
-        app_list = [visit["application_name"] for visit in
-                    VisitSummary.objects.all().values("application_name").order_by("application_name").distinct()]
+    if not app:
+        # get the list of apps
+        if not user:
+            app_list = [visit["application_name"] for visit in
+                        VisitSummary.objects.all().values("application_name").order_by("application_name").distinct()]
+        else:
+            app_list = [visit["application_name"] for visit in
+                        VisitSummary.objects.filter(user=user).values("application_name").order_by("application_name").distinct()]
+
+        app_dict = {}
+        final_app_dict = {}
+        for app in app_list:
+            # create a new file containing data
+            if not user:
+                result = VisitSummary.objects.filter(application_name=app).values('application_name').order_by(
+                    "application_name").distinct().annotate(dsum=Sum('page_visits'))
+            else:
+                result = VisitSummary.objects.filter(application_name=app, user=user).values('application_name').order_by(
+                    "application_name").distinct().annotate(dsum=Sum('page_visits'))
+            app_dict[app] = result[0]["dsum"]
+        for key, value in sorted(app_dict.items(), key=lambda item: item[1], reverse=True):
+            final_app_dict[key] = value
+        context["app_dict"] = final_app_dict
+
+        # now for today
+        app_dict = {}
+        final_app_dict = {}
+        for app in app_list:
+            # create a new file containing data
+            if not user:
+                result = VisitSummary.objects.filter(application_name=app, date__year=timezone.now().year, date__month=timezone.now().month,
+                                                     date__day=timezone.now().day).values('page_visits').order_by(
+                    "page_visits").aggregate(dsum=Sum('page_visits'))
+            else:
+                result = VisitSummary.objects.filter(application_name=app, user=user, date__year=timezone.now().year,
+                                                     date__month=timezone.now().month,
+                                                     date__day=timezone.now().day).values('page_visits').order_by(
+                    "page_visits").aggregate(dsum=Sum('page_visits'))
+
+            if result["dsum"]:
+                app_dict[app] = result["dsum"]
+
+        for key, value in sorted(app_dict.items(), key=lambda item: item[1], reverse=True):
+            final_app_dict[key] = value
+        context["app_dict_today"] = final_app_dict
+        app = None
     else:
-        app_list = [visit["application_name"] for visit in
-                    VisitSummary.objects.filter(user=user).values("application_name").order_by("application_name").distinct()]
+        app_list = [app, ]
 
-    app_dict = {}
-    final_app_dict = {}
-    for app in app_list:
-        # create a new file containing data
-        if not user:
-            result = VisitSummary.objects.filter(application_name=app).values('application_name').order_by(
-                "application_name").distinct().annotate(dsum=Sum('page_visits'))
-        else:
-            result = VisitSummary.objects.filter(application_name=app, user=user).values('application_name').order_by(
-                "application_name").distinct().annotate(dsum=Sum('page_visits'))
-        app_dict[app] = result[0]["dsum"]
-    for key, value in sorted(app_dict.items(), key=lambda item: item[1], reverse=True):
-        final_app_dict[key] = value
-    context["app_dict"] = final_app_dict
-
-    # now for today
-    app_dict = {}
-    final_app_dict = {}
-    for app in app_list:
-        # create a new file containing data
-        if not user:
-            result = VisitSummary.objects.filter(application_name=app, date__year=timezone.now().year, date__month=timezone.now().month,
-                                                 date__day=timezone.now().day).values('page_visits').order_by(
-                "page_visits").aggregate(dsum=Sum('page_visits'))
-        else:
-            result = VisitSummary.objects.filter(application_name=app, user=user, date__year=timezone.now().year,
-                                                 date__month=timezone.now().month,
-                                                 date__day=timezone.now().day).values('page_visits').order_by(
-                "page_visits").aggregate(dsum=Sum('page_visits'))
-
-        if result["dsum"]:
-            app_dict[app] = result["dsum"]
-
-    for key, value in sorted(app_dict.items(), key=lambda item: item[1], reverse=True):
-        final_app_dict[key] = value
-    context["app_dict_today"] = final_app_dict
-
-    if not user:
+    if not user and not app:
         # get the list of users
         user_list = [visit["user"] for visit in
                      VisitSummary.objects.all().values("user").order_by("user").distinct()]
@@ -231,19 +254,38 @@ def summarize_data(context, user=None):
 
         context["user_dict_today"] = final_user_dict
 
-    generate_page_visit_report(app_list, user=user)
+    elif app:
+        # get the list of users
+        user_list = [visit["user"] for visit in
+                     VisitSummary.objects.filter(application_name=app).values("user").order_by("user").distinct()]
+        user_dict = {}
+        final_user_dict = {}
+        for my_user in user_list:
+            # create a new file containing data
+            result = VisitSummary.objects.filter(user=my_user, application_name=app).values('user').order_by(
+                "user").distinct().annotate(dsum=Sum('page_visits'))
+            user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
+
+        for key, value in sorted(user_dict.items(), key=lambda item: item[1], reverse=True):
+            final_user_dict[key] = value
+
+        context["user_dict"] = final_user_dict
+
+    generate_page_visit_report(app_list, user=user, app=app)
 
     # delete any records older then three days
     Pageview.objects.filter(summarized=True).filter(view_time__lte=timezone.now() - timezone.timedelta(days=3)).delete()
     return context
 
 
-def generate_page_visit_report(app_list, user=None):
+def generate_page_visit_report(app_list, user=None, app=None):
     # start assigning files and by cleaning the temp dir
     base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(base_dir, 'templates', 'tracking', 'temp')
     target_file = os.path.join(target_dir, 'report_temp_{}.html'.format(timezone.now().strftime("%H%M%S")))
     # target_file = os.path.join(target_dir, 'report_temp.html')
+
+    calc_total = False if app else True
 
     try:
         rmtree(target_dir)
@@ -258,8 +300,9 @@ def generate_page_visit_report(app_list, user=None):
         tools="pan,box_zoom,wheel_zoom,reset,save",
         x_axis_label='Date',
         y_axis_label='Pageviews',
-        plot_width=800, plot_height=800,
+        plot_width=850, plot_height=800,
         x_axis_type="datetime",
+        toolbar_location="above",
     )
 
     # p.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
@@ -275,12 +318,15 @@ def generate_page_visit_report(app_list, user=None):
         colors = palettes.viridis(len(app_list))
 
     # get a list of days
-    if not user:
+    if not user and not app:
         date_list = [date["date"] for date in VisitSummary.objects.all().values("date").order_by("date").distinct()]
-    else:
+    elif user:
         date_list = [date["date"] for date in VisitSummary.objects.filter(user=user).values("date").order_by("date").distinct()]
+    elif app:
+        date_list = [date["date"] for date in VisitSummary.objects.filter(application_name=app).values("date").order_by("date").distinct()]
     # prime counter variable
     i = 0
+    LEGEND = []
     for app in app_list:
         # create a new file containing data
         if not user:
@@ -291,22 +337,39 @@ def generate_page_visit_report(app_list, user=None):
                 dsum=Sum('page_visits'))
         dates = [i["date"] for i in qs]
         counts = [i["dsum"] for i in qs]
-        legend_title = "{}".format(app)
-        p.line(dates, counts, legend=legend_title, line_color=colors[i], line_width=1)
-        p.circle(dates, counts, legend=legend_title, fill_color=colors[i], line_color=colors[i], size=3)
+        source = ColumnDataSource(data=dict(dates=dates, counts=counts, apps=[app for i in range(0, len(dates))]))
+        r0 = p.line('dates', 'counts', line_color=colors[i], line_width=2, source=source)
+        r1 = p.circle('dates', 'counts', fill_color=colors[i], line_color=colors[i], size=4, source=source)
+        LEGEND.append((app, [r0, r1]))
         i += 1
 
-    total_count = []
-    for date in date_list:
-        # create a new file containing data
-        if not user:
-            result = VisitSummary.objects.filter(date=date).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
-        else:
-            result = VisitSummary.objects.filter(date=date, user=user).values('date').order_by("date").distinct().annotate(
-                dsum=Sum('page_visits'))
-        total_count.append(result[0]["dsum"])
+    legend = Legend(items=LEGEND, location="center")
+    p.add_layout(legend, 'right')
+    TOOLTIPS = [
+        ("Application", "@apps"),
+        ("Date", "@dates{%F}"),
+        ("Visits", "@counts"),
+    ]
+    p.add_tools(HoverTool(
+        tooltips=TOOLTIPS,
+        formatters={
+            'dates': 'datetime',  # use 'datetime' formatter for 'date' field
+        },
+    ))
 
-    p.line(date_list, total_count, legend="total", line_color='black', line_width=3)
-    p.circle(date_list, total_count, legend="total", fill_color='black', line_color="black", size=5)
-    p.legend.location = "top_left"
+    if calc_total:
+        total_count = []
+        for date in date_list:
+            # create a new file containing data
+            if not user:
+                result = VisitSummary.objects.filter(date=date).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
+            else:
+                result = VisitSummary.objects.filter(date=date, user=user).values('date').order_by("date").distinct().annotate(
+                    dsum=Sum('page_visits'))
+            total_count.append(result[0]["dsum"])
+
+        p.line(date_list, total_count, legend="total", line_color='black', line_width=3)
+        p.circle(date_list, total_count, legend="total", fill_color='black', line_color="black", size=5)
+        p.legend.location = "top_left"
+
     save(p)
