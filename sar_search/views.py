@@ -66,6 +66,34 @@ class IndexTemplateView(SARSearchAccessRequiredMixin, TemplateView):
     template_name = 'sar_search/index.html'
 
 
+class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
+    template_name = 'sar_search/sar_map.html'
+    form_class = forms.MapForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['records'] = models.Record.objects.all()
+
+        return context
+
+    def get_initial(self, *args, **kwargs):
+        return {
+            "north": self.kwargs.get("n"),
+            "south": self.kwargs.get("s"),
+            "east": self.kwargs.get("e"),
+            "west": self.kwargs.get("w"),
+        }
+
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return HttpResponseRedirect(reverse("sar_search:map", kwargs={
+            "n": form.cleaned_data.get("north"),
+            "s": form.cleaned_data.get("south"),
+            "e": form.cleaned_data.get("east"),
+            "w": form.cleaned_data.get("west"),
+        }))
+
+
 # SPECIES #
 ###########
 
@@ -306,7 +334,6 @@ class RecordImportFileView(SARSearchAdminRequiredMixin, UpdateView):
         my_object.temp_file = None
         my_object.save()
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
-
 
 
 # SETTINGS #
