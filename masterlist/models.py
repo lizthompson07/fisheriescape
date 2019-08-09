@@ -7,7 +7,6 @@ from shared_models import models as shared_models
 
 # Choices for YesNo
 YESNO_CHOICES = (
-    (None, "------"),
     (True, "Yes"),
     (False, "No"),
 )
