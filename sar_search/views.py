@@ -75,6 +75,7 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['records'] = models.Record.objects.all()
+        context['google_api_key'] = settings.GOOGLE_API_KEY
 
         # if there are bounding coords, we look in the box
         if self.kwargs.get("n"):
