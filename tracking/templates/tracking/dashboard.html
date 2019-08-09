@@ -53,7 +53,10 @@
                         <tbody>
                         {% for app in app_dict %}
                             <tr>
-                                <td>{{ app }}</td>
+                                <td>
+                                    <a href="{% url 'tracking:app_history' app %}">{{ app }}</a>
+                                </td>
+
                                 <td>{{ app_dict|lookup:app }}</td>
                             </tr>
                         {% endfor %}
@@ -63,7 +66,7 @@
                     <br>
                     <br>
                     <h2>list of users:</h2>
-                    <table class="table table-sm table-striped" style="width: auto">
+                    <table class=" table table-sm table-striped" style="width: auto">
                         <thead>
                         <th>Username</th>
                         <th>Pageviews</th>
@@ -83,46 +86,48 @@
                     </table>
                 </div>
                 <div class="col">
-                     <div class="col">
-                    <h2>list of applications (Today):</h2>
+                    <div class="col">
+                        <h2>list of applications (Today):</h2>
 
-                    <table class="table table-sm table-striped" style="width: auto">
-                        <thead>
-                        <th>Application name</th>
-                        <th>Pageviews</th>
-                        </thead>
-                        <tbody>
-                        {% for app in app_dict_today %}
-                            <tr>
-                                <td>{{ app }}</td>
-                                <td>{{ app_dict_today|lookup:app }}</td>
-                            </tr>
-                        {% endfor %}
+                        <table class="table table-sm table-striped" style="width: auto">
+                            <thead>
+                            <th>Application name</th>
+                            <th>Pageviews</th>
+                            </thead>
+                            <tbody>
+                            {% for app in app_dict_today %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'tracking:app_history' app %}">{{ app }}</a>
+                                    </td>
+                                    <td>{{ app_dict_today|lookup:app }}</td>
+                                </tr>
+                            {% endfor %}
 
-                        </tbody>
-                    </table>
-                    <br>
-                    <br>
-                    <h2>list of users (Today):</h2>
-                    <table class="table table-sm table-striped" style="width: auto">
-                        <thead>
-                        <th>Username</th>
-                        <th>Pageviews</th>
-                        </thead>
-                        <tbody>
-                        {% for user in user_dict_today %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'tracking:user_history' user.id %}">{{ user }}</a>
-                                </td>
-                                <td>{{ user_dict_today|lookup:user }}</td>
+                            </tbody>
+                        </table>
+                        <br>
+                        <br>
+                        <h2>list of users (Today):</h2>
+                        <table class=" table table-sm table-striped" style="width: auto">
+                            <thead>
+                            <th>Username</th>
+                            <th>Pageviews</th>
+                            </thead>
+                            <tbody>
+                            {% for user in user_dict_today %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'tracking:user_history' user.id %}">{{ user }}</a>
+                                    </td>
+                                    <td>{{ user_dict_today|lookup:user }}</td>
 
-                            </tr>
-                        {% endfor %}
+                                </tr>
+                            {% endfor %}
 
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
