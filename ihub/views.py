@@ -83,15 +83,13 @@ class PersonListView(SiteLoginRequiredMixin, FilterView):
     filterset_class = filters.PersonFilter
     model = ml_models.Person
     queryset = ml_models.Person.objects.annotate(
-        search_term=Concat('first_name', 'last_name', 'notes', output_field=TextField()))
+        search_term=Concat('first_name', 'last_name', 'designation', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = ml_models.Person.objects.first()
         context["field_list"] = [
-            'designation',
-            'last_name',
-            'first_name',
+            'full_name_with_title|Full name',
             'phone_1',
             'phone_2',
             'email_1',
