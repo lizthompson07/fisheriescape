@@ -41,7 +41,6 @@
             <a class="btn btn-primary" href="{% url 'sar_search:record_new' object.id %}">Add New Record</a>
             {% if not object.record_type == 1 %}
                 <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">Import Records from CSV</a>
-
             {% endif %}
         </div>
 
@@ -97,6 +96,7 @@
                         {% for field in record_field_list %}
                             <th scope="col">{% get_verbose_label object.records.first field %}</th>
                         {% endfor %}
+                        <th scope="col"># Coordinates</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -106,6 +106,7 @@
                             {% for field in record_field_list %}
                                 <td>{% get_field_value obj field nullmark="" %}</td>
                             {% endfor %}
+                                <td>{{obj.points.count}}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -136,7 +137,7 @@
             var bounds = new google.maps.LatLngBounds();
 
             {% for record in object.records.all %}
-                {% if record.record_type == 1 %}
+                {% if record.record_type == 1 and record.coords.x and record.coords.y %}
                     {% for point in record.points.all %}
                         var marker = new google.maps.Marker({
                             position: new google.maps.LatLng({{point.latitude_n}}, {{point.longitude_w}}),
@@ -153,7 +154,8 @@
                     {% endfor %}
                     map.fitBounds(bounds);
 
-                {% elif record.record_type == 2 %}
+                {% elif record.record_type == 2 and record.coords.x and record.coords.y %}
+                    // bah!!
                     marker = new google.maps.Marker({
                         position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
                         map: map,
@@ -195,7 +197,7 @@
                     map.fitBounds(bounds);
                     // add a click event on the polygon
 
-                {% elif record.record_type == 3 %}
+                {% elif record.record_type == 3 and record.coords.x and record.coords.y %}
 
                     marker = new google.maps.Marker({
                         position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),

@@ -72,7 +72,7 @@
             var infowindow = new google.maps.InfoWindow();
             var bounds = new google.maps.LatLngBounds();
 
-            {% if object.record_type == 1 %}
+            {% if object.record_type == 1 and record.coords.x and record.coords.y %}
 
                 // extend bounds var
                 {% for point in object.points.all %}
@@ -86,7 +86,7 @@
                 map.fitBounds(bounds);
                 // add a click event on the polygon
 
-            {% elif object.record_type == 2 %}
+            {% elif object.record_type == 2 and record.coords.x and record.coords.y %}
                 marker = new google.maps.Marker({
                     position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
                     map: map,
@@ -126,7 +126,7 @@
 
 
 
-            {% elif object.record_type == 3 %}
+            {% elif object.record_type == 3 and record.coords.x and record.coords.y %}
                 marker = new google.maps.Marker({
                     position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
                     map: map,
