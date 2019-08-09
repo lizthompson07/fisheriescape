@@ -97,7 +97,7 @@
 
             {% for record in records %}
                 {% if record.coords.x and record.coords.y %}
-                    var myInfoText = '<b>Species:</b> <a href="{% url 'sar_search:species_detail' record.species.id %}">{{record.species}}</a><br><b>Record name:</b> <a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>'
+                    var myInfoText{{ record.id }} = '<b>Species:</b> <a href="{% url 'sar_search:species_detail' record.species.id %}">{{record.species}}</a><br><b>Record name:</b> <a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>'
                     {% if record.record_type == 1  %}
                         {% for point in record.points.all %}
                             var marker = new google.maps.Marker({
@@ -108,7 +108,7 @@
                             bounds.extend(marker.position);
                             google.maps.event.addListener(marker, 'click', (function (marker) {
                                 return function () {
-                                    infowindow.setContent(myInfoText);
+                                    infowindow.setContent(myInfoText{{ record.id }});
                                     infowindow.open(map, marker);
                                 }
                             })(marker));
@@ -124,7 +124,7 @@
                         });
                         google.maps.event.addListener(marker, 'click', (function (marker) {
                             return function () {
-                                infowindow.setContent(myInfoText);
+                                infowindow.setContent(myInfoText{{ record.id }});
                                 infowindow.open(map, marker);
                             }
                         })(marker));
@@ -167,7 +167,7 @@
                         });
                         google.maps.event.addListener(marker, 'click', (function (marker) {
                             return function () {
-                                infowindow.setContent(myInfoText);
+                                infowindow.setContent(myInfoText{{ record.id }});
                                 infowindow.open(map, marker);
                             }
                         })(marker));
