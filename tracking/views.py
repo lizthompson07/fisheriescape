@@ -69,8 +69,8 @@ def dashboard(request):
 
     # get the last 100 page visits
     page_visits = Pageview.objects.all().order_by("-view_time")
-    if len(page_visits) > 101:
-        page_visits = page_visits[:100]
+    if len(page_visits) > 201:
+        page_visits = page_visits[:200]
 
     context = {
         'form': form,
@@ -300,7 +300,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
         tools="pan,box_zoom,wheel_zoom,reset,save",
         x_axis_label='Date',
         y_axis_label='Pageviews',
-        plot_width=850, plot_height=800,
+        plot_width=1000, plot_height=700,
         x_axis_type="datetime",
         toolbar_location="above",
     )
@@ -368,7 +368,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
                     dsum=Sum('page_visits'))
             total_count.append(result[0]["dsum"])
 
-        p.line(date_list, total_count, legend="total", line_color='black', line_width=3)
+        p.line(date_list, total_count, legend="total", line_color='black', line_width=3, line_dash = [6, 3])
         p.circle(date_list, total_count, legend="total", fill_color='black', line_color="black", size=5)
         p.legend.location = "top_left"
 
