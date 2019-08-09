@@ -16,6 +16,8 @@ from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from easy_pdf.views import PDFTemplateView
 from django_filters.views import FilterView
+from shapely.geometry import Polygon, box
+
 from shared_models import models as shared_models
 from . import models
 from . import forms
@@ -73,6 +75,37 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['records'] = models.Record.objects.all()
+
+        # if there are bounding coords, we look in the box
+        if self.kwargs.get("n"):
+
+            bbox = box(
+                float(self.kwargs.get("n")),
+                float(self.kwargs.get("s")),
+                float(self.kwargs.get("e")),
+                float(self.kwargs.get("w")),
+            )
+
+            species_list = list(set(
+                [models.Species.objects.get(pk=obj.record.species.id) for obj in models.RecordPoints.objects.all() if
+                 bbox.contains(obj.point)]
+            ))
+        else:
+            species_list = [models.Species.objects.get(pk=obj["record__species"]) for obj in
+                            models.RecordPoints.objects.values("record__species").order_by("record__species").distinct()]
+
+        context['spatial_species_list'] = species_list
+
+
+        # get a list of species without spatial representation
+        species_list = []
+        for obj in models.Species.objects.all():
+            for record in obj.records.all():
+                print(record)
+                if not record.coords():
+                    print(obj)
+                    species_list.append(obj)
+        context['non_spatial_species_list'] = list(set(species_list))
 
         return context
 
