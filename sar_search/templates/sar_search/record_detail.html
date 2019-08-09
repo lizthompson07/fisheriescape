@@ -53,6 +53,19 @@
                 {% for field in field_list %}
                     {% verbose_field_display object field %}
                 {% endfor %}
+                <br>
+                <br>
+                <h3>List of coordinates:</h3>
+                <ul>
+                    {% for point in object.points.all %}
+                        <li>
+                            {{ point.name }} ({{ point.latitude_n }}, {{ point.longitude_w }})
+                        </li>
+                    {% empty %}
+                        <em>no coordinates have been added to this record</em>
+                    {% endfor %}
+
+                </ul>
             </div>
 
             <div class="col">
