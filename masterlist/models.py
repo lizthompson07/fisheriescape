@@ -61,6 +61,9 @@ def audio_file_directory_path(instance, filename):
 
 
 class Organization(models.Model):
+    YES_NO_BOTH_CHOICES = (
+        (0, _("None")),(1, _("On-Reserve")), (2, _("Off-Reserve")), (3, _("Both"))
+    )
     name_eng = models.CharField(max_length=1000, verbose_name=_("english name"))
     name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
@@ -90,8 +93,8 @@ class Organization(models.Model):
     population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve"))
     population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve"))
     fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN"))
-    processing_plant = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("processing plant on reserve?"))
-    wharf = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("wharf on reserve?"))
+    processing_plant = models.IntegerField(choices=YES_NO_BOTH_CHOICES, verbose_name=_("processing plant?"), default=0)
+    wharf = models.IntegerField(choices=YES_NO_BOTH_CHOICES, verbose_name=_("wharf?"), default=0)
     consultation_protocol = models.TextField(blank=True, null=True, verbose_name=_("consultation protocol"))
     council_quorum = models.IntegerField(blank=True, null=True, verbose_name=_("council quorum"))
     reserves = models.ManyToManyField(Reserve, verbose_name=_("Associated reserves"), blank=True)
