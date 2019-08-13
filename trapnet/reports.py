@@ -192,6 +192,48 @@ def generate_entry_report(year, sites):
     return response
 
 
+def generate_spp_list():
+    """
+    Generates the data dictionary for open data report version 1
+    """
+
+    filename = "species_list.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    # write the header
+    header = [
+        "code",
+        "common_name_en__nom_commun_en",
+        "common_name_en__nom_commun_fr",
+        "life_stage_en__étape_de_vie_en",
+        "life_stage_fr__étape_de_vie_fr",
+        "scientific_name__nom_scientifique",
+        "ITIS_TSN",
+    ]
+    writer.writerow(header)
+
+    for sp in models.Species.objects.all():
+        life_stage_eng = sp.life_stage.name if sp.life_stage else None
+        life_stage_fra = sp.life_stage.nom if sp.life_stage else None
+
+        writer.writerow([
+            sp.abbrev,
+            sp.common_name_eng,
+            sp.common_name_fre,
+            life_stage_eng,
+            life_stage_fra,
+            sp.scientific_name,
+            sp.tsn,
+        ])
+
+    return response
+
+
 def generate_open_data_ver_1_data_dictionary():
     """
     Generates the data dictionary for open data report version 1
@@ -205,9 +247,6 @@ def generate_open_data_ver_1_data_dictionary():
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
-    writer.writerow("")
-    writer.writerow(["Abiotic variables / Variables abiotiques:".upper(), ])
-    writer.writerow(["#########################################", ])
     # write the header
     header = [
         "name__nom",
@@ -252,29 +291,24 @@ def generate_open_data_ver_1_data_dictionary():
             descr_fra[i],
         ])
 
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow(["Biotic variables / Variables biotiques:".upper(), ])
-    writer.writerow(["#######################################", ])
     field_names = [
-        "X_abundance",
-        "X_avg_fork_length",
-        "X_avg_total_length",
-        "X_avg_weight",
+        "[SP_CODE]_abundance",
+        "[SP_CODE]_avg_fork_length",
+        "[SP_CODE]_avg_total_length",
+        "[SP_CODE]_avg_weight",
     ]
 
     descr_eng = [
-        "total abundance of species X for a given site and year",
-        "mean fork length (mm) of species X for a given site and year",
-        "mean total length (mm) of species X for a given site and year; this is only provided for American eel",
-        "mean weight (g) of species X for a given site and year",
+        "total abundance of a species for a given site and year",
+        "mean fork length (mm) of a species for a given site and year",
+        "mean total length (mm) of a species for a given site and year; this is only provided for American eel",
+        "mean weight (g) of a species for a given site and year",
     ]
     descr_fra = [
-        "Abondance totale de l'espèce X pour un site et une année donnés",
-        "longueur à la fourche moyenne (mm) de l'espèce X pour un site et une année donnés",
-        "longueur totale moyenne (mm) de l'espèce X pour un site et une année donnés; prévu que pour l'anguille d'Amérique",
-        "poids moyen (g) de l'espèce X pour un site et une année donnés",
+        "Abondance totale d'une espèce pour un site et une année donnés",
+        "longueur à la fourche moyenne (mm) d'une espèce pour un site et une année donnés",
+        "longueur totale moyenne (mm) d'une espèce pour un site et une année donnés; fourni que pour l'anguille d'Amérique",
+        "poids moyen (g) d'une espèce pour un site et une année donnés",
     ]
     for i in range(0, len(field_names)):
         writer.writerow([
@@ -283,36 +317,6 @@ def generate_open_data_ver_1_data_dictionary():
             descr_fra[i],
         ])
 
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow(["Species / Espèces:".upper()])
-    writer.writerow(["##################"])
-    # write the header
-    header = [
-        "code",
-        "common_name_en__nom_commun_en",
-        "common_name_en__nom_commun_fr",
-        "life_stage_en__étape_de_vie_en",
-        "life_stage_fr__étape_de_vie_fr",
-        "scientific_name__nom_scientifique",
-        "ITIS_TSN",
-    ]
-    writer.writerow(header)
-
-    for sp in models.Species.objects.all():
-        life_stage_eng = sp.life_stage.name if sp.life_stage else None
-        life_stage_fra = sp.life_stage.nom if sp.life_stage else None
-
-        writer.writerow([
-            sp.abbrev,
-            sp.common_name_eng,
-            sp.common_name_fre,
-            life_stage_eng,
-            life_stage_fra,
-            sp.scientific_name,
-            sp.tsn,
-        ])
 
     return response
 
