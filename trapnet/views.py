@@ -499,9 +499,9 @@ def species_observation_delete(request, pk, backto):
     messages.success(request, "The species has been successfully deleted from {}.".format(object.sample))
 
     if backto == "detail":
-        return HttpResponseRedirect(reverse_lazy("camp:sample_detail", kwargs={"pk": object.sample.id}))
+        return HttpResponseRedirect(reverse_lazy("trapnet:sample_detail", kwargs={"pk": object.sample.id}))
     else:
-        return HttpResponseRedirect(reverse_lazy("camp:species_obs_search", kwargs={"sample": object.sample.id}))
+        return HttpResponseRedirect(reverse_lazy("trapnet:species_obs_search", kwargs={"sample": object.sample.id}))
 
 
 # REPORTS #
@@ -530,6 +530,8 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": my_year, "sites": my_sites}))
         elif report == 4:
             return HttpResponseRedirect(reverse("trapnet:od1_dictionary"))
+        elif report == 7:
+            return HttpResponseRedirect(reverse("trapnet:od_spp_list"))
         elif report == 5:
             return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 1}))
         elif report == 6:
@@ -556,6 +558,11 @@ def export_open_data_ver1(request, year, sites):
 def export_open_data_ver1_dictionary(request):
     response = reports.generate_open_data_ver_1_data_dictionary()
     return response
+
+def export_spp_list(request):
+    response = reports.generate_spp_list()
+    return response
+
 
 def export_open_data_ver1_wms(request, lang):
     response = reports.generate_open_data_ver_1_wms_report(lang)
