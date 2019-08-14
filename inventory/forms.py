@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core import validators
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from . import models
 from shared_models import models as shared_models
@@ -117,6 +118,65 @@ class ResourceForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+
+        mandatory_fields = [
+            'resource_type',
+            'section',
+            'title_eng',
+            'title_fre',
+            'status',
+            'maintenance',
+            'purpose_eng',
+            'purpose_fre',
+            'descr_eng',
+            'descr_fre',
+            'time_start_day',
+            'time_start_month',
+            'time_start_year',
+            'resource_constraint_eng',
+            'resource_constraint_fre',
+            'security_use_limitation_eng',
+            'security_use_limitation_fre',
+            'security_classification',
+            'distribution_format',
+            'data_char_set',
+            'spat_representation',
+            'spat_ref_system',
+            'geo_descr_eng',
+            'geo_descr_fre',
+            'west_bounding',
+            'south_bounding',
+            'east_bounding',
+            'north_bounding',
+        ]
+
+        mandatory_bilingual_fields = [
+            'sampling_method_eng',
+            'sampling_method_fre',
+            'physical_sample_descr_eng',
+            'physical_sample_descr_fre',
+            'qc_process_descr_eng',
+            'qc_process_descr_fre',
+            'parameters_collected_eng',
+            'parameters_collected_fre',
+        ]
+
+        optional_fields = [
+            'time_end_day',
+            'time_end_month',
+            'time_end_year',
+            'additional_credit',
+            'parent',
+        ]
+
+        internal_fields = [
+            'storage_envr_notes',
+            'notes',
+            'open_data_notes',
+            'public_url',
+            'analytic_software',
+        ]
+
         SECTION_CHOICES = [(s.id, s.full_name) for s in
                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division",
                                                                         "name")]
@@ -124,6 +184,29 @@ class ResourceForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = SECTION_CHOICES
+
+        for field_key in self.fields:
+            if field_key in mandatory_fields:
+                self.fields[field_key].label = mark_safe('<span class="red-font" data-toggle="tooltip" title="{}">{}</span>'.format(
+                    _("This is a mandatory field in the Federal Geospatial Platform (FGP)"),
+                    self.fields[field_key].label,
+                ))
+            elif field_key in mandatory_bilingual_fields:
+                self.fields[field_key].label = mark_safe('<span class="orange-font" data-toggle="tooltip" title="{}">{}</span>'.format(
+                    _("This is an optional field in the Federal Geospatial Platform (FGP), however if present, it needs to be entered "
+                      "in both English and French"),
+                    self.fields[field_key].label,
+                ))
+            elif field_key in internal_fields:
+                self.fields[field_key].label = mark_safe('<span class="purple-font" data-toggle="tooltip" title="{}">{}</span>'.format(
+                    _("This is an optional internal field (DFO only) and does not get published to the Federal Geospatial Platform (FGP)"),
+                    self.fields[field_key].label,
+                ))
+            else:
+                self.fields[field_key].label = mark_safe('<span class="green-font" data-toggle="tooltip" title="{}">{}</span>'.format(
+                    _("This is an optional field"),
+                    self.fields[field_key].label,
+                ))
 
 
 class ResourcePersonForm(forms.ModelForm):
@@ -139,11 +222,13 @@ class ResourcePersonForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': "5"}),
             # 'last_modified_by':forms.HiddenInput(),
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         role_choices = [(r.id, "{} - {}".format(r.role, r.notes)) for r in models.PersonRole.objects.all()]
-        role_choices.insert(0,(None, "-----"))
+        role_choices.insert(0, (None, "-----"))
         self.fields['role'].choices = role_choices
+
 
 class PersonForm(forms.Form):
     LANGUAGE_CHOICES = ((None, "---"),) + models.LANGUAGE_CHOICES
@@ -159,8 +244,6 @@ class PersonForm(forms.Form):
 
     field_order = ["first_name", "last_name", "email", "position_eng", "position_fre", "phone", "language",
                    "organization"]
-
-
 
 
 class PersonCreateForm(PersonForm):

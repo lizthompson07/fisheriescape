@@ -364,7 +364,7 @@ class Resource(models.Model):
                                                    verbose_name="Security use limitation (French)")
     security_classification = models.ForeignKey(SecurityClassification, on_delete=models.DO_NOTHING, blank=True,
                                                 null=True)
-    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes (internal)")
+    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes")
     distribution_format = models.CharField(max_length=255, blank=True, null=True, choices=DISTRIBUTION_FORMAT_CHOICES)
     data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       verbose_name="Data character set")
@@ -383,13 +383,13 @@ class Resource(models.Model):
     parameters_collected_eng = models.TextField(blank=True, null=True, verbose_name="Parameters collected (English)")
     parameters_collected_fre = models.TextField(blank=True, null=True, verbose_name="Parameters collected (French)")
     additional_credit = models.TextField(blank=True, null=True)
-    analytic_software = models.TextField(blank=True, null=True, verbose_name="Analytic software notes (internal)")
+    analytic_software = models.TextField(blank=True, null=True, verbose_name="Analytic software notes")
     date_verified = models.DateTimeField(blank=True, null=True)
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     open_data_notes = models.CharField(max_length=255, blank=True, null=True,
-                                       verbose_name="Open data notes (internal only)")
+                                       verbose_name="Open data notes")
     public_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Public URL")
-    notes = models.TextField(blank=True, null=True, verbose_name="General notes (internal)")
+    notes = models.TextField(blank=True, null=True, verbose_name="General notes")
     citations = models.ManyToManyField(Citation, related_name='resources')
     keywords = models.ManyToManyField(Keyword, related_name='resources')
     people = models.ManyToManyField(Person, through='ResourcePerson')
