@@ -130,8 +130,6 @@ class ResourceForm(forms.ModelForm):
             'purpose_fre',
             'descr_eng',
             'descr_fre',
-            'time_start_day',
-            'time_start_month',
             'time_start_year',
             'resource_constraint_eng',
             'resource_constraint_fre',
@@ -162,6 +160,8 @@ class ResourceForm(forms.ModelForm):
         ]
 
         optional_fields = [
+            'time_start_day',
+            'time_start_month',
             'time_end_day',
             'time_end_month',
             'time_end_year',
