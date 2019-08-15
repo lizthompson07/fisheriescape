@@ -8,10 +8,6 @@
         body {
         {% if object.flagged_4_deletion %}
             background-color: pink;
-        {%elif object.fgp_publication_date %}
-            background-color: lightgreen;
-        {%elif object.flagged_4_publication %}
-            background-color: wheat;
         {% endif %}
         }
 
@@ -238,8 +234,6 @@
                             Keyword ({{ kcount_other }})</a>
                     </div>
                 </div>
-                <br>
-
                 {% include "inventory/_resource_detail_keywords.html" %}
 
                 <h4 class="neighbours">Citations</h4>
@@ -254,7 +248,6 @@
 
                 <h4>Certification History</h4>
                 {% include "inventory/_resource_detail_certification_history.html" %}
-                <br>
 
             </div>
         </div>

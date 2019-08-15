@@ -1,7 +1,7 @@
-{% if object.citations.count == 0 %}
-    <em>No citations</em>
-{% else %}
-    <ul>
+<ul>
+    {% if object.citations.count == 0 %}
+        <em>No citations</em>
+    {% else %}
         {% for item in object.citations.all %}
             <li style="font-size: small;">
                 {{ item.short_citation_html|safe }}
@@ -9,5 +9,5 @@
                 <a href="{% url 'inventory:resource_citation_delete' object.id item.id %}" class="red-font">&times;</a>
             </li>
         {% endfor %}
-    </ul>
-{% endif %}
+    {% endif %}
+</ul>

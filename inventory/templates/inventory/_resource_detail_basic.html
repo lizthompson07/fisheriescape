@@ -1,56 +1,29 @@
 {% load verbose_names %}
 
-<p><b>
-  UUID:
-</b><br>
-{{object.uuid}}
-</p>
 
-<p><b>
-  {%get_verbose_field_name object "title_eng"%}:
-</b><br>
-{{object.title_eng}}
-</p>
+<table class="table table-striped table-sm" style="font-size: 15px">
+    {% verbose_td_display object "uuid" %}
+    {% verbose_td_display object "title_eng" %}
+    {% verbose_td_display object "descr_eng" %}
+    {% verbose_td_display object "resource_type" %}
+    {% verbose_td_display object "section" %}
+    {% verbose_td_display object "status" %}
+    <tr>
+        <th style="width: 150px">Time period <br>(yyyy-mm-dd)</th>
+        <td>
+            From: {{ object.time_start_year|default_if_none:"--" }}-{{ object.time_start_month|default_if_none:"--" }}-{{ object.time_start_day|default_if_none:"--" }}
+            <br>
+            To: {{ object.time_end_year|default_if_none:"--" }}-{{ object.time_end_month|default_if_none:"--" }}-{{ object.time_end_day|default_if_none:"--" }}
+        </td>
+    </tr>
+    {% verbose_td_display object "storage_envr_notes" %}
+    {% verbose_td_display object "notes" %}
+    {% verbose_td_display object "fgp_publication_date" %}
+    <tr>
+        <th style="width: 150px">Last modification by</th>
+        <td>
+            {{ object.last_modified_by }} on {{ object.date_last_modified}}
+        </td>
+    </tr>
+</table>
 
-<p><b>
-  {%get_verbose_field_name object "descr_eng"%}:
-</b><br>
-{{object.descr_eng}}
-</p>
-
-<p><b>
-  {%get_verbose_field_name object "resource_type"%}:
-</b><br>
-{{object.resource_type}}
-</p>
-
-<p><b>
-  {%get_verbose_field_name object "section"%}:
-</b><br>
-{{object.section}}
-</p>
-
-<p><b>
-  {%get_verbose_field_name object "status"%}:
-</b><br>
-{{object.status}}
-</p>
-
-<p><b>
-  Time period (yyyy-mm-dd):
-</b><br>
-From: {{object.time_start_year|default_if_none:"--"}}-{{object.time_start_month|default_if_none:"--"}}-{{object.time_start_day|default_if_none:"--"}}  &nbsp;&nbsp;
-To: {{object.time_end_year|default_if_none:"--"}}-{{object.time_end_month|default_if_none:"--"}}-{{object.time_end_day|default_if_none:"--"}}
-</p>
-
-<p><b>
-  {%get_verbose_field_name object "storage_envr_notes"%}:
-</b><br>
-{{object.storage_envr_notes}}
-</p>
-
-<p><b>
-  {%get_verbose_field_name object "notes"%}:
-</b><br>
-{{object.notes}}
-</p>

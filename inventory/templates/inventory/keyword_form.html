@@ -5,7 +5,6 @@
 {% block content %}
 
 
-
     {% if user.is_authenticated %}
         {% url 'inventory:my_resource_list' as home_url %}
     {% else %}
