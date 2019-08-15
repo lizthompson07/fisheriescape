@@ -64,17 +64,17 @@
                 </a>
             {% endif %}
 
-            {% if object.flagged_4_publication %}
-                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
-                   title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
-                    Unflag for Open Data Publication
-                </a>
-            {% else %}
-                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
-                   title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
-                    Flag for Open Data Publication
-                </a>
-            {% endif %}
+{#            {% if object.flagged_4_publication %}#}
+{#                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"#}
+{#                   title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">#}
+{#                    Unflag for Open Data Publication#}
+{#                </a>#}
+{#            {% else %}#}
+{#                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"#}
+{#                   title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">#}
+{#                    Flag for Open Data Publication#}
+{#                </a>#}
+{#            {% endif %}#}
 
             <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
                 View Completedness Report
@@ -196,7 +196,6 @@
                     Add a File
                 </a>
                 {% include "inventory/_resource_detail_files.html" %}
-                <br>
 
                 <h4 class="neighbours">Data Resources</h4>
                 <a class="btn btn-sm btn-outline-primary " href="{% url 'inventory:data_resource_create' object.id %}">
