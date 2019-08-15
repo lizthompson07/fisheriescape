@@ -209,6 +209,61 @@ class ResourceForm(forms.ModelForm):
                 ))
 
 
+class ResourceKeywordForm(forms.ModelForm):
+    class Meta:
+        model = models.Resource
+        fields = [
+            'keywords',
+        ]
+        widgets = {
+            "keywords": forms.SelectMultiple(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        keyword_choices = []
+        for obj in models.Keyword.objects.all().order_by("keyword_domain", "text_value_eng"):
+            if obj.keyword_domain_id == 8:
+                keyword_choices.append(
+                    (obj.id, "[{}] {}".format("ISO Topic Category", obj.text_value_eng))
+                )
+            elif obj.keyword_domain_id == 6:
+                keyword_choices.append(
+                    (obj.id, "[{}] {}".format("Core Subject", obj.text_value_eng))
+                )
+            elif obj.keyword_domain_id == 7:
+                keyword_choices.append(
+                    (obj.id, "[{}] {}".format("DFO Area", obj.text_value_eng))
+                )
+            elif obj.is_taxonomic:
+                keyword_choices.append(
+                    (obj.id, mark_safe("[{}] <em>{}</em> | {}".format("Taxonomic", obj.text_value_eng, obj.details)))
+                )
+            else:
+                keyword_choices.append(
+                    (obj.id, "[{}] {}".format("General", obj.text_value_eng))
+                )
+            # context['kcount_tc'] = self.object.keywords.filter(keyword_domain_id__exact=8).count()
+            # context['kcount_cst'] = self.object.keywords.filter(keyword_domain_id__exact=6).count()
+            # context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
+            # context['kcount_loc'] = self.object.keywords.filter(keyword_domain_id__exact=7).count()
+
+            # context['kcount_other'] = self.object.keywords.filter(
+            #     ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).count()
+            #
+            # topic
+            # cat
+            # core
+            # sub
+            # taxonoimic
+            # dfo
+            # area
+            # other
+            #
+        self.fields["keywords"].choices = keyword_choices
+
+
 class ResourcePersonForm(forms.ModelForm):
     class Meta:
         model = models.ResourcePerson

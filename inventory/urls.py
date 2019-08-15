@@ -38,14 +38,15 @@ urlpatterns = [
 
     # RESOURCE KEYWORD #
     ####################
+    path('<int:pk>/insert-keyword/', views.ResourceKeywordUpdateView.as_view(), name="resource_keyword_edit"),
     path('<int:resource>/insert-keyword/', views.ResourceKeywordFilterView.as_view(), name="resource_keyword_filter"),
     path('<int:resource>/insert-topic-category/', views.ResourceTopicCategoryFilterView.as_view(), name="resource_topic_category_filter"),
     path('<int:resource>/insert-core-subject/', views.ResourceCoreSubjectFilterView.as_view(), name="resource_core_subject_filter"),
     path('<int:resource>/insert-species/', views.ResourceSpeciesFilterView.as_view(), name="resource_species_filter"),
     path('<int:resource>/insert-location/', views.ResourceLocationFilterView.as_view(), name="resource_location_filter"),
     path('<int:resource>/keyword/<int:keyword>/add-<slug:keyword_type>/', views.resource_keyword_add, name="resource_keyword_add"),
+    path('<int:resource>/keyword/<int:keyword>/add/', views.resource_keyword_add, name="resource_keyword_add"),
     path('<int:resource>/keyword/<int:keyword>/remove/', views.resource_keyword_delete, name="resource_keyword_delete"),
-    # path('resource-keyword/<int:pk>/edit/', views.ResourceKeywordUpdateView.as_view(), name ="resource_keyword_edit" ),
 
     # KEYWORD #
     ###########
@@ -59,7 +60,6 @@ urlpatterns = [
     path('<int:resource>/insert-citation/', views.ResourceCitationFilterView.as_view(), name="resource_citation_filter"),
     path('<int:resource>/citation/<int:citation>/add-citation/', views.resource_citation_add, name="resource_citation_add"),
     path('<int:resource>/citation/<int:citation>/remove/', views.resource_citation_delete, name="resource_citation_delete"),
-    # path('resource-keyword/<int:pk>/edit/', views.ResourceKeywordUpdateView.as_view(), name ="resource_keyword_edit" ),
 
     # CITATION #
     ############

@@ -64,17 +64,17 @@
                 </a>
             {% endif %}
 
-{#            {% if object.flagged_4_publication %}#}
-{#                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"#}
-{#                   title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">#}
-{#                    Unflag for Open Data Publication#}
-{#                </a>#}
-{#            {% else %}#}
-{#                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"#}
-{#                   title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">#}
-{#                    Flag for Open Data Publication#}
-{#                </a>#}
-{#            {% endif %}#}
+            {#            {% if object.flagged_4_publication %}#}
+            {#                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"#}
+            {#                   title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">#}
+            {#                    Unflag for Open Data Publication#}
+            {#                </a>#}
+            {#            {% else %}#}
+            {#                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"#}
+            {#                   title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">#}
+            {#                    Flag for Open Data Publication#}
+            {#                </a>#}
+            {#            {% endif %}#}
 
             <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
                 View Completedness Report
@@ -215,23 +215,11 @@
 
             <div class="col-4">
                 <h4 class="neighbours">Keywords etc.</h4>
-                <div class="dropdown neighbours">
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add Keywords
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="{% url 'inventory:resource_topic_category_filter' object.id %}">Topic
-                            Category ({{ kcount_tc }})</a>
-                        <a class="dropdown-item" href="{% url 'inventory:resource_core_subject_filter' object.id %}">Core
-                            Subject ({{ kcount_cst }})</a>
-                        <a class="dropdown-item" href="{% url 'inventory:resource_species_filter' object.id %}">Taxonomic
-                            Keyword ({{ kcount_tax }})</a>
-                        <a class="dropdown-item" href="{% url 'inventory:resource_location_filter' object.id %}">DFO
-                            Area ({{ kcount_loc }})</a>
-                        <a class="dropdown-item" href="{% url 'inventory:resource_keyword_filter' object.id %}">Other
-                            Keyword ({{ kcount_other }})</a>
-                    </div>
+                <div class="neighbours">
+                    <a class="btn btn-sm btn-outline-primary"
+                       href="{% url 'inventory:resource_keyword_edit' object.id %}">
+                        Add a Keyword
+                    </a>
                 </div>
                 {% include "inventory/_resource_detail_keywords.html" %}
 

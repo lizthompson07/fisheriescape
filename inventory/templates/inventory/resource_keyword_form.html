@@ -1,0 +1,107 @@
+{% extends "inventory/inventory_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+    {% if temp_msg %}
+        {% bootstrap_alert temp_msg alert_type='success' %}
+    {% endif %}
+
+
+    {% if user.is_authenticated %}
+        {% url 'inventory:my_resource_list' as home_url %}
+    {% else %}
+        {% url 'inventory:resource_list' as home_url %}
+    {% endif %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:resource_detail' object.id %}">{{ object.truncated_title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Insert Keyword</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+
+
+        <h1>Select a keyword to Insert:</h1><br>
+
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form }}
+            <br>
+            <br>
+
+
+            <input type="submit" class="btn btn-primary">
+            <a href="{% url 'inventory:resource_detail' object.id %}" class="btn btn-secondary">Back</a>
+        </form>
+
+        <br><br>
+        <h3>Quick add from the most populate keywords:</h3>
+        <br>
+        <table class="table table-bordered" style="font-size: small">
+            <tr>
+                <th>ISO Topic Categories</th>
+                <th>Core Subject</th>
+                <th>DFO Areas</th>
+                <th style="width: 500px;">Taxonomic</th>
+                <th>General</th>
+            </tr>
+            <tr>
+                <td>
+                    {% for kw in top_20_tc %}
+                        {% if kw not in object.keywords.all %}
+                            {{ kw }} (<a href="{% url "inventory:resource_keyword_add" object.id kw.id %}">add</a>)<br>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for kw in top_20_cs %}
+                        {% if kw not in object.keywords.all %}
+                            {{ kw }} (<a href="{% url "inventory:resource_keyword_add" object.id kw.id %}">add</a>)
+                            <br>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for kw in top_20_area %}
+                        {% if kw not in object.keywords.all %}
+                            {{ kw }} (<a href="{% url "inventory:resource_keyword_add" object.id kw.id %}">add</a>)
+                            <br>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for kw in top_20_tax %}
+                        {% if kw not in object.keywords.all %}
+                            <em>{{ kw }}</em> - {{ kw.details }} (<a href="{% url "inventory:resource_keyword_add" object.id kw.id %}">add</a>)
+                            <br>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for kw in top_20_gen %}
+                        {% if kw not in object.keywords.all %}
+                            {{ kw }} (<a href="{% url "inventory:resource_keyword_add" object.id kw.id %}">add</a>)
+                            <br>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+{% endblock %}
+
+{% block body_js %}
+    {#    <script type="application/javascript">#}
+    {#        $("#show_taxon").change(function () {#}
+    {#            $(".active-result").remove()#}
+    {#        })#}
+    {#    </script>#}
+{% endblock %}

@@ -390,8 +390,8 @@ class Resource(models.Model):
                                        verbose_name="Open data notes")
     public_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Public URL")
     notes = models.TextField(blank=True, null=True, verbose_name="General notes")
-    citations = models.ManyToManyField(Citation, related_name='resources')
-    keywords = models.ManyToManyField(Keyword, related_name='resources')
+    citations = models.ManyToManyField(Citation, related_name='resources', blank=True)
+    keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
     people = models.ManyToManyField(Person, through='ResourcePerson')
     parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children',
                                verbose_name="Parent resource")
