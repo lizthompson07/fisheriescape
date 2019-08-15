@@ -1,7 +1,7 @@
-{% if object.children.count == 0 and object.parent == None %}
-    <em>No related records</em>
-{% else %}
-    <ul>
+<ul>
+    {% if object.children.count == 0 and object.parent == None %}
+        <em>No related records</em>
+    {% else %}
         <li>
             Parent:
             {% if object.parent.id %}
@@ -24,5 +24,5 @@
                 <em>None</em>
             {% endfor %}
         </li>
-    </ul>
-{% endif %}
+    {% endif %}
+</ul>
