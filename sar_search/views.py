@@ -295,7 +295,7 @@ def manage_coords(request, record):
     else:
         print(my_record.record_type)
         if my_record.record_type == 1 and my_record.points.count() >= 1:
-            formset = forms.CoordFormSetNoExtra(
+            formset = forms.CoordFormSet(
                 queryset=qs,
                 initial=[{"record": record}],
             )
