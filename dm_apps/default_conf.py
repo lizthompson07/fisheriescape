@@ -50,7 +50,6 @@ APP_DICT = {
     'oceanography': 'Oceanography',
     'herring': 'HerMorrhage',
     'camp': 'CAMP db',
-    'snowcrab': 'Snowcrab',
     'meq': 'Marine environmental quality (MEQ)',
     'diets': 'Marine diets',
     'projects': 'Science project planning',
