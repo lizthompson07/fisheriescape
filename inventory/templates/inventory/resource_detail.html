@@ -37,7 +37,14 @@
         </ol>
     </nav>
 
-    <div id="floating-panel">
+
+
+    <div class="container-fluid">
+
+        <div class="text-center">
+            <h2>{{ object.title_eng }}</h2>
+        </div>
+<div id="floating-panel">
         {% with "btn btn-sm btn-outline-dark" as my_btn %}
 
             <a class="{{ my_btn }}" href="{% url 'inventory:resource_edit' object.id %}">
@@ -93,13 +100,6 @@
         {% endwith %}
 
     </div>
-
-    <div class="container-fluid">
-
-        <div class="text-center">
-            <h2>{{ object.title_eng }}</h2>
-        </div>
-
         {#<!-- HNAP MODAL -->#}
         <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
              aria-hidden="true">
