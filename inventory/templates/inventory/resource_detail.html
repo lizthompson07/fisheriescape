@@ -242,20 +242,16 @@
 
                 {% include "inventory/_resource_detail_keywords.html" %}
 
-                <br><br>
                 <h4 class="neighbours">Citations</h4>
                 <a class="btn btn-sm btn-outline-primary"
                    href="{% url 'inventory:resource_citation_filter' object.id %}">
                     Add a Citation
                 </a>
-                <br>
                 {% include "inventory/_resource_detail_citations.html" %}
 
-                <br><br>
                 <h4>Related Records</h4>
                 {% include "inventory/_resource_detail_related.html" %}
 
-                <br><br>
                 <h4>Certification History</h4>
                 {% include "inventory/_resource_detail_certification_history.html" %}
                 <br>
