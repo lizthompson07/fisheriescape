@@ -62,6 +62,19 @@ class Region(models.Model):
     class Meta:
         ordering = ['name', ]
 
+    def get_polygon(self):
+        point_list = [(point.latitude, point.longitude) for point in self.points.all()]
+        return Polygon(point_list)
+
+
+class RegionPoint(models.Model):
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="points")
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['region', ]
+
 
 class Species(models.Model):
     common_name_eng = models.CharField(max_length=255, verbose_name="name (English)")
