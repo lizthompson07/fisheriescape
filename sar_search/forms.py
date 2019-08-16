@@ -21,6 +21,11 @@ class SpeciesForm(forms.ModelForm):
             "last_modified_by": forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        prov_choices = [(obj.id, str(obj)) for obj in shared_models.Province.objects.filter(id__in=[7,1,3,4])]
+        self.fields.get("province_range").choices = prov_choices
+
 
 class RecordForm(forms.ModelForm):
     class Meta:
@@ -40,7 +45,6 @@ class RecordForm(forms.ModelForm):
     #     super().__init__(*args, **kwargs)
     #     if kwargs.get("instance") or kwargs.get("initial"):
     #         self.fields["river"].widget = forms.HiddenInput()
-
 
 
 class MapForm(forms.Form):
@@ -120,14 +124,13 @@ class CoordForm(forms.ModelForm):
             "record": forms.HiddenInput(),
 
         }
-    
+
 
 CoordFormSet = modelformset_factory(
     model=models.RecordPoints,
     form=CoordForm,
     extra=1,
 )
-
 
 CoordFormSetNoExtra = modelformset_factory(
     model=models.RecordPoints,
