@@ -54,6 +54,7 @@ class Region(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("english name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='regions')
+    temp_file = models.FileField(upload_to='temp_file', null=True)
 
     def __str__(self):
         name = getattr(self, str(_("name"))) if getattr(self, str(_("name"))) else self.name
@@ -62,18 +63,72 @@ class Region(models.Model):
     class Meta:
         ordering = ['name', ]
 
+
+
+
+@receiver(models.signals.post_delete, sender=Region)
+def auto_delete_region_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.temp_file:
+        if os.path.isfile(instance.temp_file.path):
+            os.remove(instance.temp_file.path)
+
+
+@receiver(models.signals.pre_save, sender=Region)
+def auto_delete_region_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Region.objects.get(pk=instance.pk).temp_file
+    except Region.DoesNotExist:
+        return False
+
+    new_file = instance.temp_file
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
+class RegionPolygon(models.Model):
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name="polygons")
+    old_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['region', ]
+
     def get_polygon(self):
         point_list = [(point.latitude, point.longitude) for point in self.points.all()]
-        return Polygon(point_list)
+        if len(point_list) > 0:
+            try:
+                return Polygon(point_list)
+            except ValueError:
+                print("problem creating polygon id {}".format(self.pk))
+                print(point_list)
 
+    def coords(self):
+        my_polygon = self.get_polygon()
+        if my_polygon:
+            print(123)
+            print(my_polygon)
+            return {"x": my_polygon.centroid.coords[0][0],
+                    "y": my_polygon.centroid.coords[0][1]}
 
-class RegionPoint(models.Model):
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="points")
+class RegionPolygonPoint(models.Model):
+    region_polygon = models.ForeignKey(RegionPolygon, on_delete=models.CASCADE, related_name="points")
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
 
     class Meta:
-        ordering = ['region', ]
+        ordering = ['region_polygon', ]
 
 
 class Species(models.Model):

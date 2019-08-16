@@ -32,7 +32,8 @@
             {% if "coord" in title|lower %}
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' record.species.id %}"> {{ record.species }} </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' record.species.id %}"> {{ record.species }} </a>
+                </li>
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:record_detail' record.id %}"> {{ record }} </a></li>
             {% else %}
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}">{% trans "Home" %}</a></li>
@@ -75,6 +76,20 @@
 
                         {% endfor %}
                         {% if form.instance.id %}
+                            {% if "region" in title|lower %}
+                                <td>
+                                    {% if form.instance.temp_file %}
+                                        <a href="" class="btn btn-sm btn-warning">
+                                            View / modify
+                                        </a>
+                                    {% else %}
+                                        <a href="#" pop-href="{% url 'sar_search:region_file_import' form.instance.id %}" class="btn btn-sm btn-success">
+                                            Import from file
+                                        </a>
+                                    {% endif %}
+                                </td>
+
+                            {% endif %}
 
                             <td>
                                 <a class="delete-me" href="#" val="{{ form.instance.id }}">
