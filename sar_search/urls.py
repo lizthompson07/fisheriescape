@@ -18,8 +18,8 @@ urlpatterns = [
     path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
     path('settings/schedules/', views.manage_schedules, name="manage_schedules"),
     path('settings/schedule/<int:pk>/delete/', views.delete_schedule, name="delete_schedule"),
-    path('settings/counties/', views.manage_counties, name="manage_counties"),
-    path('settings/county/<int:pk>/delete/', views.delete_county, name="delete_county"),
+    path('settings/regions/', views.manage_regions, name="manage_regions"),
+    path('settings/region/<int:pk>/delete/', views.delete_region, name="delete_region"),
 
     # SPECIES #
     ###########
