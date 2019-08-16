@@ -510,3 +510,69 @@ def delete_region(request, pk):
     my_obj = models.SARASchedule.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("sar_search:manage_regions"))
+
+
+
+class RegionImportFileView(SARSearchAdminRequiredMixin, UpdateView):
+    model = models.Region
+    fields = ["temp_file", ]
+    template_name = 'sar_search/points_file_import_form.html'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        # now we need to do some magic with the file...
+
+        # load the file
+        url = self.request.META.get("HTTP_ORIGIN") + my_object.temp_file.url
+        r = requests.get(url)
+        # print(r.text.splitlines())
+        csv_reader = csv.DictReader(r.iter_lines())
+
+        for row in csv_reader:
+            # OrderedDict([('record_name', 'St. John River'), ('site_name', '1'), ('site_lat', '46.302'), ('site_long', '-67.5327'), ('source', 'Environment Canada. 2013. Recovery Strategy for the Cobblestone Tiger Beetle (Cicindela marginipennis) in Canada. Species at Risk Act Recovery Strategy Series. Environment Canada, Ottawa. v + 18 pp.')])
+            if row["type"] == "polygon":
+                my_type = 3
+            elif row["type"] == "line" or row["type"] == "polyline":
+                my_type = 2
+            else:
+                my_type = 1
+
+            my_record, created = models.Record.objects.get_or_create(
+                species=my_object,
+                name=row["record_name"],
+                record_type=my_type,
+                source=row["record_source"],
+            )
+
+            if row["site_lat"] and row["site_long"]:
+                my_new_point = models.RecordPoints.objects.create(
+                    record=my_record,
+                    name=row["site_name"],
+                    latitude_n=float(row["site_lat"]),
+                    longitude_w=float(row["site_long"]),
+                )
+
+        # clear the file in my object
+        my_object.temp_file = None
+        my_object.save()
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+
+
+
+class RegionDetailView(SARSearchAccessRequiredMixin, DetailView):
+    model = models.Region
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            'name',
+            'nom',
+            'province',
+        ]
+        context['field_list'] = field_list
+
+        return context
+
