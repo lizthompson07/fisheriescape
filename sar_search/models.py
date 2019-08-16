@@ -49,11 +49,11 @@ class SpeciesStatus(models.Model):
         ordering = ['name', ]
 
 
-class County(models.Model):
+class Region(models.Model):
     code = models.CharField(max_length=5)
     name = models.CharField(max_length=255, verbose_name=_("english name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='counties')
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='regions')
 
     def __str__(self):
         name = getattr(self, str(_("name"))) if getattr(self, str(_("name"))) else self.name
@@ -161,7 +161,7 @@ class Record(models.Model):
 
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name='records', blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("record name"))
-    counties = models.ManyToManyField(County, blank=True)
+    regions = models.ManyToManyField(Region, blank=True)
     record_type = models.IntegerField(verbose_name=_("record type"), choices=RANGE_TYPE_CHOICES)
     source = models.CharField(max_length=1000, verbose_name=_("source"))
     # temp_file = models.FileField(upload_to='temp_file', null=True)

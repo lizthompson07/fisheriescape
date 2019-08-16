@@ -175,7 +175,7 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
 
         context["record_field_list"] = [
             'name',
-            'counties',
+            'regions',
             'record_type',
             # 'source',
             'date_last_modified',
@@ -257,7 +257,7 @@ class RecordDetailView(SARSearchAccessRequiredMixin, DetailView):
 
         field_list = [
             'name',
-            'counties',
+            'regions',
             'record_type',
             'source',
             'last_modified_by',
@@ -479,20 +479,20 @@ def delete_schedule(request, pk):
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
-def manage_counties(request):
-    qs = models.County.objects.all()
+def manage_regions(request):
+    qs = models.Region.objects.all()
     if request.method == 'POST':
-        formset = forms.CountyFormSet(request.POST, )
+        formset = forms.RegionFormSet(request.POST, )
         if formset.is_valid():
             formset.save()
             # do something with the formset.cleaned_data
-            messages.success(request, "counties have been successfully updated")
-            return HttpResponseRedirect(reverse("sar_search:manage_counties"))
+            messages.success(request, "regions have been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_regions"))
     else:
-        formset = forms.CountyFormSet(
+        formset = forms.RegionFormSet(
             queryset=qs)
     context = {}
-    context['title'] = "Manage Counties"
+    context['title'] = "Manage Regions"
     context['formset'] = formset
     context["my_object"] = qs.first()
     context["field_list"] = [
@@ -506,7 +506,7 @@ def manage_counties(request):
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
-def delete_county(request, pk):
+def delete_region(request, pk):
     my_obj = models.SARASchedule.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("sar_search:manage_counties"))
+    return HttpResponseRedirect(reverse("sar_search:manage_regions"))
