@@ -91,7 +91,7 @@
                                        href="{% url 'sar_search:delete_schedule' form.instance.id %}" class="hidden"></a>
                                 {% elif "count" in title|lower %}
                                     <a id="secrect-delete-btn-{{ form.instance.id }}"
-                                       href="{% url 'sar_search:delete_county' form.instance.id %}" class="hidden"></a>
+                                       href="{% url 'sar_search:delete_region' form.instance.id %}" class="hidden"></a>
                                 {% elif "coord" in title|lower %}
                                     <a id="secrect-delete-btn-{{ form.instance.id }}"
                                        href="{% url 'sar_search:delete_coord' form.instance.id %}" class="hidden"></a>

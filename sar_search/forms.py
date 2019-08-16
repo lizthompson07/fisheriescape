@@ -30,7 +30,7 @@ class RecordForm(forms.ModelForm):
             # "latitude_n": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             # "longitude_w": forms.NumberInput(attrs={"placeholder": "DD.dddddd", }),
             # "directions": forms.Textarea(attrs={"rows": "3", }),
-            "counties": forms.SelectMultiple(attrs=multi_select_js),
+            "regions": forms.SelectMultiple(attrs=multi_select_js),
             "last_modified_by": forms.HiddenInput(),
             "species": forms.HiddenInput(),
 
@@ -99,15 +99,15 @@ SARAScheduleFormSet = modelformset_factory(
 )
 
 
-class CountyForm(forms.ModelForm):
+class RegionForm(forms.ModelForm):
     class Meta:
-        model = models.County
+        model = models.Region
         fields = "__all__"
 
 
-CountyFormSet = modelformset_factory(
-    model=models.County,
-    form=CountyForm,
+RegionFormSet = modelformset_factory(
+    model=models.Region,
+    form=RegionForm,
     extra=1,
 )
 
