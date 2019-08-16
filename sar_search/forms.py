@@ -106,7 +106,7 @@ SARAScheduleFormSet = modelformset_factory(
 class RegionForm(forms.ModelForm):
     class Meta:
         model = models.Region
-        fields = "__all__"
+        exclude = ["temp_file",]
 
 
 RegionFormSet = modelformset_factory(

@@ -20,6 +20,8 @@ urlpatterns = [
     path('settings/schedule/<int:pk>/delete/', views.delete_schedule, name="delete_schedule"),
     path('settings/regions/', views.manage_regions, name="manage_regions"),
     path('settings/region/<int:pk>/delete/', views.delete_region, name="delete_region"),
+    path('settings/region/<int:pk>/view/', views.RegionDetailView.as_view(), name="region_detail"),
+    path('settings/region/<int:pk>/import-points-from-file/', views.RegionImportFileView.as_view(), name="region_file_import"),
 
     # SPECIES #
     ###########

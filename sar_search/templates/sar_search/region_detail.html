@@ -23,8 +23,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' object.species.id %}"> {{ object.species }} </a></li>
+            {#            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>#}
+            {#            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' object.species.id %}"> {{ object.species }} </a></li>#}
             <li class="breadcrumb-item active" aria-current="page"> {{ object }}</li>
         </ol>
     </nav>
@@ -35,12 +35,12 @@
         <h1>{{ object }}</h1>
         <div class="btn-group">
             {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
-            <a class="btn btn-warning" href="{% url 'sar_search:record_edit' object.id %}">Edit</a>
-            <a class="btn btn-danger" href="{% url 'sar_search:record_delete' object.id %}">Delete</a>
-            <a class="btn btn-primary" href="{% url 'sar_search:manage_coords' object.id %}">Set / Modify Coordinates</a>
+            {#            <a class="btn btn-warning" href="{% url 'sar_search:record_edit' object.id %}">Edit</a>#}
+            {#            <a class="btn btn-danger" href="{% url 'sar_search:record_delete' object.id %}">Delete</a>#}
+            {#            <a class="btn btn-primary" href="{% url 'sar_search:manage_coords' object.id %}">Set / Modify Coordinates</a>#}
 
             {% if not object.record_type == 1 %}
-                <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">Import Points from CSV</a>
+                {#                <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">Import Points from CSV</a>#}
 
             {% endif %}
 
@@ -57,9 +57,9 @@
                 <br>
                 <h3>List of coordinates:</h3>
                 <ul>
-                    {% for point in object.points.all %}
+                    {% for polygon in object.polygons.all %}
                         <li>
-                            {{ point.name }} ({{ point.latitude_n }}, {{ point.longitude_w }})
+                            {{ polygon.id }} ({{polygon.points.count}})
                         </li>
                     {% empty %}
                         <em>no coordinates have been added to this record</em>
@@ -85,99 +85,49 @@
             var infowindow = new google.maps.InfoWindow();
             var bounds = new google.maps.LatLngBounds();
 
-            {% if object.record_type == 1 and record.coords.x and record.coords.y %}
 
-                // extend bounds var
-                {% for point in object.points.all %}
-                    var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng({{point.latitude_n}}, {{point.longitude_w}}),
+
+
+
+            {% for polygon in object.polygons.all %}
+                {% if polygon.coords %}
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng({{polygon.coords.x}}, {{polygon.coords.y}}),
                         map: map,
-                        //label: {text: "{{point.record.name}}", color: "#ffffff"},
+                        label: {text: "{{polygon.region}}", color: "#ffffff"},
                     });
+
+                    // extend bounds var
                     bounds.extend(marker.position);
-                {% endfor %}
-                map.fitBounds(bounds);
-                // add a click event on the polygon
-
-            {% elif object.record_type == 2 and record.coords.x and record.coords.y %}
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
-                    map: map,
-                    label: {text: "{{object.name}}", color: "#ffffff"},
-                });
-
-
-                // extend bounds var
-                bounds.extend(marker.position);
-                {% for point in object.points.all %}
-                    bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
-                {% endfor %}
-
-                // Define the LatLng coordinates for the polygon's path.
-                var lineCoords = [
-                    {% for point in object.points.all %}
-                        {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                    {% for point in polygon.points.all %}
+                        bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
                     {% endfor %}
-                ];
 
-                // Construct the stratum.
-                var color = '#ea4544';
-                var myLine = new google.maps.Polyline({
-                    path: lineCoords,
-                    strokeColor: 'red',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 3,
-                    {#fillColor: color,#}
-                    {#fillOpacity: 0.35#}
-                });
-                myLine.setMap(map);
-                {#bounds.extend(myPolygon.getBounds());#}
+                    // Define the LatLng coordinates for the polygon's path.
+                    var polygonCoords = [
+                        {% for point in polygon.points.all %}
+                            {lat: {{point.latitude}}, lng: {{point.longitude}}},
+                        {% endfor %}
+                    ];
 
-                map.fitBounds(bounds);
-                // add a click event on the polygon
+                    // Construct the stratum.
+                    var color = '#ea4544';
+                    var myPolygon = new google.maps.Polygon({
+                        paths: polygonCoords,
+                        strokeColor: 'white',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: color,
+                        fillOpacity: 0.35
+                    });
+                    myPolygon.setMap(map);
+                    {#bounds.extend(myPolygon.getBounds());#}
 
+                    map.fitBounds(bounds);
+                    // add a click event on the polygon
+                {% endif %}
 
-
-
-            {% elif object.record_type == 3 and record.coords.x and record.coords.y %}
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
-                    map: map,
-                    label: {text: "{{object.name}}", color: "#ffffff"},
-                });
-
-
-                // extend bounds var
-                bounds.extend(marker.position);
-                {% for point in object.points.all %}
-                    bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
-                {% endfor %}
-
-                // Define the LatLng coordinates for the polygon's path.
-                var polygonCoords = [
-                    {% for point in object.points.all %}
-                        {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
-                    {% endfor %}
-                ];
-
-                // Construct the stratum.
-                var color = '#ea4544';
-                var myPolygon = new google.maps.Polygon({
-                    paths: polygonCoords,
-                    strokeColor: 'white',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                    fillColor: color,
-                    fillOpacity: 0.35
-                });
-                myPolygon.setMap(map);
-                {#bounds.extend(myPolygon.getBounds());#}
-
-                map.fitBounds(bounds);
-                // add a click event on the polygon
-
-
-            {% endif %}
+            {% endfor %}
 
             map.fitBounds(bounds);
 
