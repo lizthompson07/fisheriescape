@@ -20,6 +20,14 @@ class SpeciesFilter(django_filters.FilterSet):
             'province_range': ['exact'],
         }
 
+
+class RegionFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Region
+        fields = {
+            'name': ['icontains'],
+        }
+
 #
 # class RiverFilter(django_filters.FilterSet):
 #     class Meta:

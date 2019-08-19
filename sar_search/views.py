@@ -33,6 +33,7 @@ def in_sar_search_group(user):
         # return user.groups.filter(name='sar_search_access').count() != 0
         return True
 
+
 class SARSearchAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
@@ -97,7 +98,6 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
                             models.RecordPoints.objects.values("record__species").order_by("record__species").distinct()]
 
         context['spatial_species_list'] = species_list
-
 
         # get a list of species without spatial representation
         species_list = []
@@ -477,40 +477,66 @@ def delete_schedule(request, pk):
     return HttpResponseRedirect(reverse("sar_search:manage_schedules"))
 
 
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
-def manage_regions(request):
-    qs = models.Region.objects.all()
-    if request.method == 'POST':
-        formset = forms.RegionFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "regions have been successfully updated")
-            return HttpResponseRedirect(reverse("sar_search:manage_regions"))
-    else:
-        formset = forms.RegionFormSet(
-            queryset=qs)
-    context = {}
-    context['title'] = "Manage Regions"
-    context['formset'] = formset
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'code',
-        'name',
-        'nom',
-        'province',
-    ]
-    return render(request, 'sar_search/manage_settings_small.html', context)
+# REGION
+class RegionListView(SARSearchAccessRequiredMixin, FilterView):
+    template_name = "sar_search/region_list.html"
+    filterset_class = filters.RegionFilter
+    queryset = models.Region.objects.annotate(
+        search_term=Concat('name', 'nom', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['my_object'] = models.Region.objects.first()
+        context["field_list"] = [
+            'name',
+            'nom',
+            'province',
+        ]
+        return context
 
 
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
-def delete_region(request, pk):
-    my_obj = models.SARASchedule.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("sar_search:manage_regions"))
+class RegionDetailView(SARSearchAccessRequiredMixin, DetailView):
+    model = models.Region
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+        context["field_list"] = [
+            'name',
+            'nom',
+            'province',
+        ]
+
+        return context
+
+
+class RegionUpdateView(SARSearchAdminRequiredMixin, UpdateView):
+    model = models.Region
+
+    form_class = forms.RegionForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class RegionCreateView(SARSearchAdminRequiredMixin, CreateView):
+    model = models.Region
+
+    form_class = forms.RegionForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class RegionDeleteView(SARSearchAdminRequiredMixin, DeleteView):
+    model = models.Region
+    permission_required = "__all__"
+    success_url = reverse_lazy('sar_search:region_list')
+    success_message = 'The region was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
 
 class RegionImportFileView(SARSearchAdminRequiredMixin, UpdateView):
@@ -538,7 +564,7 @@ class RegionImportFileView(SARSearchAdminRequiredMixin, UpdateView):
                 my_type = 1
 
             my_record, created = models.Record.objects.get_or_create(
-                species=my_object,
+                region=my_object,
                 name=row["record_name"],
                 record_type=my_type,
                 source=row["record_source"],
@@ -557,22 +583,21 @@ class RegionImportFileView(SARSearchAdminRequiredMixin, UpdateView):
         my_object.save()
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
-
-
-
-class RegionDetailView(SARSearchAccessRequiredMixin, DetailView):
-    model = models.Region
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['google_api_key'] = settings.GOOGLE_API_KEY
-
-        field_list = [
-            'name',
-            'nom',
-            'province',
-        ]
-        context['field_list'] = field_list
-
-        return context
-
+#
+#
+#
+# class RegionDetailView(SARSearchAccessRequiredMixin, DetailView):
+#     model = models.Region
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['google_api_key'] = settings.GOOGLE_API_KEY
+#
+#         field_list = [
+#             'name',
+#             'nom',
+#             'province',
+#         ]
+#         context['field_list'] = field_list
+#
+#         return context
