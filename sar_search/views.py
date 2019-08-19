@@ -87,17 +87,41 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
                 float(self.kwargs.get("s")),
                 float(self.kwargs.get("w")),
             )
-            print(bbox)
             species_list = list(set(
                 [models.Species.objects.get(pk=obj.record.species.id) for obj in models.RecordPoints.objects.all() if
                  bbox.contains(obj.point)]
             ))
-            print(species_list)
+
+            # determine which regions intersect with bbox
+            region_list = []
+            for region_polygon in models.RegionPolygon.objects.all():
+                # if the region has not already been added...
+                if region_polygon.region not in region_list:
+                    if region_polygon.get_polygon():
+                        if region_polygon.get_polygon().intersects(bbox):
+                            region_list.append(region_polygon.region)
+
+            # for the spp not already captured above, is there any region info that can include them?
+            for sp in models.Species.objects.all():
+                if sp not in species_list:
+                    for record in sp.records.all():
+                        # check again if species has been added. if so, then break
+                        if sp in species_list:
+                            break
+                        for region in record.regions.all():
+                            if region in region_list:
+                                species_list.append(sp)
+                                break
+
+
+
+
         else:
             species_list = [models.Species.objects.get(pk=obj["record__species"]) for obj in
                             models.RecordPoints.objects.values("record__species").order_by("record__species").distinct()]
 
         context['spatial_species_list'] = species_list
+        context['region_list'] = region_list
 
         # get a list of species without spatial representation
         species_list = []
