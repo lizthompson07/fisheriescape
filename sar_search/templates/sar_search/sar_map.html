@@ -62,6 +62,17 @@
         <div class="col-3">
             <h3>SAR Report:</h3>
             <br>
+            <h5>List of regions intersecting with bounding box:</h5>
+            <ul>
+                {% for region in region_list %}
+                    <li>{{ region }}</li>
+                {% empty %}
+                    <em>No regions to display...</em>
+                {% endfor %}
+            </ul>
+            <br>
+
+
             <h5>List of species intersecting with bounding box:</h5>
             <ul>
                 {% for sp in spatial_species_list %}

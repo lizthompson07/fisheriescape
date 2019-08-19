@@ -127,9 +127,12 @@ class RegionPolygonPoint(models.Model):
     longitude = models.FloatField(blank=True, null=True)
     order = models.IntegerField(blank=True, null=True, verbose_name="order")
 
-    # class Meta:
-        # ordering = ['region_polygon', "order"]
+    class Meta:
+        ordering = ['region_polygon', "order"]
 
+    @property
+    def point(self):
+        return Point(self.latitude, self.longitude)
 
 class Species(models.Model):
     common_name_eng = models.CharField(max_length=255, verbose_name="name (English)")
