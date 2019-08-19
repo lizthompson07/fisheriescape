@@ -106,3 +106,53 @@ def import_ns_county_points():
                 latitude=float(row["y"]),
                 longitude=float(row["x"]),
             )
+
+
+
+def import_pe_county_polygons():
+    # open the csv we want to read
+    rootdir = "C:\\Users\\fishmand\\Desktop\\dump"
+    with open(os.path.join(rootdir, "pe_county_polygons.csv"), 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        # count = 0
+        for row in my_csv:
+            # get or create the name of the county
+            my_region, created = models.Region.objects.get_or_create(
+                name=row["COUNTY"],
+                province_id=4
+            )
+            # update the french name
+            my_region.nom = row["COUNTY"]
+            my_region.save()
+
+            # create a new polygon
+            my_poly, created = models.RegionPolygon.objects.get_or_create(
+                region=my_region,
+                old_id=row["ID"],
+            )
+
+
+def import_pe_county_points():
+    # open the csv we want to read
+    rootdir = "C:\\Users\\fishmand\\Desktop\\dump"
+    with open(os.path.join(rootdir, "pe_county_points.csv"), 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        # count = 0
+        for row in my_csv:
+            # get or create the name of the county
+            my_region = models.Region.objects.get(
+                name=row["COUNTY"],
+                province_id=4
+            )
+
+            # create a new polygon
+            my_poly = models.RegionPolygon.objects.get(
+                region=my_region,
+                old_id=row["ID"],
+            )
+
+            my_poly.points.create(
+                latitude=float(row["y"]),
+                longitude=float(row["x"]),
+                order=float(row["vertex_index"]),
+            )

@@ -64,8 +64,6 @@ class Region(models.Model):
         ordering = ['name', ]
 
 
-
-
 @receiver(models.signals.post_delete, sender=Region)
 def auto_delete_region_file_on_delete(sender, instance, **kwargs):
     """
@@ -122,13 +120,15 @@ class RegionPolygon(models.Model):
             return {"x": my_polygon.centroid.coords[0][0],
                     "y": my_polygon.centroid.coords[0][1]}
 
+
 class RegionPolygonPoint(models.Model):
     region_polygon = models.ForeignKey(RegionPolygon, on_delete=models.CASCADE, related_name="points")
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True, verbose_name="order")
 
-    class Meta:
-        ordering = ['region_polygon', ]
+    # class Meta:
+        # ordering = ['region_polygon', "order"]
 
 
 class Species(models.Model):

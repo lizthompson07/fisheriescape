@@ -24,7 +24,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
             {#            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>#}
-            {#            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' object.species.id %}"> {{ object.species }} </a></li>#}
+                        <li class="breadcrumb-item"><a href="{% url 'sar_search:region_list' %}"> Region List</a></li>
             <li class="breadcrumb-item active" aria-current="page"> {{ object }}</li>
         </ol>
     </nav>
@@ -96,7 +96,7 @@
                     // Define the LatLng coordinates for the polygon's path.
                     var polygonCoords = [
                         {% for point in polygon.points.all %}
-                            {lat: {{point.latitude}}, lng: {{point.longitude}}},
+                            {lat: {{point.latitude}}, lng: {{point.longitude}},  {% if point.order %}order: {{point.order}}{% endif %} },
                         {% endfor %}
                     ];
 

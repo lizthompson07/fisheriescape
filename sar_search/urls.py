@@ -1,14 +1,12 @@
 from django.urls import path
 from . import views
 
-
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # SAR MAP #
     path('map/', views.SARMapTemplateView.as_view(), name="map"),
     path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/', views.SARMapTemplateView.as_view(), name="map"),
-
 
     # SETTINGS #
     ############
@@ -18,10 +16,15 @@ urlpatterns = [
     path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
     path('settings/schedules/', views.manage_schedules, name="manage_schedules"),
     path('settings/schedule/<int:pk>/delete/', views.delete_schedule, name="delete_schedule"),
-    path('settings/regions/', views.manage_regions, name="manage_regions"),
-    path('settings/region/<int:pk>/delete/', views.delete_region, name="delete_region"),
-    path('settings/region/<int:pk>/view/', views.RegionDetailView.as_view(), name="region_detail"),
-    path('settings/region/<int:pk>/import-points-from-file/', views.RegionImportFileView.as_view(), name="region_file_import"),
+
+    # REGION #
+    ###########
+    path('regions/', views.RegionListView.as_view(), name="region_list"),
+    path('region/new/', views.RegionCreateView.as_view(), name="region_new"),
+    path('region/<int:pk>/view/', views.RegionDetailView.as_view(), name="region_detail"),
+    path('region/<int:pk>/edit/', views.RegionUpdateView.as_view(), name="region_edit"),
+    path('region/<int:pk>/delete/', views.RegionDeleteView.as_view(), name="region_delete"),
+    path('region/<int:pk>/import-points-from-file/', views.RecordImportFileView.as_view(), name="region_file_import"),
 
     # SPECIES #
     ###########
@@ -31,7 +34,6 @@ urlpatterns = [
     path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
     path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
     path('species/<int:pk>/import-points-from-file/', views.RecordImportFileView.as_view(), name="file_import"),
-
 
     # RECORD #
     ##########
