@@ -39,9 +39,7 @@
             <a class="btn btn-warning" href="{% url 'sar_search:species_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'sar_search:species_delete' object.id %}">Delete</a>
             <a class="btn btn-primary" href="{% url 'sar_search:record_new' object.id %}">Add New Record</a>
-            {% if not object.record_type == 1 %}
-                <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">Import Records from CSV</a>
-            {% endif %}
+            <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">Import Records from CSV</a>
         </div>
 
 
@@ -83,47 +81,44 @@
                 <div id="map"></div>
             </div>
         </div>
-    </div>
-    <br><br>
-    <div class="row justify-content-center">
-        <div class="col-8">
-            <h3>Record List</h3>
-            {% if object.records.count > 0 %}
 
-                <table class="table table-sm table-hover sortable">
-                    <thead>
-                    <tr>
+        <br><br>
+        <div class="row justify-content-center">
+            <div class="col-9">
+                <h3>Record List</h3>
+                {% if object.records.count > 0 %}
+
+                    <table class="table table-sm table-hover sortable">
+                        <thead>
                         {% for field in record_field_list %}
                             <th scope="col">{% get_verbose_label object.records.first field %}</th>
                         {% endfor %}
                         <th scope="col"># Coordinates</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for obj in object.records.all %}
-                        {% url 'sar_search:record_detail' obj.id as my_url %}
-                        <tr href="{{ my_url }}">
-                            {% for field in record_field_list %}
-                                <td>{% get_field_value obj field nullmark="" %}</td>
-                            {% endfor %}
-                            <td>{{ obj.points.count }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <div class="text-center">
-                    <em>
-                        No records have been added for this species. You can add a record by clicking on the button at the top of the
-                        page.
-                    </em>
-                </div>
-            {% endif %}
+                        </thead>
+                        <tbody>
+                        {% for obj in object.records.all %}
+                            {% url 'sar_search:record_detail' obj.id as my_url %}
+                            <tr href="{{ my_url }}">
+                                {% for field in record_field_list %}
+                                    <td>{% get_field_value obj field nullmark="" %}</td>
+                                {% endfor %}
+                                <td>{{ obj.points.count }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="text-center">
+                        <em>
+                            No records have been added for this species. You can add a record by clicking on the button at the top of the
+                            page.
+                        </em>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    </div>
 
     </div>
-
 
 {% endblock content %}
 {% block body_js %}
@@ -246,20 +241,8 @@
                         {% for region in record.regions.all %}
                             {% for polygon in region.polygons.all %}
                                 {% if polygon.coords %}
-                                    marker = new google.maps.Marker({
-                                        position: new google.maps.LatLng({{polygon.coords.x}}, {{polygon.coords.y}}),
-                                        map: map,
-                                        label: {text: "{{region}}", color: "#ffffff"},
-                                    });
-                                    google.maps.event.addListener(marker, 'click', (function (marker) {
-                                        return function () {
-                                            infowindow.setContent('{{polygon.region}}');
-                                            infowindow.open(map, marker);
-                                        }
-                                    })(marker));
 
                                     // extend bounds var
-                                    bounds.extend(marker.position);
                                     {% for point in polygon.points.all %}
                                         bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
                                     {% endfor %}
@@ -283,7 +266,6 @@
                                     });
                                     myPolygon.setMap(map);
                                     {#bounds.extend(myPolygon.getBounds());#}
-
 
                                 {% endif %}
                             {% endfor %}

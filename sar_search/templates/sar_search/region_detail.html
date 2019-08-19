@@ -55,11 +55,11 @@
                 {% endfor %}
                 <br>
                 <br>
-                <h3>List of coordinates:</h3>
+                <h3>List of polygons:</h3>
                 <ul>
                     {% for polygon in object.polygons.all %}
                         <li>
-                            {{ polygon.id }} ({{polygon.points.count}})
+                            {{ polygon.id }} ({{ polygon.points.count }})
                         </li>
                     {% empty %}
                         <em>no coordinates have been added to this record</em>
@@ -85,20 +85,10 @@
             var infowindow = new google.maps.InfoWindow();
             var bounds = new google.maps.LatLngBounds();
 
-
-
-
-
             {% for polygon in object.polygons.all %}
                 {% if polygon.coords %}
-                    marker = new google.maps.Marker({
-                        position: new google.maps.LatLng({{polygon.coords.x}}, {{polygon.coords.y}}),
-                        map: map,
-                        label: {text: "{{polygon.region}}", color: "#ffffff"},
-                    });
 
                     // extend bounds var
-                    bounds.extend(marker.position);
                     {% for point in polygon.points.all %}
                         bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
                     {% endfor %}
@@ -118,8 +108,10 @@
                         strokeOpacity: 0.8,
                         strokeWeight: 2,
                         fillColor: color,
-                        fillOpacity: 0.35
+                        fillOpacity: 0.35,
+                        label: "test"
                     });
+
                     myPolygon.setMap(map);
                     {#bounds.extend(myPolygon.getBounds());#}
 
