@@ -119,6 +119,7 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
         else:
             species_list = [models.Species.objects.get(pk=obj["record__species"]) for obj in
                             models.RecordPoints.objects.values("record__species").order_by("record__species").distinct()]
+            region_list = []
 
         context['spatial_species_list'] = species_list
         context['region_list'] = region_list
