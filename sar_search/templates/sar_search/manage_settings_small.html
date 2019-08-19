@@ -83,8 +83,9 @@
                                             View / modify
                                         </a>
                                     {% else %}
-                                        <a href="#" pop-href="{% url 'sar_search:region_file_import' form.instance.id %}" class="btn btn-sm btn-success">
-                                            Import from file
+                                        {# pop-href="{% url 'sar_search:region_file_import' form.instance.id %}"#}
+                                        <a href="#" class="btn btn-sm btn-success">
+                                        Import from file
                                         </a>
                                     {% endif %}
                                 </td>
