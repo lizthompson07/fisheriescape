@@ -5,9 +5,10 @@ from django import forms
 
 chosen_js = {"class": "chosen-select-contains"}
 
+
 class SpeciesFilter(django_filters.FilterSet):
     common_name_eng = django_filters.CharFilter(field_name='search_term', label="Species (any part of name...)", lookup_expr='icontains',
-                                            widget=forms.TextInput())
+                                                widget=forms.TextInput())
 
     class Meta:
         model = models.Species
@@ -19,6 +20,11 @@ class SpeciesFilter(django_filters.FilterSet):
             'sara_schedule': ['exact'],
             'province_range': ['exact'],
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # prov_choices = [(obj.id, str(obj)) for obj in shared_models.Province.objects.filter(id__in=[7, 1, 3, 4])]
+        self.filters.get("province_range").querset = shared_models.Province.objects.filter(id__in=[7, 1, 3, 4])
 
 
 class RegionFilter(django_filters.FilterSet):
