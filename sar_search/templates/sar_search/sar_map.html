@@ -65,7 +65,9 @@
             <h5>List of regions intersecting with bounding box:</h5>
             <ul>
                 {% for region in region_list %}
-                    <li>{{ region }}</li>
+                    <li>
+                        <a href="{% url 'sar_search:region_detail' region.id %}" target="_blank">{{ region }}</a>
+                    </li>
                 {% empty %}
                     <em>No regions to display...</em>
                 {% endfor %}
@@ -75,8 +77,10 @@
 
             <h5>List of species intersecting with bounding box:</h5>
             <ul>
-                {% for sp in spatial_species_list %}
-                    <li>{{ sp }}</li>
+                {% for sp in captured_species_list %}
+                    <li>
+                        <a href="{% url 'sar_search:species_detail' sp.id %}" target="_blank">{{ sp }}</a>
+                    </li>
                 {% empty %}
                     <em>No species to display...</em>
                 {% endfor %}
@@ -85,7 +89,9 @@
             <h5>List of species without spatial information:</h5>
             <ul>
                 {% for sp in non_spatial_species_list %}
-                    <li class="red-font">{{ sp }}</li>
+                    <li class="red-font">
+                        <a href="{% url 'sar_search:species_detail' sp.id %}" target="_blank">{{ sp }}</a>
+                    </li>
                 {% empty %}
                     <em>No species to display...</em>
                 {% endfor %}
