@@ -50,18 +50,22 @@ class SpeciesStatus(models.Model):
 
 
 class Region(models.Model):
-    code = models.CharField(max_length=5)
+    code = models.CharField(max_length=5, blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("english name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='regions')
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='regions', blank=True, null=True)
     temp_file = models.FileField(upload_to='temp_file', null=True)
 
     def __str__(self):
         name = getattr(self, str(_("name"))) if getattr(self, str(_("name"))) else self.name
-        return "{}, {}".format(name, self.province.tabbrev)
+        return "{}, {}".format(name, self.province.tabbrev) if self.province else "{}".format(name)
 
     class Meta:
         ordering = ['name', ]
+
+
+def get_absolute_url(self):
+    return reverse("sar_search:region_detail", kwargs={"pk": self.id})
 
 
 @receiver(models.signals.post_delete, sender=Region)
@@ -115,8 +119,6 @@ class RegionPolygon(models.Model):
     def coords(self):
         my_polygon = self.get_polygon()
         if my_polygon:
-            print(123)
-            print(my_polygon)
             return {"x": my_polygon.centroid.coords[0][0],
                     "y": my_polygon.centroid.coords[0][1]}
 
@@ -133,6 +135,7 @@ class RegionPolygonPoint(models.Model):
     @property
     def point(self):
         return Point(self.latitude, self.longitude)
+
 
 class Species(models.Model):
     common_name_eng = models.CharField(max_length=255, verbose_name="name (English)")
@@ -232,7 +235,7 @@ class Record(models.Model):
 
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name='records', blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("record name"))
-    regions = models.ManyToManyField(Region, blank=True)
+    regions = models.ManyToManyField(Region, blank=True, related_name="records")
     record_type = models.IntegerField(verbose_name=_("record type"), choices=RANGE_TYPE_CHOICES)
     source = models.CharField(max_length=1000, verbose_name=_("source"))
     # temp_file = models.FileField(upload_to='temp_file', null=True)
