@@ -64,8 +64,8 @@ class Region(models.Model):
         ordering = ['name', ]
 
 
-def get_absolute_url(self):
-    return reverse("sar_search:region_detail", kwargs={"pk": self.id})
+    def get_absolute_url(self):
+        return reverse("sar_search:region_detail", kwargs={"pk": self.id})
 
 
 @receiver(models.signals.post_delete, sender=Region)
