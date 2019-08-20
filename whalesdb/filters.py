@@ -10,18 +10,19 @@ class GenericFilterSet(FilterSet):
         super().__init__(*args, **kwargs)
 
         labels = forms.get_short_labels(self._meta.model)
+        labels = forms.get_short_labels(self._meta.model)
         for key in labels.keys():
             self.filters[key].label = labels[key]
 
 
-class FilterRecorder(GenericFilterSet):
+class EqrRecorder(GenericFilterSet):
 
     class Meta:
         model = models.EqrRecorderProperties
         fields = ['emm', 'eqc_max_channels', 'eqc_max_sample_rate']
 
 
-class FilterHydrophone(GenericFilterSet):
+class EqhHydrophone(GenericFilterSet):
 
     class Meta:
         model = models.EqhHydrophoneProperties
@@ -58,6 +59,15 @@ class FilterStations(GenericFilterSet):
         fields = ['stn_name', 'stn_planned_lat', 'stn_planned_lon', 'stn_planned_depth', 'stn_notes', ]
 
 
+class FilterStationEvents(GenericFilterSet):
+
+    class Meta:
+        model = models.SteStationEvents
+        fields = ['dep', 'set_type', 'ste_date', 'crs', 'ste_lat_ship', 'ste_lon_ship', 'ste_depth_ship', 'ste_lat_mcal',
+                  'ste_lon_mcal', 'ste_depth_mcal', 'ste_team', 'ste_instrument_cond', 'ste_weather_cond', 'ste_logs',
+                  'ste_notes']
+
+
 class FilterProjects(GenericFilterSet):
 
     class Meta:
@@ -65,7 +75,7 @@ class FilterProjects(GenericFilterSet):
         fields = ['prj_name', 'prj_descrption', 'prj_url', ]
 
 
-class FilterRecordEvent(GenericFilterSet):
+class FilterRecordEvents(GenericFilterSet):
 
     class Meta:
         model = models.RecRecordingEvents
@@ -74,3 +84,17 @@ class FilterRecordEvent(GenericFilterSet):
                   'rec_date_data_download', 'rec_data_store_url', 'tea_id_downloaded_by', 'rec_date_data_backed_up',
                   'rec_data_backup_url', 'tea_id_backed_up_by', 'rec_channel_count', 'rec_notes', 'rtt',
                   'rec_first_in_water', 'rec_last_in_water', ]
+
+
+class FilterRecordingSchedules(GenericFilterSet):
+
+    class Meta:
+        model = models.RscRecordingSchedules
+        fields = ['rec', 'rsc_name', 'rsc_period']
+
+
+class FilterRecordingStages(GenericFilterSet):
+
+    class Meta:
+        model = models.RstRecordingStage
+        fields = ['rst_channel_no', 'rsc', 'rst_active', 'rst_duration', 'rst_rate', 'rst_gain']
