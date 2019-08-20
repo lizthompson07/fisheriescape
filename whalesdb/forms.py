@@ -150,6 +150,13 @@ def get_labels(for_model):
             'set_name': _('Station Event Code Name'),
             'set_description': _('Station Event Code Description'),
         }
+    elif for_model is models.RttTimezoneCode:
+        labels = {
+            'rtt_id': _("Time Zone ID"),
+            'rtt_abb': _('Time Zone Abbreviation'),
+            'rtt_name': _('Time Zone Name'),
+            'rtt_offset': _('Time Zone Offset'),
+        }
     elif for_model is models.EmmMakeModel:
         labels = {
             'eqt': _("Equipment category"),
@@ -277,7 +284,7 @@ class CreateRecordStageForm(forms.ModelForm):
         fields = labels.keys()
 
 
-class CreateTeamForm(forms.ModelForm):
+class TeaForm(forms.ModelForm):
 
     class Meta:
         model = models.TeaTeamMembers
@@ -285,13 +292,25 @@ class CreateTeamForm(forms.ModelForm):
         fields = labels.keys()
 
 
-class CreateStationEventCodeForm(forms.ModelForm):
+class RttForm(forms.ModelForm):
+
+    class Meta:
+        model = models.RttTimezoneCode
+        labels = get_labels(model)
+        fields = labels.keys()
+        widgets = {
+            'rtt_id': forms.HiddenInput(),
+        }
+
+
+class SetForm(forms.ModelForm):
 
     class Meta:
         model = models.SetStationEventCode
         labels = get_labels(model)
         fields = labels.keys()
         widgets = {
+            'set_id': forms.HiddenInput(),
             'set_description': forms.Textarea(attrs={"rows": 2}),
         }
 
@@ -324,6 +343,7 @@ class EcpChannelPropertiesForm(forms.ModelForm):
         model = models.EcpChannelProperties
         labels = get_labels(model)
         fields = labels.keys()
+
 
 class EqhHydrophonePropertiesForm(forms.ModelForm):
 

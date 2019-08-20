@@ -1,4 +1,5 @@
 from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
@@ -66,7 +67,7 @@ def get_model_object(obj_name):
             'entry': "code_entry",
             'fields': [_("ID"), _("Value")]
         }
-    elif obj_name == 'station_event':
+    elif obj_name == 'ste':
         obj_def = {
             'label': "Station Event",
             'url': obj_name,
@@ -75,7 +76,7 @@ def get_model_object(obj_name):
             'entry': obj_name,
             'fields': [_("ID"), _("Name"), _("Description")]
         }
-    elif obj_name == 'team':
+    elif obj_name == 'tea':
         obj_def = {
             'label': "Team Member",
             'url': obj_name,
@@ -84,6 +85,121 @@ def get_model_object(obj_name):
             'entry': obj_name,
             'fields': [_("ID"), _("Last Name"), _("First Name")]
         }
+    elif obj_name == 'rtt':
+        obj_def = {
+            'label': "Time Zone",
+            'url': obj_name,
+            'order': "rtt_offset",
+            'model': models.RttTimezoneCode,
+            'entry': obj_name,
+            'fields': [_("ID"), _("Abbreviation"), _("Name"), _("Offset from GMT")]
+        }
+
+    return obj_def
+
+
+def get_smart_object(obj_name):
+    obj_def = {}
+
+    ''' 
+    The smart object definition tells the CreateSmartForm, UpdateSmartForm and List smart classes how to process a 
+    model object.
+
+    obj_def = {
+        'model': models.StnStations, <-- The model represented by the obj_name
+        'form_class': forms.StationForm, <-- The form to use when the 'Crete New' button is checked on the list page
+
+        'filter_class': filters.FilterStations, <-- the filter class to use on the list page
+        'title': "Stations", <-- the human readable title to use on the list page
+    }
+    '''
+
+    if obj_name == 'stn':
+        obj_def = {
+            'model': models.StnStations,
+            'form_class': forms.StationForm,
+
+            'filter_class': filters.FilterStations,
+            'title': "Stations",
+        }
+    elif obj_name == 'prj':
+        obj_def = {
+            'model': models.PrjProjects,
+            'form_class': forms.ProjectForm,
+
+            'filter_class': filters.FilterProjects,
+            'title': "Projects",
+        }
+    elif obj_name == 'mor':
+        obj_def = {
+            'model': models.MorMooringSetups,
+            'form_class': forms.MooringForm,
+
+            'filter_class': filters.FilterMoorings,
+            'title': "Mooring Setups",
+        }
+    elif obj_name == 'crs':
+        obj_def = {
+            'model': models.CrsCruises,
+            'form_class': forms.CruiseForm,
+
+            'filter_class': filters.FilterCruises,
+            'title': "Cruises",
+        }
+    elif obj_name == 'dep':
+        obj_def = {
+            'model': models.DepDeployments,
+            'form_class': forms.DeploymentForm,
+
+            'filter_class': filters.FilterDeployments,
+            'title': "Deployments",
+        }
+    elif obj_name == 'ste':
+        obj_def = {
+            'model': models.SteStationEvents,
+            'form_class': forms.CreateStationEventForm,
+
+            'filter_class': filters.FilterStationEvents,
+            'title': "Station Events",
+        }
+    elif obj_name == 'rec':
+        obj_def = {
+            'model': models.RecRecordingEvents,
+            'form_class': forms.CreateRecordEventForm,
+
+            'filter_class': filters.FilterRecordEvents,
+            'title': "Recording Events",
+        }
+    elif obj_name == 'rsc':
+        obj_def = {
+            'model': models.RscRecordingSchedules,
+            'form_class': forms.CreateRecordScheduleForm,
+
+            'filter_class': filters.FilterRecordingSchedules,
+            'title': "Recording Schedules",
+        }
+    elif obj_name == 'rst':
+        obj_def = {
+            'model': models.RstRecordingStage,
+            'form_class': forms.CreateRecordStageForm,
+
+            'filter_class': filters.FilterRecordingStages,
+            'title': "Recording Stages",
+        }
+    elif obj_name == 'eqh':
+        obj_def = {
+            'model': models.EqhHydrophoneProperties,
+            'filterset_class': filters.EqhHydrophone,
+
+            'create_link': 'whalesdb:create_eqh',
+            'detail_link': 'whalesdb:details_eqh',
+            'title': 'Hydrophone Equipment',
+        }
+
+    else:
+        raise Exception("No get_smart_object named '" + obj_name + "'")
+
+    obj_def['obj_name'] = obj_name
 
     return obj_def
 
@@ -128,8 +244,9 @@ class IndexView(TemplateView):
                         'icon': "img/whales/deployment.svg",
                     },
                     {
+                        'obj_name': 'ste',
                         'title': "Create Station Event",
-                        'url': "whalesdb:create_ste",
+                        'url': "whalesdb:list_obj",
                         'icon': 'img/icons/boat.svg',
                     },
                 ],
@@ -137,7 +254,7 @@ class IndexView(TemplateView):
                     {
                         'type': 'codelist',
                         'title': "Station Event Code Table",
-                        'url': "station_event",
+                        'url': "ste",
                         'icon': "img/whales/station.svg",
                     },
                 ]
@@ -146,18 +263,21 @@ class IndexView(TemplateView):
                 'title': 'Recording',
                 'forms': [
                     {
+                        'obj_name': 'rec',
                         'title': "Recording Event",
-                        'url': "whalesdb:list_rec",
+                        'url': "whalesdb:list_obj",
                         'icon': "img/whales/record.svg"
                     },
                     {
+                        'obj_name': 'rsc',
                         'title': "Recording Schedules",
-                        'url': "whalesdb:create_rsc",
+                        'url': "whalesdb:list_obj",
                         'icon': "img/whales/record_schedule.svg"
                     },
                     {
+                        'obj_name': 'rst',
                         'title': "Recording Stage",
-                        'url': "whalesdb:create_rst",
+                        'url': "whalesdb:list_obj",
                         'icon': "img/whales/record_stage.svg"
                     },
                 ],
@@ -165,7 +285,13 @@ class IndexView(TemplateView):
                     {
                         'type': 'codelist',
                         'title': "Team Member",
-                        'url': "team",
+                        'url': "tea",
+                        'icon': "img/whales/team.svg"
+                    },
+                    {
+                        'type': 'codelist',
+                        'title': 'Time Zone',
+                        'url': 'rtt',
                         'icon': "img/whales/team.svg"
                     }
                 ]
@@ -175,12 +301,12 @@ class IndexView(TemplateView):
                 'forms': [
                     {
                         'title': "Hydrophone",
-                        'url': "whalesdb:list_hydrophone",
+                        'url': "whalesdb:list_eqh",
                         'icon': "img/whales/microphone.svg",
                     },
                     {
                         'title': "Recorder",
-                        'url': "whalesdb:list_recorder",
+                        'url': "whalesdb:list_eqr",
                         'icon': "img/whales/record.svg",
                     },
                 ],
@@ -210,6 +336,7 @@ class IndexView(TemplateView):
         return context
 
 
+# Parameter deletion
 def par_delete(request, url, emm_id, prm_id):
     try:
         emm = models.EmmMakeModel.objects.get(emm_id=emm_id)
@@ -223,6 +350,7 @@ def par_delete(request, url, emm_id, prm_id):
         return HttpResponseRedirect(reverse("whalesdb:details_"+url, kwargs={'pk': emm_id}))
 
 
+# Channel Deletion
 def ecp_delete(request, ecp_id):
     try:
         ecp = models.EcpChannelProperties.objects.get(ecp_id=ecp_id)
@@ -285,38 +413,9 @@ class CreateTemplate(CreateView):
         return context
 
 
-def get_smart_object(obj_name):
-    obj_def = {}
-    if obj_name == 'stn':
-        obj_def = {
-            'model': models.StnStations,
-            'form_class': forms.StationForm,
-        }
-    elif obj_name == 'prj':
-        obj_def = {
-            'model': models.PrjProjects,
-            'form_class': forms.ProjectForm,
-        }
-    elif obj_name == 'mor':
-        obj_def = {
-            'model': models.MorMooringSetups,
-            'form_class': forms.MooringForm,
-        }
-    elif obj_name == 'crs':
-        obj_def = {
-            'model': models.CrsCruises,
-            'form_class': forms.CruiseForm,
-        }
-    elif obj_name == 'dep':
-        obj_def = {
-            'model': models.DepDeployments,
-            'form_class': forms.DeploymentForm,
-        }
+class CreateSmartForm(LoginRequiredMixin, CreateTemplate):
 
-    return obj_def
-
-
-class CreateSmartForm(CreateTemplate):
+    login_url = '/accounts/login_required/'
 
     def setup(self, request, *args, **kwargs):
         obj_def = get_smart_object(kwargs['obj_name'])
@@ -330,7 +429,9 @@ class CreateSmartForm(CreateTemplate):
         super().setup(request, *args, **kwargs)
 
 
-class UpdateSmartForm(UpdateTemplate):
+class UpdateSmartForm(LoginRequiredMixin, UpdateTemplate):
+
+    login_url = '/accounts/login_required/'
 
     def setup(self, request, *args, **kwargs):
         obj_def = get_smart_object(kwargs['obj_name'])
@@ -342,30 +443,6 @@ class UpdateSmartForm(UpdateTemplate):
         self.obj_name = kwargs['obj_name']
 
         super().setup(request, *args, **kwargs)
-
-
-class CreateStationEventForm(CreateTemplate):
-    form_class = forms.CreateStationEventForm
-
-
-class CreateRecordEventForm(CreateTemplate):
-    form_class = forms.CreateRecordEventForm
-
-
-class CreateRecordScheduleForm(CreateTemplate):
-    form_class = forms.CreateRecordScheduleForm
-
-
-class CreateRecordStageForm(CreateTemplate):
-    form_class = forms.CreateRecordStageForm
-
-
-class CreateTeamForm(CreateTemplate):
-    form_class = forms.CreateTeamForm
-
-
-class CreateMakeModel(CreateTemplate):
-    form_class = forms.EmmMakeModelForm
 
 
 class CreateParameter(CreateTemplate):
@@ -428,7 +505,7 @@ class CreateEMM(CreateChannel):
 
 class CreateHydrophone(CreateEMM):
     form_class = forms.EqhHydrophonePropertiesForm
-    success_url = "whalesdb:list_hydrophone"
+    success_url = "whalesdb:list_eqh"
     cancel_url = success_url
 
     def form_valid(self, form):
@@ -438,12 +515,16 @@ class CreateHydrophone(CreateEMM):
                                              eqh_range_min=form.cleaned_data['eqh_range_min'],
                                              eqh_range_max=form.cleaned_data['eqh_range_max'])
         eqh.save()
-        return HttpResponseRedirect(reverse('whalesdb:details_hydrophone', kwargs={'pk': eqh.pk}))
+
+        return HttpResponseRedirect(reverse('whalesdb:details_eqh', kwargs={'pk': eqh.pk}))
 
 
 class CreateRecorder(CreateEMM):
     form_class = forms.EqrRecorderPropertiesForm
-    cancel_url = "whalesdb:list_recorder"
+
+    # if successful the form takes the user to the details form
+    # if canceled the form takes the user to the recorder list
+    cancel_url = "whalesdb:list_eqr"
 
     def form_valid(self, form):
         emm = super().form_valid(form)
@@ -453,7 +534,7 @@ class CreateRecorder(CreateEMM):
                                            eqc_max_sample_rate=form.cleaned_data['eqc_max_sample_rate'])
         eqr.save()
 
-        return HttpResponseRedirect(reverse('whalesdb:details_recorder', kwargs={'pk': eqr.pk}))
+        return HttpResponseRedirect(reverse('whalesdb:details_eqr', kwargs={'pk': eqr.pk}))
 
 
 class DetailsMakeModel(DetailView):
@@ -510,7 +591,7 @@ class DetailsHydrophone(DetailsMakeModel):
             "object": kwargs['object'],
             "fields": get_fields(labels)
         })
-        context['url'] = 'hydrophone'
+        context['url'] = 'eqh'
 
         return context
 
@@ -539,67 +620,24 @@ class ListEMM(ListGeneric):
 
 class ListRecorder(ListEMM):
     model = models.EqrRecorderProperties
-    filterset_class = filters.FilterRecorder
-    create_link = "whalesdb:create_recorder"
-    detail_link = "whalesdb:details_recorder"
+    filterset_class = filters.EqrRecorder
+    create_link = "whalesdb:create_eqr"
+    detail_link = "whalesdb:details_eqr"
     title = "Recorder Equipment"
 
 
 class ListHydrophone(ListEMM):
     model = models.EqhHydrophoneProperties
-    filterset_class = filters.FilterHydrophone
-    create_link = "whalesdb:create_hydrophone"
-    detail_link = "whalesdb:details_hydrophone"
+    filterset_class = filters.EqhHydrophone
+    create_link = "whalesdb:create_eqh"
+    detail_link = "whalesdb:details_eqh"
     title = "Hydrophone Equipment"
-
-
-def get_smart_list(obj_name):
-    obj_def = {}
-    if obj_name == 'stn':
-        obj_def = {
-            'model': models.StnStations,
-            'filter_class': filters.FilterStations,
-            'create_link': 'whalesdb:create_obj',
-            'title': "Stations",
-            'obj_name': obj_name
-        }
-    elif obj_name == 'prj':
-        obj_def = {
-            'model': models.PrjProjects,
-            'filter_class': filters.FilterProjects,
-            'create_link': 'whalesdb:create_obj',
-            'title': "Projects",
-            'obj_name': obj_name
-        }
-    elif obj_name == 'mor':
-        obj_def = {
-            'model': models.MorMooringSetups,
-            'filter_class': filters.FilterMoorings,
-            'title': "Mooring Setups",
-            'obj_name': obj_name
-        }
-    elif obj_name == 'crs':
-        obj_def = {
-            'model': models.CrsCruises,
-            'filter_class': filters.FilterCruises,
-            'title': "Cruises",
-            'obj_name': obj_name
-        }
-    elif obj_name == 'dep':
-        obj_def = {
-            'model': models.DepDeployments,
-            'filter_class': filters.FilterDeployments,
-            'title': "Deployments",
-            'obj_name': obj_name
-        }
-
-    return obj_def
 
 
 class ListSmart(ListGeneric):
 
     def setup(self, request, *args, **kwargs):
-        obj_def = get_smart_list(kwargs['obj_name'])
+        obj_def = get_smart_object(kwargs['obj_name'])
         self.model = obj_def['model']
         self.filterset_class = obj_def['filter_class']
         self.create_link = obj_def['create_link'] if 'create_link' in obj_def else 'whalesdb:create_obj'
@@ -609,13 +647,6 @@ class ListSmart(ListGeneric):
             self.obj_name = obj_def['obj_name']
 
         return super().setup(request, *args, **kwargs)
-
-
-class ListRecordEvent(ListGeneric):
-    model = models.RecRecordingEvents
-    filterset_class = filters.FilterRecordEvent
-    create_link = "whalesdb:create_rec"
-    title = "Recording Event"
 
 
 class CodeListView(ListView):
@@ -631,19 +662,38 @@ class CodeListView(ListView):
         context = super().get_context_data(**kwargs)
 
         context['lookup'] = get_model_object(self.kwargs['lookup'])
-
         return context
 
 
-class CodeEditView(CreateView):
-
+class SimpleEditView(LoginRequiredMixin, CreateView):
+    login_url = '/accounts/login_required/'
     template_name = "whalesdb/code_entry.html"
+
+    def form_valid(self, form):
+        form.save()
+
+        return HttpResponseRedirect(reverse('whalesdb:close_me'))
+
+
+class CodeEditView(SimpleEditView):
+
     form_class = forms.CodeEditForm
 
     def get_initial(self):
+        initial = super().get_initial()
+
         obj_def = get_model_object(self.kwargs['lookup'])
+
         self.model = obj_def['model']
         self.form_class._meta.model = self.model
+
+        obj = obj_def['model'].objects.all().order_by('-' + obj_def['order']).values_list()
+
+        n_id = 1
+        if obj and obj[0][0]:
+            n_id = int(obj[0][0]) + 1
+
+        initial[obj_def['order']] = n_id
 
     def get_context_data(self, **kwargs):
 
@@ -653,56 +703,41 @@ class CodeEditView(CreateView):
         context["title"] = obj_def['label']
         return context
 
-    def form_valid(self, form):
-        # save the form but don't commit changes. Get the value from the cleaned data array
-        form.save(commit=False)
 
-        obj_def = get_model_object(self.kwargs['lookup'])
-
-        obj = obj_def['model'].objects.all().order_by('-' + obj_def['order']).values_list()
-
-        n_id = 1
-        if obj and obj[0][0]:
-            n_id = int(obj[0][0]) + 1
-
-        n_val = form.cleaned_data['value']
-
-        n_obj = obj_def['model'](n_id, n_val)
-        n_obj.save()
-
-        return HttpResponseRedirect(reverse('whalesdb:close_me'))
+class TeaCodeEditView(SimpleEditView):
+    form_class = forms.TeaForm
 
 
-class TeaCodeEditView(CreateView):
+class RttCodeEditView(SimpleEditView):
+    form_class = forms.RttForm
 
-    template_name = "whalesdb/code_entry.html"
-    form_class = forms.CreateTeamForm
+    def get_initial(self):
+        initial = super().get_initial()
 
-    def form_valid(self, form):
-        form.save()
-
-        return HttpResponseRedirect(reverse('whalesdb:close_me'))
-
-
-class SetCodeEditView(CreateView):
-
-    template_name = "whalesdb/code_entry.html"
-    form_class = forms.CreateStationEventCodeForm
-
-    def form_valid(self, form):
-        # save the form but don't commit changes. Get the value from the cleaned data array
-        form.save(commit=False)
-
-        obj = models.SetStationEventCode.objects.all().order_by('set_name').values_list()
+        obj = models.RttTimezoneCode.objects.all().order_by('-rtt_id').values_list()
 
         n_id = 1
         if obj and obj[0][0]:
             n_id = int(obj[0][0]) + 1
 
-        n_val_name = form.cleaned_data['set_name']
-        n_val_des = form.cleaned_data['set_description']
+        initial['rtt_id'] = n_id
 
-        n_obj = models.SetStationEventCode(n_id, n_val_name, n_val_des)
-        n_obj.save()
+        return initial
 
-        return HttpResponseRedirect(reverse('whalesdb:close_me'))
+
+class SetCodeEditView(SimpleEditView):
+
+    form_class = forms.SetForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        obj = models.SetStationEventCode.objects.all().order_by('-set_id').values_list()
+
+        n_id = 1
+        if obj and obj[0][0]:
+            n_id = int(obj[0][0]) + 1
+
+        initial['set_id'] = n_id
+
+        return initial
