@@ -10,7 +10,7 @@
     <style>
         /* Set the size of the div element that contains the map */
         #map, #lineMap {
-            height: 500px; /* The height is 400 pixels */
+            height: 300px; /* The height is 400 pixels */
             width: 100%; /* The width is the width of the web page */
         }
         .label {
@@ -28,8 +28,7 @@
     </nav>
 
     <div class="container">
-
-
+       {% if has_admin %}
         <div class="btn-group">
             <span data-toggle="tooltip"
                   title="{% trans "Cannot submit/unsumbit projects that do not belong to you or your section." %}">
@@ -44,6 +43,7 @@
             </span>
 
         </div>
+        {% endif %}
 
         <h2>{{ object }}</h2>
 
@@ -63,6 +63,7 @@
                     <table class="table table-hover table-borderless table-sm no-gutters" style="width: auto">
                         <thead>
                             <tr><th>
+                               {% if has_admin %}
                                 <span>
                                     {% with "Add "|add:lookup.label as btn_label %}
                                     <a class="btn btn-primary" href="#"
@@ -70,6 +71,7 @@
                                     title="{% trans btn_label%}">+</a>
                                     {% endwith %}
                                 </span>
+                                {% endif %}
                                 {% with lookup.label|add:":" as lst_label %}
                                 {% trans lst_label %}
                                 {% endwith %}
@@ -79,12 +81,14 @@
                         {% for val in lookup.list %}
                             <tr id="{{lookup.url}}-{{ val.id }}">
                                 <td>
+                                    {% if has_admin %}
                                     <a class="delete-me" href="#" val="{{ val.id }}">
                                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                              title="Delete">
                                     </a>
                                     <a id="secrect-delete-btn-{{ val.id }}"
                                        href="{% url 'publications:lookup_delete' lookup.url object.id val.id %}" class="hidden"></a>
+                                    {% endif %}
 
                                     {{ val }}</td>
                             </tr>
@@ -94,17 +98,21 @@
                 {% endfor %}
             </div>
             <div class="col-4">
+                <div id="map"></div>
+                <div id="lineMap"></div>
                 {% for lookup in lookups %}
                 <table class="table table-hover table-borderless table-sm no-gutters" style="width: auto">
                     <thead>
                         <tr><th>
-                            <span>
+                           {% if has_admin %}
+                           <span>
                                 {% with "Add "|add:lookup.label as btn_label %}
                                 <a class="btn btn-primary" href="#"
                                    onclick="return popitup('{% url 'publications:lookup_add' object.id lookup.url %}','popoutWindow')"
                                     title="{% trans btn_label%}">+</a>
                                 {% endwith %}
                             </span>
+                            {% endif %}
                             {% with lookup.label|add:":" as lst_label %}
                             {% trans lst_label %}
                             {% endwith %}
@@ -114,13 +122,14 @@
                     {% for val in lookup.list %}
                         <tr id="{{lookup.url}}-{{ val.id }}">
                             <td>
+                                {% if has_admin %}
                                 <a class="delete-me" href="#" val="{{ val.id }}">
                                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                          title="Delete">
                                 </a>
                                 <a id="secrect-delete-btn-{{ val.id }}"
                                    href="{% url 'publications:lookup_delete' lookup.url object.id val.id %}" class="hidden"></a>
-
+                                {% endif %}
                                 {{ val }}</td>
                         </tr>
                     {% endfor %}
@@ -131,8 +140,7 @@
         </div>
     </div>
 
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>
     <script type="application/javascript">
 
 
@@ -147,16 +155,12 @@
         });
 
         function initialize() {
-            var locations = [
-                {% for bottle in object.bottles.all %}
-                    {% if bottle.lat_DDdd and bottle.long_DDdd %}
-                        ['<a href="{% url 'oceanography:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>', {{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/icons/milk_bottle.png" %}'],
-                    {% endif %}
-                {% endfor %}
-            ];
-
             var mapElement = document.getElementById('map');
-            var map = new google.maps.Map(mapElement, {mapTypeId: google.maps.MapTypeId.SATELITTE});
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 4,
+                center: {lat: 24.886, lng: -70.268},
+                mapTypeId: 'terrain'
+            });
             var iw = new google.maps.InfoWindow();
             var bounds = new google.maps.LatLngBounds();
 
@@ -166,23 +170,25 @@
                 basicFormatEvents: true
             });
 
-            for (var i = 0; i < locations.length; i++) {
-                (function () {  // make a closure over the marker and marker data
-                    var markerData = locations[i];  // e.g. { lat: 50.123, lng: 0.123, text: 'XYZ' }
-                    var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(markerData[1], markerData[2]),
-                        icon: markerData[3]
-                    });  // markerData works here as a LatLngLiteral
-                    google.maps.event.addListener(marker, 'spider_click', function (e) {  // 'spider_click', not plain 'click'
-                        iw.setContent(markerData[0]);
-                        iw.open(map, marker);
-                    });
-                    oms.addMarker(marker);  // adds the marker to the spiderfier _and_ the map
-                    bounds.extend(marker.position);
-                })();
+            // Define the LatLng coordinates for the polygon's path.
+            var triangleCoords = [
+              {lat: 25.774, lng: -80.190},
+              {lat: 18.466, lng: -66.118},
+              {lat: 32.321, lng: -64.757},
+              {lat: 25.774, lng: -80.190}
+            ];
 
-            }
-            map.fitBounds(bounds);
+            // Construct the polygon.
+            var bermudaTriangle = new google.maps.Polygon({
+              paths: triangleCoords,
+              strokeColor: '#FF0000',
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+              fillColor: '#FF0000',
+              fillOpacity: 0.35
+            });
+            bermudaTriangle.setMap(map);
+
         }
 
         function loadScript() {
