@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
@@ -217,15 +218,16 @@ class SiteDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ProjectDetailView(LoginRequiredMixin, DetailView):
+class ProjectDetailView(DetailView):
+    permission_required = 'publications.publications_admin'
     template_name = 'publications/pub_detail.html'
     model = models.Project
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.object
 
+        context["has_admin"] = "publications_admin" in [v for k,v in self.request.user.groups.all().values_list()]
         context["coordinates"] = models.GeoCoordinate.objects.filter(project__id=project.id)
         context["divisions"] = shared_models.Division.objects.filter(project__id=project.id)
         print(str(context["divisions"]))
@@ -361,8 +363,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ProjectListView(LoginRequiredMixin, FilterView):
-    login_url = '/accounts/login_required/'
+class ProjectListView(FilterView):
     template_name = 'publications/pub_list.html'
     model = models.Project
     filterset_class = filters.ProjectFilter
