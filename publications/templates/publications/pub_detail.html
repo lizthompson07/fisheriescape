@@ -8,6 +8,11 @@
 {% block content %}
 
     <style>
+        /* Set the size of the div element that contains the map */
+        #map, #lineMap {
+            height: 500px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
         .label {
             font-weight: bold;
         }
@@ -140,6 +145,54 @@
             }
             e.stopImmediatePropagation();
         });
+
+        function initialize() {
+            var locations = [
+                {% for bottle in object.bottles.all %}
+                    {% if bottle.lat_DDdd and bottle.long_DDdd %}
+                        ['<a href="{% url 'oceanography:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>', {{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/icons/milk_bottle.png" %}'],
+                    {% endif %}
+                {% endfor %}
+            ];
+
+            var mapElement = document.getElementById('map');
+            var map = new google.maps.Map(mapElement, {mapTypeId: google.maps.MapTypeId.SATELITTE});
+            var iw = new google.maps.InfoWindow();
+            var bounds = new google.maps.LatLngBounds();
+
+            var oms = new OverlappingMarkerSpiderfier(map, {
+                markersWontMove: true,
+                markersWontHide: true,
+                basicFormatEvents: true
+            });
+
+            for (var i = 0; i < locations.length; i++) {
+                (function () {  // make a closure over the marker and marker data
+                    var markerData = locations[i];  // e.g. { lat: 50.123, lng: 0.123, text: 'XYZ' }
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(markerData[1], markerData[2]),
+                        icon: markerData[3]
+                    });  // markerData works here as a LatLngLiteral
+                    google.maps.event.addListener(marker, 'spider_click', function (e) {  // 'spider_click', not plain 'click'
+                        iw.setContent(markerData[0]);
+                        iw.open(map, marker);
+                    });
+                    oms.addMarker(marker);  // adds the marker to the spiderfier _and_ the map
+                    bounds.extend(marker.position);
+                })();
+
+            }
+            map.fitBounds(bounds);
+        }
+
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+        }
+
+        window.onload = loadScript();
 
     </script>
 
