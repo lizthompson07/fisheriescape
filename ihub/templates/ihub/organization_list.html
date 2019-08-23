@@ -43,7 +43,12 @@
                 {% endfor %}
                 <div class="col-3">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                    <div class="btn-group">
+                        <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                        <a href="." class="btn btn btn-secondary btn-sm">
+                            {% trans "Clear" %}
+                        </a>
+                    </div>
                 </div>
             </div>
         </form>
@@ -90,11 +95,11 @@
                             <td>
                                 {% if object.audio_file %}
 
-{#                                    <audio controls style="width: 100px; height: 10px">#}
-{#                                        <source src="{{ object.audio_file.url }}" type="audio/ogg">#}
-{#                                        Your browser does not support the audio element.#}
-{#                                    </audio>#}
-{#                                    #}
+                                    {#                                    <audio controls style="width: 100px; height: 10px">#}
+                                    {#                                        <source src="{{ object.audio_file.url }}" type="audio/ogg">#}
+                                    {#                                        Your browser does not support the audio element.#}
+                                    {#                                    </audio>#}
+                                    {#                                    #}
                                     <a href="{{ object.audio_file.url }}">Listen</a>
                                 {% endif %}
 
