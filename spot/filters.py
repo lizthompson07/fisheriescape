@@ -38,8 +38,7 @@ class ProjectFilter(django_filters.FilterSet):
     fiscal = django_filters.ModelChoiceFilter(field_name='start_year', lookup_expr='exact', queryset=shared_models.FiscalYear.objects.all())
     status = django_filters.ModelChoiceFilter(field_name='status', lookup_expr='exact', queryset=models.Status.objects.all())
     program = django_filters.ModelChoiceFilter(field_name='program', lookup_expr='exact', queryset=models.Program.objects.all())
-    watershed = django_filters.ModelChoiceFilter(field_name='watersheds', lookup_expr='exact', queryset=models.Watershed.objects.all())
-    # species = django_filters.ModelChoiceFilter(field_name='spp', lookup_expr='exact', queryset=models.Species.objects.all())
+    watersheds = django_filters.ModelMultipleChoiceFilter(field_name='watersheds', lookup_expr='exact', queryset=models.Watershed.objects.all())
     regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())
     spp = django_filters.ModelMultipleChoiceFilter(field_name='spp', lookup_expr='exact', queryset=sar_models.Species.objects.all())
 
