@@ -25,6 +25,7 @@
             <li class="breadcrumb-item active" aria-current="page">
                 {% trans "People" %}
             </li>
+
         </ol>
     </nav>
 
@@ -43,7 +44,12 @@
                 {% endfor %}
                 <div class="col-1">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                    <div class="btn-group">
+                        <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                        <a href="." class="btn btn btn-secondary btn-sm">
+                            {% trans "Clear" %}
+                        </a>
+                    </div>
                 </div>
             </div>
         </form>
