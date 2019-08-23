@@ -8,7 +8,7 @@ ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenou
 chosen_js = {"class": "chosen-select-contains"}
 
 class OrganizationFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search organizations (name, abbreviation, etc...)"),
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search organizations (name, province, etc...)"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
 class PersonFilter(django_filters.FilterSet):
