@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
-from django.db.models import TextField, Q
+from django.db.models import TextField, Q, Value
 from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils import timezone
@@ -201,7 +201,25 @@ class OrganizationListView(SiteLoginRequiredMixin, FilterView):
     template_name = 'ihub/organization_list.html'
     filterset_class = filters.OrganizationFilter
     queryset = ind_organizations.annotate(
-        search_term=Concat('name_eng', 'name_fre', 'abbrev', output_field=TextField()))
+        search_term=Concat(
+            'name_eng',
+            Value(" "),
+            'name_fre',
+            Value(" "),
+            'name_ind',
+            Value(" "),
+            'legal_band_name',
+            Value(" "),
+            'former_name',
+            Value(" "),
+            'province__name',
+            Value(" "),
+            'province__nom',
+            Value(" "),
+            'province__abbrev_eng',
+            Value(" "),
+            'province__abbrev_fre',
+            output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
