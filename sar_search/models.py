@@ -63,7 +63,6 @@ class Region(models.Model):
     class Meta:
         ordering = ['name', ]
 
-
     def get_absolute_url(self):
         return reverse("sar_search:region_detail", kwargs={"pk": self.id})
 
@@ -112,7 +111,7 @@ class RegionPolygon(models.Model):
         if len(point_list) > 0:
             try:
                 return Polygon(point_list)
-            except ValueError:
+            except (ValueError, TypeError):
                 print("problem creating polygon id {}".format(self.pk))
                 print(point_list)
 

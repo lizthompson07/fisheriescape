@@ -34,7 +34,7 @@ urlpatterns = [
     path('region-polygon/<int:pk>/delete/', views.RegionPolygonDeleteView.as_view(), name="region_polygon_delete"),
     # points
     path('region-polygon/<int:region_polygon>/manage-coords/', views.manage_rp_coords, name="manage_rp_coords"),
-    path('region-polygon/<int:pk>/delete/', views.delete_rp_coord, name="delete_rp_coord"),
+    path('region-polygon-point/<int:pk>/delete/', views.delete_rp_coord, name="delete_rp_coord"),
 
     # SPECIES #
     ###########
