@@ -7,6 +7,8 @@ from django.db.models import Q
 from . import models
 from masterlist import models as ml_models
 from shared_models import models as shared_models
+from sar_search import models as sar_models
+
 YES_NO_CHOICES = (
     (True, "Yes"),
     (False, "No"),
@@ -39,9 +41,11 @@ class ProjectFilter(django_filters.FilterSet):
     watershed = django_filters.ModelChoiceFilter(field_name='watersheds', lookup_expr='exact', queryset=models.Watershed.objects.all())
     # species = django_filters.ModelChoiceFilter(field_name='spp', lookup_expr='exact', queryset=models.Species.objects.all())
     regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())
+    spp = django_filters.ModelMultipleChoiceFilter(field_name='spp', lookup_expr='exact', queryset=sar_models.Species.objects.all())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         org_choices = [(o.id, str(o)) for o in ml_models.Organization.objects.all() if o.projects.count() > 0]
         self.filters["organization"] = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact', choices=org_choices)
+
 
