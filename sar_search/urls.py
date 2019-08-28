@@ -1,9 +1,12 @@
 from django.urls import path
 from . import views
 
-
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
+
+    # SAR MAP #
+    path('map/', views.SARMapTemplateView.as_view(), name="map"),
+    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/', views.SARMapTemplateView.as_view(), name="map"),
 
     # SETTINGS #
     ############
@@ -13,8 +16,25 @@ urlpatterns = [
     path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
     path('settings/schedules/', views.manage_schedules, name="manage_schedules"),
     path('settings/schedule/<int:pk>/delete/', views.delete_schedule, name="delete_schedule"),
-    path('settings/counties/', views.manage_counties, name="manage_counties"),
-    path('settings/county/<int:pk>/delete/', views.delete_county, name="delete_county"),
+
+    # REGION #
+    ###########
+    path('regions/', views.RegionListView.as_view(), name="region_list"),
+    path('region/new/', views.RegionCreateView.as_view(), name="region_new"),
+    path('region/<int:pk>/view/', views.RegionDetailView.as_view(), name="region_detail"),
+    path('region/<int:pk>/edit/', views.RegionUpdateView.as_view(), name="region_edit"),
+    path('region/<int:pk>/delete/', views.RegionDeleteView.as_view(), name="region_delete"),
+    path('region/<int:pk>/import-points-from-file/', views.RegionPolygonImportFileView.as_view(), name="region_polygon_file_import"),
+
+    # REGION POLYGON #
+    ##################
+    # path('region/<int:region>/polygon/new/', views.RecordCreateView.as_view(), name="record_new"),
+    path('region-polygon/<int:pk>/view/', views.RegionPolygonDetailView.as_view(), name="region_polygon_detail"),
+    path('region-polygon/<int:pk>/edit/', views.RegionPolygonUpdateView.as_view(), name="region_polygon_edit"),
+    path('region-polygon/<int:pk>/delete/', views.RegionPolygonDeleteView.as_view(), name="region_polygon_delete"),
+    # points
+    path('region-polygon/<int:region_polygon>/manage-coords/', views.manage_rp_coords, name="manage_rp_coords"),
+    path('region-polygon-point/<int:pk>/delete/', views.delete_rp_coord, name="delete_rp_coord"),
 
     # SPECIES #
     ###########
@@ -24,7 +44,6 @@ urlpatterns = [
     path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
     path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
     path('species/<int:pk>/import-points-from-file/', views.RecordImportFileView.as_view(), name="file_import"),
-
 
     # RECORD #
     ##########

@@ -8,17 +8,20 @@ ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenou
 chosen_js = {"class": "chosen-select-contains"}
 
 class OrganizationFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search organizations (name, abbreviation, etc...)"),
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search organizations (name, province, etc...)"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
 class PersonFilter(django_filters.FilterSet):
     class Meta:
         model = ml_models.Person
         fields = {
-            'designation': ['icontains'],
             'last_name': ['exact'],
             'organizations': ['exact'],
+            'memberships__role': ['icontains'],
             'ihub_vetted': ['exact'],
+        }
+        labels = {
+            'memberships__role': "Membership roles",
         }
 
     def __init__(self, *args, **kwargs):
@@ -26,7 +29,7 @@ class PersonFilter(django_filters.FilterSet):
         self.filters['organizations'] = django_filters.ModelChoiceFilter(field_name="organizations",
                                                                          queryset=ind_organizations,
                                                                          widget=forms.Select(attrs=chosen_js))
-        self.filters["last_name"] = django_filters.CharFilter(field_name='search_term', label=_("Any part of name"),
+        self.filters["last_name"] = django_filters.CharFilter(field_name='search_term', label=_("Any part of name, or title"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
 

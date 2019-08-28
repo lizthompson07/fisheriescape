@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from shared_models import models as shared_models
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 
 
 class Taxon(models.Model):
@@ -49,18 +49,91 @@ class SpeciesStatus(models.Model):
         ordering = ['name', ]
 
 
-class County(models.Model):
-    code = models.CharField(max_length=5)
+class Region(models.Model):
+    code = models.CharField(max_length=5, blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("english name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='counties')
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='regions', blank=True, null=True)
+    temp_file = models.FileField(upload_to='temp_file', null=True)
 
     def __str__(self):
         name = getattr(self, str(_("name"))) if getattr(self, str(_("name"))) else self.name
-        return "{}, {}".format(name, self.province.tabbrev)
+        return "{}, {}".format(name, self.province.tabbrev) if self.province else "{}".format(name)
 
     class Meta:
         ordering = ['name', ]
+
+    def get_absolute_url(self):
+        return reverse("sar_search:region_detail", kwargs={"pk": self.id})
+
+
+@receiver(models.signals.post_delete, sender=Region)
+def auto_delete_region_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.temp_file:
+        if os.path.isfile(instance.temp_file.path):
+            os.remove(instance.temp_file.path)
+
+
+@receiver(models.signals.pre_save, sender=Region)
+def auto_delete_region_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Region.objects.get(pk=instance.pk).temp_file
+    except Region.DoesNotExist:
+        return False
+
+    new_file = instance.temp_file
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
+class RegionPolygon(models.Model):
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name="polygons")
+    old_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['region', ]
+
+    def get_polygon(self):
+        point_list = [(point.latitude, point.longitude) for point in self.points.all()]
+        if len(point_list) > 0:
+            try:
+                return Polygon(point_list)
+            except (ValueError, TypeError):
+                print("problem creating polygon id {}".format(self.pk))
+                print(point_list)
+
+    def coords(self):
+        my_polygon = self.get_polygon()
+        if my_polygon:
+            return {"x": my_polygon.centroid.coords[0][0],
+                    "y": my_polygon.centroid.coords[0][1]}
+
+
+class RegionPolygonPoint(models.Model):
+    region_polygon = models.ForeignKey(RegionPolygon, on_delete=models.CASCADE, related_name="points")
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True, verbose_name="order")
+
+    class Meta:
+        ordering = ['region_polygon', "order"]
+
+    @property
+    def point(self):
+        return Point(self.latitude, self.longitude)
 
 
 class Species(models.Model):
@@ -161,7 +234,7 @@ class Record(models.Model):
 
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name='records', blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("record name"))
-    counties = models.ManyToManyField(County, blank=True)
+    regions = models.ManyToManyField(Region, blank=True, related_name="records")
     record_type = models.IntegerField(verbose_name=_("record type"), choices=RANGE_TYPE_CHOICES)
     source = models.CharField(max_length=1000, verbose_name=_("source"))
     # temp_file = models.FileField(upload_to='temp_file', null=True)
@@ -193,6 +266,7 @@ class Record(models.Model):
             my_polygon = self.get_polygon()
             return {"x": my_polygon.centroid.coords[0][0],
                     "y": my_polygon.centroid.coords[0][1]}
+
 
 #
 # @receiver(models.signals.post_delete, sender=Record)
@@ -228,7 +302,7 @@ class Record(models.Model):
 
 
 class RecordPoints(models.Model):
-    record = models.ForeignKey(Record, on_delete=models.CASCADE, related_name='points', blank=True, null=True)
+    record = models.ForeignKey(Record, on_delete=models.CASCADE, related_name='points')
     # record = models.IntegerField(blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("site name"), blank=True, null=True)
     latitude_n = models.FloatField()
@@ -241,3 +315,7 @@ class RecordPoints(models.Model):
         if self.longitude_w and self.longitude_w > 0:
             self.longitude_w = -self.longitude_w
         return super().save(*args, **kwargs)
+
+    @property
+    def point(self):
+        return Point(self.latitude_n, self.longitude_w)

@@ -3,12 +3,17 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load i18n %}
+{% load el_pagination_tags %}
 {% block content %}
 
     <style>
         .indent-lg {
             margin-left: 5em;
             margin-right: 5em;
+        }
+
+        table, td, th {
+            font-size: 14px;
         }
     </style>
 
@@ -20,6 +25,7 @@
             <li class="breadcrumb-item active" aria-current="page">
                 {% trans "People" %}
             </li>
+
         </ol>
     </nav>
 
@@ -38,10 +44,16 @@
                 {% endfor %}
                 <div class="col-1">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                    <div class="btn-group">
+                        <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                        <a href="." class="btn btn btn-secondary btn-sm">
+                            {% trans "Clear" %}
+                        </a>
+                    </div>
                 </div>
             </div>
         </form>
+        {% paginate 100 filter.qs as filter_list %}
 
         <br>
         <div class="row">
@@ -52,11 +64,8 @@
                         {% trans "(click on a header to sort table)" %}
                     </div>
                     <div class="col" style="text-align: center">
-                        <em>
-                            {% blocktrans with count=filter.qs.count %}
-                                displaying all {{ count }} records
-                            {% endblocktrans %}
-                        </em>
+                        {% show_pages %}
+                        <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
                         <a href="{% url 'ihub:person_new' %}" class="btn btn-sm btn-primary">
@@ -70,22 +79,36 @@
                     <thead>
                     <tr>
                         {% for field in field_list %}
-                            {% if field == "last_name" %}
-                            <th scope="col" style="width: 10%;">{% get_verbose_label my_object field %}</th>
-
-                            {% else %}
-                            <th scope="col" style="width: 10%;">{% get_verbose_label my_object field %}</th>
-                            {% endif %}
+                            {#                            {% if field == "last_name" %}#}
+                            {#                                <th scope="col" style="width: 10%;">{% get_verbose_label my_object field %}</th>#}
+                            {##}
+                            {#                            {% else %}#}
+                            <th scope="col" style="">{% get_verbose_label my_object field %}</th>
+                            {#                            {% endif %}#}
                         {% endfor %}
+                        <th scope="col" style="">Membership roles</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for object in filter.qs %}
+                    {% for object in filter_list %}
                         {% url 'ihub:person_detail' object.id as my_url %}
-                        <tr href="{{ my_url }}" class="{% if object.ihub_vetted %}good{% endif %}">
+                        <tr href="{{ my_url }}">
                             {% for field in field_list %}
-                                <td>{% get_field_value object field %}</td>
+                                {% if field == "ihub_vetted" %}
+                                    <td class="{% if object.ihub_vetted %}good{% endif %}">{% get_field_value object field nullmark="" %}</td>
+                                {% else %}
+                                    <td>{% get_field_value object field nullmark="" %}</td>
+                                {% endif %}
                             {% endfor %}
+                            <td>
+                                {% for membership in object.memberships.all %}
+                                    {% if membership.role %}
+                                        {{ membership.role }} of {{ membership.organization }},
+                                    {% endif %}
+                                {% endfor %}
+
+
+                            </td>
 
                         </tr>
                     {% endfor %}

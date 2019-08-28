@@ -160,8 +160,13 @@ class ReportSearchForm(forms.Form):
         (3, "Annual watershed report (PDF)"),
         (4, "Annual watershed spreadsheet (XLSX)"),
         (6, "AIS export (CSV)"),
-        (5, "OPEN DATA: export for FGP (CSV)"),
-        (7, "OPEN DATA: data dictionary for FGP (CSV)"),
+        (8, "OPEN DATA: web map services report ENGLISH (CSV)"),
+        (13, "OPEN DATA: web map services report FRENCH (CSV)"),
+        (11, "OPEN DATA: species list (CSV)"),
+        (7, "OPEN DATA: data dictionary (CSV)"),
+        (5, "OPEN DATA - Version 1: Species observations (CSV)"),
+        (9, "OPEN DATA - Version 2: Summary by station by year (CSV)"),
+        (12, "OPEN DATA - Version 3: CAMP samples (CSV)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)

@@ -266,9 +266,11 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "---"),
         (1, "Biofouling: Species observations by sample"),
-        (2, "Open Data Report - Version 1: Biofouling monitoring program"),
-        (3, "Open Data Report - Version 1: Data dictionary"),
-        (4, "Open Data Report - Version 1: Web mapping service (WMS) report (CSV)"),
+        (3, "OPEN DATA: Data dictionary"),
+        # (6, "OPEN DATA: Species list"),
+        (4, "OPEN DATA: WMS report ENGLISH (CSV)"),
+        (5, "OPEN DATA: WMS report FRENCH (CSV)"),
+        (2, "OPEN DATA - Version 1: Biofouling monitoring program"),
 
     )
 

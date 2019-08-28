@@ -1,74 +1,97 @@
 import csv
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import TextField
+from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse_lazy
+from django_filters.views import FilterView
+
 from . import models
+from . import filters
 from . import forms
 from shared_models import models as shared_models
+
+
+
+# open basic access up to anybody who is logged in
+def in_oceanography_group(user):
+    if user.id:
+        # return user.groups.filter(name='sar_search_access').count() != 0
+        return True
+
+class OceanographyAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_oceanography_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+def in_oceanography_admin_group(user):
+    if user:
+        return user.groups.filter(name='oceanography_admin').count() != 0
+
+
+class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_oceanography_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+
 
 
 class IndexTemplateView(TemplateView):
     template_name = "oceanography/index.html"
 
 
-# DOCS #
-########
-
-class DocListView(ListView):
-    model = models.Doc
-    template_name = "oceanography/doc_list.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
-        return context
-
-
-class DocCreateView(LoginRequiredMixin, CreateView):
-    model = models.Doc
-    template_name = "oceanography/doc_form.html"
-    form_class = forms.DocForm
-    success_url = reverse_lazy("oceanography:doc_list")
-    login_url = '/accounts/login_required/'
-
-
-class DocUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Doc
-    template_name = "oceanography/doc_form.html"
-    form_class = forms.DocForm
-    success_url = reverse_lazy("oceanography:doc_list")
-    login_url = '/accounts/login_required/'
-
-
 # MISSIONS #
 ############
 
-class MissionYearListView(TemplateView):
-    template_name = "oceanography/mission_year_list.html"
+class MissionListView(OceanographyAccessRequiredMixin, FilterView):
+    template_name = "oceanography/mission_list.html"
+    filterset_class = filters.MissionFilter
+    queryset = shared_models.Cruise.objects.annotate(
+        search_term=Concat('mission_name', 'mission_number', output_field=TextField())).order_by("-start_date", "mission_number")
 
     def get_context_data(self, **kwargs):
-        # get context
         context = super().get_context_data(**kwargs)
-
-        # create a reference list of years
-        season_list = [item["season"] for item in shared_models.Cruise.objects.order_by("season").values("season").distinct()]
-        context["season_list"] = season_list
+        context['my_object'] = shared_models.Cruise.objects.first()
+        context["field_list"] = [
+            'institute',
+            'mission_number',
+            'mission_name',
+            'vessel',
+            'chief_scientist',
+            'start_date',
+            'end_date',
+            'meds_id',
+            'season',
+        ]
         return context
 
 
-class MissionListView(ListView):
-    template_name = "oceanography/mission_list.html"
-
-    def get_queryset(self):
-        return shared_models.Cruise.objects.filter(season=self.kwargs["year"])
 
 
-class MissionDetailView(DetailView):
+
+class MissionDetailView(OceanographyAccessRequiredMixin, DetailView):
     template_name = "oceanography/mission_detail.html"
     model = shared_models.Cruise
 
@@ -78,29 +101,29 @@ class MissionDetailView(DetailView):
         context["editable"] = False
         context['google_api_key'] = settings.GOOGLE_API_KEY
         context['field_list'] = [
-            "mission_number",
-            "mission_name",
-            "description",
-            "institute",
-            "meds_id",
-            "vessel",
-            "chief_scientist",
-            "samplers",
-            "start_date",
-            "end_date",
-            "number_of_profiles",
-            "probe",
-            "area_of_operation",
-            "notes",
+            'institute',
+            'mission_number',
+            'mission_name',
+            'description',
+            'chief_scientist',
+            'samplers',
+            'start_date',
+            'end_date',
+            'probe',
+            'area_of_operation',
+            'number_of_profiles',
+            'meds_id',
+            'notes',
+            'season',
+            'vessel',
         ]
         return context
 
 
-class MissionUpdateView(LoginRequiredMixin, UpdateView):
+class MissionUpdateView(OceanographyAdminRequiredMixin, UpdateView):
     template_name = "oceanography/mission_form.html"
     model = shared_models.Cruise
     form_class = forms.MissionForm
-    login_url = '/accounts/login_required/'
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.id})
@@ -113,7 +136,7 @@ class MissionUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class MissionCreateView(LoginRequiredMixin, CreateView):
+class MissionCreateView(OceanographyAdminRequiredMixin, CreateView):
     template_name = "oceanography/mission_form.html"
     model = shared_models.Cruise
     form_class = forms.MissionForm
@@ -133,7 +156,7 @@ class MissionCreateView(LoginRequiredMixin, CreateView):
 # BOTTLES #
 ###########
 
-class BottleListView(ListView):
+class BottleListView(OceanographyAccessRequiredMixin, ListView):
     template_name = "oceanography/bottle_list.html"
 
     def get_queryset(self):
@@ -148,7 +171,7 @@ class BottleListView(ListView):
         return context
 
 
-class BottleDetailView(UpdateView):
+class BottleDetailView(OceanographyAccessRequiredMixin, UpdateView):
     template_name = "oceanography/bottle_form.html"
     model = models.Bottle
     form_class = forms.BottleForm
@@ -160,7 +183,7 @@ class BottleDetailView(UpdateView):
         return context
 
 
-class BottleUpdateView(LoginRequiredMixin, UpdateView):
+class BottleUpdateView(OceanographyAdminRequiredMixin, UpdateView):
     template_name = "oceanography/bottle_form.html"
     model = models.Bottle
     form_class = forms.BottleForm
@@ -260,7 +283,7 @@ def export_mission_csv(request, pk):
 # FILES #
 #########
 
-class FileCreateView(CreateView):
+class FileCreateView(OceanographyAccessRequiredMixin, CreateView):
     template_name = "oceanography/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -273,6 +296,7 @@ class FileCreateView(CreateView):
         # get context
         context = super().get_context_data(**kwargs)
         context["editable"] = True
+        context["mission"] = shared_models.Cruise.objects.get(pk=self.kwargs.get("mission"))
         return context
 
     def get_initial(self):
@@ -280,7 +304,7 @@ class FileCreateView(CreateView):
         return {'mission': mission}
 
 
-class FileDetailView(UpdateView):
+class FileDetailView(OceanographyAccessRequiredMixin, UpdateView):
     template_name = "oceanography/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -292,7 +316,7 @@ class FileDetailView(UpdateView):
         return context
 
 
-class FileUpdateView(UpdateView):
+class FileUpdateView(OceanographyAdminRequiredMixin, UpdateView):
     template_name = "oceanography/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -307,7 +331,7 @@ class FileUpdateView(UpdateView):
         return context
 
 
-class FileDeleteView(DeleteView):
+class FileDeleteView(OceanographyAdminRequiredMixin, DeleteView):
     template_name = "oceanography/file_confirm_delete.html"
     model = models.File
 
