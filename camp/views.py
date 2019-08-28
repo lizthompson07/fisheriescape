@@ -641,15 +641,33 @@ class ReportSearchFormView(CampAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("camp:watershed_xlsx", kwargs={"site": site, "year": year}))
 
         elif report == 5:
-            return HttpResponseRedirect(reverse("camp:fgp_report"))
+            return HttpResponseRedirect(reverse("camp:od1_report"))
 
         elif report == 7:
-            return HttpResponseRedirect(reverse("camp:fgp_dictionary"))
+            return HttpResponseRedirect(reverse("camp:od_dict"))
+
+        elif report == 8:
+            return HttpResponseRedirect(reverse("camp:od_wms", kwargs={"lang":1}))
+
+        elif report == 13:
+            return HttpResponseRedirect(reverse("camp:od_wms", kwargs={"lang":2}))
+
+        elif report == 11:
+            return HttpResponseRedirect(reverse("camp:od_spp_list"))
 
         elif report == 6:
             return HttpResponseRedirect(reverse("camp:ais_export", kwargs={
                 'species_list': ais_species_list,
             }))
+        elif report == 9:
+            return HttpResponseRedirect(reverse("camp:od2_report"))
+
+        elif report == 12:
+            return HttpResponseRedirect(reverse("camp:od3_report"))
+
+        # elif report == 10:
+        #     return HttpResponseRedirect(reverse("camp:od_dict"))
+
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
@@ -706,16 +724,34 @@ def annual_watershed_spreadsheet(request, site, year):
     raise Http404
 
 
-def fgp_export(request):
-    response = reports.generate_fgp_export()
+def od1_export(request):
+    response = reports.generate_od1_report()
     return response
 
 
-def fgp_dictionary_export(request):
-    response = reports.generate_fgp_data_dictionary()
+def od_dict_export(request):
+    response = reports.generate_od_dict()
     return response
 
 
 def ais_export(request, species_list):
     response = reports.generate_ais_spreadsheet(species_list)
+    return response
+
+
+def export_open_data_wms(request, lang):
+    response = reports.generate_open_data_wms_report(lang)
+    return response
+
+
+def export_open_data_spp_list(request):
+    response = reports.generate_open_data_species_list()
+    return response
+
+def od2_export(request):
+    response = reports.generate_od2_report()
+    return response
+
+def od3_export(request):
+    response = reports.generate_od3_report()
     return response

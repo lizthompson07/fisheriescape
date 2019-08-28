@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
-from django.db.models import TextField, Q
+from django.db.models import TextField, Q, Value
 from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils import timezone
@@ -83,15 +83,13 @@ class PersonListView(SiteLoginRequiredMixin, FilterView):
     filterset_class = filters.PersonFilter
     model = ml_models.Person
     queryset = ml_models.Person.objects.annotate(
-        search_term=Concat('first_name', 'last_name', 'notes', output_field=TextField()))
+        search_term=Concat('first_name', 'last_name', 'designation', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = ml_models.Person.objects.first()
         context["field_list"] = [
-            'designation',
-            'last_name',
-            'first_name',
+            'full_name_with_title|Full name',
             'phone_1',
             'phone_2',
             'email_1',
@@ -203,7 +201,25 @@ class OrganizationListView(SiteLoginRequiredMixin, FilterView):
     template_name = 'ihub/organization_list.html'
     filterset_class = filters.OrganizationFilter
     queryset = ind_organizations.annotate(
-        search_term=Concat('name_eng', 'name_fre', 'abbrev', output_field=TextField()))
+        search_term=Concat(
+            'name_eng',
+            Value(" "),
+            'name_fre',
+            Value(" "),
+            'name_ind',
+            Value(" "),
+            'legal_band_name',
+            Value(" "),
+            'former_name',
+            Value(" "),
+            'province__name',
+            Value(" "),
+            'province__nom',
+            Value(" "),
+            'province__abbrev_eng',
+            Value(" "),
+            'province__abbrev_fre',
+            output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

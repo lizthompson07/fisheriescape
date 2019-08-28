@@ -368,6 +368,7 @@ class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
         context["field_list"] = [
             'id',
             'common_name',
+            'common_name_fra',
             'scientific_name',
             'abbrev',
             'epibiont_type',
@@ -1317,7 +1318,7 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
     def form_valid(self, form):
         species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
         report = int(form.cleaned_data["report"])
-        year = form.cleaned_data["year"]
+        year = form.cleaned_data["year"] if form.cleaned_data["year"] else "None"
 
         if report == 1:
             return HttpResponseRedirect(reverse("grais:spp_sample_xlsx", kwargs={"species_list": species_list}))
@@ -1327,8 +1328,9 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
         elif report == 3:
             return HttpResponseRedirect(reverse("grais:od1_dictionary"))
         elif report == 4:
-            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year})) if form.cleaned_data[
-                "year"] else HttpResponseRedirect(reverse("grais:od1_wms"))
+            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang":1}))
+        elif report == 5:
+            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang":2}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -1353,6 +1355,6 @@ def export_open_data_ver1_dictionary(request):
     response = reports.generate_open_data_ver_1_data_dictionary()
     return response
 
-def export_open_data_ver1_wms(request, year=None):
-    response = reports.generate_open_data_ver_1_wms_report(year)
+def export_open_data_ver1_wms(request, year, lang):
+    response = reports.generate_open_data_ver_1_wms_report(year, lang)
     return response
