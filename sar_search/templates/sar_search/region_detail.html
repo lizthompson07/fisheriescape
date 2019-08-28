@@ -1,0 +1,151 @@
+{% extends "sar_search/sar_search_base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block header %}
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 600px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+
+        .label {
+            font-weight: bold;
+
+        }
+    </style>
+
+{% endblock header %}
+
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:region_list' %}"> Region List</a></li>
+            <li class="breadcrumb-item active" aria-current="page"> {{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <br>
+        <h1>{{ object }}</h1>
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'sar_search:region_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'sar_search:region_delete' object.id %}">Delete</a>
+            <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:region_polygon_file_import' object.id  %}">Add Polygon from CSV</a>
+        </div>
+
+        <br><br>
+        <div class="row">
+            <div class="col">
+                {# Detail about the station #}
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+                <br>
+                <h3>List of Species:</h3>
+                <ul>
+                    {% for sp in species_list %}
+                        <li>
+                            <a href="{% url 'sar_search:species_detail' sp.id %}">{{ sp }}</a>
+                        </li>
+                    {% empty %}
+                        <em>no species are associated with this region</em>
+                    {% endfor %}
+
+                </ul>
+
+
+                <h3>List of polygons:</h3>
+                <ul>
+                    {% for polygon in object.polygons.all %}
+                        <li>
+                            <a href="{% url 'sar_search:region_polygon_detail' polygon.id %}">
+                                {{ polygon.id }} ({{ polygon.points.count }})
+                            </a>
+
+
+                        </li>
+                    {% empty %}
+                        <em>no coordinates have been added to this record</em>
+                    {% endfor %}
+
+                </ul>
+            </div>
+
+            <div class="col">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+{% block body_js %}
+    <script>
+        function initialize() {
+
+            window.map = new google.maps.Map(document.getElementById('map'), {
+                mapTypeId: google.maps.MapTypeId.SATELLITE,
+            });
+            var infowindow = new google.maps.InfoWindow();
+            var bounds = new google.maps.LatLngBounds();
+
+            {% for polygon in object.polygons.all %}
+                {% if polygon.coords %}
+
+                    // extend bounds var
+                    {% for point in polygon.points.all %}
+                        bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
+                    {% endfor %}
+
+                    // Define the LatLng coordinates for the polygon's path.
+                    var polygonCoords = [
+                        {% for point in polygon.points.all %}
+                            {lat: {{point.latitude}}, lng: {{point.longitude}}, {% if point.order %}order: {{point.order}}{% endif %}},
+                        {% endfor %}
+                    ];
+
+                    // Construct the stratum.
+                    var color = '#ea4544';
+                    var myPolygon = new google.maps.Polygon({
+                        paths: polygonCoords,
+                        strokeColor: 'white',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: color,
+                        fillOpacity: 0.35,
+                        label: "test"
+                    });
+
+                    myPolygon.setMap(map);
+                    {#bounds.extend(myPolygon.getBounds());#}
+
+                    map.fitBounds(bounds);
+                    // add a click event on the polygon
+                {% endif %}
+
+            {% endfor %}
+
+            map.fitBounds(bounds);
+
+        }
+
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+        }
+
+        window.onload = loadScript();
+
+    </script>
+
+{% endblock %}
+
+
+
