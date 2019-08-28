@@ -31,7 +31,8 @@
             <thead>
             <tr>
                 <th scope="col">Id</th>
-                <th scope="col">Common name</th>
+                <th scope="col">Common name (eng)</th>
+                <th scope="col">Common name (fra)</th>
                 <th scope="col">Scientific name</th>
                 <th scope="col">Abbreviation</th>
                 <th scope="col">Epibiont type</th>
@@ -47,6 +48,7 @@
                 <tr href="{% url 'grais:species_detail' object.id %}">
                     <td>{{ object.id }}</td>
                     <td>{{ object.common_name }}</td>
+                    <td>{{ object.common_name_fra }}</td>
                     <td><em>{{ object.scientific_name }}</em></td>
                     <td>{{ object.abbrev }}</td>
                     <td>{{ object.get_epibiont_type_display}}</td>

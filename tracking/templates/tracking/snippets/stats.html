@@ -84,40 +84,40 @@
 {##}
 {% if pageview_stats %}
     <h2>Pageviews</h2>
-    {% if pageview_stats.total %}
-        <table>
-            <thead>
-            <tr>
-                <th></th>
-                <th>Total</th>
-                <th>Unique</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <th>Registered</th>
-                <td>{{ pageview_stats.registered.total }}</td>
-                <td>{{ pageview_stats.registered.unique }}</td>
-            </tr>
-            {% if pageview_stats.guests %}
-                <tr>
-                    <th>Guests</th>
-                    <td>{{ pageview_stats.guests.total }}</td>
-                    <td>{{ pageview_stats.guests.unique }}</td>
-                </tr>
-                <tr>
-                    <th>Total</th>
-                    <td>{{ pageview_stats.total }}</td>
-                    <td>{{ pageview_stats.unique }}</td>
-                </tr>
-            {% endif %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No pageview stats available</p>
-    {% endif %}
-    <br>
-    <br>
+{#    {% if pageview_stats.total %}#}
+{#        <table>#}
+{#            <thead>#}
+{#            <tr>#}
+{#                <th></th>#}
+{#                <th>Total</th>#}
+{#                <th>Unique</th>#}
+{#            </tr>#}
+{#            </thead>#}
+{#            <tbody>#}
+{#            <tr>#}
+{#                <th>Registered</th>#}
+{#                <td>{{ pageview_stats.registered.total }}</td>#}
+{#                <td>{{ pageview_stats.registered.unique }}</td>#}
+{#            </tr>#}
+{#            {% if pageview_stats.guests %}#}
+{#                <tr>#}
+{#                    <th>Guests</th>#}
+{#                    <td>{{ pageview_stats.guests.total }}</td>#}
+{#                    <td>{{ pageview_stats.guests.unique }}</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                    <th>Total</th>#}
+{#                    <td>{{ pageview_stats.total }}</td>#}
+{#                    <td>{{ pageview_stats.unique }}</td>#}
+{#                </tr>#}
+{#            {% endif %}#}
+{#            </tbody>#}
+{#        </table>#}
+{#    {% else %}#}
+{#        <p>No pageview stats available</p>#}
+{#    {% endif %}#}
+{#    <br>#}
+{#    <br>#}
 
     <ul>
         {% for visit in page_visits %}
