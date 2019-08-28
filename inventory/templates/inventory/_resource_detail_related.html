@@ -1,44 +1,28 @@
-{% if object.children.count == 0 and object.parent == None  %}
-  <em>No related records</em>
-
-{% else %}
-<a href="#relations" class="collapse-btn" data-toggle="collapse">(Show all)</a>
-<div id="relations" class="collapse">
-
-  <br>
-  <p><b>
-    Parent
-  </b><br>
-  <ul>
-    {% if object.parent.id %}
-    <li>
-      <a href="{% url 'inventory:resource_detail' object.parent.id %}">
-        {{object.parent}}
-      </a>&nbsp;
-        <a href="#" class="red-font">&times;</a>
-
-    </li>
-  {% else %}
-  <em>None</em>
-  {% endif %}
-  </ul>
-  </p>
-  <p><b>
-    Children:
-  </b><br>
-  <ul>
-    {% for item in object.children.all %}
-    <li>
-      <a href="{% url 'inventory:resource_detail' item.id %}">
-        {{item}}
-      </a>&nbsp;
-        <a href="#" class="red-font">&times;</a>
-    </li>
-    {% empty %}
-    <em>None</em>
-    {% endfor %}
-  </ul>
-
-
-</div>
-{% endif %}
+<ul>
+    {% if object.children.count == 0 and object.parent == None %}
+        <em>No related records</em>
+    {% else %}
+        <li>
+            Parent:
+            {% if object.parent.id %}
+                <a href="{% url 'inventory:resource_detail' object.parent.id %}">
+                    {{ object.parent }}
+                </a>&nbsp;
+                <a href="#" class="red-font">&times;</a>
+            {% else %}
+                <em>None</em>
+            {% endif %}
+        </li>
+        <li>
+            Children:
+            {% for item in object.children.all %}
+                <a href="{% url 'inventory:resource_detail' item.id %}">
+                    {{ item }}
+                </a>&nbsp;
+                <a href="#" class="red-font">&times;</a>, &nbsp;
+            {% empty %}
+                <em>None</em>
+            {% endfor %}
+        </li>
+    {% endif %}
+</ul>

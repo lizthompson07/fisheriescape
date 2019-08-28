@@ -202,7 +202,7 @@ def generate_open_data_ver_1_data_dictionary():
     Generates the data dictionary for open data report version 1
     """
 
-    filename = "open_data_ver1_data_dictionary.csv"
+    filename = "data_dictionary.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -355,7 +355,7 @@ def generate_open_data_ver_1_report(year=None):
     """
 
     # determine the filename based on whether we are looking at all years vs. a single year
-    filename = "open_data_ver1_report_{}.csv".format(year) if year and year != "None" else "open_data_ver1_report_all_years.csv"
+    filename = "biofouling_monitoring_report_{}.csv".format(year) if year and year != "None" else "biofouling_monitoring_report_all_years.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -493,7 +493,7 @@ def generate_open_data_ver_1_report(year=None):
     return response
 
 
-def generate_open_data_ver_1_wms_report(year=None):
+def generate_open_data_ver_1_wms_report(year, lang):
     """
     Simple report for web mapping service on FGP
     """
@@ -502,7 +502,7 @@ def generate_open_data_ver_1_wms_report(year=None):
     species_id_list = [48, 24, 47, 23, 55, 59, 25]
     species_qs = models.Species.objects.filter(id__in=species_id_list)
 
-    filename = "open_data_ver1_wms_report.csv"
+    filename = "station_summary_report_eng.csv" if lang == 1 else "station_summary_report_fra.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -510,26 +510,15 @@ def generate_open_data_ver_1_wms_report(year=None):
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
-    header_row_eng = [
-        'Season(s)',
-        'Station code',
-        'Station name',
-        'Station province',
-        'Station description',
-        'Station latitude',
-        'Station longitude',
-        'List of other species observed',
-    ]
-
-    header_row_fra = [
-        'Saison(s)',
-        'Code de station',
-        'Nom de station',
-        'province de station',
-        'Description de station',
-        'Latitude de station',
-        'Longitude de station',
-        'Liste des espèces observées',
+    header_row = [
+        'seasons' if lang == 1 else "saisons",
+        'station_code' if lang == 1 else "code_de_station",
+        'station_name' if lang == 1 else "nom_de_station",
+        'station_province' if lang == 1 else "province_de_station",
+        'station_description' if lang == 1 else "description_de_station",
+        'station_latitude' if lang == 1 else "latitude_de_station",
+        'station_longitude' if lang == 1 else "longitude_de_station",
+        'list_of_other_species_observed' if lang == 1 else "liste_des_espèces_observées",
     ]
 
     for species in species_qs:
@@ -538,17 +527,16 @@ def generate_open_data_ver_1_wms_report(year=None):
             second_name = " ".join(species.scientific_name.split(" ")[1:])
         else:
             second_name = species.scientific_name.split(" ")[1]
-        display_name = "{}. {}".format(first_name, second_name, )
-        header_row_eng.append("{} detected?".format(display_name))
-        header_row_fra.append("{} détecté?".format(display_name))
+        display_name = "{}_{}".format(first_name, second_name, )
+        my_str = "detected" if lang == 1 else "détecté"
+        header_row.append("{}_{}".format(display_name, my_str))
 
-    writer.writerow(header_row_eng)
-    writer.writerow(header_row_fra)
+    writer.writerow(header_row)
 
     samples = models.Sample.objects.all()
     # if there is a year provided, filter by only this year
     if year and year != "None":
-        samples = samples.filter(season=year)
+        samples = samples.filter(season=int(year))
 
     stations = [models.Station.objects.get(pk=obj["station"]) for obj in samples.order_by("station").values("station").distinct()]
     # make sure to exclude the lost lines and surfaces; this is sort of redundant since if a line is line, all surfaces should also be labelled as lost.
@@ -570,7 +558,7 @@ def generate_open_data_ver_1_wms_report(year=None):
             seasons,
             station.id,
             station.station_name,
-            "{} / {}".format(station.province.abbrev_eng, station.province.abbrev_fre),
+            station.province.abbrev_eng if lang == 1 else station.province.abbrev_fre,
             station.site_desc,
             station.latitude_n,
             station.longitude_w,

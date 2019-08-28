@@ -57,3 +57,11 @@ def truncate(my_str, max_length):
         return "{}...".format(my_str[:max_length])
     else:
         return my_str
+
+
+def attr_error_2_none(obj, attr):
+    """This function will look for an Attribute Error and if found will return None object. Otherwise it will return attr"""
+    try:
+        return getattr(obj, attr)
+    except AttributeError:
+        return None

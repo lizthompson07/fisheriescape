@@ -16,6 +16,8 @@ from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from easy_pdf.views import PDFTemplateView
 from django_filters.views import FilterView
+from shapely.geometry import Polygon, box
+
 from shared_models import models as shared_models
 from . import models
 from . import forms
@@ -27,8 +29,9 @@ from django.utils.encoding import smart_str
 
 # open basic access up to anybody who is logged in
 def in_sar_search_group(user):
-    if user:
-        return user.groups.filter(name='sar_search_access').count() != 0
+    if user.id:
+        # return user.groups.filter(name='sar_search_access').count() != 0
+        return True
 
 
 class SARSearchAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -64,6 +67,254 @@ class SARSearchAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class IndexTemplateView(SARSearchAccessRequiredMixin, TemplateView):
     template_name = 'sar_search/index.html'
+
+
+class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
+    template_name = 'sar_search/sar_map.html'
+    form_class = forms.MapForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['records'] = models.Record.objects.all()
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        # start by determining with spp do not have spatial data
+        non_spatial_species_list = []
+        for sp in models.Species.objects.all():
+            spatial = False
+            for record in sp.records.all():
+                #  if has been labeled as spatial, exit the loop
+                if spatial:
+                    break
+                # if there are coords associated with the record, it is spatial
+                if record.coords():
+                    spatial = True
+                    break
+                # check the regions...
+                for region in record.regions.all():
+                    if spatial:
+                        break
+                    for region_polygon in region.polygons.all():
+                        if region_polygon.coords():
+                            # then we have spatial data.
+                            spatial = True
+                            break
+            # if checked through all records and nothing found, add to non-spatial list
+            if not spatial:
+                non_spatial_species_list.append(sp)
+
+        context['non_spatial_species_list'] = non_spatial_species_list
+
+        # if there are bounding coords, we look in the box
+        region_list = []
+
+        if self.kwargs.get("n"):
+
+            bbox = box(
+                float(self.kwargs.get("n")),
+                float(self.kwargs.get("e")),
+                float(self.kwargs.get("s")),
+                float(self.kwargs.get("w")),
+            )
+
+            # determine which regions intersect with bbox
+            for region_polygon in models.RegionPolygon.objects.all():
+                # if the region has not already been added...
+                if region_polygon.region not in region_list:
+                    if region_polygon.get_polygon():
+                        if region_polygon.get_polygon().intersects(bbox):
+                            region_list.append(region_polygon.region)
+
+            # for polygon_point in models.RegionPolygonPoint.objects.all():
+            #     # if the region has not already been added...
+            #     if polygon_point.region_polygon.region not in region_list:
+            #         if bbox.contains(polygon_point.point):
+            #             region_list.append(polygon_point.region_polygon.region)
+
+            captured_species_list = []
+            for sp in models.Species.objects.all():
+                if sp not in non_spatial_species_list:
+                    captured = False
+                    for record in sp.records.all():
+                        #  if has been labeled as spatial, exit the loop
+                        if captured:
+                            break
+                        # check to see if the bbox overlaps with any record points
+                        for obj in record.points.all():
+                            if bbox.contains(obj.point):
+                                captured = True
+                                break
+                        # it is possible that there is no point associated with a record..
+                        # maybe there is a region associated with it that is in the region list
+                        for region in record.regions.all():
+                            if region in region_list:
+                                captured = True
+                                break
+                    # if checked through all records and nothing found, add to non-spatial list
+                    if captured:
+                        captured_species_list.append(sp)
+        else:
+            captured_species_list = [sp for sp in models.Species.objects.all() if sp not in non_spatial_species_list]
+
+        context['region_list'] = region_list
+        context["captured_species_list"] = captured_species_list
+        return context
+
+    def get_initial(self, *args, **kwargs):
+        return {
+            "north": self.kwargs.get("n"),
+            "south": self.kwargs.get("s"),
+            "east": self.kwargs.get("e"),
+            "west": self.kwargs.get("w"),
+        }
+
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return HttpResponseRedirect(reverse("sar_search:map", kwargs={
+            "n": form.cleaned_data.get("north"),
+            "s": form.cleaned_data.get("south"),
+            "e": form.cleaned_data.get("east"),
+            "w": form.cleaned_data.get("west"),
+        }))
+
+
+# REGION POLYGON #
+##################
+
+class RegionPolygonUpdateView(SARSearchAdminRequiredMixin, UpdateView):
+    model = models.RegionPolygon
+    form_class = forms.RegionPolygonForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("sar_search:region_detail", kwargs={"pk": my_object.id}))
+
+
+class RegionPolygonCreateView(SARSearchAdminRequiredMixin, CreateView):
+    model = models.RegionPolygon
+
+    form_class = forms.RegionPolygonForm
+
+    def get_initial(self):
+        return {'species': self.kwargs.get("species")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs.get("species"):
+            species = models.Species.objects.get(pk=self.kwargs["species"])
+            context['species'] = species
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("sar_search:region_detail", kwargs={"pk": my_object.id}))
+
+
+class RegionPolygonDetailView(SARSearchAccessRequiredMixin, DetailView):
+    model = models.RegionPolygon
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        field_list = [
+            "id",
+        ]
+        context['field_list'] = field_list
+
+        return context
+
+
+class RegionPolygonDeleteView(SARSearchAdminRequiredMixin, DeleteView):
+    model = models.RegionPolygon
+    success_message = 'The region polygon was successfully deleted!'
+
+    def get_success_url(self):
+        return reverse_lazy("sar_search:region_detail", kwargs={"pk": self.object.region.id})
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def manage_rp_coords(request, region_polygon):
+    qs = models.RegionPolygonPoint.objects.filter(region_polygon=region_polygon)
+    my_region_polygon = models.RegionPolygon.objects.get(pk=region_polygon)
+    if request.method == 'POST':
+        formset = forms.RPCoordFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "coords have been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_rp_coords", kwargs={"region_polygon": region_polygon}))
+    else:
+        formset = forms.RPCoordFormSet(
+            queryset=qs,
+            initial=[{"region_polygon": region_polygon}],
+        )
+    context = {}
+    context['title'] = "Manage Region Polygon Coordinates"
+    context['formset'] = formset
+    context["region_polygon"] = my_region_polygon
+    context["my_object"] = models.RegionPolygonPoint.objects.first()
+    context["field_list"] = [
+        'latitude',
+        'longitude',
+        'order',
+    ]
+    return render(request, 'sar_search/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def delete_rp_coord(request, pk):
+    my_obj = models.RegionPolygonPoint.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("sar_search:manage_rp_coords", kwargs={"region_polygon": my_obj.region_polygon.id}))
+
+
+class RegionPolygonImportFileView(SARSearchAdminRequiredMixin, UpdateView):
+    model = models.Region
+    fields = ["temp_file", ]
+    template_name = 'sar_search/rp_points_file_import_form.html'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        # now we need to do some magic with the file...
+
+        # load the file
+        url = self.request.META.get("HTTP_ORIGIN") + my_object.temp_file.url
+        r = requests.get(url)
+        # print(r.text.splitlines())
+        csv_reader = csv.DictReader(r.iter_lines())
+
+        # make a new polygon
+        my_region_polygon = models.RegionPolygon.objects.create(region=my_object)
+        for row in csv_reader:
+            if row["lat"] and row["long"]:
+                if row.get("order"):
+                    my_new_point = models.RegionPolygonPoint.objects.create(
+                        region_polygon=my_region_polygon,
+                        latitude=float(row["lat"]),
+                        longitude=float(row["long"]),
+                        order=int(row["order"]),
+                    )
+                else:
+                    my_new_point = models.RegionPolygonPoint.objects.create(
+                        region_polygon=my_region_polygon,
+                        latitude=float(row["lat"]),
+                        longitude=float(row["long"]),
+                    )
+
+        # clear the file in my object
+        my_object.temp_file = None
+        my_object.save()
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
 # SPECIES #
@@ -114,7 +365,7 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
 
         context["record_field_list"] = [
             'name',
-            'counties',
+            'regions',
             'record_type',
             # 'source',
             'date_last_modified',
@@ -152,7 +403,7 @@ class SpeciesDeleteView(SARSearchAdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# RANGE #
+# RECORD #
 #########
 
 class RecordUpdateView(SARSearchAdminRequiredMixin, UpdateView):
@@ -187,7 +438,7 @@ class RecordCreateView(SARSearchAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("sar_search:record_detail", kwargs={"pk": my_object.id}))
 
 
-class RecordDetailView(SARSearchAdminRequiredMixin, DetailView):
+class RecordDetailView(SARSearchAccessRequiredMixin, DetailView):
     model = models.Record
 
     def get_context_data(self, **kwargs):
@@ -196,9 +447,10 @@ class RecordDetailView(SARSearchAdminRequiredMixin, DetailView):
 
         field_list = [
             'name',
-            'counties',
+            'regions',
             'record_type',
             'source',
+            'last_modified_by',
             'date_last_modified',
         ]
         context['field_list'] = field_list
@@ -233,7 +485,7 @@ def manage_coords(request, record):
     else:
         print(my_record.record_type)
         if my_record.record_type == 1 and my_record.points.count() >= 1:
-            formset = forms.CoordFormSetNoExtra(
+            formset = forms.CoordFormSet(
                 queryset=qs,
                 initial=[{"record": record}],
             )
@@ -306,7 +558,6 @@ class RecordImportFileView(SARSearchAdminRequiredMixin, UpdateView):
         my_object.temp_file = None
         my_object.save()
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
-
 
 
 # SETTINGS #
@@ -416,36 +667,66 @@ def delete_schedule(request, pk):
     return HttpResponseRedirect(reverse("sar_search:manage_schedules"))
 
 
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
-def manage_counties(request):
-    qs = models.County.objects.all()
-    if request.method == 'POST':
-        formset = forms.CountyFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "counties have been successfully updated")
-            return HttpResponseRedirect(reverse("sar_search:manage_counties"))
-    else:
-        formset = forms.CountyFormSet(
-            queryset=qs)
-    context = {}
-    context['title'] = "Manage Counties"
-    context['formset'] = formset
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'code',
-        'name',
-        'nom',
-        'province',
-    ]
-    return render(request, 'sar_search/manage_settings_small.html', context)
+# REGION
+class RegionListView(SARSearchAccessRequiredMixin, FilterView):
+    template_name = "sar_search/region_list.html"
+    filterset_class = filters.RegionFilter
+    queryset = models.Region.objects.annotate(
+        search_term=Concat('name', 'nom', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['my_object'] = models.Region.objects.first()
+        context["field_list"] = [
+            'name',
+            'nom',
+            'province',
+        ]
+        return context
 
 
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
-def delete_county(request, pk):
-    my_obj = models.SARASchedule.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("sar_search:manage_counties"))
+class RegionDetailView(SARSearchAccessRequiredMixin, DetailView):
+    model = models.Region
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+        context["field_list"] = [
+            'name',
+            'nom',
+            'province',
+        ]
+        my_object = context["object"]
+        species_list = list(set([record.species for record in my_object.records.all()]))
+        context["species_list"] = species_list
+        return context
+
+
+class RegionUpdateView(SARSearchAdminRequiredMixin, UpdateView):
+    model = models.Region
+
+    form_class = forms.RegionForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class RegionCreateView(SARSearchAdminRequiredMixin, CreateView):
+    model = models.Region
+
+    form_class = forms.RegionForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class RegionDeleteView(SARSearchAdminRequiredMixin, DeleteView):
+    model = models.Region
+    permission_required = "__all__"
+    success_url = reverse_lazy('sar_search:region_list')
+    success_message = 'The region was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
