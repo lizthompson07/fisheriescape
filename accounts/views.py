@@ -20,6 +20,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .tokens import account_activation_token
 from . import forms
 from . import emails
+from . import models
 
 
 class CloserTemplateView(TemplateView):
@@ -60,7 +61,7 @@ class UserLogoutView(LogoutView):
 
 
 class UserUpdateView(UpdateView):
-    model = get_user_model()
+    model = models.Profile
     form_class = forms.UserAccountForm
     template_name = 'registration/user_form.html'
     success_url = reverse_lazy('index')
