@@ -6,6 +6,8 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from . import models
+
 try:
     from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
@@ -13,14 +15,12 @@ except (ModuleNotFoundError, ImportError):
 
 # from django.contrib.auth.forms import UserCreationForm
 
+
 class UserAccountForm(forms.ModelForm):
     class Meta:
         # fields = ('username','first_name','last_name','email','password1','password2')
-        model = get_user_model()
-        fields = ('email', 'first_name', 'last_name')
-        labels = {
-            'email': "Username / Email address"
-        }
+        model = models.Profile
+        fields = ['position_eng',]
 
 
 class AccountRequestForm(forms.Form):
