@@ -52,6 +52,22 @@ def access_denied_scifi(request):
     # send user back to the page that they came from
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+class ProfileUpdateView(UpdateView):
+    model = models.Profile
+    form_class = forms.ProfileForm
+    success_url = "#"
+
+    def get_object(self, queryset=None):
+        user = User.objects.get(pk=self.kwargs['pk'])
+        try:
+            profile = models.Profile.objects.get(user=user)
+        except models.Profile.DoesNotExist:
+            print("Profile does not exist, creating Profile")
+            profile = models.Profile(user=user)
+
+        return profile
+
 class UserLoginView(LoginView):
     template_name = "registration/login.html"
 
@@ -61,7 +77,7 @@ class UserLogoutView(LogoutView):
 
 
 class UserUpdateView(UpdateView):
-    model = models.Profile
+    model = get_user_model()
     form_class = forms.UserAccountForm
     template_name = 'registration/user_form.html'
     success_url = reverse_lazy('index')
