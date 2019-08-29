@@ -6,12 +6,21 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from . import models
+
 try:
     from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
     from dm_apps import default_conf as local_conf
 
 # from django.contrib.auth.forms import UserCreationForm
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = models.Profile
+        fields = ('position_eng', 'position_fre', 'phone', 'language', 'section')
+
 
 class UserAccountForm(forms.ModelForm):
     class Meta:

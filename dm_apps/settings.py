@@ -80,7 +80,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'el_pagination',
     'easy_pdf',
-                     'tracking',
+    'tracking',
     'accounts',
     'lib',
     'shared_models',
