@@ -16,11 +16,20 @@ except (ModuleNotFoundError, ImportError):
 # from django.contrib.auth.forms import UserCreationForm
 
 
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = models.Profile
+        fields = ('position_eng', 'position_fre', 'phone', 'language', 'section')
+
+
 class UserAccountForm(forms.ModelForm):
     class Meta:
         # fields = ('username','first_name','last_name','email','password1','password2')
-        model = models.Profile
-        fields = ['position_eng',]
+        model = get_user_model()
+        fields = ('email', 'first_name', 'last_name')
+        labels = {
+            'email': "Username / Email address"
+        }
 
 
 class AccountRequestForm(forms.Form):
