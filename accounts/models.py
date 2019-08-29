@@ -22,7 +22,7 @@ class Profile(models.Model):
     position_fre = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=25, blank=True, null=True)
     language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True,
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=False,
                                 verbose_name=_("Section"))
 
     def __str__(self):
@@ -35,14 +35,3 @@ class Profile(models.Model):
         self.full_name = "{} {}".format(self.user.first_name, self.user.last_name)
 
         super().save(*args, **kwargs)
-
-
-@receiver(post_save,sender=User)
-def create_user_profile(sender, instance, created, ** kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-
-@receiver(post_save,sender=User)
-def save_user_profile(sender, instance, ** kwargs):
-    instance.profile.save()
