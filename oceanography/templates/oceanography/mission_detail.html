@@ -15,12 +15,11 @@
             font-weight: bold;
         }
     </style>
-     <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'oceanography:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_year_list' %}">Year Selection</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_list' object.season %}">Missions</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{object}}</li>
+            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_list' %}">Cruise List</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
 
@@ -38,27 +37,24 @@
             <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle
                 CSV</a>
             <a href="{% url "oceanography:file_create" object.id %}" class="btn btn-info">Add a File</a>
-            <a href="{% url "oceanography:mission_list" object.season %}" class="btn btn-dark">Back</a>
+            <a href="{% url "oceanography:mission_list" %}" class="btn btn-dark">Back</a>
         </div>
         <br><br>
 
         <div class="row">
             <div class="col">
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
+                <table class="table table-striped table-sm">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field %}
+                    {% endfor %}
+                </table>
             </div>
 
             <div class="col">
-                <p>
-                    <b>Files:</b>
-                    {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
-                    {# <a class="btn btn-sm btn-light" onclick="return popitup('{% url 'tickets:file_create' ticket.id %}','FileCreate',500,1000)"> <i class="material-icons">add</i></a> #}
-
+                <b>Files:</b>
                 <ul>
                     {% for file in object.files.all %}
                         <li>
-                            {# <a href="." onclick="return popitup('{% url 'tickets:file_detail' ticket=object.id pk=file.id %}','FileDetail',500,1000)">{{file.caption}}</a> (uploaded on: {{file.date_created|date:"F d Y"}}) #}
                             <a href="{% url "oceanography:file_detail" file.id %}">{{ file.caption }}</a> (uploaded
                             on: {{ file.date_created|date:"F d Y" }})
                         </li>
@@ -67,7 +63,6 @@
 
                     {% endfor %}
                 </ul>
-                </p>
                 <br>
                 <b>Map of Bottles:</b>
 

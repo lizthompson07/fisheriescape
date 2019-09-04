@@ -297,7 +297,8 @@
     </div>
 
     <script type="application/javascript">
-        var resourceList = {{resource_list|safe}};
+
+        var resourceList = {% if resource_list %}{{resource_list|safe}}{% else %}[]{% endif %};
 
         // modal needs to pop up when someone clicks on the input element
         $("#id_parent").click(function () {
@@ -342,6 +343,15 @@
             $(".current-resource-anchor").attr("href", "#id_parent");
             $(".current-resource-anchor").text("");
         })
+
+
+        // look through all table row
+        $("label").each(function () {
+            // if there is an href attr
+            $(this)[0].style.cursor = "help"
+
+        });
+
 
     </script>
 {% endblock content %}

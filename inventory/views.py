@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.db.models import Value, TextField, Q
+from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -112,7 +112,7 @@ class MyResourceListView(LoginRequiredMixin, TemplateView):
         try:
             custodian_queryset = models.Person.objects.get(pk=self.request.user.id).resource_people.filter(role=1)
         except ObjectDoesNotExist:
-            print("Person " + str (self.request.user.id) + "does not exit, Database may be empty")
+            print("Person " + str(self.request.user.id) + "does not exit, Database may be empty")
 
         context['custodian_list'] = custodian_queryset
 
@@ -190,8 +190,10 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
 
         # get lists
         resource_list = ['<a href="#id_parent" class="resource_insert" code="{id}" url="{url}">{text}</a>'.format(id=obj.id, text=str(obj),
-                                                                                                         url=reverse('inventory:resource_detail',
-                                                                                                                     kwargs={'pk': obj.id}))
+                                                                                                                  url=reverse(
+                                                                                                                      'inventory:resource_detail',
+                                                                                                                      kwargs={
+                                                                                                                          'pk': obj.id}))
                          for obj in models.Resource.objects.all()]
         context['resource_list'] = resource_list
         return context
@@ -655,6 +657,35 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 ####################
 
 
+class ResourceKeywordUpdateView(CustodianRequiredMixin, UpdateView):
+    model = models.Resource
+    template_name = "inventory/resource_keyword_form.html"
+    form_class = forms.ResourceKeywordForm
+
+    # queryset = models.Keyword.objects.annotate(
+    #     search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
+    #     ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).order_by(
+    #     'text_value_eng')
+
+    def test_func(self):
+        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["top_20_tc"] = models.Keyword.objects.filter(keyword_domain=8).annotate(resource_count=Count("resources")).order_by(
+            "-resource_count")[:10]
+        context["top_20_cs"] = models.Keyword.objects.filter(keyword_domain=6).annotate(resource_count=Count("resources")).order_by(
+            "-resource_count")[:10]
+        context["top_20_tax"] = models.Keyword.objects.filter(is_taxonomic=True).annotate(resource_count=Count("resources")).order_by(
+            "-resource_count")[:10]
+        context["top_20_area"] = models.Keyword.objects.filter(keyword_domain=7).annotate(resource_count=Count("resources")).order_by(
+            "-resource_count")[:10]
+        context["top_20_gen"] = models.Keyword.objects.filter(
+            ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)
+        ).annotate(resource_count=Count("resources")).order_by("-resource_count")[:10]
+        return context
+
+
 class ResourceKeywordFilterView(CustodianRequiredMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
@@ -739,7 +770,7 @@ class ResourceLocationFilterView(FilterView):
         return context
 
 
-def resource_keyword_add(request, resource, keyword, keyword_type):
+def resource_keyword_add(request, resource, keyword, keyword_type=None):
     my_keyword = models.Keyword.objects.get(pk=keyword)
     my_resource = models.Resource.objects.get(pk=resource)
 
@@ -759,7 +790,8 @@ def resource_keyword_add(request, resource, keyword, keyword_type):
         return HttpResponseRedirect(reverse('inventory:resource_keyword_filter', kwargs={'resource': resource}))
     elif keyword_type == "dfo-area":
         return HttpResponseRedirect(reverse('inventory:resource_location_filter', kwargs={'resource': resource}))
-
+    else:
+        return HttpResponseRedirect(reverse('inventory:resource_keyword_edit', kwargs={'pk': resource}))
 
 def resource_keyword_delete(request, resource, keyword):
     my_keyword = models.Keyword.objects.get(pk=keyword)
@@ -911,6 +943,7 @@ class CitationCreateView(LoginRequiredMixin, CreateView):
         my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).citations.add(self.object.id)
         messages.success(self.request, "'{}' has been added as a citation.".format(self.object.title))
         return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': self.kwargs['resource']}))
+
 
 @login_required(login_url='/accounts/login_required/')
 def citation_delete(request, resource, citation):
