@@ -20,6 +20,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .tokens import account_activation_token
 from . import forms
 from . import emails
+from . import models
 
 
 class CloserTemplateView(TemplateView):
@@ -50,6 +51,22 @@ def access_denied_scifi(request):
     messages.error(request, denied_message)
     # send user back to the page that they came from
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+class ProfileUpdateView(UpdateView):
+    model = models.Profile
+    form_class = forms.ProfileForm
+    success_url = "#"
+
+    def get_object(self, queryset=None):
+        user = User.objects.get(pk=self.kwargs['pk'])
+        try:
+            profile = models.Profile.objects.get(user=user)
+        except models.Profile.DoesNotExist:
+            print("Profile does not exist, creating Profile")
+            profile = models.Profile(user=user)
+
+        return profile
 
 class UserLoginView(LoginView):
     template_name = "registration/login.html"

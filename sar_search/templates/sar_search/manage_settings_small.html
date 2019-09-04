@@ -30,10 +30,21 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             {% if "coord" in title|lower %}
-                <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' record.species.id %}"> {{ record.species }} </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'sar_search:record_detail' record.id %}"> {{ record }} </a></li>
+                {% if "polygon" in title|lower %}
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:region_list' %}"> All Regions</a></li>
+                    <li class="breadcrumb-item"><a
+                            href="{% url 'sar_search:region_detail' region_polygon.region.id %}"> {{ region_polygon.region }} </a>
+                    </li>
+                    <li class="breadcrumb-item"><a
+                            href="{% url 'sar_search:region_polygon_detail' region_polygon.id %}"> {{ region_polygon.region }} </a></li>
+                {% else %}
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> Species </a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:species_detail' record.species.id %}"> {{ record.species }} </a>
+                    </li>
+                    <li class="breadcrumb-item"><a href="{% url 'sar_search:record_detail' record.id %}"> {{ record }} </a></li>
+                {% endif %}
             {% else %}
                 <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}">{% trans "Home" %}</a></li>
             {% endif %}
@@ -76,6 +87,7 @@
                         {% endfor %}
                         {% if form.instance.id %}
 
+
                             <td>
                                 <a class="delete-me" href="#" val="{{ form.instance.id }}">
                                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
@@ -91,10 +103,15 @@
                                        href="{% url 'sar_search:delete_schedule' form.instance.id %}" class="hidden"></a>
                                 {% elif "count" in title|lower %}
                                     <a id="secrect-delete-btn-{{ form.instance.id }}"
-                                       href="{% url 'sar_search:delete_county' form.instance.id %}" class="hidden"></a>
+                                       href="{% url 'sar_search:delete_region' form.instance.id %}" class="hidden"></a>
                                 {% elif "coord" in title|lower %}
-                                    <a id="secrect-delete-btn-{{ form.instance.id }}"
-                                       href="{% url 'sar_search:delete_coord' form.instance.id %}" class="hidden"></a>
+                                    {% if "polygon" in title|lower %}
+                                        <a id="secrect-delete-btn-{{ form.instance.id }}"
+                                           href="{% url 'sar_search:delete_rp_coord' form.instance.id %}" class="hidden"></a>
+                                    {% else %}
+                                        <a id="secrect-delete-btn-{{ form.instance.id }}"
+                                           href="{% url 'sar_search:delete_coord' form.instance.id %}" class="hidden"></a>
+                                    {% endif %}
                                 {% endif %}
 
                             </td>

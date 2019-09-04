@@ -71,11 +71,6 @@ except RuntimeError:
     print("not connecting camp app")
 
 try:
-    urlpatterns += i18n_patterns(path('snowcrab/', include('snowcrab.urls')), prefix_default_language=True)
-except RuntimeError:
-    print("not connecting snowcrab app")
-
-try:
     urlpatterns += i18n_patterns(path('diets/', include('diets.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting diets app")
