@@ -277,18 +277,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-    try:
-        app_dict["snowcrab"] = {
-            "title": _("Snow Crab"),
-            "description": _("front-end application for the Gulf snow crab monitoring dataset"),
-            "status": "dev",
-            "access": "open",
-            "url": reverse('crab:index'),
-            "icon_path": 'img/icons/crab.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
 
     try:
         app_dict["masterlist"] = {

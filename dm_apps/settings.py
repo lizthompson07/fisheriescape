@@ -29,6 +29,10 @@ else:
 
 PRODUCTION_SERVER = local_conf.PRODUCTION_SERVER
 USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
+try:
+    DEBUG_ON = local_conf.DEBUG
+except AttributeError:
+    DEBUG_ON = False
 
 # check to see if there is a file containing the google api key
 # if there is not, set this to a null string and maps will open in dev mode
@@ -54,7 +58,7 @@ SECRET_KEY = '***REMOVED***'
 # SECURITY WARNING: don't run with debug turned on in production!
 
 # If in production mode, turn off debugging
-if PRODUCTION_SERVER:
+if PRODUCTION_SERVER and not DEBUG_ON:
     DEBUG = False
 else:
     DEBUG = True
@@ -76,7 +80,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'el_pagination',
     'easy_pdf',
-                     'tracking',
+    'tracking',
     'accounts',
     'lib',
     'shared_models',
