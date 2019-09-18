@@ -33,7 +33,7 @@ class FilterDeployments(GenericFilterSet):
 
     class Meta:
         model = models.DepDeployments
-        fields = ['dep_name', 'stn', 'prj', 'mor', ]
+        fields = ['dep_year', 'dep_month', 'dep_name', 'stn', 'prj', 'mor', ]
 
 
 class FilterCruises(GenericFilterSet):
@@ -56,7 +56,7 @@ class FilterStations(GenericFilterSet):
 
     class Meta:
         model = models.StnStations
-        fields = ['stn_name', 'stn_planned_lat', 'stn_planned_lon', 'stn_planned_depth', 'stn_notes', ]
+        fields = ['stn_name', 'stn_code', 'stn_planned_lat', 'stn_planned_lon', 'stn_planned_depth', 'stn_notes', ]
 
 
 class FilterStationEvents(GenericFilterSet):
@@ -79,7 +79,7 @@ class FilterRecordEvents(GenericFilterSet):
 
     class Meta:
         model = models.RecRecordingEvents
-        fields = ['tea_id_setup_by', 'rec_date_of_system_chk', 'tea_id_checked_by', 'rec_date_first_recording',
+        fields = ['rsc', 'tea_id_setup_by', 'rec_date_of_system_chk', 'tea_id_checked_by', 'rec_date_first_recording',
                   'rec_date_last_recording', 'rec_total_memory_used', 'rec_hf_mem', 'rec_lf_mem',
                   'rec_date_data_download', 'rec_data_store_url', 'tea_id_downloaded_by', 'rec_date_data_backed_up',
                   'rec_data_backup_url', 'tea_id_backed_up_by', 'rec_channel_count', 'rec_notes', 'rtt',
@@ -90,7 +90,7 @@ class FilterRecordingSchedules(GenericFilterSet):
 
     class Meta:
         model = models.RscRecordingSchedules
-        fields = ['rec', 'rsc_name', 'rsc_period']
+        fields = ['rsc_name', 'rsc_period']
 
 
 class FilterRecordingStages(GenericFilterSet):

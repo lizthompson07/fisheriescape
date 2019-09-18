@@ -35,6 +35,15 @@ def get_short_labels(for_model):
         labels = {
             'prm': _("Equipment Parameters"),
         }
+    elif for_model is models.StnStations:
+        labels = {
+            'stn_name': _('Name'),
+            'stn_code': _('Code'),
+            'stn_planned_lat': _('Latitude'),
+            'stn_planned_lon': _('Longitude'),
+            'stn_planned_depth': _('Depth (meters)'),
+            'stn_notes': _('Notes'),
+        }
     else:
         labels = get_labels(for_model)
 
@@ -43,12 +52,65 @@ def get_short_labels(for_model):
 
 def get_labels(for_model):
     labels = {}
-    if for_model is models.DepDeployments:
+    if for_model is models.CrsCruises:
         labels = {
-            'dep_name': _('Deployment Name'),
+            'crs_name': _('Cruise Name'),
+            'crs_pi_name': _('Principal Investigator Name'),
+            'crs_institute_name': _('Institute Name'),
+            'crs_geographic_location': _('Geographic Location'),
+            'crs_start_date': _('Start Date'),
+            'crs_end_date': _('End Date'),
+            'crs_notes': _('Cruise Notes'),
+        }
+    elif for_model is models.DepDeployments:
+        labels = {
+            'dep_year': _('Deployment Year'),
+            'dep_month': _('Deployment Month'),
             'stn': _('Station'),
+            'dep_name': _('Deployment Name'),
             'prj': _('Project'),
             'mor': _('Mooring Setup'),
+        }
+    elif for_model is models.EcpChannelProperties:
+        labels = {
+            'ecp_channel_no': _("Channel number"),
+            'eqa_adc_bits': _("ADC Bits represented in this channel"),
+            'ecp_voltage_range': _("Voltage Range"),
+            'ecp_gain': _("How much a channel is amplified in dB."),
+        }
+    elif for_model is models.EmmMakeModel:
+        labels = {
+            'eqt': _("Equipment category"),
+            'emm_make': _("Equipment make"),
+            'emm_model': _("Equipment model"),
+            'emm_depth_rating': _("The depth in metres this piece of equipment is rated for"),
+            'emm_description': _("Short description of the piece of equipment"),
+        }
+    elif for_model is models.EqaAdcBitsCode:
+        labels = {
+            'eqa_id': _('Code ID'),
+            'eqa_name': _('Code Value'),
+        }
+    elif for_model is models.EprEquipmentParameters:
+        labels = {
+            'prm': _("The parameter type attached to a piece of equipment"),
+        }
+    elif for_model is models.EqhHydrophoneProperties:
+        labels = {
+            'eqh_range_min': _("Bottom frequency in the functional flat range of the hydrophone in Hz (+-3 dB unless "
+                               "stated in notes)"),
+            'eqh_range_max': _("Top frequency in the functional flat range of the hydrophone in Hz (+-3 dB unless "
+                               "stated in notes)"),
+        }
+    elif for_model is models.EqrRecorderProperties:
+        labels = {
+            'eqc_max_channels': _("Maximum number of channels a piece of equipment can handle."),
+            'eqc_max_sample_rate': _("How fast data can be recorded in KHz"),
+        }
+    elif for_model is models.EqtEquipmentTypeCode:
+        labels = {
+            'eqt_id': _("Equipment Type Code ID"),
+            'eqt_name': _("Equipment Type Code Name"),
         }
     elif for_model is models.MorMooringSetups:
         labels = {
@@ -60,50 +122,20 @@ def get_labels(for_model):
             'mor_general_moor_description': _('General Description'),
             'more_notes': _('Notes'),
         }
+    elif for_model is models.PrmParameterCode:
+        labels = {
+            'prm_id': _('Parameter ID'),
+            'prm_name': _('Parameter Name'),
+        }
     elif for_model is models.PrjProjects:
         labels = {
             'prj_name': _('Project Name'),
             'prj_descrption': _('Project Description'),
             'prj_url': _('Project URL'),
         }
-    elif for_model is models.StnStations:
-        labels = {
-            'stn_name': _('Station Name'),
-            'stn_planned_lat': _('Planned Latitude'),
-            'stn_planned_lon': _('Planned Longitude'),
-            'stn_planned_depth': _('Planned Depth'),
-            'stn_notes': _('Station Notes'),
-        }
-    elif for_model is models.SteStationEvents:
-        labels = {
-            'dep': _('Deployment'),
-            'set_type': _('Event Type'),
-            'ste_date': _('Event Date'),
-            'crs': _('Cruise'),
-            'ste_lat_ship': _('Latitude, by ship instruments'),
-            'ste_lon_ship': _('Longitude, by ship instruments'),
-            'ste_depth_ship': _('Depth, by ship instruments'),
-            'ste_lat_mcal': _('Latitude'),
-            'ste_lon_mcal': _('Longitude'),
-            'ste_depth_mcal': _('Depth'),
-            'ste_team': _('Team'),
-            'ste_instrument_cond': _('Instrument Conditions'),
-            'ste_weather_cond': _('Weather Conditions'),
-            'ste_logs': _('Event Log Location'),
-            'ste_notes': _('Event Notes'),
-        }
-    elif for_model is models.CrsCruises:
-        labels = {
-            'crs_name': _('Cruise Name'),
-            'crs_pi_name': _('Principal Investigator Name'),
-            'crs_institute_name': _('Institute Name'),
-            'crs_geographic_location': _('Geographic Location'),
-            'crs_start_date': _('Start Date'),
-            'crs_end_date': _('End Date'),
-            'crs_notes': _('Cruise Notes'),
-        }
     elif for_model is models.RecRecordingEvents:
         labels = {
+            'rsc': _("Recording schedule associated with this recording event"),
             'tea_id_setup_by': _("Team member who programmed the recording setup"),
             'rec_date_of_system_chk': _("Recording date of the system check (Time in UTC)"),
             'tea_id_checked_by': _("Team member who prefored the System Check"),
@@ -127,7 +159,6 @@ def get_labels(for_model):
         }
     elif for_model is models.RscRecordingSchedules:
         labels = {
-            'rec': _("Recording Event this recording schedule is associated with"),
             'rsc_name': _("A human readable name for this duty cycle if it is to be used as a preset configuration"),
             'rsc_period': _("Unit of time before the recording schedul repeats (seconds)"),
         }
@@ -140,16 +171,6 @@ def get_labels(for_model):
             'rst_rate': _("Sampling rate in Hertz (Hz)"),
             'rst_gain': _("Decibles (dB)"),
         }
-    elif for_model is models.TeaTeamMembers:
-        labels = {
-            'tea_last_name': _("Last Name of the team member"),
-            'tea_first_name': _("First Name of the team Member"),
-        }
-    elif for_model is models.SetStationEventCode:
-        labels = {
-            'set_name': _('Station Event Code Name'),
-            'set_description': _('Station Event Code Description'),
-        }
     elif for_model is models.RttTimezoneCode:
         labels = {
             'rtt_id': _("Time Zone ID"),
@@ -157,36 +178,45 @@ def get_labels(for_model):
             'rtt_name': _('Time Zone Name'),
             'rtt_offset': _('Time Zone Offset'),
         }
-    elif for_model is models.EmmMakeModel:
+    elif for_model is models.SetStationEventCode:
         labels = {
-            'eqt': _("Equipment category"),
-            'emm_make': _("Equipment make"),
-            'emm_model': _("Equipment model"),
-            'emm_depth_rating': _("The depth in metres this piece of equipment is rated for"),
-            'emm_description': _("Short description of the piece of equipment"),
+            'set_id': _('Station Event Code ID'),
+            'set_name': _('Station Event Code Name'),
+            'set_description': _('Station Event Code Description'),
         }
-    elif for_model is models.EqhHydrophoneProperties:
+    elif for_model is models.SteStationEvents:
         labels = {
-            'eqh_range_min': _("Bottom frequency in the functional flat range of the hydrophone in Hz (+-3 dB unless "
-                               "stated in notes)"),
-            'eqh_range_max': _("Top frequency in the functional flat range of the hydrophone in Hz (+-3 dB unless "
-                               "stated in notes)"),
+            'dep': _('Deployment'),
+            'set_type': _('Event Type'),
+            'ste_date': _('Event Date'),
+            'crs': _('Cruise'),
+            'ste_lat_ship': _('Latitude, by ship instruments'),
+            'ste_lon_ship': _('Longitude, by ship instruments'),
+            'ste_depth_ship': _('Depth, by ship instruments'),
+            'ste_lat_mcal': _('Latitude, MCAL'),
+            'ste_lon_mcal': _('Longitude, MCAL'),
+            'ste_depth_mcal': _('Depth, MCAL'),
+            'ste_team': _('Team'),
+            'ste_instrument_cond': _('Instrument Conditions'),
+            'ste_weather_cond': _('Weather Conditions'),
+            'ste_logs': _('Event Log Location'),
+            'ste_notes': _('Event Notes'),
         }
-    elif for_model is models.EqrRecorderProperties:
+    elif for_model is models.StnStations:
         labels = {
-            'eqc_max_channels': _("Maximum number of channels a piece of equipment can handle."),
-            'eqc_max_sample_rate': _("How fast data can be recorded in KHz"),
+            'stn_name': _('Station Name'),
+            'stn_code': _('Code or abbreviation used for a station'),
+            'stn_revision': _('Station Revision'),
+            'sts_status_sts': _('Status of this station'),
+            'stn_planned_lat': _('Planned Latitude'),
+            'stn_planned_lon': _('Planned Longitude'),
+            'stn_planned_depth': _('Planned Depth'),
+            'stn_notes': _('Station Notes'),
         }
-    elif for_model is models.EcpChannelProperties:
+    elif for_model is models.TeaTeamMembers:
         labels = {
-            'ecp_channel_no': _("Channel number"),
-            'eqa_adc_bits': _("ADC Bits represented in this channel"),
-            'ecp_voltage_range': _("Voltage Range"),
-            'ecp_gain': _("How much a channel is amplified in dB."),
-        }
-    elif for_model is models.EprEquipmentParameters:
-        labels = {
-            'prm': _("The parameter type attached to a piece of equipment"),
+            'tea_last_name': _("Last Name of the team member"),
+            'tea_first_name': _("First Name of the team Member"),
         }
 
     return labels
@@ -243,6 +273,8 @@ class CruiseForm(forms.ModelForm):
         fields = labels.keys()
         widgets = {
             'crs_notes': forms.Textarea(attrs={"rows": 2}),
+            'crs_start_date': forms.DateInput(attrs={"type": "date"}),
+            'crs_end_date': forms.DateInput(attrs={"type": "date"}),
         }
 
 
@@ -253,6 +285,7 @@ class CreateStationEventForm(forms.ModelForm):
         labels = get_labels(model)
         fields = labels.keys()
         widgets = {
+            'ste_date': forms.DateInput(attrs={"type": "date"}),
             'ste_instrument_cond': forms.Textarea(attrs={"rows": 2}),
             'ste_weather_cond': forms.Textarea(attrs={"rows": 2}),
             'ste_logs': forms.Textarea(attrs={"rows": 2}),
@@ -266,6 +299,15 @@ class CreateRecordEventForm(forms.ModelForm):
         model = models.RecRecordingEvents
         labels = get_labels(model)
         fields = labels.keys()
+        widgets = {
+            'rec_date_of_system_chk': forms.DateInput(attrs={"type": "date"}),
+            'rec_date_first_recording': forms.DateInput(attrs={"type": "date"}),
+            'rec_date_last_recording': forms.DateInput(attrs={"type": "date"}),
+            'rec_date_data_download': forms.DateInput(attrs={"type": "date"}),
+            'rec_date_data_backed_up': forms.DateInput(attrs={"type": "date"}),
+            'rec_first_in_water': forms.DateInput(attrs={"type": "date"}),
+            'rec_last_in_water': forms.DateInput(attrs={"type": "date"}),
+        }
 
 
 class CreateRecordScheduleForm(forms.ModelForm):
@@ -312,6 +354,39 @@ class SetForm(forms.ModelForm):
         widgets = {
             'set_id': forms.HiddenInput(),
             'set_description': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+class PrmForm(forms.ModelForm):
+
+    class Meta:
+        model = models.PrmParameterCode
+        labels = get_labels(model)
+        fields = labels.keys()
+        widgets = {
+            'prm_id': forms.HiddenInput()
+        }
+
+
+class EqaForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EqaAdcBitsCode
+        labels = get_labels(model)
+        fields = labels.keys()
+        widgets = {
+            'eqa_id': forms.HiddenInput()
+        }
+
+
+class EqtForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EqtEquipmentTypeCode
+        labels = get_labels(model)
+        fields = labels.keys()
+        widgets = {
+            'eqt_id': forms.HiddenInput()
         }
 
 
@@ -391,12 +466,3 @@ class EqrRecorderPropertiesForm(forms.ModelForm):
 
         eqt_choices = models.EqtEquipmentTypeCode.objects.all().values_list()
         self.fields['eqt'].choices = eqt_choices
-
-
-class CodeEditForm(forms.ModelForm):
-
-    value = forms.CharField(max_length=255, label="")
-
-    class Meta:
-        model = models.EqaAdcBitsCode
-        fields = ['value']

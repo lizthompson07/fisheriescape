@@ -1,0 +1,23 @@
+Station Name,Station Code,Station Revision,Status,Planned Latitude,Planned Longitude,Estimated Depth,Notes
+Central Gully,CGL,a,current,43.8571,-58.8888,1500,Planned coordinates not known; these are drop coordinates for Sept 2016 deployment (JASCO/OCMD Noise Monitoring)
+Dawson Canyon,DAC,a,current,43.1438,-61.117,1400,
+Eastern Gully,EGL,a,current,43.8669,-58.0002,2000,Planned coordinates not known; these are drop coordinates for Sept 2016 deployment (JASCO/OCMD Noise Monitoring)
+Emerald Basin,EMB,a,past,43.6084,-62.8685,199,
+Emerald Basin,EMB,b,current,43.5,-62.869,200,Shifted in 2018 to avoid fishing activity
+Fundian Channel,FCH,a,current,42.043,-65.3618,1300,
+Gully Deep,GLD,a,current,43.7417,-58.7953,2500,
+Grand Manan Basin,GMB,a,current,44.691,-66.53,180,
+Gully-Shortland,GSH,a,current,43.8638,-58.5882,1550,
+Inter-Canyon Deep,ICD,a,current,43.5,-59.2743,1500,
+Jordan Basin,JOB,a,current,43.307,-67.0455,207,
+Logan Canyon,LOC,a,past,43.45,-59.95,1500,July 2014 AMAR deployment (JASCO)
+Logan Canyon,LOC,b,current,43.4424,-59.9443,1400,
+Mid-Gully Canyon,MGL,a,past,43.85,-58.9197,1750,
+Mid-Gully Canyon,MGL,b,current,43.8622,-58.91,1361,Shifted in 2013 to reduce flow noise
+Roseway Basin,ROB,a,current,43,-65.568,160,
+S. Ann's Bank,SAB,a,current,46.3048,-58.8746,310,
+St. Ann's Bank Deep,SBD,a,current,46.3552,-58.728,367,
+St. Ann's Bank Shallow,SBS,a,current,46.1953,-59.1554,97,
+Stone Fence,STF,a,current,44.4633,-57.1825,425,
+Shallow Gully,SGL,a,current,43.71,-59.1283,250,
+Shortland-Haldimand,SHH,a,current,44.0977,-58.903,1550,
