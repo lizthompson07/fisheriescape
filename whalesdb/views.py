@@ -5,11 +5,46 @@ from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
-import re
+import json
+import datetime
 
 from . import forms
 from . import models
 from . import filters
+
+
+def get_id(model, sort):
+    obj = model.objects.all().order_by('-' + sort).values_list()
+
+    n_id = 1
+    if obj and obj[0][0]:
+        n_id = int(obj[0][0]) + 1
+
+    return n_id
+
+
+# Parameter deletion
+def par_delete(request, url, emm_id, prm_id):
+    try:
+        emm = models.EmmMakeModel.objects.get(emm_id=emm_id)
+        prm = models.PrmParameterCode.objects.get(prm_id=prm_id)
+
+        prm_obj = models.EprEquipmentParameters.objects.get(emm=emm, prm=prm)
+
+        prm_obj.delete()
+
+    finally:
+        return HttpResponseRedirect(reverse("whalesdb:details_"+url, kwargs={'pk': emm_id}))
+
+
+# Channel Deletion
+def ecp_delete(request, ecp_id):
+    try:
+        ecp = models.EcpChannelProperties.objects.get(ecp_id=ecp_id)
+        emm_id = ecp.emm.emm_id
+        ecp.delete()
+    finally:
+        return HttpResponseRedirect(reverse("whalesdb:details_recorder", kwargs={'pk': emm_id}))
 
 
 def get_fields(labels):
@@ -40,34 +75,34 @@ def get_model_object(obj_name):
     }
     '''
 
-    if obj_name == 'adcbits':
+    if obj_name == 'eqa':
         obj_def = {
             'label': "ADC-Bits",
             'url': obj_name,
             'order': "eqa_id",
             'model': models.EqaAdcBitsCode,
-            'entry': "code_entry",
+            'entry': obj_name,
             'fields': [_("ID"), _("Value")]
         }
-    elif obj_name == 'parameter':
+    elif obj_name == 'prm':
         obj_def = {
             'label': "Equipment Parameter",
             'url': obj_name,
             'order': "prm_id",
             'model': models.PrmParameterCode,
-            'entry': "code_entry",
+            'entry': obj_name,
             'fields': [_("ID"), _("Value")]
         }
-    elif obj_name == 'equipment_type':
+    elif obj_name == 'eqt':
         obj_def = {
             'label': "Equipment Type",
             'url': obj_name,
             'order': "eqt_id",
             'model': models.EqtEquipmentTypeCode,
-            'entry': "code_entry",
+            'entry': obj_name,
             'fields': [_("ID"), _("Value")]
         }
-    elif obj_name == 'ste':
+    elif obj_name == 'set':
         obj_def = {
             'label': "Station Event",
             'url': obj_name,
@@ -254,7 +289,7 @@ class IndexView(TemplateView):
                     {
                         'type': 'codelist',
                         'title': "Station Event Code Table",
-                        'url': "ste",
+                        'url': "set",
                         'icon': "img/whales/station.svg",
                     },
                 ]
@@ -314,19 +349,19 @@ class IndexView(TemplateView):
                     {
                         'type': 'codelist',
                         'title': "ADC Bits Code Table",
-                        'url': "adcbits",
+                        'url': "eqa",
                         'icon': "img/whales/transfer.svg",
                     },
                     {
                         'type': 'codelist',
                         'title': "Parameter Code Table",
-                        'url': "parameter",
+                        'url': "prm",
                         'icon': "img/whales/function.svg",
                     },
                     {
                         'type': 'codelist',
                         'title': "Equipment Type Code Table",
-                        'url': "equipment_type",
+                        'url': "eqt",
                         'icon': "img/whales/equipment.svg",
                     },
                 ]
@@ -334,30 +369,6 @@ class IndexView(TemplateView):
         ]
 
         return context
-
-
-# Parameter deletion
-def par_delete(request, url, emm_id, prm_id):
-    try:
-        emm = models.EmmMakeModel.objects.get(emm_id=emm_id)
-        prm = models.PrmParameterCode.objects.get(prm_id=prm_id)
-
-        prm_obj = models.EprEquipmentParameters.objects.get(emm=emm, prm=prm)
-
-        prm_obj.delete()
-
-    finally:
-        return HttpResponseRedirect(reverse("whalesdb:details_"+url, kwargs={'pk': emm_id}))
-
-
-# Channel Deletion
-def ecp_delete(request, ecp_id):
-    try:
-        ecp = models.EcpChannelProperties.objects.get(ecp_id=ecp_id)
-        emm_id = ecp.emm.emm_id
-        ecp.delete()
-    finally:
-        return HttpResponseRedirect(reverse("whalesdb:details_recorder", kwargs={'pk': emm_id}))
 
 
 class CloserTemplateView(TemplateView):
@@ -396,9 +407,9 @@ class CreateTemplate(CreateView):
     cancel_url = "whalesdb:index"
 
     def get_initial(self):
-        print(self.kwargs)
         if 'pop' in self.kwargs:
             self.template_name = "whalesdb/create_default_no_head.html"
+            self.success_url = reverse_lazy("whalesdb:close_me")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -434,6 +445,7 @@ class UpdateSmartForm(LoginRequiredMixin, UpdateTemplate):
     login_url = '/accounts/login_required/'
 
     def setup(self, request, *args, **kwargs):
+
         obj_def = get_smart_object(kwargs['obj_name'])
 
         self.model = obj_def['model']
@@ -445,7 +457,7 @@ class UpdateSmartForm(LoginRequiredMixin, UpdateTemplate):
         super().setup(request, *args, **kwargs)
 
 
-class CreateParameter(CreateTemplate):
+class CreatePrmParameter(CreateTemplate):
     form_class = forms.EprEquipmentParametersForm
 
     def form_valid(self, form):
@@ -535,6 +547,53 @@ class CreateRecorder(CreateEMM):
         eqr.save()
 
         return HttpResponseRedirect(reverse('whalesdb:details_eqr', kwargs={'pk': eqr.pk}))
+
+
+class CreateDeployment(LoginRequiredMixin, CreateTemplate):
+    model = models.DepDeployments
+    template_name = "whalesdb/create_deployment.html"
+    success_url = "#"
+    cancel_url = "whalesdb:index"
+    form_class = forms.DeploymentForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if initial:
+            initial = initial.copy()
+        else:
+            initial = {}
+
+        now = datetime.datetime.now()
+
+        initial['dep_year'] = now.year
+        initial['dep_month'] = now.month
+
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in models.StnStations.objects.all().order_by('stn_id').values_list()]
+
+        context['station_json'] = json.dumps(station_dict)
+        return context
+
+
+class UpdateDeployment(LoginRequiredMixin, UpdateTemplate):
+    model = models.DepDeployments
+    template_name = "whalesdb/create_deployment.html"
+    success_url = "#"
+    cancel_url = "whalesdb:index"
+    form_class = forms.DeploymentForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in models.StnStations.objects.all().order_by('stn_id').values_list()]
+
+        context['station_json'] = json.dumps(station_dict)
+        return context
 
 
 class DetailsMakeModel(DetailView):
@@ -669,58 +728,68 @@ class SimpleEditView(LoginRequiredMixin, CreateView):
     login_url = '/accounts/login_required/'
     template_name = "whalesdb/code_entry.html"
 
-    def form_valid(self, form):
-        form.save()
+    success_url = reverse_lazy('whalesdb:close_me')
 
-        return HttpResponseRedirect(reverse('whalesdb:close_me'))
+    def get_initial(self):
+        print("init")
+        return super().get_initial()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        obj_def = get_model_object(self.view_code)
+
+        context["title"] = obj_def["label"]
+        return context
 
 
-class CodeEditView(SimpleEditView):
+class PrmCodeEditView(SimpleEditView):
 
-    form_class = forms.CodeEditForm
+    form_class = forms.PrmForm
+    view_code = "prm"
 
     def get_initial(self):
         initial = super().get_initial()
 
-        obj_def = get_model_object(self.kwargs['lookup'])
+        initial['prm_id'] = get_id(models.PrmParameterCode, 'prm_id')
 
-        self.model = obj_def['model']
-        self.form_class._meta.model = self.model
-
-        obj = obj_def['model'].objects.all().order_by('-' + obj_def['order']).values_list()
-
-        n_id = 1
-        if obj and obj[0][0]:
-            n_id = int(obj[0][0]) + 1
-
-        initial[obj_def['order']] = n_id
-
-    def get_context_data(self, **kwargs):
-
-        obj_def = get_model_object(self.kwargs['lookup'])
-
-        context = super().get_context_data(**kwargs)
-        context["title"] = obj_def['label']
-        return context
+        return initial
 
 
-class TeaCodeEditView(SimpleEditView):
-    form_class = forms.TeaForm
+class EqaCodeEditView(SimpleEditView):
+
+    form_class = forms.EqaForm
+    view_code = "eqa"
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        initial['eqa_id'] = get_id(models.EqaAdcBitsCode, 'eqa_id')
+
+        return initial
+
+
+class EqtCodeEditView(SimpleEditView):
+
+    form_class = forms.EqtForm
+    view_code = "eqt"
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        initial['eqt_id'] = get_id(models.EqtEquipmentTypeCode, 'eqt_id')
+
+        return initial
 
 
 class RttCodeEditView(SimpleEditView):
     form_class = forms.RttForm
+    view_code = "rtt"
 
     def get_initial(self):
         initial = super().get_initial()
 
-        obj = models.RttTimezoneCode.objects.all().order_by('-rtt_id').values_list()
-
-        n_id = 1
-        if obj and obj[0][0]:
-            n_id = int(obj[0][0]) + 1
-
-        initial['rtt_id'] = n_id
+        initial['rtt_id'] = get_id(models.RttTimezoneCode, 'rtt_id')
 
         return initial
 
@@ -728,16 +797,16 @@ class RttCodeEditView(SimpleEditView):
 class SetCodeEditView(SimpleEditView):
 
     form_class = forms.SetForm
+    view_code = "set"
 
     def get_initial(self):
         initial = super().get_initial()
 
-        obj = models.SetStationEventCode.objects.all().order_by('-set_id').values_list()
-
-        n_id = 1
-        if obj and obj[0][0]:
-            n_id = int(obj[0][0]) + 1
-
-        initial['set_id'] = n_id
+        initial['set_id'] = get_id(models.SetStationEventCode, 'set_id')
 
         return initial
+
+
+class TeaCodeEditView(SimpleEditView):
+    form_class = forms.TeaForm
+    view_code = "tea"

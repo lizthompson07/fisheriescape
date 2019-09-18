@@ -94,6 +94,25 @@ def load_equipment_type_codes():
             models.EqtEquipmentTypeCode(entry['eqt_id'], entry['eqt_name']).save()
 
 
+def load_sts_status_sts_codes():
+    data_array = [
+        {
+            'sts_id': 1,
+            'sts_name': 'Current'
+        },
+        {
+            'sts_id': 2,
+            'sts_name': 'Past'
+        }
+    ]
+
+    for entry in data_array:
+        # Do not add entries that are already in the code list
+        if not models.StsStatus.objects.filter(sts_name=entry['sts_name']):
+            models.StsStatus(entry['sts_id'], entry['sts_name']).save()
+
+
 load_adcbits()
 load_parameter_types()
 load_equipment_type_codes()
+load_sts_status_sts_codes()
