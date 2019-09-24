@@ -369,22 +369,22 @@ class IndexView(TemplateView):
                         'icon': "img/whales/record.svg",
                     },
                     {
+                        'obj_name': "eqp",
+                        'title': "Equipment",
+                        'url': "whalesdb:list_obj",
+                        'icon': "img/whales/equipment.svg",
+                    },
+                    {
                         'obj_name': "eda",
                         'title': "Equipment Attachments",
                         'url': "whalesdb:list_obj",
-                        'icon': "img/whales/record.svg",
+                        'icon': "img/whales/record_attach.svg",
                     },
                     {
                         'obj_name': "edh",
                         'title': "Hydrophone Attachments",
                         'url': "whalesdb:list_obj",
-                        'icon': "img/whales/record.svg",
-                    },
-                    {
-                        'obj_name': "eqp",
-                        'title': "Equipment",
-                        'url': "whalesdb:list_obj",
-                        'icon': "img/whales/record.svg",
+                        'icon': "img/whales/microphone_attach.svg",
                     },
                 ],
                 'code': [
@@ -404,7 +404,7 @@ class IndexView(TemplateView):
                         'type': 'codelist',
                         'title': "Equipment Type Code Table",
                         'url': "eqt",
-                        'icon': "img/whales/equipment.svg",
+                        'icon': "img/whales/equipment_type.svg",
                     },
                 ]
             },
