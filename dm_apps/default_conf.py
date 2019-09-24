@@ -71,7 +71,7 @@ MY_INSTALLED_APPS = [app for app in APP_DICT]
 SHOW_TICKETS_APP = True
 
 # Specify your database connection details
-MYSQL_DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
@@ -80,17 +80,12 @@ MYSQL_DATABASES = {
             'init_command': 'SET default_storage_engine=INNODB',
         },
     },
-}
-
-ORACLE_DATABASES = {
-    'default': {
+    'whalesdb': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': '[YOUR_DB_NAME_HERE]',
-        'USER': '[YOUR_DB_USER_NAME_HERE]',
-        'PASSWORD': '[YOUR_DB_PASSWORD_HERE]',
-        'HOST': '[YOUR_DB_HOST_ADDRESS_HERE]',
+        'NAME': 'DTRAN',
+        'USER': 'whale_amd',
+        'PASSWORD': 'BigSpla3h#',
+        'HOST': 'VSNSBIOD78.ENT.DFO-MPO.CA',
         'PORT': '1521'
-    }
+    },
 }
-
-DATABASES = MYSQL_DATABASES
