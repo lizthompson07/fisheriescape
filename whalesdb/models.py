@@ -351,7 +351,15 @@ class StnStations(models.Model):
         db_table = 'stn_stations'
 
     def __str__(self):
-        return "{}: {} Revision {}".format(self.stn_code, self.stn_name, self.stn_revision)
+        current = "Past"
+
+        list = StnStations.objects.filter(stn_name=self.stn_name).order_by("-stn_revision").values_list("stn_revision")
+        print(list)
+
+        if list[0][0] == self.stn_revision:
+            current = "Current"
+
+        return "{}: {} Revision {} ({})".format(self.stn_code, self.stn_name, self.stn_revision, current)
 
 
 class TeaTeamMembers(models.Model):
