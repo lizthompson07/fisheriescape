@@ -14,15 +14,15 @@
             table {
                 width: 100%;
             }
-            th, td, table{
+            th, td, table {
                 font-size: small;
             }
         {% else %}
             table {
                 width: 60%;
             }
-            td  {
-            padding-right: 10px;
+            td {
+                padding-right: 10px;
             }
         {% endif %}
     </style>
@@ -66,12 +66,20 @@
                         {% if form.instance.id %}
 
                             <td>
-                                <a class="file-delete-me under-dev" href="#" val="{{ form.instance.id }}">
-                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                         title="Delete">
+                                {% if "status" in title|lower %}
+                                    {% url 'ihub:delete_status' form.instance.id as my_delete_url %}
+                                {% elif "entry" in title|lower %}
+                                    {% url 'ihub:delete_entry_type' form.instance.id as my_delete_url %}
+                                {% elif "funding" in title|lower %}
+                                    {% url 'ihub:delete_funding_type' form.instance.id as my_delete_url %}
+                                {% elif "entry" in title|lower %}
+                                    {% url 'ihub:delete_entry_type' form.instance.id as my_delete_url %}
+
+                                {% endif %}
+
+                                <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
+                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                                 </a>
-                                <a id="secrect-delete-btn-{{ form.instance.id }}"
-                                   href="#" class="hidden"></a>
                             </td>
                         {% else %}
                             <td>(new record)</td>
@@ -92,9 +100,17 @@
 {% endblock content %}
 {% block body_js %}
     <script type="application/javascript">
+
+        $(".delete-btn").click(function () {
+            input = confirm("Are you sure you want to delete this line?")
+            if (input) {
+                window.location.href = $(this).attr("delete_url")
+            }
+        });
+
         $(".color-cell").each(function () {
             let myColor = $(this).attr("color-value");
-            $(this).children().children("input").css("background-color",myColor);
+            $(this).children().children("input").css("background-color", myColor);
         });
 
 
