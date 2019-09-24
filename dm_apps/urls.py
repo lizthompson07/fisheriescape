@@ -125,6 +125,11 @@ try:
 except RuntimeError:
     print("not connecting staff app")
 
+try:
+    urlpatterns += i18n_patterns(path('whalesdb/', include('whalesdb.urls')), prefix_default_language=True)
+except RuntimeError as e:
+    print(e)
+    print("not connecting whalesdb app")
 
 try:
     urlpatterns += i18n_patterns(path('trapnet/', include('trapnet.urls')), prefix_default_language=True)
