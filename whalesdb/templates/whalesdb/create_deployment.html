@@ -24,7 +24,7 @@
                 <div class="col-3 align-bottom">
                     <br />
                     {% with "New "|add:btn_txt as btn_lbl %}
-                    <a href="#" class="btn btn-primary" onclick="return popitup('{% url 'whalesdb:create_obj' 'pop' field.name %}','popoutWindow')">{% trans btn_lbl %}</a>
+                    <a href="#" class="btn btn-primary" onclick="return popitup('{% url 'whalesdb:create_obj' field.name 'pop' %}','popoutWindow')">{% trans btn_lbl %}</a>
                     {% endwith %}
                 </div>
                 {% endif %}

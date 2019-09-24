@@ -118,7 +118,7 @@ def get_model_object(obj_name):
             'order': "tea_last_name",
             'model': models.TeaTeamMembers,
             'entry': obj_name,
-            'fields': [_("ID"), _("Last Name"), _("First Name")]
+            'fields': [_("ID"), _("Abbv."), _("Last Name"), _("First Name")]
         }
     elif obj_name == 'rtt':
         obj_def = {
@@ -144,91 +144,115 @@ def get_smart_object(obj_name):
         'model': models.StnStations, <-- The model represented by the obj_name
         'form_class': forms.StationForm, <-- The form to use when the 'Crete New' button is checked on the list page
 
-        'filter_class': filters.FilterStations, <-- the filter class to use on the list page
+        'filter_class': filters.StnFilter, <-- the filter class to use on the list page
         'title': "Stations", <-- the human readable title to use on the list page
     }
     '''
 
-    if obj_name == 'stn':
-        obj_def = {
-            'model': models.StnStations,
-            'form_class': forms.StationForm,
-
-            'filter_class': filters.FilterStations,
-            'title': "Stations",
-        }
-    elif obj_name == 'prj':
-        obj_def = {
-            'model': models.PrjProjects,
-            'form_class': forms.ProjectForm,
-
-            'filter_class': filters.FilterProjects,
-            'title': "Projects",
-        }
-    elif obj_name == 'mor':
-        obj_def = {
-            'model': models.MorMooringSetups,
-            'form_class': forms.MooringForm,
-
-            'filter_class': filters.FilterMoorings,
-            'title': "Mooring Setups",
-        }
-    elif obj_name == 'crs':
+    if obj_name == 'crs':
         obj_def = {
             'model': models.CrsCruises,
-            'form_class': forms.CruiseForm,
+            'form_class': forms.CrsForm,
 
-            'filter_class': filters.FilterCruises,
+            'filter_class': filters.CrsFilter,
             'title': "Cruises",
         }
     elif obj_name == 'dep':
         obj_def = {
             'model': models.DepDeployments,
-            'form_class': forms.DeploymentForm,
+            'form_class': forms.DepForm,
 
-            'filter_class': filters.FilterDeployments,
+            'filter_class': filters.DepFilter,
             'title': "Deployments",
         }
-    elif obj_name == 'ste':
+    elif obj_name == 'eda':
         obj_def = {
-            'model': models.SteStationEvents,
-            'form_class': forms.CreateStationEventForm,
+            'model': models.EdaEquipmentAttachments,
+            'form_class': forms.EdaForm,
 
-            'filter_class': filters.FilterStationEvents,
-            'title': "Station Events",
+            'filter_class': filters.EdaFilter,
+            'title': "Equipment Attachements",
+        }
+    elif obj_name == 'edh':
+        obj_def = {
+            'model': models.EhaHydrophoneAttachements,
+            'form_class': forms.EdhForm,
+
+            'filter_class': filters.EdhFilter,
+            'title': "Hydrophone Attachements",
+        }
+    elif obj_name == 'eqh':
+        obj_def = {
+            'model': models.EqhHydrophoneProperties,
+            'filterset_class': filters.EqhFilter,
+
+            'create_link': 'whalesdb:create_eqh',
+            'detail_link': 'whalesdb:details_eqh',
+            'title': 'Hydrophone Equipment',
+        }
+    elif obj_name == 'eqp':
+        obj_def = {
+            'model': models.EqpEquipment,
+            'form_class': forms.EqpForm,
+
+            'filter_class': filters.EqpFilter,
+            'title': "Equipment",
+        }
+    elif obj_name == 'mor':
+        obj_def = {
+            'model': models.MorMooringSetups,
+            'form_class': forms.MorForm,
+
+            'filter_class': filters.MorFilter,
+            'title': "Mooring Setups",
+        }
+    elif obj_name == 'prj':
+        obj_def = {
+            'model': models.PrjProjects,
+            'form_class': forms.PrjForm,
+
+            'filter_class': filters.PrjFilter,
+            'title': "Projects",
         }
     elif obj_name == 'rec':
         obj_def = {
             'model': models.RecRecordingEvents,
-            'form_class': forms.CreateRecordEventForm,
+            'form_class': forms.RecForm,
 
-            'filter_class': filters.FilterRecordEvents,
+            'filter_class': filters.RecFilter,
             'title': "Recording Events",
         }
     elif obj_name == 'rsc':
         obj_def = {
             'model': models.RscRecordingSchedules,
-            'form_class': forms.CreateRecordScheduleForm,
+            'form_class': forms.RscForm,
 
-            'filter_class': filters.FilterRecordingSchedules,
+            'filter_class': filters.RscFilter,
             'title': "Recording Schedules",
         }
     elif obj_name == 'rst':
         obj_def = {
             'model': models.RstRecordingStage,
-            'form_class': forms.CreateRecordStageForm,
+            'form_class': forms.RstForm,
 
-            'filter_class': filters.FilterRecordingStages,
+            'filter_class': filters.RstFilter,
             'title': "Recording Stages",
         }
-    elif obj_name == 'eqh':
+    elif obj_name == 'ste':
         obj_def = {
-            'model': models.EqhHydrophoneProperties,
-            'filterset_class': filters.EqhHydrophone,
+            'model': models.SteStationEvents,
+            'form_class': forms.SteForm,
 
-            'create_link': 'whalesdb:create_eqh',
-            'detail_link': 'whalesdb:details_eqh',
-            'title': 'Hydrophone Equipment',
+            'filter_class': filters.SteFilter,
+            'title': "Station Events",
+        }
+    elif obj_name == 'stn':
+        obj_def = {
+            'model': models.StnStations,
+            'form_class': forms.StnForm,
+
+            'filter_class': filters.StnFilter,
+            'title': "Stations",
         }
 
     else:
@@ -256,31 +280,31 @@ class IndexView(TemplateView):
                     },
                     {
                         'obj_name': 'prj',
-                        'title': "Create Project",
+                        'title': "Project",
                         'url': "whalesdb:list_obj",
                         'icon': "img/whales/project.svg",
                     },
                     {
                         'obj_name': 'mor',
-                        'title': "Create Mooring Setup",
+                        'title': "Mooring Setup",
                         'url': "whalesdb:list_obj",
                         'icon': "img/whales/equipment.svg",
                     },
                     {
                         'obj_name': 'crs',
-                        'title': "Create Cruise",
+                        'title': "Cruise",
                         'url': "whalesdb:list_obj",
                         'icon': 'img/icons/boat.svg',
                     },
                     {
                         'obj_name': 'dep',
-                        'title': "Create Deployment",
+                        'title': "Deployment",
                         'url': "whalesdb:list_obj",
                         'icon': "img/whales/deployment.svg",
                     },
                     {
                         'obj_name': 'ste',
-                        'title': "Create Station Event",
+                        'title': "Station Event",
                         'url': "whalesdb:list_obj",
                         'icon': 'img/icons/boat.svg',
                     },
@@ -327,7 +351,7 @@ class IndexView(TemplateView):
                         'type': 'codelist',
                         'title': 'Time Zone',
                         'url': 'rtt',
-                        'icon': "img/whales/team.svg"
+                        'icon': "img/whales/clock.svg"
                     }
                 ]
             },
@@ -342,6 +366,24 @@ class IndexView(TemplateView):
                     {
                         'title': "Recorder",
                         'url': "whalesdb:list_eqr",
+                        'icon': "img/whales/record.svg",
+                    },
+                    {
+                        'obj_name': "eda",
+                        'title': "Equipment Attachments",
+                        'url': "whalesdb:list_obj",
+                        'icon': "img/whales/record.svg",
+                    },
+                    {
+                        'obj_name': "edh",
+                        'title': "Hydrophone Attachments",
+                        'url': "whalesdb:list_obj",
+                        'icon': "img/whales/record.svg",
+                    },
+                    {
+                        'obj_name': "eqp",
+                        'title': "Equipment",
+                        'url': "whalesdb:list_obj",
                         'icon': "img/whales/record.svg",
                     },
                 ],
@@ -385,7 +427,7 @@ class UpdateTemplate(UpdateView):
     cancel_url = "whalesdb:index"
 
     def get_initial(self):
-        if 'pop' in self.kwargs:
+        if 'pop' in self.kwargs and self.kwargs['pop']=='pop':
             self.template_name = "whalesdb/create_default_no_head.html"
 
     def get_context_data(self, **kwargs):
@@ -395,7 +437,7 @@ class UpdateTemplate(UpdateView):
         if hasattr(self, 'obj_name'):
             context['obj_name'] = self.obj_name
 
-        if 'pop' in self.kwargs:
+        if 'pop' in self.kwargs and self.kwargs['pop']=='pop':
             context["pop"] = True
 
         return context
@@ -407,7 +449,7 @@ class CreateTemplate(CreateView):
     cancel_url = "whalesdb:index"
 
     def get_initial(self):
-        if 'pop' in self.kwargs:
+        if 'pop' in self.kwargs and self.kwargs['pop']=='pop':
             self.template_name = "whalesdb/create_default_no_head.html"
             self.success_url = reverse_lazy("whalesdb:close_me")
 
@@ -418,7 +460,7 @@ class CreateTemplate(CreateView):
         if hasattr(self, 'obj_name'):
             context['obj_name'] = self.obj_name
 
-        if 'pop' in self.kwargs:
+        if 'pop' in self.kwargs and self.kwargs['pop']=='pop':
             context["pop"] = True
 
         return context
@@ -458,7 +500,7 @@ class UpdateSmartForm(LoginRequiredMixin, UpdateTemplate):
 
 
 class CreatePrmParameter(CreateTemplate):
-    form_class = forms.EprEquipmentParametersForm
+    form_class = forms.EprForm
 
     def form_valid(self, form):
         form.save(commit=False)
@@ -516,7 +558,7 @@ class CreateEMM(CreateChannel):
 
 
 class CreateHydrophone(CreateEMM):
-    form_class = forms.EqhHydrophonePropertiesForm
+    form_class = forms.EqhForm
     success_url = "whalesdb:list_eqh"
     cancel_url = success_url
 
@@ -532,7 +574,7 @@ class CreateHydrophone(CreateEMM):
 
 
 class CreateRecorder(CreateEMM):
-    form_class = forms.EqrRecorderPropertiesForm
+    form_class = forms.EqrForm
 
     # if successful the form takes the user to the details form
     # if canceled the form takes the user to the recorder list
@@ -554,7 +596,7 @@ class CreateDeployment(LoginRequiredMixin, CreateTemplate):
     template_name = "whalesdb/create_deployment.html"
     success_url = "#"
     cancel_url = "whalesdb:index"
-    form_class = forms.DeploymentForm
+    form_class = forms.DepForm
 
     def get_initial(self):
         initial = super().get_initial()
@@ -585,7 +627,7 @@ class UpdateDeployment(LoginRequiredMixin, UpdateTemplate):
     template_name = "whalesdb/create_deployment.html"
     success_url = "#"
     cancel_url = "whalesdb:index"
-    form_class = forms.DeploymentForm
+    form_class = forms.DepForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -679,7 +721,7 @@ class ListEMM(ListGeneric):
 
 class ListRecorder(ListEMM):
     model = models.EqrRecorderProperties
-    filterset_class = filters.EqrRecorder
+    filterset_class = filters.EqrFilter
     create_link = "whalesdb:create_eqr"
     detail_link = "whalesdb:details_eqr"
     title = "Recorder Equipment"
@@ -687,7 +729,7 @@ class ListRecorder(ListEMM):
 
 class ListHydrophone(ListEMM):
     model = models.EqhHydrophoneProperties
-    filterset_class = filters.EqhHydrophone
+    filterset_class = filters.EqhFilter
     create_link = "whalesdb:create_eqh"
     detail_link = "whalesdb:details_eqh"
     title = "Hydrophone Equipment"

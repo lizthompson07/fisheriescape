@@ -1,0 +1,8 @@
+RTT_ABB,RTT_NAME,RTT_OFFSET
+UTC,Coordinated Universal Time,0
+ADT,Atlantic Daylight Saving Time,-3
+AST,Atlantic Standard Time,-4
+EDT,Eastern Daylight Saving Time,-4
+EST,Eastern Standard Time,-5
+NDT,Newfoundland Daylight Saving Time,-2.5
+NST,Newfoundland Standard Time,-3.5

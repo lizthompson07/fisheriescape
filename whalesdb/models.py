@@ -163,6 +163,9 @@ class EqpEquipment(models.Model):
         managed = False
         db_table = 'eqp_equipment'
 
+    def __str__(self):
+        return "{} - {} - {}".format(self.emm, self.eqp_serial, self.eqp_asset_id)
+
 
 class EqrRecorderProperties(models.Model):
     emm = models.OneToOneField(EmmMakeModel, models.DO_NOTHING, primary_key=True)
@@ -225,6 +228,9 @@ class PrmParameterCode(models.Model):
     class Meta:
         managed = False
         db_table = 'prm_parameter_code'
+
+    def __str__(self):
+        return "{}".format(self.prm_name)
 
 
 class RecRecordingEvents(models.Model):
@@ -339,30 +345,18 @@ class StnStations(models.Model):
     stn_planned_lon = models.DecimalField(max_digits=9, decimal_places=6)
     stn_planned_depth = models.DecimalField(max_digits=10, decimal_places=6)
     stn_notes = models.CharField(max_length=4000, blank=True, null=True)
-    sts_status_sts = models.ForeignKey('StsStatus', models.DO_NOTHING)
 
     class Meta:
         managed = False
         db_table = 'stn_stations'
 
     def __str__(self):
-        return "{}: {} Revision {} ({})".format(self.stn_code, self.stn_name, self.stn_revision, self.sts_status_sts)
-
-
-class StsStatus(models.Model):
-    sts_id = models.BigIntegerField(primary_key=True)
-    sts_name = models.CharField(max_length=25)
-
-    class Meta:
-        managed = False
-        db_table = 'sts_status'
-
-    def __str__(self):
-        return "{}".format(self.sts_name)
+        return "{}: {} Revision {}".format(self.stn_code, self.stn_name, self.stn_revision)
 
 
 class TeaTeamMembers(models.Model):
     tea_id = models.BigIntegerField(primary_key=True)
+    tea_abb = models.CharField(max_length=50, blank=True, null=True)
     tea_last_name = models.CharField(max_length=50)
     tea_first_name = models.CharField(max_length=50)
 
@@ -370,3 +364,6 @@ class TeaTeamMembers(models.Model):
         managed = False
         db_table = 'tea_team_members'
         unique_together = (('tea_last_name', 'tea_first_name'),)
+
+    def __str__(self):
+        return "{}, {} ({})".format(self.tea_last_name, self.tea_first_name, self.tea_abb)
