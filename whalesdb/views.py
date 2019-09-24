@@ -288,7 +288,7 @@ class IndexView(TemplateView):
                         'obj_name': 'mor',
                         'title': "Mooring Setup",
                         'url': "whalesdb:list_obj",
-                        'icon': "img/whales/equipment.svg",
+                        'icon': "img/whales/mooring.svg",
                     },
                     {
                         'obj_name': 'crs',
