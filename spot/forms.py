@@ -25,7 +25,7 @@ class OrganizationForm(forms.ModelForm):
         model = ml_models.Organization
         fields = [
             'name_eng',
-            'name_fre',
+            'name_ind',
             'abbrev',
             'address',
             'city',
