@@ -259,6 +259,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
         context["field_list_2"] = [
             # 'legal_band_name',
             # 'former_name',
+            'nation',
             'website',
             'next_election',
             'new_coucil_effective_date',
@@ -706,11 +707,10 @@ class OrganizationCueCard(PDFTemplateView):
 
         context["org_field_list_1"] = [
             'name_eng',
-            'name_fre',
             'name_ind',
-            'abbrev',
-            'legal_band_name',
             'former_name',
+            'abbrev',
+            'nation',
             'website',
         ]
         context["org_field_list_2"] = [
