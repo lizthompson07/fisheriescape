@@ -1,0 +1,3 @@
+SET_NAME,SET_DESCRIPTION
+Deployment,Equipment is placed in the water. Note: the time associated with an AMAR deployment event should be DROP TIME.
+Recovery ,Equipment is recovered from the water. Note: the time associated with an AMAR recovery event should be RELEASE TIME.
