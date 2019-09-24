@@ -108,8 +108,8 @@ class OrganizationFormShort(forms.ModelForm):
         model = models.Organization
         fields = [
             'name_eng',
-            # 'name_fre',
             'name_ind',
+            'nation',
             'abbrev',
             'address',
             'city',
