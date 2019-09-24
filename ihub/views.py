@@ -204,12 +204,12 @@ class OrganizationListView(SiteLoginRequiredMixin, FilterView):
         search_term=Concat(
             'name_eng',
             Value(" "),
-            'name_fre',
-            Value(" "),
+            # 'name_fre',
+            # Value(" "),
             'name_ind',
             Value(" "),
-            'legal_band_name',
-            Value(" "),
+            # 'legal_band_name',
+            # Value(" "),
             'former_name',
             Value(" "),
             'province__name',
@@ -226,7 +226,7 @@ class OrganizationListView(SiteLoginRequiredMixin, FilterView):
         context["my_object"] = ml_models.Organization.objects.first()
         context["field_list"] = [
             'name_eng',
-            'name_fre',
+            # 'name_fre',
             'name_ind',
             'province',
             'grouping',
@@ -243,8 +243,9 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'name_eng',
-            'name_fre',
+            # 'name_fre',
             'name_ind',
+            'former_name',
             'abbrev',
             'address',
             'mailing_address',
@@ -256,8 +257,8 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
             'notes',
         ]
         context["field_list_2"] = [
-            'legal_band_name',
-            'former_name',
+            # 'legal_band_name',
+            # 'former_name',
             'website',
             'next_election',
             'new_coucil_effective_date',

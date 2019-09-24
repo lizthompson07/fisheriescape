@@ -169,7 +169,7 @@ class OrganizationListView(MasterListAccessRequiredMixin, FilterView):
     filterset_class = filters.OrganizationFilter
     model = models.Organization
     queryset = models.Organization.objects.annotate(
-        search_term=Concat('name_eng', 'name_fre', 'abbrev', output_field=TextField()))
+        search_term=Concat('name_eng', 'abbrev', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
