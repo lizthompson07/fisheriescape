@@ -28,6 +28,8 @@ class CrsCruises(models.Model):
 
 class DepDeployments(models.Model):
     dep_id = models.BigIntegerField(primary_key=True)
+    dep_year = models.BigIntegerField()
+    dep_month = models.BigIntegerField()
     dep_name = models.CharField(max_length=255)
     stn = models.ForeignKey('StnStations', models.DO_NOTHING)
     prj = models.ForeignKey('PrjProjects', models.DO_NOTHING)
@@ -65,8 +67,9 @@ class EccCalibrationValue(models.Model):
 
 
 class EcpChannelProperties(models.Model):
+    ecp_id = models.BigIntegerField(primary_key=True)
     emm = models.ForeignKey('EqrRecorderProperties', models.DO_NOTHING)
-    ecp_channel_no = models.BigIntegerField(primary_key=True)
+    ecp_channel_no = models.BigIntegerField()
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', models.DO_NOTHING, db_column='eqa_adc_bits')
     ecp_voltage_range = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     ecp_gain = models.BigIntegerField(blank=True, null=True)
@@ -89,7 +92,8 @@ class EdaEquipmentAttachments(models.Model):
 
 
 class EhaHydrophoneAttachements(models.Model):
-    eda = models.OneToOneField(EdaEquipmentAttachments, models.DO_NOTHING, primary_key=True)
+    eha_id = models.BigIntegerField(primary_key=True)
+    eda = models.ForeignKey(EdaEquipmentAttachments, models.DO_NOTHING)
     eqp = models.ForeignKey('EqpEquipment', models.DO_NOTHING)
 
     class Meta:
@@ -115,7 +119,8 @@ class EmmMakeModel(models.Model):
 
 
 class EprEquipmentParameters(models.Model):
-    emm = models.OneToOneField(EmmMakeModel, models.DO_NOTHING, primary_key=True)
+    epr_id = models.BigIntegerField(primary_key=True)
+    emm = models.ForeignKey(EmmMakeModel, models.DO_NOTHING)
     prm = models.ForeignKey('PrmParameterCode', models.DO_NOTHING)
 
     class Meta:
@@ -224,6 +229,7 @@ class PrmParameterCode(models.Model):
 
 class RecRecordingEvents(models.Model):
     rec_id = models.BigIntegerField(primary_key=True)
+    rsc = models.ForeignKey('RscRecordingSchedules', models.DO_NOTHING)
     tea_id_setup_by = models.ForeignKey('TeaTeamMembers', models.DO_NOTHING, db_column='tea_id_setup_by', blank=True,
                                         null=True, related_name='tea_id_setup_by')
     rec_date_of_system_chk = models.DateField(blank=True, null=True)
@@ -255,7 +261,6 @@ class RecRecordingEvents(models.Model):
 
 class RscRecordingSchedules(models.Model):
     rsc_id = models.BigIntegerField(primary_key=True)
-    rec = models.ForeignKey(RecRecordingEvents, models.DO_NOTHING)
     rsc_name = models.CharField(max_length=100, blank=True, null=True)
     rsc_period = models.BigIntegerField()
 
@@ -328,17 +333,32 @@ class SteStationEvents(models.Model):
 class StnStations(models.Model):
     stn_id = models.BigIntegerField(primary_key=True)
     stn_name = models.CharField(max_length=100)
+    stn_code = models.CharField(max_length=3)
+    stn_revision = models.BigIntegerField()
     stn_planned_lat = models.DecimalField(max_digits=9, decimal_places=6)
     stn_planned_lon = models.DecimalField(max_digits=9, decimal_places=6)
     stn_planned_depth = models.DecimalField(max_digits=10, decimal_places=6)
     stn_notes = models.CharField(max_length=4000, blank=True, null=True)
+    sts_status_sts = models.ForeignKey('StsStatus', models.DO_NOTHING)
 
     class Meta:
         managed = False
         db_table = 'stn_stations'
 
     def __str__(self):
-        return "{} [{:.5}, {:.5}]".format(self.stn_name, self.stn_planned_lat, self.stn_planned_lon)
+        return "{}: {} Revision {} ({})".format(self.stn_code, self.stn_name, self.stn_revision, self.sts_status_sts)
+
+
+class StsStatus(models.Model):
+    sts_id = models.BigIntegerField(primary_key=True)
+    sts_name = models.CharField(max_length=25)
+
+    class Meta:
+        managed = False
+        db_table = 'sts_status'
+
+    def __str__(self):
+        return "{}".format(self.sts_name)
 
 
 class TeaTeamMembers(models.Model):

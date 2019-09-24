@@ -33,9 +33,8 @@ urlpatterns = [
 
     # If no specalized form is found the generic smart forms will be used
     path('create/<str:obj_name>', views.CreateSmartForm.as_view(), name="create_obj"),
-    path('create/<str:pop>/<str:obj_name>', views.CreateSmartForm.as_view(), name="create_obj"),
-    path('update/<str:obj_name>/<int:pk>', views.UpdateSmartForm.as_view(), name="update_obj"),
-    path('update/<str:pop>/<str:obj_name>', views.UpdateSmartForm.as_view(), name="update_stn"),
+    path('create/<str:obj_name>/<str:pop>', views.CreateSmartForm.as_view(), name="create_obj"),
+    path('update/<str:obj_name>/<int:pk>', views.UpdateSmartForm.as_view(), name="create_obj"),
     path('list/<str:obj_name>', views.ListSmart.as_view(), name="list_obj"),
 
     # Specialized STE Station Event Code form

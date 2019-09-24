@@ -39,6 +39,7 @@ def get_short_labels(for_model):
         labels = {
             'stn_name': _('Name'),
             'stn_code': _('Code'),
+            'stn_revision': _('Revision'),
             'stn_planned_lat': _('Latitude'),
             'stn_planned_lon': _('Longitude'),
             'stn_planned_depth': _('Depth (meters)'),
@@ -71,12 +72,23 @@ def get_labels(for_model):
             'prj': _('Project'),
             'mor': _('Mooring Setup'),
         }
+    elif for_model is models.EdaEquipmentAttachments:
+        labels = {
+            "eqp": _("Equipment"),
+            "dep": _("Deployment"),
+            "rec": _("Recording Event"),
+        }
     elif for_model is models.EcpChannelProperties:
         labels = {
             'ecp_channel_no': _("Channel number"),
             'eqa_adc_bits': _("ADC Bits represented in this channel"),
             'ecp_voltage_range': _("Voltage Range"),
             'ecp_gain': _("How much a channel is amplified in dB."),
+        }
+    elif for_model is models.EhaHydrophoneAttachements:
+        labels = {
+            "eda": _("Equipment Attached To"),
+            "eqp": _("Hydrophone"),
         }
     elif for_model is models.EmmMakeModel:
         labels = {
@@ -101,6 +113,14 @@ def get_labels(for_model):
                                "stated in notes)"),
             'eqh_range_max': _("Top frequency in the functional flat range of the hydrophone in Hz (+-3 dB unless "
                                "stated in notes)"),
+        }
+    elif for_model is models.EqpEquipment:
+        labels = {
+            'emm': _("Make and Model"),
+            'eqp_serial': _("Serial Number"),
+            'eqp_asset_id': _("Asset ID"),
+            'eqp_date_purchase': _("Date Purchased"),
+            'eqp_notes': _("Notes"),
         }
     elif for_model is models.EqrRecorderProperties:
         labels = {
@@ -207,7 +227,6 @@ def get_labels(for_model):
             'stn_name': _('Station Name'),
             'stn_code': _('Code or abbreviation used for a station'),
             'stn_revision': _('Station Revision'),
-            'sts_status_sts': _('Status of this station'),
             'stn_planned_lat': _('Planned Latitude'),
             'stn_planned_lon': _('Planned Longitude'),
             'stn_planned_depth': _('Planned Depth'),
@@ -215,6 +234,7 @@ def get_labels(for_model):
         }
     elif for_model is models.TeaTeamMembers:
         labels = {
+            'tea_abb': _("Short Name of the team member"),
             'tea_last_name': _("Last Name of the team member"),
             'tea_first_name': _("First Name of the team Member"),
         }
@@ -222,50 +242,7 @@ def get_labels(for_model):
     return labels
 
 
-class DeploymentForm(forms.ModelForm):
-
-    class Meta:
-        model = models.DepDeployments
-        labels = get_labels(model)
-        fields = labels.keys()
-
-
-class MooringForm(forms.ModelForm):
-
-    class Meta:
-        model = models.MorMooringSetups
-        labels = get_labels(model)
-        fields = labels.keys()
-        widgets = {
-            'mor_additional_equipment': forms.Textarea(attrs={"rows": 2}),
-            'mor_general_moor_description': forms.Textarea(attrs={"rows": 2}),
-            'more_notes': forms.Textarea(attrs={"rows": 2}),
-        }
-
-
-class ProjectForm(forms.ModelForm):
-
-    class Meta:
-        model = models.PrjProjects
-        labels = get_labels(model)
-        fields = labels.keys()
-        widgets = {
-            'prj_descrption': forms.Textarea(attrs={"rows": 2}),
-        }
-
-
-class StationForm(forms.ModelForm):
-
-    class Meta:
-        model = models.StnStations
-        labels = get_labels(model)
-        fields = labels.keys()
-        widgets = {
-            'stn_notes': forms.Textarea(attrs={"rows": 2}),
-        }
-
-
-class CruiseForm(forms.ModelForm):
+class CrsForm(forms.ModelForm):
 
     class Meta:
         model = models.CrsCruises
@@ -278,22 +255,170 @@ class CruiseForm(forms.ModelForm):
         }
 
 
-class CreateStationEventForm(forms.ModelForm):
+class DepForm(forms.ModelForm):
 
     class Meta:
-        model = models.SteStationEvents
+        model = models.DepDeployments
+        labels = get_labels(model)
+        fields = labels.keys()
+
+
+class EdaForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EdaEquipmentAttachments
+        labels = get_labels(model)
+        fields = labels.keys()
+
+
+class EdhForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EhaHydrophoneAttachements
+        labels = get_labels(model)
+        fields = labels.keys()
+
+
+class EcpChannelPropertiesForm(forms.ModelForm):
+
+    def get_initial_for_field(self, field, field_name):
+        if field_name is 'ecp_channel_no':
+            return 1
+
+        return super().get_initial_for_field(field, field_name)
+
+    class Meta:
+        model = models.EcpChannelProperties
+        labels = get_labels(model)
+        fields = labels.keys()
+
+
+class EprForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EprEquipmentParameters
+        labels = get_labels(model)
+        fields = labels.keys()
+
+
+class EqaForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EqaAdcBitsCode
         labels = get_labels(model)
         fields = labels.keys()
         widgets = {
-            'ste_date': forms.DateInput(attrs={"type": "date"}),
-            'ste_instrument_cond': forms.Textarea(attrs={"rows": 2}),
-            'ste_weather_cond': forms.Textarea(attrs={"rows": 2}),
-            'ste_logs': forms.Textarea(attrs={"rows": 2}),
-            'ste_notes': forms.Textarea(attrs={"rows": 2}),
+            'eqa_id': forms.HiddenInput()
         }
 
 
-class CreateRecordEventForm(forms.ModelForm):
+class EqhForm(forms.ModelForm):
+
+    eqt = forms.ChoiceField(label=_("Equipment category"))
+    emm_make = forms.CharField(max_length=50, label=_("Equipment make"))
+    emm_model = forms.CharField(max_length=50, label=_("Equipment model"))
+    emm_depth_rating = forms.IntegerField(label=_("The depth in metres this piece of equipment is rated for"))
+    emm_description = forms.CharField(max_length=500, label=_("Short description of the piece of equipment"))
+
+    class Meta:
+        model = models.EqhHydrophoneProperties
+
+        p_lbls = get_labels(models.EmmMakeModel)
+        fields = list(p_lbls.keys())
+
+        labels = get_labels(model)
+        fields.extend(list(labels.keys()))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        eqt_choices = models.EqtEquipmentTypeCode.objects.all().values_list()
+        self.fields['eqt'].choices = eqt_choices
+
+
+class EqpForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EqpEquipment
+        labels = get_labels(model)
+        fields = labels.keys()
+
+        widgets = {
+            'eqp_notes': forms.Textarea(attrs={"rows": 2}),
+            'eqp_date_purchase': forms.DateInput(attrs={"type": "date"}),
+        }
+
+
+class EqrForm(forms.ModelForm):
+    eqt = forms.ChoiceField(label=_("Equipment category"))
+    emm_make = forms.CharField(max_length=50, label=_("Equipment make"))
+    emm_model = forms.CharField(max_length=50, label=_("Equipment model"))
+    emm_depth_rating = forms.IntegerField(label=_("The depth in metres this piece of equipment is rated for"))
+    emm_description = forms.CharField(max_length=500, label=_("Short description of the piece of equipment"))
+
+    class Meta:
+        model = models.EqrRecorderProperties
+
+        p_lbls = get_labels(models.EmmMakeModel)
+        fields = list(p_lbls.keys())
+
+        labels = get_labels(model)
+        fields.extend(list(labels.keys()))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        eqt_choices = models.EqtEquipmentTypeCode.objects.all().values_list()
+        self.fields['eqt'].choices = eqt_choices
+
+
+class EqtForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EqtEquipmentTypeCode
+        labels = get_labels(model)
+        fields = labels.keys()
+        widgets = {
+            'eqt_id': forms.HiddenInput()
+        }
+
+
+class MorForm(forms.ModelForm):
+
+    class Meta:
+        model = models.MorMooringSetups
+        labels = get_labels(model)
+        fields = labels.keys()
+        widgets = {
+            'mor_additional_equipment': forms.Textarea(attrs={"rows": 2}),
+            'mor_general_moor_description': forms.Textarea(attrs={"rows": 2}),
+            'more_notes': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+class PrmForm(forms.ModelForm):
+
+    class Meta:
+        model = models.PrmParameterCode
+        labels = get_labels(model)
+        fields = labels.keys()
+        widgets = {
+            'prm_id': forms.HiddenInput()
+        }
+
+
+class PrjForm(forms.ModelForm):
+
+    class Meta:
+        model = models.PrjProjects
+        labels = get_labels(model)
+        fields = labels.keys()
+        widgets = {
+            'prj_descrption': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+class RecForm(forms.ModelForm):
 
     class Meta:
         model = models.RecRecordingEvents
@@ -310,7 +435,7 @@ class CreateRecordEventForm(forms.ModelForm):
         }
 
 
-class CreateRecordScheduleForm(forms.ModelForm):
+class RscForm(forms.ModelForm):
 
     class Meta:
         model = models.RscRecordingSchedules
@@ -318,18 +443,10 @@ class CreateRecordScheduleForm(forms.ModelForm):
         fields = labels.keys()
 
 
-class CreateRecordStageForm(forms.ModelForm):
+class RstForm(forms.ModelForm):
 
     class Meta:
         model = models.RstRecordingStage
-        labels = get_labels(model)
-        fields = labels.keys()
-
-
-class TeaForm(forms.ModelForm):
-
-    class Meta:
-        model = models.TeaTeamMembers
         labels = get_labels(model)
         fields = labels.keys()
 
@@ -357,112 +474,35 @@ class SetForm(forms.ModelForm):
         }
 
 
-class PrmForm(forms.ModelForm):
+class SteForm(forms.ModelForm):
 
     class Meta:
-        model = models.PrmParameterCode
+        model = models.SteStationEvents
         labels = get_labels(model)
         fields = labels.keys()
         widgets = {
-            'prm_id': forms.HiddenInput()
+            'ste_date': forms.DateInput(attrs={"type": "date"}),
+            'ste_instrument_cond': forms.Textarea(attrs={"rows": 2}),
+            'ste_weather_cond': forms.Textarea(attrs={"rows": 2}),
+            'ste_logs': forms.Textarea(attrs={"rows": 2}),
+            'ste_notes': forms.Textarea(attrs={"rows": 2}),
         }
 
 
-class EqaForm(forms.ModelForm):
+class StnForm(forms.ModelForm):
 
     class Meta:
-        model = models.EqaAdcBitsCode
+        model = models.StnStations
         labels = get_labels(model)
         fields = labels.keys()
         widgets = {
-            'eqa_id': forms.HiddenInput()
+            'stn_notes': forms.Textarea(attrs={"rows": 2}),
         }
 
 
-class EqtForm(forms.ModelForm):
+class TeaForm(forms.ModelForm):
 
     class Meta:
-        model = models.EqtEquipmentTypeCode
+        model = models.TeaTeamMembers
         labels = get_labels(model)
         fields = labels.keys()
-        widgets = {
-            'eqt_id': forms.HiddenInput()
-        }
-
-
-class EmmMakeModelForm(forms.ModelForm):
-
-    class Meta:
-        model = models.EmmMakeModel
-        labels = get_labels(model)
-        fields = labels.keys()
-
-
-class EprEquipmentParametersForm(forms.ModelForm):
-
-    class Meta:
-        model = models.EprEquipmentParameters
-        labels = get_labels(model)
-        fields = labels.keys()
-
-
-class EcpChannelPropertiesForm(forms.ModelForm):
-
-    def get_initial_for_field(self, field, field_name):
-        if field_name is 'ecp_channel_no':
-            return 1
-
-        return super().get_initial_for_field(field, field_name)
-
-    class Meta:
-        model = models.EcpChannelProperties
-        labels = get_labels(model)
-        fields = labels.keys()
-
-
-class EqhHydrophonePropertiesForm(forms.ModelForm):
-
-    eqt = forms.ChoiceField(label=_("Equipment category"))
-    emm_make = forms.CharField(max_length=50, label=_("Equipment make"))
-    emm_model = forms.CharField(max_length=50, label=_("Equipment model"))
-    emm_depth_rating = forms.IntegerField(label=_("The depth in metres this piece of equipment is rated for"))
-    emm_description = forms.CharField(max_length=500, label=_("Short description of the piece of equipment"))
-
-    class Meta:
-        model = models.EqhHydrophoneProperties
-
-        p_lbls = get_labels(models.EmmMakeModel)
-        fields = list(p_lbls.keys())
-
-        labels = get_labels(model)
-        fields.extend(list(labels.keys()))
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        eqt_choices = models.EqtEquipmentTypeCode.objects.all().values_list()
-        self.fields['eqt'].choices = eqt_choices
-
-
-class EqrRecorderPropertiesForm(forms.ModelForm):
-
-    eqt = forms.ChoiceField(label=_("Equipment category"))
-    emm_make = forms.CharField(max_length=50, label=_("Equipment make"))
-    emm_model = forms.CharField(max_length=50, label=_("Equipment model"))
-    emm_depth_rating = forms.IntegerField(label=_("The depth in metres this piece of equipment is rated for"))
-    emm_description = forms.CharField(max_length=500, label=_("Short description of the piece of equipment"))
-
-    class Meta:
-        model = models.EqrRecorderProperties
-
-        p_lbls = get_labels(models.EmmMakeModel)
-        fields = list(p_lbls.keys())
-
-        labels = get_labels(model)
-        fields.extend(list(labels.keys()))
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        eqt_choices = models.EqtEquipmentTypeCode.objects.all().values_list()
-        self.fields['eqt'].choices = eqt_choices
