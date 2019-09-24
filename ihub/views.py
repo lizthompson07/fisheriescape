@@ -933,6 +933,12 @@ def manage_orgs(request):
     return render(request, 'ihub/manage_settings.html', context)
 
 
+def delete_status(request, pk):
+    my_obj = models.Status.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("ihub:manage_statuses"))
+
+
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_statuses(request):
@@ -957,6 +963,12 @@ def manage_statuses(request):
     context['title'] = "Manage Statuses"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def delete_entry_type(request, pk):
+    my_obj = models.EntryType.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("ihub:manage_entry_types"))
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -985,6 +997,12 @@ def manage_entry_types(request):
     return render(request, 'ihub/manage_settings_small.html', context)
 
 
+def delete_funding_purpose(request, pk):
+    my_obj = models.FundingPurpose.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("ihub:manage_funding_purposes"))
+
+
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_funding_purposes(request):
@@ -1009,6 +1027,11 @@ def manage_funding_purposes(request):
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
 
+
+def delete_reserve(request, pk):
+    my_obj = ml_models.Reserve.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("ihub:manage_reserves"))
 
 
 @login_required(login_url='/accounts/login_required/')
