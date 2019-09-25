@@ -881,9 +881,9 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
     login_url = '/accounts/login_required/'
     template_name = "ihub/report_consultation_log.html"
 
-    # def get_pdf_filename(self):
-    #     pdf_filename = "iHub Consultation Log ({}).pdf".format(timezone.now().strftime("%Y-%m-%d"))
-    #     return pdf_filename
+    def get_pdf_filename(self):
+        pdf_filename = "iHub Consultation Log ({}).pdf".format(timezone.now().strftime("%Y-%m-%d"))
+        return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
