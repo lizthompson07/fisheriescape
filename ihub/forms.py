@@ -320,3 +320,16 @@ GroupingFormSet = modelformset_factory(
     form=GroupingForm,
     extra=1,
 )
+
+
+class NationForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.Nation
+        fields = "__all__"
+
+
+NationFormSet = modelformset_factory(
+    model=ml_models.Nation,
+    form=NationForm,
+    extra=1,
+)

@@ -75,10 +75,12 @@ urlpatterns = [
     path('settings/entry-types/', views.manage_entry_types, name="manage_entry_types"),
     path('settings/funding-purpose/', views.manage_funding_purposes, name="manage_funding_purposes"),
     path('settings/reserves/', views.manage_reserves, name="manage_reserves"),
+    path('settings/nations/', views.manage_nations, name="manage_nations"),
 
     path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
     path('settings/entry-type/<int:pk>/delete/', views.delete_entry_type, name="delete_entry_type"),
     path('settings/funding-purpose/<int:pk>/delete/', views.delete_funding_purpose, name="delete_funding_purpose"),
     path('settings/reserve/<int:pk>/delete/', views.delete_reserve, name="delete_reserve"),
+    path('settings/nation/<int:pk>/delete/', views.delete_nation, name="delete_nation"),
 
 ]
