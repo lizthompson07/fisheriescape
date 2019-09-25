@@ -416,6 +416,7 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
             'entry_type',
             'initial_date',
             'regions',
+            'date_last_modified',
             'last_modified_by',
             'created_by',
         ]
@@ -638,6 +639,7 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
     def form_valid(self, form):
         sectors = listrify(form.cleaned_data["sectors"])
         orgs = listrify(form.cleaned_data["organizations"])
+        statuses = listrify(form.cleaned_data["statuses"])
         org = int(nz(form.cleaned_data["single_org"]), 0)
         fy = str(form.cleaned_data["fiscal_year"])
         report = int(form.cleaned_data["report"])
@@ -673,6 +675,7 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
             {
                 "fy": nz(fy, "None"),
                 "orgs": nz(orgs, "None"),
+                "statuses": nz(statuses, "None"),
             }))
 
         else:
@@ -881,9 +884,9 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
     login_url = '/accounts/login_required/'
     template_name = "ihub/report_consultation_log.html"
 
-    def get_pdf_filename(self):
-        pdf_filename = "iHub Consultation Log ({}).pdf".format(timezone.now().strftime("%Y-%m-%d"))
-        return pdf_filename
+    # def get_pdf_filename(self):
+    #     pdf_filename = "Consultations Update Log ({}).pdf".format(timezone.now().strftime("%Y-%m-%d"))
+    #     return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -892,11 +895,14 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
         # first, filter out the "none" placeholder
         fy = self.kwargs["fy"]
         orgs = self.kwargs["orgs"]
+        statuses = self.kwargs["statuses"]
 
         if fy == "None":
             fy = None
         if orgs == "None":
             orgs = None
+        if statuses == "None":
+            statuses = None
 
         # get an entry list for the fiscal year (if any)
         entry_list = models.Entry.objects.all().order_by("-initial_date")
@@ -911,6 +917,16 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             q_objects = Q()  # Create an empty Q object to start with
             for o in org_list:
                 q_objects |= Q(organizations=o)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+
+        if statuses:
+            # we have to refine the queryset to only the selected orgs
+            status_list = [models.Status.objects.get(pk=int(o)) for o in statuses.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for o in status_list:
+                q_objects |= Q(status=o)  # 'or' the Q objects together
             # apply the filter
             entry_list = entry_list.filter(q_objects)
 

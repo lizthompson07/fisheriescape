@@ -44,12 +44,12 @@
         size: legal landscape;
         margin: 1cm;
         @frame footer {
-            -pdf-frame-content: footerContent;
-            bottom: 0cm;
-            margin-left: 18cm;
-            margin-right: 0cm;
-            height: 1cm;
-        }
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
     }
 
 </style>
@@ -63,7 +63,7 @@
 
 
 <h1>
-    {% trans "iHub Consultation Log" %} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
+    {% trans "Consultations Update Log – Government of Canada" %} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
 </h1>
 
 
@@ -97,9 +97,9 @@
                 LOCATION: {{ entry.location|nz:"----" }}
             </td>
             <td>
-                {% for org in entry.organizations.all %}
-                    {{ org }},
-                {% endfor %}
+                ORGANIZATIONS: {{ entry.orgs_str }}
+                <br><br>
+                DFO SECTORS: {{ entry.sectors_str }}
             </td>
             <td>
                 {{ entry.initial_date|date:"M d, Y" }}

@@ -34,7 +34,7 @@ class EntryForm(forms.ModelForm):
             'created_by',
         ]
         widgets = {
-            'initial_date': forms.DateInput(attrs={"type": "date"}),
+            'initial_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
         }
 
@@ -51,7 +51,7 @@ class NoteForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
     # ORG_CHOICES = [(None, "---"), ]
-    field_order = ["report", "fiscal_year", "organizations", "single_org"]
+    field_order = ["report", "fiscal_year", "statuses", "organizations", "single_org"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -62,17 +62,18 @@ class ReportSearchForm(forms.Form):
             (2, _("Organizational Report / Cue Card (PDF)")),
             (3, _("iHub Summary Report (Excel Spreadsheet)")),
             (4, _("iHub Summary Report (PDF)")),
-            (5, _("Bi-monthly Consultation Log (PDF)")),
+            (5, _("Consultations Update Log (PDF)")),
         )
         fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
                       models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
         fy_choices.insert(0, (None, "all years"))
 
-        org_choices_all = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
-        org_choices_has_entry = [(obj.id, obj) for obj in models.ml_models.Organization.objects.filter(grouping__is_indigenous=True) if
+        org_choices_all = [(obj.id, obj) for obj in ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
+        org_choices_has_entry = [(obj.id, obj) for obj in ml_models.Organization.objects.filter(grouping__is_indigenous=True) if
                                  obj.entries.count() > 0]
 
-        sector_choices = [(obj.id, obj) for obj in models.ml_models.Sector.objects.all() if obj.entries.count() > 0]
+        sector_choices = [(obj.id, obj) for obj in ml_models.Sector.objects.all() if obj.entries.count() > 0]
+        status_choices = [(obj.id, obj) for obj in models.Status.objects.all() if obj.entries.count() > 0]
 
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
         self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
@@ -82,6 +83,10 @@ class ReportSearchForm(forms.Form):
         self.fields['organizations'] = forms.MultipleChoiceField(required=False,
                                                                  label='List of organizations (w/ entries) - Leave blank for all',
                                                                  choices=org_choices_has_entry)
+        self.fields['statuses'] = forms.MultipleChoiceField(required=False,
+                                                            label='Status - Leave blank for all',
+                                                            choices=status_choices,
+                                                            )
         self.fields['single_org'] = forms.ChoiceField(required=False, label='Organization', choices=org_choices_all)
 
 
@@ -98,8 +103,8 @@ class OrganizationForm(forms.ModelForm):
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
             'orgs': forms.SelectMultiple(attrs=multi_select_js),
             # dates
-            'next_election':forms.TextInput(attrs=attr_fp_date),
-            'new_coucil_effective_date':forms.TextInput(attrs=attr_fp_date)
+            'next_election': forms.TextInput(attrs=attr_fp_date),
+            'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date)
         }
 
 
@@ -125,7 +130,6 @@ class PersonForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
-
 
 
 class EntryPersonForm(forms.ModelForm):
@@ -292,7 +296,6 @@ RegionFormSet = modelformset_factory(
 )
 
 
-
 class ReserveForm(forms.ModelForm):
     class Meta:
         model = ml_models.Reserve
@@ -304,6 +307,7 @@ ReserveFormSet = modelformset_factory(
     form=ReserveForm,
     extra=1,
 )
+
 
 class GroupingForm(forms.ModelForm):
     class Meta:

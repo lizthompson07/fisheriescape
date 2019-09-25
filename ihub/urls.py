@@ -65,7 +65,7 @@ urlpatterns = [
     path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
     path('reports/summary-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.summary_export_spreadsheet, name="summary_xlsx"),
     path('reports/summary-report-pdf/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.PDFSummaryReport.as_view(), name="summary_pdf"),
-    path('reports/consultation-log/fy/<str:fy>/orgs/<str:orgs>/', views.ConsultationLogPDFTemplateView.as_view(), name="consultation_log"),
+    path('reports/consultation-log/fy/<str:fy>/orgs/<str:orgs>/statuses/<str:statuses>/', views.ConsultationLogPDFTemplateView.as_view(), name="consultation_log"),
 
     # SETTINGS #
     ############
