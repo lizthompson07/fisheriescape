@@ -8,6 +8,7 @@ from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
+attr_fp_date = {"class": "fp-date", "placeholder": "Select Date.."}
 
 
 class EntryCreateForm(forms.ModelForm):
@@ -95,6 +96,9 @@ class OrganizationForm(forms.ModelForm):
             'sectors': forms.SelectMultiple(attrs=multi_select_js),
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
             'orgs': forms.SelectMultiple(attrs=multi_select_js),
+            # dates
+            'next_election':forms.TextInput(attrs=attr_fp_date),
+            'new_coucil_effective_date':forms.TextInput(attrs=attr_fp_date)
         }
 
 
