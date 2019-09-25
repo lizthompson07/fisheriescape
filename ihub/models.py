@@ -7,7 +7,7 @@ from django.utils import timezone
 import os
 from django.utils.translation import gettext_lazy as _
 
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
@@ -69,7 +69,7 @@ class Entry(models.Model):
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
                                            limit_choices_to={'grouping__is_indigenous': True})
-    initial_date = models.DateTimeField(verbose_name=_("initial date"))
+    initial_date = models.DateTimeField(verbose_name=_("initial activity date"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
     sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
@@ -79,14 +79,14 @@ class Entry(models.Model):
 
     # funding
     fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
-    funding_needed = models.NullBooleanField(verbose_name=_("is funding needed"))
+    funding_needed = models.NullBooleanField(verbose_name=_("is funding needed?"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding purpose"), related_name="entries")
-    amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("Funding Requested"))  # title case needed
+    amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("funding requested"))  # title case needed
     amount_approved = models.FloatField(blank=True, null=True, verbose_name=_("funding approved"))
     amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("amount transferred"))
     amount_lapsed = models.FloatField(blank=True, null=True, verbose_name=_("amount lapsed"))
-    amount_owing = models.NullBooleanField(verbose_name=_("Does any funding need to be recovered"))
+    amount_owing = models.NullBooleanField(verbose_name=_("does any funding need to be recovered?"))
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -120,6 +120,15 @@ class Entry(models.Model):
     @property
     def other_notes(self):
         return self.notes.filter(~Q(type=4))
+
+    @property
+    def orgs_str(self):
+        return listrify([org for org in self.organizations.all()])
+
+    @property
+    def sectors_str(self):
+        return listrify([sec for sec in self.sectors.all()])
+
 
 class EntryPerson(models.Model):
     # Choices for role
