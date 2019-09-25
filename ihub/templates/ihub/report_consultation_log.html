@@ -94,7 +94,7 @@
             <td>
                 TITLE: {{ entry.title }}
                 <br><br>
-                LOCATION: {{ entry.location }}
+                LOCATION: {{ entry.location|nz:"----" }}
             </td>
             <td>
                 {% for org in entry.organizations.all %}
