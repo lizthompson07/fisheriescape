@@ -58,11 +58,12 @@
     $("select.chosen-select").attr("tabindex",-1)
 
     var fpConfig = {
-        '.fp-date': {},
+        '.fp-date': {dateFormat: "d-M-Y"},
         '.fp-date-time': {enableTime: true, time_24hr: true},
     };
     for (var selector in fpConfig) {
         $(selector).flatpickr(fpConfig[selector]);
+        $(selector).css("background-color","#f0ebff");
         // gives a way for the user to clear the field!
         $(selector).keydown(function (event) {
             if (event.key == "Delete" || event.key == "Escape") {
