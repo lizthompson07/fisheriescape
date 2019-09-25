@@ -1107,3 +1107,33 @@ def manage_reserves(request):
     context['title'] = "Manage Reserve List"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def delete_nation(request, pk):
+    my_obj = ml_models.Nation.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("ihub:manage_nations"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+def manage_nations(request):
+    qs = ml_models.Nation.objects.all()
+    if request.method == 'POST':
+        formset = forms.NationFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Nation list has been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_nations"))
+    else:
+        formset = forms.NationFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+    ]
+    context['title'] = "Manage Nation List"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
