@@ -667,6 +667,13 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
                 "sectors": nz(sectors, "None"),
             }))
 
+        elif report == 5:
+            return HttpResponseRedirect(reverse("ihub:consultation_log", kwargs=
+            {
+                "fy": nz(fy, "None"),
+                "orgs": nz(orgs, "None"),
+            }))
+
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
@@ -795,47 +802,31 @@ class PDFSummaryReport(PDFTemplateView):
             sectors = None
 
         # get an entry list for the fiscal year (if any)
+        entry_list = models.Entry.objects.all()
+
         if fy:
             entry_list = models.Entry.objects.filter(fiscal_year=fy)
-            if sectors:
-                # we have to refine the queryset to only the selected sectors
-                sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
-                # create the species query object: Q
-                q_objects = Q()  # Create an empty Q object to start with
-                for s in sector_list:
-                    q_objects |= Q(sectors=s)  # 'or' the Q objects together
-                # apply the filter
-                entry_list = entry_list.filter(q_objects)
-            if orgs:
-                # we have to refine the queryset to only the selected orgs
-                org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
-                # create the species query object: Q
-                q_objects = Q()  # Create an empty Q object to start with
-                for o in org_list:
-                    q_objects |= Q(organizations=o)  # 'or' the Q objects together
-                # apply the filter
-                entry_list = entry_list.filter(q_objects)
 
-        else:
-            entry_list = models.Entry.objects.all()
-            if sectors:
-                # we have to refine the queryset to only the selected sectors
-                sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
-                # create the species query object: Q
-                q_objects = Q()  # Create an empty Q object to start with
-                for s in sector_list:
-                    q_objects |= Q(sectors=s)  # 'or' the Q objects together
-                # apply the filter
-                entry_list = entry_list.filter(q_objects)
-            if orgs:
-                # we have to refine the queryset to only the selected orgs
-                org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
-                # create the species query object: Q
-                q_objects = Q()  # Create an empty Q object to start with
-                for o in org_list:
-                    q_objects |= Q(organizations=o)  # 'or' the Q objects together
-                # apply the filter
-                entry_list = entry_list.filter(q_objects)
+        if sectors:
+            # we have to refine the queryset to only the selected sectors
+            sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for s in sector_list:
+                q_objects |= Q(sectors=s)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+        if orgs:
+            # we have to refine the queryset to only the selected orgs
+            org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for o in org_list:
+                q_objects |= Q(organizations=o)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+
+
         context["entry_list"] = entry_list
 
         # remove any orgs without entries
@@ -880,6 +871,50 @@ class PDFSummaryReport(PDFTemplateView):
             'amount_lapsed',
             'amount_owing'
         ]
+
+        return context
+
+
+class ConsultationLogPDFTemplateView(PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "ihub/report_consultation_log.html"
+
+    # def get_pdf_filename(self):
+    #     pdf_filename = "iHub Consultation Log ({}).pdf".format(timezone.now().strftime("%Y-%m-%d"))
+    #     return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # get an entry list for the fiscal year (if any)
+
+        # first, filter out the "none" placeholder
+        fy = self.kwargs["fy"]
+        orgs = self.kwargs["orgs"]
+
+        if fy == "None":
+            fy = None
+        if orgs == "None":
+            orgs = None
+
+        # get an entry list for the fiscal year (if any)
+        entry_list = models.Entry.objects.all().order_by("initial_date")
+
+        if fy:
+            entry_list = models.Entry.objects.filter(fiscal_year=fy)
+
+        if orgs:
+            # we have to refine the queryset to only the selected orgs
+            org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for o in org_list:
+                q_objects |= Q(organizations=o)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+
+        context["entry_list"] = entry_list
+
+        context["fy"] = fy
 
         return context
 

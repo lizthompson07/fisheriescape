@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -111,6 +112,13 @@ class Entry(models.Model):
     def amount_outstanding(self):
         return nz(self.amount_approved, 0) - nz(self.amount_transferred, 0) - nz(self.amount_lapsed, 0)
 
+    @property
+    def followups(self):
+        return self.notes.filter(type=4)
+
+    @property
+    def other_notes(self):
+        return self.notes.filter(~Q(type=4))
 
 class EntryPerson(models.Model):
     # Choices for role
@@ -127,10 +135,23 @@ class EntryPerson(models.Model):
     role = models.IntegerField(choices=ROLE_CHOICES, blank=True, null=True, verbose_name=_("role"))
 
     def __str__(self):
-        if self.user:
-            return "{} {}".format(self.user.first_name, self.user.last_name)
-        else:
-            return "{}".format(self.name)
+        # get the name; keep in mind this might be NoneObject
+        name = "{} {}".format(self.user.first_name, self.user.last_name) if self.user else self.name
+        org = self.organization
+        role = self.get_role_display() if self.role else None
+
+        my_str = name if name else None
+
+        if org:
+            if my_str:
+                my_str += " ({})".format(org)
+            else:
+                my_str = org
+
+        if my_str and role:
+            my_str = "{}: {}".format(role.upper(), my_str)
+
+        return my_str
 
     class Meta:
         ordering = ['role', 'user__first_name', "user__last_name"]
@@ -141,10 +162,12 @@ class EntryNote(models.Model):
     ACTION = 1
     NEXTSTEP = 2
     COMMENT = 3
+    FOLLOWUP = 4
     TYPE_CHOICES = (
         (ACTION, 'Action'),
         (NEXTSTEP, 'Next step'),
         (COMMENT, 'Comment'),
+        (FOLLOWUP, 'Follow-up (*)'),
     )
 
     entry = models.ForeignKey(Entry, related_name='notes', on_delete=models.CASCADE)
@@ -155,7 +178,15 @@ class EntryNote(models.Model):
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"))
 
     def __str__(self):
-        return str(self.id)
+        my_str = "{} - {} [STATUS: {}] (Created by {} {} on {})".format(
+            self.get_type_display().upper(),
+            self.note,
+            self.status,
+            self.author.first_name,
+            self.author.last_name,
+            self.date.strftime("%Y-%m-%d"),
+        )
+        return my_str
 
     class Meta:
         ordering = ["-date"]
