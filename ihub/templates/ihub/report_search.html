@@ -49,6 +49,10 @@
                     <div class="sector_div">
                         {% bootstrap_field field %}
                     </div>
+                {% elif field.name == "statuses" %}
+                    <div class="status_div">
+                        {% bootstrap_field field %}
+                    </div>
                 {% elif field.name == "fiscal_year" %}
                     <div class="year_div">
                         {% bootstrap_field field %}
@@ -76,12 +80,14 @@
             $(".year_div").addClass("gone");
             $(".single_org_div").addClass("gone");
             $(".sector_div").addClass("gone");
+            $(".status_div").addClass("gone");
 
             $("#id_report").prop('required', true);
             $("#id_organizations").prop('required', false);
             $("#id_fiscal_year").prop('required', false);
             $("#id_single_org").prop('required', false);
             $("#id_sectors").prop('required', false);
+            $("#id_statuses").prop('required', false);
         }
 
         function configureForm() {
@@ -112,7 +118,9 @@
             } else if (reportChoice == 5) {
                 $(".org_div").removeClass("gone");
                 $(".year_div").removeClass("gone");
+                $(".status_div").removeClass("gone");
                 $("#id_organizations").multiSelect()
+                $("#id_statuses").multiSelect()
             }
         }
 
