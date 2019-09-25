@@ -97,6 +97,8 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
 
             # check to see if it is a datefield
             elif field_instance.get_internal_type() == 'DateTimeField':
+                if not date_format:
+                    date_format = "%Y-%m-%d"
                 datetime_obj = getattr(instance, field_name)
                 if display_time:
                     field_value = datetime_obj.strftime('{} %H:%M'.format(date_format))
