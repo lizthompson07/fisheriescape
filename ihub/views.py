@@ -409,6 +409,7 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'title',
+            'location',
             'organizations',
             'status',
             'sectors',
@@ -852,6 +853,7 @@ class PDFSummaryReport(PDFTemplateView):
         context["fy"] = self.kwargs["fy"]
         context["field_list"] = [
             'title',
+            'location',
             'organizations',
             'status',
             'sectors',
@@ -897,7 +899,7 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             orgs = None
 
         # get an entry list for the fiscal year (if any)
-        entry_list = models.Entry.objects.all().order_by("initial_date")
+        entry_list = models.Entry.objects.all().order_by("-initial_date")
 
         if fy:
             entry_list = models.Entry.objects.filter(fiscal_year=fy)

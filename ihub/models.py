@@ -66,6 +66,7 @@ class FundingPurpose(models.Model):
 class Entry(models.Model):
     # basic
     title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
+    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
                                            limit_choices_to={'grouping__is_indigenous': True})
     initial_date = models.DateTimeField(verbose_name=_("initial date"))
