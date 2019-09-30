@@ -65,7 +65,7 @@
                 href="{% url 'projects:staff_edit' obj.id %}" pop
                 data-toggle="tooltip" title="Edit"
                     {% endif %}
-                style="background-color: {{ obj.funding_source.color }}">
+            ">
                 {% if not report_mode %}
                     <td>
                         {% if not object.submitted and not report_mode %}
@@ -113,7 +113,7 @@
 
                 <td style="text-align: center">{{ obj.employee_type.get_cost_type_display }}</td>
 
-                <td style="text-align: center">
+                <td style="text-align: center; background-color: {{ obj.funding_source.color }}">
                     {{ obj.funding_source }}
                 </td>
                 {% if not report_mode %}
