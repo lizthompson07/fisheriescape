@@ -584,7 +584,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
         my_object = models.Project.objects.get(pk=self.kwargs["pk"])
         init = super().get_initial()
         init["project_title"] = "CLONE OF: {}".format(my_object.project_title)
-        init["year"] = fiscal_year(sap_style=True)
+        init["year"] = fiscal_year(sap_style=True, next=True)
         # init["created_by"] = self.request.user
         return init
 
