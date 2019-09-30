@@ -8,7 +8,7 @@ from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
-attr_fp_date = {"class": "fp-date", "placeholder": "Select Date.."}
+attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 
 
 class EntryCreateForm(forms.ModelForm):
