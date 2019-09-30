@@ -64,10 +64,7 @@
         {% for obj in object.om_costs.all %}
             <tr id="om-{{ obj.id }}"
                     {% if not object.submitted and not report_mode %}
-                href="{% url 'projects:om_edit' obj.id %}" pop
-                data-toggle="tooltip" title="Edit"
-                    {% endif %}
-                ">
+                href="{% url 'projects:om_edit' obj.id %}" pop  data-toggle="tooltip" title="Edit" {% endif %}>
                 {% if not report_mode %}
 
                     <td>
@@ -106,7 +103,9 @@
                     </td>
                 {% endif %}
 
-                <td style="text-align: center">{{ obj.budget_requested|currency }}</td>
+                <td style="text-align: center" class="{% if not obj.budget_requested %} major-error{% endif %}">
+                    {{ obj.budget_requested|currency }}
+                </td>
 
 
             </tr>
