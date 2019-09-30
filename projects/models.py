@@ -23,7 +23,13 @@ class BudgetCode(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name"))
 
     def __str__(self):
-        return "{} ({})".format(self.code, self.name)
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['code', ]
@@ -34,7 +40,13 @@ class Program(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
@@ -58,12 +70,12 @@ class Tag(models.Model):
 
 # This model will eventually be renamed once we get rid on the original Program table
 class Program2(models.Model):
-    national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True)
-    national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True)
-    program_inventory = models.CharField(max_length=255, blank=True, null=True)
+    national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (English)")
+    national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (French)")
+    program_inventory = models.CharField(max_length=255, blank=True, null=True, verbose_name="program inventory")
     funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
-    regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True)
-    regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True)
+    regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (English)")
+    regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (French)")
     examples = models.CharField(max_length=255, blank=True, null=True)
 
     @property
@@ -116,10 +128,32 @@ class Status(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
+
+
+class HelpText(models.Model):
+    field_name = models.CharField(max_length=255)
+    eng_text = models.TextField(verbose_name=_("English text"))
+    fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("eng_text"))):
+            return "{}".format(getattr(self, str(_("eng_text"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.eng_text)
+    class Meta:
+        ordering = ['field_name', ]
 
 
 class Project(models.Model):
@@ -278,7 +312,13 @@ class EmployeeType(models.Model):
     exclude_from_rollup = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
 
 class Level(models.Model):
@@ -297,7 +337,13 @@ class FundingSource(models.Model):
     color = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
