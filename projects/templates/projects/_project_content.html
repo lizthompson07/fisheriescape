@@ -27,7 +27,7 @@
     {# cheating here to adjust header width #}
     <th class="gone" style="width: 250px; padding: 0px; margin: 0px;"></th>
     {% for field in field_list %}
-        {% verbose_td_display object field %}
+        {% verbose_td_display object field nullmark="----" %}
     {% endfor %}
     {% verbose_td_display object "section_head_approved" %}
     {% verbose_td_display object "section_head_feedback" %}
