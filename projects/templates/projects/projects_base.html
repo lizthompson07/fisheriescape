@@ -22,6 +22,9 @@
     <li class="nav-item"><a class="nav-link" href="{% url 'projects:index' %}">
         {% trans "Home" %}
     </a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'projects:project_list' %}">
+        {% trans "All Projects" %}
+    </a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_project_list' %}">
         {% trans "My Projects" %}
     </a></li>
@@ -33,9 +36,6 @@
     </a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_branch_list' %}">
         {% trans "My Branch" %}
-    </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'projects:project_list' %}">
-        {% trans "All Projects" %}
     </a></li>
 
     {#      {% for group in user.groups.all %}#}

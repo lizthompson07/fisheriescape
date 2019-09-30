@@ -24,7 +24,6 @@
 
     <div class="container">
 
-
         <h1>{{ object }} -
             {% if object.submitted %}
                 {% trans "SUBMITTED" %}
@@ -34,7 +33,6 @@
                 </span>
             {% endif %}
         </h1>
-
 
         <div class="btn-group">
             {% if not report_mode %}
@@ -81,8 +79,10 @@
             </a>
 
         </div>
-        <a href="#" class="under-dev btn btn-sm btn-outline-primary" data-toggle="tooltip"
-           title="Use this project a template for a new project">Clone as Template</a>
+
+        <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-outline-primary" data-toggle="tooltip" title="{% trans "Use this project as a template for a new project" %}">
+            Clone Project
+        </a>
 
         <br><br><br>
 
