@@ -1,6 +1,7 @@
 {% load static %}
 {% load humanize %}
 {% load i18n %}
+{% load custom_filters %}
 
 <style>
     table, td {
@@ -94,15 +95,11 @@
                 </td>
 
                 <td>
-                    {{ obj.level }}
+                    {{ obj.level|nz:"-----" }}
                 </td>
 
 
-                {% if obj.duration_weeks %}
-                    <td style="text-align: center">
-                        {% else %}
-                    <td class="red-font" style="text-align: center">
-                {% endif %}
+                <td style="text-align: center;" class="{% if not obj.duration_weeks %}major-error{% endif %}">
                 {{ obj.duration_weeks }}
                 </td>
 
