@@ -10,6 +10,7 @@ from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
+attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -84,8 +85,8 @@ class ProjectForm(forms.ModelForm):
             "ship_needs": forms.Textarea(attrs=class_editable),
             "feedback": forms.Textarea(attrs=class_editable),
 
-            'start_date': forms.DateInput(attrs={"type": "date"}),
-            'end_date': forms.DateInput(attrs={"type": "date"}),
+            'start_date': forms.DateInput(attrs=attr_fp_date),
+            'end_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
             "section": forms.Select(attrs=chosen_js),
             "responsibility_center": forms.Select(attrs=chosen_js),

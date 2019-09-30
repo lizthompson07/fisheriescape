@@ -254,12 +254,13 @@
     {% else %}
         <script type="application/javascript">
             function adjustApproved() {
+                // if the funding is from a competitive stream, approval is implicit.
+
                 let myVal = $("#id_is_competitive").val();
-                if (myVal != 2) {
-                    $("#id_is_approved").val("1")
-                    $("#id_is_approved").prop("disabled", true)
+                if (myVal=="true") {
+                    $("#id_is_approved").val("true").prop("disabled", true);
                 } else {
-                    $("#id_is_approved").prop("disabled", false)
+                    $("#id_is_approved").prop("disabled", false).val("");
                 }
             }
 
