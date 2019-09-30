@@ -188,6 +188,12 @@
     background-color: pink;
 }
 
+.major-error {
+    background-color: red;
+    color: yellow;
+    font-weight: bold;
+}
+
 .hidden {
     visibility: hidden;
 }
