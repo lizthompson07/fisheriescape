@@ -67,7 +67,7 @@
                 href="{% url 'projects:om_edit' obj.id %}" pop
                 data-toggle="tooltip" title="Edit"
                     {% endif %}
-                style="background-color: {{ obj.funding_source.color }}">
+                ">
                 {% if not report_mode %}
 
                     <td>
@@ -90,7 +90,7 @@
                 {% endif %}
                 <td> {{ obj.description }}</td>
 
-                <td style="text-align: center">
+                <td style="text-align: center; background-color: {{ obj.funding_source.color }}">
                     {{ obj.funding_source }}
                 </td>
                 {% if not report_mode %}

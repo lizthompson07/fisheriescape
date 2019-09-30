@@ -163,6 +163,7 @@ def financial_summary_data(project):
     context["bbase"] = models.FundingSource.objects.get(pk=2).color
     context["cbase"] = models.FundingSource.objects.get(pk=3).color
 
+
     return context
 
 
