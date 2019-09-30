@@ -275,6 +275,7 @@ class EmployeeType(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
     cost_type = models.IntegerField(choices=COST_TYPE_CHOICES)
+    exclude_from_rollup = models.BooleanField(default=False)
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("name"))))

@@ -43,7 +43,7 @@
             <th>
                 {% trans "G&C Program" %}
             </th>
-            <th>
+            <th class="center-col">
                 {% trans "Funding Amount" %}
             </th>
 
@@ -72,7 +72,9 @@
                 <td>{{ obj.project_lead }}</td>
                 <td>{{ obj.proposed_title }}</td>
                 <td>{{ obj.gc_program }}</td>
-                <td>{{ obj.budget_requested|floatformat:0|intcomma }}</td>
+                <td class="center-col {% if not obj.budget_requested %} major-error{% endif %}">
+                    {{ obj.budget_requested|currency }}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
