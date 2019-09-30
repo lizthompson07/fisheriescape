@@ -1,6 +1,8 @@
 import datetime
 import json
 import os
+from copy import deepcopy
+
 import pandas as pd
 from django.conf import settings
 from django.contrib import messages
@@ -162,7 +164,6 @@ def financial_summary_data(project):
     context["abase"] = models.FundingSource.objects.get(pk=1).color
     context["bbase"] = models.FundingSource.objects.get(pk=2).color
     context["cbase"] = models.FundingSource.objects.get(pk=3).color
-
 
     return context
 
@@ -575,6 +576,90 @@ class ProjectDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+class ProjectCloneUpdateView(ProjectUpdateView):
+
+    def get_initial(self):
+        my_object = models.Project.objects.get(pk=self.kwargs["pk"])
+        init = super().get_initial()
+        init["project_title"] = "CLONE OF: {}".format(my_object.project_title)
+        # init["created_by"] = self.request.user
+        return init
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloned"] = True
+        return context
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Project.objects.get(pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.submitted = False
+        new_obj.section_head_approved = False
+        new_obj.section_head_feedback = None
+        new_obj.manager_approved = False
+        new_obj.manager_feedback = None
+        new_obj.rds_approved = False
+        new_obj.rds_feedback = None
+        new_obj.date_last_modified = timezone.now()
+        new_obj.last_modified_by = self.request.user
+        new_obj.save()
+
+        # Now we need to replicate all the related records:
+        # 1) staff
+        for old_rel_obj in old_obj.staff_members.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.project = new_obj
+            new_rel_obj.save()
+
+        # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
+        my_staff, created = models.Staff.objects.get_or_create(
+            user=self.request.user,
+            project=new_obj,
+            employee_type_id=1,
+        )
+        my_staff.lead = True
+        my_staff.save()
+
+        # 2) O&M
+        for old_rel_obj in old_obj.om_costs.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.project = new_obj
+            new_rel_obj.save()
+
+        # 3) Capital
+        for old_rel_obj in old_obj.capital_costs.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.project = new_obj
+            new_rel_obj.save()
+
+        # 4) G&C
+        for old_rel_obj in old_obj.gc_costs.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.project = new_obj
+            new_rel_obj.save()
+
+        # 5) Collaborators and Partners
+        for old_rel_obj in old_obj.collaborators.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.project = new_obj
+            new_rel_obj.save()
+
+        # 6) Collaborative Agreements
+        for old_rel_obj in old_obj.agreements.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.project = new_obj
+            new_rel_obj.save()
+
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": new_obj.id}))
 
 
 # STAFF #

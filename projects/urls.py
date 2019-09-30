@@ -16,11 +16,12 @@ urlpatterns = [
     path('my-branch/', views.MyBranchListView.as_view(), name="my_branch_list"),
     path('all/', views.ProjectListView.as_view(), name="project_list"),
     path('new/', views.ProjectCreateView.as_view(), name="project_new"),
-    path('<int:pk>/view', views.ProjectDetailView.as_view(), name="project_detail"),
-    path('project/<int:pk>/print', views.ProjectPrintDetailView.as_view(), name="project_print"),
-    path('project/<int:pk>/edit', views.ProjectUpdateView.as_view(), name="project_edit"),
-    path('project/<int:pk>/delete', views.ProjectDeleteView.as_view(), name="project_delete"),
-    path('project/<int:pk>/submit', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
+    path('<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
+    path('project/<int:pk>/print/', views.ProjectPrintDetailView.as_view(), name="project_print"),
+    path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
+    path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
+    path('project/<int:pk>/submit/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
+    path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
     path('approval/project/<int:pk>/level/<str:level>/', views.ProjectApprovalUpdateView.as_view(), name="project_approval"),
     # STAFF #
     #########

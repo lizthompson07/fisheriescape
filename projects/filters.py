@@ -25,7 +25,7 @@ class ProjectFilter(django_filters.FilterSet):
         region_choices = views.get_region_choices()
         division_choices = views.get_division_choices()
         section_choices = views.get_section_choices()
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)
