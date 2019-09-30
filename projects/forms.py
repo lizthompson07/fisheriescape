@@ -14,8 +14,8 @@ attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 
 # Choices for YesNo
 YESNO_CHOICES = (
-    (1, "Yes"),
-    (0, "No"),
+    (True, "Yes"),
+    (False, "No"),
 )
 
 
@@ -301,18 +301,124 @@ class UserCreateForm(forms.Form):
                 raise forms.ValidationError(_("Please make sure the two email addresses provided match."))
 
 
-class TempForm(forms.ModelForm):
+class FundingSourceForm(forms.ModelForm):
     class Meta:
-        model = models.Project
-        fields = ["project_title", "program", "programs", "tags"]
+        model = models.FundingSource
+        fields = "__all__"
+
+
+FundingSourceFormSet = modelformset_factory(
+    model=models.FundingSource,
+    form=FundingSourceForm,
+    extra=1,
+)
+
+
+class OMCategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.OMCategory
+        fields = "__all__"
         widgets = {
-            'programs': forms.SelectMultiple(attrs=chosen_js),
-            'tags': forms.SelectMultiple(attrs=chosen_js),
+            'name': forms.Textarea(attrs={"rows": 3}),
+            'nom': forms.Textarea(attrs={"rows": 3}),
+        }
+
+OMCategoryFormSet = modelformset_factory(
+    model=models.OMCategory,
+    form=OMCategoryForm,
+    extra=1,
+)
+
+
+class EmployeeTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.EmployeeType
+        fields = "__all__"
+        widgets = {
+            'exclude_from_rollup': forms.Select(choices=YESNO_CHOICES),
         }
 
 
-TempFormSet = modelformset_factory(
-    model=models.Project,
-    form=TempForm,
-    extra=0,
+EmployeeTypeFormSet = modelformset_factory(
+    model=models.EmployeeType,
+    form=EmployeeTypeForm,
+    extra=1,
+)
+
+
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = models.Status
+        fields = "__all__"
+
+
+StatusFormSet = modelformset_factory(
+    model=models.Status,
+    form=StatusForm,
+    extra=1,
+)
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = models.Tag
+        fields = "__all__"
+
+
+TagFormSet = modelformset_factory(
+    model=models.Tag,
+    form=TagForm,
+    extra=1,
+)
+
+
+class HelpTextForm(forms.ModelForm):
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 4}),
+            'fra_text': forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+HelpTextFormSet = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
+)
+
+
+class ProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.Program2
+        fields = "__all__"
+        widgets = {
+            'national_responsibility_eng': forms.Textarea(attrs={"rows": 3}),
+            'national_responsibility_fra': forms.Textarea(attrs={"rows": 3}),
+            'program_inventory': forms.Textarea(attrs={"rows": 3}),
+            'funding_source_and_type': forms.Textarea(attrs={"rows": 3}),
+            'regional_program_name_eng': forms.Textarea(attrs={"rows": 3}),
+            'regional_program_name_fra': forms.Textarea(attrs={"rows": 3}),
+            'examples': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+ProgramFormSet = modelformset_factory(
+    model=models.Program2,
+    form=ProgramForm,
+    extra=1,
+)
+
+
+class LevelForm(forms.ModelForm):
+    class Meta:
+        model = models.Level
+        fields = "__all__"
+
+
+LevelFormSet = modelformset_factory(
+    model=models.Level,
+    form=LevelForm,
+    extra=1,
 )

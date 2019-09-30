@@ -43,6 +43,49 @@
     <li class="nav-item"><a class="nav-link" href="{% url 'projects:report_search' %}">
         {% trans "Reports" %}
     </a></li>
+
+
+    {% for group in user.groups.all %}
+        {% if group.name == "projects_admin" %}
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    {% trans "Settings" %}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'projects:manage_funding_sources' %}">
+                        {% trans "Manage Funding Sources" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:manage_om_cats' %}">
+                        {% trans "Manage O & M Categories" %}
+                    </a>
+
+                    <a class="dropdown-item" href="{% url 'projects:manage_employee_types' %}">
+                        {% trans "Manage Employee Types" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:manage_tags' %}">
+                        {% trans "Manage Tags" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:manage_statuses' %}">
+                        {% trans "Manage Statuses" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:manage_help_text' %}">
+                        {% trans "Manage Help Text" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:manage_levels' %}">
+                        {% trans "Manage Staff Levels" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:manage_programs' %}">
+                        {% trans "Manage Programs" %}
+                    </a>
+                </div>
+            </li>
+
+        {% endif %}
+
+    {% endfor %}
+
     {#        {% endif %}#}
     {#      {% endfor %}#}
 

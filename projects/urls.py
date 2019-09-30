@@ -34,7 +34,6 @@ urlpatterns = [
     path('project-formset/', views.temp_formset, name="formset"),
     path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
 
-
     # USER #
     ########
     path('user/new/', views.UserCreateView.as_view(), name="user_new"),
@@ -71,13 +70,17 @@ urlpatterns = [
     path('gc-cost/<int:pk>/edit/', views.GCCostUpdateView.as_view(), name="gc_edit"),
     path('gc-cost/<int:pk>/delete/', views.gc_cost_delete, name="gc_delete"),
 
-
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/', views.master_spreadsheet, name="report_master"),
-    path('reports/project-summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/', views.PDFProjectSummaryReport.as_view(), name="pdf_project_summary"),
-    path('reports/batch-workplan-export/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/', views.PDFProjectPrintoutReport.as_view(), name="pdf_printout"),
+    path(
+        'reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+        views.master_spreadsheet, name="report_master"),
+    path('reports/project-summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFProjectSummaryReport.as_view(), name="pdf_project_summary"),
+    path(
+        'reports/batch-workplan-export/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+        views.PDFProjectPrintoutReport.as_view(), name="pdf_printout"),
 
     # this is a special view of the masterlist report that is called from the my_section view
     path('reports/section-head-spreadsheet/fiscal-year/<int:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
@@ -89,5 +92,30 @@ urlpatterns = [
     path('toggle-funding-source/<str:type>/<int:pk>/', views.toggle_source, name="toggle_source"),
     path('toggle-section-head-approved/<int:project>/', views.toggle_project_approval, name="toggle_project_approval"),
 
+    # SETTINGS #
+    ############
+    path('settings/funding-source/', views.manage_funding_sources, name="manage_funding_sources"),
+    path('settings/funding-source/<int:pk>/delete/', views.delete_funding_source, name="delete_funding_source"),
+
+    path('settings/om-categories/', views.manage_om_cats, name="manage_om_cats"),
+    path('settings/om-category/<int:pk>/delete/', views.delete_om_cat, name="delete_om_cat"),
+
+    path('settings/employee-types/', views.manage_employee_types, name="manage_employee_types"),
+    path('settings/employee-type/<int:pk>/delete/', views.delete_employee_type, name="delete_employee_type"),
+
+    path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
+    path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
+
+    path('settings/tags/', views.manage_tags, name="manage_tags"),
+    path('settings/tag/<int:pk>/delete/', views.delete_tag, name="delete_tag"),
+
+    path('settings/help-text/', views.manage_help_text, name="manage_help_text"),
+    path('settings/help-text/<int:pk>/delete/', views.delete_help_text, name="delete_help_text"),
+
+    path('settings/levels/', views.manage_levels, name="manage_levels"),
+    path('settings/level/<int:pk>/delete/', views.delete_level, name="delete_level"),
+
+    path('settings/programs/', views.manage_programs, name="manage_programs"),
+    path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
 
 ]

@@ -29,20 +29,26 @@ from . import filters
 from . import reports
 from shared_models import models as shared_models
 
-help_text_dict = {
-    "user": _("This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)"),
-    "start_date": _("This is the start date of the project, not the fiscal year"),
-    "is_negotiable": _("Is this program a part of DFO's core mandate?"),
-    "is_competitive": _("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
-    "priorities": _("What will be the project emphasis in this particular fiscal year?"),
-    "deliverables": _("Please provide this information in bulleted form, if possible."),
-}
+def get_help_text_dict():
+    my_dict = {}
+    for obj in models.HelpText.objects.all():
+        my_dict[obj.field_name] = str(obj)
+
+    return my_dict
+    #
+    # help_text_dict = {
+    #     "user": _("This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)"),
+    #     "start_date": _("This is the start date of the project, not the fiscal year"),
+    #     "is_negotiable": _("Is this program a part of DFO's core mandate?"),
+    #     "is_competitive": _("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
+    #     "priorities": _("What will be the project emphasis in this particular fiscal year?"),
+    #     "deliverables": _("Please provide this information in bulleted form, if possible."),
+    # }
 
 
-def is_superuser(user):
-    """returns True if user is in specified group"""
-    if user.is_superuser:
-        return True
+def in_projects_admin_group(user):
+    if user:
+        return user.groups.filter(name='projects_admin').count() != 0
 
 
 # This function is a bit of a misnomer. It is used to determine whether the user has full access to a record, assuming they are not already a project lead
@@ -275,7 +281,7 @@ class MyProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/my_project_list.html'
 
     def get_queryset(self):
-        return models.Staff.objects.filter(user=self.request.user)
+        return models.Staff.objects.filter(user=self.request.user).order_by("-project__year", "project__project_title")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -427,7 +433,7 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['help_text_dict'] = help_text_dict
+        context['help_text_dict'] = get_help_text_dict()
         return context
 
     def get_initial(self):
@@ -526,7 +532,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['help_text_dict'] = help_text_dict
+        context['help_text_dict'] = get_help_text_dict()
 
         # here are the option objects we want to send in through context
         # only from the science branches of each region
@@ -682,7 +688,7 @@ class StaffCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
-        context['help_text_dict'] = help_text_dict
+        context['help_text_dict'] = get_help_text_dict()
         return context
 
     def form_valid(self, form):
@@ -705,7 +711,7 @@ class StaffUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['help_text_dict'] = help_text_dict
+        context['help_text_dict'] = get_help_text_dict()
         return context
 
 
@@ -774,7 +780,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 
 # this is a temp view DJF created to walkover the `program` field to the new `programs` field
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(is_superuser, login_url='/accounts/denied/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def temp_formset(request):
     context = {}
     # if the formset is being submitted
@@ -1424,3 +1430,286 @@ class UserCreateView(LoginRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+# SETTINGS #
+############
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_funding_source(request, pk):
+    my_obj = models.FundingSource.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_funding_sources"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_funding_sources(request):
+    qs = models.FundingSource.objects.all()
+    if request.method == 'POST':
+        formset = forms.FundingSourceFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_funding_sources"))
+    else:
+        formset = forms.FundingSourceFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'color',
+    ]
+    context['title'] = "Manage Funding Sources"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_om_cat(request, pk):
+    my_obj = models.OMCategory.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_om_cats(request):
+    qs = models.OMCategory.objects.all()
+    if request.method == 'POST':
+        formset = forms.OMCategoryFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+    else:
+        formset = forms.OMCategoryFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'group',
+    ]
+    context['title'] = "Manage O & M Categories"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_employee_type(request, pk):
+    my_obj = models.EmployeeType.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_employee_types(request):
+    qs = models.EmployeeType.objects.all()
+    if request.method == 'POST':
+        formset = forms.EmployeeTypeFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+    else:
+        formset = forms.EmployeeTypeFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'cost_type',
+        'exclude_from_rollup',
+    ]
+    context['title'] = "Manage Employee Types"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_status(request, pk):
+    my_obj = models.Status.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_statuses"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_statuses(request):
+    qs = models.Status.objects.all()
+    if request.method == 'POST':
+        formset = forms.StatusFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_statuses"))
+    else:
+        formset = forms.StatusFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage Statuses"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_tag(request, pk):
+    my_obj = models.Tag.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_tags"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_tags(request):
+    qs = models.Tag.objects.all()
+    if request.method == 'POST':
+        formset = forms.TagFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_tags"))
+    else:
+        formset = forms.TagFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage Tags"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_help_text(request, pk):
+    my_obj = models.HelpText.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_tags"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_help_text(request):
+    qs = models.HelpText.objects.all()
+    if request.method == 'POST':
+        formset = forms.HelpTextFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_help_text"))
+    else:
+        formset = forms.HelpTextFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'field_name',
+        'eng_text',
+        'fra_text',
+    ]
+    context['title'] = "Manage Help Text"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_level(request, pk):
+    my_obj = models.Level.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_levels"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_levels(request):
+    qs = models.Level.objects.all()
+    if request.method == 'POST':
+        formset = forms.LevelFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_levels"))
+    else:
+        formset = forms.LevelFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+    ]
+    context['title'] = "Manage Levels"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_program(request, pk):
+    my_obj = models.Program2.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_programs"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_programs(request):
+    qs = models.Program2.objects.all()
+    if request.method == 'POST':
+        formset = forms.ProgramFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_programs"))
+    else:
+        formset = forms.ProgramFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'national_responsibility_eng',
+        'national_responsibility_fra',
+        'program_inventory',
+        'funding_source_and_type',
+        'regional_program_name_eng',
+        'regional_program_name_fra',
+        'examples',
+    ]
+    context['title'] = "Manage Programs"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
