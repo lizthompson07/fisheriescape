@@ -30,7 +30,7 @@
                 {% trans "SUBMITTED" %}
             {% else %}
                 <span class="red-font">
-                {% trans "DRAFT VERSION" %}
+                {% trans "UNSUBMITTED" %}
                 </span>
             {% endif %}
         </h1>
@@ -100,11 +100,10 @@
 
         <br><br>
 
-        <table class="table table-sm table-striped" style="width: auto">
+        <table class="table table-sm table-bordered" style="">
             {# cheating here to adjust header width #}
-            <th class="gone" style="width: 250px; padding: 0px; margin: 0px;"></th>
             {% for field in field_list %}
-                {% verbose_td_display object field %}
+                {% verbose_td_display object field th_width="30%" td_width="80%" %}
             {% endfor %}
             {% verbose_td_display object "section_head_approved" %}
             {% verbose_td_display object "section_head_feedback" %}
