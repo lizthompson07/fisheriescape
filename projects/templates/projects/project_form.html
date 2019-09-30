@@ -32,10 +32,14 @@
 
     <div class="container">
         <h1>
-            {% if object.id %}
-                {{ object }}
+            {% if cloned %}
+                {% trans "Please enter the new project details..." %}
             {% else %}
-                {% trans "New Project" %}
+                {% if object.id %}
+                    {{ object }}
+                {% else %}
+                    {% trans "New Project" %}
+                {% endif %}
             {% endif %}
         </h1>
         <br><br>
@@ -44,15 +48,13 @@
             {% csrf_token %}
             {% buttons %}
                 <div class="btn-group">
-                    {% if object.id %}
-                        <button type="submit" class="btn btn-primary">
-                            {% trans "Update" %}
-                        </button>
-                    {% else %}
-                        <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary">
+                        {% if cloned or not object.id %}
                             {% trans "Add" %}
-                        </button>
-                    {% endif %}
+                        {% else %}
+                            {% trans "Update" %}
+                        {% endif %}
+                    </button>
 
                     {% if object.id %}
                         <a class="btn btn-secondary" href="{% url 'projects:project_detail' object.id %}">
@@ -105,16 +107,14 @@
 
 
             {% buttons %}
-                <div class="btn-group">
-                    {% if object.id %}
-                        <button type="submit" class="btn btn-primary">
-                            {% trans "Update" %}
-                        </button>
-                    {% else %}
-                        <button type="submit" class="btn btn-primary">
+                 <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        {% if cloned or not object.id %}
                             {% trans "Add" %}
-                        </button>
-                    {% endif %}
+                        {% else %}
+                            {% trans "Update" %}
+                        {% endif %}
+                    </button>
 
                     {% if object.id %}
                         <a class="btn btn-secondary" href="{% url 'projects:project_detail' object.id %}">
@@ -257,7 +257,7 @@
                 // if the funding is from a competitive stream, approval is implicit.
 
                 let myVal = $("#id_is_competitive").val();
-                if (myVal=="true") {
+                if (myVal == "true") {
                     $("#id_is_approved").val("true").prop("disabled", true);
                 } else {
                     $("#id_is_approved").prop("disabled", false).val("");
