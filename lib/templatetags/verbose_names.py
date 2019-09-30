@@ -59,7 +59,7 @@ def get_verbose_label(instance, field_name):
 
 
 @register.simple_tag
-def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="n/a", date_format="%Y-%m-%d"):
+def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="---", date_format="%Y-%m-%d"):
     """
     Returns verbose_name for a field.
     To return a field from a foreign key, send in the field name as such: "user.first_name".
@@ -152,17 +152,15 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
 
 
 @register.simple_tag
-def verbose_td_display(instance, field_name, format=None, display_time=False, url=None, date_format=None):
+def verbose_td_display(instance, field_name, format=None, display_time=False, url=None, date_format=None, nullmark="---"):
     """
     returns a table row <tr> with a <td> for the label and a <td> for the value. Call this from within a <table>
     """
-    if date_format:
-        print(123)
     # call on the get_verbose_label func to handle label prep
     verbose_name = get_verbose_label(instance, field_name)
 
     # call on the get_field_value func to handle field value prep
-    field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format)
+    field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format, nullmark=nullmark)
 
     if url and field_value != "n/a":
         html_block = '<tr><th>{}</th><td><a href="{}">{}</a></td></tr>'.format(verbose_name, url, field_value)
