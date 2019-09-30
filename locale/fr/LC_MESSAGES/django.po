@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-30 15:47-0300\n"
+"POT-Creation-Date: 2019-09-30 16:13-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,10 +56,8 @@ msgid "My Account"
 msgstr ""
 
 #: .\accounts\templates\accounts\accounts_base.html:10
-#, fuzzy
-#| msgid "My Projects"
 msgid "My Profile"
-msgstr "Mes projets"
+msgstr ""
 
 #: .\accounts\templates\accounts\request_access_form_popout.html:12
 msgid "New Access Request:"
@@ -407,9 +405,11 @@ msgstr "nom (français)"
 #: .\masterlist\models.py:38 .\masterlist\models.py:39
 #: .\masterlist\models.py:59 .\masterlist\models.py:252
 #: .\masterlist\models.py:253 .\masterlist\models.py:259
-#: .\projects\models.py:23 .\projects\models.py:37 .\projects\models.py:49
-#: .\projects\models.py:51 .\projects\models.py:57 .\projects\models.py:119
-#: .\projects\models.py:293 .\projects\models.py:312 .\projects\models.py:422
+#: .\projects\models.py:23 .\projects\models.py:27 .\projects\models.py:29
+#: .\projects\models.py:44 .\projects\models.py:46 .\projects\models.py:61
+#: .\projects\models.py:63 .\projects\models.py:69 .\projects\models.py:132
+#: .\projects\models.py:134 .\projects\models.py:316 .\projects\models.py:318
+#: .\projects\models.py:341 .\projects\models.py:343 .\projects\models.py:456
 #: .\projects\views.py:219 .\projects\views.py:545 .\projects\views.py:546
 #: .\projects\views.py:1137 .\sar_search\models.py:19 .\sar_search\models.py:32
 #: .\sar_search\models.py:46 .\sar_search\models.py:60
@@ -451,10 +451,8 @@ msgid "title"
 msgstr "titre"
 
 #: .\ihub\models.py:69
-#, fuzzy
-#| msgid "Section"
 msgid "location"
-msgstr "Section"
+msgstr "location"
 
 #: .\ihub\models.py:72
 #, fuzzy
@@ -513,7 +511,7 @@ msgstr ""
 
 #: .\ihub\models.py:92 .\masterlist\models.py:115 .\masterlist\models.py:173
 #: .\masterlist\models.py:270 .\masterlist\models.py:303
-#: .\masterlist\models.py:331 .\projects\models.py:241
+#: .\masterlist\models.py:331 .\projects\models.py:263
 #: .\sar_search\models.py:158 .\sar_search\models.py:243
 #: .\shared_models\models.py:37 .\shared_models\models.py:71
 #: .\shared_models\models.py:98 .\shared_models\models.py:125
@@ -530,7 +528,7 @@ msgstr "Date de création"
 
 #: .\ihub\models.py:94 .\masterlist\models.py:116 .\masterlist\models.py:174
 #: .\masterlist\models.py:271 .\masterlist\models.py:304
-#: .\masterlist\models.py:332 .\projects\models.py:242
+#: .\masterlist\models.py:332 .\projects\models.py:264
 #: .\sar_search\models.py:159 .\sar_search\models.py:244
 #: .\shared_models\models.py:38 .\shared_models\models.py:72
 #: .\shared_models\models.py:99 .\shared_models\models.py:126
@@ -545,7 +543,7 @@ msgstr "Dernière modification par"
 msgid "created by"
 msgstr ""
 
-#: .\ihub\models.py:142 .\projects\models.py:332
+#: .\ihub\models.py:142 .\projects\models.py:366
 msgid "User"
 msgstr "Utilisateur"
 
@@ -644,7 +642,7 @@ msgstr ""
 
 #: .\ihub\templates\ihub\_members.html:26 .\ihub\templates\ihub\_people.html:20
 #: .\masterlist\models.py:49 .\masterlist\templates\masterlist\_members.html:21
-#: .\masterlist\templates\masterlist\_people.html:20 .\projects\models.py:364
+#: .\masterlist\templates\masterlist\_people.html:20 .\projects\models.py:398
 #: .\projects\templates\projects\_collaborators.html:31
 #: .\projects\templates\projects\_staff.html:35
 #: .\spot\templates\spot\_project_people.html:24
@@ -817,7 +815,7 @@ msgstr ""
 #: .\ihub\templates\ihub\person_list.html:23
 #: .\ios2\templates\ios2\instrument_base.html:24
 #: .\masterlist\templates\masterlist\masterlist_base.html:21
-#: .\projects\templates\projects\manage_settings_small.html:33
+#: .\projects\templates\projects\manage_settings_small.html:27
 #: .\projects\templates\projects\projects_base.html:23
 #: .\publications\templates\publications\pub_base.html:21
 #: .\sar_search\templates\sar_search\manage_settings_small.html:49
@@ -1211,7 +1209,7 @@ msgstr "Dernière modification"
 
 #: .\ihub\templates\ihub\member_form_popout.html:86
 msgid "by"
-msgstr ""
+msgstr "par"
 
 #: .\ihub\templates\ihub\note_form_popout.html:25
 msgid "Editing the Note:"
@@ -1255,7 +1253,7 @@ msgid "iHub Only:"
 msgstr ""
 
 #: .\ihub\templates\ihub\organization_form.html:35
-#: .\ihub\templates\ihub\person_form.html:25 .\projects\models.py:381
+#: .\ihub\templates\ihub\person_form.html:25 .\projects\models.py:415
 msgid "New"
 msgstr "Nouveau"
 
@@ -1532,7 +1530,7 @@ msgstr ""
 msgid "Purchase Date"
 msgstr ""
 
-#: .\ios2\models.py:51 .\projects\models.py:154
+#: .\ios2\models.py:51 .\projects\models.py:176
 msgid "Project title"
 msgstr "titre du projet"
 
@@ -1636,7 +1634,7 @@ msgstr ""
 msgid "Repair&Calib"
 msgstr ""
 
-#: .\ios2\models.py:164 .\projects\models.py:427 .\projects\models.py:455
+#: .\ios2\models.py:164 .\projects\models.py:461 .\projects\models.py:489
 msgid "category"
 msgstr "catégorie"
 
@@ -2319,7 +2317,7 @@ msgid "DFO contact instructions"
 msgstr ""
 
 #: .\masterlist\models.py:88 .\masterlist\models.py:169
-#: .\projects\models.py:367 .\projects\models.py:391 .\shares\models.py:20
+#: .\projects\models.py:401 .\projects\models.py:425 .\shares\models.py:20
 #: .\shares\models.py:47 .\shares\models.py:66 .\spot\models.py:188
 msgid "notes"
 msgstr "remarques"
@@ -2722,10 +2720,8 @@ msgid "Division"
 msgstr "Division"
 
 #: .\projects\filters.py:18 .\projects\templates\projects\project_list.html:86
-#, fuzzy
-#| msgid "program"
 msgid "Programs"
-msgstr "Programme"
+msgstr "Programmes"
 
 #: .\projects\filters.py:19
 #: .\projects\templates\projects\my_section_list.html:108
@@ -2734,10 +2730,8 @@ msgid "Tags"
 msgstr ""
 
 #: .\projects\filters.py:20
-#, fuzzy
-#| msgid "Submitted"
 msgid "Submitted?"
-msgstr "Soumis"
+msgstr "Soumis?"
 
 #: .\projects\forms.py:170
 msgid "DFO User"
@@ -2768,131 +2762,125 @@ msgstr ""
 msgid "Please make sure the two email addresses provided match."
 msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
 
-#: .\projects\models.py:72 .\projects\models.py:73 .\projects\models.py:90
-#: .\projects\models.py:91 .\projects\models.py:111
+#: .\projects\models.py:84 .\projects\models.py:85 .\projects\models.py:102
+#: .\projects\models.py:103 .\projects\models.py:123
 msgid "regional_program_name_eng"
-msgstr ""
+msgstr "regional_program_name_fre"
 
-#: .\projects\models.py:79 .\projects\models.py:80 .\projects\models.py:97
-#: .\projects\models.py:98 .\projects\models.py:111
+#: .\projects\models.py:91 .\projects\models.py:92 .\projects\models.py:109
+#: .\projects\models.py:110 .\projects\models.py:123
 msgid "national_responsibility_eng"
-msgstr ""
+msgstr "national_responsibility_fre"
 
-#: .\projects\models.py:127
-#, fuzzy
-#| msgid "English"
+#: .\projects\models.py:145
 msgid "English text"
-msgstr "anglais"
+msgstr "Texte en anglais"
 
-#: .\projects\models.py:128
-#, fuzzy
-#| msgid "French"
+#: .\projects\models.py:146
 msgid "French text"
-msgstr "français"
+msgstr "Texte en français"
 
-#: .\projects\models.py:131
+#: .\projects\models.py:150 .\projects\models.py:151
 msgid "eng_text"
 msgstr "fra_text"
 
-#: .\projects\models.py:140 .\projects\models.py:146
+#: .\projects\models.py:162 .\projects\models.py:168
 msgid "Unknown"
-msgstr ""
+msgstr "Inconnu"
 
-#: .\projects\models.py:141
+#: .\projects\models.py:163
 msgid "National"
 msgstr ""
 
-#: .\projects\models.py:142
+#: .\projects\models.py:164
 msgid "Regional"
 msgstr ""
 
-#: .\projects\models.py:147
+#: .\projects\models.py:169
 msgid "Negotiable"
 msgstr ""
 
-#: .\projects\models.py:148
+#: .\projects\models.py:170
 msgid "Non-negotiable"
 msgstr ""
 
-#: .\projects\models.py:152 .\scifi\models.py:28 .\travel\models.py:67
+#: .\projects\models.py:174 .\scifi\models.py:28 .\travel\models.py:67
 msgid "fiscal year"
 msgstr "année fiscale"
 
-#: .\projects\models.py:156 .\projects\views.py:330
+#: .\projects\models.py:178 .\projects\views.py:330
 msgid "section"
 msgstr "section"
 
-#: .\projects\models.py:157
+#: .\projects\models.py:179
 msgid "old program (retired field)"
 msgstr ""
 
-#: .\projects\models.py:158
+#: .\projects\models.py:180
 msgid "linkage to Science programs"
 msgstr ""
 
-#: .\projects\models.py:159
+#: .\projects\models.py:181
 msgid "Tags / keywords"
 msgstr ""
 
-#: .\projects\models.py:164
+#: .\projects\models.py:186
 msgid "responsibility center (if known)"
 msgstr ""
 
-#: .\projects\models.py:166
+#: .\projects\models.py:188
 msgid "allotment code (if known)"
 msgstr ""
 
-#: .\projects\models.py:168
+#: .\projects\models.py:190
 msgid "existing project code (if known)"
 msgstr ""
 
-#: .\projects\models.py:171
+#: .\projects\models.py:193
 msgid "National or regional?"
 msgstr ""
 
-#: .\projects\models.py:172
+#: .\projects\models.py:194
 msgid "Negotiable or non-negotiable?"
 msgstr ""
 
-#: .\projects\models.py:174 .\spot\models.py:207
+#: .\projects\models.py:196 .\spot\models.py:207
 msgid "project status"
 msgstr "L'état du projet"
 
-#: .\projects\models.py:175
+#: .\projects\models.py:197
 msgid "Is the funding competitive?"
 msgstr ""
 
-#: .\projects\models.py:176
+#: .\projects\models.py:198
 msgid "Has this project already been approved"
 msgstr "Ce projet a-t-il déjà été approuvé"
 
-#: .\projects\models.py:177
-#, fuzzy
-#| msgid "Critical to project?"
+#: .\projects\models.py:199
 msgid "Start date of project"
-msgstr "Critique au projet?"
+msgstr ""
 
-#: .\projects\models.py:178
+#: .\projects\models.py:200
 msgid "End date of project"
 msgstr ""
 
-#: .\projects\models.py:181
+#: .\projects\models.py:203
 msgid "Project objective & description"
 msgstr "Objectif du projet et description"
 
-#: .\projects\models.py:185
+#: .\projects\models.py:207
 msgid "Project-specific priorities"
 msgstr ""
 
-#: .\projects\models.py:187
+#: .\projects\models.py:209
 msgid "Project deliverables"
 msgstr "Livrables du projet"
 
-#: .\projects\models.py:192
+#: .\projects\models.py:214
 msgid "What type of data will be collected"
 msgstr "Quel type de données sera collecté"
 
-#: .\projects\models.py:195
+#: .\projects\models.py:217
 msgid ""
 "Which of these data will be share-worthy and what is the plan to share / "
 "disseminate"
@@ -2900,41 +2888,41 @@ msgstr ""
 "Lesquelles de ces données seront partageables et quel est le plan de "
 "partage / diffusion"
 
-#: .\projects\models.py:197
+#: .\projects\models.py:219
 msgid "Data storage / archiving Plan"
 msgstr "Plan de stockage / archivage des données"
 
-#: .\projects\models.py:198
+#: .\projects\models.py:220
 msgid "please provide link to metadata, if available"
 msgstr "Veuillez fournir un lien vers les métadonnées, le cas échéant"
 
-#: .\projects\models.py:203
+#: .\projects\models.py:225
 msgid "Does the program require assistance of the branch data manager"
 msgstr ""
 "Le programme nécessite-t-il l'assistance du gestionnaire de données de la "
 "succursale"
 
-#: .\projects\models.py:206 .\projects\models.py:210
+#: .\projects\models.py:228 .\projects\models.py:232
 msgid "If yes, please describe"
 msgstr "Si oui, veuillez décrire"
 
-#: .\projects\models.py:207
+#: .\projects\models.py:229
 msgid "Does the program require assistance of the section's data manager"
 msgstr ""
 "Le programme a-t-il besoin de l'aide du gestionnaire de données de la section"
 
-#: .\projects\models.py:214
+#: .\projects\models.py:236
 msgid ""
 "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"
 msgstr ""
 "Décrivez le besoin de véhicule (type de véhicule, nombre de semaines, "
 "calendrier)"
 
-#: .\projects\models.py:216
+#: .\projects\models.py:238
 msgid "IT requirements (software, licenses, hardware)"
 msgstr "Configuration informatique requise (logiciels, licences, matériel)"
 
-#: .\projects\models.py:220
+#: .\projects\models.py:242
 msgid ""
 "Please provide details regarding chemical needs and the plan for storage and "
 "disposal."
@@ -2942,201 +2930,193 @@ msgstr ""
 "Décrivez le besoin de véhicule (type de véhicule, nombre de semaines, "
 "calendrier)"
 
-#: .\projects\models.py:222
+#: .\projects\models.py:244
 msgid "Ship (Coast Guard, charter vessel) Requirements"
 msgstr "Navires (garde côtière, charter)"
 
-#: .\projects\models.py:226
-#, fuzzy
-#| msgid "Has this project already been approved"
+#: .\projects\models.py:248
 msgid "impacts if project is not approved"
-msgstr "Ce projet a-t-il déjà été approuvé"
+msgstr ""
 
-#: .\projects\models.py:229
+#: .\projects\models.py:251
 msgid "Do you have any feedback you would like to submit about this process"
 msgstr "Avez-vous des commentaires à formuler sur ce processus"
 
-#: .\projects\models.py:230
+#: .\projects\models.py:252
 msgid "Submit project for review"
 msgstr "Soumettre le projet"
 
-#: .\projects\models.py:232
+#: .\projects\models.py:254
 msgid "section head approved"
 msgstr "approuvé par le chef de section"
 
-#: .\projects\models.py:233
-#, fuzzy
-#| msgid "section head"
+#: .\projects\models.py:255
 msgid "section head feedback"
-msgstr "chef de section"
+msgstr "rétroaction du chef de section"
 
-#: .\projects\models.py:235
-#, fuzzy
-#| msgid "section head approved"
+#: .\projects\models.py:257
 msgid "division manager approved"
-msgstr "approuvé par le chef de section"
+msgstr "approuvé par le chef de division"
 
-#: .\projects\models.py:236
+#: .\projects\models.py:258
 msgid "division manager feedback"
-msgstr ""
+msgstr "rétroaction du chef de division"
 
-#: .\projects\models.py:238
-#, fuzzy
-#| msgid "Section Head Approved"
+#: .\projects\models.py:260
 msgid "RDS approved"
-msgstr "Chef de section approuvé"
+msgstr "approuvé par le directeur régional"
 
-#: .\projects\models.py:239
+#: .\projects\models.py:261
 msgid "RDS feedback"
-msgstr ""
+msgstr "rétroaction du directeur régional"
 
-#: .\projects\models.py:283
+#: .\projects\models.py:305
 msgid "Salary"
 msgstr "Salaire"
 
-#: .\projects\models.py:284 .\projects\views.py:946
+#: .\projects\models.py:306 .\projects\views.py:946
 msgid "O&M"
 msgstr "F & E"
 
-#: .\projects\models.py:327 .\projects\models.py:363 .\projects\models.py:385
-#: .\projects\models.py:426 .\projects\models.py:454 .\projects\models.py:469
+#: .\projects\models.py:361 .\projects\models.py:397 .\projects\models.py:419
+#: .\projects\models.py:460 .\projects\models.py:488 .\projects\models.py:503
 msgid "project"
 msgstr "projet"
 
-#: .\projects\models.py:328
+#: .\projects\models.py:362
 msgid "employee type"
 msgstr "Type d'employé"
 
-#: .\projects\models.py:329 .\projects\models.py:388 .\projects\models.py:471
+#: .\projects\models.py:363 .\projects\models.py:422 .\projects\models.py:505
 msgid "project lead"
 msgstr "Chef de projet"
 
-#: .\projects\models.py:329
+#: .\projects\models.py:363
 msgid "yes"
 msgstr "oui"
 
-#: .\projects\models.py:329
+#: .\projects\models.py:363
 msgid "no"
-msgstr ""
+msgstr "non"
 
-#: .\projects\models.py:331 .\projects\models.py:429 .\projects\models.py:457
+#: .\projects\models.py:365 .\projects\models.py:463 .\projects\models.py:491
 #: .\travel\models.py:101
 msgid "funding source"
 msgstr "source de financement"
 
-#: .\projects\models.py:333
+#: .\projects\models.py:367
 msgid "Person name (leave blank if user is selected)"
 msgstr "Nom de la personne (laisser vide si l'utilisateur est sélectionné)"
 
-#: .\projects\models.py:335
+#: .\projects\models.py:369
 msgid "level"
 msgstr "niveau"
 
-#: .\projects\models.py:337
+#: .\projects\models.py:371
 msgid "student program"
 msgstr "Programme d'étudiant"
 
-#: .\projects\models.py:338
+#: .\projects\models.py:372
 msgid "duration in weeks"
 msgstr "Durée en semaines"
 
-#: .\projects\models.py:339
+#: .\projects\models.py:373
 msgid "overtime in hours"
 msgstr "Heures supplémentaires"
 
-#: .\projects\models.py:340
+#: .\projects\models.py:374
 msgid "overtime description"
 msgstr "description d'heures supplémentaires"
 
-#: .\projects\models.py:341
+#: .\projects\models.py:375
 msgid "cost"
 msgstr "coût"
 
-#: .\projects\models.py:358
+#: .\projects\models.py:392
 msgid "Collaborator"
 msgstr "Collaborateur "
 
-#: .\projects\models.py:359
+#: .\projects\models.py:393
 msgid "Partner"
 msgstr "Partenaire"
 
-#: .\projects\models.py:365
+#: .\projects\models.py:399
 msgid "type"
 msgstr "type"
 
-#: .\projects\models.py:366
+#: .\projects\models.py:400
 msgid "Critical to project delivery"
 msgstr "Critique à la livraison du projet"
 
-#: .\projects\models.py:382
+#: .\projects\models.py:416
 msgid "Existing"
 msgstr "Existant"
 
-#: .\projects\models.py:387
+#: .\projects\models.py:421
 msgid "partner organization"
 msgstr "Organisation partenaire"
 
-#: .\projects\models.py:389
+#: .\projects\models.py:423
 msgid "Title of the agreement"
 msgstr "Titre de l'accord"
 
-#: .\projects\models.py:390
+#: .\projects\models.py:424
 msgid "new or existing"
 msgstr "Nouveau ou existant"
 
-#: .\projects\models.py:408
+#: .\projects\models.py:442
 msgid "Travel"
 msgstr "Voyage"
 
-#: .\projects\models.py:409
+#: .\projects\models.py:443
 msgid "Equipment Purchase"
 msgstr "Achat d'équipement"
 
-#: .\projects\models.py:410
+#: .\projects\models.py:444
 msgid "Material and Supplies"
 msgstr "Matériel et fournitures"
 
-#: .\projects\models.py:411
+#: .\projects\models.py:445
 msgid "Human Resources"
 msgstr "Ressources humaines"
 
-#: .\projects\models.py:412
+#: .\projects\models.py:446
 msgid "Contracts, Leases, Services"
 msgstr "Contrats, baux, services"
 
-#: .\projects\models.py:430 .\projects\models.py:458 .\spot\models.py:472
+#: .\projects\models.py:464 .\projects\models.py:492 .\spot\models.py:472
 msgid "description"
 msgstr "description"
 
-#: .\projects\models.py:431 .\projects\models.py:459 .\projects\models.py:475
+#: .\projects\models.py:465 .\projects\models.py:493 .\projects\models.py:509
 msgid "budget requested"
 msgstr "Budget demandé"
 
-#: .\projects\models.py:447
+#: .\projects\models.py:481
 msgid "IM / IT - computers, hardware"
 msgstr "GI / TI - ordinateurs, matériel"
 
-#: .\projects\models.py:448
+#: .\projects\models.py:482
 msgid "Lab Equipment"
 msgstr "Équipement de laboratoire"
 
-#: .\projects\models.py:449
+#: .\projects\models.py:483
 msgid "Field Equipment"
 msgstr "Équipement de terrain"
 
-#: .\projects\models.py:450
+#: .\projects\models.py:484
 msgid "Other"
 msgstr "Autre"
 
-#: .\projects\models.py:470
+#: .\projects\models.py:504
 msgid "Recipient organization"
 msgstr "Organisation destinataire"
 
-#: .\projects\models.py:473
+#: .\projects\models.py:507
 msgid "Proposed title of agreement"
 msgstr "Titre de l'accord proposé"
 
-#: .\projects\models.py:474
+#: .\projects\models.py:508
 msgid "Name of G&C program"
 msgstr "Nom du programme de S & C"
 
@@ -3209,10 +3189,8 @@ msgid "Budget Amount"
 msgstr "Montant budgétaire"
 
 #: .\projects\templates\projects\_collaborators.html:10
-#, fuzzy
-#| msgid "Collaborators & Partners:"
 msgid "External Collaborators & Partners:"
-msgstr "Collaborateurs et partenaires:"
+msgstr "Collaborateurs et partenaires (externe):"
 
 #: .\projects\templates\projects\_collaborators.html:15
 msgid "Add Collaborator"
@@ -3315,10 +3293,8 @@ msgstr "Type de catégorie"
 
 #: .\projects\templates\projects\_project_content.html:17
 #: .\projects\templates\projects\project_detail.html:32
-#, fuzzy
-#| msgid "SUBMITTED"
 msgid "UNSUBMITTED"
-msgstr "SOUMIS"
+msgstr "NON SOUMIS"
 
 #: .\projects\templates\projects\_staff.html:13
 msgid "Project Staff:"
@@ -3371,10 +3347,8 @@ msgid "Adding Collaborative Agreement"
 msgstr "Ajout d'un accord de collaboration"
 
 #: .\projects\templates\projects\collaborator_form_popout.html:31
-#, fuzzy
-#| msgid "Adding Collaborator"
 msgid "Adding an External Collaborator"
-msgstr "Ajout d'un collaborateur"
+msgstr "Ajout d'un collaborateur externe"
 
 #: .\projects\templates\projects\cost_form_popout.html:28
 #, python-format
@@ -3403,10 +3377,8 @@ msgid "Science Project Planning"
 msgstr "Planification de projets (Science)"
 
 #: .\projects\templates\projects\index.html:14
-#, fuzzy
-#| msgid "Gulf Science Project Planning Application"
 msgid "Science Project Planning Application"
-msgstr "Application de planification de projet scientifique du Golfe"
+msgstr "Application de planification de projet scientifique"
 
 #: .\projects\templates\projects\index.html:43
 msgid ""
@@ -3463,11 +3435,6 @@ msgid "My Projects"
 msgstr "Mes projets"
 
 #: .\projects\templates\projects\my_project_list.html:28
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                 %(name)s's Project List\n"
-#| "            "
 msgid ""
 "\n"
 "                %(name)s's Project List\n"
@@ -3478,10 +3445,8 @@ msgstr ""
 "            "
 
 #: .\projects\templates\projects\my_project_list.html:76
-#, fuzzy
-#| msgid "displaying all records"
 msgid "displaying"
-msgstr "afficher tous les enregistrements"
+msgstr "afficher"
 
 #: .\projects\templates\projects\my_project_list.html:76
 msgid "record"
@@ -3517,13 +3482,11 @@ msgstr "Chef de section approuvé"
 
 #: .\projects\templates\projects\my_section_list.html:21
 msgid "My"
-msgstr ""
+msgstr "Mes"
 
 #: .\projects\templates\projects\my_section_list.html:31
-#, fuzzy
-#| msgid "Project Summary:"
 msgid "Projects In Your"
-msgstr "Résumé du projet:"
+msgstr "Les projets dans votre"
 
 #: .\projects\templates\projects\my_section_list.html:38
 #, fuzzy, python-format
@@ -3546,22 +3509,16 @@ msgstr ""
 "                        "
 
 #: .\projects\templates\projects\my_section_list.html:96
-#, fuzzy
-#| msgid "Project Lead"
 msgid "Project Code"
-msgstr "Chef de projet"
+msgstr "Code de projet"
 
 #: .\projects\templates\projects\my_section_list.html:105
-#, fuzzy
-#| msgid "program"
 msgid "Science Programs"
-msgstr "Programme"
+msgstr "Programme de Sciences"
 
 #: .\projects\templates\projects\my_section_list.html:119
-#, fuzzy
-#| msgid "Section Head Approved"
 msgid "Division Manager Approved"
-msgstr "Chef de section approuvé"
+msgstr "Chef de division approuvé"
 
 #: .\projects\templates\projects\my_section_list.html:124
 msgid "Approved by you"
@@ -3663,26 +3620,24 @@ msgid "hours"
 msgstr "heures"
 
 #: .\projects\templates\projects\project_approval_form_popout.html:23
-#, fuzzy
-#| msgid "Section Head Approved"
 msgid "Section Head Approval"
-msgstr "Chef de section approuvé"
+msgstr "Approbation du chef de section"
 
 #: .\projects\templates\projects\project_approval_form_popout.html:25
 msgid "Division Manager Approval"
-msgstr ""
+msgstr "Approbation du chef de division"
 
 #: .\projects\templates\projects\project_approval_form_popout.html:27
 msgid "RDS Approval"
-msgstr ""
+msgstr "Approbation du directeur"
 
 #: .\projects\templates\projects\project_approval_form_popout.html:40
 msgid "Approve"
-msgstr ""
+msgstr "Approver"
 
 #: .\projects\templates\projects\project_approval_form_popout.html:43
 msgid "Do Not Approve"
-msgstr ""
+msgstr "Ne pas approuver"
 
 #: .\projects\templates\projects\project_confirm_delete.html:14
 #: .\publications\templates\publications\pub_confirm_delete.html:14
@@ -3722,10 +3677,8 @@ msgstr ""
 "ou qui appartiennent à votre section"
 
 #: .\projects\templates\projects\project_detail.html:83
-#, fuzzy
-#| msgid "Has this project already been approved"
 msgid "Use this project as a template for a new project"
-msgstr "Ce projet a-t-il déjà été approuvé"
+msgstr "Utilisez ce projet comme modèle pour un nouveau projet"
 
 #: .\projects\templates\projects\project_detail.html:90
 msgid "Project Summary:"
@@ -3762,7 +3715,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer cette demande de S & C du projet?"
 
 #: .\projects\templates\projects\project_form.html:36
 msgid "Please enter the new project details..."
-msgstr ""
+msgstr "Veuillez saisir les nouveaux détails du projet ..."
 
 #: .\projects\templates\projects\project_list.html:25
 #: .\projects\templates\projects\projects_base.html:26
@@ -3777,38 +3730,40 @@ msgid "All Projects:"
 msgstr "Tous les projets:"
 
 #: .\projects\templates\projects\projects_base.html:35
-#, fuzzy
-#| msgid "Division"
 msgid "My Division"
-msgstr "Division"
+msgstr "Ma division"
 
 #: .\projects\templates\projects\projects_base.html:38
 msgid "My Branch"
-msgstr ""
+msgstr "Ma direction"
 
 #: .\projects\templates\projects\projects_base.html:58
-#, fuzzy
-#| msgid "Funding Source"
 msgid "Manage Funding Sources"
-msgstr "Source de financement"
+msgstr "Gérer les source de financement"
 
 #: .\projects\templates\projects\projects_base.html:61
 msgid "Manage O & M Categories"
-msgstr ""
+msgstr "Gérer les catégories F et E"
 
 #: .\projects\templates\projects\projects_base.html:65
-#, fuzzy
-#| msgid "Employee type"
 msgid "Manage Employee Types"
-msgstr "Type d'employé"
+msgstr "Gérer les types d'employés"
 
 #: .\projects\templates\projects\projects_base.html:68
 msgid "Manage Tags"
-msgstr ""
+msgstr "Gérer les étiquettes"
 
 #: .\projects\templates\projects\projects_base.html:74
 msgid "Manage Help Text"
-msgstr ""
+msgstr "Gérer les textes d'aides"
+
+#: .\projects\templates\projects\projects_base.html:77
+msgid "Manage Staff Levels"
+msgstr "Gérer les niveaux ressources humaines"
+
+#: .\projects\templates\projects\projects_base.html:80
+msgid "Manage Programs"
+msgstr "Gérer les programme"
 
 #: .\projects\templates\projects\report_pdf_project_summary.html:294
 #: .\staff\templates\staff\staffingplan_detail.html:76
@@ -3881,10 +3836,8 @@ msgid "Back"
 msgstr ""
 
 #: .\projects\views.py:347
-#, fuzzy
-#| msgid "Division"
 msgid "division"
-msgstr "Division"
+msgstr "division"
 
 #: .\projects\views.py:367 .\shared_models\models.py:121
 msgid "branch"
