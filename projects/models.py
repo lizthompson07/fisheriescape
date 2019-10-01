@@ -525,7 +525,7 @@ class GCCost(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'projects/project_{0}/{1}'.format(instance.resource.id, filename)
+    return 'projects/project_{0}/{1}'.format(instance.project.id, filename)
 
 
 class File(models.Model):
