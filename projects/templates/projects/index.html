@@ -38,12 +38,9 @@
                         <br>
                     {% else %}
                         <br>
-
                         {% url 'accounts:login' as sign_in_url %}
                         {% url 'projects:index' as next_url %}
                         {% url 'accounts:signup' as sign_up_url %}
-
-
 
                         <p>
                             {% blocktrans %}
@@ -54,7 +51,6 @@
                             {% blocktrans %}
                                 If you do not have an account, you can create one <a href="{{ sign_up_url }}">here</a>.
                             {% endblocktrans %}
-
                         </p>
                     {% endif %}
                     <br>
@@ -95,6 +91,8 @@
 
                                 </h4>
                             </div>
+                        {% else %}
+                            <br>    <br>
                         {% endif %}
                     </div>
 
@@ -112,32 +110,32 @@
                         <h6 class="card-subtitle mb-2 text-muted">
                             GULF REGION:
                         </h6>
-                        <p class="card-text">
-                        <table class="table table-bordered">
-                            <tr>
-                                <th style="width: 20%;">Nov 1</th>
-                                <td>
-                                    Official launch of project planning. Start building projects in app.
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="red-font">Dec 1</th>
-                                <td class="red-font">
-                                    Submission deadline for core and non-optional programs.
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Dec 5</th>
-                                <td class="">
-                                    Review of core and non-optional projects.
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>...</th>
-                                <td class="">...</td>
-                            </tr>
-                        </table>
-                        </p>
+{#                        <p class="card-text">#}
+                            <table class="table table-bordered card-text">
+                                <tr>
+                                    <th style="width: 20%;">Nov 1</th>
+                                    <td>
+                                        Official launch of project planning. Start building projects in app.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="red-font">Dec 1</th>
+                                    <td class="red-font">
+                                        Submission deadline for core and non-optional programs.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Dec 5</th>
+                                    <td class="">
+                                        Review of core and non-optional projects.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>...</th>
+                                    <td class="">...</td>
+                                </tr>
+                            </table>
+{#                        </p>#}
                         {#                        <a href="#" class="card-link">Card link</a>#}
                         {#                        <a href="#" class="card-link">Another link</a>#}
                     </div>

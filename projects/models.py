@@ -1,5 +1,8 @@
+import os
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from textile import textile
@@ -260,6 +263,9 @@ class Project(models.Model):
     rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
     rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
 
+    is_hidden = models.NullBooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
+
+
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
@@ -513,3 +519,55 @@ class GCCost(models.Model):
 
     class Meta:
         ordering = ['recipient_org', ]
+
+
+
+
+def file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'projects/project_{0}/{1}'.format(instance.resource.id, filename)
+
+
+class File(models.Model):
+    caption = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
+    file = models.FileField(upload_to=file_directory_path)
+    date_created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return self.caption
+
+
+@receiver(models.signals.post_delete, sender=File)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=File)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = File.objects.get(pk=instance.pk).file
+    except File.DoesNotExist:
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

@@ -22,21 +22,36 @@
     <li class="nav-item"><a class="nav-link" href="{% url 'projects:index' %}">
         {% trans "Home" %}
     </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'projects:project_list' %}">
-        {% trans "All Projects" %}
-    </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_project_list' %}">
-        {% trans "My Projects" %}
-    </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_section_list' %}">
-        {% trans "My Section" %}
-    </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_division_list' %}">
-        {% trans "My Division" %}
-    </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'projects:my_branch_list' %}">
-        {% trans "My Branch" %}
-    </a></li>
+
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            {% trans "Projects" %}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+{#            <a class="dropdown-item" href="{% url 'projects:manage_programs' %}">#}
+{#                {% trans "Manage Programs" %}#}
+{#            </a>#}
+            <a class="dropdown-item" href="{% url 'projects:project_list' %}">
+                {% trans "View All" %}
+            </a>
+            <a class="dropdown-item" href="{% url 'projects:my_project_list' %}">
+                {% trans "My Projects" %}
+            </a>
+            <a class="dropdown-item" href="{% url 'projects:my_section_list' %}">
+                {% trans "My Section" %}
+            </a>
+            <a class="dropdown-item" href="{% url 'projects:my_division_list' %}">
+                {% trans "My Division" %}
+            </a>
+            <a class="dropdown-item" href="{% url 'projects:my_branch_list' %}">
+                {% trans "My Branch" %}
+            </a>
+        </div>
+    </li>
+
+
+
 
     {#      {% for group in user.groups.all %}#}
     {#        {% if group.name == "projects_admin"   %}#}
