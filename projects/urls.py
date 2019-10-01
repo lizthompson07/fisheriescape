@@ -87,6 +87,13 @@ urlpatterns = [
 
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
+    # FILES #
+    #########
+    path('project/<int:project>/file/new/', views.FileCreateView.as_view(), name='file_new'),
+    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
+    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
+
     # SHARED #
     ##########
     path('toggle-funding-source/<str:type>/<int:pk>/', views.toggle_source, name="toggle_source"),

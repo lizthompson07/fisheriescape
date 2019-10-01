@@ -441,3 +441,19 @@ TempFormSet = modelformset_factory(
     form=TempForm,
     extra=0,
 )
+
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        exclude = ["date_created", ]
+        # fields = "__all__"
+        # labels={
+        #     'district':mark_safe("District (<a href='#' >search</a>)"),
+        #     'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
+        # }
+        widgets = {
+            'project': forms.HiddenInput(),
+            # 'end_date':forms.DateInput(attrs={'type': 'date'}),
+        }
