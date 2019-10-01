@@ -29,6 +29,7 @@ from . import filters
 from . import reports
 from shared_models import models as shared_models
 
+
 def get_help_text_dict():
     my_dict = {}
     for obj in models.HelpText.objects.all():
@@ -1121,6 +1122,61 @@ def toggle_project_approval(request, project):
     return HttpResponseRedirect(reverse_lazy("projects:my_section_list"))
 
 
+# FILES #
+#########
+
+class FileCreateView(LoginRequiredMixin, CreateView):
+    template_name = "projects/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        project = models.Project.objects.get(pk=self.kwargs['project'])
+        context["project"] = project
+        return context
+
+    def get_initial(self):
+        project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {'project': project}
+
+
+class FileUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "projects/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("projects:file_detail", kwargs={"pk": self.object.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        return context
+
+
+class FileDetailView(FileUpdateView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["editable"] = False
+        return context
+
+
+class FileDeleteView(LoginRequiredMixin, DeleteView):
+    template_name = "projects/file_confirm_delete.html"
+    model = models.File
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("projects:project_detail", kwargs={"pk": self.object.project.id})
+
+
 # REPORTS #
 ###########
 
@@ -1544,7 +1600,6 @@ def manage_employee_types(request):
     return render(request, 'projects/manage_settings_small.html', context)
 
 
-
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def delete_status(request, pk):
@@ -1578,7 +1633,6 @@ def manage_statuses(request):
     return render(request, 'projects/manage_settings_small.html', context)
 
 
-
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def delete_tag(request, pk):
@@ -1610,7 +1664,6 @@ def manage_tags(request):
     context['title'] = "Manage Tags"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
-
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -1647,7 +1700,6 @@ def manage_help_text(request):
     return render(request, 'projects/manage_settings_small.html', context)
 
 
-
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def delete_level(request, pk):
@@ -1678,8 +1730,6 @@ def manage_levels(request):
     context['title'] = "Manage Levels"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
-
-
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -1718,4 +1768,3 @@ def manage_programs(request):
     context['title'] = "Manage Programs"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
-
