@@ -1,11 +1,22 @@
 {% extends "projects/projects_base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block content %}
     <style>
-        td, th, table {
-            border: black;
+        table.table-bordered {
+            border: 1px solid blue;
+            margin-top: 20px;
         }
+
+        table.table-bordered > tbody > tr > th {
+            border: 1px solid blue;
+        }
+
+        table.table-bordered > tbody > tr > td {
+            border: 1px solid blue;
+        }
+
     </style>
     <br>
     <div class="container-fluid">
@@ -14,15 +25,17 @@
 
                 <div class="jumbotron">
                     <h1 class="three-em">
-                        {% trans "Science Project Planning" %}
+                        {% trans "Science Project Planning Application" %}
                     </h1>
                     <hr>
                     <h3>
-                        {% trans "Science Project Planning Application" %}
+                        {#                        {% trans "Science Project Planning " %}#}
                     </h3>
+                    <div class="float-right">
+                        <img src="{% static '/img/icons/scope.svg' %}" alt="" width="200px">
+                    </div>
                     {% if user.is_authenticated %}
                         <br>
-                        <p></p>
                     {% else %}
                         <br>
 
@@ -45,50 +58,52 @@
                         </p>
                     {% endif %}
                     <br>
-                    <div style="text-align: center">
-                        <h4>
-                            {% trans "Please use <u>Microsoft Edge</u> or <u>Google Chrome</u> to view this page." %}
-                            <br><br><b>
-                        <span class="highlight">
-                            {% trans "DO NOT USE Internet Explorer." %}
-                        </span>
-                        </b>
+                    <div style="">
+                        {#                        <h4>#}
+                        {#                            {% trans "Please use <u>Microsoft Edge</u> or <u>Google Chrome</u> to view this page." %}#}
+                        {#                            <br><br><b>#}
+                        {#                        <span class="">#}
+                        {#                            {% trans "DO NOT USE Internet Explorer." %}#}
+                        {#                        </span>#}
+                        {#                        </b>#}
+                        {##}
+                        {##}
+                        {#                        </h4>#}
 
-                        </h4>
+                        {% if user.is_authenticated %}
+                            <div align="">
+                                {% url 'projects:project_new' as new_proj_url %}
+                                {% url 'projects:my_project_list' as my_proj_url %}
+                                {% url 'projects:project_list' as all_proj_url %}
+
+
+                                <h4>
+                                    {% blocktrans %}
+                                        Click
+                                        <a href="{{ new_proj_url }}">HERE</a> to create a new project.
+                                        <br><br>
+                                        To view or edit an existing project, go to <a href="{{ my_proj_url }}">Your
+                                        Projects</a>.
+                                        <br><br>
+                                        For a list of all project in the branch, go to <a href="{{ all_proj_url }}">All
+                                        Projects</a>.
+
+                                    {% endblocktrans %}
+
+                                    <br><br>
+
+
+                                </h4>
+                            </div>
+                        {% endif %}
                     </div>
 
                 </div>
 
 
-                {% if user.is_authenticated %}
-                    <div align="">
-                        {% url 'projects:project_new' as new_proj_url %}
-                        {% url 'projects:my_project_list' as my_proj_url %}
-                        {% url 'projects:project_list' as all_proj_url %}
-
-
-                        <h4>
-                            {% blocktrans %}
-                                Click
-                                <a href="{{ new_proj_url }}">HERE</a> to create a new project.
-                                <br><br>
-                                To view or edit an existing project, go to <a href="{{ my_proj_url }}">Your
-                                Projects</a>.
-                                <br><br>
-                                For a list of all project in the branch, go to <a href="{{ all_proj_url }}">All
-                                Projects</a>.
-
-                            {% endblocktrans %}
-
-                            <br><br>
-
-
-                        </h4>
-                    </div>
-                {% endif %}
             </div>
             <div class="col-4">
-                <div class="card" style="width: 100%; background: #ffeb45;">
+                <div class="card" style="width: 100%; background: #ffd738;">
                     <div class="card-body">
                         <h5 class="card-title">
                             2020-2021 Timelines
@@ -101,15 +116,21 @@
                         <table class="table table-bordered">
                             <tr>
                                 <th style="width: 20%;">Nov 1</th>
-                                <td>Start development of project in app</td>
+                                <td>
+                                    Official launch of project planning. Start building projects in app.
+                                </td>
                             </tr>
                             <tr>
-                                <th>Dec 1</th>
-                                <td class="red-font">Submission deadline for core and non-optional programs</td>
+                                <th class="red-font">Dec 1</th>
+                                <td class="red-font">
+                                    Submission deadline for core and non-optional programs.
+                                </td>
                             </tr>
                             <tr>
                                 <th>Dec 5</th>
-                                <td class="">Review core and non-optional program requests</td>
+                                <td class="">
+                                    Review of core and non-optional projects.
+                                </td>
                             </tr>
                             <tr>
                                 <th>...</th>
