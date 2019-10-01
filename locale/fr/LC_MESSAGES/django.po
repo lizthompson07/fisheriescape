@@ -1110,7 +1110,7 @@ msgstr ""
 #: .\ihub\templates\ihub\ihub_base.html:59
 #: .\projects\templates\projects\projects_base.html:71
 msgid "Manage Statuses"
-msgstr ""
+msgstr "Gérer les statuts"
 
 #: .\ihub\templates\ihub\ihub_base.html:62
 msgid "Manage Entry Types"
