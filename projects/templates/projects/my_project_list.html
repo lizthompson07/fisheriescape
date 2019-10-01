@@ -72,14 +72,14 @@
                 (click on a header to sort table)
             </div>
             <div class="col" style="text-align: center">
-{#                {% show_pages %}#}
+                {#                {% show_pages %}#}
                 <em>{% trans "displaying" %} {{ object_list.count }} {% trans "record" %}{{ object_list|pluralize }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
                 <a href="{% url 'projects:project_new' %}" class="btn btn-sm btn-primary">
                     {% trans "New Project" %}
                 </a>
-{#                <a href="" class="btn btn-sm btn-primary">New</a>#}
+                {#                <a href="" class="btn btn-sm btn-primary">New</a>#}
             </div>
         </div>
         <table class="table table-hover table-sm sortable">
@@ -101,6 +101,9 @@
             </th>
             <th scope="col" style="width: 30%">
                 {% trans "Title" %}
+            </th>
+            <th scope="col">
+                {% trans "Is the Project Hidden?" %}
             </th>
             <th scope="col" style="width: 100px">
                 {% trans "Project Lead?" %}
@@ -136,11 +139,14 @@
                     <td>
                         {{ obj.project.project_title }}
                     </td>
+                    <td class="{% if obj.project.is_hidden %} highlight{% endif %}">
+                        {{ obj.project.is_hidden|yesno }}
+                    </td>
                     <td class="{% if obj.lead %}green-font{% else %}red-font{% endif %}">
                         {{ obj.lead|yesno }}
                     </td>
                     <td>{{ obj.employee_type }}</td>
-                    <td>{{ obj.duration_weeks }}</td>
+                    <td>{{ obj.duration_weeks|nz:"----" }}</td>
 
 
                     <td class="{% if obj.project.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">

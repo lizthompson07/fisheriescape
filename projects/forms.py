@@ -95,6 +95,8 @@ class ProjectForm(forms.ModelForm):
 
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "programs": forms.SelectMultiple(attrs=chosen_js),
+
+            "is_hidden": forms.Select(choices=YESNO_CHOICES),
         }
 
     def __init__(self, *args, **kwargs):
@@ -421,4 +423,21 @@ LevelFormSet = modelformset_factory(
     model=models.Level,
     form=LevelForm,
     extra=1,
+)
+
+
+class TempForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = ["project_title", "program", "programs", "tags"]
+        widgets = {
+            'programs': forms.SelectMultiple(attrs=chosen_js),
+            'tags': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+TempFormSet = modelformset_factory(
+    model=models.Project,
+    form=TempForm,
+    extra=0,
 )

@@ -374,7 +374,7 @@ class MyBranchListView(LoginRequiredMixin, FilterView):
 class ProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
-    queryset = models.Project.objects.all().order_by('-year', 'section__division', 'section', 'project_title')
+    queryset = models.Project.objects.filter(is_hidden=False).order_by('-year', 'section__division', 'section', 'project_title')
     filterset_class = filters.ProjectFilter
 
 
@@ -798,16 +798,22 @@ def temp_formset(request):
     else:
         # prep the formset...for display
         formset = forms.TempFormSet(
-            queryset=models.Project.objects.filter(section__division__branch__region__id=1).filter(program__isnull=False).order_by(
-                "program")
+            queryset=models.Project.objects.filter(section__division__branch__region__id=2).order_by("program")
         )
     context['formset'] = formset
+    context['my_object'] = models.Project.objects.first()
+    context['field_list'] = [
+        'project_title',
+        'program',
+        'programs',
+        'tags',
+    ]
     return render(request, 'projects/temp_formset.html', context)
 
 
 # this is a temp view DJF created to walkover the `program` field to the new `programs` field
 class MyTempListView(LoginRequiredMixin, ListView):
-    queryset = models.Project.objects.all().order_by(
+    queryset = models.Project.objects.filter(section__division__branch__region__id=2).order_by(
         "section__division__branch__region",
         "section__division",
         "section",
@@ -1185,7 +1191,7 @@ class ReportSearchFormView(LoginRequiredMixin, FormView):
             }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("ihub:report_search"))
+            return HttpResponseRedirect(reverse("projects:report_search"))
 
 
 def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None, user=None):
