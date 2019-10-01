@@ -65,21 +65,21 @@
                             <td>
 
                                 {% if "funding" in title|lower %}
-                                    {% url 'ihub:delete_funding_source' form.instance.id as my_delete_url %}
+                                    {% url 'projects:delete_funding_source' form.instance.id as my_delete_url %}
                                 {% elif "categories" in title|lower %}
-                                    {% url 'ihub:delete_om_cat' form.instance.id as my_delete_url %}
+                                    {% url 'projects:delete_om_cat' form.instance.id as my_delete_url %}
                                 {% elif "employee" in title|lower %}
-                                    {% url 'ihub:delete_employee_type' form.instance.id as my_delete_url %}
+                                    {% url 'projects:delete_employee_type' form.instance.id as my_delete_url %}
                                 {% elif "tags" in title|lower %}
-                                    {% url 'ihub:delete_tag' form.instance.id as my_delete_url %}
+                                    {% url 'projects:delete_tag' form.instance.id as my_delete_url %}
                                 {% elif "status" in title|lower %}
-                                    {% url 'ihub:delete_status' form.instance.id as my_delete_url %}
+                                    {% url 'projects:delete_status' form.instance.id as my_delete_url %}
                                 {% elif "help" in title|lower %}
-                                    {% url 'ihub:delete_help_text' form.instance.id as my_delete_url %}
+                                    {% url 'projects:delete_help_text' form.instance.id as my_delete_url %}
                                 {% elif "program" in title|lower %}
-                                    {% url 'ihub:delete_program' form.instance.id as my_delete_url %}
+                                    {% url 'projects:delete_program' form.instance.id as my_delete_url %}
                                 {% elif "level" in title|lower %}
-                                    {% url 'ihub:delete_level' form.instance.id as my_delete_url %}
+                                    {% url 'projects:delete_level' form.instance.id as my_delete_url %}
                                 {% endif %}
 
                                 <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
@@ -97,7 +97,7 @@
 
             <p>
                 <button id="submit" type="submit" class="btn btn-primary">Save</button>
-                <a class="btn btn-secondary" href="{% url 'ihub:index' %}">Back</a>
+                <a class="btn btn-secondary" href="{% url 'projects:index' %}">Back</a>
             </p>
 
         </form>
