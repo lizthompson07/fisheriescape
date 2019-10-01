@@ -1174,7 +1174,7 @@ class FileDeleteView(LoginRequiredMixin, DeleteView):
     model = models.File
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("projects:project_detail", kwargs={"pk": self.object.project.id})
+        return reverse_lazy("shared_models:close_me")
 
 
 # REPORTS #
