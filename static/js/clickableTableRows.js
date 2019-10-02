@@ -9,7 +9,7 @@ $("tr").each(function () {
             href = $(this)[0].getAttribute("href")
 
             if ($(this)[0].hasAttribute("pop")) {
-                popitup(href, 'popoutWindow')
+                popitup(href, 'popoutWindow'+Date.now())
             } else {
                 document.location.href = href
             }

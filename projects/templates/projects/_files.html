@@ -7,16 +7,18 @@
 </style>
 
 <h4>
-    {% trans "File Attachments:" %}
+    {% trans "Supporting Resources:" %}
 </h4>
+
+
 {% if not report_mode %}
     <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:file_new' object.id %}','popoutWindow')">
+       onclick="return popitup('{% url 'projects:file_new' project.id %}','popoutWindow')">
         {% trans "Add File" %}
     </a>
     <br><br>
 {% endif %}
-{% if object.files.count == 0 %}
+{% if project.files.count == 0 %}
     <em>
         {% trans "No Files" %}...
     </em><br>
@@ -33,7 +35,7 @@
 
         </tr>
         <tbody>
-        {% for obj in object.files.all %}
+        {% for obj in project.files.all %}
             <tr {% if not report_mode %}data-toggle="tooltip" title="Edit" href="{% url 'projects:file_detail' obj.id %}" pop{% endif %}>
                 <td>{{ obj.caption }}</td>
                 <td>{{ obj.date_created }}</td>
