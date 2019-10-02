@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 {% load i18n %}
 <style>
     table, td {
@@ -11,7 +12,7 @@
 </h4>
 {% if not report_mode %}
     <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:file_new' object.id %}','popoutWindow')">
+       onclick="return popitup('{% url 'projects:report_new' object.id %}','popoutWindow')">
         {% trans "Add Report" %}
     </a>
     <br><br>
@@ -23,27 +24,39 @@
 {% else %}
 
     <table class="table table-hover table-sm" style="width: auto">
+
         <tr>
             <th>
-                {% trans "Caption" %}
+                {% trans "Number" %}
             </th>
             <th>
-                {% trans "Date Created" %}
+                {% trans "Created By" %}
+            </th>
+            <th width="10%">
+                {% trans "Status" %}
+            </th>
+            <th>
+                {% trans "Major Accomplishments" %}
+            </th>
+            <th>
+                {% trans "Major Issues Encountered" %}
+            </th>
+            <th>
+                {% trans "Target completion date" %}
             </th>
 
         </tr>
         <tbody>
         {% for obj in object.reports.all %}
-            <tr {% if not report_mode %}data-toggle="tooltip" title="Edit" href="{% url 'projects:file_detail' obj.id %}" pop{% endif %}>
-                <td>{{ obj.caption }}</td>
-                <td>{{ obj.date_created }}</td>
-                <td>
-                    <a href="{{ obj.file.url }}" data-toggle="tooltip" title="Open the file" id="file_link">
-                        <img src="{% static 'img/paperclip-1332775_1920.png' %}" alt="" width="20px">
-                    </a>
-                </td>
+            <tr {% if not report_mode %}data-toggle="tooltip" title="Edit" href="{% url 'projects:report_edit' obj.id %}" pop{% endif %}>
+                <td>{{ obj.report_number }}</td>
+                <td>{{ obj.created_by }}</td>
+                <td>{{ obj.status }}</td>
+                <td>{{ obj.major_accomplishments|safe }}</td>
+                <td>{{ obj.major_issues|safe }}</td>
+                <td>{{ obj.target_completion_date|date:"Y-m-d"|nz:"----" }}</td>
 
-                </a>
+
             </tr>
         {% endfor %}
         </tbody>

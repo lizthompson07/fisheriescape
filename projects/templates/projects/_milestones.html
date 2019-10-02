@@ -1,0 +1,72 @@
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+<style>
+    table, td {
+        font-size: small;
+    }
+</style>
+
+
+<h4>
+    {% trans "Project Milestones:" %}
+</h4>
+{% if not report_mode %}
+    <a class="btn btn-sm btn-primary" href="#"
+       onclick="return popitup('{% url 'projects:milestone_new' project.id %}','popoutWindow')">
+        {% trans "Add Milestone" %}
+    </a>
+    <br><br>
+{% endif %}
+
+{% if project.milestones.count == 0 %}
+    <em>
+        {% trans "No milestones" %}...
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% if not report_mode %}
+                <th></th>
+            {% endif %}
+            <th>
+                {% trans "Name" %}
+            </th>
+            <th>
+                {% trans "Status" %}
+            </th>
+            <th>
+                {% trans "notes" %}
+            </th>
+
+        </tr>
+        <tbody>
+        {% for obj in project.milestones.all %}
+            <tr  {% if not report_mode %}
+                href="{% url 'projects:milestone_edit' obj.id %}" pop
+                data-toggle="tooltip" title="Edit"
+            {% endif %}
+            >
+                {% if not report_mode %}
+                    <td>
+                        {% if not report_mode %}
+                            <a class="milestone-delete-me" href="#" val="{{ obj.id }}">
+                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                     title="Delete">
+                            </a>
+                            <a id="milestone-secrect-delete-btn-{{ obj.id }}"
+                               href="{% url 'projects:milestone_delete' obj.id %}" class="hidden"></a>
+                        {% endif %}
+                    </td>
+                {% endif %}
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.status}}</td>
+                <td>{{ obj.notes}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>

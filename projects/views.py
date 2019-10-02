@@ -1772,13 +1772,12 @@ def manage_programs(request):
     return render(request, 'projects/manage_settings_small.html', context)
 
 
-
 # STATUS REPORT #
 #################
 
 class StatusReportCreateView(LoginRequiredMixin, CreateView):
     model = models.StatusReport
-    template_name = 'projects/cost_form_popout.html'
+    template_name = 'projects/status_report_form_popout.html'
     login_url = '/accounts/login_required/'
     form_class = forms.StatusReportForm
 
@@ -1786,13 +1785,14 @@ class StatusReportCreateView(LoginRequiredMixin, CreateView):
         project = models.Project.objects.get(pk=self.kwargs['project'])
         return {
             'project': project,
+            'created_by': self.request.user,
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
-        context['cost_type'] = "Capital"
+        context['status_report'] = True
         return context
 
     def form_valid(self, form):
@@ -1806,9 +1806,12 @@ class StatusReportUpdateView(LoginRequiredMixin, UpdateView):
     form_class = forms.StatusReportForm
     login_url = '/accounts/login_required/'
 
+    def get_initial(self):
+        return {'created_by': self.request.user, }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cost_type'] = "Capital"
+        context['project'] = context["object"].project
         return context
 
     def form_valid(self, form):
@@ -1816,9 +1819,61 @@ class StatusReportUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-def status_report_delete(request, pk):
-    object = models.StatusReport.objects.get(pk=pk)
+class StatusReportDeleteView(LoginRequiredMixin, DeleteView):
+    template_name = "projects/status_report_confirm_delete.html"
+    model = models.StatusReport
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("shared_models:close_me")
+
+
+
+# MILESTONE #
+#############
+
+class MilestoneCreateView(LoginRequiredMixin, CreateView):
+    model = models.Milestone
+    template_name = 'projects/milestone_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.MilestoneForm
+
+    def get_initial(self):
+        project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': project,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = models.Project.objects.get(id=self.kwargs['project'])
+        context['project'] = project
+        # context['cost_type'] = "G&C"
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+
+class MilestoneUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.Milestone
+    template_name = 'projects/cost_form_popout.html'
+    form_class = forms.MilestoneForm
+    login_url = '/accounts/login_required/'
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['project'] = context["object"].project
+        return context
+
+
+def milestone_delete(request, pk):
+    object = models.Milestone.objects.get(pk=pk)
     object.delete()
-    messages.success(request, _("The status report has been successfully deleted."))
+    messages.success(request, _("The milestone has been successfully deleted."))
     return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
 
