@@ -7,7 +7,7 @@ import pandas as pd
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db.models import Sum, Q
@@ -27,6 +27,7 @@ from . import forms
 from . import emails
 from . import filters
 from . import reports
+from . import stat_holidays
 from shared_models import models as shared_models
 
 
@@ -48,38 +49,120 @@ def get_help_text_dict():
 
 
 def in_projects_admin_group(user):
+    """
+    Will return True if user is in project_admin group
+    """
     if user:
         return user.groups.filter(name='projects_admin').count() != 0
 
 
-# This function is a bit of a misnomer. It is used to determine whether the user has full access to a record, assuming they are not already a project lead
-def can_delete(user, project):
-    """returns True if user has permissions to delete or modify a project"""
+def is_management_or_admin(user):
+    """
+        Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
+    """
     if user.id:
-        # # check to see if a superuser or projects_admin
-        if user.is_superuser or "projects_admin" in [g.name for g in user.groups.all()]:
+        if in_projects_admin_group(user) or \
+                shared_models.Section.objects.filter(head=user).count() > 0 or \
+                shared_models.Division.objects.filter(head=user).count() > 0 or \
+                shared_models.Branch.objects.filter(head=user).count() > 0:
             return True
 
-        # otherwise check to see if they are a project lead or section head
-        else:
-            for staff in project.staff_members.filter(lead=True):
-                try:
-                    if staff.user.id == user.id:
-                        return True
-                except:
-                    print("staff has no user id")
 
-            # finally, check to see if they are a section head
-            if project.section:
-                if project.section.head:
-                    if project.section.head.id == user.id:
-                        return True
-                    else:
-                        return False
-            else:
-                return False
-    else:
-        return False
+def is_section_head(user, project):
+    try:
+        return True if project.section.head.id == user.id else False
+    except AttributeError:
+        pass
+
+
+def is_division_manager(user, project):
+    try:
+        return True if project.section.division.head.id == user.id else False
+    except AttributeError:
+        pass
+
+
+def is_rds(user, project):
+    try:
+        return True if project.section.division.branch.head.id == user.id else False
+    except AttributeError:
+        pass
+
+
+def can_modify_project(user, project_id):
+    """returns True if user has permissions to delete or modify a project"""
+    if user.id:
+        project = models.Project.objects.get(pk=project_id)
+
+        # check to see if a superuser or projects_admin -- both are allow to modify projects
+        # if user.is_superuser or "projects_admin" in [g.name for g in user.groups.all()]:
+        #     return True
+
+        # check to see if they are a project lead
+        if user in [staff.user for staff in project.staff_members.filter(lead=True)]:
+            return True
+
+        # check to see if they are a section head
+        if is_section_head(user, project):
+            return True
+
+
+class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
+        try:
+            obj = self.get_object()
+        except AttributeError:
+            project_id = self.kwargs.get("project")
+        else:
+            try:
+                project_id = getattr(obj, "project").id
+            except AttributeError:
+                project_id = obj.id
+        finally:
+            return can_modify_project(self.request.user, project_id)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ProjectManagerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        # we need to get the pk for the project. this might be under 1 or 2 kwargs: pk or project
+        if self.kwargs.get("pk"):
+            project_id = self.kwargs.get("pk")
+        else:
+            project_id = self.kwargs.get("project")
+        project = models.Project.objects.get(pk=project_id)
+        if is_section_head(self.request.user, project) or is_division_manager(self.request.user, project) or is_rds(self.request.user,
+                                                                                                                    project):
+            return True
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_section_heads_only'))
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ManagerOrAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return is_management_or_admin(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_section_heads_only'))
+        return super().dispatch(request, *args, **kwargs)
 
 
 def financial_summary_data(project):
@@ -391,8 +474,8 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         my_context = financial_summary_data(project)
         context = {**my_context, **context}
 
-        if not can_delete(self.request.user, project):
-            context["report_mode"] = True
+        # if not can_modify_project(self.request.user, project):
+        #     context["report_mode"] = True
         return context
 
 
@@ -427,9 +510,8 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class ProjectUpdateView(LoginRequiredMixin, UpdateView):
+class ProjectUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.Project
-    login_url = '/accounts/login_required/'
     form_class = forms.ProjectForm
 
     def get_context_data(self, **kwargs):
@@ -457,9 +539,8 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
         return my_dict
 
 
-class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
+class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.Project
-    login_url = '/accounts/login_required/'
     form_class = forms.ProjectSubmitForm
     template_name = "projects/project_submit_form.html"
 
@@ -501,9 +582,8 @@ class ProjectSubmitUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ProjectApprovalUpdateView(LoginRequiredMixin, UpdateView):
+class ProjectApprovalUpdateView(ProjectManagerRequiredMixin, UpdateView):
     model = models.Project
-    login_url = '/accounts/login_required/'
     template_name = "projects/project_approval_form_popout.html"
     success_url = reverse_lazy("projects:close_me")
 
@@ -573,12 +653,10 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-class ProjectDeleteView(LoginRequiredMixin, DeleteView):
+class ProjectDeleteView(ProjectLeadRequiredMixin, DeleteView):
     model = models.Project
-    permission_required = "__all__"
     success_url = reverse_lazy('projects:my_project_list')
     success_message = _('The project was successfully deleted!')
-    login_url = '/accounts/login_required/'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -586,6 +664,15 @@ class ProjectDeleteView(LoginRequiredMixin, DeleteView):
 
 
 class ProjectCloneUpdateView(ProjectUpdateView):
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_access'))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
         my_object = models.Project.objects.get(pk=self.kwargs["pk"])
@@ -673,10 +760,9 @@ class ProjectCloneUpdateView(ProjectUpdateView):
 # STAFF #
 #########
 
-class StaffCreateView(LoginRequiredMixin, CreateView):
+class StaffCreateView(ProjectLeadRequiredMixin, CreateView):
     model = models.Staff
     template_name = 'projects/staff_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.StaffForm
 
     def get_initial(self):
@@ -700,11 +786,10 @@ class StaffCreateView(LoginRequiredMixin, CreateView):
             return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class StaffUpdateView(LoginRequiredMixin, UpdateView):
+class StaffUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.Staff
     template_name = 'projects/staff_form_popout.html'
     form_class = forms.StaffForm
-    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -718,9 +803,13 @@ class StaffUpdateView(LoginRequiredMixin, UpdateView):
 
 def staff_delete(request, pk):
     object = models.Staff.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The staff member has been successfully deleted from project."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
+    if can_modify_project(request.user, object.project.id):
+        object.delete()
+        messages.success(request, _("The staff member has been successfully deleted from project."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
@@ -740,38 +829,19 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # create a pandas date_range object for upcoming fiscal year
-        target_year = pd.datetime.today().year
-        start = "{}-04-01".format(target_year)
-        end = "{}-03-31".format(target_year + 1)
-        datelist = pd.date_range(start=start, end=end).tolist()
-        context['datelist'] = datelist
-
         # send in the upcoming fiscal year string
         context["next_fiscal_year"] = fiscal_year(next=True)
 
-        # send in a list of stat holidays from: https://www.tpsgc-pwgsc.gc.ca/remuneration-compensation/services-paye-pay-services/paye-centre-pay/feries-holidays-eng.html
-        stat_holiday_list = [
-            # Good Friday
-            datetime.datetime.strptime("April 19, 2019", "%B %d, %Y"),
-            # Easter Monday
-            datetime.datetime.strptime("April 22, 2019", "%B %d, %Y"),
-            # Victoria Day
-            datetime.datetime.strptime("May 20, 2019", "%B %d, %Y"),
-            # Canada Day
-            datetime.datetime.strptime("July 1, 2019", "%B %d, %Y"),
-            # Labour Day
-            datetime.datetime.strptime("September 2, 2019", "%B %d, %Y"),
-            # Thanksgiving Day
-            datetime.datetime.strptime("October 14, 2019", "%B %d, %Y"),
-            # Remembrance Day
-            datetime.datetime.strptime("November 11, 2019", "%B %d, %Y"),
-            # Christmas Day
-            datetime.datetime.strptime("December 25, 2019", "%B %d, %Y"),
-            # Boxing Day
-            datetime.datetime.strptime("December 26, 2019", "%B %d, %Y"),
-        ]
-        context["stat_holiday_list"] = stat_holiday_list
+        # create a pandas date_range object for upcoming fiscal year
+        target_year = fiscal_year(next=True,sap_style=True)
+        start = "{}-04-01".format(target_year-1)
+        end = "{}-03-31".format(target_year)
+        datelist = pd.date_range(start=start, end=end).tolist()
+        context['datelist'] = datelist
+
+
+        # send in a list of stat holidays
+        context["stat_holiday_list"] = stat_holidays.stat_holiday_list
         return context
 
     def form_valid(self, form):
@@ -826,10 +896,9 @@ class MyTempListView(LoginRequiredMixin, ListView):
 # COLLABORATOR #
 ################
 
-class CollaboratorCreateView(LoginRequiredMixin, CreateView):
+class CollaboratorCreateView(ProjectLeadRequiredMixin, CreateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.CollaboratorForm
 
     def get_initial(self):
@@ -849,11 +918,10 @@ class CollaboratorCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class CollaboratorUpdateView(LoginRequiredMixin, UpdateView):
+class CollaboratorUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
     form_class = forms.CollaboratorForm
-    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -862,18 +930,20 @@ class CollaboratorUpdateView(LoginRequiredMixin, UpdateView):
 
 def collaborator_delete(request, pk):
     object = models.Collaborator.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The collaborator has been successfully deleted from project."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    if can_modify_project(request.user, object.project.id):
+        object.delete()
+        messages.success(request, _("The collaborator has been successfully deleted from project."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 # AGREEMENTS #
 ##############
 
-class AgreementCreateView(LoginRequiredMixin, CreateView):
+class AgreementCreateView(ProjectLeadRequiredMixin, CreateView):
     model = models.CollaborativeAgreement
     template_name = 'projects/agreement_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.AgreementForm
 
     def get_initial(self):
@@ -893,11 +963,10 @@ class AgreementCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class AgreementUpdateView(LoginRequiredMixin, UpdateView):
+class AgreementUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.CollaborativeAgreement
     template_name = 'projects/agreement_form_popout.html'
     form_class = forms.AgreementForm
-    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -906,18 +975,20 @@ class AgreementUpdateView(LoginRequiredMixin, UpdateView):
 
 def agreement_delete(request, pk):
     object = models.CollaborativeAgreement.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The agreement has been successfully deleted."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    if can_modify_project(request.user, object.project.id):
+        object.delete()
+        messages.success(request, _("The agreement has been successfully deleted."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 # OM COSTS #
 ############
 
-class OMCostCreateView(LoginRequiredMixin, CreateView):
+class OMCostCreateView(ProjectLeadRequiredMixin, CreateView):
     model = models.OMCost
     template_name = 'projects/cost_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.OMCostForm
 
     def get_initial(self):
@@ -938,11 +1009,10 @@ class OMCostCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class OMCostUpdateView(LoginRequiredMixin, UpdateView):
+class OMCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.OMCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.OMCostForm
-    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -956,41 +1026,49 @@ class OMCostUpdateView(LoginRequiredMixin, UpdateView):
 
 def om_cost_delete(request, pk):
     object = models.OMCost.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The cost has been successfully deleted."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    if can_modify_project(request.user, object.project.id):
+        object.delete()
+        messages.success(request, _("The cost has been successfully deleted."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 def om_cost_clear(request, project):
     project = models.Project.objects.get(pk=project)
-    for obj in models.OMCategory.objects.all():
-        for cost in models.OMCost.objects.filter(project=project, om_category=obj):
-            print(cost)
-            if (cost.budget_requested is None or cost.budget_requested == 0) and not cost.description:
-                cost.delete()
+    if can_modify_project(request.user, project.id):
+        for obj in models.OMCategory.objects.all():
+            for cost in models.OMCost.objects.filter(project=project, om_category=obj):
+                print(cost)
+                if (cost.budget_requested is None or cost.budget_requested == 0) and not cost.description:
+                    cost.delete()
 
-    messages.success(request, _("All empty O&M lines have been cleared."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+        messages.success(request, _("All empty O&M lines have been cleared."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 def om_cost_populate(request, project):
     project = models.Project.objects.get(pk=project)
-    for obj in models.OMCategory.objects.all():
-        if not models.OMCost.objects.filter(project=project, om_category=obj).count():
-            new_item = models.OMCost.objects.create(project=project, om_category=obj)
-            new_item.save()
+    if can_modify_project(request.user, project.id):
+        for obj in models.OMCategory.objects.all():
+            if not models.OMCost.objects.filter(project=project, om_category=obj).count():
+                new_item = models.OMCost.objects.create(project=project, om_category=obj)
+                new_item.save()
 
-    messages.success(request, _("All O&M categories have been added to this project."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+        messages.success(request, _("All O&M categories have been added to this project."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 # CAPITAL COSTS #
 #################
 
-class CapitalCostCreateView(LoginRequiredMixin, CreateView):
+class CapitalCostCreateView(ProjectLeadRequiredMixin, CreateView):
     model = models.CapitalCost
     template_name = 'projects/cost_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.CapitalCostForm
 
     def get_initial(self):
@@ -1011,11 +1089,10 @@ class CapitalCostCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class CapitalCostUpdateView(LoginRequiredMixin, UpdateView):
+class CapitalCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.CapitalCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.CapitalCostForm
-    login_url = '/accounts/login_required/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1029,18 +1106,20 @@ class CapitalCostUpdateView(LoginRequiredMixin, UpdateView):
 
 def capital_cost_delete(request, pk):
     object = models.CapitalCost.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The cost has been successfully deleted."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    if can_modify_project(request.user, object.project.id):
+        object.delete()
+        messages.success(request, _("The cost has been successfully deleted."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 # GC COSTS #
 ############
 
-class GCCostCreateView(LoginRequiredMixin, CreateView):
+class GCCostCreateView(ProjectLeadRequiredMixin, CreateView):
     model = models.GCCost
     template_name = 'projects/cost_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.GCCostForm
 
     def get_initial(self):
@@ -1061,11 +1140,10 @@ class GCCostCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class GCCostUpdateView(LoginRequiredMixin, UpdateView):
+class GCCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.GCCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.GCCostForm
-    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -1079,9 +1157,12 @@ class GCCostUpdateView(LoginRequiredMixin, UpdateView):
 
 def gc_cost_delete(request, pk):
     object = models.GCCost.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The cost has been successfully deleted."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    if can_modify_project(request.user, object.project.id):
+        object.delete()
+        messages.success(request, _("The cost has been successfully deleted."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 # SHARED #
@@ -1094,38 +1175,27 @@ def toggle_source(request, pk, type):
     elif type == "staff":
         my_cost = models.Staff.objects.get(pk=pk)
     # otherwise function is being used improperly
+    if can_modify_project(request.user, my_cost.project.id):
+        if my_cost.funding_source_id is None:
+            my_cost.funding_source_id = 1
+        elif my_cost.funding_source_id == 1:
+            my_cost.funding_source_id = 2
+        elif my_cost.funding_source_id == 2:
+            my_cost.funding_source_id = 3
+        else:
+            my_cost.funding_source_id = 1
+        my_cost.save()
 
-    if my_cost.funding_source_id is None:
-        my_cost.funding_source_id = 1
-    elif my_cost.funding_source_id == 1:
-        my_cost.funding_source_id = 2
-    elif my_cost.funding_source_id == 2:
-        my_cost.funding_source_id = 3
+        return HttpResponseRedirect(
+            reverse_lazy("projects:project_detail", kwargs={"pk": my_cost.project.id}) + "?#{}-{}".format(type, pk))
     else:
-        my_cost.funding_source_id = 1
-    my_cost.save()
-
-    return HttpResponseRedirect(
-        reverse_lazy("projects:project_detail", kwargs={"pk": my_cost.project.id}) + "?#{}-{}".format(type, pk))
-
-
-def toggle_project_approval(request, project):
-    my_proj = models.Project.objects.get(pk=project)
-
-    if my_proj.section_head_approved:
-        my_proj.section_head_approved = False
-    else:
-        my_proj.section_head_approved = True
-
-    my_proj.save()
-
-    return HttpResponseRedirect(reverse_lazy("projects:my_section_list"))
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
 # FILES #
 #########
 
-class FileCreateView(LoginRequiredMixin, CreateView):
+class FileCreateView(ProjectLeadRequiredMixin, CreateView):
     template_name = "projects/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1147,7 +1217,7 @@ class FileCreateView(LoginRequiredMixin, CreateView):
         return {'project': project}
 
 
-class FileUpdateView(LoginRequiredMixin, UpdateView):
+class FileUpdateView(ProjectLeadRequiredMixin, UpdateView):
     template_name = "projects/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1169,7 +1239,7 @@ class FileDetailView(FileUpdateView):
         return context
 
 
-class FileDeleteView(LoginRequiredMixin, DeleteView):
+class FileDeleteView(ProjectLeadRequiredMixin, DeleteView):
     template_name = "projects/file_confirm_delete.html"
     model = models.File
 
@@ -1180,9 +1250,8 @@ class FileDeleteView(LoginRequiredMixin, DeleteView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(LoginRequiredMixin, FormView):
+class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
     template_name = 'projects/report_search.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.ReportSearchForm
 
     # def get_initial(self):
@@ -1776,10 +1845,9 @@ def manage_programs(request):
 # STATUS REPORT #
 #################
 
-class StatusReportCreateView(LoginRequiredMixin, CreateView):
+class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
     model = models.StatusReport
     template_name = 'projects/status_report_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.StatusReportForm
 
     def get_initial(self):
@@ -1801,11 +1869,10 @@ class StatusReportCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class StatusReportUpdateView(LoginRequiredMixin, UpdateView):
+class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.StatusReport
     template_name = 'projects/status_report_form_popout.html'
     form_class = forms.StatusReportForm
-    login_url = '/accounts/login_required/'
 
     def get_initial(self):
         return {'created_by': self.request.user, }
@@ -1820,7 +1887,7 @@ class StatusReportUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class StatusReportDeleteView(LoginRequiredMixin, DeleteView):
+class StatusReportDeleteView(ProjectLeadRequiredMixin, DeleteView):
     template_name = "projects/status_report_confirm_delete.html"
     model = models.StatusReport
 
@@ -1828,14 +1895,12 @@ class StatusReportDeleteView(LoginRequiredMixin, DeleteView):
         return reverse_lazy("shared_models:close_me")
 
 
-
 # MILESTONE #
 #############
 
-class MilestoneCreateView(LoginRequiredMixin, CreateView):
+class MilestoneCreateView(ProjectLeadRequiredMixin, CreateView):
     model = models.Milestone
     template_name = 'projects/milestone_form_popout.html'
-    login_url = '/accounts/login_required/'
     form_class = forms.MilestoneForm
 
     def get_initial(self):
@@ -1856,11 +1921,10 @@ class MilestoneCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class MilestoneUpdateView(LoginRequiredMixin, UpdateView):
+class MilestoneUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.Milestone
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.MilestoneForm
-    login_url = '/accounts/login_required/'
 
     def form_valid(self, form):
         object = form.save()
@@ -1874,7 +1938,9 @@ class MilestoneUpdateView(LoginRequiredMixin, UpdateView):
 
 def milestone_delete(request, pk):
     object = models.Milestone.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The milestone has been successfully deleted."))
-    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
-
+    if can_modify_project(request.user, object.project.id):
+        object.delete()
+        messages.success(request, _("The milestone has been successfully deleted."))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+    else:
+        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))

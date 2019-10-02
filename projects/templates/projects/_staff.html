@@ -66,7 +66,7 @@
                 {% if not report_mode %}
                     <td>
                         {% if not object.submitted and not report_mode %}
-                            <a class="staff-delete-me" href="#" val="{{ obj.id }}">
+                            <a class="staff-delete-me" href="#" val="{{ obj.id }}" user_id="{{ obj.user.id }}">
                                 <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                      title="Delete">
                             </a>
