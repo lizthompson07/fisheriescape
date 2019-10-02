@@ -11,6 +11,7 @@ from shared_models import models as shared_models
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
+class_editable = {"class": "editable"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -67,7 +68,6 @@ class ProjectForm(forms.ModelForm):
             'rds_approved',
             'program',
         ]
-        class_editable = {"class": "editable"}
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
 
@@ -214,12 +214,30 @@ class CapitalCostForm(forms.ModelForm):
         }
 
 
-class StatusReportForm(forms.ModelForm):
+class MilestoneForm(forms.ModelForm):
     class Meta:
-        model = models.StatusReport
+        model = models.Milestone
         fields = "__all__"
         widgets = {
             'project': forms.HiddenInput(),
+        }
+
+
+class StatusReportForm(forms.ModelForm):
+    class Meta:
+        model = models.StatusReport
+        exclude = ["date_created", ]
+        widgets = {
+            'target_completion_date': forms.DateInput(attrs=attr_fp_date),
+            'major_accomplishments': forms.Textarea(attrs=class_editable),
+            'major_issues': forms.Textarea(attrs=class_editable),
+            'rationale_for_modified_completion_date': forms.Textarea(attrs=class_editable),
+            # Hidden fields
+            'project': forms.HiddenInput(),
+            'section_head_reviewed': forms.HiddenInput(),
+            'section_head_comment': forms.HiddenInput(),
+            'created_by': forms.HiddenInput(),
+
         }
 
 

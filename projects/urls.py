@@ -96,9 +96,15 @@ urlpatterns = [
 
     # STATUS REPORT #
     #################
-    path('project/<int:project>/status-report/new/', views.CapitalCostCreateView.as_view(), name="capital_new"),
-    path('status-report/<int:pk>/edit/', views.CapitalCostUpdateView.as_view(), name="capital_edit"),
-    path('status-report/<int:pk>/delete/', views.capital_cost_delete, name="capital_delete"),
+    path('project/<int:project>/status-report/new/', views.StatusReportCreateView.as_view(), name="report_new"),
+    path('status-report/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
+    path('status-report/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
+
+    # MILESTONE #
+    #############
+    path('project/<int:project>/milestone/new/', views.MilestoneCreateView.as_view(), name="milestone_new"),
+    path('milestone/<int:pk>/edit/', views.MilestoneUpdateView.as_view(), name="milestone_edit"),
+    path('milestone/<int:pk>/delete/', views.milestone_delete, name="milestone_delete"),
 
     # SHARED #
     ##########
