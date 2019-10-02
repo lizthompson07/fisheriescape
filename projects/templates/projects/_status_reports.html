@@ -7,18 +7,18 @@
 </style>
 
 <h4>
-    {% trans "File Attachments:" %}
+    {% trans "Status Reports:" %}
 </h4>
 {% if not report_mode %}
     <a class="btn btn-sm btn-primary" href="#"
        onclick="return popitup('{% url 'projects:file_new' object.id %}','popoutWindow')">
-        {% trans "Add File" %}
+        {% trans "Add Report" %}
     </a>
     <br><br>
 {% endif %}
-{% if object.files.count == 0 %}
+{% if object.reports.count == 0 %}
     <em>
-        {% trans "No Files" %}...
+        {% trans "No Reports" %}...
     </em><br>
 {% else %}
 
@@ -33,7 +33,7 @@
 
         </tr>
         <tbody>
-        {% for obj in object.files.all %}
+        {% for obj in object.reports.all %}
             <tr {% if not report_mode %}data-toggle="tooltip" title="Edit" href="{% url 'projects:file_detail' obj.id %}" pop{% endif %}>
                 <td>{{ obj.caption }}</td>
                 <td>{{ obj.date_created }}</td>
