@@ -35,7 +35,7 @@
     font-size: 6em;
 }
 
-.center-col{
+.center-col {
     text-align: center;
 }
 
@@ -130,10 +130,12 @@
 
 .bad {
     background-color: pink;
+    color: black;
 }
 
 .good {
     background-color: lightgreen;
+    color: black;
 }
 
 .concern {
@@ -165,7 +167,7 @@
 }
 
 .orange-font {
-    color: darkorange;
+    color: #ff730b;
 }
 
 .green-borders {
@@ -176,8 +178,8 @@
     background-color: mediumpurple;
 }
 
-.active1{
-  background-color: lightgreen;
+.active1 {
+    background-color: lightgreen;
 }
 
 .idle {

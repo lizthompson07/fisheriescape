@@ -2,6 +2,7 @@ import os
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -71,6 +72,7 @@ class Tag(models.Model):
     class Meta:
         ordering = [_('name'), ]
 
+
 # This model will eventually be renamed once we get rid on the original Program table
 class Program2(models.Model):
     national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (English)")
@@ -123,12 +125,22 @@ class Program2(models.Model):
             return "{}".format(my_str)
 
     class Meta:
-        ordering = [_("national_responsibility_eng"), _("regional_program_name_eng") ]
+        ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
 
 
 class Status(models.Model):
+    # choices for used_for
+    PROJECT = 1
+    REPORTS = 2
+    USED_FOR_CHOICES = (
+        (PROJECT, "Projects"),
+        (REPORTS, "Status reports"),
+    )
+
+    used_for = models.IntegerField(choices=USED_FOR_CHOICES)
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -140,7 +152,7 @@ class Status(models.Model):
             return "{}".format(self.name)
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ['used_for', 'order', 'name', ]
 
 
 class HelpText(models.Model):
@@ -155,6 +167,7 @@ class HelpText(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.eng_text)
+
     class Meta:
         ordering = ['field_name', ]
 
@@ -196,7 +209,7 @@ class Project(models.Model):
     is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
     is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or non-negotiable?"), choices=is_negotiable_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
-                               verbose_name=_("project status"))
+                               verbose_name=_("project status"), limit_choices_to={"used_for": 1})
     is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding competitive?"))
     is_approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
@@ -264,7 +277,6 @@ class Project(models.Model):
     rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
 
     is_hidden = models.NullBooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
-
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -521,8 +533,6 @@ class GCCost(models.Model):
         ordering = ['recipient_org', ]
 
 
-
-
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'projects/project_{0}/{1}'.format(instance.project.id, filename)
@@ -571,3 +581,29 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+class StatusReport(models.Model):
+    project = models.ForeignKey(Project, related_name="reports", on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, related_name="reports", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 2})
+    project_lead_comment = models.TextField(blank=True, null=True, verbose_name=_("project lead comment"))
+    submitted = models.BooleanField(default=False, verbose_name=_("report has been submitted"))
+    section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
+    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"))
+
+    date_created = models.DateTimeField(default=timezone.now, verbose_name=_("date created"))
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"))
+
+    class Meta:
+        ordering = ['-date_created']
+
+    @property
+    def report_number(self):
+        return [report for report in self.project.reports.order_by("date_created")].index(self) + 1
+
+    def __str__(self):
+        # what is the number of this report?
+        return "{}{}".format(
+            _("Status report #"),
+            self.report_number,
+        )

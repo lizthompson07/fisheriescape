@@ -51,7 +51,7 @@
                     <td>{{ fy }}</td>
                     <td style="text-align: center"> {{ weeks_dict|lookup:fy.id|lookup:"submitted_approved"|floatformat:1 }}</td>
                     <td style="text-align: center"> {{ weeks_dict|lookup:fy.id|lookup:"submitted_unapproved"|floatformat:1 }}</td>
-                    <td style="text-align: center"> {{ weeks_dict|lookup:fy.id|lookup:"unsubmitted"|floatformat:1 }}</td>
+                    <td style="text-align: center" class="red-font"> {{ weeks_dict|lookup:fy.id|lookup:"unsubmitted"|floatformat:1 }}</td>
                     <td style="text-align: center"> {{ weeks_dict|lookup:fy.id|lookup:"total"|floatformat:1 }}</td>
                 </tr>
             {% endfor %}
@@ -117,15 +117,16 @@
             <th scope="col" style="text-align: center">
                 {% trans "Section Head Approved" %}
             </th>
+            <th scope="col" style="text-align: center">
+                {% trans "Status Reports" %}
+            </th>
             </thead>
 
             <tbody>
 
             {% for obj in object_list %}
-                <tr href="{% url 'projects:project_detail' obj.project.id %}">
-                    <td class="{% if obj.project.submitted %}good{% else %}bad{% endif %}" style="text-align:center">
-                        {{ obj.project.submitted|yesno:_("yes,no") }}
-                    </td>
+                <tr href="{% url 'projects:project_detail' obj.project.id %}" class="{% if not obj.project.submitted %}red-font{% endif %}">
+                    <td class="" style="text-align:center">{{ obj.project.submitted|yesno:_("yes,no") }}</td>
                     <td>{{ obj.project.year }}</td>
                     {% if LANG == "fr" %}
                         <td>{{ obj.project.section.division.branch.region.nom }}</td>
@@ -142,9 +143,7 @@
                     <td class="{% if obj.project.is_hidden %} highlight{% endif %}">
                         {{ obj.project.is_hidden|yesno }}
                     </td>
-                    <td class="{% if obj.lead %}green-font{% else %}red-font{% endif %}">
-                        {{ obj.lead|yesno }}
-                    </td>
+                    <td class="">{{ obj.lead|yesno }}</td>
                     <td>{{ obj.employee_type }}</td>
                     <td>{{ obj.duration_weeks|nz:"----" }}</td>
 
@@ -152,6 +151,7 @@
                     <td class="{% if obj.project.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
                         {{ obj.project.section_head_approved|yesno:_("yes,no") }}<br>
                     </td>
+                    <td class="center-col">{{ obj.project.reports.count }}</td>
 
                 </tr>
             {% endfor %}

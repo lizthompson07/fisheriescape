@@ -214,6 +214,15 @@ class CapitalCostForm(forms.ModelForm):
         }
 
 
+class StatusReportForm(forms.ModelForm):
+    class Meta:
+        model = models.StatusReport
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+        }
+
+
 class GCCostForm(forms.ModelForm):
     class Meta:
         model = models.GCCost
@@ -324,6 +333,7 @@ class OMCategoryForm(forms.ModelForm):
             'name': forms.Textarea(attrs={"rows": 3}),
             'nom': forms.Textarea(attrs={"rows": 3}),
         }
+
 
 OMCategoryFormSet = modelformset_factory(
     model=models.OMCategory,
@@ -441,7 +451,6 @@ TempFormSet = modelformset_factory(
     form=TempForm,
     extra=0,
 )
-
 
 
 class FileForm(forms.ModelForm):

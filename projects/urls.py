@@ -94,6 +94,12 @@ urlpatterns = [
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 
+    # STATUS REPORT #
+    #################
+    path('project/<int:project>/status-report/new/', views.CapitalCostCreateView.as_view(), name="capital_new"),
+    path('status-report/<int:pk>/edit/', views.CapitalCostUpdateView.as_view(), name="capital_edit"),
+    path('status-report/<int:pk>/delete/', views.capital_cost_delete, name="capital_delete"),
+
     # SHARED #
     ##########
     path('toggle-funding-source/<str:type>/<int:pk>/', views.toggle_source, name="toggle_source"),
