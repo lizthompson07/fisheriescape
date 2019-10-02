@@ -153,7 +153,7 @@
                     </td>
                     <td class="center-col">
                         {% if obj.project.submitted %}
-                            {{ obj.project.reports.count }} (<a class="under-dev" href="#">new</a>)
+                            {{ obj.project.reports.count }} (<a class="stop-pop" href="{% url 'projects:report_new' obj.project.id  %}">New</a>)
                         {% else %}
                             ----
                         {% endif %}

@@ -1629,6 +1629,7 @@ def manage_statuses(request):
         'name',
         'nom',
         'order',
+        'color',
     ]
     context['title'] = "Manage Statuses"
     context['formset'] = formset
