@@ -65,7 +65,7 @@
                             {% with date|date:"w" as daynum %}
                                 {% with date|date:"D, M d:" as full_date %}
                                     <td>
-                                        {{ date|date:"F d" }}<br>
+                                        {{ date|date:"F d, Y" }}<br>
                                     </td>
 
                                     {% if date in stat_holiday_list %}
