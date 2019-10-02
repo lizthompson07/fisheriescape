@@ -40,10 +40,11 @@
 
             {{ formset.management_form }}
             {% bootstrap_formset_errors formset %}
-            <p>
+            <div class="btn-group">
                 <button id="submit" type="submit" class="btn btn-primary">Save</button>
-                <a class="btn btn-secondary" href="{% url 'ihub:index' %}">Back</a>
-            </p>
+                <a class="btn btn-secondary" href="{% url 'projects:index' %}">Back</a>
+            </div>
+            <br><br>
             <table class="table" style="width: auto">
                 <thead>
                 <tr>
@@ -95,10 +96,10 @@
                 </tbody>
             </table>
 
-            <p>
+            <div class="btn-group">
                 <button id="submit" type="submit" class="btn btn-primary">Save</button>
                 <a class="btn btn-secondary" href="{% url 'projects:index' %}">Back</a>
-            </p>
+            </div>
 
         </form>
     </div>
