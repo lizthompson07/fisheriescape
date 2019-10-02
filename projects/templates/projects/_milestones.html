@@ -62,7 +62,7 @@
                     </td>
                 {% endif %}
                 <td>{{ obj.name }}</td>
-                <td>{{ obj.status}}</td>
+                <td style="background-color: {{ obj.status.color }}">{{ obj.status}}</td>
                 <td>{{ obj.notes}}</td>
             </tr>
         {% endfor %}
