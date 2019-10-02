@@ -145,9 +145,16 @@
 
 
         $(".staff-delete-me").click(function (e) {
-            var objectId = $(this)[0].getAttribute("val");
+            var objectId = $(this).attr("val");
+            var currentUserID = "{{ user.id }}";
+            var deleteUserID = $(this).attr("user_id");
+
+            var msg = "{% trans "Are you sure you want to delete this staff member from the project?" %}";
+            if (currentUserID == deleteUserID) {
+                msg = "{% trans 'WARNING: YOU ARE ABOUT TO DELETE YOURSELF FROM THIS PROJECT!!!' %}\n\n" + msg;
+            }
             var userInput = "";
-            userInput = confirm("{% trans "Are you sure you want to delete this staff member from the project?" %}");
+            userInput = confirm(msg);
             if (userInput === true) {
                 document.location.href = $("#staff-secrect-delete-btn-" + objectId)[0].getAttribute("href");
             }
