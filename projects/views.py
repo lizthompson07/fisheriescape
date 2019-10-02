@@ -1625,8 +1625,10 @@ def manage_statuses(request):
     context = {}
     context["my_object"] = qs.first()
     context["field_list"] = [
+        'used_for',
         'name',
         'nom',
+        'order',
     ]
     context['title'] = "Manage Statuses"
     context['formset'] = formset
@@ -1768,3 +1770,55 @@ def manage_programs(request):
     context['title'] = "Manage Programs"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
+
+
+
+# STATUS REPORT #
+#################
+
+class StatusReportCreateView(LoginRequiredMixin, CreateView):
+    model = models.StatusReport
+    template_name = 'projects/cost_form_popout.html'
+    login_url = '/accounts/login_required/'
+    form_class = forms.StatusReportForm
+
+    def get_initial(self):
+        project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': project,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = models.Project.objects.get(id=self.kwargs['project'])
+        context['project'] = project
+        context['cost_type'] = "Capital"
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+
+class StatusReportUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.StatusReport
+    template_name = 'projects/status_report_form_popout.html'
+    form_class = forms.StatusReportForm
+    login_url = '/accounts/login_required/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cost_type'] = "Capital"
+        return context
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+
+def status_report_delete(request, pk):
+    object = models.StatusReport.objects.get(pk=pk)
+    object.delete()
+    messages.success(request, _("The status report has been successfully deleted."))
+    return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+
