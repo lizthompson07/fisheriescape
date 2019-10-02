@@ -151,7 +151,13 @@
                     <td class="{% if obj.project.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
                         {{ obj.project.section_head_approved|yesno:_("yes,no") }}<br>
                     </td>
-                    <td class="center-col">{{ obj.project.reports.count }}</td>
+                    <td class="center-col">
+                        {% if obj.project.submitted %}
+                            {{ obj.project.reports.count }} (<a class="under-dev" href="#">new</a>)
+                        {% else %}
+                            ----
+                        {% endif %}
+                    </td>
 
                 </tr>
             {% endfor %}

@@ -83,6 +83,9 @@
             </div>
             <table class="table table-hover table-sm sortable">
                 <thead>
+                <th scope="col" style="text-align:center;">
+                    {% trans "Submitted" %}
+                </th>
                 <th scope="col" style="width: 5%">
                     {% trans "Fiscal Year" %}
                 </th>
@@ -106,9 +109,6 @@
                 </th>
                 <th scope="col" style="width: 10%">
                     {% trans "Tags" %}
-                </th>
-                <th scope="col" style="text-align:center; width: 8%">
-                    {% trans "Submitted" %}
                 </th>
                 {% if type == "division" %}
                     <th scope="col" style="text-align:center; width: 8%">
@@ -135,7 +135,8 @@
                 <tbody>
 
                 {% for obj in filter.qs %}
-                    <tr href="{% url 'projects:project_detail' obj.id %}">
+                    <tr href="{% url 'projects:project_detail' obj.id %}" class="{% if not obj.submitted %}red-font{% endif %}">
+                        <td class="" style="text-align:center">{{ obj.submitted|yesno:_("yes,no") }}</td>
                         <td>{{ obj.year }}</td>
 
                         {% if LANG == "fr" %}
@@ -161,9 +162,6 @@
                             {% get_field_value obj "tags" %}
                         </td>
 
-                        <td class="{% if obj.submitted %}green-font{% else %}red-font{% endif %}" style="text-align:center">
-                            {{ obj.submitted|yesno:_("yes,no") }}
-                        </td>
 
 
 
@@ -205,7 +203,9 @@
                             </td>
                             <td>{{ obj.rds_feedback|nz:"n/a" }}</td>
                         {% endif %}
-                        <td class="center-col">{{ obj.reports.count }}</td>
+                        <td class="center-col">
+                            {% if obj.submitted %}{{ obj.reports.count }}{% else %}----{% endif %}
+                        </td>
 
 
                     </tr>

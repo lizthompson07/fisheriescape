@@ -78,11 +78,18 @@
                 {% trans "Export PDF" %}
             </a>
 
-        </div>
 
-        <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-warning" data-toggle="tooltip" title="{% trans "Use this project as a template for a new project" %}">
+        <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-warning" data-toggle="tooltip"
+           title="{% trans "Use this project as a template for a new project" %}">
             Clone Project
         </a>
+        {% if object.submitted %}
+            <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-success" data-toggle="tooltip"
+               title="{% trans "Create a new status report for this project" %}">
+                New Status Report
+            </a>
+        {% endif %}
+        </div>
 
         <br><br><br>
 
@@ -123,6 +130,9 @@
         {% include "projects/_collaborators.html" %}
         {% include "projects/_agreements.html" %}
         {% include "projects/_files.html" %}
+        {% if object.submitted %}
+            {% include "projects/_status_reports.html" %}
+        {% endif %}
 
         {% include "projects/_financial.html" %}
 
