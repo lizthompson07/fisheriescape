@@ -143,6 +143,7 @@ class Status(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
     order = models.IntegerField(blank=True, null=True)
+    color = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -588,12 +589,13 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 class StatusReport(models.Model):
     project = models.ForeignKey(Project, related_name="reports", on_delete=models.CASCADE)
     status = models.ForeignKey(Status, related_name="reports", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 2})
-    major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_("major accomplishments (leave blank if using milestones)"))
+    major_accomplishments = models.TextField(blank=True, null=True,
+                                             verbose_name=_("major accomplishments (leave blank if using milestones)"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
     rationale_for_modified_completion_date = models.TextField(blank=True, null=True,
                                                               verbose_name=_("rationale for a modified completion date"))
-
+    general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
     section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"))
 
@@ -601,7 +603,7 @@ class StatusReport(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"))
 
     class Meta:
-        ordering = ['-date_created']
+        ordering = ['date_created']
 
     @property
     def report_number(self):
@@ -618,7 +620,7 @@ class StatusReport(models.Model):
 class Milestone(models.Model):
     name = models.CharField(max_length=500, verbose_name=_("name"))
     project = models.ForeignKey(Project, related_name="milestones", on_delete=models.CASCADE)
-    status = models.ForeignKey(Status, related_name="milestones", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3})
+    status = models.ForeignKey(Status, related_name="milestones", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3}, default=9)
     notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     class Meta:

@@ -40,7 +40,7 @@
                 <td>{{ obj.caption }}</td>
                 <td>{{ obj.date_created }}</td>
                 <td>
-                    <a href="{{ obj.file.url }}" data-toggle="tooltip" title="Open the file" id="file_link">
+                    <a href="{{ obj.file.url }}" data-toggle="tooltip" title="Open the file" class="stop-pop">
                         <img src="{% static 'img/paperclip-1332775_1920.png' %}" alt="" width="20px">
                     </a>
                 </td>
@@ -52,10 +52,3 @@
     </table>
 {% endif %}
 <br>
-<script type="application/javascript">
-    $("#file_link").click(function (e) {
-        e.stopImmediatePropagation()
-        e.preventDefault()
-        window.location.href = $(this).attr("href")
-    })
-</script>

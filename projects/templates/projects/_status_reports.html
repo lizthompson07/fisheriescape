@@ -42,9 +42,11 @@
                 {% trans "Major Issues Encountered" %}
             </th>
             <th>
-                {% trans "Target completion date" %}
+                {% trans "Target Completion Date" %}
             </th>
-
+            <th>
+                {% trans "General Comments" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.reports.all %}
@@ -52,9 +54,10 @@
                 <td>{{ obj.report_number }}</td>
                 <td>{{ obj.created_by }}</td>
                 <td>{{ obj.status }}</td>
-                <td>{{ obj.major_accomplishments|safe }}</td>
-                <td>{{ obj.major_issues|safe }}</td>
+                <td>{{ obj.major_accomplishments|nz:"----"|safe }}</td>
+                <td>{{ obj.major_issues|nz:"----"|safe }}</td>
                 <td>{{ obj.target_completion_date|date:"Y-m-d"|nz:"----" }}</td>
+                <td>{{ obj.general_comment|nz:"----"|safe }}</td>
 
 
             </tr>

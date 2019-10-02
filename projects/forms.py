@@ -232,6 +232,7 @@ class StatusReportForm(forms.ModelForm):
             'major_accomplishments': forms.Textarea(attrs=class_editable),
             'major_issues': forms.Textarea(attrs=class_editable),
             'rationale_for_modified_completion_date': forms.Textarea(attrs=class_editable),
+            'general_comment': forms.Textarea(attrs=class_editable),
             # Hidden fields
             'project': forms.HiddenInput(),
             'section_head_reviewed': forms.HiddenInput(),
