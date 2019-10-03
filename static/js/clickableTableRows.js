@@ -24,3 +24,11 @@ $(".stop-pop").click(function (e) {
     href = $(this).attr("href");
     popitup(href, 'popoutWindow' + Date.now());
 });
+
+$(".stop-blank").click(function (e) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    url = $(this).attr("href");
+    var win = window.open(url, '_blank');
+    win.focus();
+});
