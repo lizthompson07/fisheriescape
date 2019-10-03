@@ -630,7 +630,7 @@ class Milestone(models.Model):
     project = models.ForeignKey(Project, related_name="milestones", on_delete=models.CASCADE)
     name = models.CharField(max_length=500, verbose_name=_("name"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
-    status = models.ForeignKey(Status, related_name="milestones", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3}, default=9)
+    # status = models.ForeignKey(Status, related_name="milestones", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3}, default=9)
 
     class Meta:
         ordering = ['project', 'name']
