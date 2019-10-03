@@ -590,7 +590,7 @@ class StatusReport(models.Model):
     project = models.ForeignKey(Project, related_name="reports", on_delete=models.CASCADE)
     status = models.ForeignKey(Status, related_name="reports", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 2})
     major_accomplishments = models.TextField(blank=True, null=True,
-                                             verbose_name=_("major accomplishments (leave blank if using milestones)"))
+                                             verbose_name=_("major accomplishments (this can be left blank if reported at the milestone level)"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
     rationale_for_modified_completion_date = models.TextField(blank=True, null=True,
