@@ -470,6 +470,8 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         project = self.object
         context["field_list"] = project_field_list
+        context["files"] = project.files.all()
+
         # bring in financial summary data
         my_context = financial_summary_data(project)
         context = {**my_context, **context}
@@ -1861,6 +1863,7 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
         context['status_report'] = True
+        context['files'] = project.files.filter(reference=2)
         return context
 
     def form_valid(self, form):
@@ -1878,7 +1881,9 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['project'] = context["object"].project
+        project = context["object"].project
+        context['project'] = project
+        context['files'] = project.files.filter(reference=2)
         return context
 
     def form_valid(self, form):
