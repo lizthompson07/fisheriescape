@@ -60,8 +60,10 @@
                         {% endif %}
                     </td>
                 {% endif %}
+                <td>{{ obj.name }}</td>
                 <td>{{ obj.description|nz:"-----" }}</td>
-                <td style="background-color: {{ obj.latest_update.status.color }}">{{ obj.latest_update.status }}</td>
+                {% trans "n/a" as na %}
+                <td style="background-color: {{ obj.latest_update.status.color }}">{{ obj.latest_update.status|nz:na }}</td>
             </tr>
         {% endfor %}
         </tbody>
