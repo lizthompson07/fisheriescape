@@ -48,6 +48,9 @@
                 {% trans "General Comments" %}
             </th>
             <th>
+                {% trans "Supporting Resources" %}
+            </th>
+            <th>
                 {% trans "Reviewed by Section Head" %}
             </th>
         </tr>
@@ -61,6 +64,7 @@
                 <td>{{ obj.major_issues|nz:"----"|safe }}</td>
                 <td>{{ obj.target_completion_date|date:"Y-m-d"|nz:"----" }}</td>
                 <td>{{ obj.general_comment|nz:"----"|safe }}</td>
+                <td>{{ obj.files.count }}</td>
                 <td>{{ obj.section_head_reviewed|yesno }}</td>
                 <td class="center-col">
                     <a href="{% url 'projects:report_print' obj.id %}" data-toggle="tooltip" title="{% trans "Open the the report as a PDF" %}" class="stop-blank">
@@ -76,8 +80,8 @@
 <br>
 <script type="application/javascript">
     $("#file_link").click(function (e) {
-        e.stopImmediatePropagation()
-        e.preventDefault()
-        window.location.href = $(this).attr("href")
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        window.location.href = $(this).attr("href");
     })
 </script>
