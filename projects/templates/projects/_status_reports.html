@@ -62,7 +62,11 @@
                 <td>{{ obj.target_completion_date|date:"Y-m-d"|nz:"----" }}</td>
                 <td>{{ obj.general_comment|nz:"----"|safe }}</td>
                 <td>{{ obj.section_head_reviewed|yesno }}</td>
-
+                <td class="center-col">
+                    <a href="{% url 'projects:report_print' obj.id %}" data-toggle="tooltip" title="{% trans "Open the the report as a PDF" %}" class="stop-blank">
+                        <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                    </a>
+                </td>
 
             </tr>
         {% endfor %}

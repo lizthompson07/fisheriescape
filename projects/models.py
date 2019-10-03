@@ -553,15 +553,18 @@ class File(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("resource name"))
     file = models.FileField(upload_to=file_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
     external_url = models.URLField(blank=True, null=True, verbose_name=_("external url"))
-    reference = models.IntegerField(choices=CHOICES_FOR_REFERENCE, verbose_name=_("reference"))
+    status_report = models.ForeignKey("StatusReport", related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     date_created = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['project', 'reference', 'name']
+        ordering = ['project', 'status_report', 'name']
 
     def __str__(self):
         return self.name
 
+    @property
+    def ref(self):
+        return self.status_report if self.status_report else "Core project"
 
 @receiver(models.signals.post_delete, sender=File)
 def auto_delete_file_on_delete(sender, instance, **kwargs):

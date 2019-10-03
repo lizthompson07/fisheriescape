@@ -1215,7 +1215,12 @@ class FileCreateView(ProjectLeadRequiredMixin, CreateView):
 
     def get_initial(self):
         project = models.Project.objects.get(pk=self.kwargs['project'])
-        return {'project': project}
+        status_report = models.StatusReport.objects.get(pk=self.kwargs['status_report']) if self.kwargs.get('status_report') else None
+
+        return {
+            'project': project,
+            'status_report': status_report,
+        }
 
 
 class FileUpdateView(ProjectLeadRequiredMixin, UpdateView):
@@ -1874,6 +1879,7 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
 class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.StatusReport
     template_name = 'projects/status_report_form_popout.html'
+
     # form_class = forms.StatusReportForm
 
     def get_form_class(self):
@@ -1909,12 +1915,12 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
 
         return super().dispatch(request, *args, **kwargs)
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = context["object"].project
+        context['status_report'] = self.get_object()
         context['project'] = project
-        context['files'] = project.files.filter(reference=2)
+        context['files'] = self.get_object().files.all()
         return context
 
     def form_valid(self, form):
@@ -1928,6 +1934,40 @@ class StatusReportDeleteView(ProjectLeadRequiredMixin, DeleteView):
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("shared_models:close_me")
+
+
+class StatusReportPrintDetailView(LoginRequiredMixin, PDFTemplateView):
+    model = models.Project
+    login_url = '/accounts/login_required/'
+    template_name = "projects/status_report_pdf.html"
+
+    # def get_pdf_filename(self):
+    #     my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
+    #     pdf_filename = "{}.pdf".format(
+    #         my_report
+    #     )
+    #     return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
+        context["object"] = my_report
+        context["report_mode"] = True
+        context["field_list"] = [
+            'date_created',
+            'created_by',
+            'project',
+            'status',
+            'major_accomplishments',
+            'major_issues',
+            'target_completion_date',
+            'rationale_for_modified_completion_date',
+            'general_comment',
+            'section_head_comment',
+            'section_head_reviewed',
+        ]
+
+        return context
 
 
 # MILESTONE #
@@ -1980,7 +2020,6 @@ def milestone_delete(request, pk):
 
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
-
 
 
 # MILESTONE UPDATE #
