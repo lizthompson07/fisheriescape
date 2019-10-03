@@ -595,6 +595,23 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
+class Milestone(models.Model):
+    project = models.ForeignKey(Project, related_name="milestones", on_delete=models.CASCADE)
+    name = models.CharField(max_length=500, verbose_name=_("name"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    class Meta:
+        ordering = ['project', 'name']
+
+    def __str__(self):
+        # what is the number of this report?
+        return "{}".format(self.name)
+
+    @property
+    def latest_update(self):
+        return self.updates.first()
+
+
 class StatusReport(models.Model):
     project = models.ForeignKey(Project, related_name="reports", on_delete=models.CASCADE)
     status = models.ForeignKey(Status, related_name="reports", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 2})
@@ -626,28 +643,14 @@ class StatusReport(models.Model):
         )
 
 
-class Milestone(models.Model):
-    project = models.ForeignKey(Project, related_name="milestones", on_delete=models.CASCADE)
-    name = models.CharField(max_length=500, verbose_name=_("name"))
-    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
-    # status = models.ForeignKey(Status, related_name="milestones", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3}, default=9)
-
-    class Meta:
-        ordering = ['project', 'name']
-
-    def __str__(self):
-        # what is the number of this report?
-        return "{}".format(self.name)
-
-
-class MilestoneProgressUpdate(models.Model):
-    status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
+class MilestoneUpdate(models.Model):
     milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
+    status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
     status = models.ForeignKey(Status, related_name="updates", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3}, default=9)
     notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     class Meta:
-        ordering = ['status_report', 'status']
+        ordering = ['-status_report', 'status']
 
     def __str__(self):
         # what is the number of this report?
