@@ -223,6 +223,16 @@ class MilestoneForm(forms.ModelForm):
         }
 
 
+class MilestoneUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.MilestoneUpdate
+        fields = "__all__"
+        widgets = {
+            'status_report': forms.HiddenInput(),
+            'milestone': forms.HiddenInput(),
+        }
+
+
 class StatusReportForm(forms.ModelForm):
     class Meta:
         model = models.StatusReport
