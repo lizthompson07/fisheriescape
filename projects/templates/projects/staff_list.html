@@ -23,15 +23,14 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "All Projects" %}
+                {% trans "Staff List" %}
             </li>
-            {#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
         </ol>
     </nav>
 
     <div class="container-fluid">
         <h1>
-            {% trans "All Projects:" %}
+            {% trans "NON REGISTERED STAFF:" %}
         </h1>
 
         <form class="form" action="." method="get" id="filter-form">
@@ -63,9 +62,6 @@
                 {% show_pages %}
                 <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
             </div>
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'projects:project_new' %}" class="btn btn-sm btn-primary">New</a>
-            </div>
         </div>
         <table class="table table-hover table-sm sortable">
             <thead>
@@ -73,57 +69,26 @@
                 {% trans "Fiscal Year" %}
             </th>
             <th scope="col">
-                {% trans "Region" %}
-            <th scope="col">
-                {% trans "Division" %}
-            </th>
-            <th scope="col">
                 {% trans "Section" %}
             </th>
             <th scope="col" style="width: 35%">
                 {% trans "Title" %}
             </th>
-            <th scope="col">
-                {% trans "Project Lead" %}
-            </th>
-            <th scope="col" style="width: 10%">
-                {% trans "Programs" %}
-            </th>
-            <th scope="col" style="text-align:center; width: 8%">
-                {% trans "Tags" %}
-            </th>
-            <th scope="col">
-                {% trans "Submitted" %}
+            <th scope="col" style="width: 35%">
+                {% trans "Staff name" %}
             </th>
             </thead>
             <tbody>
 
             {% for obj in filter_list %}
                 <tr href="{% url 'projects:project_detail' obj.id %}">
-                    <td>{{ obj.year }}</td>
+                    <td>{{ obj.project.year }}</td>
+                    <td>{{ obj.project.section.division.branch.region.name }} - {{ obj.project.section.division.name }} - {{ obj.project.section.name }}</td>
+                    <td>
+                        {{ obj.project.project_title }}
+                    </td>
+                    <td>{{ obj }} {% if not obj.user %} - <span class="red-font">NON REGISTERED USER</span>{% endif %}</td>
 
-                    {% if LANG == "fr" %}
-                        <td>{{ obj.section.division.branch.region.nom }}</td>
-                        <td>{{ obj.section.division.nom }}</td>
-                        <td>{{ obj.section.nom }}</td>
-                    {% else %}
-                        <td>{{ obj.section.division.branch.region.name }}</td>
-                        <td>{{ obj.section.division.name }}</td>
-                        <td>{{ obj.section.name }}</td>
-                    {% endif %}
-                    <td>
-                        {{ obj.project_title }}
-                    </td>
-                    <td>
-                        {{ obj.project_leads }}
-                    </td>
-                    <td>
-                        {% get_field_value obj "programs" %}
-                    </td>
-                    <td>
-                        {% get_field_value obj "tags" %}
-                    </td>
-                    <td>{{ obj.submitted|yesno:_("yes,no") }}</td>
                 </tr>
             {% endfor %}
             </tbody>
