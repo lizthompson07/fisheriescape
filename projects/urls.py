@@ -142,4 +142,6 @@ urlpatterns = [
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
 
+    path('all-staff/', views.StaffListView.as_view(), name="staff_list"),
+
 ]
