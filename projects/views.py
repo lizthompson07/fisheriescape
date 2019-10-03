@@ -833,12 +833,11 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
         context["next_fiscal_year"] = fiscal_year(next=True)
 
         # create a pandas date_range object for upcoming fiscal year
-        target_year = fiscal_year(next=True,sap_style=True)
-        start = "{}-04-01".format(target_year-1)
+        target_year = fiscal_year(next=True, sap_style=True)
+        start = "{}-04-01".format(target_year - 1)
         end = "{}-03-31".format(target_year)
         datelist = pd.date_range(start=start, end=end).tolist()
         context['datelist'] = datelist
-
 
         # send in a list of stat holidays
         context["stat_holiday_list"] = stat_holidays.stat_holiday_list
@@ -1865,8 +1864,8 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('projects:close_me'))
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy('projects:report_edit', kwargs={"pk": my_object.id}))
 
 
 class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
@@ -1883,8 +1882,8 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse('projects:close_me'))
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy('projects:report_edit', kwargs={"pk": my_object.id}))
 
 
 class StatusReportDeleteView(ProjectLeadRequiredMixin, DeleteView):
@@ -1941,6 +1940,7 @@ def milestone_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The milestone has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
