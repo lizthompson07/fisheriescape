@@ -62,7 +62,15 @@
                 {% endif %}
             {% endfor %}
 
-
+<div class="row">
+            <div class="col">
+                {% include "projects/_milestone_updates.html" %}
+            </div>
+            <div class="col">
+                {% include "projects/_files.html" %}
+            </div>
+                <br><br>
+        </div>
 
 
             <div class="btn-group">
@@ -79,20 +87,6 @@
                 </a>
             </div>
         </form>
-        <br>
-        <hr>
-        <br>
-        <div class="row">
-            <div class="col">
-                {% include "projects/_milestone_updates.html" %}
-                <br><br>
-
-                {% include "projects/_files.html" %}
-            </div>
-        </div>
-        <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
-            {% trans "Close" %}
-        </a>
         <br><br>
     </div>
 
