@@ -556,9 +556,6 @@ class File(models.Model):
     reference = models.IntegerField(choices=CHOICES_FOR_REFERENCE, verbose_name=_("reference"))
     date_created = models.DateTimeField(default=timezone.now)
 
-    # delete
-    # caption = models.CharField(max_length=255)
-
     class Meta:
         ordering = ['project','reference','name']
 
@@ -630,14 +627,31 @@ class StatusReport(models.Model):
 
 
 class Milestone(models.Model):
-    name = models.CharField(max_length=500, verbose_name=_("name"))
     project = models.ForeignKey(Project, related_name="milestones", on_delete=models.CASCADE)
+    name = models.CharField(max_length=500, verbose_name=_("name"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     status = models.ForeignKey(Status, related_name="milestones", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3}, default=9)
-    notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     class Meta:
-        ordering = ['project', 'status']
+        ordering = ['project', 'name']
 
     def __str__(self):
         # what is the number of this report?
         return "{}".format(self.name)
+
+
+class MilestoneProgressUpdate(models.Model):
+    status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
+    milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, related_name="updates", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3}, default=9)
+    notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
+
+    class Meta:
+        ordering = ['status_report', 'status']
+
+    def __str__(self):
+        # what is the number of this report?
+        return "{} {}".format(
+            _("Update on "),
+            self.milestone,
+        )
