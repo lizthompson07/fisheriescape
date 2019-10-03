@@ -101,7 +101,7 @@
                     <td>{{ obj.project.section.division.branch.region.name }} - {{ obj.project.section.division.name }}
                         - {{ obj.project.section.name }}</td>
                     <td>
-                        {{ obj.project.project_title }}
+                        {{ obj.project.project_title }} {% if not obj.project.submitted %} - <span class="red-font">UNSUBMITTED</span>   {% endif %}
                     </td>
                     <td>{{ obj }}</td>
 
