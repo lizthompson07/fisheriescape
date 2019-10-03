@@ -1953,10 +1953,11 @@ class StatusReportPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
         context["object"] = my_report
         context["report_mode"] = True
+        context['files'] = my_report.files.all()
+
         context["field_list"] = [
             'date_created',
             'created_by',
-            'project',
             'status',
             'major_accomplishments',
             'major_issues',

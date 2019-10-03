@@ -31,12 +31,21 @@
         font-size: 24px;
     }
 </style>
-<h1>{{ object }}</h1>
+<h1>
+    {{ object.project }}: {{ object }}
+</h1>
 
-{% for field in field_list %}
-    {% verbose_field_display object field %}
-{% endfor %}
 
+<h4>
+    {% trans "Report Details:" %}
+</h4>
+<table>
+    {% for field in field_list %}
+        {% verbose_td_display object field th_width="20%" td_width="80%" %}
+    {% endfor %}
+
+</table>
+<br>
 {% include "projects/_milestone_updates.html" %}
 {% include "projects/_files.html" %}
 
