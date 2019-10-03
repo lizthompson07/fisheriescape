@@ -1941,12 +1941,12 @@ class StatusReportPrintDetailView(LoginRequiredMixin, PDFTemplateView):
     login_url = '/accounts/login_required/'
     template_name = "projects/status_report_pdf.html"
 
-    # def get_pdf_filename(self):
-    #     my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
-    #     pdf_filename = "{}.pdf".format(
-    #         my_report
-    #     )
-    #     return pdf_filename
+    def get_pdf_filename(self):
+        my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
+        pdf_filename = "{}.pdf".format(
+            my_report
+        )
+        return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
