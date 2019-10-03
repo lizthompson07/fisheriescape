@@ -106,6 +106,10 @@ urlpatterns = [
     path('milestone/<int:pk>/edit/', views.MilestoneUpdateView.as_view(), name="milestone_edit"),
     path('milestone/<int:pk>/delete/', views.milestone_delete, name="milestone_delete"),
 
+    # MILESTONE UPDATE #
+    ####################
+    path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
+
     # SHARED #
     ##########
     path('toggle-funding-source/<str:type>/<int:pk>/', views.toggle_source, name="toggle_source"),
