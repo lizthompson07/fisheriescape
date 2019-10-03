@@ -70,21 +70,21 @@ def is_management_or_admin(user):
 
 def is_section_head(user, project):
     try:
-        return True if project.section.head.id == user.id else False
-    except AttributeError:
-        pass
+        return True if project.section.head == user else False
+    except AttributeError as e:
+        print(e)
 
 
 def is_division_manager(user, project):
     try:
-        return True if project.section.division.head.id == user.id else False
+        return True if project.section.division.head == user else False
     except AttributeError:
         pass
 
 
 def is_rds(user, project):
     try:
-        return True if project.section.division.branch.head.id == user.id else False
+        return True if project.section.division.branch.head == user else False
     except AttributeError:
         pass
 
@@ -1874,7 +1874,16 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
 class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.StatusReport
     template_name = 'projects/status_report_form_popout.html'
-    form_class = forms.StatusReportForm
+    # form_class = forms.StatusReportForm
+
+    def get_form_class(self):
+        my_project = self.get_object().project
+        if is_section_head(self.request.user, my_project):
+            print(123)
+            return forms.StatusReportSectionHeadForm
+        else:
+            print(321)
+            return forms.StatusReportForm
 
     def get_initial(self):
         return {'created_by': self.request.user, }
@@ -1897,9 +1906,6 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
                     last_update = milestone.updates.all()[1]
                     my_update.status = last_update.status
                     my_update.save()
-
-
-
 
         return super().dispatch(request, *args, **kwargs)
 

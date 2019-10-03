@@ -47,6 +47,9 @@
             <th>
                 {% trans "General Comments" %}
             </th>
+            <th>
+                {% trans "Reviewed by Section Head" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.reports.all %}
@@ -58,6 +61,7 @@
                 <td>{{ obj.major_issues|nz:"----"|safe }}</td>
                 <td>{{ obj.target_completion_date|date:"Y-m-d"|nz:"----" }}</td>
                 <td>{{ obj.general_comment|nz:"----"|safe }}</td>
+                <td>{{ obj.section_head_reviewed|yesno }}</td>
 
 
             </tr>

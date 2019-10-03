@@ -252,6 +252,30 @@ class StatusReportForm(forms.ModelForm):
         }
 
 
+class StatusReportSectionHeadForm(forms.ModelForm):
+    class Meta:
+        model = models.StatusReport
+        exclude = ["date_created", ]
+        widgets = {
+            'target_completion_date': forms.DateInput(attrs=attr_fp_date),
+            'major_accomplishments': forms.Textarea(attrs=class_editable),
+            'major_issues': forms.Textarea(attrs=class_editable),
+            'rationale_for_modified_completion_date': forms.Textarea(attrs=class_editable),
+            'general_comment': forms.Textarea(attrs=class_editable),
+            'section_head_comment': forms.Textarea(attrs=class_editable),
+            'section_head_reviewed': forms.Select(choices=YESNO_CHOICES),
+
+            # Hidden fields
+            'project': forms.HiddenInput(),
+            'created_by': forms.HiddenInput(),
+
+        }
+        labels = {
+            'section_head_comment': _("Section head comments (visible to section head only)"),
+            'section_head_reviewed': _("Section review complete (visible to section head only)?"),
+        }
+
+
 class GCCostForm(forms.ModelForm):
     class Meta:
         model = models.GCCost
