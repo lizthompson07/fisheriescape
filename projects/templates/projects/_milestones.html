@@ -36,9 +36,11 @@
             <th>
                 {% trans "Description" %}
             </th>
-            <th>
-                {% trans "Latest status" %}
-            </th>
+            {% if not report_mode %}
+                <th>
+                    {% trans "Latest status" %}
+                </th>
+            {% endif %}
 
         </tr>
         <tbody>
@@ -62,8 +64,17 @@
                 {% endif %}
                 <td>{{ obj.name }}</td>
                 <td>{{ obj.description|nz:"-----" }}</td>
-                {% trans "n/a" as na %}
-                <td style="background-color: {{ obj.latest_update.status.color }}">{{ obj.latest_update.status|nz:na }}</td>
+                {% trans "No status reports on file.." as na %}
+                {% if not report_mode %}
+                    <td style="background-color: {{ obj.latest_update.status.color }}">
+                        {% if obj.latest_update %}
+                            {{ obj.latest_update.status }} ({{ obj.latest_update.status_report }})
+
+                        {% else %}
+                            {{ na }}
+                        {% endif %}
+                    </td>
+                {% endif %}
             </tr>
         {% endfor %}
         </tbody>

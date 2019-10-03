@@ -44,6 +44,7 @@
 {% include "projects/_gc_costs.html" %}
 {% include "projects/_collaborators.html" %}
 {% include "projects/_agreements.html" %}
+{% include "projects/_milestones.html" %}
 {% if object_list %}
     {% with financial_summary_data|lookup:object.id|lookup:"salary_abase" as salary_abase %}
         {% with financial_summary_data|lookup:object.id|lookup:"salary_bbase" as salary_bbase %}
