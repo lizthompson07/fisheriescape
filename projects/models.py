@@ -552,7 +552,7 @@ class File(models.Model):
     project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("resource name"))
     file = models.FileField(upload_to=file_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
-    external_url = models.URLField(blank=True, null=True, verbose_name=_("external url"))
+    external_url = models.URLField(blank=True, null=True, verbose_name=_("external URL"))
     status_report = models.ForeignKey("StatusReport", related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     date_created = models.DateTimeField(default=timezone.now)
 

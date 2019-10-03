@@ -1847,6 +1847,11 @@ def manage_programs(request):
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
 
+class StaffListView(ManagerOrAdminRequiredMixin, FilterView):
+    template_name = 'projects/staff_list.html'
+    queryset = models.Staff.objects.filter(user__isnull=True).order_by('-project__year', 'project__section__division', 'project__section', 'project__project_title')
+    filterset_class = filters.StaffFilter
+
 
 # STATUS REPORT #
 #################
@@ -2039,3 +2044,5 @@ class MilestoneUpdateUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         # context['project'] = context["object"].project
         return context
+
+
