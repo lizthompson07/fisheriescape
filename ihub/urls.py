@@ -69,13 +69,15 @@ urlpatterns = [
     # SETTINGS #
     ############
     path('settings/sectors/', views.manage_sectors, name="manage_sectors"),
-    # path('settings/member-roles/', views.manage_roles, name="manage_roles"),
     path('settings/organizations/', views.manage_orgs, name="manage_orgs"),
     path('settings/status/', views.manage_statuses, name="manage_statuses"),
     path('settings/entry-types/', views.manage_entry_types, name="manage_entry_types"),
     path('settings/funding-purpose/', views.manage_funding_purposes, name="manage_funding_purposes"),
     path('settings/reserves/', views.manage_reserves, name="manage_reserves"),
-    # path('settings/regions/', views.manage_regions, name="manage_regions"),
-    # path('settings/groupings/', views.manage_groupings, name="manage_groupings"),
+
+    path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
+    path('settings/entry-type/<int:pk>/delete/', views.delete_entry_type, name="delete_entry_type"),
+    path('settings/funding-purpose/<int:pk>/delete/', views.delete_funding_purpose, name="delete_funding_purpose"),
+    path('settings/reserve/<int:pk>/delete/', views.delete_reserve, name="delete_reserve"),
 
 ]

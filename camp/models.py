@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from lib.templatetags.custom_filters import nz
-
+from shared_models import models as shared_models
 
 class Province(models.Model):
     province_eng = models.CharField(max_length=255, blank=True, null=True)
@@ -18,12 +18,11 @@ class Province(models.Model):
 class Site(models.Model):
     site = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=10, blank=True, null=True)
-    province = models.ForeignKey('Province', on_delete=models.DO_NOTHING, related_name='sites', blank=True,
-                                 null=True)
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='campsites', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return "{} ({})".format(self.site, self.province.abbrev)
+        return "{} ({})".format(self.site, self.province.tabbrev)
 
     class Meta:
         ordering = ['province', 'site']

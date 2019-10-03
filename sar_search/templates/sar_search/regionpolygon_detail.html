@@ -1,0 +1,144 @@
+{% extends "sar_search/sar_search_base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block header %}
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 600px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+
+        .label {
+            font-weight: bold;
+
+        }
+    </style>
+
+{% endblock header %}
+
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:region_list' %}"> Regions </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:region_detail' object.region.id %}"> {{ object.region }} </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> {{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <br>
+        <h1>{{ object }}</h1>
+        <div class="btn-group">
+            {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
+{#            <a class="btn btn-warning" href="{% url 'sar_search:region_polygon_edit' object.id %}">Edit</a>#}
+            <a class="btn btn-danger" href="{% url 'sar_search:region_polygon_delete' object.id %}">Delete</a>
+            <a class="btn btn-primary" href="{% url 'sar_search:manage_rp_coords' object.id %}">Set / Modify Coordinates</a>
+
+        </div>
+
+        <br><br>
+        <div class="row">
+            <div class="col">
+                {# Detail about the station #}
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+                <br>
+                <h3>List of coordinates:</h3>
+                <ul>
+                    {% for point in object.points.all %}
+                        <li>
+                            {{ point.name }} ({{ point.latitude }}, {{ point.longitude }})
+                        </li>
+                    {% empty %}
+                        <em>no coordinates have been added to this polygon</em>
+                    {% endfor %}
+
+                </ul>
+            </div>
+
+            <div class="col">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+{% block body_js %}
+    <script>
+        function initialize() {
+
+            window.map = new google.maps.Map(document.getElementById('map'), {
+                mapTypeId: google.maps.MapTypeId.SATELLITE,
+            });
+            var infowindow = new google.maps.InfoWindow();
+            var bounds = new google.maps.LatLngBounds();
+
+            {% if object.coords.x and object.coords.y %}
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng({{object.coords.x}}, {{object.coords.y}}),
+                        map: map,
+                        label: {text: "{{object.name}}", color: "#ffffff"},
+                    });
+                    google.maps.event.addListener(marker, 'click', (function (marker) {
+                        return function () {
+                            infowindow.setContent('<a href="{% url 'sar_search:region_polygon_detail' object.id %}">{{object.name}}</a>');
+                            infowindow.open(map, marker);
+                        }
+                    })(marker));
+
+                    // extend bounds var
+                    bounds.extend(marker.position);
+                    {% for point in object.points.all %}
+                        bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
+                    {% endfor %}
+
+                    // Define the LatLng coordinates for the polygon's path.
+                    var polygonCoords = [
+                        {% for point in object.points.all %}
+                            {lat: {{point.latitude}}, lng: {{point.longitude}}},
+                        {% endfor %}
+                    ];
+
+                    // Construct the stratum.
+                    var color = '#ea4544';
+                    var myPolygon = new google.maps.Polygon({
+                        paths: polygonCoords,
+                        strokeColor: 'white',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: color,
+                        fillOpacity: 0.35
+                    });
+                    myPolygon.setMap(map);
+                    {#bounds.extend(myPolygon.getBounds());#}
+
+
+
+            {% endif %}
+
+            map.fitBounds(bounds);
+
+        }
+
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+        }
+
+        window.onload = loadScript();
+
+    </script>
+
+{% endblock %}
+
+
+
