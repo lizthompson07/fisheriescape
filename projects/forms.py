@@ -517,5 +517,6 @@ class FileForm(forms.ModelForm):
         # }
         widgets = {
             'project': forms.HiddenInput(),
+            'status_report': forms.HiddenInput(),
             # 'end_date':forms.DateInput(attrs={'type': 'date'}),
         }
