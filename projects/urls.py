@@ -23,6 +23,7 @@ urlpatterns = [
     path('project/<int:pk>/submit/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
     path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
     path('approval/project/<int:pk>/level/<str:level>/', views.ProjectApprovalUpdateView.as_view(), name="project_approval"),
+
     # STAFF #
     #########
     path('project/<int:project>/staff/new/', views.StaffCreateView.as_view(), name="staff_new"),
@@ -142,6 +143,8 @@ urlpatterns = [
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
 
-    path('all-staff/', views.StaffListView.as_view(), name="staff_list"),
+    path('admin-staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
+    path('admin-staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
+    path('admin-staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
 
 ]

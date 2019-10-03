@@ -95,8 +95,8 @@ def can_modify_project(user, project_id):
         project = models.Project.objects.get(pk=project_id)
 
         # check to see if a superuser or projects_admin -- both are allow to modify projects
-        # if user.is_superuser or "projects_admin" in [g.name for g in user.groups.all()]:
-        #     return True
+        if user.is_superuser or "projects_admin" in [g.name for g in user.groups.all()]:
+            return True
 
         # check to see if they are a project lead
         if user in [staff.user for staff in project.staff_members.filter(lead=True)]:
@@ -1554,7 +1554,7 @@ class UserCreateView(LoginRequiredMixin, FormView):
         email = form.cleaned_data['email1']
 
         # create a new user
-        User.objects.create(
+        my_user = User.objects.create(
             username=email,
             first_name=first_name,
             last_name=last_name,
@@ -1562,6 +1562,17 @@ class UserCreateView(LoginRequiredMixin, FormView):
             is_active=1,
             email=email,
         )
+
+        email = emails.UserCreationEmail(my_user)
+
+        # send the email object
+        if settings.PRODUCTION_SERVER:
+            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                      recipient_list=email.to_list, fail_silently=False, )
+        else:
+            print(email)
+        messages.success(self.request, _("The user was created and an email was sent"))
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -1847,10 +1858,28 @@ def manage_programs(request):
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
 
-class StaffListView(ManagerOrAdminRequiredMixin, FilterView):
-    template_name = 'projects/staff_list.html'
-    queryset = models.Staff.objects.filter(user__isnull=True).order_by('-project__year', 'project__section__division', 'project__section', 'project__project_title')
+
+class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
+    template_name = 'projects/admin_staff_list.html'
+    queryset = models.Staff.objects.filter(user__isnull=True).order_by('-project__year', 'project__section__division', 'project__section',
+                                                                       'project__project_title')
     filterset_class = filters.StaffFilter
+
+
+class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    '''This is really just for the admin view'''
+    model = models.Staff
+    template_name = 'projects/admin_staff_form.html'
+    form_class = forms.AdminStaffForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("projects:admin_staff_list") + "?" + nz(self.kwargs.get("qry"),""))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
 
 
 # STATUS REPORT #
@@ -2044,5 +2073,3 @@ class MilestoneUpdateUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         # context['project'] = context["object"].project
         return context
-
-

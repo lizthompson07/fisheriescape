@@ -403,6 +403,7 @@ class Staff(models.Model):
 
     class Meta:
         ordering = ['employee_type', 'level']
+        unique_together = [('project', 'user'), ]
 
 
 class Collaborator(models.Model):
@@ -565,6 +566,7 @@ class File(models.Model):
     @property
     def ref(self):
         return self.status_report if self.status_report else "Core project"
+
 
 @receiver(models.signals.post_delete, sender=File)
 def auto_delete_file_on_delete(sender, instance, **kwargs):

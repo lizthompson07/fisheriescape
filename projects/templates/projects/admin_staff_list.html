@@ -23,15 +23,18 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Staff List" %}
+                Non-registered Staff List
             </li>
         </ol>
     </nav>
 
     <div class="container-fluid">
         <h1>
-            {% trans "NON REGISTERED STAFF:" %}
+            NON REGISTERED STAFF LIST
         </h1>
+        <h3>The purpose of this list view is to check if any DFO staff were listed on projects, but were not connected to their user
+            accounts</h3>
+        <br><br>
 
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
@@ -81,9 +84,16 @@
             <tbody>
 
             {% for obj in filter_list %}
-                <tr href="{% url 'projects:project_detail' obj.id %}">
+                {% if request.META.QUERY_STRING %}
+                    {% url 'projects:admin_staff_edit' obj.id request.META.QUERY_STRING as url %}
+                {% else %}
+                    {% url 'projects:admin_staff_edit' obj.id as url %}
+                {% endif %}
+                <tr href="{{url}}">
+
                     <td>{{ obj.project.year }}</td>
-                    <td>{{ obj.project.section.division.branch.region.name }} - {{ obj.project.section.division.name }} - {{ obj.project.section.name }}</td>
+                    <td>{{ obj.project.section.division.branch.region.name }} - {{ obj.project.section.division.name }}
+                        - {{ obj.project.section.name }}</td>
                     <td>
                         {{ obj.project.project_title }}
                     </td>
