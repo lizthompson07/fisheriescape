@@ -1879,6 +1879,11 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
     def get_initial(self):
         return {'created_by': self.request.user, }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # when the view loads, let's make sure that all the milestones are on the project.
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = context["object"].project
