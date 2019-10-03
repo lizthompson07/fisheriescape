@@ -192,12 +192,12 @@ def generate_entry_report(year, sites):
     return response
 
 
-def generate_open_data_ver_1_data_dictionary():
+def generate_spp_list():
     """
     Generates the data dictionary for open data report version 1
     """
 
-    filename = "open_data_ver1_data_dictionary.csv"
+    filename = "species_list.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -205,9 +205,48 @@ def generate_open_data_ver_1_data_dictionary():
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
-    writer.writerow("")
-    writer.writerow(["Abiotic variables / Variables abiotiques:".upper(), ])
-    writer.writerow(["#########################################", ])
+    # write the header
+    header = [
+        "code",
+        "common_name_en__nom_commun_en",
+        "common_name_en__nom_commun_fr",
+        "life_stage_en__étape_de_vie_en",
+        "life_stage_fr__étape_de_vie_fr",
+        "scientific_name__nom_scientifique",
+        "ITIS_TSN",
+    ]
+    writer.writerow(header)
+
+    for sp in models.Species.objects.all():
+        life_stage_eng = sp.life_stage.name if sp.life_stage else None
+        life_stage_fra = sp.life_stage.nom if sp.life_stage else None
+
+        writer.writerow([
+            sp.abbrev,
+            sp.common_name_eng,
+            sp.common_name_fre,
+            life_stage_eng,
+            life_stage_fra,
+            sp.scientific_name,
+            sp.tsn,
+        ])
+
+    return response
+
+
+def generate_open_data_ver_1_data_dictionary():
+    """
+    Generates the data dictionary for open data report version 1
+    """
+
+    filename = "data_dictionary.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
     # write the header
     header = [
         "name__nom",
@@ -252,29 +291,24 @@ def generate_open_data_ver_1_data_dictionary():
             descr_fra[i],
         ])
 
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow(["Biotic variables / Variables biotiques:".upper(), ])
-    writer.writerow(["#######################################", ])
     field_names = [
-        "X_abundance",
-        "X_avg_fork_length",
-        "X_avg_total_length",
-        "X_avg_weight",
+        "[SP_CODE]_abundance",
+        "[SP_CODE]_avg_fork_length",
+        "[SP_CODE]_avg_total_length",
+        "[SP_CODE]_avg_weight",
     ]
 
     descr_eng = [
-        "total abundance of species X for a given site and year",
-        "mean fork length (mm) of species X for a given site and year",
-        "mean total length (mm) of species X for a given site and year; this is only provided for American eel",
-        "mean weight (g) of species X for a given site and year",
+        "total abundance of a species for a given site and year",
+        "mean fork length (mm) of a species for a given site and year",
+        "mean total length (mm) of a species for a given site and year; this is only provided for American eel",
+        "mean weight (g) of a species for a given site and year",
     ]
     descr_fra = [
-        "Abondance totale de l'espèce X pour un site et une année donnés",
-        "longueur à la fourche moyenne (mm) de l'espèce X pour un site et une année donnés",
-        "longueur totale moyenne (mm) de l'espèce X pour un site et une année donnés; prévu que pour l'anguille d'Amérique",
-        "poids moyen (g) de l'espèce X pour un site et une année donnés",
+        "Abondance totale d'une espèce pour un site et une année donnés",
+        "longueur à la fourche moyenne (mm) d'une espèce pour un site et une année donnés",
+        "longueur totale moyenne (mm) d'une espèce pour un site et une année donnés; fourni que pour l'anguille d'Amérique",
+        "poids moyen (g) d'une espèce pour un site et une année donnés",
     ]
     for i in range(0, len(field_names)):
         writer.writerow([
@@ -283,36 +317,6 @@ def generate_open_data_ver_1_data_dictionary():
             descr_fra[i],
         ])
 
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow("")
-    writer.writerow(["Species / Espèces:".upper()])
-    writer.writerow(["##################"])
-    # write the header
-    header = [
-        "code",
-        "common_name_en__nom_commun_en",
-        "common_name_en__nom_commun_fr",
-        "life_stage_en__étape_de_vie_en",
-        "life_stage_fr__étape_de_vie_fr",
-        "scientific_name__nom_scientifique",
-        "ITIS_TSN",
-    ]
-    writer.writerow(header)
-
-    for sp in models.Species.objects.all():
-        life_stage_eng = sp.life_stage.name if sp.life_stage else None
-        life_stage_fra = sp.life_stage.nom if sp.life_stage else None
-
-        writer.writerow([
-            sp.abbrev,
-            sp.common_name_eng,
-            sp.common_name_fre,
-            life_stage_eng,
-            life_stage_fra,
-            sp.scientific_name,
-            sp.tsn,
-        ])
 
     return response
 
@@ -421,13 +425,13 @@ def generate_open_data_ver_1_report(year, sites):
     return response
 
 
-def generate_open_data_ver_1_wms_report():
+def generate_open_data_ver_1_wms_report(lang):
     """
     Simple report for web mapping service on FGP
     """
     # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
     qs = models.Entry.objects.all().filter(sample__site__exclude_data_from_site=False)
-    filename = "open_data_ver1_wms_report.csv"
+    filename = "site_summary_report_eng.csv" if lang == 1 else "site_summary_report_fra.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -441,61 +445,49 @@ def generate_open_data_ver_1_wms_report():
     select_species_dict = {
         "fish_gr_1": {
             "codes": [1732],
-            "eng": "Altantic salmons (smolts)",
-            "fra": "de saumons atlantiques (saumoneau)",
+            "eng": "Altantic_salmon_smolts",
+            "fra": "de_saumons_atlantiques_saumoneaux",
         },
         "fish_gr_2": {
             "codes": [3410],
-            "eng": "American eels",
-            "fra": "d'anguilles d'Amériques",
+            "eng": "American_eels",
+            "fra": "d_anguilles_d_Amériques",
         },
         "fish_gr_3": {
-            "codes": [140,150,151,152],
+            "codes": [140, 150, 151, 152],
             "eng": "lampreys",
-            "fra": "de lamproies",
+            "fra": "de_lamproies",
         },
         "fish_gr_4": {
             "codes": [2621, 2631, 2620, 2630, 2640],
             "eng": "dace",
-            "fra": "de vandoise",
+            "fra": "de_vandoise",
         },
 
     }
 
-    header_row_eng = [
-        'Site name',
-        'Site latitude',
-        'Site longitude',
-        'Seasons in operation',
-        'List of species caught (English)',
-        'List of species caught (French)',
-        'Total number of fish caught',
-        'Mean annual number of fish caught',
+    header_row = [
+        'Site_name' if lang == 1 else "Nom_de_site",
+        'Site_latitude' if lang == 1 else "Latitude_de_site",
+        'Site_longitude' if lang == 1 else "Longitude_de_site",
+        'Seasons_in_operation' if lang == 1 else "Saisons_en_opération",
+        'List_of_species_caught' if lang == 1 else "Liste_des_espèces_capturées",
+        'Total_number_of_fish_caught' if lang == 1 else "Nombre_total_de_poisson_capturées",
+        'Mean_annual_number_of_fish_caught' if lang == 1 else "Nombre_annuel_moyen_de_poissons_capturés",
     ]
-
-    header_row_fra = [
-        'Nom de site',
-        'Latitude de site',
-        'Longitude de site',
-        'Saisons en opération',
-        'Liste des espèces capturées (anglais)',
-        'Liste des espèces capturées (français)',
-        'Nombre total de poisson capturées',
-        'Nombre annuel moyen de poissons capturés',
-    ]
-
 
     for key in select_species_dict:
-        header_row_eng.extend([
-            'Total number of {} caught'.format(select_species_dict[key]["eng"]),
-            'Mean annual number of {} caught'.format(select_species_dict[key]["eng"]),
-        ])
-        header_row_fra.extend([
-            'Nombre total {} capturées'.format(select_species_dict[key]["fra"]),
-            'Nombre annuel moyen {} capturés'.format(select_species_dict[key]["fra"]),
-        ])
-    writer.writerow(header_row_eng)
-    writer.writerow(header_row_fra)
+        if lang == 1:
+            header_row.extend([
+                'Total_number_of_{}_caught'.format(select_species_dict[key]["eng"]),
+                'Mean_annual_number_of_{}_caught'.format(select_species_dict[key]["eng"]),
+            ])
+        else:
+            header_row.extend([
+                'Nombre_total_{}_capturées'.format(select_species_dict[key]["fra"]),
+                'Nombre_annuel_moyen_{}_capturés'.format(select_species_dict[key]["fra"]),
+            ])
+    writer.writerow(header_row)
 
     # lets start by getting a list of samples and years
     # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
@@ -504,10 +496,13 @@ def generate_open_data_ver_1_wms_report():
     for site in sites:
         seasons = listrify(
             [obj["sample__season"] for obj in qs.filter(sample__site=site).order_by("sample__season").values("sample__season").distinct()])
-        spp_list_eng = listrify([models.Species.objects.get(pk=obj["species"]).common_name_eng for obj in
-                                 qs.filter(sample__site=site).order_by("species").values("species").distinct()])
-        spp_list_fra = listrify([models.Species.objects.get(pk=obj["species"]).common_name_fre for obj in
-                                 qs.filter(sample__site=site).order_by("species").values("species").distinct()])
+
+        if lang == 1:
+            spp_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_eng for obj in
+                                     qs.filter(sample__site=site).order_by("species").values("species").distinct()])
+        else:
+            spp_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_fre for obj in
+                                     qs.filter(sample__site=site).order_by("species").values("species").distinct()])
         total_freq = qs.filter(sample__site=site, ).values("frequency").order_by("frequency").aggregate(
             dsum=Sum("frequency"))["dsum"]
         avg_freq = floatformat(int(total_freq) / len(seasons.split(",")), 2)
@@ -517,8 +512,7 @@ def generate_open_data_ver_1_wms_report():
             site.latitude_n,
             site.longitude_w,
             seasons,
-            spp_list_eng,
-            spp_list_fra,
+            spp_list,
             total_freq,
             avg_freq,
         ]

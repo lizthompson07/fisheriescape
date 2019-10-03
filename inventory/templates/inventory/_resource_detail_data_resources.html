@@ -1,33 +1,22 @@
 {% load static %}
 
-<br>
-{% if object.data_resources.count == 0 %}
-    <ul>
+<ul>
+    {% if object.data_resources.count == 0 %}
         <em>Nothing added.</em>
-    </ul>
-    <br>
-
-{% else %}
-    <ul>
+    {% else %}
         {% for item in object.data_resources.all %}
-
             <li>
-                <a href="{{ item.url }}" target="_blank">
+                <a href="{% url 'inventory:data_resource_edit' item.id %}">
                     {{ item }}
                 </a>
-                <a href="{% url 'inventory:data_resource_edit' item.id %}">
-                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip"
-                         title="Edit">
-                </a>
-                </a>
+                <br>
+                (<a href="{{ item.url }}" target="_blank">visit URL</a>)
                 <a href="{% url 'inventory:data_resource_delete' item.id %}">
-                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                         title="delete">
-                </a>
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="delete">
                 </a>
             </li>
         {% endfor %}
-    </ul>
-{% endif %}
+    {% endif %}
 
 
+</ul>

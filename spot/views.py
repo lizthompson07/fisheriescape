@@ -78,7 +78,7 @@ class OrganizationListView(SpotAccessRequiredMixin, FilterView):
     filterset_class = filters.OrganizationFilter
     model = ml_models.Organization
     queryset = ml_models.Organization.objects.annotate(
-        search_term=Concat('name_eng', 'name_fre', 'abbrev', 'id', output_field=TextField()))
+        search_term=Concat('name_eng', 'name_ind', 'abbrev', 'id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

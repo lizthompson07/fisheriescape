@@ -7,7 +7,6 @@ from shared_models import models as shared_models
 
 # Choices for YesNo
 YESNO_CHOICES = (
-    (None, "------"),
     (True, "Yes"),
     (False, "No"),
 )
@@ -56,14 +55,32 @@ class Reserve(models.Model):
         ordering = ['name', ]
 
 
+class Nation(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
 def audio_file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
     return 'ihub/org_{}/{}'.format(instance.id, filename)
 
 
 class Organization(models.Model):
-    name_eng = models.CharField(max_length=1000, verbose_name=_("english name"))
-    name_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("french Name"))
+    YES_NO_BOTH_CHOICES = (
+        (0, _("None")), (1, _("On-Reserve")), (2, _("Off-Reserve")), (3, _("Both"))
+    )
+    name_eng = models.CharField(max_length=1000, verbose_name=_("legal name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
     abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("street address"))
@@ -81,7 +98,7 @@ class Organization(models.Model):
     sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
 
     # ihub only
-    legal_band_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("legal band name"))
+    nation = models.ForeignKey(Nation, verbose_name=_("Nation"), on_delete=models.DO_NOTHING, blank=True, null=True)
     former_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("former name"))
     website = models.URLField(blank=True, null=True, verbose_name=_("website"))
     next_election = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("next election"))
@@ -91,8 +108,8 @@ class Organization(models.Model):
     population_off_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population off reserve"))
     population_other_reserve = models.IntegerField(blank=True, null=True, verbose_name=_("population on other reserve"))
     fin = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("FIN"))
-    processing_plant = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("processing plant on reserve?"))
-    wharf = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("wharf on reserve?"))
+    processing_plant = models.IntegerField(choices=YES_NO_BOTH_CHOICES, verbose_name=_("processing plant?"), default=0)
+    wharf = models.IntegerField(choices=YES_NO_BOTH_CHOICES, verbose_name=_("wharf?"), default=0)
     consultation_protocol = models.TextField(blank=True, null=True, verbose_name=_("consultation protocol"))
     council_quorum = models.IntegerField(blank=True, null=True, verbose_name=_("council quorum"))
     reserves = models.ManyToManyField(Reserve, verbose_name=_("Associated reserves"), blank=True)
@@ -193,6 +210,18 @@ class Person(models.Model):
     @property
     def full_name(self):
         return "{} {}".format(self.first_name, self.last_name)
+
+    @property
+    def full_name_with_title(self):
+        my_str = ""
+        if self.designation:
+            my_str += "{} ".format(self.designation)
+
+        my_str += "{}".format(self.first_name)
+
+        if self.last_name:
+            my_str += " {}".format(self.last_name) if my_str != "" else "{}".format(self.last_name)
+        return my_str
 
     @property
     def contact_card_no_name(self):

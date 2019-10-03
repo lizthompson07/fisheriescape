@@ -3,46 +3,51 @@
 
 
 {% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'oceanography:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_list' %}">Cruise List</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_detail' object.mission.id %}">{{ object.mission }}</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
 
-  <div class="container">
-    {% if object.id %}
-    <h1>{{object.caption}}</h1>
-    {% else %}
-    <h1>New File</h1>
-    {% endif %}
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_detail' mission.id %}">{{ mission }}</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">New File</li>
+            {% endif %}
+        </ol>
+    </nav>
 
-      <form  method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="btn-group">
+    <div class="container">
+        {% if object.id %}
+            <h1>{{ object.caption }}</h1>
+        {% else %}
+            <h1>New File</h1>
+        {% endif %}
 
-          {% if editable %}
-          <input type="submit" class="btn btn-primary" value="Submit">
-          {% else %}
-              {% if user.is_superuser %}
-                <a href="{% url "oceanography:file_edit" object.id %}" class="btn btn-warning">Edit</a>
-                <a href="{% url "oceanography:file_delete" object.id %}" class="btn btn-danger">Delete</a>
-              {% else %}
-                <a href="{% url "oceanography:file_edit" object.id %}" class="btn btn-warning disabled">Edit</a>
-                <a href="{% url "oceanography:file_delete" object.id %}" class="btn btn-danger disabled">Delete</a>
-              {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="btn-group">
 
+                {% if editable %}
+                    <input type="submit" class="btn btn-primary" value="Submit">
+                {% else %}
+                    <a href="{% url "oceanography:file_edit" object.id %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url "oceanography:file_delete" object.id %}" class="btn btn-danger">Delete</a>
 
-          {% endif %}
-          {% if object.id %}
-          <a href="{% url "oceanography:mission_detail" object.mission.id %}" class="btn btn-secondary">Back</a>
-          {% else %}
-          <a href="{% url "oceanography:mission_detail" view.kwargs.mission %}" class="btn btn-secondary">Back</a>
-          {% endif %}
-        </div>
-        <br><br>
+                {% endif %}
+            </div>
+            <br><br>
 
-        <fieldset {% if not editable %}disabled   {% endif %}>
-        {%bootstrap_form form%}
-        </fieldset>
+            <fieldset {% if not editable %}disabled   {% endif %}>
+                {% bootstrap_form form %}
+            </fieldset>
 
-      </form>
-    <br>
+        </form>
+        <br>
 
-  </div>
+    </div>
 
 {% endblock content %}

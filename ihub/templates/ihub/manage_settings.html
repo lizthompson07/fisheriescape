@@ -46,7 +46,7 @@
 
                     <div class="col">
                         {% for field in form %}
-                            {% if field.name == "name_eng" or field.name == "name_fre" or field.name == "name_ind" or field.name == "abbrev" %}
+                            {% if field.name == "name_eng" or field.name == "former_name" or field.name == "name_ind" or field.name == "abbrev" %}
                                 {% bootstrap_field field size='small' placeholder="" %}
                             {% endif %}
                         {% endfor %}
@@ -75,7 +75,7 @@
                     </div>
                     <div class="col">
                         {% for field in form %}
-                            {% if field.name == "notes" or field.name == "grouping" or field.name == "id"%}
+                            {% if field.name == "notes" or field.name == "grouping" or field.name == "nation" or field.name == "id"%}
                                 {% bootstrap_field field size='small' placeholder="" %}
                             {% endif %}
                         {% endfor %}
