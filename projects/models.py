@@ -557,7 +557,7 @@ class File(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
 
     # delete
-    caption = models.CharField(max_length=255)
+    # caption = models.CharField(max_length=255)
 
     class Meta:
         ordering = ['project','reference','name']
