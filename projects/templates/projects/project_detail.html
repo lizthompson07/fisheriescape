@@ -93,19 +93,17 @@
 
         <br><br><br>
 
-        <h3>
-            {% trans "Project Summary:" %}
-        </h3>
+        <h4>
+            {% trans "Project Details:" %}
+        </h4>
 
-        <div class="btn-group">
-            {% if not object.submitted and not report_mode %}
-                <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
-                    {% trans "Add/Edit Project Details" %}
-                </a>
-            {% endif %}
-        </div>
+        {% if not object.submitted and not report_mode %}
+            <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
+                {% trans "Add/Edit Project Details" %}
+            </a>
+            <br><br>
+        {% endif %}
 
-        <br><br>
 
         <table class="table table-sm table-bordered" style="">
             {# cheating here to adjust header width #}
