@@ -277,18 +277,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-    try:
-        app_dict["snowcrab"] = {
-            "title": _("Snow Crab"),
-            "description": _("front-end application for the Gulf snow crab monitoring dataset"),
-            "status": "dev",
-            "access": "open",
-            "url": reverse('crab:index'),
-            "icon_path": 'img/icons/crab.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
 
     try:
         app_dict["masterlist"] = {
@@ -298,6 +286,19 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('masterlist:index'),
             "icon_path": 'img/icons/connection.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["whalesdb"] = {
+            "title": _("Whale Equipment Deployment Inventory"),
+            "description": _("Tool for managing whale equipment, deployments and recordings."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('whalesdb:index'),
+            "icon_path": 'img/whales/whales_dark.svg',
             "region": "regional",
         }
     except NoReverseMatch:

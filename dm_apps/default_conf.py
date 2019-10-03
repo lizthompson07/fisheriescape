@@ -34,6 +34,10 @@ else:
 # if this setting = False, static and mediafiles will be served by the development server.
 PRODUCTION_SERVER = False
 
+# this property is only looked at if PRODUCTION_SERVER = True. By setting DEBUG = True, you will override the default programming to set
+# DEBUG = False when using a prod server
+DEBUG = False
+
 # add your hostname here.
 ALLOWED_HOSTS = ['127.0.0.1', ]
 
@@ -46,7 +50,6 @@ APP_DICT = {
     'oceanography': 'Oceanography',
     'herring': 'HerMorrhage',
     'camp': 'CAMP db',
-    'snowcrab': 'Snowcrab',
     'meq': 'Marine environmental quality (MEQ)',
     'diets': 'Marine diets',
     'projects': 'Science project planning',
@@ -61,13 +64,14 @@ APP_DICT = {
     'staff': "Staff Planning Tool",
     'publications': "Project Publications Inventory",
     'trapnet': "TrapNet",
+    'whalesdb': "Whale Equipment Deployment Inventory",
 }
 
 MY_INSTALLED_APPS = [app for app in APP_DICT]
 SHOW_TICKETS_APP = True
 
 # Specify your database connection details
-MYSQL_DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
@@ -76,17 +80,12 @@ MYSQL_DATABASES = {
             'init_command': 'SET default_storage_engine=INNODB',
         },
     },
-}
-
-ORACLE_DATABASES = {
-    'default': {
+    'whalesdb': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': '[YOUR_DB_NAME_HERE]',
-        'USER': '[YOUR_DB_USER_NAME_HERE]',
-        'PASSWORD': '[YOUR_DB_PASSWORD_HERE]',
-        'HOST': '[YOUR_DB_HOST_ADDRESS_HERE]',
+        'NAME': 'DTRAN',
+        'USER': 'whale_amd',
+        'PASSWORD': 'BigSpla3h#',
+        'HOST': 'VSNSBIOD78.ENT.DFO-MPO.CA',
         'PORT': '1521'
-    }
+    },
 }
-
-DATABASES = MYSQL_DATABASES

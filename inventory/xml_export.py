@@ -5,6 +5,7 @@ from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 from xml.dom import minidom
 from django.utils import timezone
 
+from lib.functions.custom_functions import attr_error_2_none
 from lib.templatetags.custom_filters import nz
 from . import models
 from django.urls import reverse
@@ -69,8 +70,8 @@ def ci_responsible_party(resource_person):
     charstring(root, 'gmd:individualName', resource_person.person.full_name)
 
     # organisationName
-    charstring(root, 'gmd:organisationName', resource_person.person.organization.name_eng,
-               resource_person.person.organization.name_fre)
+    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.person.organization, "name_eng"),
+               attr_error_2_none(resource_person.person.organization, "name_fre"))
 
     # positionName
     charstring(root, 'gmd:positionName', resource_person.person.position_eng, resource_person.person.position_fre)
@@ -85,18 +86,25 @@ def ci_responsible_party(resource_person):
     address = SubElement(ci_contact, "gmd:address")
     ci_address = SubElement(address, "gmd:CI_Address")
     # civic
-    charstring(ci_address, 'gmd:deliveryPoint', resource_person.person.organization.address,
-               resource_person.person.organization.address)
+    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.person.organization, "address"),
+               attr_error_2_none(resource_person.person.organization, "address"))
     # city
-    charstring(ci_address, 'gmd:city', resource_person.person.organization.city)
+    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.person.organization, "city"),
+               attr_error_2_none(resource_person.person.organization, "city"))
     # province
-    charstring(ci_address, 'gmd:administrativeArea', resource_person.person.organization.location.location_eng,
-               resource_person.person.organization.location.location_fre)
+    my_loc = attr_error_2_none(resource_person.person.organization, "location")
+    charstring(ci_address, 'gmd:administrativeArea',
+               attr_error_2_none(my_loc, "location_eng"),
+               attr_error_2_none(my_loc, "location_fre"),
+               )
     # postalcode
-    charstring(ci_address, 'gmd:postalCode', resource_person.person.organization.postal_code)
+    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.person.organization, "postal_code"))
     # country
-    charstring(ci_address, 'gmd:country', resource_person.person.organization.location.country,
-               resource_person.person.organization.location.country)
+    my_loc = attr_error_2_none(resource_person.person.organization, "location")
+    charstring(ci_address, 'gmd:country',
+               attr_error_2_none(my_loc, "country"),
+               attr_error_2_none(my_loc, "country"),
+               )
     # email
     charstring(ci_address, 'gmd:electronicMailAddress', resource_person.person.user.email,
                resource_person.person.user.email)
@@ -1044,7 +1052,8 @@ def verify(resource):
             # now do a special bilingual field check to see if translation is needed
             if (field_value_eng is not None and field_value_fre is None) or (field_value_eng is None and field_value_fre is not None):
                 checklist.append(
-                    "'{}' and '{}' are optional fields, but if entered, they must be present in both languages".format(verbose_name_eng, verbose_name_fre))
+                    "'{}' and '{}' are optional fields, but if entered, they must be present in both languages".format(verbose_name_eng,
+                                                                                                                       verbose_name_fre))
                 rating = rating - 1
                 translation_needed = True
 

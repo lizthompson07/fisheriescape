@@ -204,8 +204,9 @@ class OrganizationFormShort(forms.ModelForm):
         model = ml_models.Organization
         fields = [
             'name_eng',
-            'name_fre',
             'name_ind',
+            'former_name',
+            'nation',
             'abbrev',
             'address',
             'city',
