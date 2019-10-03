@@ -563,7 +563,7 @@ class File(models.Model):
         ordering = ['project','reference','name']
 
     def __str__(self):
-        return self.caption
+        return self.name
 
 
 @receiver(models.signals.post_delete, sender=File)
