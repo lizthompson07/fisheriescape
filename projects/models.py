@@ -542,13 +542,25 @@ def file_directory_path(instance, filename):
 
 
 class File(models.Model):
-    caption = models.CharField(max_length=255)
+    # choices for reference
+    CORE = 1
+    STATUS_REPORT = 2
+    CHOICES_FOR_REFERENCE = (
+        (CORE, _("Core project")),
+        (STATUS_REPORT, _("Status report")),
+    )
     project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
-    file = models.FileField(upload_to=file_directory_path)
+    name = models.CharField(max_length=255, verbose_name=_("resource name"))
+    file = models.FileField(upload_to=file_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
+    external_url = models.URLField(blank=True, null=True, verbose_name=_("external url"))
+    reference = models.IntegerField(choices=CHOICES_FOR_REFERENCE, verbose_name=_("reference"))
     date_created = models.DateTimeField(default=timezone.now)
 
+    # delete
+    caption = models.CharField(max_length=255)
+
     class Meta:
-        ordering = ['-date_created']
+        ordering = ['project','reference','name']
 
     def __str__(self):
         return self.caption

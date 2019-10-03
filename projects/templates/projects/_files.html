@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load custom_filters %}
+
 <style>
     table, td {
         font-size: small;
@@ -13,11 +15,11 @@
 
 {% if not report_mode %}
     <a class="btn btn-sm btn-primary add-btn" href="#" pop-href="{% url 'projects:file_new' project.id %}">
-        {% trans "Add File" %}
+        {% trans "Add Resource" %}
     </a>
     <br><br>
 {% endif %}
-{% if project.files.count == 0 %}
+{% if files.count == 0 %}
     <em>
         {% trans "No Files" %}...
     </em><br>
@@ -26,23 +28,48 @@
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th>
-                {% trans "Caption" %}
+                {% trans "Resource Name" %}
             </th>
+            <th>
+                {% trans "Reference" %}
+            </th>
+            <th class="center-col">
+                {% trans "External URL" %}
+            </th>
+            <th class="center-col">
+                {% trans "File Attachment" %}
+            </th>
+
             <th>
                 {% trans "Date Created" %}
             </th>
 
         </tr>
         <tbody>
-        {% for obj in project.files.all %}
+        {% for obj in files.all %}
             <tr {% if not report_mode %}data-toggle="tooltip" title="Edit" href="{% url 'projects:file_detail' obj.id %}" pop{% endif %}>
-                <td>{{ obj.caption }}</td>
-                <td>{{ obj.date_created }}</td>
-                <td>
-                    <a href="{{ obj.file.url }}" data-toggle="tooltip" title="Open the file" class="stop-pop">
-                        <img src="{% static 'img/paperclip-1332775_1920.png' %}" alt="" width="20px">
-                    </a>
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.get_reference_display }}</td>
+                <td class="center-col">
+                    {% if obj.external_url %}
+                        <a href="{{ obj.external_url }}" target="_blank" class="stop-blank" data-toggle="tooltip" title="{% trans "open the external URL in a new window" %}">
+                            <img src="{% static 'img/icons/www.svg' %}" alt="" width="20px">
+                        </a>
+                    {% else %}
+                        ----
+                    {% endif %}
                 </td>
+                <td class="center-col">
+                    {% if obj.file %}
+                        <a href="{{ obj.file.url }}" data-toggle="tooltip" title="{% trans "Open the file" %}" class="stop-blank">
+                            <img src="{% static 'img/paperclip-1332775_1920.png' %}" alt="" width="20px">
+                        </a>
+
+                    {% else %}
+                        ----
+                    {% endif %}
+                </td>
+                <td>{{ obj.date_created }}</td>
 
                 </a>
             </tr>
