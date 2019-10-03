@@ -10,61 +10,42 @@
 
 
 <h4>
-    {% trans "Project Milestones:" %}
+    {% trans "Progress on Project Milestones:" %}
 </h4>
-{% if not report_mode %}
-    <a class="btn btn-sm btn-primary add-btn" href="#" pop-href="{% url 'projects:milestone_new' project.id %}">
-        {% trans "Add Milestone" %}
-    </a>
-    <br><br>
-{% endif %}
-
-{% if project.milestones.count == 0 %}
+{% if not object %}
     <em>
-        {% trans "No milestones" %}...
+        {% trans "Once you save this report, you will be able to update progress on milestones" %}...
     </em><br>
 {% else %}
+    {% if object.updates.count == 0 %}
+        <em>
+            {% trans "No milestones have been added to this project" %}...
+        </em><br>
+    {% else %}
 
-    <table class="table table-hover table-sm" style="width: auto">
-        <tr>
-            {% if not report_mode %}
-                <th></th>
-            {% endif %}
-            <th>
-                {% trans "Name" %}
-            </th>
-            <th>
-                {% trans "Description" %}
-            </th>
-            <th>
-                {% trans "Latest status" %}
-            </th>
+        <table class="table table-hover table-sm" style="width: auto">
+            <tr>
+                <th>
+                    {% trans "Milestone" %}
+                </th>
+                <th>
+                    {% trans "Status" %}
+                </th>
+                <th>
+                    {% trans "Notes" %}
+                </th>
 
-        </tr>
-        <tbody>
-        {% for obj in project.milestones.all %}
-            <tr  {% if not report_mode %}
-                href="{% url 'projects:milestone_edit' obj.id %}" pop
-                data-toggle="tooltip" title="Edit"
-            {% endif %}
-            >
-                {% if not report_mode %}
-                    <td>
-                        {% if not report_mode %}
-                            <a class="milestone-delete-me" href="#" val="{{ obj.id }}">
-                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                     title="Delete">
-                            </a>
-                            <a id="milestone-secrect-delete-btn-{{ obj.id }}"
-                               href="{% url 'projects:milestone_delete' obj.id %}" class="hidden"></a>
-                        {% endif %}
-                    </td>
-                {% endif %}
-                <td>{{ obj.name }}</td>
-                <td style="background-color: {{ obj.status.color }}">{{ obj.description|nz:"-----" }}</td>
             </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            <tbody>
+            {% for obj in object.updates.all %}
+                <tr href="{% url 'projects:milestone_update_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" class="add-btn">
+                    <td>{{ obj.milestone }}</td>
+                    <td style="background-color: {{ obj.status.color }}">{{ obj.status }}</td>
+                    <td>{{ obj.notes|nz:"-----" }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <br>
 {% endif %}
-<br>

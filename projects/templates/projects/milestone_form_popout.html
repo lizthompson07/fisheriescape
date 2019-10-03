@@ -13,13 +13,11 @@
     <div class="container">
         <h3>
             {% if object %}
-                {% blocktrans with ct=cost_type o=object %}
-                    Editing {{ ct }} Request: {{ o }}
+                {% blocktrans with o=object %}
+                    {{ o }}
                 {% endblocktrans %}
             {% else %}
-                {% blocktrans with ct=cost_type %}
-                    Adding {{ ct }} Request
-                {% endblocktrans %}
+                {% trans "Adding New Milestone" %}
             {% endif %}
         </h3>
         <br>
@@ -61,16 +59,5 @@
             $("#id_name")[0].focus()
         });
 
-
-        $(".milestone-delete-me").click(function (e) {
-            var objectId = $(this)[0].getAttribute("val");
-
-            var userInput = "";
-            userInput = confirm("{% trans "Are you sure you want to delete this milestone request from the project?" %}");
-            if (userInput === true) {
-                document.location.href = $("#milestone-secrect-delete-btn-" + objectId)[0].getAttribute("href");
-            }
-            e.stopImmediatePropagation();
-        });
     </script>
 {% endblock %}
