@@ -629,6 +629,9 @@ class StatusReport(models.Model):
     date_created = models.DateTimeField(default=timezone.now, verbose_name=_("date created"))
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"))
 
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
+
     class Meta:
         ordering = ['date_created']
 
