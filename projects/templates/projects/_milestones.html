@@ -13,8 +13,7 @@
     {% trans "Project Milestones:" %}
 </h4>
 {% if not report_mode %}
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:milestone_new' project.id %}','popoutWindow')">
+    <a class="btn btn-sm btn-primary add-btn" href="#" pop-href="{% url 'projects:milestone_new' project.id %}">
         {% trans "Add Milestone" %}
     </a>
     <br><br>
