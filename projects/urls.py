@@ -71,23 +71,6 @@ urlpatterns = [
     path('gc-cost/<int:pk>/edit/', views.GCCostUpdateView.as_view(), name="gc_edit"),
     path('gc-cost/<int:pk>/delete/', views.gc_cost_delete, name="gc_delete"),
 
-    # Reports #
-    ###########
-    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path(
-        'reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-        views.master_spreadsheet, name="report_master"),
-    path('reports/project-summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-         views.PDFProjectSummaryReport.as_view(), name="pdf_project_summary"),
-    path(
-        'reports/batch-workplan-export/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-        views.PDFProjectPrintoutReport.as_view(), name="pdf_printout"),
-
-    # this is a special view of the masterlist report that is called from the my_section view
-    path('reports/section-head-spreadsheet/fiscal-year/<int:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
-
-    # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
-
     # FILES #
     #########
     path('project/<int:project>/file/new/', views.FileCreateView.as_view(), name='file_new'),
@@ -146,5 +129,25 @@ urlpatterns = [
     path('admin-staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
     path('admin-staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
     path('admin-staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
+
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path(
+        'reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+        views.master_spreadsheet, name="report_master"),
+    path('reports/project-summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFProjectSummaryReport.as_view(), name="pdf_project_summary"),
+    path(
+        'reports/batch-workplan-export/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+        views.PDFProjectPrintoutReport.as_view(), name="pdf_printout"),
+
+    # this is a special view of the masterlist report that is called from the my_section view
+    path('reports/section-head-spreadsheet/fiscal-year/<int:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
+
+    # this is a special view of the masterlist report that is called from the my_section view
+    path('reports/export-program-list/', views.export_program_list, name="export_program_list"),
+
+    # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
 ]
