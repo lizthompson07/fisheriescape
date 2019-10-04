@@ -320,9 +320,10 @@ class ReportSearchForm(forms.Form):
         (3, "Project Summary Report (PDF)"),
         (2, "Batch Workplan Export (PDF) (submitted and approved)"),
         (1, "Master spreadsheet (XLSX)"),
+        (4, "Export program list (XLSX)"),
     )
-    fiscal_year = forms.ChoiceField(required=True)
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    fiscal_year = forms.ChoiceField(required=True)
     region = forms.MultipleChoiceField(required=False, label="Regions (Leave blank to select all)")
     division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
     section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")

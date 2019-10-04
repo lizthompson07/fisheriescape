@@ -262,7 +262,6 @@ project_field_list = [
     'id',
     'project_title',
     'section',
-    'program',
     'programs',
     'tags',
     'responsibility_center',
@@ -1531,6 +1530,18 @@ def workplan_summary(request, fiscal_year):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="{} Workplan Summary.xlsx"'.format(
                 fiscal_year)
+            return response
+    raise Http404
+
+
+
+def export_program_list(request):
+    file_url = reports.generate_program_list()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="Program List.xlsx"'
             return response
     raise Http404
 

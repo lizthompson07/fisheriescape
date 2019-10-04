@@ -76,7 +76,7 @@ class Organization(models.Model):
     )
     name_eng = models.CharField(max_length=1000, verbose_name=_("legal name"))
     name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
-    abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
+    abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"), unique=True)
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("street address"))
     mailing_address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("mailing address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
