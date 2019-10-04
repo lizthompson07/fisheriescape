@@ -46,7 +46,7 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
     if sectors:
         # we have to refine the queryset to only the selected sectors
         sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
-        entry_list = entry_list.filter(sector__in=sector_list)
+        entry_list = entry_list.filter(sectors__in=sector_list)
         # # create the species query object: Q
         # q_objects = Q()  # Create an empty Q object to start with
         # for s in sector_list:
@@ -62,6 +62,11 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
         #     q_objects |= Q(organizations=o)  # 'or' the Q objects together
         # # apply the filter
         # entry_list = entry_list.filter(q_objects)
+    else:
+        # if no orgs were passed in to the report, we need to make an org list based on the orgs in the entries
+        # this org_list will serve as basis for spreadsheet tabs
+        org_id_list = list(set([org.id for entry in entry_list for org in entry.organizations.all()]))
+        org_list = ml_models.Organization.objects.filter(id__in=org_id_list).order_by("abbrev")
 
     # define the header
     header = [
@@ -84,19 +89,6 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
 
     # worksheets #
     ##############
-
-    # based on the resulting query, reconstruct the org list
-    org_id_list = list(set([org.id for entry in entry_list for org in entry.organizations.all()]))
-
-    # # create a queryset
-    # if len(org_list) > 0:
-    #     # create the species query object: Q
-    #     q_objects = Q()  # Create an empty Q object to start with
-    #     for o in org_list:
-    #         q_objects |= Q(pk=o.id)  # 'or' the Q objects together
-    #     # apply the filter
-    #     org_list = ml_models.Organization.objects.filter(q_objects).order_by("abbrev")
-    org_list = ml_models.Organization.objects.filter(id__in=org_id_list).order_by("abbrev")
 
     for org in org_list:
         my_ws = workbook.add_worksheet(name=org.abbrev)
