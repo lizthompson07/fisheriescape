@@ -28,7 +28,8 @@ from . import reports
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 
-ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
+def get_ind_organizations(self):
+    return ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 
 
 # Create your views here.
@@ -200,7 +201,7 @@ class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
 class OrganizationListView(SiteLoginRequiredMixin, FilterView):
     template_name = 'ihub/organization_list.html'
     filterset_class = filters.OrganizationFilter
-    queryset = ind_organizations.annotate(
+    queryset = get_ind_organizations().annotate(
         search_term=Concat(
             'name_eng',
             Value(" "),
@@ -942,7 +943,6 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_sectors(request):
-    qs = ml_models.Sector.objects.all()
     if request.method == 'POST':
         formset = forms.SectorFormSet(request.POST, )
         if formset.is_valid():
@@ -951,6 +951,7 @@ def manage_sectors(request):
             messages.success(request, "Sectors have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_sectors"))
     else:
+        qs = ml_models.Sector.objects.all()
         formset = forms.SectorFormSet(
             queryset=qs)
     context = {}
@@ -967,7 +968,6 @@ def manage_sectors(request):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_orgs(request):
-    qs = ind_organizations
     if request.method == 'POST':
         formset = forms.OrganizationFormSet(request.POST, )
         if formset.is_valid():
@@ -976,6 +976,7 @@ def manage_orgs(request):
             messages.success(request, "Organizations have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_orgs"))
     else:
+        qs = get_ind_organizations()
         formset = forms.OrganizationFormSet(
             queryset=qs)
     context = {}
@@ -993,7 +994,6 @@ def delete_status(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_statuses(request):
-    qs = models.Status.objects.all()
     if request.method == 'POST':
         formset = forms.StatusFormSet(request.POST, )
         if formset.is_valid():
@@ -1002,6 +1002,7 @@ def manage_statuses(request):
             messages.success(request, "Statuses have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_statuses"))
     else:
+        qs = models.Status.objects.all()
         formset = forms.StatusFormSet(
             queryset=qs)
     context = {}
@@ -1025,7 +1026,6 @@ def delete_entry_type(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_entry_types(request):
-    qs = models.EntryType.objects.all()
     if request.method == 'POST':
         formset = forms.EntryTypeFormSet(request.POST, )
         if formset.is_valid():
@@ -1034,6 +1034,7 @@ def manage_entry_types(request):
             messages.success(request, "Entry types have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_entry_types"))
     else:
+        qs = models.EntryType.objects.all()
         formset = forms.EntryTypeFormSet(
             queryset=qs)
     context = {}
@@ -1057,7 +1058,6 @@ def delete_funding_purpose(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_funding_purposes(request):
-    qs = models.FundingPurpose.objects.all()
     if request.method == 'POST':
         formset = forms.FundingPurposeFormSet(request.POST, )
         if formset.is_valid():
@@ -1066,6 +1066,7 @@ def manage_funding_purposes(request):
             messages.success(request, "Funding purposes have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_funding_purposes"))
     else:
+        qs = models.FundingPurpose.objects.all()
         formset = forms.FundingPurposeFormSet(
             queryset=qs)
     context = {}
@@ -1088,7 +1089,6 @@ def delete_reserve(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_reserves(request):
-    qs = ml_models.Reserve.objects.all()
     if request.method == 'POST':
         formset = forms.ReserveFormSet(request.POST, )
         if formset.is_valid():
@@ -1097,6 +1097,7 @@ def manage_reserves(request):
             messages.success(request, "Reverse list has been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_reserves"))
     else:
+        qs = ml_models.Reserve.objects.all()
         formset = forms.ReserveFormSet(
             queryset=qs)
     context = {}
@@ -1118,7 +1119,6 @@ def delete_nation(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_nations(request):
-    qs = ml_models.Nation.objects.all()
     if request.method == 'POST':
         formset = forms.NationFormSet(request.POST, )
         if formset.is_valid():
@@ -1127,6 +1127,7 @@ def manage_nations(request):
             messages.success(request, "Nation list has been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_nations"))
     else:
+        qs = ml_models.Nation.objects.all()
         formset = forms.NationFormSet(
             queryset=qs)
     context = {}

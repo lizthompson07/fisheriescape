@@ -223,7 +223,7 @@ class OrganizationFormShort(forms.ModelForm):
             'province',
             'phone',
             'fax',
-            # 'next_election',
+            'next_election',
             'election_term',
             'population_on_reserve',
             'population_off_reserve',
@@ -234,6 +234,7 @@ class OrganizationFormShort(forms.ModelForm):
         ]
         widgets = {
             'notes': forms.Textarea(attrs={"rows": 2}),
+            'next_election': forms.TextInput(attrs=attr_fp_date),
         }
 
 
