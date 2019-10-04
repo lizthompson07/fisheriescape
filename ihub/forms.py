@@ -223,7 +223,7 @@ class OrganizationFormShort(forms.ModelForm):
             'province',
             'phone',
             'fax',
-            'next_election',
+            # 'next_election',
             'election_term',
             'population_on_reserve',
             'population_off_reserve',
