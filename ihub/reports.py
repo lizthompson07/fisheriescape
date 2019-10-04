@@ -236,48 +236,25 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
     if sectors == "None":
         sectors = None
 
-    # get an entry list for the fiscal year (if any)
+    # build an entry list:
+    entry_list = models.Entry.objects.all()
+
     if fy:
         entry_list = models.Entry.objects.filter(fiscal_year=fy)
-        if sectors:
-            # we have to refine the queryset to only the selected sectors
-            sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
-            # create the species query object: Q
-            q_objects = Q()  # Create an empty Q object to start with
-            for s in sector_list:
-                q_objects |= Q(sectors=s)  # 'or' the Q objects together
-            # apply the filter
-            entry_list = entry_list.filter(q_objects)
-        if orgs:
-            # we have to refine the queryset to only the selected orgs
-            org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
-            # create the species query object: Q
-            q_objects = Q()  # Create an empty Q object to start with
-            for o in org_list:
-                q_objects |= Q(organizations=o)  # 'or' the Q objects together
-            # apply the filter
-            entry_list = entry_list.filter(q_objects)
 
+    if sectors:
+        # we have to refine the queryset to only the selected sectors
+        sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
+        entry_list = entry_list.filter(sectors__in=sector_list)
+    if orgs:
+        # we have to refine the queryset to only the selected orgs
+        org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
+        entry_list = entry_list.filter(organizations__in=org_list)
     else:
-        entry_list = models.Entry.objects.all()
-        if sectors:
-            # we have to refine the queryset to only the selected sectors
-            sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
-            # create the species query object: Q
-            q_objects = Q()  # Create an empty Q object to start with
-            for s in sector_list:
-                q_objects |= Q(sectors=s)  # 'or' the Q objects together
-            # apply the filter
-            entry_list = entry_list.filter(q_objects)
-        if orgs:
-            # we have to refine the queryset to only the selected orgs
-            org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
-            # create the species query object: Q
-            q_objects = Q()  # Create an empty Q object to start with
-            for o in org_list:
-                q_objects |= Q(organizations=o)  # 'or' the Q objects together
-            # apply the filter
-            entry_list = entry_list.filter(q_objects)
+        # if no orgs were passed in to the report, we need to make an org list based on the orgs in the entries
+        # this org_list will serve as basis for spreadsheet tabs
+        org_id_list = list(set([org.id for entry in entry_list for org in entry.organizations.all()]))
+        org_list = ml_models.Organization.objects.filter(id__in=org_id_list).order_by("abbrev")
 
     # define the header
     header = [
@@ -305,18 +282,6 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
 
     # each org should be represented on a separate worksheet
     # therefore determine an appropriate org list
-
-    # based on the resulting query, reconstruct the org list
-    org_list = list(set([org for entry in entry_list for org in entry.organizations.all()]))
-
-    # create a queryset
-    if len(org_list) > 0:
-        # create the species query object: Q
-        q_objects = Q()  # Create an empty Q object to start with
-        for o in org_list:
-            q_objects |= Q(pk=o.id)  # 'or' the Q objects together
-        # apply the filter
-        org_list = ml_models.Organization.objects.filter(q_objects).order_by("abbrev")
 
     for org in org_list:
         my_ws = workbook.add_worksheet(name=org.abbrev)
