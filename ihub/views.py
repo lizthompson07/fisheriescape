@@ -28,7 +28,7 @@ from . import reports
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 
-def get_ind_organizations(self):
+def get_ind_organizations():
     return ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 
 
