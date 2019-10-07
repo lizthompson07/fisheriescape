@@ -1319,6 +1319,8 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
                 'divisions': divisions,
                 'sections': sections,
             }))
+        elif report == 4:
+            return HttpResponseRedirect(reverse("projects:export_program_list", kwargs={}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects:report_search"))
@@ -1541,7 +1543,7 @@ def export_program_list(request):
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="Program List.xlsx"'
+            response['Content-Disposition'] = 'inline; filename="Science Program List.xlsx"'
             return response
     raise Http404
 
