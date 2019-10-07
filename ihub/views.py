@@ -629,9 +629,8 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
     template_name = 'ihub/report_search.html'
     form_class = forms.ReportSearchForm
 
-    # def get_initial(self):
-    # default the year to the year of the latest samples
-    # return {"fiscal_year": fiscal_year()}
+    def get_initial(self):
+        return {"report_title": _("Consultations Update Log – Government of Canada")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -641,8 +640,10 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
         sectors = listrify(form.cleaned_data["sectors"])
         orgs = listrify(form.cleaned_data["organizations"])
         statuses = listrify(form.cleaned_data["statuses"])
+        entry_types = listrify(form.cleaned_data["entry_types"])
         org = int(nz(form.cleaned_data["single_org"]), 0)
         fy = str(form.cleaned_data["fiscal_year"])
+        report_title = str(form.cleaned_data["report_title"])
         report = int(form.cleaned_data["report"])
 
         if report == 1:
@@ -677,6 +678,8 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
                 "fy": nz(fy, "None"),
                 "orgs": nz(orgs, "None"),
                 "statuses": nz(statuses, "None"),
+                "entry_types": nz(entry_types, "None"),
+                "report_title": nz(report_title, "None"),
             }))
 
         else:
@@ -897,6 +900,8 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
         fy = self.kwargs["fy"]
         orgs = self.kwargs["orgs"]
         statuses = self.kwargs["statuses"]
+        entry_types = self.kwargs["entry_types"]
+        report_title = self.kwargs["report_title"]
 
         if fy == "None":
             fy = None
@@ -904,6 +909,8 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             orgs = None
         if statuses == "None":
             statuses = None
+        if entry_types == "None":
+            entry_types = None
 
         # get an entry list for the fiscal year (if any)
         entry_list = models.Entry.objects.all().order_by("-initial_date")
@@ -931,9 +938,14 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             # apply the filter
             entry_list = entry_list.filter(q_objects)
 
-        context["entry_list"] = entry_list
+        if entry_types:
+            # we have to refine the queryset to only the selected orgs
+            entry_type_list = [models.EntryType.objects.get(pk=int(o)) for o in entry_types.split(",")]
+            entry_list = entry_list.filter(entry_type__in=entry_type_list)
 
+        context["entry_list"] = entry_list
         context["fy"] = fy
+        context["report_title"] = report_title
 
         return context
 

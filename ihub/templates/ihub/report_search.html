@@ -53,12 +53,20 @@
                     <div class="status_div">
                         {% bootstrap_field field %}
                     </div>
+                {% elif field.name == "entry_types" %}
+                    <div class="entry_type_div">
+                        {% bootstrap_field field %}
+                    </div>
                 {% elif field.name == "fiscal_year" %}
                     <div class="year_div">
                         {% bootstrap_field field %}
                     </div>
                 {% elif field.name == "single_org" %}
                     <div class="single_org_div">
+                        {% bootstrap_field field %}
+                    </div>
+                {% elif field.name == "report_title" %}
+                    <div class="report_title_div">
                         {% bootstrap_field field %}
                     </div>
                 {% else %}
@@ -81,6 +89,8 @@
             $(".single_org_div").addClass("gone");
             $(".sector_div").addClass("gone");
             $(".status_div").addClass("gone");
+            $(".entry_type_div").addClass("gone");
+            $(".report_title_div").addClass("gone");
 
             $("#id_report").prop('required', true);
             $("#id_organizations").prop('required', false);
@@ -88,6 +98,8 @@
             $("#id_single_org").prop('required', false);
             $("#id_sectors").prop('required', false);
             $("#id_statuses").prop('required', false);
+            $("#id_entry_types").prop('required', false);
+            $("#id_report_title").prop('required', false);
         }
 
         function configureForm() {
@@ -97,8 +109,8 @@
                 $(".sector_div").removeClass("gone");
                 $(".org_div").removeClass("gone");
                 $(".year_div").removeClass("gone");
-                $("#id_organizations").multiSelect()
-                $("#id_sectors").multiSelect()
+                $("#id_organizations").multiSelect();
+                $("#id_sectors").multiSelect();
             } else if (reportChoice == 2) {
                 $(".single_org_div").removeClass("gone");
                 $("#id_single_org").prop('required', true);
@@ -106,21 +118,26 @@
                 $(".sector_div").removeClass("gone");
                 $(".org_div").removeClass("gone");
                 $(".year_div").removeClass("gone");
-                $("#id_organizations").multiSelect()
-                $("#id_sectors").multiSelect()
+                $("#id_organizations").multiSelect();
+                $("#id_sectors").multiSelect();
 
             } else if (reportChoice == 3) {
                 $(".sector_div").removeClass("gone");
                 $(".org_div").removeClass("gone");
                 $(".year_div").removeClass("gone");
-                $("#id_organizations").multiSelect()
-                $("#id_sectors").multiSelect()
+                $("#id_organizations").multiSelect();
+                $("#id_sectors").multiSelect();
             } else if (reportChoice == 5) {
                 $(".org_div").removeClass("gone");
                 $(".year_div").removeClass("gone");
                 $(".status_div").removeClass("gone");
-                $("#id_organizations").multiSelect()
-                $("#id_statuses").multiSelect()
+                $(".entry_type_div").removeClass("gone");
+                $(".report_title_div").removeClass("gone");
+                $("#id_organizations").multiSelect();
+                $("#id_statuses").multiSelect();
+                $("#id_entry_types").multiSelect();
+                $("#id_report_title").prop('required', true);
+
             }
         }
 
