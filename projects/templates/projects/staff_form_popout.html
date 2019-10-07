@@ -20,21 +20,7 @@
     </style>
 
 
-    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
-    <script>
-        window.resizeTo(width = 800, height = 800);
 
-        window.onunload = refreshParent;
-
-        function refreshParent() {
-            window.opener.location.reload();
-        }
-
-        $(document).ready(function () {
-            // Stuff to do as soon as the DOM is ready
-            $("#id_employee_type")[0].focus()
-        });
-    </script>
     {% url 'projects:user_new' as user_url %}
 
     <div class="container">
@@ -141,7 +127,7 @@
                             {% with help_text_dict|lookup:field.name as help_text %}
                                 <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
                                      title="{{ field.label }}"
-                                     data-content="{{ help_text }}">
+                                     data-content="{{ help_text|safe }}">
                                 {% bootstrap_field field placeholder="" show_label=False %}
                             {% endwith %}
                         </div>
@@ -157,12 +143,12 @@
                         </div>
 
                     </div>
-                    <p>
-                        {% blocktrans %}
-                            (User not in list?
-                            <a href="#" id="new-user">Click here to add a new one.)</a>
-                        {% endblocktrans %}
-                    </p><br>
+                    {#                    <p>#}
+                    {#                        {% blocktrans %}#}
+                    {#                            (User not in list?#}
+                    {#                            <a href="#" id="new-user">Click here to add a new one.)</a>#}
+                    {#                        {% endblocktrans %}#}
+                    {#                    </p><br>#}
                 {% else %}
                     {% bootstrap_field field placeholder="" size="small" %}
                 {% endif %}
@@ -179,7 +165,6 @@
         </form>
     </div>
 
-    {% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." as warning %}
 
     <script type="application/javascript">
 
@@ -210,11 +195,13 @@
 
         });
 
+        var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
+
         $("#id_lead").change(function () {
             currentUser = {{ user.id }}
                 selectedUser = $("#id_user").val()
             if (currentUser == selectedUser && $(this).val() == "False") {
-                alert("{{warning}}")
+                alert(warningMsg)
             }
         });
 
@@ -258,5 +245,21 @@
         });
 
 
+    </script>
+
+    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
+    <script>
+        window.resizeTo(width = 800, height = 800);
+
+        window.onunload = refreshParent;
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            $("#id_employee_type")[0].focus()
+        });
     </script>
 {% endblock %}
