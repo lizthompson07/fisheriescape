@@ -145,9 +145,18 @@ urlpatterns = [
     # this is a special view of the masterlist report that is called from the my_section view
     path('reports/section-head-spreadsheet/fiscal-year/<int:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
 
-
     path('reports/export-program-list/', views.export_program_list, name="export_program_list"),
 
+    path('reports/FTE_summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFFTESummaryReport.as_view(), name="pdf_fte_summary"),
+    path('reports/OT/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFProjectSummaryReport.as_view(), name="pdf_ot"),
+    path('reports/costs/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFProjectSummaryReport.as_view(), name="pdf_costs"),
+    path('reports/collaborators/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFCollaboratorReport.as_view(), name="pdf_collab"),
+    path('reports/dougs-report/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFProjectSummaryReport.as_view(), name="doug_report"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
 ]

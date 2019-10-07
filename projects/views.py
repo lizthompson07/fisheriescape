@@ -1252,302 +1252,6 @@ class FileDeleteView(ProjectLeadRequiredMixin, DeleteView):
         return reverse_lazy("shared_models:close_me")
 
 
-# REPORTS #
-###########
-
-class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
-    template_name = 'projects/report_search.html'
-    form_class = forms.ReportSearchForm
-
-    # def get_initial(self):
-    # default the year to the year of the latest samples
-    # return {"fiscal_year": fiscal_year(next=True, sap_style=True)}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        division_dict = {}
-        for d in get_division_choices():
-            my_division = shared_models.Division.objects.get(pk=d[0])
-            division_dict[my_division.id] = {}
-            division_dict[my_division.id]["display"] = getattr(my_division, _("name"))
-            division_dict[my_division.id]["region_id"] = my_division.branch.region_id
-
-        section_dict = {}
-        for s in get_section_choices():
-            my_section = shared_models.Section.objects.get(pk=s[0])
-            section_dict[my_section.id] = {}
-            section_dict[my_section.id]["display"] = str(my_section)
-            section_dict[my_section.id]["division_id"] = my_section.division_id
-
-        context['division_json'] = json.dumps(division_dict)
-        context['section_json'] = json.dumps(section_dict)
-        return context
-
-    def form_valid(self, form):
-        fiscal_year = str(form.cleaned_data["fiscal_year"])
-        report = int(form.cleaned_data["report"])
-        regions = listrify(form.cleaned_data["region"])
-        divisions = listrify(form.cleaned_data["division"])
-        sections = listrify(form.cleaned_data["section"])
-
-        if regions == "":
-            regions = "None"
-        if divisions == "":
-            divisions = "None"
-        if sections == "":
-            sections = "None"
-
-        if report == 1:
-            return HttpResponseRedirect(reverse("projects:report_master", kwargs={
-                'fiscal_year': fiscal_year,
-                'regions': regions,
-                'divisions': divisions,
-                'sections': sections,
-            }))
-        elif report == 2:
-            return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={
-                'fiscal_year': fiscal_year,
-                'regions': regions,
-                'divisions': divisions,
-                'sections': sections,
-            }))
-        elif report == 3:
-            return HttpResponseRedirect(reverse("projects:pdf_project_summary", kwargs={
-                'fiscal_year': fiscal_year,
-                'regions': regions,
-                'divisions': divisions,
-                'sections': sections,
-            }))
-        elif report == 4:
-            return HttpResponseRedirect(reverse("projects:export_program_list", kwargs={}))
-        else:
-            messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("projects:report_search"))
-
-
-def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None, user=None):
-    # sections arg will be coming in as None from the my_section view
-    if regions is None:
-        regions = "None"
-    if divisions is None:
-        divisions = "None"
-    if sections is None:
-        sections = "None"
-    file_url = reports.generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user)
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="Science project planning MASTER LIST {}.xlsx"'.format(
-                fiscal_year)
-            return response
-    raise Http404
-
-
-class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
-    login_url = '/accounts/login_required/'
-    template_name = "projects/report_pdf_project_summary.html"
-
-    def get_pdf_filename(self):
-        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
-        pdf_filename = "{} Project Summary Report.pdf".format(fy)
-        return pdf_filename
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
-
-        # need to assemble a section list
-        ## first look at the sections arg; if not null, we don't need anything else
-        if self.kwargs["sections"] != "None":
-            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
-        ## next look at the divisions arg; if not null, we don't need anything else
-        elif self.kwargs["divisions"] != "None":
-            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
-        ## next look at the divisions arg; if not null, we don't need anything else
-        elif self.kwargs["regions"] != "None":
-            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
-        else:
-            section_list = []
-
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
-                                                     section_id__in=section_list).order_by("id")
-
-        context["fy"] = fy
-        context["report_mode"] = True
-        context["object_list"] = project_list
-        context["field_list"] = project_field_list
-        context["division_list"] = [shared_models.Division.objects.get(pk=item["section__division"]) for item in
-                                    project_list.values("section__division").order_by("section__division").distinct()]
-        # bring in financial summary data for each project:
-        context["financial_summary_data"] = {}
-        context["financial_summary_data"]["sections"] = {}
-        context["financial_summary_data"]["divisions"] = {}
-        key_list = [
-            "salary_abase",
-            "salary_bbase",
-            "salary_cbase",
-            "om_abase",
-            "om_bbase",
-            "om_cbase",
-            "capital_abase",
-            "capital_bbase",
-            "capital_cbase",
-            "salary_total",
-            "om_total",
-            "capital_total",
-            "students",
-            "casuals",
-            "OT",
-        ]
-
-        for project in project_list:
-            context["financial_summary_data"][project.id] = financial_summary_data(project)
-            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(employee_type=4).count()
-            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(employee_type=3).count()
-            context["financial_summary_data"][project.id]["OT"] = nz(project.staff_members.values("overtime_hours").order_by(
-                "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"], 0)
-
-            # for sections
-            try:
-                context["financial_summary_data"]["sections"][project.section.id]
-            except KeyError:
-                context["financial_summary_data"]["sections"][project.section.id] = {}
-                # go through the keys and make sure each category is initialized
-                for key in key_list:
-                    context["financial_summary_data"]["sections"][project.section.id][key] = 0
-            finally:
-                for key in key_list:
-                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][
-                        key]
-
-            # for Divisions
-            try:
-                context["financial_summary_data"]["divisions"][project.section.division.id]
-            except KeyError:
-                context["financial_summary_data"]["divisions"][project.section.division.id] = {}
-                # go through the keys and make sure each category is initialized
-                for key in key_list:
-                    context["financial_summary_data"]["divisions"][project.section.division.id][key] = 0
-            finally:
-                for key in key_list:
-                    context["financial_summary_data"]["divisions"][project.section.division.id][key] += \
-                        context["financial_summary_data"][project.id][key]
-
-            # for total
-            try:
-                context["financial_summary_data"]["total"]
-            except KeyError:
-                context["financial_summary_data"]["total"] = {}
-                # go through the keys and make sure each category is initialized
-                for key in key_list:
-                    context["financial_summary_data"]["total"][key] = 0
-            finally:
-                for key in key_list:
-                    context["financial_summary_data"]["total"][key] += \
-                        context["financial_summary_data"][project.id][key]
-
-        # get a list of the capital requests
-        context["capital_list"] = [capital_cost for project in project_list for capital_cost in project.capital_costs.all()]
-
-        # get a list of the G&Cs
-        context["gc_list"] = [gc for project in project_list for gc in project.gc_costs.all()]
-
-        # get a list of the collaborators
-        context["collaborator_list"] = [collaborator for project in project_list for collaborator in project.collaborators.all()]
-
-        # get a list of the agreements
-        context["agreement_list"] = [agreement for project in project_list for agreement in project.agreements.all()]
-
-        return context
-
-
-class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
-    login_url = '/accounts/login_required/'
-    template_name = "projects/report_pdf_printout.html"
-
-    def get_pdf_filename(self):
-        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
-        pdf_filename = "{} Workplan Export.pdf".format(fy)
-        return pdf_filename
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
-
-        # need to assemble a section list
-        ## first look at the sections arg; if not null, we don't need anything else
-        if self.kwargs["sections"] != "None":
-            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
-        ## next look at the divisions arg; if not null, we don't need anything else
-        elif self.kwargs["divisions"] != "None":
-            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
-        ## next look at the divisions arg; if not null, we don't need anything else
-        elif self.kwargs["regions"] != "None":
-            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
-        else:
-            section_list = []
-
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
-                                                     section_id__in=section_list).order_by("id")
-
-        # project_list = [project for project in project_list if project.section in section_list]
-
-        context["fy"] = fy
-        context["report_mode"] = True
-        context["object_list"] = project_list
-        context["field_list"] = project_field_list
-        context["division_list"] = set([s.division for s in section_list])
-        # bring in financial summary data for each project:
-        context["financial_summary_data"] = {}
-        context["financial_summary_data"]["sections"] = {}
-        context["financial_summary_data"]["divisions"] = {}
-        key_list = [
-            "salary_abase",
-            "salary_bbase",
-            "salary_cbase",
-            "om_abase",
-            "om_bbase",
-            "om_cbase",
-            "capital_abase",
-            "capital_bbase",
-            "capital_cbase",
-            "students",
-            "casuals",
-            "OT",
-        ]
-
-        for project in project_list:
-            context["financial_summary_data"][project.id] = financial_summary_data(project)
-
-        return context
-
-
-def workplan_summary(request, fiscal_year):
-    file_url = reports.generate_workplan_summary(fiscal_year)
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="{} Workplan Summary.xlsx"'.format(
-                fiscal_year)
-            return response
-    raise Http404
-
-
-
-def export_program_list(request):
-    file_url = reports.generate_program_list()
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="Science Program List.xlsx"'
-            return response
-    raise Http404
-
-
 # USER #
 ########
 
@@ -1887,7 +1591,7 @@ class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse("projects:admin_staff_list") + "?" + nz(self.kwargs.get("qry"),""))
+        return HttpResponseRedirect(reverse("projects:admin_staff_list") + "?" + nz(self.kwargs.get("qry"), ""))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2085,4 +1789,434 @@ class MilestoneUpdateUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # context['project'] = context["object"].project
+        return context
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
+    template_name = 'projects/report_search.html'
+    form_class = forms.ReportSearchForm
+
+    def get_initial(self):
+        # default the year to the year of the latest samples
+        return {"fiscal_year": fiscal_year(next=True, sap_style=True)}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        division_dict = {}
+        for d in get_division_choices():
+            my_division = shared_models.Division.objects.get(pk=d[0])
+            division_dict[my_division.id] = {}
+            division_dict[my_division.id]["display"] = getattr(my_division, _("name"))
+            division_dict[my_division.id]["region_id"] = my_division.branch.region_id
+
+        section_dict = {}
+        for s in get_section_choices():
+            my_section = shared_models.Section.objects.get(pk=s[0])
+            section_dict[my_section.id] = {}
+            section_dict[my_section.id]["display"] = str(my_section)
+            section_dict[my_section.id]["division_id"] = my_section.division_id
+
+        context['division_json'] = json.dumps(division_dict)
+        context['section_json'] = json.dumps(section_dict)
+        return context
+
+    def form_valid(self, form):
+        fiscal_year = str(form.cleaned_data["fiscal_year"])
+        report = int(form.cleaned_data["report"])
+        regions = listrify(form.cleaned_data["region"])
+        divisions = listrify(form.cleaned_data["division"])
+        sections = listrify(form.cleaned_data["section"])
+
+        if regions == "":
+            regions = "None"
+        if divisions == "":
+            divisions = "None"
+        if sections == "":
+            sections = "None"
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("projects:report_master", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 2:
+            return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("projects:pdf_project_summary", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 4:
+            return HttpResponseRedirect(reverse("projects:export_program_list", kwargs={}))
+
+        elif report == 10:
+            return HttpResponseRedirect(reverse("projects:pdf_fte_summary", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 11:
+            return HttpResponseRedirect(reverse("projects:pdf_ot", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 12:
+            return HttpResponseRedirect(reverse("projects:pdf_costs", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 13:
+            return HttpResponseRedirect(reverse("projects:pdf_collab", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 14:
+            return HttpResponseRedirect(reverse("projects:doug_report", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("projects:report_search"))
+
+
+def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None, user=None):
+    # sections arg will be coming in as None from the my_section view
+    if regions is None:
+        regions = "None"
+    if divisions is None:
+        divisions = "None"
+    if sections is None:
+        sections = "None"
+
+    file_url = reports.generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="Science project planning MASTER LIST {}.xlsx"'.format(
+                fiscal_year)
+            return response
+    raise Http404
+
+
+class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_project_summary.html"
+
+    def get_pdf_filename(self):
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        pdf_filename = "{} Project Summary Report.pdf".format(fy)
+        return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+
+        context["fy"] = fy
+        context["report_mode"] = True
+        context["object_list"] = project_list
+        context["field_list"] = project_field_list
+        context["division_list"] = [shared_models.Division.objects.get(pk=item["section__division"]) for item in
+                                    project_list.values("section__division").order_by("section__division").distinct()]
+        # bring in financial summary data for each project:
+        context["financial_summary_data"] = {}
+        context["financial_summary_data"]["sections"] = {}
+        context["financial_summary_data"]["divisions"] = {}
+        key_list = [
+            "salary_abase",
+            "salary_bbase",
+            "salary_cbase",
+            "om_abase",
+            "om_bbase",
+            "om_cbase",
+            "capital_abase",
+            "capital_bbase",
+            "capital_cbase",
+            "salary_total",
+            "om_total",
+            "capital_total",
+            "students",
+            "casuals",
+            "OT",
+        ]
+
+        for project in project_list:
+            context["financial_summary_data"][project.id] = financial_summary_data(project)
+            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(employee_type=4).count()
+            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(employee_type=3).count()
+            context["financial_summary_data"][project.id]["OT"] = nz(project.staff_members.values("overtime_hours").order_by(
+                "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"], 0)
+
+            # for sections
+            try:
+                context["financial_summary_data"]["sections"][project.section.id]
+            except KeyError:
+                context["financial_summary_data"]["sections"][project.section.id] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["sections"][project.section.id][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][
+                        key]
+
+            # for Divisions
+            try:
+                context["financial_summary_data"]["divisions"][project.section.division.id]
+            except KeyError:
+                context["financial_summary_data"]["divisions"][project.section.division.id] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["divisions"][project.section.division.id][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["divisions"][project.section.division.id][key] += \
+                        context["financial_summary_data"][project.id][key]
+
+            # for total
+            try:
+                context["financial_summary_data"]["total"]
+            except KeyError:
+                context["financial_summary_data"]["total"] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["total"][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["total"][key] += \
+                        context["financial_summary_data"][project.id][key]
+
+        # get a list of the capital requests
+        context["capital_list"] = [capital_cost for project in project_list for capital_cost in project.capital_costs.all()]
+
+        # get a list of the G&Cs
+        context["gc_list"] = [gc for project in project_list for gc in project.gc_costs.all()]
+
+        # get a list of the collaborators
+        context["collaborator_list"] = [collaborator for project in project_list for collaborator in project.collaborators.all()]
+
+        # get a list of the agreements
+        context["agreement_list"] = [agreement for project in project_list for agreement in project.agreements.all()]
+
+        return context
+
+
+class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_printout.html"
+
+    def get_pdf_filename(self):
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        pdf_filename = "{} Workplan Export.pdf".format(fy)
+        return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+
+        # project_list = [project for project in project_list if project.section in section_list]
+
+        context["fy"] = fy
+        context["report_mode"] = True
+        context["object_list"] = project_list
+        context["field_list"] = project_field_list
+        context["division_list"] = set([s.division for s in section_list])
+        # bring in financial summary data for each project:
+        context["financial_summary_data"] = {}
+        context["financial_summary_data"]["sections"] = {}
+        context["financial_summary_data"]["divisions"] = {}
+        key_list = [
+            "salary_abase",
+            "salary_bbase",
+            "salary_cbase",
+            "om_abase",
+            "om_bbase",
+            "om_cbase",
+            "capital_abase",
+            "capital_bbase",
+            "capital_cbase",
+            "students",
+            "casuals",
+            "OT",
+        ]
+
+        for project in project_list:
+            context["financial_summary_data"][project.id] = financial_summary_data(project)
+
+        return context
+
+
+def workplan_summary(request, fiscal_year):
+    file_url = reports.generate_workplan_summary(fiscal_year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="{} Workplan Summary.xlsx"'.format(
+                fiscal_year)
+            return response
+    raise Http404
+
+
+def export_program_list(request):
+    file_url = reports.generate_program_list()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="Science Program List.xlsx"'
+            return response
+    raise Http404
+
+
+class PDFCollaboratorReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_collaborators.html"
+
+    # def get_pdf_filename(self):
+    #     fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+    #     pdf_filename = "{} Project Summary Report.pdf".format(fy)
+    #     return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+
+        collaborator_list = models.Collaborator.objects.filter(project__in=project_list)
+
+        context["fy"] = fy
+        context["object_list"] = collaborator_list
+        context["my_object"] = context["my_object"].first()
+        context["field_list"] = [
+            'name',
+            'type',
+            'critical',
+            'notes',
+            'project',
+        ]
+
+        return context
+
+
+class PDFFTESummaryReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_fte_summary.html"
+
+    # def get_pdf_filename(self):
+    #     fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+    #     pdf_filename = "{} Project Summary Report.pdf".format(fy)
+    #     return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+
+        staff_list = models.Staff.objects.filter(
+            project__in=project_list,
+            # employee_type_id__in=[1,]
+            user__isnull=False
+        ).order_by("user__last_name", "user__first_name").values("user").annotate(dsum=Sum("duration_weeks"))
+
+        # users = [models.Staff.objects.get(pk=item["user"]) for item in staff_list]
+        # hours = [item["dsum"] for item in staff_list]
+
+        context["fy"] = fy
+        # context["users"] = users
+        my_dict = {}
+        for i in range(0, len(staff_list)):
+            my_dict[i] = {}
+            my_dict[i]["user"] = User.objects.get(pk=staff_list[i]["user"])
+            my_dict[i]["hours"] = staff_list[i]["dsum"]
+        context["my_dict"] = my_dict
+
+        non_reg_staff_list = models.Staff.objects.filter(user__isnull=True).order_by("name")
+        context["non_reg_staff_list"] = non_reg_staff_list
+
         return context
