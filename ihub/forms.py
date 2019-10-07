@@ -51,7 +51,7 @@ class NoteForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
     # ORG_CHOICES = [(None, "---"), ]
-    field_order = ["report", "fiscal_year", "statuses", "organizations", "single_org"]
+    field_order = ["report", "fiscal_year", "statuses", "organizations", "entry_types", "single_org"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -74,6 +74,7 @@ class ReportSearchForm(forms.Form):
 
         sector_choices = [(obj.id, obj) for obj in ml_models.Sector.objects.all() if obj.entries.count() > 0]
         status_choices = [(obj.id, obj) for obj in models.Status.objects.all() if obj.entries.count() > 0]
+        entry_type_choices = [(obj.id, obj) for obj in models.EntryType.objects.all() if obj.entries.count() > 0]
 
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
         self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
@@ -87,7 +88,13 @@ class ReportSearchForm(forms.Form):
                                                             label='Status - Leave blank for all',
                                                             choices=status_choices,
                                                             )
+        self.fields['entry_types'] = forms.MultipleChoiceField(required=False,
+                                                               label='Entry Type - Leave blank for all',
+                                                               choices=entry_type_choices,
+                                                               )
         self.fields['single_org'] = forms.ChoiceField(required=False, label='Organization', choices=org_choices_all)
+
+        self.fields['report_title'] = forms.CharField(required=False)
 
 
 class OrganizationForm(forms.ModelForm):

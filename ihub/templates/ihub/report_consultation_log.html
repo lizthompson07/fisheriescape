@@ -63,7 +63,7 @@
 
 
 <h1>
-    {% trans "Consultations Update Log – Government of Canada" %} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
+    {{ report_title }} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
 </h1>
 
 
@@ -93,6 +93,8 @@
         <tr>
             <td>
                 TITLE: {{ entry.title }}
+                <br><br>
+                TYPE: {{ entry.entry_type}}
                 <br><br>
                 LOCATION: {{ entry.location|nz:"----" }}
             </td>
