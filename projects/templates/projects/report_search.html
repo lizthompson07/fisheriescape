@@ -28,22 +28,24 @@
             <span class="sr-only">Loading...</span>
         </div>
         <form method="post">
-
+            {% bootstrap_form_errors form %}
             {% csrf_token %}
             {% for field in form %}
 
-                {% if field.name == "species" %}
-                    <div class="species_div">
-                        {% bootstrap_field field %}
-
-                    </div>
-                {% elif field.name == "section" %}
+                {% if field.name == "section" %}
                     <div class="section_div">
                         {% bootstrap_field field %}
-
                     </div>
-                {% elif field.name == "year" %}
-                    <div class="year_div">
+                {% elif field.name == "division" %}
+                    <div class="division_div">
+                        {% bootstrap_field field %}
+                    </div>
+                {% elif field.name == "region" %}
+                    <div class="region_div">
+                        {% bootstrap_field field %}
+                    </div>
+                {% elif field.name == "fiscal_year" %}
+                    <div class="fiscal_year_div">
                         {% bootstrap_field field %}
                     </div>
 
@@ -53,37 +55,41 @@
             {% endfor %}
             <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
 
-
         </form>
         <br>
-        <p>
-        </p>
-
 
     </div>
 
-
-
     <script type="application/javascript">
 
+        let divisionObj = {{ division_json|safe }};
+        let sectionObj = {{ section_json|safe }};
+
         function hideAll() {
-            {#$(".section_div").addClass("gone");#}
+            $(".region_div").addClass("gone");
+            $(".division_div").addClass("gone");
+            $(".section_div").addClass("gone");
+            $(".fiscal_year_div").addClass("gone");
 
-            $("#id_report").prop('required', true);
-
+            $("#id_region").prop('required', false);
+            $("#id_division").prop('required', false);
+            $("#id_section").prop('required', false);
+            $("#id_fiscal_year").prop('required', false);
         }
 
         function configureForm() {
-            var reportChoice = $("#id_report")[0].value;
+            var reportChoice = $("#id_report").val();
             // masterlist count report
-            if (reportChoice == 1) {
-                {#$(".section_div").removeClass("gone");#}
-                {#$("#id_section").multiSelect()#}
+            if (reportChoice >= 1 && reportChoice < 4) {
+                $(".fiscal_year_div").removeClass("gone");
+                $(".region_div").removeClass("gone");
+                $(".division_div").removeClass("gone");
+                $(".section_div").removeClass("gone");
+                $("#id_fiscal_year").prop('required', true);
 
-            } else if (reportChoice == 2) {
-                {#$(".section_div").removeClass("gone");#}
-                {#$("#id_section").multiSelect()#}
 
+            } else if (reportChoice == 4) {
+                console.log("no fields to display for this report")
             }
         }
 
@@ -91,6 +97,7 @@
             // Stuff to do as soon as the DOM is ready
             hideAll();
             configureForm();
+            resetFields()
         });
 
         $("#id_report").change(function () {
@@ -99,13 +106,9 @@
         });
 
         $("form").submit(function () {
-            var reportChoice = $("#id_report")[0].value;
-            // species count report
-            if (reportChoice != 4) {
-                $(this).addClass("hidden");
-                $(".spinner-border").removeClass("hidden");
-                window.setTimeout(closeLoader, 10000)
-            }
+            $(this).addClass("hidden");
+            $(".spinner-border").removeClass("hidden");
+            window.setTimeout(closeLoader, 10000)
 
         });
 
@@ -113,18 +116,6 @@
             $("form").removeClass("hidden");
             $(".spinner-border").addClass("hidden");
         }
-    </script>
-
-
-    <script type="application/javascript">
-
-        divisionObj = {{ division_json|safe }};
-        sectionObj = {{ section_json|safe }};
-
-        $(document).ready(function () {
-            // Stuff to do as soon as the DOM is ready
-            resetFields()
-        });
 
         function resetFields() {
             // if the region is null, clear and disable both subsequent fields

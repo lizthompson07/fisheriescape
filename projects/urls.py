@@ -145,7 +145,7 @@ urlpatterns = [
     # this is a special view of the masterlist report that is called from the my_section view
     path('reports/section-head-spreadsheet/fiscal-year/<int:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
 
-    # this is a special view of the masterlist report that is called from the my_section view
+
     path('reports/export-program-list/', views.export_program_list, name="export_program_list"),
 
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
