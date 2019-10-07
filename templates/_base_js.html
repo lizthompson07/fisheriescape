@@ -103,7 +103,11 @@
 
     // enable popovers everywhere
     $(function () {
-        $('[data-toggle="popover"]').popover();
+        var options = {
+        'html': true,
+    };
+
+        $('[data-toggle="popover"]').popover(options);
         $('[data-toggle="popover"]')[0].style.cursor = "pointer";
     });
 
