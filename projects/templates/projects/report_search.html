@@ -80,13 +80,12 @@
         function configureForm() {
             var reportChoice = $("#id_report").val();
             // masterlist count report
-            if (reportChoice >= 1 && reportChoice < 4) {
+            if ((reportChoice >= 1 && reportChoice < 4) || (reportChoice >= 10 && reportChoice < 15)) {
                 $(".fiscal_year_div").removeClass("gone");
                 $(".region_div").removeClass("gone");
                 $(".division_div").removeClass("gone");
                 $(".section_div").removeClass("gone");
                 $("#id_fiscal_year").prop('required', true);
-
 
             } else if (reportChoice == 4) {
                 console.log("no fields to display for this report")
