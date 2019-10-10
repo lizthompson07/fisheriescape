@@ -2222,7 +2222,7 @@ class PDFFTESummaryReport(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class PDFOTSummaryReport(LoginRequiredMixin, TemplateView):
+class PDFOTSummaryReport(LoginRequiredMixin, PDFTemplateView):
     login_url = '/accounts/login_required/'
     template_name = "projects/report_pdf_ot_summary.html"
 
@@ -2249,7 +2249,7 @@ class PDFOTSummaryReport(LoginRequiredMixin, TemplateView):
         ## next look at the divisions arg; if not null, we don't need anything else
         elif self.kwargs["regions"] != "None":
             region_list = shared_models.Region.objects.filter(id__in=self.kwargs["regions"].split(","))
-            division_list = shared_models.Division.objects.filter(region__in=region_list)
+            division_list = shared_models.Division.objects.filter(branch__region__in=region_list, branch__id__in=[1, 3])
             section_list = shared_models.Section.objects.filter(division__in=division_list)
         else:
             section_list = []
@@ -2262,64 +2262,57 @@ class PDFOTSummaryReport(LoginRequiredMixin, TemplateView):
         context["fy"] = fy
 
         # NOTE this report is not meant to contain multiple regions...
-        context["divisions"] = division_list
-        context["section_list"] = division_list
+        context["division_list"] = division_list
+        context["section_list"] = section_list
 
         # bring in financial summary data for each project:
-        context["ot_summary_data"] = {}
+        my_dict = {}
+        my_dict["total"] = 0
+        my_dict["programs"] = {}
         for division in division_list:
             # create a sub dict for the division
-            context["ot_summary_data"][division] = {}
+            my_dict[division] = {}
+            my_dict[division]["total"] = 0
+            my_dict[division]["nrows"] = 0
 
-            for section in section_list:
-                # create a sub sub dict for the section
-                context["ot_summary_data"][division][section] = {}
-                # determine which programs are in that section
-                project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section=section)
-                program_list = models.Program2.objects.filter(projects__in=project_list)
-                for program in program_list:
-                    print(program)
-        #
-        # program_list = models.Program2.objects.all()
-        #
-        # # for sections
-        #     try:
-        #         context["ot_summary_data"]["sections"][project.section.id]
-        #     except KeyError:
-        #         context["ot_summary_data"]["sections"][project.section.id] = {}
-        #         # go through the keys and make sure each category is initialized
-        #         for key in key_list:
-        #             context["ot_summary_data"]["sections"][project.section.id][key] = 0
-        #     finally:
-        #         for key in key_list:
-        #             context["ot_summary_data"]["sections"][project.section.id][key] += context["ot_summary_data"][project.id][
-        #                 key]
-        #
-        #     # for Divisions
-        #     try:
-        #         context["ot_summary_data"]["divisions"][project.section.division.id]
-        #     except KeyError:
-        #         context["ot_summary_data"]["divisions"][project.section.division.id] = {}
-        #         # go through the keys and make sure each category is initialized
-        #         for key in key_list:
-        #             context["ot_summary_data"]["divisions"][project.section.division.id][key] = 0
-        #     finally:
-        #         for key in key_list:
-        #             context["ot_summary_data"]["divisions"][project.section.division.id][key] += \
-        #                 context["ot_summary_data"][project.id][key]
-        #
-        #     # for total
-        #     try:
-        #         context["ot_summary_data"]["total"]
-        #     except KeyError:
-        #         context["ot_summary_data"]["total"] = {}
-        #         # go through the keys and make sure each category is initialized
-        #         for key in key_list:
-        #             context["ot_summary_data"]["total"][key] = 0
-        #     finally:
-        #         for key in key_list:
-        #             context["ot_summary_data"]["total"][key] += \
-        #                 context["ot_summary_data"][project.id][key]
+            for section in division.sections.all():
+                # exclude any sections that are not in the section list
+                if section in section_list:
+                    # create a sub sub dict for the section
+                    project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section=section)
+
+                    ot = models.Staff.objects.filter(
+                        project__in=project_list, overtime_hours__isnull=False,
+                    ).aggregate(dsum=Sum("overtime_hours"))["dsum"]
+                    my_dict[division][section] = {}
+                    my_dict[division][section]["total"] = ot
+                    my_dict[division]["total"] += nz(ot, 0)
+                    my_dict["total"] += nz(ot, 0)
+
+                    # now get the progam list for all the section
+                    program_list = models.Program2.objects.filter(projects__in=project_list).distinct()
+                    my_dict[division]["nrows"] += program_list.count()
+                    my_dict[division][section]["programs"] = {}
+                    my_dict[division][section]["programs"]["list"] = program_list
+                    for program in program_list:
+                        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section=section,
+                                                                     programs=program)
+
+                        ot = models.Staff.objects.filter(
+                            project__in=project_list, overtime_hours__isnull=False,
+                        ).aggregate(dsum=Sum("overtime_hours"))["dsum"]
+
+                        my_dict[division][section]["programs"][program] = ot
+
+                        if not my_dict["programs"].get(program):
+                            my_dict["programs"][program] = 0
+
+                        my_dict["programs"][program] += nz(ot,0)
+
+        program_list = models.Program2.objects.filter(id__in=[program.id for program in my_dict["programs"]]).distinct()
+        my_dict["programs"]["list"] = program_list
+
+        context["ot_summary_data"] = my_dict
 
         return context
 
