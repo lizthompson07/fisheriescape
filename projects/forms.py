@@ -325,7 +325,7 @@ class ReportSearchForm(forms.Form):
         # Gulf region reports
         (10, _("GULF: Weeks Worked by Employee")),
         (11, _("GULF: Total OT Hours Requested")),
-        (12, _("GULF: Salary (in excess of FTE), O&M and Capital by Section")),
+        (12, _("GULF: Cost Summary by Section")),
         (13, _("GULF: List of Collaborators")),
         (14, _("GULF: Doug's Report")),
     )
