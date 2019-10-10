@@ -2157,7 +2157,7 @@ class PDFCollaboratorReport(LoginRequiredMixin, PDFTemplateView):
 
         context["fy"] = fy
         context["object_list"] = collaborator_list
-        context["my_object"] = context["my_object"].first()
+        context["my_object"] = collaborator_list.first()
         context["field_list"] = [
             'name',
             'type',
