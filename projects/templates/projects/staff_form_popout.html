@@ -182,15 +182,15 @@
         });
 
         $("#new-user").click(function () {
-            popitup('{{ user_url }}', 'popoutWindow1')
+            popitup('{{ user_url }}', 'popoutWindow1');
         });
 
         $("#ot_calc").click(function () {
             {% if object %}
-                popitup('{% url 'projects:ot_calc' object.id %}', 'popoutWindow')
+                popitup('{% url 'projects:ot_calc' object.id %}', 'popoutWindow');
             {% else %}
-                $("#id_save_then_go_OT").val("1")
-                $("form").submit()
+                $("#id_save_then_go_OT").val("1");
+                $("form").submit();
             {% endif %}
 
         });
@@ -199,9 +199,9 @@
 
         $("#id_lead").change(function () {
             currentUser = {{ user.id }}
-                selectedUser = $("#id_user").val()
+                selectedUser = $("#id_user").val();
             if (currentUser == selectedUser && $(this).val() == "False") {
-                alert(warningMsg)
+                alert(warningMsg);
             }
         });
 
@@ -221,8 +221,8 @@
                 //$("#id_name").val("")
                 //$("#id_name").prop("disabled", true)
             } else {
-                $("#id_cost").prop("disabled", false)
-                $("#id_level").prop("disabled", false)
+                $("#id_cost").prop("disabled", false);
+                $("#id_level").prop("disabled", false);
             }
             checkUser()
 
@@ -235,13 +235,13 @@
             if ($("#id_user").val() != "") {
                 $("#id_name").val("").prop("disabled", true);
             } else {
-                $("#id_name").prop("disabled", false)
+                $("#id_name").prop("disabled", false);
             }
         }
 
 
         $("form").change(function () {
-            checkFields()
+            checkFields();
         });
 
 
@@ -259,7 +259,7 @@
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            $("#id_employee_type")[0].focus()
+            $("#id_employee_type")[0].focus();
         });
     </script>
 {% endblock %}

@@ -147,12 +147,13 @@ urlpatterns = [
 
     path('reports/export-program-list/', views.export_program_list, name="export_program_list"),
 
+    # GULF REGION REPORTS
     path('reports/FTE_summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFFTESummaryReport.as_view(), name="pdf_fte_summary"),
     path('reports/OT/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-         views.PDFProjectSummaryReport.as_view(), name="pdf_ot"),
+         views.PDFOTSummaryReport.as_view(), name="pdf_ot"),
     path('reports/costs/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-         views.PDFProjectSummaryReport.as_view(), name="pdf_costs"),
+         views.PDFCostSummaryReport.as_view(), name="pdf_costs"),
     path('reports/collaborators/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFCollaboratorReport.as_view(), name="pdf_collab"),
     path('reports/dougs-report/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
