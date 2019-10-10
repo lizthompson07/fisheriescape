@@ -87,15 +87,14 @@
         <table>
             <thead>
             <tr>
-                <th rowspan="2" class="center-col" style="width: 10%">Division</th>
-                <th rowspan="2" class="center-col" style="width: 10%">Section</th>
+                <th rowspan="2" class="" style="width: 10%">Division</th>
+                <th rowspan="2" class="" style="width: 15%">Section</th>
                 <th colspan="3" class="center-col" style="width: 10%">A-Base</th>
                 <th colspan="3" class="center-col" style="width: 10%">B-Base</th>
                 <th colspan="3" class="center-col" style="width: 10%">C-Base</th>
-                <th colspan="3" class="center-col" style="width: 10%">Total</th>
-                {#            <th rowspan="2" style="width: 10%">Students</th>#}
-                {#            <th rowspan="2" style="width: 10%">Causals</th>#}
-                {#            <th rowspan="2" style="width: 10%">OT</th>#}
+                <th colspan="3" class="center-col" style="width: 10%">TOTAL</th>
+                <th rowspan="2" style="width: 10%"># Students</th>
+                <th rowspan="2" style="width: 10%"># Causals</th>
             </tr>
             <tr>
                 <th class="center-col">Salary</th>
@@ -150,6 +149,8 @@
                                 <td class="center-col">{{ my_dict|lookup:"salary_total"|zero2val:na|kmark:"1,True" }}</td>
                                 <td class="center-col">{{ my_dict|lookup:"om_total"|zero2val:na|kmark:"1,True" }}</td>
                                 <td class="center-col">{{ my_dict|lookup:"capital_total"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col">{{ my_dict|lookup:"students"|zero2val:na }}</td>
+                                <td class="center-col">{{ my_dict|lookup:"casuals"|zero2val:na }}</td>
                             {% endif %}
                         {% endwith %}
                     </tr>
@@ -171,6 +172,8 @@
                             <td class="subtotal center-col">{{ my_dict|lookup:"salary_total"|zero2val:na|kmark:"1,True" }}</td>
                             <td class="subtotal center-col">{{ my_dict|lookup:"om_total"|zero2val:na|kmark:"1,True" }}</td>
                             <td class="subtotal center-col">{{ my_dict|lookup:"capital_total"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"students"|zero2val:na }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"casuals"|zero2val:na }}</td>
                         {% endwith %}
                     </tr>
                 {% endif %}
@@ -190,6 +193,8 @@
                     <td class="total center-col">{{ my_dict|lookup:"salary_total"|zero2val:na|kmark:"1,True" }}</td>
                     <td class="total center-col">{{ my_dict|lookup:"om_total"|zero2val:na|kmark:"1,True" }}</td>
                     <td class="total center-col">{{ my_dict|lookup:"capital_total"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"students"|zero2val:na }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"casuals"|zero2val:na }}</td>
                 {% endwith %}
 
             </tr>
