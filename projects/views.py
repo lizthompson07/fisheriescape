@@ -2220,3 +2220,216 @@ class PDFFTESummaryReport(LoginRequiredMixin, PDFTemplateView):
         context["non_reg_staff_list"] = non_reg_staff_list
 
         return context
+
+
+
+class PDFOTSummaryReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_ot_summary.html"
+
+    # def get_pdf_filename(self):
+    #     fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+    #     pdf_filename = "{} Project Summary Report.pdf".format(fy)
+    #     return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+
+        context["fy"] = fy
+        context["object_list"] = project_list
+        context["division_list"] = [shared_models.Division.objects.get(pk=item["section__division"]) for item in
+                                    project_list.values("section__division").order_by("section__division").distinct()]
+        # bring in financial summary data for each project:
+        context["financial_summary_data"] = {}
+        context["financial_summary_data"]["sections"] = {}
+        context["financial_summary_data"]["divisions"] = {}
+        key_list = [
+            "salary_abase",
+            "salary_bbase",
+            "salary_cbase",
+            "om_abase",
+            "om_bbase",
+            "om_cbase",
+            "capital_abase",
+            "capital_bbase",
+            "capital_cbase",
+            "salary_total",
+            "om_total",
+            "capital_total",
+            "students",
+            "casuals",
+            "OT",
+        ]
+
+        for project in project_list:
+            context["financial_summary_data"][project.id] = financial_summary_data(project)
+            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(employee_type=4).count()
+            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(employee_type=3).count()
+            context["financial_summary_data"][project.id]["OT"] = nz(project.staff_members.values("overtime_hours").order_by(
+                "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"], 0)
+
+            # for sections
+            try:
+                context["financial_summary_data"]["sections"][project.section.id]
+            except KeyError:
+                context["financial_summary_data"]["sections"][project.section.id] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["sections"][project.section.id][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][
+                        key]
+
+            # for Divisions
+            try:
+                context["financial_summary_data"]["divisions"][project.section.division.id]
+            except KeyError:
+                context["financial_summary_data"]["divisions"][project.section.division.id] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["divisions"][project.section.division.id][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["divisions"][project.section.division.id][key] += \
+                        context["financial_summary_data"][project.id][key]
+
+            # for total
+            try:
+                context["financial_summary_data"]["total"]
+            except KeyError:
+                context["financial_summary_data"]["total"] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["total"][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["total"][key] += \
+                        context["financial_summary_data"][project.id][key]
+
+        return context
+
+
+
+class PDFCostSummaryReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_cost_summary.html"
+
+    # def get_pdf_filename(self):
+    #     fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+    #     pdf_filename = "{} Project Summary Report.pdf".format(fy)
+    #     return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+
+        context["fy"] = fy
+        context["object_list"] = project_list
+        context["division_list"] = [shared_models.Division.objects.get(pk=item["section__division"]) for item in
+                                    project_list.values("section__division").order_by("section__division").distinct()]
+        # bring in financial summary data for each project:
+        context["financial_summary_data"] = {}
+        context["financial_summary_data"]["sections"] = {}
+        context["financial_summary_data"]["divisions"] = {}
+        key_list = [
+            "salary_abase",
+            "salary_bbase",
+            "salary_cbase",
+            "om_abase",
+            "om_bbase",
+            "om_cbase",
+            "capital_abase",
+            "capital_bbase",
+            "capital_cbase",
+            "salary_total",
+            "om_total",
+            "capital_total",
+            "students",
+            "casuals",
+            "OT",
+        ]
+
+        for project in project_list:
+            context["financial_summary_data"][project.id] = financial_summary_data(project)
+            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(employee_type=4).count()
+            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(employee_type=3).count()
+            context["financial_summary_data"][project.id]["OT"] = nz(project.staff_members.values("overtime_hours").order_by(
+                "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"], 0)
+
+            # for sections
+            try:
+                context["financial_summary_data"]["sections"][project.section.id]
+            except KeyError:
+                context["financial_summary_data"]["sections"][project.section.id] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["sections"][project.section.id][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][
+                        key]
+
+            # for Divisions
+            try:
+                context["financial_summary_data"]["divisions"][project.section.division.id]
+            except KeyError:
+                context["financial_summary_data"]["divisions"][project.section.division.id] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["divisions"][project.section.division.id][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["divisions"][project.section.division.id][key] += \
+                        context["financial_summary_data"][project.id][key]
+
+            # for total
+            try:
+                context["financial_summary_data"]["total"]
+            except KeyError:
+                context["financial_summary_data"]["total"] = {}
+                # go through the keys and make sure each category is initialized
+                for key in key_list:
+                    context["financial_summary_data"]["total"][key] = 0
+            finally:
+                for key in key_list:
+                    context["financial_summary_data"]["total"][key] += \
+                        context["financial_summary_data"][project.id][key]
+
+        context["abase"] = models.FundingSource.objects.get(pk=1).color
+        context["bbase"] = models.FundingSource.objects.get(pk=2).color
+        context["cbase"] = models.FundingSource.objects.get(pk=3).color
+        return context
