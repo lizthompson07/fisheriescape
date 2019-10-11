@@ -16,6 +16,10 @@ urlpatterns = [
     path('trip/<int:pk>/delete/', views.EventDeleteView.as_view(), name="event_delete"),
     path('trip/<int:pk>/duplicate/', views.duplicate_event, name="duplicate_event"),
 
+    path('trips/approval/', views.EventApprovalListView.as_view(), name="event_approval_list"),
+    path('trips/approval/<str:which_ones>/', views.EventApprovalListView.as_view(), name="event_approval_list"),
+    path('trip/<int:pk>/approve/', views.EventApproveUpdateView.as_view(), name="event_approve"),
+
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
