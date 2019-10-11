@@ -81,7 +81,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = models.Event.objects.filter(waiting_on=self.request.user).count()
-        approval_count = models.Event.objects.filter(
+        approval_count = models.Event.objects.filter(submitted__isnull=False).filter(
             Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
                 approver=self.request.user)).count()
 
@@ -173,7 +173,7 @@ class EventApprovalListView(TravelAccessRequiredMixin, ListView):
     template_name = 'travel/event_approval_list.html'
 
     def get_queryset(self):
-        qs = models.Event.objects.filter(
+        qs = models.Event.objects.filter(submitted__isnull=False).filter(
             Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
                 approver=self.request.user))
         return qs.filter(waiting_on=self.request.user) if self.kwargs.get("which_ones") == "awaiting" else qs
@@ -300,9 +300,46 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
         return HttpResponseRedirect(reverse("travel:event_approval_list"))
 
 
+
+class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
+    model = models.Event
+    form_class = forms.EventApprovalForm
+    template_name = 'travel/event_submission_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = event_field_list
+        context["object"] = models.Event.objects.get(pk=self.kwargs.get("pk"))
+
+        return context
+
+    def form_valid(self, form):
+        my_event = models.Event.objects.get(pk=self.kwargs.get("pk"))
+        is_submitted = True if my_event.submitted else False
+        if is_submitted:
+            my_event.submitted = None
+            # now clear all the reviewers
+            my_event.recommender_1_approval_date = None
+            my_event.recommender_1_approval_status_id = 1
+            my_event.recommender_2_approval_date = None
+            my_event.recommender_2_approval_status_id = 1
+            my_event.recommender_3_approval_date = None
+            my_event.recommender_3_approval_status_id = 1
+            my_event.approver_approval_date = None
+            my_event.approver_approval_status_id = 1
+
+        else:
+            my_event.submitted = timezone.now()
+        my_event.save()
+        return HttpResponseRedirect(reverse("travel:event_detail", kwargs={"pk":my_event.id}))
+
+
 class EventCreateView(TravelAccessRequiredMixin, CreateView):
     model = models.Event
     form_class = forms.EventForm
+
+    def get_initial(self):
+        return {"user": self.request.user}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
