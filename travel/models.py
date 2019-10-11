@@ -170,14 +170,17 @@ class Event(models.Model):
     total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost"))
 
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
+
+    submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
+
     recommender_1 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_1_trips",
-                                      verbose_name=_("Recommender 1"), blank=True, null=True)
+                                      verbose_name=_("recommender 1"), blank=True, null=True)
     recommender_2 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_2_trips",
-                                      verbose_name=_("Recommender 2"), blank=True, null=True)
+                                      verbose_name=_("recommender 2"), blank=True, null=True)
     recommender_3 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_3_trips",
-                                      verbose_name=_("Recommender 3"), blank=True, null=True)
+                                      verbose_name=_("recommender 3"), blank=True, null=True)
     approver = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="approver_trips",
-                                 verbose_name=_("Approver"), blank=True, null=True)
+                                 verbose_name=_("approver"), blank=True, null=True)
 
     recommender_1_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec1_trips",
                                                       limit_choices_to={"used_for": 1}, verbose_name=_("recommender 1 approval status"),
@@ -214,7 +217,9 @@ class Event(models.Model):
             self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.meals, 0) + nz(self.incidentals, 0) + nz(
             self.other, 0) + nz(self.registration, 0)
         self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
-        self.approval_seeker()
+        if self.submitted:
+            # run the approval seeker function
+            self.approval_seeker()
         return super().save(*args, **kwargs)
 
     @property
