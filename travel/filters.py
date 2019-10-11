@@ -21,6 +21,7 @@ class EventFilter(django_filters.FilterSet):
             'fiscal_year':['exact'],
             'trip_title':['icontains'],
             'section':['exact'],
+            'user':['exact'],
         }
 
 

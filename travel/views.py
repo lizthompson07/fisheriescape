@@ -245,9 +245,9 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        object_list = models.Event.objects.filter(fiscal_year_id=self.kwargs['fy'], email=self.kwargs['email'])
-        context["object_list"] = object_list
+        object_list = models.Event.objects.filter(id=self.kwargs['pk'])
         context["object"] = object_list.first()
+        context["object_list"] = object_list
         context["purpose_list"] = models.Purpose.objects.all()
 
         key_list = [

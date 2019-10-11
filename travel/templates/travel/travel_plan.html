@@ -195,35 +195,33 @@
             <th class="real center">Total Trip Amount</th>
             <th class="real center">Is the trip part of an Event?</th>
         </tr>
-        {% for event in object_list %}
             <tr>
                 <th class="real center"></th>
-                <th class="real center">{{ forloop.counter }}</th>
-                <td class="real center">{{ event.start_date|date:"d-F" }}</td>
-                <td class="real center">{{ event.end_date|date:"d-F" }}</td>
-                <td class="real center">{{ event.departure_location }}
-                    to {{ event.destination }}</td>
-                <td class="real center">{{ event.purpose }}</td>
-                <td class="real left">{{ event.purpose_long|safe }}</td>
-                <td class="real center">{{ event.air|currency|nz:"" }}</td>
-                <td class="real center">{{ event.rail|currency|nz:"" }}</td>
-                <td class="real center">{{ event.rental_motor_vehicle|currency|nz:"" }}</td>
-                <td class="real center">{{ event.personal_motor_vehicle|currency|nz:"" }}</td>
-                <td class="real center">{{ event.taxi|currency|nz:"" }}</td>
-                <td class="real center">{{ event.other_transport|currency|nz:"" }}</td>
-                <td class="real center">{{ event.accommodations|currency|nz:"" }}</td>
-                <td class="real center">{{ event.meals|currency|nz:"" }}</td>
-                <td class="real center">{{ event.incidentals|currency|nz:"" }}</td>
-                {% with event.other|nz:0 as other %}
-                    {% with event.registration|nz:0 as reg %}
+                <th class="real center">1</th>
+                <td class="real center">{{ object.start_date|date:"d-F" }}</td>
+                <td class="real center">{{ object.end_date|date:"d-F" }}</td>
+                <td class="real center">{{ object.departure_location }}
+                    to {{ object.destination }}</td>
+                <td class="real center">{{ object.purpose }}</td>
+                <td class="real left">{{ object.purpose_long|safe }}</td>
+                <td class="real center">{{ object.air|currency|nz:"" }}</td>
+                <td class="real center">{{ object.rail|currency|nz:"" }}</td>
+                <td class="real center">{{ object.rental_motor_vehicle|currency|nz:"" }}</td>
+                <td class="real center">{{ object.personal_motor_vehicle|currency|nz:"" }}</td>
+                <td class="real center">{{ object.taxi|currency|nz:"" }}</td>
+                <td class="real center">{{ object.other_transport|currency|nz:"" }}</td>
+                <td class="real center">{{ object.accommodations|currency|nz:"" }}</td>
+                <td class="real center">{{ object.meals|currency|nz:"" }}</td>
+                <td class="real center">{{ object.incidentals|currency|nz:"" }}</td>
+                {% with object.other|nz:0 as other %}
+                    {% with object.registration|nz:0 as reg %}
                         <td class="real center">{{ other|add:reg|currency|zero2val:"" }}</td>
                     {% endwith %}
                 {% endwith %}
-                <td class="real center">{{ event.total_cost|currency|nz:"" }}</td>
-                <td class="real center">{{ event.event|yesno }}</td>
+                <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>
+                <td class="real center">{{ object.event|yesno }}</td>
 
             </tr>
-        {% endfor %}
         <tr>
             <td class="center wset"></td>
             <td class="center wset"></td>

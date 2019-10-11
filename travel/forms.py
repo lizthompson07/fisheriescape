@@ -35,13 +35,13 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
         (1, "CFTS export (xlsx)"),
-        (2, "Print Travel Plan PDF"),
+        # (2, "Print Travel Plan PDF"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     # report #1
     fiscal_year = forms.ChoiceField(required=False, label=_('Fiscal year'))
     # report #2
-    traveller = forms.ChoiceField(required=False, label=_('Fiscal year'))
+    traveller = forms.ChoiceField(required=False, label=_('traveller'))
 
     def __init__(self, *args, **kwargs):
         FY_CHOICES = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id")]
