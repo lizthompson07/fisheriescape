@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz
@@ -65,18 +66,55 @@ class Purpose(models.Model):
         ordering = ["name", ]
 
 
-class Event(models.Model):
-    # choices for approval_status
-    PENDING = 1
-    APPROVED = 2
-    DENIED = 3
-
-    APPROVAL_STATUS_CHOICES = (
-        (PENDING, _("Pending")),
-        (APPROVED, _("Approved")),
-        (DENIED, _("Denied")),
+class Status(models.Model):
+    # choices for used_for
+    APPROVAL = 1
+    TRIPS = 2
+    USED_FOR_CHOICES = (
+        (APPROVAL, "Approval status"),
+        (TRIPS, "Trip status"),
     )
 
+    used_for = models.IntegerField(choices=USED_FOR_CHOICES)
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True)
+    color = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['used_for', 'order', 'name', ]
+
+
+class RegisteredEvent(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
+    start_date = models.DateTimeField(verbose_name=_("start date of event"))
+    end_date = models.DateTimeField(verbose_name=_("end date of event"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['number', ]
+
+
+class Event(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True)
     # traveller info
@@ -97,6 +135,8 @@ class Event(models.Model):
     start_date = models.DateTimeField(verbose_name=_("start date of travel"))
     end_date = models.DateTimeField(verbose_name=_("end date of travel"))
     event = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a registered event"))
+    registered_event = models.ForeignKey(RegisteredEvent, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("registered event"))
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
@@ -139,15 +179,19 @@ class Event(models.Model):
     approver = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="approver_trips",
                                  verbose_name=_("Approver"), blank=True, null=True)
 
-    recommender_1_approval_status = models.IntegerField(verbose_name=_("recommender 1 approval status"), default=1,
-                                                        choices=APPROVAL_STATUS_CHOICES)
-    recommender_2_approval_status = models.IntegerField(verbose_name=_("recommender 2 approval status"), default=1,
-                                                        choices=APPROVAL_STATUS_CHOICES)
-    recommender_3_approval_status = models.IntegerField(verbose_name=_("recommender 3 approval status"), default=1,
-                                                        choices=APPROVAL_STATUS_CHOICES)
-    approver_approval_status = models.IntegerField(verbose_name=_("expenditure initiation approval status"), default=1,
-                                                   choices=APPROVAL_STATUS_CHOICES)
+    recommender_1_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec1_trips",
+                                                      limit_choices_to={"used_for": 1}, verbose_name=_("recommender 1 approval status"),
+                                                      default=1)
 
+    recommender_2_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec2_trips",
+                                                      limit_choices_to={"used_for": 1}, verbose_name=_("recommender 2 approval status"),
+                                                      default=1)
+    recommender_3_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec3_trips",
+                                                      limit_choices_to={"used_for": 1}, verbose_name=_("recommender 3 approval status"),
+                                                      default=1)
+    approver_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="approver_trips",
+                                                 limit_choices_to={"used_for": 1}, verbose_name=_("expenditure initiation approval status"),
+                                                      default=1)
     recommender_1_approval_date = models.DateTimeField(verbose_name=_("recommender 1 approval date"), blank=True, null=True)
     recommender_2_approval_date = models.DateTimeField(verbose_name=_("recommender 2 approval date"), blank=True, null=True)
     recommender_3_approval_date = models.DateTimeField(verbose_name=_("recommender 3 approval date"), blank=True, null=True)
@@ -238,24 +282,27 @@ class Event(models.Model):
 
     def get_status_str(self, approver):
         if getattr(self, approver):
-            if getattr(self, approver + "_approval_status"):
+            my_status = getattr(self, approver + "_approval_status")
+            if my_status.id == 1:
                 status = "{}".format(
-                    getattr(self, "get_" + approver + "_approval_status_display")(),
+                    my_status
                 )
             else:
                 status = "{} {} {}".format(
-                    getattr(self, "get_" + approver + "_approval_status_display")(),
+                    my_status,
                     _("on"),
-                    getattr(self, "get_" + approver + "_approval_date").strftime("%Y-%m-%d"),
+                    getattr(self, approver + "_approval_date").strftime("%Y-%m-%d"),
                 )
 
-            my_str = "{} ({})".format(
+            my_str = "<span style='background-color:{}'>{} ({})</span>".format(
+                my_status.color,
                 getattr(self, approver),
                 status,
             )
         else:
             my_str = "n/a"
-        return my_str
+        print(my_str)
+        return mark_safe(my_str)
 
     @property
     def recommender_1_status(self):

@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import modelformset_factory
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User as AuthUser
 from shared_models import models as shared_models
@@ -106,3 +107,17 @@ class ReportSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['fiscal_year'].choices = FY_CHOICES
         self.fields['traveller'].choices = TRAVELLER_CHOICES
+
+
+
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = models.Status
+        fields = "__all__"
+
+
+StatusFormSet = modelformset_factory(
+    model=models.Status,
+    form=StatusForm,
+    extra=1,
+)
