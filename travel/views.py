@@ -2,9 +2,11 @@ import json
 import os
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
+from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -80,8 +82,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = models.Event.objects.filter(waiting_on=self.request.user).count()
         approval_count = models.Event.objects.filter(
-                Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-                    approver=self.request.user)).count()
+            Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
+                approver=self.request.user)).count()
 
         context["is_approver"] = True if approval_count > 0 else False
 
@@ -252,43 +254,47 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
 
     def form_valid(self, form):
         is_approved = form.cleaned_data.get("is_approved")
-        print(12323432423435423564365)
-        print(is_approved)
         my_event = models.Event.objects.get(pk=self.kwargs.get("pk"))
         # if the user approved the project, we should approve anything that is them
         if my_event.recommender_1 == self.request.user:
             my_event.recommender_1_approval_date = timezone.now()
             if is_approved:
-                my_event.recommender_1_approval_status = 2
+                my_event.recommender_1_approval_status_id = 2
             else:
-                my_event.recommender_1_approval_status = 3
+                my_event.recommender_1_approval_status_id = 3
                 my_event.recommender_2 = None
                 my_event.recommender_3 = None
                 my_event.approver = None
+                my_event.recommender_2_approval_status_id = 1
+                my_event.recommender_3_approval_status_id = 1
+                my_event.approver_approval_status_id = 1
 
         if my_event.recommender_2 == self.request.user:
             my_event.recommender_2_approval_date = timezone.now()
             if is_approved:
-                my_event.recommender_2_approval_status = 2
+                my_event.recommender_2_approval_status_id = 2
             else:
-                my_event.recommender_2_approval_status = 3
+                my_event.recommender_2_approval_status_id = 3
                 my_event.recommender_3 = None
                 my_event.approver = None
+                my_event.recommender_3_approval_status_id = 1
+                my_event.approver_approval_status_id = 1
 
         if my_event.recommender_3 == self.request.user:
             my_event.recommender_3_approval_date = timezone.now()
             if is_approved:
-                my_event.recommender_3_approval_status = 2
+                my_event.recommender_3_approval_status_id = 2
             else:
-                my_event.recommender_3_approval_status = 3
+                my_event.recommender_3_approval_status_id = 3
                 my_event.approver = None
+                my_event.approver_approval_status_id = 1
 
         if my_event.approver == self.request.user:
             my_event.approver_approval_date = timezone.now()
             if is_approved:
-                my_event.approver_approval_status = 2
+                my_event.approver_approval_status_id = 2
             else:
-                my_event.approver_approval_status = 3
+                my_event.approver_approval_status_id = 3
 
         my_event.save()
         return HttpResponseRedirect(reverse("travel:event_approval_list"))
@@ -433,3 +439,42 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         context['total_dict'] = total_dict
         context['key_list'] = key_list
         return context
+
+
+# SETTINGS #
+############
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def delete_status(request, pk):
+    my_obj = models.Status.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("travel:manage_statuses"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def manage_statuses(request):
+    qs = models.Status.objects.all()
+    if request.method == 'POST':
+        formset = forms.StatusFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("travel:manage_statuses"))
+    else:
+        formset = forms.StatusFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'used_for',
+        'name',
+        'nom',
+        'order',
+        'color',
+    ]
+    context['title'] = "Manage Statuses"
+    context['formset'] = formset
+    return render(request, 'travel/manage_settings_small.html', context)

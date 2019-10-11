@@ -26,6 +26,10 @@ urlpatterns = [
     path('reports/export-cfts-list/<int:fy>/', views.export_cfts_list, name="export_cfts_list"),
     # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
 
+    # SETTINGS #
+    ############
+    path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
+    path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
 
 
 ]
