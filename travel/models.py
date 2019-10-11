@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
+from django.core.mail import send_mail
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -64,10 +66,22 @@ class Purpose(models.Model):
 
 
 class Event(models.Model):
+    # choices for approval_status
+    PENDING = 1
+    APPROVED = 2
+    DENIED = 3
+
+    APPROVAL_STATUS_CHOICES = (
+        (PENDING, _("Pending")),
+        (APPROVED, _("Approved")),
+        (DENIED, _("Denied")),
+    )
+
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True)
     # traveller info
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("connected user"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="user_trips",
+                             verbose_name=_("connected user"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("DFO section"),
                                 limit_choices_to={'division__branch': 1})
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
@@ -113,8 +127,33 @@ class Event(models.Model):
     incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidental costs"))
     registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
     other = models.FloatField(blank=True, null=True, verbose_name=_("other costs"))
-
     total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost"))
+
+    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
+    recommender_1 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_1_trips",
+                                      verbose_name=_("Recommender 1"), blank=True, null=True)
+    recommender_2 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_2_trips",
+                                      verbose_name=_("Recommender 2"), blank=True, null=True)
+    recommender_3 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_3_trips",
+                                      verbose_name=_("Recommender 3"), blank=True, null=True)
+    approver = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="approver_trips",
+                                 verbose_name=_("Approver"), blank=True, null=True)
+
+    recommender_1_approval_status = models.IntegerField(verbose_name=_("recommender 1 approval status"), default=1,
+                                                        choices=APPROVAL_STATUS_CHOICES)
+    recommender_2_approval_status = models.IntegerField(verbose_name=_("recommender 2 approval status"), default=1,
+                                                        choices=APPROVAL_STATUS_CHOICES)
+    recommender_3_approval_status = models.IntegerField(verbose_name=_("recommender 3 approval status"), default=1,
+                                                        choices=APPROVAL_STATUS_CHOICES)
+    approver_approval_status = models.IntegerField(verbose_name=_("expenditure initiation approval status"), default=1,
+                                                   choices=APPROVAL_STATUS_CHOICES)
+
+    recommender_1_approval_date = models.DateTimeField(verbose_name=_("recommender 1 approval date"), blank=True, null=True)
+    recommender_2_approval_date = models.DateTimeField(verbose_name=_("recommender 2 approval date"), blank=True, null=True)
+    recommender_3_approval_date = models.DateTimeField(verbose_name=_("recommender 3 approval date"), blank=True, null=True)
+    approver_approval_date = models.DateTimeField(verbose_name=_("expenditure initiation approval date"), blank=True, null=True)
+    waiting_on = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="waiting_on_trips", verbose_name=_("Waiting on"),
+                                   blank=True, null=True)
 
     def __str__(self):
         return "{}".format(self.trip_title)
@@ -131,6 +170,7 @@ class Event(models.Model):
             self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.meals, 0) + nz(self.incidentals, 0) + nz(
             self.other, 0) + nz(self.registration, 0)
         self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
+        self.approval_seeker()
         return super().save(*args, **kwargs)
 
     @property
@@ -195,3 +235,81 @@ class Event(models.Model):
             my_str += "\nFunding source: {}".format(self.multiple_attendee_rationale)
 
         return my_str
+
+    def get_status_str(self, approver):
+        if getattr(self, approver):
+            if getattr(self, approver + "_approval_status"):
+                status = "{}".format(
+                    getattr(self, "get_" + approver + "_approval_status_display")(),
+                )
+            else:
+                status = "{} {} {}".format(
+                    getattr(self, "get_" + approver + "_approval_status_display")(),
+                    _("on"),
+                    getattr(self, "get_" + approver + "_approval_date").strftime("%Y-%m-%d"),
+                )
+
+            my_str = "{} ({})".format(
+                getattr(self, approver),
+                status,
+            )
+        else:
+            my_str = "n/a"
+        return my_str
+
+    @property
+    def recommender_1_status(self):
+        return self.get_status_str("recommender_1")
+
+    @property
+    def recommender_2_status(self):
+        return self.get_status_str("recommender_2")
+
+    @property
+    def recommender_3_status(self):
+        return self.get_status_str("recommender_3")
+
+    @property
+    def approver_status(self):
+        return self.get_status_str("approver")
+
+    def approval_seeker(self):
+        from . import emails
+
+        # check to see if recommender 1 has reviewed the trip
+        my_email = None
+        if not self.recommender_1_approval_date:
+            # we need to get approval and need to set recommender 1 as who we are waiting on
+            self.waiting_on = self.recommender_1
+            # build email to recommender 1
+            my_email = emails.ApprovalAwaitingEmail(self, "recommender_1")
+
+        else:
+            if self.recommender_2 and not self.recommender_2_approval_date:
+                # we need to get approval and need to set recommender 2 as who we are waiting on
+                self.waiting_on = self.recommender_2
+                # build email to recommender 2
+                my_email = emails.ApprovalAwaitingEmail(self, "recommender_2")
+
+            else:
+                if self.recommender_3 and not self.recommender_3_approval_date:
+                    # we need to get approval and need to set recommender 3 as who we are waiting on
+                    self.waiting_on = self.recommender_3
+                    # build email to recommender 3
+                    my_email = emails.ApprovalAwaitingEmail(self, "recommender_3")
+                else:
+                    if self.approver and not self.approver_approval_date:
+                        # we need to get approval and need to set approver as who we are waiting on
+                        self.waiting_on = self.approver
+                        # send email to approver
+                        # for now we will not do this.
+                    else:
+                        self.waiting_on = None
+
+        if my_email:
+            # send the email object
+            if settings.PRODUCTION_SERVER:
+                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                          recipient_list=my_email.to_list, fail_silently=False, )
+            else:
+                print(my_email)

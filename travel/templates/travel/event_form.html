@@ -53,8 +53,13 @@
         </form>
 
     </div>
+{% endblock content %}
+
+{% block body_js %}
+
     <script type="application/javascript">
         var userObj = {{ user_json|safe }};
+        var sectionObj = {{ section_json|safe }};
         var myId = ""
         $("#id_user").change(function () {
             myId = $(this).val()
@@ -62,7 +67,18 @@
             $("#id_last_name").val(userObj[myId]["last_name"])
             $("#id_email").val(userObj[myId]["email"])
 
-        })
-    </script>
+        });
 
-{% endblock content %}
+        $("#id_section").change(function () {
+            mySectionId = $(this).val();
+            $("#id_recommender_1").val(sectionObj[mySectionId]["recommender_1"]);
+            $("#id_recommender_2").val(sectionObj[mySectionId]["recommender_2"]);
+            $("#id_recommender_3").val(sectionObj[mySectionId]["recommender_3"]);
+            $("#id_approver").val(sectionObj[mySectionId]["approver"]);
+            $('select').trigger("chosen:updated");
+        });
+
+    </script>
+{% endblock %}
+
+

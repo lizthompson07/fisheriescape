@@ -25,3 +25,9 @@ class EventFilter(django_filters.FilterSet):
         }
 
 
+class EventApprovalFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Event
+        fields = {
+            'waiting_on':['exact'],
+        }

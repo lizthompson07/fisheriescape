@@ -212,3 +212,75 @@
     height: 0px;
     padding: 0px;
 }
+
+
+
+.awesome {
+    /*width: 100%;*/
+
+    /*margin: 0 auto;*/
+    /*text-align: center;*/
+
+    color: #313131;
+    /*background-color: white;*/
+    /*font-size: 45px;*/
+    font-weight: bold;
+    /*position: absolute;*/
+    -webkit-animation: colorchange 20s infinite alternate;
+}
+
+@-webkit-keyframes colorchange {
+    0% {
+
+        color: #ea4544;
+    }
+
+    10% {
+
+        color: #ff8209;
+    }
+
+    20% {
+
+        color: #36fff8;
+    }
+
+    30% {
+
+        color: #ff37e0;
+    }
+
+    40% {
+
+        color: blue;
+    }
+
+    50% {
+
+        color: #00c600;
+    }
+
+    60% {
+
+        color: blue;
+    }
+
+    70% {
+
+        color: #2980b9;
+    }
+    80% {
+
+        color: #f1c40f;
+    }
+
+    90% {
+
+        color: #2980b9;
+    }
+
+    100% {
+
+        color: pink;
+    }
+}
