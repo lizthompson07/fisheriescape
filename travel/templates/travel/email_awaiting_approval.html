@@ -4,10 +4,10 @@
     A trip is awaiting your approval:
 </p>
 
-{% for field in field_list %}
-    {% verbose_field_display event field %}
-{% endfor %}
-
+{#{% for field in field_list %}#}
+{#    {% verbose_field_display event field %}#}
+{#{% endfor %}#}
+{##}
 <p>
     To view the trips awaiting your approval, please click <a href="http://dmapps{% url 'travel:event_approval_list' 'awaiting' %}">HERE</a>.
 </p>
