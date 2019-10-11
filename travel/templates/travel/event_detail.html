@@ -42,7 +42,13 @@
             <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
                 Use as template
             </a>
+{#            {% if object.waiting_on == user %}#}
+{#                <a class="btn btn-outline-dark awesome" href="{% url 'travel:duplicate_event' object.id %}">#}
+{#                    APPROVE THIS TRIP !!#}
+{#                </a>#}
+{#            {% endif %}#}
         </div>
+
         <br><br>
 
         <div class="row">
