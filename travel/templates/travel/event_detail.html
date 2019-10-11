@@ -30,17 +30,20 @@
 
 
         <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'travel:event_edit' object.id %}">
+            <a class="btn btn-warning {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:event_edit' object.id %}">
                 Edit
             </a>
             <a class="btn btn-danger " href="{% url 'travel:event_delete' object.id %}">
                 Delete
             </a>
-            <a class="btn btn-success " href="{% url 'travel:event_print' object.id %}">
+            <a class="btn btn-dark" href="{% url 'travel:event_print' object.id %}">
                 Print Travel Plan
             </a>
             <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
                 Use as template
+            </a>
+            <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %}" href="{% url 'travel:event_submit' object.id %}">
+                {% if object.submitted %}Un-submit {% else %} Submit {% endif %}
             </a>
         </div>
 
