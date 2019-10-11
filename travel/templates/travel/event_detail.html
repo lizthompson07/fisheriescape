@@ -19,7 +19,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Events</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Trips</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -36,10 +36,10 @@
             <a class="btn btn-danger " href="{% url 'travel:event_delete' object.id %}">
                 Delete
             </a>
-            <a class="btn btn-success " href="{% url 'travel:travel_plan' object.fiscal_year_id object.email %}">
+            <a class="btn btn-success " href="{% url 'travel:event_print' object.id %}">
                 Print Travel Plan
             </a>
-            <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id  %}">
+            <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
                 Use as template
             </a>
         </div>
@@ -48,13 +48,15 @@
         <div class="row">
             <div class="col">
                 <h3>
-                    Event Detail:
+                    Trip Detail:
                 </h3>
 
-                {% for field in field_list %}
-                    {% verbose_field_display object field format="currency" %}
-                {% endfor %}
-                <br>
+                <table class="table table-sm">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field format="currency" %}
+                    {% endfor %}
+
+                </table>
 
             </div>
         </div>
