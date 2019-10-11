@@ -114,6 +114,7 @@ event_field_list = [
     'benefit_to_dfo',
     'multiple_conferences_rationale',
     'multiple_attendee_rationale',
+    'bta_attendees',
 
     'notes',
 

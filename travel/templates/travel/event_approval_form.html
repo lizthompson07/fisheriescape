@@ -25,9 +25,13 @@
     </nav>
 
     <div class="container">
+        <div class="float-right">
+            <a class="btn btn-warning " href="{% url 'travel:event_print' object.id %}">
+                Travel Plan <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+            </a>
+        </div>
         <h1>Trip Approval Form</h1>
         <br>
-
         <div class="row">
             <div class="col">
                 <h3>
