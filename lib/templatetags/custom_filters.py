@@ -99,7 +99,7 @@ def tostring(value):
 def currency(value, with_sign=False):
     """returns 'value' into a currency format """
     try:
-        float(value)
+        value = float(value)
         # if not able to cast, then just return 'value'
     except (ValueError, TypeError):
         return ""

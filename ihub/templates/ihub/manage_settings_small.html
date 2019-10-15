@@ -71,9 +71,9 @@
                                 {% elif "entry" in title|lower %}
                                     {% url 'ihub:delete_entry_type' form.instance.id as my_delete_url %}
                                 {% elif "funding" in title|lower %}
-                                    {% url 'ihub:delete_funding_type' form.instance.id as my_delete_url %}
-                                {% elif "entry" in title|lower %}
-                                    {% url 'ihub:delete_entry_type' form.instance.id as my_delete_url %}
+                                    {% url 'ihub:delete_funding_purpose' form.instance.id as my_delete_url %}
+                                {% elif "reserve" in title|lower %}
+                                    {% url 'ihub:delete_reserve' form.instance.id as my_delete_url %}
 
                                 {% endif %}
 

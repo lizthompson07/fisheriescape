@@ -9,6 +9,9 @@ urlpatterns = [
     path('login/', views.UserLoginView.as_view(), name='login'),
     path('denied/', views.access_denied, name='denied_access'),
     path('denied/custodians-only/', views.access_denied_custodian, name='denied_access_custodian'),
+    path('denied/project-leads-only/', views.access_denied_project_leads_only, name='denied_project_leads_only'),
+    path('denied/section-heads-only/', views.access_denied_section_heads_only, name='denied_section_heads_only'),
+    path('denied/section-heads-only/', views.access_denied_manager_or_admin_only, name='denied_manager_or_admin_only'),
     path('denied/scifi/', views.access_denied_scifi, name='denied_access_scifi'),
 
     path('signup/', views.signup, name='signup'),

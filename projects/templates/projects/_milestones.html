@@ -1,0 +1,83 @@
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+<style>
+    table, td {
+        font-size: small;
+    }
+</style>
+
+
+<h4>
+    {% trans "Project Milestones:" %}
+</h4>
+{% if not report_mode %}
+    <a class="btn btn-sm btn-primary add-btn" href="#" pop-href="{% url 'projects:milestone_new' project.id %}">
+        {% trans "Add Milestone" %}
+    </a>
+    <br><br>
+{% endif %}
+
+{% if project.milestones.count == 0 %}
+    <em>
+        {% trans "No milestones" %}...
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% if not report_mode %}
+                <th></th>
+            {% endif %}
+            <th>
+                {% trans "Name" %}
+            </th>
+            <th>
+                {% trans "Description" %}
+            </th>
+            {% if not report_mode %}
+                <th>
+                    {% trans "Latest status" %}
+                </th>
+            {% endif %}
+
+        </tr>
+        <tbody>
+        {% for obj in project.milestones.all %}
+            <tr  {% if not report_mode %}
+                href="{% url 'projects:milestone_edit' obj.id %}" pop
+                data-toggle="tooltip" title="Edit"
+            {% endif %}
+            >
+                {% if not report_mode %}
+                    <td>
+                        {% if not report_mode %}
+                            <a class="milestone-delete-me" href="#" val="{{ obj.id }}">
+                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                     title="Delete">
+                            </a>
+                            <a id="milestone-secrect-delete-btn-{{ obj.id }}"
+                               href="{% url 'projects:milestone_delete' obj.id %}" class="hidden"></a>
+                        {% endif %}
+                    </td>
+                {% endif %}
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.description|nz:"-----" }}</td>
+                {% trans "No status reports on file.." as na %}
+                {% if not report_mode %}
+                    <td style="background-color: {{ obj.latest_update.status.color }}">
+                        {% if obj.latest_update %}
+                            {{ obj.latest_update.status }} ({{ obj.latest_update.status_report }})
+
+                        {% else %}
+                            {{ na }}
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>

@@ -454,7 +454,7 @@ def add_generic_file(request, ticket, type):
     elif type == "security_exemption":
         filename = "Request_DFO_IT_Security_Exemption.doc"
 
-    source_file = os.path.join(settings.STATIC_DIR, "docs", "tickets", filename)
+    source_file = os.path.join(settings.STATIC_DIR, "docs", "dm_tickets", filename)
     target_dir = os.path.join(settings.MEDIA_DIR, "tickets", "ticket_{}".format(ticket))
     target_file = os.path.join(target_dir, filename)
 

@@ -7,7 +7,7 @@ from . import models
 
 attr_chosen_contains = {"class": "chosen-select-contains"}
 attr_chosen = {"class": "chosen-select"}
-attr_fp_date = {"class": "fp-date", "placeholder": "Select Date.."}
+attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
 attr_fp_date_time_email = {"class": "fp-date-time green-borders", "placeholder": "Select Date and Time.."}
 

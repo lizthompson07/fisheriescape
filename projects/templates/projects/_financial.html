@@ -20,13 +20,13 @@
         <th>
             {% trans "Category" %}
         </th>
-        <th style="text-align: center">
+        <th style="text-align: center;">
             {% trans "A-base" %}
         </th>
-        <th style="text-align: center">
+        <th style="text-align: center;">
             {% trans "B-base" %}
         </th>
-        <th style="text-align: center">
+        <th style="text-align: center;">
             {% trans "C-base" %}
         </th>
         <th style="text-align: center">
@@ -39,27 +39,27 @@
             <td>
                 {% trans "Salary (excluding full time employees)" %}
             </td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ salary_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ salary_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ salary_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ abase }}">{{ salary_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ bbase }}">{{ salary_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ cbase }}">{{ salary_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
             <td style="text-align: center">{{ salary_total|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
         </tr>
         <tr>
             <td>
                 {% trans "O & M" %}
             </td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ om_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ om_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ om_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ abase }}">{{ om_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ bbase }}">{{ om_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ cbase }}">{{ om_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
             <td style="text-align: center">{{ om_total|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
         </tr>
         <tr>
             <td>
                 {% trans "Capital" %}
             </td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ abase }}"{% endif %}>{{ capital_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ bbase }}"{% endif %}>{{ capital_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
-            <td style="text-align: center" {% if not report_mode %}style="background-color: {{ cbase }}"{% endif %}>{{ capital_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ abase }}">{{ capital_abase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ bbase }}">{{ capital_bbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
+            <td style="text-align: center; background-color: {{ cbase }}">{{ capital_cbase|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
             <td style="text-align: center">{{ capital_total|floatformat:1|zero2val:na|kmark:"2,True" }}</td>
         </tr>
     {% endwith %}

@@ -146,7 +146,7 @@
         <td>
 
 
-            <h1>Travel Plan</h1>
+            <h1>Travel Request and Approval Form</h1>
             <table style="font-size: small">
                 <tr>
                     <th style="width: 100px; text-align: left"><u>Purpose of Travel</u></th>
@@ -195,35 +195,33 @@
             <th class="real center">Total Trip Amount</th>
             <th class="real center">Is the trip part of an Event?</th>
         </tr>
-        {% for event in object_list %}
-            <tr>
-                <th class="real center"></th>
-                <th class="real center">{{ forloop.counter }}</th>
-                <td class="real center">{{ event.start_date|date:"d-F" }}</td>
-                <td class="real center">{{ event.end_date|date:"d-F" }}</td>
-                <td class="real center">{{ event.departure_location }}
-                    to {{ event.destination }}</td>
-                <td class="real center">{{ event.purpose }}</td>
-                <td class="real left">{{ event.purpose_long|safe }}</td>
-                <td class="real center">{{ event.air|currency|nz:"" }}</td>
-                <td class="real center">{{ event.rail|currency|nz:"" }}</td>
-                <td class="real center">{{ event.rental_motor_vehicle|currency|nz:"" }}</td>
-                <td class="real center">{{ event.personal_motor_vehicle|currency|nz:"" }}</td>
-                <td class="real center">{{ event.taxi|currency|nz:"" }}</td>
-                <td class="real center">{{ event.other_transport|currency|nz:"" }}</td>
-                <td class="real center">{{ event.accommodations|currency|nz:"" }}</td>
-                <td class="real center">{{ event.meals|currency|nz:"" }}</td>
-                <td class="real center">{{ event.incidentals|currency|nz:"" }}</td>
-                {% with event.other|nz:0 as other %}
-                    {% with event.registration|nz:0 as reg %}
-                        <td class="real center">{{ other|add:reg|currency|zero2val:"" }}</td>
-                    {% endwith %}
+        <tr>
+            <th class="real center"></th>
+            <th class="real center">1</th>
+            <td class="real center">{{ object.start_date|date:"d-F" }}</td>
+            <td class="real center">{{ object.end_date|date:"d-F" }}</td>
+            <td class="real center">{{ object.departure_location }}
+                to {{ object.destination }}</td>
+            <td class="real center">{{ object.purpose }}</td>
+            <td class="real left">{{ object.purpose_long|safe }}</td>
+            <td class="real center">{{ object.air|currency|nz:"" }}</td>
+            <td class="real center">{{ object.rail|currency|nz:"" }}</td>
+            <td class="real center">{{ object.rental_motor_vehicle|currency|nz:"" }}</td>
+            <td class="real center">{{ object.personal_motor_vehicle|currency|nz:"" }}</td>
+            <td class="real center">{{ object.taxi|currency|nz:"" }}</td>
+            <td class="real center">{{ object.other_transport|currency|nz:"" }}</td>
+            <td class="real center">{{ object.accommodations|currency|nz:"" }}</td>
+            <td class="real center">{{ object.meals|currency|nz:"" }}</td>
+            <td class="real center">{{ object.incidentals|currency|nz:"" }}</td>
+            {% with object.other|nz:0 as other %}
+                {% with object.registration|nz:0 as reg %}
+                    <td class="real center">{{ other|add:reg|currency|zero2val:"" }}</td>
                 {% endwith %}
-                <td class="real center">{{ event.total_cost|currency|nz:"" }}</td>
-                <td class="real center">{{ event.event|yesno }}</td>
+            {% endwith %}
+            <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>
+            <td class="real center">{{ object.event|yesno }}</td>
 
-            </tr>
-        {% endfor %}
+        </tr>
         <tr>
             <td class="center wset"></td>
             <td class="center wset"></td>
@@ -249,13 +247,24 @@
             <table>
                 <tr>
                     <th class="right wide-cell">Traveller:</th>
-                    <td class="left wide-cell">______________________________________________</td>
-                    <th class="right wide-cell">Date:</th>
-                    <td class="left wide-cell">___________________</td>
+                    <td colspan="2" class="left wide-cell">
+                        {{ object.user }}
+
+                        {% if object.submitted %}
+                            (digitally signed on {{ object.submitted }})
+                        {% else %}
+                            (NOT SUBMITTED)
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <th class="right wide-cell">Expenditure Initiation approved by (Print):</th>
-                    <td class="left wide-cell" colspan="3"><u>Serge Doucet, Regional Director General, Gulf Region___</u></td>
+                    <td class="left wide-cell" colspan="3">
+                        {#                        <u>Serge Doucet, Regional Director General, Gulf Region___</u>#}
+                        {{ object.approver|nz:"n/a" }}
+                        {% if object.approver %} | Regional Director General | {{ object.approver.shared_models_regions.first }}
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <th class="right wide-cell" style="width: 500px;">Signature:</th>
@@ -269,22 +278,36 @@
             <table style="width: 50%;">
                 <tr>
                     <th class="right wide-cell">Recommended by:</th>
-                    <td class="left wide-cell">___________________________________________</td>
-                    <th class="right wide-cell">Date:</th>
-                    <td class="left wide-cell">___________________</td>
+                    <td rowspan="1" class="left wide-cell">
+                        {% if object.recommender_1_approval_status_id == 2 %}
+                            {{ object.recommender_1 }} (digitally signed on {{ object.recommender_1_approval_date }})
+                        {% else %}
+                            ___________________________________________
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="right wide-cell">Recommended by:</th>
+                    <td rowspan="1" class="left wide-cell">
+                        {% if object.recommender_2_approval_status_id == 2 %}
+                            {{ object.recommender_2 }} (digitally signed on {{ object.recommender_2_approval_date }})
+                        {% else %}
+                            ___________________________________________
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <th class="right wide-cell">Recommended by:</th>
-                    <td class="left wide-cell">___________________________________________</td>
-                    <th class="right wide-cell">Date:</th>
-                    <td class="left wide-cell">___________________</td>
+                    <td rowspan="1" class="left wide-cell">
+                        {% if object.recommender_3_approval_status_id == 2 %}
+                            {{ object.recommender_3 }} (digitally signed on {{ object.recommender_3_approval_date }})
+                        {% else %}
+                            ___________________________________________
+                        {% endif %}
+                    </td>
                 </tr>
-                <tr>
-                    <th class="right wide-cell" style="width: 500px;">Recommended by:</th>
-                    <td class="left wide-cell" style="width: 500px;">___________________________________________</td>
-                    <th class="right wide-cell" style="width: 50px;">Date:</th>
-                    <td class="left wide-cell" style="width: 200px;">___________________</td>
-                </tr>
+
             </table>
         </td>
     </table>
