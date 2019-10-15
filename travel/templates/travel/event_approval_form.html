@@ -29,30 +29,14 @@
             <a class="btn btn-warning " href="{% url 'travel:event_print' object.id %}">
                 Travel Plan <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
             </a>
+            <a class="btn btn-dark " href="{% url 'travel:event_detail' object.id %}">
+                Trip Detail Page
+            </a>
         </div>
-        <h1>Trip Approval Form</h1>
+        {#        <h1>Trip Approval Form</h1>#}
+        <h1>Do you wish to approve the following trip?</h1>
         <br>
-        <div class="row">
-            <div class="col">
-                <h3>
-                    Details:
-                </h3>
-
-                <table class="table table-sm">
-                    {% for field in field_list %}
-                        {% verbose_td_display object field format="currency" %}
-                    {% endfor %}
-
-                </table>
-
-            </div>
-        </div>
-        <br><br>
-        <hr>
-
-
         <form method="post" class="form">
-            <h1>Do you wish to approve the above trip?</h1>
             {% csrf_token %}
             {% for field in form %}
                 {% bootstrap_field field placeholder="" %}
@@ -75,6 +59,26 @@
                 <input type="submit" class="hidden">
             </div>
         </form>
+        <br><br>
+
+        <div class="row">
+            <div class="col">
+                <h3>
+                    Details:
+                </h3>
+
+                <table class="table table-sm">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field format="currency" th_width="30%" %}
+                    {% endfor %}
+
+                </table>
+
+            </div>
+        </div>
+        <br><br>
+        <hr>
+
 
     </div>
     <br><br><br>
