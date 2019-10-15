@@ -59,7 +59,7 @@ def get_verbose_label(instance, field_name):
 
 
 @register.simple_tag
-def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="n/a"):
+def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="---", date_format="%Y-%m-%d"):
     """
     Returns verbose_name for a field.
     To return a field from a foreign key, send in the field name as such: "user.first_name".
@@ -97,11 +97,13 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
 
             # check to see if it is a datefield
             elif field_instance.get_internal_type() == 'DateTimeField':
+                if not date_format:
+                    date_format = "%Y-%m-%d"
                 datetime_obj = getattr(instance, field_name)
                 if display_time:
-                    field_value = datetime_obj.strftime('%Y-%m-%d %H:%M')
+                    field_value = datetime_obj.strftime('{} %H:%M'.format(date_format))
                 else:
-                    field_value = datetime_obj.strftime('%Y-%m-%d')
+                    field_value = datetime_obj.strftime(date_format)
 
             # check to see if it is a url
             elif str(getattr(instance, field_name)).startswith("http"):
@@ -130,7 +132,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
 
 
 @register.simple_tag
-def verbose_field_display(instance, field_name, format=None, display_time=False, url=None):
+def verbose_field_display(instance, field_name, format=None, display_time=False, url=None, date_format=None):
     """
     Returns a standard display block for a field based on the verbose fieldname
     """
@@ -139,7 +141,7 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
     verbose_name = get_verbose_label(instance, field_name)
 
     # call on the get_field_value func to handle field value prep
-    field_value = get_field_value(instance, field_name, format, display_time)
+    field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format)
 
     if url and field_value != "n/a":
         html_block = '<p><span class="label">{}:</span><br><a href="{}">{}</a></p>'.format(verbose_name, url, field_value)
@@ -150,20 +152,24 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
 
 
 @register.simple_tag
-def verbose_td_display(instance, field_name, format=None, display_time=False, url=None):
+def verbose_td_display(instance, field_name, format=None, display_time=False, url=None, date_format=None, nullmark="---", th_width=None,
+                       td_width=None):
     """
     returns a table row <tr> with a <td> for the label and a <td> for the value. Call this from within a <table>
     """
-
     # call on the get_verbose_label func to handle label prep
     verbose_name = get_verbose_label(instance, field_name)
 
     # call on the get_field_value func to handle field value prep
-    field_value = get_field_value(instance, field_name, format, display_time)
+    field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format,
+                                  nullmark=nullmark)
+
+    th_tag_opener = '<th style="width: {};">'.format(th_width) if th_width else '<th>'
+    td_tag_opener = '<td style="width: {};">'.format(td_width) if td_width else '<td>'
 
     if url and field_value != "n/a":
-        html_block = '<tr><th>{}</th><td><a href="{}">{}</a></td></tr>'.format(verbose_name, url, field_value)
+        html_block = '<tr>{}{}</th>{}<a href="{}">{}</a></td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, url, field_value)
     else:
-        html_block = '<tr><th>{}</th><td>{}</td></tr>'.format(verbose_name, field_value)
+        html_block = '<tr>{}{}</th>{}{}</td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, field_value)
 
     return SafeString(html_block)

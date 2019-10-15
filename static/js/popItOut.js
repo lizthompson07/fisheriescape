@@ -12,8 +12,8 @@ function popitup(url, windowName, hgt = 500, wdt = 500, top = 50, left = 200) {
 
 $("a").click(function functionName() {
     if ($(this)[0].hasAttribute("pop-href")) {
-        var t = new Date();
+        // var t = new Date();
         href = $(this)[0].getAttribute("pop-href");
-        popitup(href, 'popoutWindow' + t.getMinutes() + t.getSeconds());
+        popitup(href, 'popoutWindow'  + Date.now());
     }
 });
