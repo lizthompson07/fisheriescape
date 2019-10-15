@@ -37,6 +37,7 @@ class EventForm(forms.ModelForm):
             "approver_approval_status",
             "waiting_on",
             "submitted",
+            "status",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),

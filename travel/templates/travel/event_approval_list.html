@@ -74,8 +74,8 @@
                     {% for object in object_list %}
                         {% url 'travel:event_approve' object.id as my_approval_url %}
                         {% url 'travel:event_detail' object.id as my_detail_url %}
-                        <tr href="{% if object.submitted %}{{my_approval_url}}{% else %}{{ my_detail_url }}{% endif %}" style="background-color: {{ object.color }}">
-                        <td class="red-font"><b>{{ object.submitted|yesno:",DRAFT" }}</b></td>
+                        <tr href="{% if object.status_id != 8  %}{{my_approval_url}}{% else %}{{ my_detail_url }}{% endif %}">
+                        <td style="background-color: {{ object.status.color }}"><b>{{ object.status }}</b></td>
                             {% for field in field_list %}
                                 <td>{% get_field_value object field format="currency" %}</td>
                             {% endfor %}
