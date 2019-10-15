@@ -230,7 +230,26 @@ class ProjectDetailView(DetailView):
         context["has_admin"] = "publications_admin" in [v for k,v in self.request.user.groups.all().values_list()]
         context["coordinates"] = models.GeoCoordinate.objects.filter(project__id=project.id)
         context["divisions"] = shared_models.Division.objects.filter(project__id=project.id)
-        print(str(context["divisions"]))
+
+        if len(context["coordinates"]) == 1:
+            context["center"] = {
+                "lat": context["coordinates"][0].north_south,
+                "lon": context["coordinates"][0].east_west
+            }
+        elif len(context["coordinates"]) > 2:
+            lat = 0;
+            lon = 0;
+            for i in range(0, len(context["coordinates"])):
+                cor = context["coordinates"][i]
+                lat = lat + cor.north_south
+                lon = lon + cor.east_west
+            context["center"] = {
+                "lat": (lat/len(context["coordinates"])),
+                "lon": (lon/len(context["coordinates"]))
+            }
+        else:
+            context["center"] = {"lat": 44.0, "lon": -60.0}
+
         context["abstract"] = [
             'abstract',
             'method'
@@ -359,6 +378,18 @@ class ProjectDetailView(DetailView):
             'sustainability_pillar',
             'program_linkage',
         ]
+
+        if models.GeographicScope.objects.filter(project__id=project.id):
+            geo = models.GeographicScope.objects.filter(project__id=project.id)
+            context["polygon"] = []
+            for g in geo:
+                poly_points = models.Polygon.objects.filter(geoscope=g)
+                if len(poly_points) > 0:
+                    poly = []
+                    for point in poly_points:
+                        poly.append(point)
+                        print(str(poly))
+                    context["polygon"].append(poly)
 
         return context
 
