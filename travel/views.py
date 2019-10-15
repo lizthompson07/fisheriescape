@@ -106,6 +106,9 @@ event_field_list = [
     'destination',
     'start_date',
     'end_date',
+    'event',
+    'registered_event',
+
 
     # purpose
     'role',
@@ -117,7 +120,6 @@ event_field_list = [
     'multiple_conferences_rationale',
     'multiple_attendee_rationale',
     'bta_attendees',
-
     'notes',
 
     # costs

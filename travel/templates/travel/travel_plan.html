@@ -146,7 +146,7 @@
         <td>
 
 
-            <h1>Travel Plan</h1>
+            <h1>Travel Request and Approval Form</h1>
             <table style="font-size: small">
                 <tr>
                     <th style="width: 100px; text-align: left"><u>Purpose of Travel</u></th>
@@ -247,11 +247,11 @@
             <table>
                 <tr>
                     <th class="right wide-cell">Traveller:</th>
-                    <td class="left wide-cell">
+                    <td colspan="2" class="left wide-cell">
                         {{ object.user }}
 
                         {% if object.submitted %}
-                            on {{ object.submitted }}
+                            (digitally signed on {{ object.submitted }})
                         {% else %}
                             (NOT SUBMITTED)
                         {% endif %}
@@ -278,9 +278,9 @@
             <table style="width: 50%;">
                 <tr>
                     <th class="right wide-cell">Recommended by:</th>
-                    <td class="left wide-cell">
+                    <td rowspan="1" class="left wide-cell">
                         {% if object.recommender_1_approval_status_id == 2 %}
-                            {{ object.recommender_1 }} on {{ object.recommender_1_approval_date }}
+                            {{ object.recommender_1 }} (digitally signed on {{ object.recommender_1_approval_date }})
                         {% else %}
                             ___________________________________________
                         {% endif %}
@@ -289,9 +289,9 @@
 
                 <tr>
                     <th class="right wide-cell">Recommended by:</th>
-                    <td class="left wide-cell">
+                    <td rowspan="1" class="left wide-cell">
                         {% if object.recommender_2_approval_status_id == 2 %}
-                            {{ object.recommender_2 }} on {{ object.recommender_2_approval_date }}
+                            {{ object.recommender_2 }} (digitally signed on {{ object.recommender_2_approval_date }})
                         {% else %}
                             ___________________________________________
                         {% endif %}
@@ -299,9 +299,9 @@
                 </tr>
                 <tr>
                     <th class="right wide-cell">Recommended by:</th>
-                    <td class="left wide-cell">
+                    <td rowspan="1" class="left wide-cell">
                         {% if object.recommender_3_approval_status_id == 2 %}
-                            {{ object.recommender_3 }} on {{ object.recommender_3_approval_date }}
+                            {{ object.recommender_3 }} (digitally signed on {{ object.recommender_3_approval_date }})
                         {% else %}
                             ___________________________________________
                         {% endif %}
