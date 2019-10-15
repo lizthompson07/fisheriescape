@@ -1,12 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 import os
 from django.utils.translation import gettext_lazy as _
 
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
@@ -65,9 +66,10 @@ class FundingPurpose(models.Model):
 class Entry(models.Model):
     # basic
     title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
+    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
                                            limit_choices_to={'grouping__is_indigenous': True})
-    initial_date = models.DateTimeField(verbose_name=_("initial date"))
+    initial_date = models.DateTimeField(verbose_name=_("initial activity date"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
     sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
@@ -77,14 +79,14 @@ class Entry(models.Model):
 
     # funding
     fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
-    funding_needed = models.NullBooleanField(verbose_name=_("is funding needed"))
+    funding_needed = models.NullBooleanField(verbose_name=_("is funding needed?"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding purpose"), related_name="entries")
-    amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("Funding Requested"))  # title case needed
+    amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("funding requested"))  # title case needed
     amount_approved = models.FloatField(blank=True, null=True, verbose_name=_("funding approved"))
     amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("amount transferred"))
     amount_lapsed = models.FloatField(blank=True, null=True, verbose_name=_("amount lapsed"))
-    amount_owing = models.NullBooleanField(verbose_name=_("Does any funding need to be recovered"))
+    amount_owing = models.NullBooleanField(verbose_name=_("does any funding need to be recovered?"))
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -111,6 +113,22 @@ class Entry(models.Model):
     def amount_outstanding(self):
         return nz(self.amount_approved, 0) - nz(self.amount_transferred, 0) - nz(self.amount_lapsed, 0)
 
+    @property
+    def followups(self):
+        return self.notes.filter(type=4)
+
+    @property
+    def other_notes(self):
+        return self.notes.filter(~Q(type=4))
+
+    @property
+    def orgs_str(self):
+        return listrify([org for org in self.organizations.all()])
+
+    @property
+    def sectors_str(self):
+        return listrify([sec for sec in self.sectors.all()])
+
 
 class EntryPerson(models.Model):
     # Choices for role
@@ -127,10 +145,23 @@ class EntryPerson(models.Model):
     role = models.IntegerField(choices=ROLE_CHOICES, blank=True, null=True, verbose_name=_("role"))
 
     def __str__(self):
-        if self.user:
-            return "{} {}".format(self.user.first_name, self.user.last_name)
-        else:
-            return "{}".format(self.name)
+        # get the name; keep in mind this might be NoneObject
+        name = "{} {}".format(self.user.first_name, self.user.last_name) if self.user else self.name
+        org = self.organization
+        role = self.get_role_display() if self.role else None
+
+        my_str = name if name else None
+
+        if org:
+            if my_str:
+                my_str += " ({})".format(org)
+            else:
+                my_str = org
+
+        if my_str and role:
+            my_str = "{}: {}".format(role.upper(), my_str)
+
+        return my_str
 
     class Meta:
         ordering = ['role', 'user__first_name', "user__last_name"]
@@ -141,10 +172,12 @@ class EntryNote(models.Model):
     ACTION = 1
     NEXTSTEP = 2
     COMMENT = 3
+    FOLLOWUP = 4
     TYPE_CHOICES = (
         (ACTION, 'Action'),
         (NEXTSTEP, 'Next step'),
         (COMMENT, 'Comment'),
+        (FOLLOWUP, 'Follow-up (*)'),
     )
 
     entry = models.ForeignKey(Entry, related_name='notes', on_delete=models.CASCADE)
@@ -155,7 +188,15 @@ class EntryNote(models.Model):
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"))
 
     def __str__(self):
-        return str(self.id)
+        my_str = "{} - {} [STATUS: {}] (Created by {} {} on {})".format(
+            self.get_type_display().upper(),
+            self.note,
+            self.status,
+            self.author.first_name,
+            self.author.last_name,
+            self.date.strftime("%Y-%m-%d"),
+        )
+        return my_str
 
     class Meta:
         ordering = ["-date"]

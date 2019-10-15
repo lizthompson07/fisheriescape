@@ -24,6 +24,7 @@ class Profile(models.Model):
     language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=False,
                                 verbose_name=_("Section"))
+    retired = models.BooleanField(default=False)
 
     def __str__(self):
         return "{}, {}".format(self.user.last_name, self.user.first_name)
