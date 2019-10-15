@@ -50,9 +50,12 @@
         <div class="row">
             <div class="col-8">
                 <div><span class="label">{% trans "Year" %}:</span> {{ object.year }}</div>
-                {% for coord in coordinates %}
-                    <div><span class="label">{% trans "Location" %}:</span> {{ coord }} </div>
-                {% endfor %}
+                {% if coordinates %}
+                    <div><span class="label">{% trans "Location" %}:</span>
+                        {% for coord in coordinates %}
+                            {{coord}}
+                        {% endfor %}</div>
+                {% endif %}
                 {% for div in divisions %}
                     <div><span class="label">{% trans "Division" %}:</span> {{ div }} </div>
                 {% endfor %}
@@ -158,7 +161,11 @@
             var mapElement = document.getElementById('map');
             var map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 4,
+                {% if center %}
+                center: {lat: {{center.lat}}, lng: {{center.lon}} },
+                {% else %}
                 center: {lat: 24.886, lng: -70.268},
+                {% endif %}
                 mapTypeId: 'terrain'
             });
             var iw = new google.maps.InfoWindow();
@@ -171,23 +178,24 @@
             });
 
             // Define the LatLng coordinates for the polygon's path.
-            var triangleCoords = [
-              {lat: 25.774, lng: -80.190},
-              {lat: 18.466, lng: -66.118},
-              {lat: 32.321, lng: -64.757},
-              {lat: 25.774, lng: -80.190}
+            {% for poly in polygon %}
+            var shape_coord = [
+                {% for point in poly %}
+                    {lat: {{point.latitude}}, lng: {{point.longitude}} },
+                {% endfor %}
             ];
 
             // Construct the polygon.
-            var bermudaTriangle = new google.maps.Polygon({
-              paths: triangleCoords,
+            var shape = new google.maps.Polygon({
+              paths: shape_coord,
               strokeColor: '#FF0000',
               strokeOpacity: 0.8,
               strokeWeight: 2,
               fillColor: '#FF0000',
               fillOpacity: 0.35
             });
-            bermudaTriangle.setMap(map);
+            shape.setMap(map);
+            {% endfor %}
 
         }
 
