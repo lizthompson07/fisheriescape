@@ -31,6 +31,11 @@
         </h1>
         <br>
         <form method="post" class="form">
+            <p>
+                <button id="submit" type="submit" class="btn btn-primary">Save</button>
+                <a class="btn btn-secondary" href="{% url 'ihub:index' %}">Back</a>
+            </p>
+
             {% csrf_token %}
 
             {{ formset.management_form }}
@@ -41,7 +46,7 @@
                     {{ form.instance.name_eng }}
                 </h3>
 
-{#                #}
+                {#                #}
                 <div class="row">
 
                     <div class="col">
@@ -75,7 +80,7 @@
                     </div>
                     <div class="col">
                         {% for field in form %}
-                            {% if field.name == "notes" or field.name == "grouping" or field.name == "nation" or field.name == "id"%}
+                            {% if field.name == "notes" or field.name == "grouping" or field.name == "nation" or field.name == "id" %}
                                 {% bootstrap_field field size='small' placeholder="" %}
                             {% endif %}
                         {% endfor %}

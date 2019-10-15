@@ -1,5 +1,9 @@
+import os
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from textile import textile
@@ -23,7 +27,13 @@ class BudgetCode(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name"))
 
     def __str__(self):
-        return "{} ({})".format(self.code, self.name)
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['code', ]
@@ -34,7 +44,13 @@ class Program(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
@@ -56,14 +72,15 @@ class Tag(models.Model):
     class Meta:
         ordering = [_('name'), ]
 
+
 # This model will eventually be renamed once we get rid on the original Program table
 class Program2(models.Model):
-    national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True)
-    national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True)
-    program_inventory = models.CharField(max_length=255, blank=True, null=True)
+    national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (English)")
+    national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (French)")
+    program_inventory = models.CharField(max_length=255, blank=True, null=True, verbose_name="program inventory")
     funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
-    regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True)
-    regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True)
+    regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (English)")
+    regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (French)")
     examples = models.CharField(max_length=255, blank=True, null=True)
 
     @property
@@ -108,18 +125,54 @@ class Program2(models.Model):
             return "{}".format(my_str)
 
     class Meta:
-        ordering = [_("national_responsibility_eng"), _("regional_program_name_eng") ]
+        ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
 
 
 class Status(models.Model):
+    # choices for used_for
+    PROJECT = 1
+    REPORTS = 2
+    MILESTONES = 3
+    USED_FOR_CHOICES = (
+        (PROJECT, "Projects"),
+        (REPORTS, "Status reports"),
+        (MILESTONES, "Milestones"),
+    )
+
+    used_for = models.IntegerField(choices=USED_FOR_CHOICES)
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True)
+    color = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ['used_for', 'order', 'name', ]
+
+
+class HelpText(models.Model):
+    field_name = models.CharField(max_length=255)
+    eng_text = models.TextField(verbose_name=_("English text"))
+    fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("eng_text"))):
+            return "{}".format(getattr(self, str(_("eng_text"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.eng_text)
+
+    class Meta:
+        ordering = ['field_name', ]
 
 
 class Project(models.Model):
@@ -143,8 +196,8 @@ class Project(models.Model):
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                                 verbose_name=_("section"))
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("old program (retired field)"))
-    programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("linkage to Science programs"))
-    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"))
+    programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("linkage to Science programs"), related_name="projects")
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
     # coding
     responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
@@ -159,7 +212,7 @@ class Project(models.Model):
     is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
     is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or non-negotiable?"), choices=is_negotiable_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
-                               verbose_name=_("project status"))
+                               verbose_name=_("project status"), limit_choices_to={"used_for": 1})
     is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding competitive?"))
     is_approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
@@ -226,6 +279,8 @@ class Project(models.Model):
     rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
     rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
 
+    is_hidden = models.NullBooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
+
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
@@ -275,9 +330,16 @@ class EmployeeType(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
     cost_type = models.IntegerField(choices=COST_TYPE_CHOICES)
+    exclude_from_rollup = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
 
 class Level(models.Model):
@@ -296,7 +358,13 @@ class FundingSource(models.Model):
     color = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
@@ -335,6 +403,7 @@ class Staff(models.Model):
 
     class Meta:
         ordering = ['employee_type', 'level']
+        unique_together = [('project', 'user'), ]
 
 
 class Collaborator(models.Model):
@@ -466,3 +535,136 @@ class GCCost(models.Model):
 
     class Meta:
         ordering = ['recipient_org', ]
+
+
+def file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'projects/project_{0}/{1}'.format(instance.project.id, filename)
+
+
+class File(models.Model):
+    # choices for reference
+    CORE = 1
+    STATUS_REPORT = 2
+    CHOICES_FOR_REFERENCE = (
+        (CORE, _("Core project")),
+        (STATUS_REPORT, _("Status report")),
+    )
+    project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, verbose_name=_("resource name"))
+    file = models.FileField(upload_to=file_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
+    external_url = models.URLField(blank=True, null=True, verbose_name=_("external URL"))
+    status_report = models.ForeignKey("StatusReport", related_name="files", on_delete=models.CASCADE, blank=True, null=True)
+    date_created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['project', 'status_report', 'name']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def ref(self):
+        return self.status_report if self.status_report else "Core project"
+
+
+@receiver(models.signals.post_delete, sender=File)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=File)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = File.objects.get(pk=instance.pk).file
+    except File.DoesNotExist:
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
+class Milestone(models.Model):
+    project = models.ForeignKey(Project, related_name="milestones", on_delete=models.CASCADE)
+    name = models.CharField(max_length=500, verbose_name=_("name"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    class Meta:
+        ordering = ['project', 'name']
+
+    def __str__(self):
+        # what is the number of this report?
+        return "{}".format(self.name)
+
+    @property
+    def latest_update(self):
+        return self.updates.first()
+
+
+class StatusReport(models.Model):
+    project = models.ForeignKey(Project, related_name="reports", on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, related_name="reports", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 2})
+    major_accomplishments = models.TextField(blank=True, null=True,
+                                             verbose_name=_(
+                                                 "major accomplishments (this can be left blank if reported at the milestone level)"))
+    major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
+    target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
+    rationale_for_modified_completion_date = models.TextField(blank=True, null=True,
+                                                              verbose_name=_("rationale for a modified completion date"))
+    general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
+    section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
+    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"))
+
+    date_created = models.DateTimeField(default=timezone.now, verbose_name=_("date created"))
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"))
+
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['date_created']
+
+    @property
+    def report_number(self):
+        return [report for report in self.project.reports.order_by("date_created")].index(self) + 1
+
+    def __str__(self):
+        # what is the number of this report?
+        return "{}{}".format(
+            _("Status Report #"),
+            self.report_number,
+        )
+
+
+class MilestoneUpdate(models.Model):
+    milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
+    status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, related_name="updates", on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3}, default=9)
+    notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
+
+    class Meta:
+        ordering = ['-status_report', 'status']
+        unique_together = [('milestone', 'status_report'), ]
+
+    def __str__(self):
+        # what is the number of this report?
+        return "{} {}".format(
+            _("Update on "),
+            self.milestone,
+        )
