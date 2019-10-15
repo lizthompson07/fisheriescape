@@ -36,11 +36,11 @@
             <a class="btn btn-danger " href="{% url 'travel:event_delete' object.id %}">
                 Delete
             </a>
-            <a class="btn btn-dark" href="{% url 'travel:event_print' object.id %}">
-                Print Travel Plan
+            <a class="btn btn-dark" href="{% url 'travel:event_print' object.id %}" data-toggle="tooltip" title="">
+                Print Travel Form
             </a>
             <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
-                Use as template
+                Use as Template
             </a>
             <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %}" href="{% url 'travel:event_submit' object.id %}">
                 {% if object.submitted %}Un-submit {% else %} Submit {% endif %}
