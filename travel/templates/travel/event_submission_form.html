@@ -42,27 +42,6 @@
                 Do you wish to {% if object.submitted %} un-submit {% else %} submit {% endif %} the following trip?
             </b>
         </h1>
-
-        <br>
-        <div class="row">
-            <div class="col">
-                <h3>
-                    Details:
-                </h3>
-
-                <table class="table table-sm">
-                    {% for field in field_list %}
-                        {% verbose_td_display object field format="currency" %}
-                    {% endfor %}
-
-                </table>
-
-            </div>
-        </div>
-        <br><br>
-        <hr>
-
-
         <form method="post" class="form">
             {% csrf_token %}
             {% for field in form %}
@@ -80,6 +59,26 @@
                 </a>
             </div>
         </form>
+
+        <br>
+        <div class="row">
+            <div class="col">
+                <h3>
+                    Details:
+                </h3>
+
+                <table class="table table-sm">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field format="currency" th_width="30%" %}
+                    {% endfor %}
+
+                </table>
+
+            </div>
+        </div>
+        <br><br>
+        <hr>
+
 
     </div>
     <br><br><br>

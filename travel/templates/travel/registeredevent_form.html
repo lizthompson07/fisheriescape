@@ -9,7 +9,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Trips</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:revent_list' %}">Registered Events</a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'travel:event_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
@@ -33,26 +33,8 @@
 
         <form method="post" class="form">
             {% csrf_token %}
-
             {% for field in form %}
-                {% if field.name == "registered_event" %}
-                    {% bootstrap_field field placeholder="" %}
-
-                    <div id="new_event_container">
-                        (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
-                        <br><br>
-                    </div>
-
-                {% else %}
-
-                    {% bootstrap_field field placeholder="" %}
-                {% endif %}
-            {% endfor %}
-
-            {% for field in form %}
-
-
-
+                {% bootstrap_field field placeholder="" %}
 
             {% endfor %}
 
@@ -87,15 +69,13 @@
             $("#id_email").val(userObj[myId]["email"]);
         }
 
-
+        
         function refreshRegisteredEvent() {
-            if ($("#id_event").val() == "False") {
-                $("#id_registered_event").val("");
-                $("#id_registered_event").prop("disabled", true);
-                $("#new_event_container").addClass("hidden")
+            if($("#id_event").val() == "False") {
+               $("#id_registered_event").val("");
+               $("#id_registered_event").prop("disabled",true);
             } else {
-                $("#id_registered_event").prop("disabled", false);
-                $("#new_event_container").removeClass("hidden")
+               $("#id_registered_event").prop("disabled",false);
             }
         }
 
@@ -123,10 +103,6 @@
             refreshRegisteredEvent();
         });
 
-        $("#new_event").click(function () {
-            $("#id_stay_on_page").val(1);
-            $("form").submit();
-        })
 
     </script>
 {% endblock %}

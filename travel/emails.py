@@ -3,6 +3,32 @@ from django.template import loader
 from_email = 'DoNotReply@DMApps.com'
 
 
+class NewEventEmail:
+    def __init__(self, event):
+        self.event = event
+        self.subject = 'Somebody registered a new event'
+        self.message = self.load_html_template()
+        self.from_email = from_email
+        self.to_list = ["Amelie.Robichaud@dfo-mpo.gc.ca", ]
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
+    def load_html_template(self):
+        t = loader.get_template('travel/email_new_event.html')
+        field_list = [
+            'name',
+            'nom',
+            'number',
+            'start_date',
+            'end_date',
+        ]
+        print(self.event)
+        context = {'event': self.event, 'field_list': field_list}
+        rendered = t.render(context)
+        return rendered
+
+
 class ApprovalAwaitingEmail:
     def __init__(self, event, approver_field_name):
         user = getattr(event, approver_field_name)
