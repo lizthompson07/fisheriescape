@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
 from django.core.mail import send_mail
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -120,7 +121,7 @@ class RegisteredEvent(models.Model):
     def bta_traveller_list(self):
         # create a list of all TMS users going
         travellers = []
-        for trip in self.trips.all():
+        for trip in self.trips.filter(~Q(status_id=10)):
             # lets look at the list of BTA travels and add them all
             for bta_user in trip.bta_attendees.all():
                 travellers.append(bta_user)
@@ -129,7 +130,7 @@ class RegisteredEvent(models.Model):
 
     @property
     def traveller_list(self):
-        return list(set([trip.user for trip in self.trips.all()]))
+        return list(set([trip.user for trip in self.trips.filter(~Q(status_id=10))]))
 
     @property
     def total_traveller_list(self):
@@ -229,6 +230,9 @@ class Event(models.Model):
     approver_approval_date = models.DateTimeField(verbose_name=_("expenditure initiation approval date"), blank=True, null=True)
     waiting_on = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="waiting_on_trips", verbose_name=_("Waiting on"),
                                    blank=True, null=True)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
+                                                 limit_choices_to={"used_for": 2}, verbose_name=_("Trip approval status"),
+                                                 blank=True, null=True)
 
     def __str__(self):
         return "{}".format(self.trip_title)
@@ -248,7 +252,7 @@ class Event(models.Model):
 
         # run the approval seeker function
         self.approval_seeker()
-
+        self.set_trip_status()
         return super().save(*args, **kwargs)
 
     @property
@@ -414,3 +418,22 @@ class Event(models.Model):
             self.recommender_3_approval_date = None
             self.approver_approval_date = None
             self.waiting_on = None
+
+    def set_trip_status(self):
+        # if someone denied it at any point, the trip is 'denied'
+        if self.recommender_1_approval_status_id == 3 or \
+                self.recommender_2_approval_status_id == 3 or \
+                self.recommender_3_approval_status_id == 3 or \
+                self.approver_approval_status_id == 3:
+            self.status_id = 10
+        else:
+            # if approved by the approver, the trip is 'approved'
+            if self.approver_approval_status_id == 2:
+                self.status_id = 11
+            else:
+                # otherwise, it is either submitted or draft..
+                if self.submitted:
+                    self.status_id = 9
+                else:
+                    self.status_id = 8
+

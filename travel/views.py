@@ -95,6 +95,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
 event_field_list = [
     'fiscal_year',
+    'status',
     'user',
     'section',
     'first_name',
@@ -160,6 +161,7 @@ class EventListView(TravelAccessRequiredMixin, FilterView):
         context["my_object"] = models.Event.objects.first()
         context["field_list"] = [
             'fiscal_year',
+            'status',
             'section',
             'first_name',
             'last_name',
@@ -273,9 +275,9 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_1_approval_status_id = 2
             else:
                 my_event.recommender_1_approval_status_id = 3
-                my_event.recommender_2 = None
-                my_event.recommender_3 = None
-                my_event.approver = None
+                # my_event.recommender_2 = None
+                # my_event.recommender_3 = None
+                # my_event.approver = None
                 my_event.recommender_2_approval_status_id = 5
                 my_event.recommender_3_approval_status_id = 5
                 my_event.approver_approval_status_id = 5
@@ -286,8 +288,8 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_2_approval_status_id = 2
             else:
                 my_event.recommender_2_approval_status_id = 3
-                my_event.recommender_3 = None
-                my_event.approver = None
+                # my_event.recommender_3 = None
+                # my_event.approver = None
                 my_event.recommender_3_approval_status_id = 5
                 my_event.approver_approval_status_id = 5
 
@@ -297,7 +299,7 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_3_approval_status_id = 2
             else:
                 my_event.recommender_3_approval_status_id = 3
-                my_event.approver = None
+                # my_event.approver = None
                 my_event.approver_approval_status_id = 5
 
         if my_event.approver == self.request.user:
