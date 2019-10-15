@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -95,7 +95,7 @@ class Status(models.Model):
 
 
 class RegisteredEvent(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255, blank=True, null=True)
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
     start_date = models.DateTimeField(verbose_name=_("start date of event"))
@@ -112,6 +112,34 @@ class RegisteredEvent(models.Model):
 
     class Meta:
         ordering = ['number', ]
+
+    def get_absolute_url(self):
+        return reverse('travel:revent_detail', kwargs={'pk': self.id})
+
+    @property
+    def bta_traveller_list(self):
+        # create a list of all TMS users going
+        travellers = []
+        for trip in self.trips.all():
+            # lets look at the list of BTA travels and add them all
+            for bta_user in trip.bta_attendees.all():
+                travellers.append(bta_user)
+        # return a set of all users
+        return list(set(travellers))
+
+    @property
+    def traveller_list(self):
+        return list(set([trip.user for trip in self.trips.all()]))
+
+    @property
+    def total_traveller_list(self):
+        travellers = self.bta_traveller_list
+        travellers.extend(self.traveller_list)
+        return list(set(travellers))
+
+    @property
+    def travellers(self):
+        return listrify(self.total_traveller_list)
 
 
 class Event(models.Model):
@@ -136,7 +164,7 @@ class Event(models.Model):
     end_date = models.DateTimeField(verbose_name=_("end date of travel"))
     event = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a registered event"))
     registered_event = models.ForeignKey(RegisteredEvent, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                         verbose_name=_("registered event"))
+                                         verbose_name=_("registered event"), related_name="trips")
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
@@ -184,17 +212,17 @@ class Event(models.Model):
 
     recommender_1_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec1_trips",
                                                       limit_choices_to={"used_for": 1}, verbose_name=_("recommender 1 approval status"),
-                                                      default=1)
+                                                      default=4)
 
     recommender_2_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec2_trips",
                                                       limit_choices_to={"used_for": 1}, verbose_name=_("recommender 2 approval status"),
-                                                      default=1)
+                                                      default=4)
     recommender_3_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec3_trips",
                                                       limit_choices_to={"used_for": 1}, verbose_name=_("recommender 3 approval status"),
-                                                      default=1)
+                                                      default=4)
     approver_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="approver_trips",
                                                  limit_choices_to={"used_for": 1}, verbose_name=_("expenditure initiation approval status"),
-                                                      default=1)
+                                                 default=4)
     recommender_1_approval_date = models.DateTimeField(verbose_name=_("recommender 1 approval date"), blank=True, null=True)
     recommender_2_approval_date = models.DateTimeField(verbose_name=_("recommender 2 approval date"), blank=True, null=True)
     recommender_3_approval_date = models.DateTimeField(verbose_name=_("recommender 3 approval date"), blank=True, null=True)
@@ -217,9 +245,10 @@ class Event(models.Model):
             self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.meals, 0) + nz(self.incidentals, 0) + nz(
             self.other, 0) + nz(self.registration, 0)
         self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
-        if self.submitted:
-            # run the approval seeker function
-            self.approval_seeker()
+
+        # run the approval seeker function
+        self.approval_seeker()
+
         return super().save(*args, **kwargs)
 
     @property
@@ -288,7 +317,7 @@ class Event(models.Model):
     def get_status_str(self, approver):
         if getattr(self, approver):
             my_status = getattr(self, approver + "_approval_status")
-            if my_status.id == 1:
+            if my_status.id in [1, 4, 5]:
                 status = "{}".format(
                     my_status
                 )
@@ -306,7 +335,6 @@ class Event(models.Model):
             )
         else:
             my_str = "n/a"
-        print(my_str)
         return mark_safe(my_str)
 
     @property
@@ -328,40 +356,61 @@ class Event(models.Model):
     def approval_seeker(self):
         from . import emails
 
-        # check to see if recommender 1 has reviewed the trip
-        my_email = None
-        if not self.recommender_1_approval_date:
-            # we need to get approval and need to set recommender 1 as who we are waiting on
-            self.waiting_on = self.recommender_1
-            # build email to recommender 1
-            my_email = emails.ApprovalAwaitingEmail(self, "recommender_1")
+        if self.submitted:
+            # make sure the statuses are changed from 4 to 1
+            if self.recommender_1_approval_status_id == 4:
+                self.recommender_1_approval_status_id = 1
+            if self.recommender_2_approval_status_id == 4:
+                self.recommender_2_approval_status_id = 1
+            if self.recommender_3_approval_status_id == 4:
+                self.recommender_3_approval_status_id = 1
+            if self.approver_approval_status_id == 4:
+                self.approver_approval_status_id = 1
 
-        else:
-            if self.recommender_2 and not self.recommender_2_approval_date:
-                # we need to get approval and need to set recommender 2 as who we are waiting on
-                self.waiting_on = self.recommender_2
-                # build email to recommender 2
-                my_email = emails.ApprovalAwaitingEmail(self, "recommender_2")
+            # check to see if recommender 1 has reviewed the trip
+            my_email = None
+            if not self.recommender_1_approval_date:
+                # we need to get approval and need to set recommender 1 as who we are waiting on
+                self.waiting_on = self.recommender_1
+                # build email to recommender 1
+                my_email = emails.ApprovalAwaitingEmail(self, "recommender_1")
 
             else:
-                if self.recommender_3 and not self.recommender_3_approval_date:
-                    # we need to get approval and need to set recommender 3 as who we are waiting on
-                    self.waiting_on = self.recommender_3
-                    # build email to recommender 3
-                    my_email = emails.ApprovalAwaitingEmail(self, "recommender_3")
+                if self.recommender_2 and not self.recommender_2_approval_date:
+                    # we need to get approval and need to set recommender 2 as who we are waiting on
+                    self.waiting_on = self.recommender_2
+                    # build email to recommender 2
+                    my_email = emails.ApprovalAwaitingEmail(self, "recommender_2")
+
                 else:
-                    if self.approver and not self.approver_approval_date:
-                        # we need to get approval and need to set approver as who we are waiting on
-                        self.waiting_on = self.approver
-                        # send email to approver
-                        # for now we will not do this.
+                    if self.recommender_3 and not self.recommender_3_approval_date:
+                        # we need to get approval and need to set recommender 3 as who we are waiting on
+                        self.waiting_on = self.recommender_3
+                        # build email to recommender 3
+                        my_email = emails.ApprovalAwaitingEmail(self, "recommender_3")
                     else:
-                        self.waiting_on = None
+                        if self.approver and not self.approver_approval_date:
+                            # we need to get approval and need to set approver as who we are waiting on
+                            self.waiting_on = self.approver
+                            # send email to approver
+                            # for now we will not do this.
+                        else:
+                            self.waiting_on = None
 
-        if my_email:
-            # send the email object
-            if settings.PRODUCTION_SERVER:
-                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                          recipient_list=my_email.to_list, fail_silently=False, )
-            else:
-                print(my_email)
+            if my_email:
+                # send the email object
+                if settings.PRODUCTION_SERVER:
+                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                              recipient_list=my_email.to_list, fail_silently=False, )
+                else:
+                    print(my_email)
+        else:
+            self.recommender_1_approval_status_id = 4
+            self.recommender_2_approval_status_id = 4
+            self.recommender_3_approval_status_id = 4
+            self.approver_approval_status_id = 4
+            self.recommender_1_approval_date = None
+            self.recommender_2_approval_date = None
+            self.recommender_3_approval_date = None
+            self.approver_approval_date = None
+            self.waiting_on = None

@@ -20,6 +20,8 @@ class EventApprovalForm(forms.Form):
 
 
 class EventForm(forms.ModelForm):
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = models.Event
         exclude = [
@@ -89,6 +91,16 @@ class EventForm(forms.ModelForm):
         self.fields['section'].choices = section_choices
 
 
+class RegisteredEventForm(forms.ModelForm):
+    class Meta:
+        model = models.RegisteredEvent
+        fields = "__all__"
+        widgets = {
+            'start_date': forms.DateInput(attrs=attr_fp_date),
+            'end_date': forms.DateInput(attrs=attr_fp_date),
+        }
+
+
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
@@ -108,7 +120,6 @@ class ReportSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['fiscal_year'].choices = FY_CHOICES
         self.fields['traveller'].choices = TRAVELLER_CHOICES
-
 
 
 class StatusForm(forms.ModelForm):

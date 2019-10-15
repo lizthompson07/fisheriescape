@@ -1,0 +1,19 @@
+{% load verbose_names %}
+
+<p>
+    There was a new Registered Event created in the Travel Management System:
+</p>
+
+{% for field in field_list %}
+    {% verbose_field_display event field %}
+{% endfor %}
+
+<p>
+    To change or modify the event information, please click <a href="http://dmapps{% url 'travel:revent_detail' event.id %}">HERE</a>.
+</p>
+
+<style media="screen">
+    table, td {
+        border: solid 1px black;
+    }
+</style>

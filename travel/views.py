@@ -1,10 +1,12 @@
 import json
 import os
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.db.models import Sum, Q
 from django.shortcuts import render
 from django.utils import timezone
@@ -21,6 +23,7 @@ from lib.templatetags.custom_filters import nz
 from . import models
 from . import forms
 from . import reports
+from . import emails
 from . import filters
 
 from shared_models import models as shared_models
@@ -81,12 +84,12 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = models.Event.objects.filter(waiting_on=self.request.user).count()
-        approval_count = models.Event.objects.filter(submitted__isnull=False).filter(
+        approval_count = models.Event.objects.filter(
             Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
                 approver=self.request.user)).count()
 
         context["is_approver"] = True if approval_count > 0 else False
-
+        print(approval_count)
         return context
 
 
@@ -108,7 +111,6 @@ event_field_list = [
     'end_date',
     'event',
     'registered_event',
-
 
     # purpose
     'role',
@@ -175,9 +177,9 @@ class EventApprovalListView(TravelAccessRequiredMixin, ListView):
     template_name = 'travel/event_approval_list.html'
 
     def get_queryset(self):
-        qs = models.Event.objects.filter(submitted__isnull=False).filter(
+        qs = models.Event.objects.filter(
             Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-                approver=self.request.user))
+                approver=self.request.user)).order_by("-submitted")
         return qs.filter(waiting_on=self.request.user) if self.kwargs.get("which_ones") == "awaiting" else qs
 
     def get_context_data(self, **kwargs):
@@ -212,6 +214,13 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
 class EventUpdateView(TravelAccessRequiredMixin, UpdateView):
     model = models.Event
     form_class = forms.EventForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        if form.cleaned_data.get("stay_on_page"):
+            return HttpResponseRedirect(reverse("travel:event_edit", kwargs={"pk": my_object.id}))
+        else:
+            return HttpResponseRedirect(reverse("travel:event_detail", kwargs={"pk": my_object.id}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -267,9 +276,9 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_2 = None
                 my_event.recommender_3 = None
                 my_event.approver = None
-                my_event.recommender_2_approval_status_id = 1
-                my_event.recommender_3_approval_status_id = 1
-                my_event.approver_approval_status_id = 1
+                my_event.recommender_2_approval_status_id = 5
+                my_event.recommender_3_approval_status_id = 5
+                my_event.approver_approval_status_id = 5
 
         if my_event.recommender_2 == self.request.user:
             my_event.recommender_2_approval_date = timezone.now()
@@ -279,8 +288,8 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_2_approval_status_id = 3
                 my_event.recommender_3 = None
                 my_event.approver = None
-                my_event.recommender_3_approval_status_id = 1
-                my_event.approver_approval_status_id = 1
+                my_event.recommender_3_approval_status_id = 5
+                my_event.approver_approval_status_id = 5
 
         if my_event.recommender_3 == self.request.user:
             my_event.recommender_3_approval_date = timezone.now()
@@ -289,7 +298,7 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
             else:
                 my_event.recommender_3_approval_status_id = 3
                 my_event.approver = None
-                my_event.approver_approval_status_id = 1
+                my_event.approver_approval_status_id = 5
 
         if my_event.approver == self.request.user:
             my_event.approver_approval_date = timezone.now()
@@ -300,7 +309,6 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
 
         my_event.save()
         return HttpResponseRedirect(reverse("travel:event_approval_list"))
-
 
 
 class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
@@ -320,20 +328,20 @@ class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         is_submitted = True if my_event.submitted else False
         if is_submitted:
             my_event.submitted = None
-            # now clear all the reviewers
-            my_event.recommender_1_approval_date = None
-            my_event.recommender_1_approval_status_id = 1
-            my_event.recommender_2_approval_date = None
-            my_event.recommender_2_approval_status_id = 1
-            my_event.recommender_3_approval_date = None
-            my_event.recommender_3_approval_status_id = 1
-            my_event.approver_approval_date = None
-            my_event.approver_approval_status_id = 1
+            # # now clear all the reviewers
+            # my_event.recommender_1_approval_date = None
+            # my_event.recommender_1_approval_status_id = 1
+            # my_event.recommender_2_approval_date = None
+            # my_event.recommender_2_approval_status_id = 1
+            # my_event.recommender_3_approval_date = None
+            # my_event.recommender_3_approval_status_id = 1
+            # my_event.approver_approval_date = None
+            # my_event.approver_approval_status_id = 1
 
         else:
             my_event.submitted = timezone.now()
         my_event.save()
-        return HttpResponseRedirect(reverse("travel:event_detail", kwargs={"pk":my_event.id}))
+        return HttpResponseRedirect(reverse("travel:event_detail", kwargs={"pk": my_event.id}))
 
 
 class EventCreateView(TravelAccessRequiredMixin, CreateView):
@@ -342,6 +350,13 @@ class EventCreateView(TravelAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         return {"user": self.request.user}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        if form.cleaned_data.get("stay_on_page"):
+            return HttpResponseRedirect(reverse_lazy("travel:event_edit", kwargs={"pk": my_object.id}))
+        else:
+            return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": my_object.id}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -389,6 +404,98 @@ def duplicate_event(request, pk):
     # save the record
     event.save()
     return HttpResponseRedirect(reverse("travel:event_edit", kwargs={"pk": event.id}))
+
+
+# REGISTERED EVENT #
+####################
+
+
+class RegisteredEventListView(TravelAccessRequiredMixin, FilterView):
+    model = models.RegisteredEvent
+    filterset_class = filters.RegisteredEventFilter
+    template_name = 'travel/registeredevent_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.RegisteredEvent.objects.first()
+        context["field_list"] = [
+            'name',
+            'nom',
+            'number',
+            'start_date',
+            'end_date',
+        ]
+        return context
+
+
+class RegisteredEventDetailView(TravelAccessRequiredMixin, DetailView):
+    model = models.RegisteredEvent
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'name',
+            'nom',
+            'number',
+            'start_date',
+            'end_date',
+        ]
+        return context
+
+
+class RegisteredEventUpdateView(TravelAccessRequiredMixin, UpdateView):
+    model = models.RegisteredEvent
+    form_class = forms.RegisteredEventForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class RegisteredEventCreateView(TravelAccessRequiredMixin, CreateView):
+    model = models.RegisteredEvent
+    form_class = forms.RegisteredEventForm
+
+    def get_template_names(self):
+        if self.kwargs.get("pop"):
+            return 'travel/registeredevent_form_popout.html'
+        else:
+            return 'travel/event_form.html'
+
+    def get_success_url(self):
+        if self.kwargs.get("pop"):
+            return reverse("shared_models:close_me")
+        else:
+            return super().get_success_url()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        if self.kwargs.get("pop"):
+            # create a new email object
+            email = emails.NewEventEmail(my_object)
+            # send the email object
+            if settings.PRODUCTION_SERVER:
+                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                          recipient_list=email.to_list, fail_silently=False, )
+            else:
+                print(email)
+            messages.success(self.request,
+                             _("The event has been added to the database!"))
+        return super().form_valid(form)
+
+
+class RegisteredEventDeleteView(TravelAccessRequiredMixin, DeleteView):
+    model = models.RegisteredEvent
+    success_url = reverse_lazy('travel:revent_list')
+    success_message = 'The event was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
 
 # REPORTS #

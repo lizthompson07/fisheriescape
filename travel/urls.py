@@ -6,7 +6,7 @@ app_name = 'travel'
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
-    # EVENT #
+    # EVENT (TRIPS) #
     ##########
     path('trips/', views.EventListView.as_view(), name="event_list"),
     path('trip/new/', views.EventCreateView.as_view(), name="event_new"),
@@ -16,12 +16,20 @@ urlpatterns = [
     path('trip/<int:pk>/delete/', views.EventDeleteView.as_view(), name="event_delete"),
     path('trip/<int:pk>/duplicate/', views.duplicate_event, name="duplicate_event"),
 
-
     path('trips/approval/', views.EventApprovalListView.as_view(), name="event_approval_list"),
     path('trips/approval/<str:which_ones>/', views.EventApprovalListView.as_view(), name="event_approval_list"),
     path('trip/<int:pk>/approve/', views.EventApproveUpdateView.as_view(), name="event_approve"),
 
     path('trip/<int:pk>/submit/', views.EventSubmitUpdateView.as_view(), name="event_submit"),
+
+    # REGISTERED EVENT #
+    ####################
+    path('events/', views.RegisteredEventListView.as_view(), name="revent_list"),
+    path('event/new/', views.RegisteredEventCreateView.as_view(), name="revent_new"),
+    path('event/new/pop/<int:pop>/', views.RegisteredEventCreateView.as_view(), name="revent_new"),
+    path('event/<int:pk>/view/', views.RegisteredEventDetailView.as_view(), name="revent_detail"),
+    path('event/<int:pk>/edit/', views.RegisteredEventUpdateView.as_view(), name="revent_edit"),
+    path('event/<int:pk>/delete/', views.RegisteredEventDeleteView.as_view(), name="revent_delete"),
 
     # Reports #
     ###########
@@ -33,6 +41,5 @@ urlpatterns = [
     ############
     path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
     path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
-
 
 ]

@@ -9,6 +9,7 @@
             margin-left: 5em;
             margin-right: 5em;
         }
+
     </style>
 
     <nav aria-label="breadcrumb">
@@ -67,7 +68,7 @@
                     <tbody>
                     {% for object in filter.qs %}
                         {% url 'travel:event_detail' object.id as my_url %}
-                        <tr href="{{ my_url }}" style="background-color: {{ object.color }}">
+                        <tr href="{{ my_url }}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field format="currency" %}</td>
                             {% endfor %}
