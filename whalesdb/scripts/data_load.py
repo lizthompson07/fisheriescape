@@ -235,6 +235,60 @@ def load_tea(file_name):
                   tea_first_name=data[2]).save()
 
 
+def load_emm(file_name):
+    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    model = models.EcpChannelProperties
+    print("file: " + file_path)
+
+    file = open(file_path, "r")
+    first = True
+    for line in file:
+        if first:
+            first = False
+            continue
+
+        data = line.strip().split(',')
+        if not model.objects.filter(tea_last_name=data[0], tea_first_name=data[1]):
+            print(str(data))
+            emm_make = data[0]
+            emm_model = data[1]
+            emm_depth_rating = data[2]
+            emm_description = data[3]
+            eqt_type = data[4]
+
+            model(tea_abb=data[0],
+                  tea_last_name=data[1],
+                  tea_first_name=data[2]).save()
+
+
+def load_ecp(file_name):
+    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    model = models.EcpChannelProperties
+    print("file: " + file_path)
+
+    file = open(file_path, "r")
+    first = True
+    for line in file:
+        if first:
+            first = False
+            continue
+
+        data = line.strip().split(',')
+        if not model.objects.filter(tea_last_name=data[0], tea_first_name=data[1]):
+            print(str(data))
+            emm_make = data[0]
+            emm_model = data[1]
+
+            ecp_channel_no = data[2]
+            eqa_adc_bits = data[3]
+            ecp_voltage_range = data[4]
+            ecp_gain = data[5]
+
+            model(tea_abb=data[0],
+                  tea_last_name=data[1],
+                  tea_first_name=data[2]).save()
+
+
 load_adcbits()
 load_parameter_types()
 load_equipment_type_codes()
@@ -245,3 +299,9 @@ load_rtt("RTT-timezone types.csv")
 load_set("SET-station event types.csv")
 load_stn("STN-stations.csv")
 load_tea("TEA-team members.csv")
+
+load_emm("ECP-channel properties.csv")
+# load_ecp("ECP-channel properties.csv")
+# load_eqa("EQA-ADC bits.csv")
+# load_eqt("EQT-equipment types.csv")
+# load_prm("PRM-parameter types.csv")
