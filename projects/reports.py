@@ -3,8 +3,9 @@ import xlsxwriter as xlsxwriter
 from django.conf import settings
 from django.db.models import Q
 from django.template.defaultfilters import yesno
+from django.utils import timezone
 
-from lib.templatetags.verbose_names import get_field_value
+from lib.templatetags.verbose_names import get_field_value, get_verbose_label
 from shared_models import models as shared_models
 from lib.functions.custom_functions import nz
 from lib.functions.verbose_field_name import verbose_field_name
@@ -574,6 +575,77 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
 
         for j in range(0, len(col_max)):
             worksheet7.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
+
+
+def generate_program_list():
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'projects', 'temp', target_file)
+
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+
+    # get the program list
+    program_list = models.Program2.objects.all()
+
+    field_list = [
+        'national_responsibility_eng',
+        'national_responsibility_fra',
+        'program_inventory',
+        'funding_source_and_type',
+        'regional_program_name_eng',
+        'regional_program_name_fra',
+        'examples',
+    ]
+
+    # define the header
+    header = [get_verbose_label(program_list.first(), field) for field in field_list]
+
+    title = "Science Program List"
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name=title)
+
+    i = 3
+    for program in program_list:
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+        my_ws.write(0, 0, title, title_format)
+        my_ws.write_row(2, 0, header, header_format)
+
+        data_row = [get_field_value(program, field) for field in field_list]
+
+        # adjust the width of the columns based on the max string length in each col
+        ## replace col_max[j] if str length j is bigger than stored value
+
+        j = 0
+        for d in data_row:
+            # if new value > stored value... replace stored value
+            if len(str(d)) > col_max[j]:
+                if len(str(d)) < 75:
+                    col_max[j] = len(str(d))
+                else:
+                    col_max[j] = 75
+            j += 1
+
+        my_ws.write_row(i, 0, data_row, normal_format)
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
     return target_url

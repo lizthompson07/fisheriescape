@@ -13,6 +13,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.views.generic import TemplateView, UpdateView, CreateView, \
     FormView  # ,ListView, DetailView, CreateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -28,7 +29,6 @@ class CloserTemplateView(TemplateView):
 
 
 def access_denied(request):
-
     my_url = reverse("accounts:request_access")
     a_tag = mark_safe('<a pop-href="{}" href="#" class="request-access-button">this</a>'.format(my_url))
     denied_message = "Sorry, you are not authorized to view this page. You can request access using {} form.".format(
@@ -44,6 +44,26 @@ def access_denied_custodian(request):
     # send user back to the page that they came from
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+def access_denied_project_leads_only(request):
+    denied_message = _("Sorry, only project leads, section heads and site administrators have access to this page.")
+    messages.error(request, denied_message)
+    # send user back to the page that they came from
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def access_denied_section_heads_only(request):
+    denied_message = _("Sorry, you need to be a manager of this project in order to access this page.")
+    messages.error(request, denied_message)
+    # send user back to the page that they came from
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def access_denied_manager_or_admin_only(request):
+    denied_message = _("Sorry, you need to be a manager or site admin in order to access this page.")
+    messages.error(request, denied_message)
+    # send user back to the page that they came from
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def access_denied_scifi(request):
@@ -67,6 +87,7 @@ class ProfileUpdateView(UpdateView):
             profile = models.Profile(user=user)
 
         return profile
+
 
 class UserLoginView(LoginView):
     template_name = "registration/login.html"

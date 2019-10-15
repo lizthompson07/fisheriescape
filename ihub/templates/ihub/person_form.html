@@ -42,18 +42,17 @@
         <form method="post" class="form">
             {% csrf_token %}
 
-            {% bootstrap_form form %}
 
-            {% buttons %}
+            <div class="btn-group">
                 {% if object %}
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-primary">
                         {% trans "Submit" %}
                     </button>
                     <a class="btn btn-secondary" href="{% url 'ihub:person_detail' object.id %}">
                         {% trans "Cancel" %}
                     </a>
                 {% else %}
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-primary">
                         {% trans "Add" %}
                     </button>
                     <a class="btn btn-secondary" href="{% url 'ihub:person_list' %}">
@@ -61,8 +60,31 @@
                     </a>
                 {% endif %}
 
+            </div>
+            <br>
+            <br>
+            {% bootstrap_form form %}
+            <br>
+            <div class="btn-group">
+                {% if object %}
+                    <button type="submit" class="btn btn-primary">
+                        {% trans "Submit" %}
+                    </button>
+                    <a class="btn btn-secondary" href="{% url 'ihub:person_detail' object.id %}">
+                        {% trans "Cancel" %}
+                    </a>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">
+                        {% trans "Add" %}
+                    </button>
+                    <a class="btn btn-secondary" href="{% url 'ihub:person_list' %}">
+                        {% trans "Cancel" %}
+                    </a>
+                {% endif %}
 
-            {% endbuttons %}
+            </div>
+
+
         </form>
 
     </div>

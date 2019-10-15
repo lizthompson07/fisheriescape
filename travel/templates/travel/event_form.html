@@ -9,7 +9,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Events</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Trips</a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'travel:event_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
@@ -25,7 +25,7 @@
             {% if object %}
                 {{ object }}
             {% else %}
-                New Event
+                New Trip
             {% endif %}
         </h1>
 
@@ -33,8 +33,26 @@
 
         <form method="post" class="form">
             {% csrf_token %}
+
             {% for field in form %}
-                {% bootstrap_field field placeholder="" %}
+                {% if field.name == "registered_event" %}
+                    {% bootstrap_field field placeholder="" %}
+
+                    <div id="new_event_container">
+                        (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
+                        <br><br>
+                    </div>
+
+                {% else %}
+
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
+            {% endfor %}
+
+            {% for field in form %}
+
+
+
 
             {% endfor %}
 
@@ -53,16 +71,64 @@
         </form>
 
     </div>
+{% endblock content %}
+
+{% block body_js %}
+
     <script type="application/javascript">
         var userObj = {{ user_json|safe }};
-        var myId = ""
+        var sectionObj = {{ section_json|safe }};
+        var myId = "";
+
+        function refreshUserInfo() {
+            myId = $("#id_user").val();
+            $("#id_first_name").val(userObj[myId]["first_name"]);
+            $("#id_last_name").val(userObj[myId]["last_name"]);
+            $("#id_email").val(userObj[myId]["email"]);
+        }
+
+
+        function refreshRegisteredEvent() {
+            if ($("#id_event").val() == "False") {
+                $("#id_registered_event").val("");
+                $("#id_registered_event").prop("disabled", true);
+                $("#new_event_container").addClass("hidden")
+            } else {
+                $("#id_registered_event").prop("disabled", false);
+                $("#new_event_container").removeClass("hidden")
+            }
+        }
+
+
         $("#id_user").change(function () {
-            myId = $(this).val()
-            $("#id_first_name").val(userObj[myId]["first_name"])
-            $("#id_last_name").val(userObj[myId]["last_name"])
-            $("#id_email").val(userObj[myId]["email"])
+            refreshUserInfo();
+        });
 
+        $("#id_event").change(function () {
+            refreshRegisteredEvent();
+        });
+
+        $("#id_section").change(function () {
+            mySectionId = $(this).val();
+            $("#id_recommender_1").val(sectionObj[mySectionId]["recommender_1"]);
+            $("#id_recommender_2").val(sectionObj[mySectionId]["recommender_2"]);
+            $("#id_recommender_3").val(sectionObj[mySectionId]["recommender_3"]);
+            $("#id_approver").val(sectionObj[mySectionId]["approver"]);
+            $('select').trigger("chosen:updated");
+        });
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            refreshUserInfo();
+            refreshRegisteredEvent();
+        });
+
+        $("#new_event").click(function () {
+            $("#id_stay_on_page").val(1);
+            $("form").submit();
         })
-    </script>
 
-{% endblock content %}
+    </script>
+{% endblock %}
+
+

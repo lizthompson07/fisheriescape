@@ -50,31 +50,47 @@
 
         <form method="post" class="form" enctype="multipart/form-data">
             {% csrf_token %}
-
-            {% for field in form %}
-                {% bootstrap_field field placeholder="" %}
-
-            {% endfor %}
-
-            {% buttons %}
+            <div class="btn-group">
                 {% if object %}
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-primary">
                         {% trans "Submit" %}
                     </button>
                     <a class="btn btn-secondary" href="{% url 'ihub:org_detail' object.id %}">
                         {% trans "Cancel" %}
                     </a>
                 {% else %}
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-primary">
                         {% trans "Add" %}
                     </button>
                     <a class="btn btn-secondary" href="{% url 'ihub:org_list' %}">
                         {% trans "Cancel" %}
                     </a>
                 {% endif %}
+            </div>
+            <br><br>
+            {% for field in form %}
+                {% bootstrap_field field placeholder="" %}
 
+            {% endfor %}
 
-            {% endbuttons %}
+            <div class="btn-group">
+                {% if object %}
+                    <button type="submit" class="btn btn-primary">
+                        {% trans "Submit" %}
+                    </button>
+                    <a class="btn btn-secondary" href="{% url 'ihub:org_detail' object.id %}">
+                        {% trans "Cancel" %}
+                    </a>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">
+                        {% trans "Add" %}
+                    </button>
+                    <a class="btn btn-secondary" href="{% url 'ihub:org_list' %}">
+                        {% trans "Cancel" %}
+                    </a>
+                {% endif %}
+            </div>
+            <br><br>
         </form>
 
     </div>
