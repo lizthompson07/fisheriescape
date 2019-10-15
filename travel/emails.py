@@ -45,30 +45,13 @@ class ApprovalAwaitingEmail:
 
         field_list = [
             'fiscal_year',
-            'user',
             'section',
             'first_name',
             'last_name',
-            'address',
-            'phone',
-            'email',
-            'public_servant',
-            'company_name',
             'trip_title',
-            'departure_location',
             'destination',
             'start_date',
             'end_date',
-
-            # purpose
-            'role',
-            'reason',
-            'purpose',
-            'role_of_participant',
-            'objective_of_event',
-            'benefit_to_dfo',
-            'multiple_conferences_rationale',
-            'multiple_attendee_rationale',
         ]
 
         context = {'user': user, 'event': event, 'field_list': field_list}
