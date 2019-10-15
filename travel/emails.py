@@ -76,24 +76,3 @@ class ApprovalAwaitingEmail:
         return rendered
 
 
-class UserCreationEmail:
-    def __init__(self, object):
-
-        self.subject = 'DM Apps account creation / Création de compte DM Apps'
-        self.message = self.load_html_template(object)
-        self.from_email = from_email
-        self.to_list = ["david.fishman@dfo-mpo.gc.ca"]
-
-        try:
-            self.to_list.append(object.email)
-        except AttributeError:
-            pass
-
-    def __str__(self):
-        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
-
-    def load_html_template(self, object):
-        t = loader.get_template('projects/email_user_creation.html')
-        context = {'object': object, }
-        rendered = t.render(context)
-        return rendered
