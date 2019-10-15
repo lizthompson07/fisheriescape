@@ -403,6 +403,7 @@ def duplicate_event(request, pk):
     event = models.Event.objects.get(pk=pk)
     # remove the pk
     event.pk = None
+    event.submitted = None
     # save the record
     event.save()
     return HttpResponseRedirect(reverse("travel:event_edit", kwargs={"pk": event.id}))
