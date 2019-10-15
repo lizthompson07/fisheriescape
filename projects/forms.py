@@ -10,11 +10,13 @@ from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
+attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
+class_editable = {"class": "editable"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
-    (1, "Yes"),
-    (0, "No"),
+    (True, "Yes"),
+    (False, "No"),
 )
 
 
@@ -66,7 +68,6 @@ class ProjectForm(forms.ModelForm):
             'rds_approved',
             'program',
         ]
-        class_editable = {"class": "editable"}
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
 
@@ -84,8 +85,8 @@ class ProjectForm(forms.ModelForm):
             "ship_needs": forms.Textarea(attrs=class_editable),
             "feedback": forms.Textarea(attrs=class_editable),
 
-            'start_date': forms.DateInput(attrs={"type": "date"}),
-            'end_date': forms.DateInput(attrs={"type": "date"}),
+            'start_date': forms.DateInput(attrs=attr_fp_date),
+            'end_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
             "section": forms.Select(attrs=chosen_js),
             "responsibility_center": forms.Select(attrs=chosen_js),
@@ -94,6 +95,8 @@ class ProjectForm(forms.ModelForm):
 
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "programs": forms.SelectMultiple(attrs=chosen_js),
+
+            "is_hidden": forms.Select(choices=YESNO_CHOICES),
         }
 
     def __init__(self, *args, **kwargs):
@@ -175,6 +178,21 @@ class StaffForm(forms.ModelForm):
         }
 
 
+class AdminStaffForm(forms.ModelForm):
+    class Meta:
+        model = models.Staff
+        fields = ["user",'name']
+        labels = {
+            "user": _("DFO User"),
+        }
+        widgets = {
+        #     'project': forms.HiddenInput(),
+        #     'overtime_description': forms.Textarea(attrs={"rows": 5}),
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+
 class CollaboratorForm(forms.ModelForm):
     class Meta:
         model = models.Collaborator
@@ -211,6 +229,68 @@ class CapitalCostForm(forms.ModelForm):
         }
 
 
+class MilestoneForm(forms.ModelForm):
+    class Meta:
+        model = models.Milestone
+        fields = "__all__"
+        widgets = {
+            'project': forms.HiddenInput(),
+        }
+
+
+class MilestoneUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.MilestoneUpdate
+        fields = "__all__"
+        widgets = {
+            'status_report': forms.HiddenInput(),
+            'milestone': forms.HiddenInput(),
+        }
+
+
+class StatusReportForm(forms.ModelForm):
+    class Meta:
+        model = models.StatusReport
+        exclude = ["date_created", ]
+        widgets = {
+            'target_completion_date': forms.DateInput(attrs=attr_fp_date),
+            'major_accomplishments': forms.Textarea(attrs=class_editable),
+            'major_issues': forms.Textarea(attrs=class_editable),
+            'rationale_for_modified_completion_date': forms.Textarea(attrs=class_editable),
+            'general_comment': forms.Textarea(attrs=class_editable),
+            # Hidden fields
+            'project': forms.HiddenInput(),
+            'section_head_reviewed': forms.HiddenInput(),
+            'section_head_comment': forms.HiddenInput(),
+            'created_by': forms.HiddenInput(),
+
+        }
+
+
+class StatusReportSectionHeadForm(forms.ModelForm):
+    class Meta:
+        model = models.StatusReport
+        exclude = ["date_created", ]
+        widgets = {
+            'target_completion_date': forms.DateInput(attrs=attr_fp_date),
+            'major_accomplishments': forms.Textarea(attrs=class_editable),
+            'major_issues': forms.Textarea(attrs=class_editable),
+            'rationale_for_modified_completion_date': forms.Textarea(attrs=class_editable),
+            'general_comment': forms.Textarea(attrs=class_editable),
+            'section_head_comment': forms.Textarea(attrs=class_editable),
+            'section_head_reviewed': forms.Select(choices=YESNO_CHOICES),
+
+            # Hidden fields
+            'project': forms.HiddenInput(),
+            'created_by': forms.HiddenInput(),
+
+        }
+        labels = {
+            'section_head_comment': _("Section head comments (visible to section head only)"),
+            'section_head_reviewed': _("Section review complete (visible to section head only)?"),
+        }
+
+
 class GCCostForm(forms.ModelForm):
     class Meta:
         model = models.GCCost
@@ -239,10 +319,18 @@ class ReportSearchForm(forms.Form):
         (None, "-----"),
         (3, "Project Summary Report (PDF)"),
         (2, "Batch Workplan Export (PDF) (submitted and approved)"),
-        (1, "Master spreadsheet (XLSX)"),
+        (1, "Master spreadsheet (MS Excel)"),
+        (4, "Science program list (MS Excel)"),
+
+        # Gulf region reports
+        (10, _("GULF: Weeks Worked by Employees")),
+        (11, _("GULF: Total Overtime Hours Requested")),
+        (12, _("GULF: Cost Summary by Section")),
+        (13, _("GULF: List of Collaborators")),
+        (14, _("GULF: Doug's Report")),
     )
-    fiscal_year = forms.ChoiceField(required=True)
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    fiscal_year = forms.ChoiceField(required=False)
     region = forms.MultipleChoiceField(required=False, label="Regions (Leave blank to select all)")
     division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
     section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
@@ -300,6 +388,130 @@ class UserCreateForm(forms.Form):
                 raise forms.ValidationError(_("Please make sure the two email addresses provided match."))
 
 
+class FundingSourceForm(forms.ModelForm):
+    class Meta:
+        model = models.FundingSource
+        fields = "__all__"
+
+
+FundingSourceFormSet = modelformset_factory(
+    model=models.FundingSource,
+    form=FundingSourceForm,
+    extra=1,
+)
+
+
+class OMCategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.OMCategory
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={"rows": 3}),
+            'nom': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+OMCategoryFormSet = modelformset_factory(
+    model=models.OMCategory,
+    form=OMCategoryForm,
+    extra=1,
+)
+
+
+class EmployeeTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.EmployeeType
+        fields = "__all__"
+        widgets = {
+            'exclude_from_rollup': forms.Select(choices=YESNO_CHOICES),
+        }
+
+
+EmployeeTypeFormSet = modelformset_factory(
+    model=models.EmployeeType,
+    form=EmployeeTypeForm,
+    extra=1,
+)
+
+
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = models.Status
+        fields = "__all__"
+
+
+StatusFormSet = modelformset_factory(
+    model=models.Status,
+    form=StatusForm,
+    extra=1,
+)
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = models.Tag
+        fields = "__all__"
+
+
+TagFormSet = modelformset_factory(
+    model=models.Tag,
+    form=TagForm,
+    extra=1,
+)
+
+
+class HelpTextForm(forms.ModelForm):
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 4}),
+            'fra_text': forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+HelpTextFormSet = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
+)
+
+
+class ProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.Program2
+        fields = "__all__"
+        widgets = {
+            'national_responsibility_eng': forms.Textarea(attrs={"rows": 3}),
+            'national_responsibility_fra': forms.Textarea(attrs={"rows": 3}),
+            'program_inventory': forms.Textarea(attrs={"rows": 3}),
+            'funding_source_and_type': forms.Textarea(attrs={"rows": 3}),
+            'regional_program_name_eng': forms.Textarea(attrs={"rows": 3}),
+            'regional_program_name_fra': forms.Textarea(attrs={"rows": 3}),
+            'examples': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+ProgramFormSet = modelformset_factory(
+    model=models.Program2,
+    form=ProgramForm,
+    extra=1,
+)
+
+
+class LevelForm(forms.ModelForm):
+    class Meta:
+        model = models.Level
+        fields = "__all__"
+
+
+LevelFormSet = modelformset_factory(
+    model=models.Level,
+    form=LevelForm,
+    extra=1,
+)
+
+
 class TempForm(forms.ModelForm):
     class Meta:
         model = models.Project
@@ -315,3 +527,19 @@ TempFormSet = modelformset_factory(
     form=TempForm,
     extra=0,
 )
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        exclude = ["date_created", ]
+        # fields = "__all__"
+        # labels={
+        #     'district':mark_safe("District (<a href='#' >search</a>)"),
+        #     'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
+        # }
+        widgets = {
+            'project': forms.HiddenInput(),
+            'status_report': forms.HiddenInput(),
+            # 'end_date':forms.DateInput(attrs={'type': 'date'}),
+        }

@@ -28,7 +28,8 @@ from . import reports
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 
-ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenous=True)
+def get_ind_organizations():
+    return ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 
 
 # Create your views here.
@@ -200,16 +201,14 @@ class PersonDeleteView(iHubAdminRequiredMixin, DeleteView):
 class OrganizationListView(SiteLoginRequiredMixin, FilterView):
     template_name = 'ihub/organization_list.html'
     filterset_class = filters.OrganizationFilter
-    queryset = ind_organizations.annotate(
+    queryset = get_ind_organizations().annotate(
         search_term=Concat(
             'name_eng',
             Value(" "),
-            # 'name_fre',
-            # Value(" "),
+            'abbrev',
+            Value(" "),
             'name_ind',
             Value(" "),
-            # 'legal_band_name',
-            # Value(" "),
             'former_name',
             Value(" "),
             'province__name',
@@ -226,8 +225,8 @@ class OrganizationListView(SiteLoginRequiredMixin, FilterView):
         context["my_object"] = ml_models.Organization.objects.first()
         context["field_list"] = [
             'name_eng',
-            # 'name_fre',
             'name_ind',
+            'abbrev',
             'province',
             'grouping',
             'full_address|' + _("Full address"),
@@ -255,12 +254,15 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
             'phone',
             'fax',
             'notes',
+            'consultation_protocol',
         ]
         context["field_list_2"] = [
             # 'legal_band_name',
             # 'former_name',
+            'orgs',
             'nation',
             'website',
+            'council_quorum',
             'next_election',
             'new_coucil_effective_date',
             'election_term',
@@ -270,10 +272,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
             'fin',
             'processing_plant',
             'wharf',
-            'consultation_protocol',
-            'council_quorum',
             'reserves',
-            'orgs',
         ]
         return context
 
@@ -411,12 +410,14 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'title',
+            'location',
             'organizations',
             'status',
             'sectors',
             'entry_type',
             'initial_date',
             'regions',
+            'date_last_modified',
             'last_modified_by',
             'created_by',
         ]
@@ -628,9 +629,8 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
     template_name = 'ihub/report_search.html'
     form_class = forms.ReportSearchForm
 
-    # def get_initial(self):
-    # default the year to the year of the latest samples
-    # return {"fiscal_year": fiscal_year()}
+    def get_initial(self):
+        return {"report_title": _("Consultations Update Log – Government of Canada")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -639,8 +639,11 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
     def form_valid(self, form):
         sectors = listrify(form.cleaned_data["sectors"])
         orgs = listrify(form.cleaned_data["organizations"])
+        statuses = listrify(form.cleaned_data["statuses"])
+        entry_types = listrify(form.cleaned_data["entry_types"])
         org = int(nz(form.cleaned_data["single_org"]), 0)
         fy = str(form.cleaned_data["fiscal_year"])
+        report_title = str(form.cleaned_data["report_title"])
         report = int(form.cleaned_data["report"])
 
         if report == 1:
@@ -667,6 +670,16 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
                 "fy": nz(fy, "None"),
                 "orgs": nz(orgs, "None"),
                 "sectors": nz(sectors, "None"),
+            }))
+
+        elif report == 5:
+            return HttpResponseRedirect(reverse("ihub:consultation_log", kwargs=
+            {
+                "fy": nz(fy, "None"),
+                "orgs": nz(orgs, "None"),
+                "statuses": nz(statuses, "None"),
+                "entry_types": nz(entry_types, "None"),
+                "report_title": nz(report_title, "None"),
             }))
 
         else:
@@ -797,47 +810,31 @@ class PDFSummaryReport(PDFTemplateView):
             sectors = None
 
         # get an entry list for the fiscal year (if any)
+        entry_list = models.Entry.objects.all()
+
         if fy:
             entry_list = models.Entry.objects.filter(fiscal_year=fy)
-            if sectors:
-                # we have to refine the queryset to only the selected sectors
-                sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
-                # create the species query object: Q
-                q_objects = Q()  # Create an empty Q object to start with
-                for s in sector_list:
-                    q_objects |= Q(sectors=s)  # 'or' the Q objects together
-                # apply the filter
-                entry_list = entry_list.filter(q_objects)
-            if orgs:
-                # we have to refine the queryset to only the selected orgs
-                org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
-                # create the species query object: Q
-                q_objects = Q()  # Create an empty Q object to start with
-                for o in org_list:
-                    q_objects |= Q(organizations=o)  # 'or' the Q objects together
-                # apply the filter
-                entry_list = entry_list.filter(q_objects)
 
-        else:
-            entry_list = models.Entry.objects.all()
-            if sectors:
-                # we have to refine the queryset to only the selected sectors
-                sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
-                # create the species query object: Q
-                q_objects = Q()  # Create an empty Q object to start with
-                for s in sector_list:
-                    q_objects |= Q(sectors=s)  # 'or' the Q objects together
-                # apply the filter
-                entry_list = entry_list.filter(q_objects)
-            if orgs:
-                # we have to refine the queryset to only the selected orgs
-                org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
-                # create the species query object: Q
-                q_objects = Q()  # Create an empty Q object to start with
-                for o in org_list:
-                    q_objects |= Q(organizations=o)  # 'or' the Q objects together
-                # apply the filter
-                entry_list = entry_list.filter(q_objects)
+        if sectors:
+            # we have to refine the queryset to only the selected sectors
+            sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for s in sector_list:
+                q_objects |= Q(sectors=s)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+        if orgs:
+            # we have to refine the queryset to only the selected orgs
+            org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for o in org_list:
+                q_objects |= Q(organizations=o)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+
+
         context["entry_list"] = entry_list
 
         # remove any orgs without entries
@@ -863,6 +860,7 @@ class PDFSummaryReport(PDFTemplateView):
         context["fy"] = self.kwargs["fy"]
         context["field_list"] = [
             'title',
+            'location',
             'organizations',
             'status',
             'sectors',
@@ -886,12 +884,77 @@ class PDFSummaryReport(PDFTemplateView):
         return context
 
 
+class ConsultationLogPDFTemplateView(PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "ihub/report_consultation_log.html"
+
+    # def get_pdf_filename(self):
+    #     pdf_filename = "Consultations Update Log ({}).pdf".format(timezone.now().strftime("%Y-%m-%d"))
+    #     return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # get an entry list for the fiscal year (if any)
+
+        # first, filter out the "none" placeholder
+        fy = self.kwargs["fy"]
+        orgs = self.kwargs["orgs"]
+        statuses = self.kwargs["statuses"]
+        entry_types = self.kwargs["entry_types"]
+        report_title = self.kwargs["report_title"]
+
+        if fy == "None":
+            fy = None
+        if orgs == "None":
+            orgs = None
+        if statuses == "None":
+            statuses = None
+        if entry_types == "None":
+            entry_types = None
+
+        # get an entry list for the fiscal year (if any)
+        entry_list = models.Entry.objects.all().order_by("-initial_date")
+
+        if fy:
+            entry_list = models.Entry.objects.filter(fiscal_year=fy)
+
+        if orgs:
+            # we have to refine the queryset to only the selected orgs
+            org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for o in org_list:
+                q_objects |= Q(organizations=o)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+
+        if statuses:
+            # we have to refine the queryset to only the selected orgs
+            status_list = [models.Status.objects.get(pk=int(o)) for o in statuses.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for o in status_list:
+                q_objects |= Q(status=o)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+
+        if entry_types:
+            # we have to refine the queryset to only the selected orgs
+            entry_type_list = [models.EntryType.objects.get(pk=int(o)) for o in entry_types.split(",")]
+            entry_list = entry_list.filter(entry_type__in=entry_type_list)
+
+        context["entry_list"] = entry_list
+        context["fy"] = fy
+        context["report_title"] = report_title
+
+        return context
+
+
 # SETTINGS #
 ############
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_sectors(request):
-    qs = ml_models.Sector.objects.all()
     if request.method == 'POST':
         formset = forms.SectorFormSet(request.POST, )
         if formset.is_valid():
@@ -900,6 +963,7 @@ def manage_sectors(request):
             messages.success(request, "Sectors have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_sectors"))
     else:
+        qs = ml_models.Sector.objects.all()
         formset = forms.SectorFormSet(
             queryset=qs)
     context = {}
@@ -916,7 +980,6 @@ def manage_sectors(request):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_orgs(request):
-    qs = ind_organizations
     if request.method == 'POST':
         formset = forms.OrganizationFormSet(request.POST, )
         if formset.is_valid():
@@ -925,6 +988,7 @@ def manage_orgs(request):
             messages.success(request, "Organizations have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_orgs"))
     else:
+        qs = get_ind_organizations()
         formset = forms.OrganizationFormSet(
             queryset=qs)
     context = {}
@@ -942,7 +1006,6 @@ def delete_status(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_statuses(request):
-    qs = models.Status.objects.all()
     if request.method == 'POST':
         formset = forms.StatusFormSet(request.POST, )
         if formset.is_valid():
@@ -951,6 +1014,7 @@ def manage_statuses(request):
             messages.success(request, "Statuses have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_statuses"))
     else:
+        qs = models.Status.objects.all()
         formset = forms.StatusFormSet(
             queryset=qs)
     context = {}
@@ -974,7 +1038,6 @@ def delete_entry_type(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_entry_types(request):
-    qs = models.EntryType.objects.all()
     if request.method == 'POST':
         formset = forms.EntryTypeFormSet(request.POST, )
         if formset.is_valid():
@@ -983,6 +1046,7 @@ def manage_entry_types(request):
             messages.success(request, "Entry types have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_entry_types"))
     else:
+        qs = models.EntryType.objects.all()
         formset = forms.EntryTypeFormSet(
             queryset=qs)
     context = {}
@@ -1006,7 +1070,6 @@ def delete_funding_purpose(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_funding_purposes(request):
-    qs = models.FundingPurpose.objects.all()
     if request.method == 'POST':
         formset = forms.FundingPurposeFormSet(request.POST, )
         if formset.is_valid():
@@ -1015,6 +1078,7 @@ def manage_funding_purposes(request):
             messages.success(request, "Funding purposes have been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_funding_purposes"))
     else:
+        qs = models.FundingPurpose.objects.all()
         formset = forms.FundingPurposeFormSet(
             queryset=qs)
     context = {}
@@ -1037,7 +1101,6 @@ def delete_reserve(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
 def manage_reserves(request):
-    qs = ml_models.Reserve.objects.all()
     if request.method == 'POST':
         formset = forms.ReserveFormSet(request.POST, )
         if formset.is_valid():
@@ -1046,6 +1109,7 @@ def manage_reserves(request):
             messages.success(request, "Reverse list has been successfully updated")
             return HttpResponseRedirect(reverse("ihub:manage_reserves"))
     else:
+        qs = ml_models.Reserve.objects.all()
         formset = forms.ReserveFormSet(
             queryset=qs)
     context = {}
@@ -1054,5 +1118,35 @@ def manage_reserves(request):
         'name',
     ]
     context['title'] = "Manage Reserve List"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def delete_nation(request, pk):
+    my_obj = ml_models.Nation.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("ihub:manage_nations"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+def manage_nations(request):
+    if request.method == 'POST':
+        formset = forms.NationFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Nation list has been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_nations"))
+    else:
+        qs = ml_models.Nation.objects.all()
+        formset = forms.NationFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+    ]
+    context['title'] = "Manage Nation List"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)

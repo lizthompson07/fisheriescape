@@ -21,7 +21,7 @@
 
 {% if object.capital_costs.count == 0 %}
     <em>
-        {% trans "No Capital Costs" %}
+        {% trans "No Capital Costs" %}...
     </em><br>
 {% else %}
 
@@ -50,9 +50,7 @@
             <tr id="capital-{{ obj.id }}"
                     {% if not object.submitted and not report_mode %}
                 href="{% url 'projects:capital_edit' obj.id %}" pop
-                data-toggle="tooltip" title="Edit"
-                    {% endif %}
-                style="background-color: {{ obj.funding_source.color }}">
+                data-toggle="tooltip" title="Edit" {% endif %}>
                 {% if not report_mode %}
                     <td>
                         {% if not object.submitted and not report_mode %}
@@ -68,7 +66,7 @@
                 <td>{{ obj.get_category_display }}</td>
                 <td>{{ obj.description|nz:"" }}</td>
 
-                <td style="text-align: center">
+                <td style="text-align: center; background-color: {{ obj.funding_source.color }}">
                     {{ obj.funding_source }}
                 </td>
                 {% if not report_mode %}
@@ -84,7 +82,9 @@
                     </td>
                 {% endif %}
 
-                <td style="text-align: center">{{ obj.budget_requested|floatformat:0|intcomma }}</td>
+                <td style="text-align: center" class="{% if not obj.budget_requested %} major-error{% endif %}">
+                    {{ obj.budget_requested|currency }}
+                </td>
 
             </tr>
         {% endfor %}

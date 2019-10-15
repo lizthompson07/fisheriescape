@@ -24,17 +24,15 @@
 
     <div class="container">
 
-
         <h1>{{ object }} -
             {% if object.submitted %}
                 {% trans "SUBMITTED" %}
             {% else %}
                 <span class="red-font">
-                {% trans "DRAFT VERSION" %}
+                {% trans "UNSUBMITTED" %}
                 </span>
             {% endif %}
         </h1>
-
 
         <div class="btn-group">
             {% if not report_mode %}
@@ -80,31 +78,37 @@
                 {% trans "Export PDF" %}
             </a>
 
-        </div>
-        <a href="#" class="under-dev btn btn-sm btn-outline-primary" data-toggle="tooltip"
-           title="Use this project a template for a new project">Clone as Template</a>
 
-        <br><br><br>
-
-        <h3>
-            {% trans "Project Summary:" %}
-        </h3>
-
-        <div class="btn-group">
-            {% if not object.submitted and not report_mode %}
-                <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
-                    {% trans "Add/Edit Project Details" %}
+            <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-warning" data-toggle="tooltip"
+               title="{% trans "Use this project as a template for a new project" %}">
+                Clone Project
+            </a>
+            {% if object.submitted %}
+                <a href="#" pop-href="{% url 'projects:report_new' object.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip"
+                   title="{% trans "Create a new status report for this project" %}">
+                    New Status Report
                 </a>
             {% endif %}
         </div>
 
-        <br><br>
+        <br><br><br>
 
-        <table class="table table-sm table-striped" style="width: auto">
+        <h4>
+            {% trans "Project Details:" %}
+        </h4>
+
+        {% if not object.submitted and not report_mode %}
+            <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
+                {% trans "Add/Edit Project Details" %}
+            </a>
+            <br><br>
+        {% endif %}
+
+
+        <table class="table table-sm table-bordered" style="">
             {# cheating here to adjust header width #}
-            <th class="gone" style="width: 250px; padding: 0px; margin: 0px;"></th>
             {% for field in field_list %}
-                {% verbose_td_display object field %}
+                {% verbose_td_display object field th_width="30%" td_width="80%" %}
             {% endfor %}
             {% verbose_td_display object "section_head_approved" %}
             {% verbose_td_display object "section_head_feedback" %}
@@ -123,6 +127,11 @@
         {% include "projects/_gc_costs.html" %}
         {% include "projects/_collaborators.html" %}
         {% include "projects/_agreements.html" %}
+        {% include "projects/_milestones.html" %}
+        {% include "projects/_files.html" %}
+        {% if object.submitted %}
+            {% include "projects/_status_reports.html" %}
+        {% endif %}
 
         {% include "projects/_financial.html" %}
 
@@ -134,9 +143,16 @@
 
 
         $(".staff-delete-me").click(function (e) {
-            var objectId = $(this)[0].getAttribute("val");
+            var objectId = $(this).attr("val");
+            var currentUserID = "{{ user.id }}";
+            var deleteUserID = $(this).attr("user_id");
+
+            var msg = "{% trans "Are you sure you want to delete this staff member from the project?" %}";
+            if (currentUserID == deleteUserID) {
+                msg = "{% trans 'WARNING: YOU ARE ABOUT TO DELETE YOURSELF FROM THIS PROJECT!!!' %}\n\n" + msg;
+            }
             var userInput = "";
-            userInput = confirm("{% trans "Are you sure you want to delete this staff member from the project?" %}");
+            userInput = confirm(msg);
             if (userInput === true) {
                 document.location.href = $("#staff-secrect-delete-btn-" + objectId)[0].getAttribute("href");
             }
@@ -198,6 +214,16 @@
             e.stopImmediatePropagation();
         });
 
+        $(".milestone-delete-me").click(function (e) {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            userInput = confirm("{% trans "Are you sure you want to delete this milestone request from the project?" %}");
+            if (userInput === true) {
+                document.location.href = $("#milestone-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+            }
+            e.stopImmediatePropagation();
+        });
 
         $(".toggle-source").click(function (e) {
             e.stopImmediatePropagation();
