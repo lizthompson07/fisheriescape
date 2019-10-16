@@ -152,6 +152,8 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
             "dm_assigned",
             "app",
             "section",
+            "description",
+            "notes_html",
             "status",
             "priority",
             "request_type",
@@ -160,12 +162,9 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
         context["field_group_2"] = [
             "github_issue_number",
             "financial_coding",
-            "description",
-            "notes_html",
+            "estimated_cost",
+            "financial_follow_up_needed",
             "people_notes",
-        ]
-
-        context["field_group_3"] = [
             "date_opened",
             "date_modified",
             "date_closed",
