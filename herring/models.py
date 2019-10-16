@@ -166,7 +166,7 @@ class Sample(models.Model):
     last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          related_name="last_modified_by_samples")
-    uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
+    # uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
 
 
     @property

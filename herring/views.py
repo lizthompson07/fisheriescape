@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django_filters.views import FilterView
 from django.utils import timezone
 
+from lib.templatetags.custom_filters import nz
 from . import models
 from . import forms
 from . import filters
@@ -705,7 +706,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         # sum of fish
         running_total = 0
         for sample in qs:
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved,0)
         context["fish_sum"] = running_total
 
         # LAB PROCESSING
@@ -725,7 +726,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         # sum of fish REMAINING
         running_total = 0
         for sample in qs.filter(lab_processing_complete=False):
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved,0)
         context["fish_sum_lab_remaining"] = running_total
 
         # OTOLITH PROCESSING
@@ -736,7 +737,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         # sum of fish COMPLETE
         running_total = 0
         for sample in qs.filter(otolith_processing_complete=True):
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved,0)
         context["fish_sum_oto_complete"] = running_total
 
         # sum of samples REMAINING
@@ -745,7 +746,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         # sum of fish REMAINING
         running_total = 0
         for sample in qs.filter(otolith_processing_complete=False):
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved,0)
         context["fish_sum_oto_remaining"] = running_total
 
         return context
