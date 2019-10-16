@@ -152,8 +152,7 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
             "dm_assigned",
             "app",
             "section",
-            "description",
-            "notes_html",
+            "description_html|Description",
             "status",
             "priority",
             "request_type",
@@ -175,7 +174,7 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
             "sd_ref_number",
             "sd_ticket_url",
             "sd_primary_contact",
-            "sd_description",
+            "sd_description_html|Service desk ticket description",
             "sd_date_logged",
         ]
         return context
