@@ -32,6 +32,26 @@ def in_herring_group(user):
         return user.groups.filter(name='herring_access').count() != 0
 
 
+def in_herring_admin_group(user):
+    if user:
+        return user.groups.filter(name='herring_admin').count() != 0
+
+
+
+class HerringAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_herring_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+
 class HerringAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
@@ -785,7 +805,7 @@ def export_hdet(request, year):
 # ADMIN #
 #########
 
-class CheckUsageListView(HerringAccessRequired, ListView):
+class CheckUsageListView(HerringAdminAccessRequired, ListView):
     template_name = "herring/check_usage.html"
     model = models.FishDetail
 
@@ -793,7 +813,7 @@ class CheckUsageListView(HerringAccessRequired, ListView):
     queryset = model.objects.all().order_by('-last_modified_date')[:50]
 
 
-class ImportFileView(HerringAccessRequired, CreateView):
+class ImportFileView(HerringAdminAccessRequired, CreateView):
     model = models.File
     fields = "__all__"
 
