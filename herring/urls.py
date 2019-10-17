@@ -64,6 +64,10 @@ urlpatterns = [
     path('hlog/<int:year>/export', views.export_hlog, name="export_hlog"),
     path('hdet/<int:year>/export', views.export_hdet, name="export_hdet"),
 
+    # IMPORTS #
+    ###########
+    path('import-from-csv/<str:type>/', views.ImportFileView.as_view(), name="import"),
+
     # ADMIN #
     #########
     path('check-usage/', views.CheckUsageListView.as_view(), name="check_usage"),
