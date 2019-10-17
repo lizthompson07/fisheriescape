@@ -853,6 +853,7 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                 my_sample.experimental_net_used = row.get("experimental_net_used")
                 my_sample.catch_weight_lbs = nz(row.get("catch_weight_lbs"), None)
                 my_sample.total_fish_measured = nz(row.get("total_fish_measured"), None)
+                my_sample.total_fish_preserved = nz(row.get("total_fish_preserved"), None)
                 my_sample.remarks = nz(row.get("remarks"), None)
                 my_sample.creation_date = datetime.strptime(row.get("creation_date"), "%Y-%m-%d %H:%M:%S%z")
                 my_sample.last_modified_date = datetime.strptime(row.get("last_modified_date"), "%Y-%m-%d %H:%M:%S%z")
