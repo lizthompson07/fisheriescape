@@ -226,3 +226,5 @@ class ReportSearchForm(forms.Form):
         year_choices = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
 
         self.fields['year'] = forms.ChoiceField(required=True, choices=year_choices)
+
+
