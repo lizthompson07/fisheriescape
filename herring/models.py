@@ -1,4 +1,7 @@
+import os
+
 from django.db import models
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import auth
@@ -138,7 +141,7 @@ class Sample(models.Model):
 
     type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES)
     sample_date = models.DateTimeField()
-    sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number")
+    sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number", blank=True, null=True)
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     port = models.ForeignKey(shared_models.Port, related_name="herring_samples", on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -155,7 +158,7 @@ class Sample(models.Model):
     total_fish_measured = models.IntegerField(null=True, blank=True)
     total_fish_preserved = models.IntegerField(null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
-    old_id = models.IntegerField(null=True, blank=True)
+    old_id = models.CharField(max_length=100, null=True, blank=True)
     season = models.IntegerField(null=True, blank=True)
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
     lab_processing_complete = models.BooleanField(default=False)
@@ -166,8 +169,8 @@ class Sample(models.Model):
     last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          related_name="last_modified_by_samples")
-    # uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
 
+    # uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
 
     @property
     def lf_count(self):
@@ -308,8 +311,49 @@ class FishDetail(models.Model):
 class LengthFrequency(models.Model):
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='length_frequency_objects')
     length_bin = models.ForeignKey(LengthBin, on_delete=models.DO_NOTHING)
-    count = models.IntegerField()
+    count = models.IntegerField(null=True)
 
     class Meta:
         unique_together = (('sample', 'length_bin'),)
         ordering = ('sample', 'length_bin')
+
+
+def file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'temp_file/{0}'.format(filename)
+
+
+class File(models.Model):
+    file = models.FileField(upload_to=file_directory_path, null=True, blank=True)
+
+
+@receiver(models.signals.post_delete, sender=File)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=File)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = File.objects.get(pk=instance.pk).file
+    except File.DoesNotExist:
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

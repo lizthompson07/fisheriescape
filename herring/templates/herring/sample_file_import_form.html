@@ -1,0 +1,157 @@
+{% extends 'herring/herring_base.html' %}
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <h1>
+            Sedna Sample Import Form:
+        </h1>
+        <ul>
+            <li>
+                the file must be in csv format
+            </li>
+            <li>
+                This function is designed to import a csv export of herring sample data collected in Sedna
+            </li>
+            <li>
+                the order of the columns in the file is NOT important
+            </li>
+            <li>
+                the file must have the follow format:
+            </li>
+        </ul>
+        <table class="table table-sm table-bordered" style="font-size: small">
+            <thead>
+            <th>uuid</th>
+            <th>type</th>
+            <th>sample_date</th>
+            <th>survey_id</th>
+            <th>sampler</th>
+            <th>fishing_area</th>
+            <th>latitude_n</th>
+            <th>longitude_w</th>
+            <th>gear</th>
+            <th>experimental_net_used</th>
+            <th>catch_weight_lbs</th>
+            <th>total_fish_measured</th>
+            <th>total_fish_preserved</th>
+            <th>remarks</th>
+            <th>creation_date</th>
+            <th>last_modified_date</th>
+
+
+            </thead>
+            <tr>
+                <td>
+                    <em>
+                        This is a unique universal identifier assigned to a sample from sedna. This will be stored as the
+                        <code>old_id</code> for historical reference
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        This will always be stored a <code>2</code>, i.e., sea sample
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Date of the set from which the sample originated
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        This is the <code>mission_number</code> field in the sedna shared_models.Cruise object
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Name of sampler
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        NAFO fishing area
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        In this case, the starting latitude is provided in decimal degrees
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        In this case, the starting longitude is provided in decimal degrees
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Gear type used (NAFO gear code)
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        This is by default always set to <code>yes</code>
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Total weight of the catch in lbs
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Total number of fish measure in the originating set
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Total number of fish measure kept in the originating set
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        miscellaneous remarks
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Date the sample record was created
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Date the sample record was last modified
+                    </em>
+                </td>
+            </tr>
+
+        </table>
+
+
+        <br><br>
+
+        <form method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+
+                {#                <h2 class="red-font">WARNING: running this function will overwrite any existing points in this record.</h2>#}
+                <h3>Please select the file to upload:</h3>
+                {{ field }}
+            {% endfor %}
+
+            <br>
+            <br>
+
+            <button type="submit" class="btn btn-success">Submit</button>
+            <br>
+            <br>
+            <a class="btn btn-secondary" href="#" onclick="window.close()">Cancel</a>
+
+        </form>
+
+    </div>
+
+{% endblock content %}
