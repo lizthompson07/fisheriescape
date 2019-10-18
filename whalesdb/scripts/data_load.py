@@ -13,99 +13,6 @@ def get_id(model, sort):
     return n_id
 
 
-def load_adcbits():
-    data_array = [
-        {
-            'eqa_id': 1,
-            'eqa_name': '16-bit'
-        },
-        {
-            'eqa_id': 2,
-            'eqa_name': '18-bit'
-        },
-        {
-            'eqa_id': 3,
-            'eqa_name': '24-bit'
-        },
-
-    ]
-
-    for entry in data_array:
-        # Do not add entries that are already in the code list
-        if not models.EqaAdcBitsCode.objects.filter(eqa_name=entry['eqa_name']):
-            models.EqaAdcBitsCode(entry['eqa_id'], entry['eqa_name']).save()
-
-
-def load_parameter_types():
-    data_array = [
-        {
-            'prm_id': 1,
-            'prm_name': 'Temperature'
-        },
-        {
-            'prm_id': 2,
-            'prm_name': 'Oxygen'
-        },
-        {
-            'prm_id': 3,
-            'prm_name': 'Salinity'
-        },
-        {
-            'prm_id': 4,
-            'prm_name': 'Acidity/pH'
-        },
-        {
-            'prm_id': 5,
-            'prm_name': 'Pressure'
-        },
-        {
-            'prm_id': 6,
-            'prm_name': 'Turbidity'
-        },
-        {
-            'prm_id': 7,
-            'prm_name': 'Orientation (roll-pitch-yaw)'
-        },
-        {
-            'prm_id': 8,
-            'prm_name': 'Acoustic'
-        },
-        {
-            'prm_id': 9,
-            'prm_name': 'OTN tag pings'
-        },
-
-    ]
-
-    for entry in data_array:
-        # Do not add entries that are already in the code list
-        if not models.PrmParameterCode.objects.filter(prm_name=entry['prm_name']):
-            models.PrmParameterCode(entry['prm_id'], entry['prm_name']).save()
-
-
-def load_equipment_type_codes():
-    data_array = [
-        {
-            'eqt_id': 1,
-            'eqt_name': 'Acoustic recorder'
-        },
-        {
-            'eqt_id': 2,
-            'eqt_name': 'Environmental sensor'
-        },
-        {
-            'eqt_id': 3,
-            'eqt_name': 'OTN receiver'
-        },
-
-    ]
-
-    for entry in data_array:
-        # Do not add entries that are already in the code list
-        if not models.EqtEquipmentTypeCode.objects.filter(eqt_name=entry['eqt_name']):
-            models.EqtEquipmentTypeCode(entry['eqt_id'], entry['eqt_name']).save()
-
-
 def load_crs(file_name):
     file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
     model = models.CrsCruises
@@ -228,16 +135,16 @@ def load_tea(file_name):
             continue
 
         data = line.strip().split(',')
-        if not model.objects.filter(tea_last_name=data[0], tea_first_name=data[1]):
+        if not model.objects.filter(tea_last_name=data[1], tea_first_name=data[2]):
             print(str(data))
             model(tea_abb=data[0],
                   tea_last_name=data[1],
                   tea_first_name=data[2]).save()
 
 
-def load_emm(file_name):
+def load_eqt(file_name):
     file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
-    model = models.EcpChannelProperties
+    model = models.EqtEquipmentTypeCode
     print("file: " + file_path)
 
     file = open(file_path, "r")
@@ -248,17 +155,78 @@ def load_emm(file_name):
             continue
 
         data = line.strip().split(',')
-        if not model.objects.filter(tea_last_name=data[0], tea_first_name=data[1]):
+        if not model.objects.filter(eqt_name=data[0]):
+            print(str(data))
+            eqt_id = get_id(model, "eqt_id")
+            model(eqt_id=eqt_id, eqt_name=data[0]).save()
+
+
+def load_eqa(file_name):
+    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    model = models.EqaAdcBitsCode
+    print("file: " + file_path)
+
+    file = open(file_path, "r")
+    first = True
+    for line in file:
+        if first:
+            first = False
+            continue
+
+        data = line.strip().split(',')
+        if not model.objects.filter(eqa_name=data[0]):
+            print(str(data))
+            eqa_id = get_id(model, "eqa_id")
+            model(eqa_id=eqa_id, eqa_name=data[0]).save()
+
+
+def load_prm(file_name):
+    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    model = models.PrmParameterCode
+    print("file: " + file_path)
+
+    file = open(file_path, "r")
+    first = True
+    for line in file:
+        if first:
+            first = False
+            continue
+
+        data = line.strip().split(',')
+        if not model.objects.filter(prm_name=data[0]):
+            print(str(data))
+            prm_id = get_id(model, "prm_id")
+            model(prm_id=prm_id, prm_name=data[0]).save()
+
+
+def load_emm(file_name):
+    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    model = models.EmmMakeModel
+    print("file: " + file_path)
+
+    file = open(file_path, "r")
+    first = True
+    for line in file:
+        if first:
+            first = False
+            continue
+
+        data = line.strip().split(',')
+        if not model.objects.filter(emm_make=data[0], emm_model=data[1]):
             print(str(data))
             emm_make = data[0]
             emm_model = data[1]
             emm_depth_rating = data[2]
             emm_description = data[3]
-            eqt_type = data[4]
 
-            model(tea_abb=data[0],
-                  tea_last_name=data[1],
-                  tea_first_name=data[2]).save()
+            try:
+                eqt_type = models.EqtEquipmentTypeCode.objects.get(eqt_name=data[4])
+                print(eqt_type)
+
+                model(emm_make=emm_make, emm_model=emm_model, emm_depth_rating=emm_depth_rating,
+                      emm_description=emm_description, eqt=eqt_type).save()
+            except models.EqtEquipmentTypeCode.DoesNotExist:
+                print("Eqt '" + data[4] + "' was not found")
 
 
 def load_ecp(file_name):
@@ -274,24 +242,29 @@ def load_ecp(file_name):
             continue
 
         data = line.strip().split(',')
-        if not model.objects.filter(tea_last_name=data[0], tea_first_name=data[1]):
-            print(str(data))
+        try:
             emm_make = data[0]
             emm_model = data[1]
 
-            ecp_channel_no = data[2]
-            eqa_adc_bits = data[3]
-            ecp_voltage_range = data[4]
-            ecp_gain = data[5]
+            emm = models.EmmMakeModel.objects.get(emm_make=data[0], emm_model=data[1])
 
-            model(tea_abb=data[0],
-                  tea_last_name=data[1],
-                  tea_first_name=data[2]).save()
+            if not models.EqrRecorderProperties.objects.filter(emm=emm):
+                eqr = models.EqrRecorderProperties(emm=emm, eqc_max_channels=2, eqc_max_sample_rate=-1).save()
+            else:
+                eqr = models.EqrRecorderProperties.objects.get(emm=emm)
 
+            if not model.objects.filter(emm=eqr):
+                print(str(data))
 
-load_adcbits()
-load_parameter_types()
-load_equipment_type_codes()
+                ecp_channel_no = data[2]
+                eqa_adc_bits = data[3]
+                ecp_voltage_range = data[4]
+                ecp_gain = data[5]
+
+                print("Setting Channel properties for '" + str(emm) + "'")
+        except models.EmmMakeModel.DoesNotExist:
+            print("Could not find make/model '" + data[0] + "/" + data[1] + "'")
+
 
 load_crs("CRS-cruises.csv")
 load_prj("PRJ-projects.csv")
@@ -300,8 +273,8 @@ load_set("SET-station event types.csv")
 load_stn("STN-stations.csv")
 load_tea("TEA-team members.csv")
 
-load_emm("ECP-channel properties.csv")
-# load_ecp("ECP-channel properties.csv")
-# load_eqa("EQA-ADC bits.csv")
-# load_eqt("EQT-equipment types.csv")
-# load_prm("PRM-parameter types.csv")
+load_eqa("EQA-ADC bits.csv")
+load_prm("PRM-parameter types.csv")
+load_eqt("EQT-equipment types.csv")
+load_emm("EMM-equipment make model.csv")
+load_ecp("ECP-channel properties.csv")
