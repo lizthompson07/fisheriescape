@@ -82,7 +82,8 @@ def get_labels(for_model):
         labels = {
             'ecp_channel_no': _("Channel number"),
             'eqa_adc_bits': _("ADC Bits represented in this channel"),
-            'ecp_voltage_range': _("Voltage Range"),
+            'ecp_voltage_range_min': _("Voltage Range Minimum"),
+            'ecp_voltage_range_max': _("Voltage Range Maximum"),
             'ecp_gain': _("How much a channel is amplified in dB."),
         }
     elif for_model is models.EhaHydrophoneAttachements:
