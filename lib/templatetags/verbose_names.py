@@ -59,7 +59,7 @@ def get_verbose_label(instance, field_name):
 
 
 @register.simple_tag
-def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="---", date_format="%Y-%m-%d"):
+def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="---", date_format="%Y-%m-%d", safe=False):
     """
     Returns verbose_name for a field.
     To return a field from a foreign key, send in the field name as such: "user.first_name".
@@ -128,7 +128,11 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
         except:
             pass
 
-    return markdown.markdown(field_value) if "HTML" in str(format) else field_value
+
+    field_value = markdown.markdown(field_value) if "HTML" in str(format) else field_value
+    field_value = mark_safe(field_value) if safe else field_value
+    return field_value
+
 
 
 @register.simple_tag

@@ -36,10 +36,10 @@
             {% endif %}
         </h1>
         {% if awaiting %}
-            (<a href="{% url 'travel:event_approval_list'  %}">view all trips</a>)
+            (<a href="{% url 'travel:event_approval_list' %}">view all trips</a>)
 
         {% else %}
-            (<a href="{% url 'travel:event_approval_list' "awaiting"  %}">view trips awaiting my approval</a>)
+            (<a href="{% url 'travel:event_approval_list' "awaiting" %}">view trips awaiting my approval</a>)
         {% endif %}
 
         <br>
@@ -66,7 +66,11 @@
                     <tr>
                         <th>Status</th>
                         {% for field in field_list %}
-                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                            {% if "is_group" in field %}
+                                <th scope="col">Type</th>
+                            {% else %}
+                                <th scope="col">{% get_verbose_label my_object field %}</th>
+                            {% endif %}
                         {% endfor %}
                     </tr>
                     </thead>
@@ -74,10 +78,15 @@
                     {% for object in object_list %}
                         {% url 'travel:event_approve' object.id as my_approval_url %}
                         {% url 'travel:event_detail' object.id as my_detail_url %}
-                        <tr href="{% if object.status_id != 8  %}{{my_approval_url}}{% else %}{{ my_detail_url }}{% endif %}">
-                        <td style="background-color: {{ object.status.color }}"><b>{{ object.status }}</b></td>
+                        <tr href="{% if object.status_id != 8 %}{{ my_approval_url }}{% else %}{{ my_detail_url }}{% endif %}">
+                            <td style="background-color: {{ object.status.color }}"><b>{{ object.status }}</b></td>
+
                             {% for field in field_list %}
-                                <td>{% get_field_value object field format="currency" %}</td>
+                                {% if "is_group" in field %}
+                                    <td>{{ object.is_group_trip|yesno:"Group,Individual" }}</td>
+                                {% else %}
+                                    <td>{% get_field_value object field format="currency" %}</td>
+                                {% endif %}
                             {% endfor %}
 
                         </tr>

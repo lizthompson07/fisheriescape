@@ -13,8 +13,10 @@ urlpatterns = [
     path('trip/<int:pk>/view/', views.EventDetailView.as_view(), name="event_detail"),
     path('trip/<int:pk>/print/', views.TravelPlanPDF.as_view(), name="event_print"),
     path('trip/<int:pk>/edit/', views.EventUpdateView.as_view(), name="event_edit"),
+    path('trip/<int:pk>/edit/<str:pop>/', views.EventUpdateView.as_view(), name="event_edit"),
     path('trip/<int:pk>/delete/', views.EventDeleteView.as_view(), name="event_delete"),
-    path('trip/<int:pk>/duplicate/', views.duplicate_event, name="duplicate_event"),
+    path('trip/<int:pk>/duplicate/', views.EventCloneUpdateView.as_view(), name="duplicate_event"),
+    path('trip/<int:pk>/new-child-trip/', views.EventCreateView.as_view(), name="event_new"),
 
     path('trips/approval/', views.EventApprovalListView.as_view(), name="event_approval_list"),
     path('trips/approval/<str:which_ones>/', views.EventApprovalListView.as_view(), name="event_approval_list"),
