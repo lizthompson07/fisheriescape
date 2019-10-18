@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
 from django.core.mail import send_mail
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -146,23 +146,26 @@ class RegisteredEvent(models.Model):
 class Event(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True)
+    is_group_trip = models.BooleanField(default=False,
+                                        verbose_name=_("Is this a group trip (i.e., is this a request for multiple individuals)?"))
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="user_trips",
-                             verbose_name=_("connected user"))
+                             verbose_name=_("user"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("DFO section"),
                                 limit_choices_to={'division__branch': 1})
-    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
-    last_name = models.CharField(max_length=100, verbose_name=_("last name"))
-    address = models.CharField(max_length=1000, verbose_name=_("address"), default="343 Université Avenue, Moncton, NB, E1C 9B6")
-    phone = models.CharField(max_length=1000, verbose_name=_("phone"))
-    email = models.EmailField(verbose_name=_("email"))
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
+    address = models.CharField(max_length=1000, verbose_name=_("address"), default="343 Université Avenue, Moncton, NB, E1C 9B6",
+                               blank=True, null=True)
+    phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
+    email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
     public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES)
     company_name = models.CharField(max_length=255, verbose_name=_("company name (leave blank if DFO)"), blank=True, null=True)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location"), blank=True, null=True)
     destination = models.CharField(max_length=1000, verbose_name=_("destination location"), blank=True, null=True)
-    start_date = models.DateTimeField(verbose_name=_("start date of travel"))
-    end_date = models.DateTimeField(verbose_name=_("end date of travel"))
+    start_date = models.DateTimeField(verbose_name=_("start date of travel"), blank=True, null=True)
+    end_date = models.DateTimeField(verbose_name=_("end date of travel"), blank=True, null=True)
     event = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a registered event"))
     registered_event = models.ForeignKey(RegisteredEvent, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("registered event"), related_name="trips")
@@ -172,7 +175,8 @@ class Event(models.Model):
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_(
-        "role of participant (More expansive than just saying he/she “present a paper” for example.  This should describe how does his/her role at the event relate to his/her role at DFO)"))
+        "role of participant (More expansive than just saying he/she “present a paper” for example.  "
+        "This should describe how does his/her role at the event relate to his/her role at DFO)"))
     objective_of_event = models.TextField(blank=True, null=True, verbose_name=_(
         "objective of the event (Brief description of what the event is about.  Not objective of the Participants in going to the event.)"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_(
@@ -231,14 +235,16 @@ class Event(models.Model):
     waiting_on = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="waiting_on_trips", verbose_name=_("Waiting on"),
                                    blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
-                                                 limit_choices_to={"used_for": 2}, verbose_name=_("Trip approval status"),
-                                                 blank=True, null=True)
+                               limit_choices_to={"used_for": 2}, verbose_name=_("Trip approval status"),
+                               blank=True, null=True)
+    parent_event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="children_events", blank=True, null=True)
 
     def __str__(self):
         return "{}".format(self.trip_title)
 
     class Meta:
-        ordering = ["start_date", "last_name"]
+        ordering = ["-start_date", "last_name"]
+        unique_together = [("user", "parent_event"),]
 
     def get_absolute_url(self):
         return reverse('travel:event_detail', kwargs={'pk': self.id})
@@ -248,7 +254,8 @@ class Event(models.Model):
         self.total_cost = nz(self.air, 0) + nz(self.rail, 0) + nz(self.rental_motor_vehicle, 0) + nz(self.personal_motor_vehicle, 0) + nz(
             self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.meals, 0) + nz(self.incidentals, 0) + nz(
             self.other, 0) + nz(self.registration, 0)
-        self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
+        if self.start_date:
+            self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
 
         # run the approval seeker function
         self.approval_seeker()
@@ -281,6 +288,14 @@ class Event(models.Model):
         if self.other:
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other").verbose_name, self.other)
         return my_str
+
+    @property
+    def total_trip_cost(self):
+        if self.is_group_trip:
+            object_list = self.children_events.all()
+            return object_list.values("total_cost").order_by("total_cost").aggregate(dsum=Sum("total_cost"))['dsum']
+        else:
+            return self.total_cost
 
     @property
     def purpose_long(self):
@@ -436,4 +451,3 @@ class Event(models.Model):
                     self.status_id = 9
                 else:
                     self.status_id = 8
-

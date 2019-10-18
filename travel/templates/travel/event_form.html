@@ -23,6 +23,9 @@
 
         <h1>
             {% if object %}
+                {% if cloned %}
+                CLONING:
+                {% endif %}
                 {{ object }}
             {% else %}
                 New Trip
@@ -35,18 +38,25 @@
             {% csrf_token %}
 
             {% for field in form %}
-                {% if field.name == "registered_event" %}
-                    {% bootstrap_field field placeholder="" %}
-
-                    <div id="new_event_container">
-                        (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
-                        <br><br>
-                    </div>
-
-                {% else %}
-
-                    {% bootstrap_field field placeholder="" %}
+                {% if "hide-me" in field.field.widget.attrs.class %}
+                    <div class="hide-me">
                 {% endif %}
+
+            {% if field.name == "registered_event" %}
+                {% bootstrap_field field placeholder="" %}
+
+                <div id="new_event_container">
+                    (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
+                    <br><br>
+                </div>
+
+            {% else %}
+
+                {% bootstrap_field field placeholder="" %}
+            {% endif %}
+            {% if "hide-me" in field.field.widget.attrs.class %}
+                </div>
+            {% endif %}
             {% endfor %}
 
             {% for field in form %}
@@ -87,7 +97,6 @@
             $("#id_email").val(userObj[myId]["email"]);
         }
 
-
         function refreshRegisteredEvent() {
             if ($("#id_event").val() == "False") {
                 $("#id_registered_event").val("");
@@ -99,6 +108,13 @@
             }
         }
 
+        function refreshClassHideMe() {
+            if ($("#id_is_group_trip").val() == "False") {
+                $(".hide-me").removeClass("gone")
+            } else {
+                $(".hide-me").addClass("gone")
+            }
+        }
 
         $("#id_user").change(function () {
             refreshUserInfo();
@@ -106,6 +122,10 @@
 
         $("#id_event").change(function () {
             refreshRegisteredEvent();
+        });
+
+        $("#id_is_group_trip").change(function () {
+            refreshClassHideMe();
         });
 
         $("#id_section").change(function () {
@@ -121,6 +141,7 @@
             // Stuff to do as soon as the DOM is ready
             refreshUserInfo();
             refreshRegisteredEvent();
+            refreshClassHideMe();
         });
 
         $("#new_event").click(function () {
