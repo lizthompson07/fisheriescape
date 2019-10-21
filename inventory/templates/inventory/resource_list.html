@@ -25,7 +25,7 @@
         TOTAL: {{ filter.qs.count }}
         </p>
 
-        <form class="form" action="." method="get" style="width: 75%; font-size: small" id="filter-form">
+        <form class="form" action="." method="get" style="width: 85%; font-size: small" id="filter-form">
             <div class="row">
                 {% for field in filter.form %}
                     <div class="col">
@@ -84,6 +84,9 @@
                 <th scope="col">
                     {% trans "Translation Needed" %}
                 </th>
+                <th scope="col">
+                    {% trans "Published to Open Data?" %}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -116,6 +119,7 @@
                     </td>
                     <td>{{ obj.completedness_rating|percentage:0 }}</td>
                     <td>{{ obj.translation_needed|yesno }}</td>
+                    <td>{{ obj.fgp_publication_date|yesno:"yes,no,no" }}</td>
 
 
                 </tr>
