@@ -218,13 +218,21 @@ def load_emm(file_name):
             emm_model = data[1]
             emm_depth_rating = data[2]
             emm_description = data[3]
-
             try:
                 eqt_type = models.EqtEquipmentTypeCode.objects.get(eqt_name=data[4])
                 print(eqt_type)
 
                 model(emm_make=emm_make, emm_model=emm_model, emm_depth_rating=emm_depth_rating,
                       emm_description=emm_description, eqt=eqt_type).save()
+
+
+                try:
+                    emm = model.objects.get(emm_make=emm_make, emm_model=emm_model)
+                    prm = models.PrmParameterCode.objects.get(prm_name=data[5])
+                    models.EprEquipmentParameters(emm=emm, prm=prm).save()
+                    print("prams added to '" + str(emm) + "'")
+                except models.PrmParameterCode.DoesNotExist:
+                    print("Could not add parameter '" + data[4] + "' to equipment '" + str(emm) + "'")
             except models.EqtEquipmentTypeCode.DoesNotExist:
                 print("Eqt '" + data[4] + "' was not found")
 
@@ -246,22 +254,26 @@ def load_ecp(file_name):
             emm_make = data[0]
             emm_model = data[1]
 
-            emm = models.EmmMakeModel.objects.get(emm_make=data[0], emm_model=data[1])
+            emm = models.EmmMakeModel.objects.get(emm_make=emm_make, emm_model=emm_model)
 
             if not models.EqrRecorderProperties.objects.filter(emm=emm):
-                eqr = models.EqrRecorderProperties(emm=emm, eqc_max_channels=2, eqc_max_sample_rate=-1).save()
-            else:
-                eqr = models.EqrRecorderProperties.objects.get(emm=emm)
+                models.EqrRecorderProperties(emm=emm, eqc_max_channels=2, eqc_max_sample_rate=-1).save()
 
-            if not model.objects.filter(emm=eqr):
+            eqr = models.EqrRecorderProperties.objects.get(emm=emm)
+
+            if not model.objects.filter(emm=eqr, ecp_channel_no=data[2]):
                 print(str(data))
 
                 ecp_channel_no = data[2]
-                eqa_adc_bits = data[3]
-                ecp_voltage_range = data[4]
-                ecp_gain = data[5]
+                eqa_adc_bits = models.EqaAdcBitsCode.objects.get(eqa_name=(data[3] + "-bit"))
+                ecp_voltage_range_min = data[4] if data[4] else None
+                ecp_voltage_range_max = data[5] if data[5] else None
+                ecp_gain = data[6] if data[6] else None
 
                 print("Setting Channel properties for '" + str(emm) + "'")
+                models.EcpChannelProperties(emm=eqr, ecp_channel_no=ecp_channel_no, eqa_adc_bits=eqa_adc_bits,
+                                            ecp_voltage_range_min=ecp_voltage_range_min,
+                                            ecp_voltage_range_max=ecp_voltage_range_max, ecp_gain=ecp_gain).save()
         except models.EmmMakeModel.DoesNotExist:
             print("Could not find make/model '" + data[0] + "/" + data[1] + "'")
 
