@@ -198,7 +198,9 @@ class MorMooringSetups(models.Model):
         db_table = 'mor_mooring_setups'
 
     def __str__(self):
-        return "{} - {:0.5} m - {} hydrophones".format(self.mor_name, self.mor_max_depth, self.mor_num_hydrophones)
+        return "{} - {:0.5} m - {} hydrophones".format(self.mor_name,
+                                                       self.mor_max_depth if self.mor_max_depth else 0,
+                                                       self.mor_num_hydrophones if self.mor_num_hydrophones else 0)
 
 
 class PrjProjects(models.Model):
