@@ -28,6 +28,7 @@ from . import reports
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 
+
 def get_ind_organizations():
     return ml_models.Organization.objects.filter(grouping__is_indigenous=True)
 
@@ -47,6 +48,26 @@ class iHubAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
         return in_ihub_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+def in_ihub_edit_group(user):
+    """this group includes the admin group so there is no need to add an admin to this group"""
+    if user:
+        if in_ihub_admin_group(user) or user.groups.filter(name='ihub_edit').count() != 0:
+            return True
+
+
+class iHubEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_ihub_edit_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -436,7 +457,7 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
         return context
 
 
-class EntryUpdateView(iHubAdminRequiredMixin, UpdateView):
+class EntryUpdateView(iHubEditRequiredMixin, UpdateView):
     model = models.Entry
     form_class = forms.EntryForm
 
@@ -444,7 +465,7 @@ class EntryUpdateView(iHubAdminRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class EntryCreateView(iHubAdminRequiredMixin, CreateView):
+class EntryCreateView(iHubEditRequiredMixin, CreateView):
     model = models.Entry
     form_class = forms.EntryCreateForm
 
@@ -485,7 +506,7 @@ class EntryDeleteView(iHubAdminRequiredMixin, DeleteView):
 # NOTES #
 #########
 
-class NoteCreateView(iHubAdminRequiredMixin, CreateView):
+class NoteCreateView(iHubEditRequiredMixin, CreateView):
     model = models.EntryNote
     template_name = 'ihub/note_form_popout.html'
     form_class = forms.NoteForm
@@ -508,7 +529,7 @@ class NoteCreateView(iHubAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
-class NoteUpdateView(iHubAdminRequiredMixin, UpdateView):
+class NoteUpdateView(iHubEditRequiredMixin, UpdateView):
     model = models.EntryNote
     template_name = 'ihub/note_form_popout.html'
     form_class = forms.NoteForm
@@ -519,7 +540,7 @@ class NoteUpdateView(iHubAdminRequiredMixin, UpdateView):
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
 def note_delete(request, pk):
     object = models.EntryNote.objects.get(pk=pk)
     object.delete()
@@ -530,7 +551,7 @@ def note_delete(request, pk):
 # ENTRYPERSON #
 ###############
 
-class EntryPersonCreateView(iHubAdminRequiredMixin, CreateView):
+class EntryPersonCreateView(iHubEditRequiredMixin, CreateView):
     model = models.EntryPerson
     template_name = 'ihub/entry_person_form_popout.html'
     login_url = '/accounts/login_required/'
@@ -553,7 +574,7 @@ class EntryPersonCreateView(iHubAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
-class EntryPersonUpdateView(iHubAdminRequiredMixin, UpdateView):
+class EntryPersonUpdateView(iHubEditRequiredMixin, UpdateView):
     model = models.EntryPerson
     template_name = 'ihub/entry_person_form_popout.html'
     form_class = forms.EntryPersonForm
@@ -565,7 +586,7 @@ class EntryPersonUpdateView(iHubAdminRequiredMixin, UpdateView):
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
 def entry_person_delete(request, pk):
     object = models.EntryPerson.objects.get(pk=pk)
     object.delete()
@@ -576,7 +597,7 @@ def entry_person_delete(request, pk):
 # FILE #
 ########
 
-class FileCreateView(iHubAdminRequiredMixin, CreateView):
+class FileCreateView(iHubEditRequiredMixin, CreateView):
     model = models.File
     template_name = 'ihub/file_form_popout.html'
     login_url = '/accounts/login_required/'
@@ -596,7 +617,7 @@ class FileCreateView(iHubAdminRequiredMixin, CreateView):
         return context
 
 
-class FileUpdateView(iHubAdminRequiredMixin, UpdateView):
+class FileUpdateView(iHubEditRequiredMixin, UpdateView):
     model = models.File
     template_name = 'ihub/file_form_popout.html'
     form_class = forms.FileForm
@@ -614,7 +635,7 @@ class FileUpdateView(iHubAdminRequiredMixin, UpdateView):
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
 def file_delete(request, pk):
     object = models.File.objects.get(pk=pk)
     object.delete()
@@ -833,7 +854,6 @@ class PDFSummaryReport(PDFTemplateView):
                 q_objects |= Q(organizations=o)  # 'or' the Q objects together
             # apply the filter
             entry_list = entry_list.filter(q_objects)
-
 
         context["entry_list"] = entry_list
 
