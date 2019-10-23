@@ -526,7 +526,8 @@ class CreateChannel(CreateTemplate):
 
         ecp = models.EcpChannelProperties(emm=emm, ecp_channel_no=form.cleaned_data['ecp_channel_no'],
                                           eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
-                                          ecp_voltage_range=form.cleaned_data['ecp_voltage_range'],
+                                          ecp_voltage_range_min=form.cleaned_data['ecp_voltage_range_min'],
+                                          ecp_voltage_range_max=form.cleaned_data['ecp_voltage_range_max'],
                                           ecp_gain=form.cleaned_data['ecp_gain'])
 
         ecp.save()

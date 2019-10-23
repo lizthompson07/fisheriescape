@@ -1,0 +1,10 @@
+EMM_MAKE,EMM_MODEL,EMM_DEPTH_RATING,EMM_DESCRIPTION,EQT_NAME,PRM_NAME
+Akoostix,Guardbuoy,200,Akoostix autonomous recorder ,Acoustic recorder,Acoustic
+AURAL,M2,200,Multi-Electronique Autonomous Underwater Recorder for Acoustic Listening,Acoustic recorder,Acoustic
+Cornell,MARU,2000,Marine Autonomous Recording Unit (pop-up),Acoustic recorder,Acoustic
+JASCO,AMAR G3A-AL-2X,2500,Autonomous Multichannel Acoustic Recorder (Generation 3) - Deep,Acoustic recorder,Acoustic
+JASCO,AMAR G3A-AL-4X,2500,Autonomous Multichannel Acoustic Recorder (Generation 3) - Extended Deep,Acoustic recorder,Acoustic
+JASCO,AMAR G3-PVC-2X,250,Autonomous Multichannel Acoustic Recorder (Generation 3) - Shallow,Acoustic recorder,Acoustic
+JASCO,AMAR G4A-AL-6.5,2500,Autonomous Multichannel Acoustic Recorder (Generation 4) - Extended Deep,Acoustic recorder,Acoustic
+JASCO,AMAR G4-PVC-2X-6.5,250,Autonomous Multichannel Acoustic Recorder (Generation 4) - Shallow,Acoustic recorder,Acoustic
+JASCO,AMAR UD-G4,6700,Autonomous Multichannel Acoustic Recorder (Generation 4) - Ultra Deep,Acoustic recorder,Acoustic
