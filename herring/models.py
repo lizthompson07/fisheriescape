@@ -89,12 +89,12 @@ class Gear(models.Model):
 
 
 class MeshSize(models.Model):
-    size_mm = models.CharField(max_length=55, null=True, blank=True)
+    size_mm = models.IntegerField(null=True)
     size_inches = models.CharField(max_length=55, null=True, blank=True)
     size_inches_decimal = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return "{} / {}".format(self.size_inches, self.size_mm)
+        return "{} / {} mm".format(self.size_inches, self.size_mm)
 
     class Meta:
         ordering = ['size_mm']
