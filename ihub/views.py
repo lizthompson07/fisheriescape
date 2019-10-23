@@ -144,7 +144,7 @@ class PersonDetailView(SiteLoginRequiredMixin, DetailView):
         return context
 
 
-class PersonUpdateView(iHubAdminRequiredMixin, UpdateView):
+class PersonUpdateView(iHubEditRequiredMixin, UpdateView):
     model = ml_models.Person
     template_name = 'ihub/person_form.html'
     form_class = forms.PersonForm
@@ -160,7 +160,7 @@ class PersonUpdateView(iHubAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk": object.id}))
 
 
-class PersonUpdateViewPopout(iHubAdminRequiredMixin, UpdateView):
+class PersonUpdateViewPopout(iHubEditRequiredMixin, UpdateView):
     template_name = 'ihub/person_form_popout.html'
     model = ml_models.Person
     form_class = forms.PersonForm
@@ -175,7 +175,7 @@ class PersonUpdateViewPopout(iHubAdminRequiredMixin, UpdateView):
         }
 
 
-class PersonCreateView(iHubAdminRequiredMixin, CreateView):
+class PersonCreateView(iHubEditRequiredMixin, CreateView):
     model = ml_models.Organization
     template_name = 'ihub/person_form.html'
     form_class = forms.PersonForm
@@ -190,7 +190,7 @@ class PersonCreateView(iHubAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk": object.id}))
 
 
-class PersonCreateViewPopout(iHubAdminRequiredMixin, CreateView):
+class PersonCreateViewPopout(iHubEditRequiredMixin, CreateView):
     model = ml_models.Person
     template_name = 'ihub/person_form_popout.html'
     form_class = forms.PersonForm
@@ -298,7 +298,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
         return context
 
 
-class OrganizationUpdateView(iHubAdminRequiredMixin, UpdateView):
+class OrganizationUpdateView(iHubEditRequiredMixin, UpdateView):
     model = ml_models.Organization
     template_name = 'ihub/organization_form.html'
     form_class = forms.OrganizationForm
@@ -308,7 +308,7 @@ class OrganizationUpdateView(iHubAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 
-class OrganizationCreateView(iHubAdminRequiredMixin, CreateView):
+class OrganizationCreateView(iHubEditRequiredMixin, CreateView):
     model = ml_models.Organization
     template_name = 'ihub/organization_form.html'
     form_class = forms.OrganizationForm
@@ -332,7 +332,7 @@ class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
 # MEMBER  (ORGANIZATION PERSON) #
 #################################
 
-class MemberCreateView(iHubAdminRequiredMixin, CreateView):
+class MemberCreateView(iHubEditRequiredMixin, CreateView):
     model = ml_models.OrganizationMember
     template_name = 'ihub/member_form_popout.html'
     login_url = '/accounts/login_required/'
@@ -366,7 +366,7 @@ class MemberCreateView(iHubAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
-class MemberUpdateView(iHubAdminRequiredMixin, UpdateView):
+class MemberUpdateView(iHubEditRequiredMixin, UpdateView):
     model = ml_models.OrganizationMember
     template_name = 'ihub/member_form_popout.html'
     form_class = forms.MemberForm
