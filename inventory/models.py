@@ -481,7 +481,7 @@ class WebService(models.Model):
 
 
 class ResourcePerson(models.Model):
-    resource = models.ForeignKey(Resource, on_delete=models.DO_NOTHING, related_name="resource_people")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="resource_people")
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="resource_people")
     role = models.ForeignKey(PersonRole, on_delete=models.DO_NOTHING)
     notes = models.TextField(blank=True, null=True)
