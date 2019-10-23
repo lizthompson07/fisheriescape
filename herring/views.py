@@ -37,7 +37,6 @@ def in_herring_admin_group(user):
         return user.groups.filter(name='herring_admin').count() != 0
 
 
-
 class HerringAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
@@ -49,7 +48,6 @@ class HerringAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
-
 
 
 class HerringAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
@@ -839,84 +837,120 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
             # what to do if we are importing a sample data export..
             if self.kwargs.get("type") == "sample":
                 # each row will represent a sample
-                # let's get or create a sample based on the uuid
-                my_sample, created = models.Sample.objects.get_or_create(
-                    old_id=row.get("uuid"),
-                    sample_date=datetime.strptime(row.get("sample_date"), "%Y-%m-%d %H:%M:%S%z"),
-                )
+                # we only want herring.. so if there is a species field, it should be clupea ...
+                species_name = row.get("species")
+                if not species_name or species_name.lower().startswith("clupea"):
 
-                # let's do this easy stuff in one shot:
-                my_sample.type = row.get("type")
-                my_sample.survey_id = nz(row.get("survey_id"), None)
-                my_sample.latitude_n = nz(row.get("latitude_n"), None)
-                my_sample.longitude_w = nz(row.get("longitude_w"), None)
-                my_sample.experimental_net_used = row.get("experimental_net_used")
-                my_sample.catch_weight_lbs = nz(row.get("catch_weight_lbs"), None)
-                my_sample.total_fish_measured = nz(row.get("total_fish_measured"), None)
-                my_sample.total_fish_preserved = nz(row.get("total_fish_preserved"), None)
-                my_sample.remarks = nz(row.get("remarks"), None)
-                my_sample.creation_date = datetime.strptime(row.get("creation_date"), "%Y-%m-%d %H:%M:%S%z")
-                my_sample.last_modified_date = datetime.strptime(row.get("last_modified_date"), "%Y-%m-%d %H:%M:%S%z")
+                    # let's get or create a sample based on the uuid
+                    my_sample, created = models.Sample.objects.get_or_create(
+                        old_id=row.get("uuid"),
+                        sample_date=datetime.strptime(row.get("sample_date"), "%Y-%m-%d %H:%M:%S%z"),
+                    )
 
-                # now the trickier stuff:
-                # SAMPLER
-                sedna_sampler = row.get("sampler").lower().split(", ")  # this will be in the format [last_name, first_name]
-                # look for something similar in the hermorrhage db
-                herm_sampler = models.Sampler.objects.filter(
-                    first_name__istartswith=sedna_sampler[1],
-                    last_name__iexact=sedna_sampler[0],
-                )
-                if herm_sampler.count() == 1:
-                    # bingo, we found our man
-                    print("bingo, we found our man")
-                    my_sample.sampler = herm_sampler.first()
-                elif herm_sampler.count() == 0:
-                    print("no hits for sampler")
-                    # this user appears to be absent from hermorrhage db
-                    new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
-                    my_sample.sampler = new_sampler
-                else:
-                    print("more than one hit for sampler")
-                    # we are in a position where there are more than one hits.. try using the whole first name.
-                    # if there are still more than one hits we can just choose the first sampler arbitrarily... means there is a duplicate
-                    # If no hits probably safer just to create a new sampler
+                    # let's do this easy stuff in one shot:
+                    my_sample.type = row.get("type")
+                    my_sample.survey_id = nz(row.get("survey_id"), None)
+                    my_sample.sampler_ref_number = nz(row.get("sampler_ref_number"), None)
+                    my_sample.latitude_n = nz(row.get("latitude_n"), None)
+                    my_sample.longitude_w = nz(row.get("longitude_w"), None)
+                    my_sample.experimental_net_used = row.get("experimental_net_used")
+                    my_sample.sample_weight_lbs = nz(row.get("sample_weight_lbs"), None)
+                    my_sample.catch_weight_lbs = nz(row.get("catch_weight_lbs"), None)
+                    my_sample.total_fish_measured = nz(row.get("total_fish_measured"), None)
+                    my_sample.total_fish_preserved = nz(row.get("total_fish_preserved"), None)
+                    my_sample.remarks = nz(row.get("remarks"), None)
+                    my_sample.creation_date = datetime.strptime(row.get("creation_date"), "%Y-%m-%d %H:%M:%S%z")
+                    my_sample.last_modified_date = datetime.strptime(row.get("last_modified_date"), "%Y-%m-%d %H:%M:%S%z")
+                    my_sample.created_by = self.request.user
+                    my_sample.last_modified_by = self.request.user
+                    my_sample.vessel_cfvn = nz(row.get("vessel_cfvn"), None)
+
+                    # now the trickier stuff:
+                    # SAMPLER
+                    sedna_sampler = row.get("sampler").lower().split(", ")  # this will be in the format [last_name, first_name]
+                    # look for something similar in the hermorrhage db
                     herm_sampler = models.Sampler.objects.filter(
-                        first_name__iexact=sedna_sampler[1],
+                        first_name__istartswith=sedna_sampler[1],
                         last_name__iexact=sedna_sampler[0],
                     )
-                    if herm_sampler.count() > 0:
-                        # bingo, we found our man (after a few adjustments)
-                        print("bingo, we found our man (after a few adjustments)")
+                    if herm_sampler.count() == 1:
+                        # bingo, we found our man
+                        print("bingo, we found our man")
                         my_sample.sampler = herm_sampler.first()
-                    else:
-                        print("no hits for sampler, when using full first name")
+                    elif herm_sampler.count() == 0:
+                        print("no hits for sampler")
                         # this user appears to be absent from hermorrhage db
                         new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
                         my_sample.sampler = new_sampler
+                    else:
+                        print("more than one hit for sampler")
+                        # we are in a position where there are more than one hits.. try using the whole first name.
+                        # if there are still more than one hits we can just choose the first sampler arbitrarily... means there is a duplicate
+                        # If no hits probably safer just to create a new sampler
+                        herm_sampler = models.Sampler.objects.filter(
+                            first_name__iexact=sedna_sampler[1],
+                            last_name__iexact=sedna_sampler[0],
+                        )
+                        if herm_sampler.count() > 0:
+                            # bingo, we found our man (after a few adjustments)
+                            print("bingo, we found our man (after a few adjustments)")
+                            my_sample.sampler = herm_sampler.first()
+                        else:
+                            print("no hits for sampler, when using full first name")
+                            # this user appears to be absent from hermorrhage db
+                            new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
+                            my_sample.sampler = new_sampler
 
-                # FISHING AREA
-                # since this is more fundamental, let's crush the script is not found
-                # look for something exactly the same in the hermorrhage db
-                my_sample.fishing_area = models.FishingArea.objects.get(nafo_area_code__iexact=row.get("fishing_area"))
+                    # FISHING AREA
+                    # since this is more fundamental, let's crush the script is not found
+                    # look for something exactly the same in the hermorrhage db
+                    if row.get("fishing_area"):
+                        my_sample.fishing_area = models.FishingArea.objects.get(nafo_area_code__iexact=row.get("fishing_area"))
 
-                # GEAR
-                # same for gear. not finding something here is unacceptable
-                my_sample.gear = models.Gear.objects.get(gear_code__iexact=row.get("gear"))
+                    # GEAR
+                    # same for gear. not finding something here is unacceptable
+                    if row.get("gear"):
+                        my_sample.gear = models.Gear.objects.get(gear_code__iexact=row.get("gear"))
 
-                my_sample.save()
+                    # MESH SIZE
+                    if row.get("mesh_size"):
+                        try:
+                            my_mesh = models.MeshSize.objects.get(size_mm=row.get("mesh_size"))
+                        except models.MeshSize.DoesNotExist:
+                            my_mesh = models.MeshSize.objects.create(
+                                size_mm=row.get("mesh_size")
+                            )
+                        my_sample.mesh_size = my_mesh
+
+                    # PORT
+                    if row.get("port_code"):
+                        # not finding something here is unacceptable
+                        for port in shared_models.Port.objects.all():
+                            if row.get("port_code") == port.full_code:
+                                my_sample.port = port
+                                break
+
+                    my_sample.save()
+                else:
+                    messages.warning(self.request,
+                                     "Skipping sample with uuid {} because it is not a herring sample.".format(row.get("uuid")))
             elif self.kwargs.get("type") == "lf":
                 # each row will represent a length frequency object
                 # let's get the sample based on the uuid; if not found we should crash because something went wrong
-                my_sample = models.Sample.objects.get(old_id=row.get("sample_uuid"))
-
-                my_lf, created = models.LengthFrequency.objects.get_or_create(
-                    sample=my_sample,
-                    length_bin_id=row.get("length_bin"),
-                )
-                my_lf.count = row.get("count")
-                my_lf.save()
-
-                my_sample.save()
+                try:
+                    my_sample = models.Sample.objects.get(old_id=row.get("sample_uuid"))
+                except models.Sample.DoesNotExist:
+                    messages.warning(self.request,
+                                   "Sample with uuid {} was not found in the hermorrhage db. This length frequecy will be skipped".format(
+                                       row.get("sample_uuid")))
+                else:
+                    my_lf, created = models.LengthFrequency.objects.get_or_create(
+                        sample=my_sample,
+                        length_bin_id=row.get("length_bin"),
+                    )
+                    my_lf.count = row.get("count")
+                    my_lf.save()
+                    my_sample.save()  # run the save method to do a few updates
 
             elif self.kwargs.get("type") == "detail":
                 # each row will represent a fish detail
