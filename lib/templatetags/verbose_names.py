@@ -3,6 +3,8 @@ from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString, mark_safe
 import markdown
 
+from lib.templatetags.custom_filters import tohtml
+
 register = template.Library()
 
 
@@ -157,7 +159,7 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
 
 @register.simple_tag
 def verbose_td_display(instance, field_name, format=None, display_time=False, url=None, date_format=None, nullmark="---", th_width=None,
-                       td_width=None):
+                       td_width=None, to_html=False):
     """
     returns a table row <tr> with a <td> for the label and a <td> for the value. Call this from within a <table>
     """
@@ -168,6 +170,9 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
     field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format,
                                   nullmark=nullmark)
 
+    if to_html:
+        field_value = tohtml(field_value)
+
     th_tag_opener = '<th style="width: {};">'.format(th_width) if th_width else '<th>'
     td_tag_opener = '<td style="width: {};">'.format(td_width) if td_width else '<td>'
 
@@ -175,5 +180,6 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
         html_block = '<tr>{}{}</th>{}<a href="{}">{}</a></td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, url, field_value)
     else:
         html_block = '<tr>{}{}</th>{}{}</td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, field_value)
+
 
     return SafeString(html_block)
