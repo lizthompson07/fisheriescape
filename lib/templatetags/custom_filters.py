@@ -1,4 +1,6 @@
+import textile
 from django import template
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -93,6 +95,18 @@ def timedelta(value, arg):
 def tostring(value):
     """casts 'value' into a str """
     return str(value)
+
+
+@register.filter
+def tohtml(value):
+    '''converts basic text to html '''
+    try:
+        value = str(value)
+        # if not able to cast, then just return 'value'
+    except (ValueError, TypeError):
+        return value
+    else:
+        return mark_safe(textile.textile(value))
 
 
 @register.filter
