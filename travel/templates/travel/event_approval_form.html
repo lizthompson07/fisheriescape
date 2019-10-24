@@ -20,14 +20,25 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:event_approval_list' 'awaiting' %}">Trips Awaiting Your Approval</a></li>
+            {% if admin %}
+                <li class="breadcrumb-item"><a href="{% url 'travel:admin_approval_list' %}">Admin Trip Approval List</a>
+                </li>
+
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'travel:event_approval_list' 'awaiting' %}">Trips Awaiting Your Approval</a>
+                </li>
+            {% endif %}
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
 
     <div class="container">
-        {#        <h1>Trip Approval Form</h1>#}
-        <h1>Do you wish to approve the following trip?</h1>
+        {% if admin %}
+            <h1>Admin Trip Approval Form</h1>
+        {% else %}
+            <h1>Do you wish to approve the following trip?</h1>
+        {% endif %}
+
         <br>
         <form method="post" class="form">
             {% csrf_token %}
@@ -39,7 +50,7 @@
 
             <div class="float-right">
                 <a class="btn btn-warning " href="{% url 'travel:event_print' object.id %}">
-                   View Travel Plan <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                    View Travel Plan <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
                 </a>
                 <a class="btn btn-dark " href="{% url 'travel:event_detail' object.id %}">
                     View Trip Detail Page
@@ -47,13 +58,18 @@
             </div>
 
             <div class="">
+                {% if admin %}
+                    <input type="submit" value="Submit" class="btn btn-lg btn-primary">
 
-                <a class="btn btn-lg btn-primary" id="yes" href="#">
-                    Yes
-                </a>
-                <a class="btn btn-lg btn-danger" id="no" href="#">
-                    No
-                </a>
+                {% else %}
+                    <a class="btn btn-lg btn-primary" id="yes" href="#">
+                        Yes
+                    </a>
+                    <a class="btn btn-lg btn-danger" id="no" href="#">
+                        No
+                    </a>
+                {% endif %}
+
                 <a class="btn btn-lg btn-secondary" href="{% url 'travel:event_approval_list' %}">
                     Cancel
                 </a>
@@ -62,24 +78,29 @@
         </form>
         <br><br>
 
+        {% if admin %}
+            <h3>
+                CFTS Report:
+            </h3>
 
-        <div class="row">
-            <div class="col-8">
-                <h3>
-                    Trip Detail:
-                </h3>
+        {% else %}
+            <div class="row">
+                <div class="col-8">
+                    <h3>
+                        Trip Detail:
+                    </h3>
 
-                <table class="table table-sm">
-                    {% for field in field_list %}
-                        {% verbose_td_display object field format="currency" th_width="30%" %}
-                    {% endfor %}
-                </table>
+                    <table class="table table-sm">
+                        {% for field in field_list %}
+                            {% verbose_td_display object field format="currency" th_width="30%" %}
+                        {% endfor %}
+                    </table>
+
+                </div>
 
             </div>
-
-        </div>
-        <br><br>
-        <div class="row">
+            <br><br>
+            <div class="row">
             {% if object.is_group_trip %}
 
                 <div class="col">
@@ -120,6 +141,7 @@
 
                 </div>
             {% endif %}
+        {% endif %}
 
         </div>
     </div>

@@ -134,6 +134,23 @@ class EventForm(forms.ModelForm):
         self.fields['section'].choices = section_choices
 
 
+class AdminEventForm(forms.ModelForm):
+    class Meta:
+        model = models.Event
+        fields = [
+            "adm_approval_status",
+            "rdg_approval_status",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        status_choices = [(s.id, s) for s in models.Status.objects.all() if s.id in [1, 2, 3]]
+        status_choices.insert(0, tuple((None, "---")))
+        self.fields.get("adm_approval_status").choices = status_choices
+        self.fields.get("rdg_approval_status").choices = status_choices
+
+
 class ChildEventForm(forms.ModelForm):
     class Meta:
         model = models.Event

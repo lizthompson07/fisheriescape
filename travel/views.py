@@ -229,7 +229,7 @@ class EventApprovalListView(TravelAccessRequiredMixin, ListView):
     def get_queryset(self):
         qs = models.Event.objects.filter(parent_event__isnull=True).filter(
             Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-                approver=self.request.user)).order_by("-submitted")
+                adm=self.request.user) | Q(rdg=self.request.user)).order_by("-submitted")
         return qs.filter(waiting_on=self.request.user) if self.kwargs.get("which_ones") == "awaiting" else qs
 
     def get_context_data(self, **kwargs):
@@ -245,11 +245,44 @@ class EventApprovalListView(TravelAccessRequiredMixin, ListView):
             'start_date',
             'end_date',
             'total_trip_cost|{}'.format(_("Total trip cost")),
-            'recommender_1_status|{}'.format(_("Recommender 1 (status)")),
-            'recommender_2_status|{}'.format(_("Recommender 2 (status)")),
-            'recommender_3_status|{}'.format(_("Recommender 3 (status)")),
-            'adm_status|{}'.format(_("ADM (status)")),
-            'rdg_status|{}'.format(_("RDG (status)")),
+            'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
+            'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
+            'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
+            'adm_status|{}'.format(_("ADM<br>(status)")),
+            'rdg_status|{}'.format(_("RDG<br>(status)")),
+        ]
+        return context
+
+
+class EventAdminApprovalListView(TravelAdminRequiredMixin, ListView):
+    model = models.Event
+    template_name = 'travel/event_approval_list.html'
+
+    def get_queryset(self):
+        # return a list only of those awaiting ADM or RDG approval
+        qs = models.Event.objects.filter(
+            parent_event__isnull=True,
+        ).filter(Q(status_id=14) | Q(status_id=15)).order_by("-submitted")
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Event.objects.first()
+        context["admin"] = True
+        context["field_list"] = [
+            'is_group_trip',
+            'first_name',
+            'last_name',
+            'trip_title',
+            'destination',
+            'start_date',
+            'end_date',
+            'total_trip_cost|{}'.format(_("Total trip cost")),
+            'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
+            'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
+            'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
+            'adm_status|{}'.format(_("ADM<br>(status)")),
+            'rdg_status|{}'.format(_("RDG<br>(status)")),
         ]
         return context
 
@@ -382,6 +415,39 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
         return HttpResponseRedirect(reverse("travel:event_approval_list"))
 
 
+class EventAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.Event
+    form_class = forms.AdminEventForm
+    template_name = 'travel/event_approval_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = self.get_object()
+        context["admin"] = True
+        context["object"] = my_object
+
+        return context
+
+    def form_valid(self, form):
+        my_event = form.save(commit=False)
+
+        # if approval status is not pending, we add a date stamp
+        if my_event.adm_approval_status_id != 1:
+            my_event.adm_approval_date = timezone.now()
+
+        if my_event.rdg_approval_status_id != 1:
+            my_event.rdg_approval_date = timezone.now()
+
+        # if denied by adm, rdg will be canceled
+        if my_event.adm_approval_status_id == 3:
+            my_event.rdg_approval_status_id = 5
+
+        # Now do a full save
+        my_event.save()
+        return HttpResponseRedirect(reverse("travel:admin_approval_list"))
+
+
+
 class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
     model = models.Event
     form_class = forms.EventApprovalForm
@@ -398,10 +464,15 @@ class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
 
     def form_valid(self, form):
         my_event = models.Event.objects.get(pk=self.kwargs.get("pk"))
+        # figure out the current state of the trip
         is_submitted = True if my_event.submitted else False
-        if is_submitted:
-            my_event.submitted = None
 
+        # if submitted, then unsumbit but only if admin
+        if is_submitted:
+            if in_travel_admin_group(self.request.user):
+                my_event.submitted = None
+            else:
+                messages.error(self.request, "sorry, only admins can unsubmit trips")
         else:
             my_event.submitted = timezone.now()
         my_event.save()

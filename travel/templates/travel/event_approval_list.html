@@ -17,7 +17,8 @@
             <li class="breadcrumb-item active" aria-current="page">
                 {% if awaiting %}
                     Trips Awaiting Your Approval
-
+                {% elif admin %}
+                    Admin Trip Approval List
                 {% else %}
                     Trips Assigned to You for Approval
                 {% endif %}
@@ -30,15 +31,15 @@
         <h1 class="big-header">
             {% if awaiting %}
                 Trips Awaiting Your Approval
-
+            {% elif admin %}
+                Admin Trip Approval List
             {% else %}
                 Trips Assigned to You for Approval
             {% endif %}
         </h1>
         {% if awaiting %}
             (<a href="{% url 'travel:event_approval_list' %}">view all trips</a>)
-
-        {% else %}
+        {% elif not admin %}
             (<a href="{% url 'travel:event_approval_list' "awaiting" %}">view trips awaiting my approval</a>)
         {% endif %}
 
@@ -68,6 +69,8 @@
                         {% for field in field_list %}
                             {% if "is_group" in field %}
                                 <th scope="col">Type</th>
+                            {% elif "recommend" in field or "ADM" in field or "RDG" in field %}
+                                <th style="width:8%;">{% get_verbose_label my_object field %}</th>
                             {% else %}
                                 <th scope="col">{% get_verbose_label my_object field %}</th>
                             {% endif %}
@@ -78,7 +81,8 @@
                     {% for object in object_list %}
                         {% url 'travel:event_approve' object.id as my_approval_url %}
                         {% url 'travel:event_detail' object.id as my_detail_url %}
-                        <tr href="{% if object.status_id != 8 %}{{ my_approval_url }}{% else %}{{ my_detail_url }}{% endif %}">
+                        {% url 'travel:admin_approve' object.id as admin_approve_url %}
+                        <tr href="{% if admin %}{{ admin_approve_url }}{% elif object.status_id != 8 %}{{ my_approval_url }}{% else %}{{ my_detail_url }}{% endif %}">
                             <td style="background-color: {{ object.status.color }}"><b>{{ object.status }}</b></td>
 
                             {% for field in field_list %}
