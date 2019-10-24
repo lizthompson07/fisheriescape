@@ -145,7 +145,7 @@ class RegisteredEvent(models.Model):
 
 class Event(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
-                                    default=fiscal_year(sap_style=True), blank=True, null=True)
+                                    default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trips")
     is_group_trip = models.BooleanField(default=False,
                                         verbose_name=_("Is this a group trip (i.e., is this a request for multiple individuals)?"))
     # traveller info
@@ -212,8 +212,10 @@ class Event(models.Model):
                                       verbose_name=_("recommender 2"), blank=True, null=True)
     recommender_3 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_3_trips",
                                       verbose_name=_("recommender 3"), blank=True, null=True)
-    approver = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="approver_trips",
-                                 verbose_name=_("approver"), blank=True, null=True)
+    rdg = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="rdg_trips",
+                            verbose_name=_("RDG"), blank=True, null=True)
+    adm = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="adm_trips",
+                            verbose_name=_("ADM"), blank=True, null=True)
 
     recommender_1_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec1_trips",
                                                       limit_choices_to={"used_for": 1}, verbose_name=_("recommender 1 approval status"),
@@ -225,13 +227,18 @@ class Event(models.Model):
     recommender_3_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec3_trips",
                                                       limit_choices_to={"used_for": 1}, verbose_name=_("recommender 3 approval status"),
                                                       default=4)
-    approver_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="approver_trips",
-                                                 limit_choices_to={"used_for": 1}, verbose_name=_("expenditure initiation approval status"),
-                                                 default=4)
+    adm_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="adm_trips",
+                                            limit_choices_to={"used_for": 1}, verbose_name=_("ADM approval status"),
+                                            default=4)
+    rdg_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rgd_trips",
+                                            limit_choices_to={"used_for": 1},
+                                            verbose_name=_("expenditure initiation (RDG) approval status"),
+                                            default=4)
     recommender_1_approval_date = models.DateTimeField(verbose_name=_("recommender 1 approval date"), blank=True, null=True)
     recommender_2_approval_date = models.DateTimeField(verbose_name=_("recommender 2 approval date"), blank=True, null=True)
     recommender_3_approval_date = models.DateTimeField(verbose_name=_("recommender 3 approval date"), blank=True, null=True)
-    approver_approval_date = models.DateTimeField(verbose_name=_("expenditure initiation approval date"), blank=True, null=True)
+    adm_approval_date = models.DateTimeField(verbose_name=_("ADM approval date"), blank=True, null=True)
+    rdg_approval_date = models.DateTimeField(verbose_name=_("expenditure initiation approval date"), blank=True, null=True)
     waiting_on = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="waiting_on_trips", verbose_name=_("Waiting on"),
                                    blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
@@ -244,7 +251,7 @@ class Event(models.Model):
 
     class Meta:
         ordering = ["-start_date", "last_name"]
-        unique_together = [("user", "parent_event"),]
+        unique_together = [("user", "parent_event"), ]
 
     def get_absolute_url(self):
         return reverse('travel:event_detail', kwargs={'pk': self.id})
@@ -259,7 +266,7 @@ class Event(models.Model):
 
         # run the approval seeker function
         self.approval_seeker()
-        self.set_trip_status()
+        # self.set_trip_status()
         return super().save(*args, **kwargs)
 
     @property
@@ -369,13 +376,28 @@ class Event(models.Model):
         return self.get_status_str("recommender_3")
 
     @property
-    def approver_status(self):
-        return self.get_status_str("approver")
+    def adm_status(self):
+        return self.get_status_str("adm")
+
+    @property
+    def rdg_status(self):
+        return self.get_status_str("rdg")
 
     def approval_seeker(self):
+        """ This method if meant to seek approvals via email, set waiting_ons and set project status"""
         from . import emails
 
-        if self.submitted:
+        # if someone denied it at any point, the trip is 'denied'
+        if self.recommender_1_approval_status_id == 3 or \
+                self.recommender_2_approval_status_id == 3 or \
+                self.recommender_3_approval_status_id == 3 or \
+                self.adm_approval_status_id == 3 or \
+                self.rdg_approval_status_id == 3:
+            self.status_id = 10  # DENIED
+            # The statuses of recommenders and approvers are handled by the form_valid method of the ApprovalUpdateView
+
+        # otherwise, if the project is submitted
+        elif self.submitted:
             # make sure the statuses are changed from 4 to 1
             if self.recommender_1_approval_status_id == 4:
                 self.recommender_1_approval_status_id = 1
@@ -383,38 +405,56 @@ class Event(models.Model):
                 self.recommender_2_approval_status_id = 1
             if self.recommender_3_approval_status_id == 4:
                 self.recommender_3_approval_status_id = 1
-            if self.approver_approval_status_id == 4:
-                self.approver_approval_status_id = 1
+            if self.adm_approval_status_id == 4:
+                self.adm_approval_status_id = 1
+            if self.rdg_approval_status_id == 4:
+                self.rdg_approval_status_id = 1
 
             # check to see if recommender 1 has reviewed the trip
             my_email = None
-            if not self.recommender_1_approval_date:
+
+            if self.recommender_1 and not self.recommender_1_approval_date:
                 # we need to get approval and need to set recommender 1 as who we are waiting on
                 self.waiting_on = self.recommender_1
+                # project status will be "pending recommendation"
+                self.status_id = 12
                 # build email to recommender 1
                 my_email = emails.ApprovalAwaitingEmail(self, "recommender_1")
+            elif self.recommender_2 and not self.recommender_2_approval_date:
+                # we need to get approval and need to set recommender 2 as who we are waiting on
+                self.waiting_on = self.recommender_2
+                # project status will be "pending recommendation"
+                self.status_id = 12
+                # build email to recommender 2
+                my_email = emails.ApprovalAwaitingEmail(self, "recommender_2")
 
+            elif self.recommender_3 and not self.recommender_3_approval_date:
+                # we need to get approval and need to set recommender 3 as who we are waiting on
+                self.waiting_on = self.recommender_3
+                # project status will be "pending recommendation"
+                self.status_id = 12
+                # build email to recommender 3
+                my_email = emails.ApprovalAwaitingEmail(self, "recommender_3")
+            elif self.adm and not self.adm_approval_date:
+                # we need to get approval and need to set approver as who we are waiting on
+                self.waiting_on = self.adm
+                # project status will be "pending adm approval"
+                self.status_id = 14
+
+                # send email to approver
+                # for now we will not do this.
+            elif self.rdg and not self.rdg_approval_date:
+                # we need to get approval and need to set approver as who we are waiting on
+                self.waiting_on = self.rdg
+                # project status will be "pending rdg approval"
+                self.status_id = 15
+
+                # send email to approver
+                # for now we will not do this.
             else:
-                if self.recommender_2 and not self.recommender_2_approval_date:
-                    # we need to get approval and need to set recommender 2 as who we are waiting on
-                    self.waiting_on = self.recommender_2
-                    # build email to recommender 2
-                    my_email = emails.ApprovalAwaitingEmail(self, "recommender_2")
-
-                else:
-                    if self.recommender_3 and not self.recommender_3_approval_date:
-                        # we need to get approval and need to set recommender 3 as who we are waiting on
-                        self.waiting_on = self.recommender_3
-                        # build email to recommender 3
-                        my_email = emails.ApprovalAwaitingEmail(self, "recommender_3")
-                    else:
-                        if self.approver and not self.approver_approval_date:
-                            # we need to get approval and need to set approver as who we are waiting on
-                            self.waiting_on = self.approver
-                            # send email to approver
-                            # for now we will not do this.
-                        else:
-                            self.waiting_on = None
+                # project has been fully approved?
+                self.status_id = 11
+                self.waiting_on = None
 
             if my_email:
                 # send the email object
@@ -427,27 +467,35 @@ class Event(models.Model):
             self.recommender_1_approval_status_id = 4
             self.recommender_2_approval_status_id = 4
             self.recommender_3_approval_status_id = 4
-            self.approver_approval_status_id = 4
+            self.rdg_approval_status_id = 4
+            self.adm_approval_status_id = 4
             self.recommender_1_approval_date = None
             self.recommender_2_approval_date = None
             self.recommender_3_approval_date = None
-            self.approver_approval_date = None
+            self.rdg_approval_date = None
+            self.adm_approval_date = None
             self.waiting_on = None
+            self.status_id = 8
 
-    def set_trip_status(self):
-        # if someone denied it at any point, the trip is 'denied'
-        if self.recommender_1_approval_status_id == 3 or \
-                self.recommender_2_approval_status_id == 3 or \
-                self.recommender_3_approval_status_id == 3 or \
-                self.approver_approval_status_id == 3:
-            self.status_id = 10
-        else:
-            # if approved by the approver, the trip is 'approved'
-            if self.approver_approval_status_id == 2:
-                self.status_id = 11
-            else:
-                # otherwise, it is either submitted or draft..
-                if self.submitted:
-                    self.status_id = 9
-                else:
-                    self.status_id = 8
+    # def set_trip_status(self):
+    #     # if someone denied it at any point, the trip is 'denied'
+    #     if self.recommender_1_approval_status_id == 3 or \
+    #             self.recommender_2_approval_status_id == 3 or \
+    #             self.recommender_3_approval_status_id == 3 or \
+    #             self.adm_approval_status_id == 3 or \
+    #             self.rdg_approval_status_id == 3:
+    #         self.status_id = 10
+    #     # if approved by the rdg, the trip is 'approved'
+    #     elif self.rdg_approval_status_id == 2:
+    #         self.status_id = 11
+    #     # if approved by the adm, the trip is "Pending RDG Approval"
+    #     elif self.adm_approval_status_id == 2:
+    #         self.status_id = 15
+    #
+    #
+    #     else:
+    #         # otherwise, it is either submitted or draft..
+    #         if self.submitted:
+    #             self.status_id = 9
+    #         else:
+    #             self.status_id = 8
