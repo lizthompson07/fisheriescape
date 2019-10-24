@@ -103,19 +103,42 @@
                 {% endwith %}
                 </thead>
                 <tbody>
-                <td>{{ object.last_name }}, {{ object.first_name }}</td>
-                <td>Gulf</td>
-                <td>{{ object.role }}</td>
-                <td>{{ object.reason }}</td>
-                <td>{{ object.trip_title }}</td>
-                <td>{{ object.destination }}</td>
-                <td>{{ object.start_date|date:"d/m/Y" }}</td>
-                <td>{{ object.end_date|date:"d/m/Y" }}</td>
-                <td>{{ object.total_cost }}</td>
-                <td>0</td>
-                <td>{{ object.purpose_long_text }}</td>
-                <td>{{ object.cost_breakdown }}</td>
+                {% if object.is_group_trip %}
+                    {% for trip in object.children_events.all %}
+                        <tr>
+                            <td>{{ trip.last_name }}, {{ object.first_name }}</td>
+                            <td>Gulf</td>
+                            <td>{{ trip.role }}</td>
+                            <td>{{ trip.reason }}</td>
+                            <td>{{ object.trip_title }}</td>
+                            <td>{{ object.destination }}</td>
+                            <td>{{ object.start_date|date:"d/m/Y" }}</td>
+                            <td>{{ object.end_date|date:"d/m/Y" }}</td>
+                            <td>{{ trip.total_cost }}</td>
+                            <td>0</td>
+                            <td>{{ object.purpose_long_text }}</td>
+                            <td>{{ trip.cost_breakdown }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+
+                        <td>{{ object.last_name }}, {{ object.first_name }}</td>
+                        <td>Gulf</td>
+                        <td>{{ object.role }}</td>
+                        <td>{{ object.reason }}</td>
+                        <td>{{ object.trip_title }}</td>
+                        <td>{{ object.destination }}</td>
+                        <td>{{ object.start_date|date:"d/m/Y" }}</td>
+                        <td>{{ object.end_date|date:"d/m/Y" }}</td>
+                        <td>{{ object.total_cost }}</td>
+                        <td>0</td>
+                        <td>{{ object.purpose_long_text }}</td>
+                        <td>{{ object.cost_breakdown }}</td>
+                    </tr>
+                {% endif %}
                 </tbody>
+
             </table>
 
         </div>
