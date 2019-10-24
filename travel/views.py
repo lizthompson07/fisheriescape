@@ -86,7 +86,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         context["number_waiting"] = models.Event.objects.filter(waiting_on=self.request.user).count()
         approval_count = models.Event.objects.filter(
             Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-                approver=self.request.user)).count()
+                rdg=self.request.user) | Q(adm=self.request.user)).count()
 
         context["is_approver"] = True if approval_count > 0 else False
         print(approval_count)
@@ -145,7 +145,8 @@ event_field_list = [
     'recommender_1_status|{}'.format(_("Recommender 1")),
     'recommender_2_status|{}'.format(_("Recommender 2")),
     'recommender_3_status|{}'.format(_("Recommender 3")),
-    'approver_status|{}'.format(_("Expenditure Initiation")),
+    'adm_status|{}'.format(_("ADM")),
+    'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
 ]
 
 event_group_field_list = [
@@ -172,9 +173,9 @@ event_group_field_list = [
     'recommender_1_status|{}'.format(_("Recommender 1")),
     'recommender_2_status|{}'.format(_("Recommender 2")),
     'recommender_3_status|{}'.format(_("Recommender 3")),
-    'approver_status|{}'.format(_("Expenditure Initiation")),
+    'adm_status|{}'.format(_("ADM")),
+    'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
 ]
-
 
 event_child_field_list = [
     'first_name',
@@ -247,7 +248,8 @@ class EventApprovalListView(TravelAccessRequiredMixin, ListView):
             'recommender_1_status|{}'.format(_("Recommender 1 (status)")),
             'recommender_2_status|{}'.format(_("Recommender 2 (status)")),
             'recommender_3_status|{}'.format(_("Recommender 3 (status)")),
-            'approver_status|{}'.format(_("Final Approval (status)")),
+            'adm_status|{}'.format(_("ADM (status)")),
+            'rdg_status|{}'.format(_("RDG (status)")),
         ]
         return context
 
@@ -304,7 +306,8 @@ class EventUpdateView(TravelAccessRequiredMixin, UpdateView):
             section_dict[section.id]["recommender_1"] = section.head_id
             section_dict[section.id]["recommender_2"] = section.division.head_id
             section_dict[section.id]["recommender_3"] = section.division.branch.head_id
-            section_dict[section.id]["approver"] = section.division.branch.region.head_id
+            section_dict[section.id]["rdg"] = section.division.branch.region.head_id
+            section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
         section_json = json.dumps(section_dict)
         # send JSON file to template so that it can be used by js script
         context['section_json'] = section_json
@@ -336,12 +339,10 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_1_approval_status_id = 2
             else:
                 my_event.recommender_1_approval_status_id = 3
-                # my_event.recommender_2 = None
-                # my_event.recommender_3 = None
-                # my_event.approver = None
                 my_event.recommender_2_approval_status_id = 5
                 my_event.recommender_3_approval_status_id = 5
-                my_event.approver_approval_status_id = 5
+                my_event.adm_approval_status_id = 5
+                my_event.rdg_approval_status_id = 5
 
         if my_event.recommender_2 == self.request.user:
             my_event.recommender_2_approval_date = timezone.now()
@@ -349,10 +350,9 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_2_approval_status_id = 2
             else:
                 my_event.recommender_2_approval_status_id = 3
-                # my_event.recommender_3 = None
-                # my_event.approver = None
                 my_event.recommender_3_approval_status_id = 5
-                my_event.approver_approval_status_id = 5
+                my_event.adm_approval_status_id = 5
+                my_event.rdg_approval_status_id = 5
 
         if my_event.recommender_3 == self.request.user:
             my_event.recommender_3_approval_date = timezone.now()
@@ -360,15 +360,23 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_3_approval_status_id = 2
             else:
                 my_event.recommender_3_approval_status_id = 3
-                # my_event.approver = None
-                my_event.approver_approval_status_id = 5
+                my_event.adm_approval_status_id = 5
+                my_event.rdg_approval_status_id = 5
 
-        if my_event.approver == self.request.user:
-            my_event.approver_approval_date = timezone.now()
+        if my_event.adm == self.request.user:
+            my_event.adm_approval_date = timezone.now()
             if is_approved:
-                my_event.approver_approval_status_id = 2
+                my_event.adm_approval_status_id = 2
             else:
-                my_event.approver_approval_status_id = 3
+                my_event.adm_approval_status_id = 3
+                my_event.rdg_approval_status_id = 5
+
+        if my_event.rdg == self.request.user:
+            my_event.rdg_approval_date = timezone.now()
+            if is_approved:
+                my_event.rdg_approval_status_id = 2
+            else:
+                my_event.rdg_approval_status_id = 3
 
         my_event.save()
         return HttpResponseRedirect(reverse("travel:event_approval_list"))
@@ -446,7 +454,8 @@ class EventCreateView(TravelAccessRequiredMixin, CreateView):
             section_dict[section.id]["recommender_1"] = section.head_id
             section_dict[section.id]["recommender_2"] = section.division.head_id
             section_dict[section.id]["recommender_3"] = section.division.branch.head_id
-            section_dict[section.id]["approver"] = section.division.branch.region.head_id
+            section_dict[section.id]["rdg"] = section.division.branch.region.head_id
+            section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
         section_json = json.dumps(section_dict)
         # send JSON file to template so that it can be used by js script
         context['section_json'] = section_json
@@ -600,10 +609,12 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         fy = form.cleaned_data["fiscal_year"]
+        user = form.cleaned_data["user"]
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
                 'fy': fy,
+                'user': user,
             }))
         elif report == 2:
             email = form.cleaned_data["traveller"]
