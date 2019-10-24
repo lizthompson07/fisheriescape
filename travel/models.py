@@ -440,17 +440,15 @@ class Event(models.Model):
                 self.waiting_on = self.adm
                 # project status will be "pending adm approval"
                 self.status_id = 14
-
-                # send email to approver
-                # for now we will not do this.
+                # send email to TMS admin
+                my_email = emails.AdminApprovalAwaitingEmail(self, "adm")
             elif self.rdg and not self.rdg_approval_date:
                 # we need to get approval and need to set approver as who we are waiting on
                 self.waiting_on = self.rdg
                 # project status will be "pending rdg approval"
                 self.status_id = 15
-
-                # send email to approver
-                # for now we will not do this.
+                # send email to TMS admin
+                my_email = emails.AdminApprovalAwaitingEmail(self, "rdg")
             else:
                 # project has been fully approved?
                 self.status_id = 11

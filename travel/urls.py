@@ -24,6 +24,10 @@ urlpatterns = [
 
     path('trip/<int:pk>/submit/', views.EventSubmitUpdateView.as_view(), name="event_submit"),
 
+    path('admin/approval/', views.EventAdminApprovalListView.as_view(), name="admin_approval_list"),
+    path('admin/<int:pk>/approve/', views.EventAdminApproveUpdateView.as_view(), name="admin_approve"),
+
+
     # REGISTERED EVENT #
     ####################
     path('events/', views.RegisteredEventListView.as_view(), name="revent_list"),

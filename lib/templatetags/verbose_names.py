@@ -57,7 +57,7 @@ def get_verbose_label(instance, field_name):
         except AttributeError:
             # if there is no verbose_name attribute, just send back the field name
             verbose_name = field_name
-    return __special_capitalize__(verbose_name)
+    return mark_safe(__special_capitalize__(verbose_name))
 
 
 @register.simple_tag
