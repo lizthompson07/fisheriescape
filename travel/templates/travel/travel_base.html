@@ -45,8 +45,11 @@
                     <a class="dropdown-item" href="{% url 'travel:manage_statuses' %}">
                         {% trans "Manage Statuses" %}
                     </a>
-                     <a class="dropdown-item" href="{% url 'travel:revent_list' %}">
+                    <a class="dropdown-item" href="{% url 'travel:revent_list' %}">
                         {% trans "Registered Events" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'travel:admin_approval_list' %}">
+                        {% trans "Admin Approval" %}
                     </a>
 
                 </div>

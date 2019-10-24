@@ -34,7 +34,7 @@
             <a class="btn btn-warning {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:event_edit' object.id %}">
                 Edit
             </a>
-            <a class="btn btn-danger " href="{% url 'travel:event_delete' object.id %}">
+            <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:event_delete' object.id %}">
                 Delete
             </a>
             <a class="btn btn-dark" href="{% url 'travel:event_print' object.id %}" data-toggle="tooltip" title="">

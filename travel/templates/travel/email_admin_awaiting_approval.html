@@ -1,11 +1,12 @@
 {% load verbose_names %}
 
 <h1>
-    A trip is awaiting your approval
+    A trip is awaiting the approval of {{ user }}.
 </h1>
 
 <p>
-    To view the trips awaiting your approval, please click <a href="http://dmapps{% url 'travel:event_approval_list' 'awaiting' %}">HERE</a>. Here are the trip details:
+    You can manage approvals via the <a href="http://dmapps{% url 'travel:admin_approval_list' %}">TMS admin console</a>.
+{#    To view the trips awaiting your approval, please click <a href="">HERE</a>. Here are the trip details:#}
 </p>
 
 <table>
