@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core import validators
+from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from . import models
@@ -409,3 +410,28 @@ class ReportSearchForm(forms.Form):
         self.fields['sections'].choices = [(s.id, "{}".format(s.full_name)) for s in
                                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch",
                                                                                         'division', "name")]
+
+
+
+
+class TempForm(forms.ModelForm):
+    class Meta:
+        model = models.Resource
+        fields = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
+        widgets = {
+            # 'programs': forms.SelectMultiple(attrs=chosen_js),
+            # 'tags': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['section'].choices = [(s.id, "{}".format(s.full_name)) for s in
+                                           shared_models.Section.objects.filter(division__branch__region__id=7).order_by("division__branch__region", "division__branch",
+                                                                                        'division', "name")]
+
+
+TempFormSet = modelformset_factory(
+    model=models.Resource,
+    form=TempForm,
+    extra=0,
+)
