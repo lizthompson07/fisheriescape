@@ -166,12 +166,12 @@ class Event(models.Model):
     destination = models.CharField(max_length=1000, verbose_name=_("destination location"), blank=True, null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), blank=True, null=True)
+    reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
+    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     event = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a registered event"))
     registered_event = models.ForeignKey(RegisteredEvent, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("registered event"), related_name="trips")
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
-    reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
-    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_(
