@@ -200,8 +200,12 @@
             <th class="real center">1</th>
             <td class="real center">{{ object.start_date|date:"d-F" }}</td>
             <td class="real center">{{ object.end_date|date:"d-F" }}</td>
-            <td class="real center">{{ object.departure_location }}
-                to {{ object.destination }}</td>
+            <td class="real center">
+                {% if object.departure_location %}
+                    {{ object.departure_location }} to
+                {% endif %}
+                {{ object.destination }}
+            </td>
             <td class="real center">{{ object.purpose }}</td>
             <td class="real left">{{ object.purpose_long|safe }}</td>
             <td class="real center">{{ object.air|currency|nz:"" }}</td>
@@ -286,27 +290,42 @@
                         {% endif %}
                     </td>
                 </tr>
-
-                <tr>
-                    <th class="right wide-cell">Recommended by:</th>
-                    <td rowspan="1" class="left wide-cell">
-                        {% if object.recommender_2_approval_status_id == 2 %}
-                            {{ object.recommender_2 }} (digitally signed on {{ object.recommender_2_approval_date }})
-                        {% else %}
-                            ___________________________________________
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th class="right wide-cell">Recommended by:</th>
-                    <td rowspan="1" class="left wide-cell">
-                        {% if object.recommender_3_approval_status_id == 2 %}
-                            {{ object.recommender_3 }} (digitally signed on {{ object.recommender_3_approval_date }})
-                        {% else %}
-                            ___________________________________________
-                        {% endif %}
-                    </td>
-                </tr>
+                {% if object.recommender_2 %}
+                    <tr>
+                        <th class="right wide-cell">Recommended by:</th>
+                        <td rowspan="1" class="left wide-cell">
+                            {% if object.recommender_2_approval_status_id == 2 %}
+                                {{ object.recommender_2 }} (digitally signed on {{ object.recommender_2_approval_date }})
+                            {% else %}
+                                ___________________________________________
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if object.recommender_3 %}
+                    <tr>
+                        <th class="right wide-cell">Recommended by:</th>
+                        <td rowspan="1" class="left wide-cell">
+                            {% if object.recommender_3_approval_status_id == 2 %}
+                                {{ object.recommender_3 }} (digitally signed on {{ object.recommender_3_approval_date }})
+                            {% else %}
+                                ___________________________________________
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if object.adm %}
+                    <tr>
+                        <th class="right wide-cell">ADM Approved:</th>
+                        <td rowspan="1" class="left wide-cell">
+                            {% if object.adm_approval_status_id == 2 %}
+                                {{ object.adm }} (digitally signed on {{ object.adm_approval_date }})
+                            {% else %}
+                                ___________________________________________
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
 
             </table>
         </td>

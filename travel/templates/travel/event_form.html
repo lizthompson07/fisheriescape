@@ -24,7 +24,7 @@
         <h1>
             {% if object %}
                 {% if cloned %}
-                CLONING:
+                    CLONING:
                 {% endif %}
                 {{ object }}
             {% else %}
@@ -43,13 +43,19 @@
                 {% endif %}
 
             {% if field.name == "registered_event" %}
-                {% bootstrap_field field placeholder="" %}
-
-                <div id="new_event_container">
+                <div class="event_container">
+                    {% bootstrap_field field placeholder="" %}
                     (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
                     <br><br>
                 </div>
-
+            {% elif field.name == "role" %}
+                <div class="event_container">
+                    {% bootstrap_field field placeholder="" %}
+                </div>
+            {% elif field.name == "role_of_participant" %}
+                <div class="event_container">
+                    {% bootstrap_field field placeholder="" %}
+                </div>
             {% else %}
 
                 {% bootstrap_field field placeholder="" %}
@@ -100,11 +106,17 @@
         function refreshRegisteredEvent() {
             if ($("#id_event").val() == "False") {
                 $("#id_registered_event").val("");
+                $("#id_role").val("");
+                $("#id_role_of_participant").val("");
                 $("#id_registered_event").prop("disabled", true);
-                $("#new_event_container").addClass("hidden")
+                $("#id_role").prop("disabled", true);
+                $("#id_role_of_participant").prop("disabled", true);
+                $(".event_container").addClass("gone");
             } else {
                 $("#id_registered_event").prop("disabled", false);
-                $("#new_event_container").removeClass("hidden")
+                $("#id_role").prop("disabled", false);
+                $("#id_role_of_participant").prop("disabled", false);
+                $(".event_container").removeClass("gone");
             }
         }
 
