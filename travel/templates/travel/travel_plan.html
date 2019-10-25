@@ -283,10 +283,11 @@
                 <tr>
                     <th class="right wide-cell">Recommended by:</th>
                     <td rowspan="1" class="left wide-cell">
+                        {{ object.recommender_1 }}
                         {% if object.recommender_1_approval_status_id == 2 %}
-                            {{ object.recommender_1 }} (digitally signed on {{ object.recommender_1_approval_date }})
+                            (digitally signed on {{ object.recommender_1_approval_date }})
                         {% else %}
-                            ___________________________________________
+                            (NOT RECOMMENDED)
                         {% endif %}
                     </td>
                 </tr>
@@ -294,10 +295,11 @@
                     <tr>
                         <th class="right wide-cell">Recommended by:</th>
                         <td rowspan="1" class="left wide-cell">
+                            {{ object.recommender_2 }}
                             {% if object.recommender_2_approval_status_id == 2 %}
-                                {{ object.recommender_2 }} (digitally signed on {{ object.recommender_2_approval_date }})
+                                (digitally signed on {{ object.recommender_2_approval_date }})
                             {% else %}
-                                ___________________________________________
+                                (NOT RECOMMENDED)
                             {% endif %}
                         </td>
                     </tr>
@@ -306,26 +308,27 @@
                     <tr>
                         <th class="right wide-cell">Recommended by:</th>
                         <td rowspan="1" class="left wide-cell">
+                            {{ object.recommender_3 }}
                             {% if object.recommender_3_approval_status_id == 2 %}
-                                {{ object.recommender_3 }} (digitally signed on {{ object.recommender_3_approval_date }})
+                                (digitally signed on {{ object.recommender_3_approval_date }})
                             {% else %}
-                                ___________________________________________
+                                (NOT RECOMMENDED)
                             {% endif %}
                         </td>
                     </tr>
                 {% endif %}
-{#                {% if object.adm %}#}
-{#                    <tr>#}
-{#                        <th class="right wide-cell">ADM Approved:</th>#}
-{#                        <td rowspan="1" class="left wide-cell">#}
-{#                            {% if object.adm_approval_status_id == 2 %}#}
-{#                                {{ object.adm }} (digitally signed on {{ object.adm_approval_date }})#}
-{#                            {% else %}#}
-{#                                ___________________________________________#}
-{#                            {% endif %}#}
-{#                        </td>#}
-{#                    </tr>#}
-{#                {% endif %}#}
+                {#                {% if object.adm %}#}
+                {#                    <tr>#}
+                {#                        <th class="right wide-cell">ADM Approved:</th>#}
+                {#                        <td rowspan="1" class="left wide-cell">#}
+                {#                            {% if object.adm_approval_status_id == 2 %}#}
+                {#                                {{ object.adm }} (digitally signed on {{ object.adm_approval_date }})#}
+                {#                            {% else %}#}
+                {#                                ___________________________________________#}
+                {#                            {% endif %}#}
+                {#                        </td>#}
+                {#                    </tr>#}
+                {#                {% endif %}#}
 
             </table>
         </td>
