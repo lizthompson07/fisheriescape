@@ -45,7 +45,7 @@ class EventForm(forms.ModelForm):
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
-            # 'rdg': _("RDG"),
+            'adm': _("ADM (only if necessary)"),
         }
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
@@ -144,11 +144,14 @@ class AdminEventForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        my_object = kwargs.get("instance")
         status_choices = [(s.id, s) for s in models.Status.objects.all() if s.id in [1, 2, 3]]
         status_choices.insert(0, tuple((None, "---")))
-        self.fields.get("adm_approval_status").choices = status_choices
         self.fields.get("rdg_approval_status").choices = status_choices
+        if not my_object.adm:
+            del self.fields["adm_approval_status"]
+        else:
+            self.fields.get("adm_approval_status").choices = status_choices
 
 
 class ChildEventForm(forms.ModelForm):
