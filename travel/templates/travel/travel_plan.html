@@ -314,18 +314,18 @@
                         </td>
                     </tr>
                 {% endif %}
-                {% if object.adm %}
-                    <tr>
-                        <th class="right wide-cell">ADM Approved:</th>
-                        <td rowspan="1" class="left wide-cell">
-                            {% if object.adm_approval_status_id == 2 %}
-                                {{ object.adm }} (digitally signed on {{ object.adm_approval_date }})
-                            {% else %}
-                                ___________________________________________
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endif %}
+{#                {% if object.adm %}#}
+{#                    <tr>#}
+{#                        <th class="right wide-cell">ADM Approved:</th>#}
+{#                        <td rowspan="1" class="left wide-cell">#}
+{#                            {% if object.adm_approval_status_id == 2 %}#}
+{#                                {{ object.adm }} (digitally signed on {{ object.adm_approval_date }})#}
+{#                            {% else %}#}
+{#                                ___________________________________________#}
+{#                            {% endif %}#}
+{#                        </td>#}
+{#                    </tr>#}
+{#                {% endif %}#}
 
             </table>
         </td>
