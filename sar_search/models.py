@@ -183,8 +183,10 @@ class Species(models.Model):
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
     taxon = models.ForeignKey(Taxon, on_delete=models.DO_NOTHING, related_name='spp', blank=True, null=True)
-    sara_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='sara_spp', verbose_name=_("COSEWIC status"),
+    cosewic_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='cosewic_spp', verbose_name=_("COSEWIC status"),
                                     blank=True, null=True, limit_choices_to={"used_for": 1})
+    sara_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='sara_spp',
+                                       verbose_name=_("SARA status"), blank=True, null=True)
     ns_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='ns_spp', verbose_name=_("NS status"),
                                   blank=True, null=True, limit_choices_to={"used_for": 2})
     nb_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='nb_spp', verbose_name=_("NB status"),
@@ -195,8 +197,6 @@ class Species(models.Model):
                                              verbose_name=_("IUCN Red Flag status"), blank=True, null=True,
                                              limit_choices_to={"used_for": 5})
 
-    cosewic_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='cosewic_spp',
-                                       verbose_name=_("SARA status"), blank=True, null=True)
     sara_schedule = models.ForeignKey(SARASchedule, on_delete=models.DO_NOTHING, related_name='spp', verbose_name=_("SARA schedule"),
                                       blank=True, null=True)
     cites_appendix = models.ForeignKey(CITESAppendix, on_delete=models.DO_NOTHING, related_name='spp', verbose_name=_("CITES appendix"),
