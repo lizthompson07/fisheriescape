@@ -23,19 +23,40 @@
 
         <form method="post" class="form">
             {% csrf_token %}
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" onclick="refreshParent()">
+                    {% trans "Submit" %}
+                </button>
+                {% if object %}
+                    <a class="btn btn-danger" href="{% url 'travel:event_delete' object.id 'pop' %}">
+                        {% trans "Delete" %}
+                    </a>
+                {% endif %}
+                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                    {% trans "Close" %}
+                </a>
+            </div>
+
+            <br><br>
+
             {% bootstrap_form_errors form %}
             {% for field in form %}
                 {% bootstrap_field field placeholder="" size="small" %}
             {% endfor %}
 
-            {% buttons %}
-                <button type="submit" class="btn btn-success" onclick="refreshParent()">
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" onclick="refreshParent()">
                     {% trans "Submit" %}
                 </button>
+                {% if object %}
+                    <a class="btn btn-danger" href="{% url 'travel:event_delete' object.id 'pop' %}">
+                        {% trans "Delete" %}
+                    </a>
+                {% endif %}
                 <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
                     {% trans "Close" %}
                 </a>
-            {% endbuttons %}
+            </div>
         </form>
     </div>
 

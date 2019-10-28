@@ -72,7 +72,7 @@ class EventForm(forms.ModelForm):
             'company_name': forms.TextInput(attrs=attr_hide_me),
 
             'role': forms.Select(attrs=attr_hide_me),
-            'reason': forms.Select(attrs=attr_hide_me),
+            # 'reason': forms.Select(attrs=attr_hide_me),
             # 'purpose': forms.Select(attrs=attr_hide_me),
             'role_of_participant': forms.Textarea(attrs=attr_hide_me),
             # 'objective_of_event': forms.Textarea(attrs=attr_hide_me),
@@ -169,7 +169,19 @@ class ChildEventForm(forms.ModelForm):
             'departure_location',
             'role',
             'role_of_participant',
-            'reason',
+
+            # costs
+            'air',
+            'rail',
+            'rental_motor_vehicle',
+            'personal_motor_vehicle',
+            'taxi',
+            'other_transport',
+            'accommodations',
+            'meals',
+            'incidentals',
+            'registration',
+            'other',
             'parent_event',
         ]
         widgets = {
@@ -178,11 +190,19 @@ class ChildEventForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        parent_event = kwargs.get("initial").get("parent_event") if kwargs.get("initial") else None
+        if not parent_event:
+            parent_event = kwargs.get("instance")
+
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.all().order_by("last_name", "first_name")]
         user_choices.insert(0, tuple((None, "---")))
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
+
+        if not parent_event.event:
+            del self.fields['role']
+            del self.fields['role_of_participant']
 
 
 class RegisteredEventForm(forms.ModelForm):

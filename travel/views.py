@@ -1,5 +1,6 @@
 import json
 import os
+from copy import deepcopy
 
 from django.conf import settings
 from django.contrib import messages
@@ -161,6 +162,7 @@ event_group_field_list = [
     'event',
     'registered_event',
 
+    'reason',
     'purpose',
     'objective_of_event',
     'benefit_to_dfo',
@@ -188,7 +190,7 @@ event_child_field_list = [
     'departure_location',
     'role',
     'role_of_participant',
-    'reason',
+    # 'reason',
     # 'purpose_long|{}'.format(_("purpose")),
     # 'cost_breakdown|{}'.format(_("cost summary")),
     'total_cost',
@@ -294,7 +296,11 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         my_object = self.get_object()
         context["field_list"] = event_field_list if not my_object.is_group_trip else event_group_field_list
-        context["child_field_list"] = event_child_field_list
+        my_event_child_field_list = deepcopy(event_child_field_list)
+        if not my_object.event:
+            my_event_child_field_list.remove("role")
+            my_event_child_field_list.remove("role_of_participant")
+        context["child_field_list"] = my_event_child_field_list
 
         return context
 
@@ -447,7 +453,6 @@ class EventAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse("travel:admin_approval_list"))
 
 
-
 class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
     model = models.Event
     form_class = forms.EventApprovalForm
@@ -496,6 +501,17 @@ class EventCreateView(TravelAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_object = form.save()
+
+        # if it is a group trip, add the main user as a traveller
+        if my_object.is_group_trip:
+            models.Event.objects.create(
+                user=self.request.user,
+                first_name=self.request.user.first_name,
+                last_name=self.request.user.last_name,
+                email=self.request.user.email,
+                parent_event=my_object,
+            )
+
         if not my_object.parent_event:
             if form.cleaned_data.get("stay_on_page"):
                 return HttpResponseRedirect(reverse_lazy("travel:event_edit", kwargs={"pk": my_object.id}))
@@ -535,8 +551,21 @@ class EventCreateView(TravelAccessRequiredMixin, CreateView):
 
 class EventDeleteView(TravelAccessRequiredMixin, DeleteView):
     model = models.Event
-    success_url = reverse_lazy('travel:event_list')
     success_message = 'The event was deleted successfully!'
+
+    def get_template_names(self):
+        if self.kwargs.get('pop'):
+            template_name = 'travel/event_confirm_delete_popout.html'
+        else:
+            template_name = 'travel/event_confirm_delete.html'
+        return template_name
+
+    def get_success_url(self):
+        if self.kwargs.get('pop'):
+            success_url = reverse('shared_models:close_me')
+        else:
+            success_url = reverse_lazy('travel:event_list')
+        return success_url
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
