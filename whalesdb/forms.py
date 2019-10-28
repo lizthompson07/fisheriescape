@@ -9,8 +9,8 @@ from django.forms.models import inlineformset_factory
 
 def get_short_labels(for_model):
 
-    # You can override the longer more descriptive labels from get_labels()
-    # here. If not overriden the else clause will just call get_labels()
+    # You can override the longer more descriptive labels from get_descriptions()
+    # here. If not overriden the else clause will just call get_descriptions()
 
     if for_model is models.EqrRecorderProperties:
         labels = {
@@ -36,6 +36,11 @@ def get_short_labels(for_model):
         labels = {
             'prm': _("Equipment Parameters"),
         }
+    elif for_model is models.RscRecordingSchedules:
+        labels = {
+            'rsc_name': _("Schedule Name"),
+            'rsc_period': _("Period"),
+        }
     elif for_model is models.StnStations:
         labels = {
             'stn_name': _('Name'),
@@ -47,12 +52,12 @@ def get_short_labels(for_model):
             'stn_notes': _('Notes'),
         }
     else:
-        labels = get_labels(for_model)
+        labels = get_descriptions(for_model)
 
     return labels
 
 
-def get_labels(for_model):
+def get_descriptions(for_model):
     labels = {}
     if for_model is models.CrsCruises:
         labels = {
@@ -248,7 +253,7 @@ class CrsForm(forms.ModelForm):
 
     class Meta:
         model = models.CrsCruises
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'crs_notes': forms.Textarea(attrs={"rows": 2}),
@@ -261,7 +266,7 @@ class DepForm(forms.ModelForm):
 
     class Meta:
         model = models.DepDeployments
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
 
 
@@ -269,7 +274,7 @@ class EdaForm(forms.ModelForm):
 
     class Meta:
         model = models.EdaEquipmentAttachments
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
 
 
@@ -277,7 +282,7 @@ class EdhForm(forms.ModelForm):
 
     class Meta:
         model = models.EhaHydrophoneAttachements
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
 
 
@@ -291,7 +296,7 @@ class EcpChannelPropertiesForm(forms.ModelForm):
 
     class Meta:
         model = models.EcpChannelProperties
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
 
 
@@ -299,7 +304,7 @@ class EprForm(forms.ModelForm):
 
     class Meta:
         model = models.EprEquipmentParameters
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
 
 
@@ -307,7 +312,7 @@ class EqaForm(forms.ModelForm):
 
     class Meta:
         model = models.EqaAdcBitsCode
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'eqa_id': forms.HiddenInput()
@@ -325,10 +330,10 @@ class EqhForm(forms.ModelForm):
     class Meta:
         model = models.EqhHydrophoneProperties
 
-        p_lbls = get_labels(models.EmmMakeModel)
+        p_lbls = get_descriptions(models.EmmMakeModel)
         fields = list(p_lbls.keys())
 
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields.extend(list(labels.keys()))
 
     def __init__(self, *args, **kwargs):
@@ -342,7 +347,7 @@ class EqpForm(forms.ModelForm):
 
     class Meta:
         model = models.EqpEquipment
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
 
         widgets = {
@@ -361,10 +366,10 @@ class EqrForm(forms.ModelForm):
     class Meta:
         model = models.EqrRecorderProperties
 
-        p_lbls = get_labels(models.EmmMakeModel)
+        p_lbls = get_descriptions(models.EmmMakeModel)
         fields = list(p_lbls.keys())
 
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields.extend(list(labels.keys()))
 
     def __init__(self, *args, **kwargs):
@@ -378,7 +383,7 @@ class EqtForm(forms.ModelForm):
 
     class Meta:
         model = models.EqtEquipmentTypeCode
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'eqt_id': forms.HiddenInput()
@@ -389,7 +394,7 @@ class MorForm(forms.ModelForm):
 
     class Meta:
         model = models.MorMooringSetups
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'mor_additional_equipment': forms.Textarea(attrs={"rows": 2}),
@@ -402,7 +407,7 @@ class PrmForm(forms.ModelForm):
 
     class Meta:
         model = models.PrmParameterCode
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'prm_id': forms.HiddenInput()
@@ -413,7 +418,7 @@ class PrjForm(forms.ModelForm):
 
     class Meta:
         model = models.PrjProjects
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'prj_descrption': forms.Textarea(attrs={"rows": 2}),
@@ -424,7 +429,7 @@ class RecForm(forms.ModelForm):
 
     class Meta:
         model = models.RecRecordingEvents
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'rec_date_of_system_chk': forms.DateInput(attrs={"type": "date"}),
@@ -441,7 +446,7 @@ class RscForm(forms.ModelForm):
 
     class Meta:
         model = models.RscRecordingSchedules
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
 
 
@@ -449,7 +454,7 @@ class RstForm(forms.ModelForm):
 
     class Meta:
         model = models.RstRecordingStage
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
 
 
@@ -457,7 +462,7 @@ class RttForm(forms.ModelForm):
 
     class Meta:
         model = models.RttTimezoneCode
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'rtt_id': forms.HiddenInput(),
@@ -468,7 +473,7 @@ class SetForm(forms.ModelForm):
 
     class Meta:
         model = models.SetStationEventCode
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'set_id': forms.HiddenInput(),
@@ -480,7 +485,7 @@ class SteForm(forms.ModelForm):
 
     class Meta:
         model = models.SteStationEvents
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'ste_date': forms.DateInput(attrs={"type": "date"}),
@@ -495,7 +500,7 @@ class StnForm(forms.ModelForm):
 
     class Meta:
         model = models.StnStations
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
             'stn_notes': forms.Textarea(attrs={"rows": 2}),
@@ -506,5 +511,5 @@ class TeaForm(forms.ModelForm):
 
     class Meta:
         model = models.TeaTeamMembers
-        labels = get_labels(model)
+        labels = get_descriptions(model)
         fields = labels.keys()

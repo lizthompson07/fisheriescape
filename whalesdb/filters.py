@@ -10,7 +10,6 @@ class GenericFilterSet(FilterSet):
         super().__init__(*args, **kwargs)
 
         labels = forms.get_short_labels(self._meta.model)
-        labels = forms.get_short_labels(self._meta.model)
         for key in labels.keys():
             self.filters[key].label = labels[key]
 
