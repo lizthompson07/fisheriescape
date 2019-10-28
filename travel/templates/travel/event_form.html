@@ -48,6 +48,13 @@
                     (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
                     <br><br>
                 </div>
+            {% elif field.name == "is_group_trip" %}
+                {% bootstrap_field field placeholder="" %}
+                <div class="show-me blue-font">
+                    <p>
+                        <em>(One this form is submitted, you will be able to add group travellers to the trip.)</em>
+                    </p>
+                </div>
             {% elif field.name == "role" %}
                 <div class="event_container">
                     {% bootstrap_field field placeholder="" %}
@@ -65,12 +72,6 @@
             {% endif %}
             {% endfor %}
 
-            {% for field in form %}
-
-
-
-
-            {% endfor %}
 
 
             {% buttons %}
@@ -123,8 +124,10 @@
         function refreshClassHideMe() {
             if ($("#id_is_group_trip").val() == "False") {
                 $(".hide-me").removeClass("gone")
+                $(".show-me").addClass("gone")
             } else {
                 $(".hide-me").addClass("gone")
+                $(".show-me").removeClass("gone")
             }
         }
 
