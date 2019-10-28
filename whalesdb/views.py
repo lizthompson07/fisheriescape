@@ -649,7 +649,7 @@ class DetailsMakeModel(DetailView):
         context = super().get_context_data(**kwargs)
         context['objects'] = []
 
-        labels = forms.get_labels(models.EmmMakeModel)
+        labels = forms.get_descriptions(models.EmmMakeModel)
         context['objects'].append({
             "object": kwargs['object'].emm,
             "fields": get_fields(labels)
@@ -668,7 +668,7 @@ class DetailsRecorder(DetailsMakeModel):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        labels = forms.get_labels(models.EqrRecorderProperties)
+        labels = forms.get_descriptions(models.EqrRecorderProperties)
         context['objects'].append({
             "object": kwargs['object'],
             "fields": get_fields(labels)
@@ -688,7 +688,7 @@ class DetailsHydrophone(DetailsMakeModel):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        labels = forms.get_labels(models.EqhHydrophoneProperties)
+        labels = forms.get_descriptions(models.EqhHydrophoneProperties)
         context['objects'].append({
             "object": kwargs['object'],
             "fields": get_fields(labels)
