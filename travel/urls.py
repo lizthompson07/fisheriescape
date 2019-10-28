@@ -15,6 +15,7 @@ urlpatterns = [
     path('trip/<int:pk>/edit/', views.EventUpdateView.as_view(), name="event_edit"),
     path('trip/<int:pk>/edit/<str:pop>/', views.EventUpdateView.as_view(), name="event_edit"),
     path('trip/<int:pk>/delete/', views.EventDeleteView.as_view(), name="event_delete"),
+    path('trip/<int:pk>/delete/pop/<str:pop>/', views.EventDeleteView.as_view(), name="event_delete"),
     path('trip/<int:pk>/duplicate/', views.EventCloneUpdateView.as_view(), name="duplicate_event"),
     path('trip/<int:pk>/new-child-trip/', views.EventCreateView.as_view(), name="event_new"),
 

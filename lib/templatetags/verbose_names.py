@@ -87,7 +87,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
         field_instance = instance._meta.get_field(field_name)
 
         # first check if there is a value :
-        if getattr(instance, field_name) is not None:
+        if getattr(instance, field_name) is not None and getattr(instance, field_name) != "":
             # check to see if it is a many to many field
             if field_instance.get_internal_type() == 'ManyToManyField' or field_instance.get_internal_type() == 'ManyToManyRel':
                 m2m = getattr(instance, field_name)
