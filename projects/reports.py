@@ -595,7 +595,7 @@ def generate_program_list():
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True,})
 
     # get the program list
     program_list = models.Program2.objects.all()
@@ -608,10 +608,12 @@ def generate_program_list():
         'regional_program_name_eng',
         'regional_program_name_fra',
         'examples',
+        'is_core',
     ]
 
     # define the header
     header = [get_verbose_label(program_list.first(), field) for field in field_list]
+    header.append('Number of projects tagged')
 
     title = "Science Program List"
     # define a worksheet
@@ -626,7 +628,7 @@ def generate_program_list():
         my_ws.write_row(2, 0, header, header_format)
 
         data_row = [get_field_value(program, field) for field in field_list]
-
+        data_row.append(program.projects.count())
         # adjust the width of the columns based on the max string length in each col
         ## replace col_max[j] if str length j is bigger than stored value
 
