@@ -599,6 +599,35 @@ class EventCloneUpdateView(EventUpdateView):
         return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": new_obj.id}))
 
 
+
+class ChildEventCloneUpdateView(EventUpdateView):
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def get_initial(self):
+        my_object = models.Event.objects.get(pk=self.kwargs["pk"])
+        init = super().get_initial()
+        init["trip_title"] = "DUPLICATE OF: {}".format(my_object.trip_title)
+        init["year"] = fiscal_year(sap_style=True, next=True)
+        # init["created_by"] = self.request.user
+        return init
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloned"] = True
+        return context
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Event.objects.get(pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.submitted = None
+        new_obj.save()
+        return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": new_obj.id}))
+
+
+
 # REGISTERED EVENT #
 ####################
 
