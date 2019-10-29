@@ -93,18 +93,20 @@
                         <tbody>
                         {% for child in object.children_events.all %}
 
-                            <tr pop href="{% url 'travel:event_edit' child.id "pop" %}" class="{% if child.total_cost == 0 %}bad{% endif %}">
+                            <tr pop href="{% url 'travel:event_edit' child.id "pop" %}"
+                                class="{% if child.total_cost == 0 %}bad{% endif %}">
 
                                 {% for field in child_field_list %}
                                     <td>{% get_field_value child field format="currency" safe=True %}</td>
 
                                 {% endfor %}
+                                <td><a class="btn btn-sm btn-warning stop-pop" href="{% url 'travel:child_duplicate_event' child.id  'pop' %}">Clone</a></td>
 
                             </tr>
                         {% endfor %}
                         </tbody>
                         <tr>
-                            <th colspan="{{ child_field_list|length|subtract:1|floatformat}}" style="text-align: right">TOTAL COST:</th>
+                            <th colspan="{{ child_field_list|length|subtract:1|floatformat }}" style="text-align: right">TOTAL COST:</th>
                             <th style="width: 8%;">{{ object.total_trip_cost|currency:"True" }}</th>
                         </tr>
                     </table>
