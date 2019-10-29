@@ -191,8 +191,9 @@ class ChildEventForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         parent_event = kwargs.get("initial").get("parent_event") if kwargs.get("initial") else None
+        print(parent_event)
         if not parent_event:
-            parent_event = kwargs.get("instance")
+            parent_event = kwargs.get("instance").parent_event
 
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.all().order_by("last_name", "first_name")]
