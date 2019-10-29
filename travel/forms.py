@@ -166,6 +166,7 @@ class ChildEventForm(forms.ModelForm):
             'email',
             'public_servant',
             'company_name',
+            'region',
             'departure_location',
             'role',
             'role_of_participant',
