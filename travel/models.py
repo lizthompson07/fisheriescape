@@ -136,11 +136,14 @@ class RegisteredEvent(models.Model):
         # start simple... non-group
         my_list = [trip.user for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if trip.user]
         # now those without names...
-        my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if not trip.user])
+        my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in
+                        self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if not trip.user])
 
         # group travellers
-        my_list.extend([trip.user for trip in Event.objects.filter(parent_event__registered_event=self).filter(~Q(status_id=10)) if trip.user])
-        my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in Event.objects.filter(parent_event__registered_event=self).filter(~Q(status_id=10)) if not trip.user])
+        my_list.extend(
+            [trip.user for trip in Event.objects.filter(parent_event__registered_event=self).filter(~Q(status_id=10)) if trip.user])
+        my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in
+                        Event.objects.filter(parent_event__registered_event=self).filter(~Q(status_id=10)) if not trip.user])
 
         return set(my_list)
 
@@ -173,6 +176,8 @@ class Event(models.Model):
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
     public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES)
     company_name = models.CharField(max_length=255, verbose_name=_("company name (leave blank if DFO)"), blank=True, null=True)
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
+                               blank=True, null=True, default=1)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location"), blank=True, null=True)
     destination = models.CharField(max_length=1000, verbose_name=_("destination location"), blank=True, null=True)

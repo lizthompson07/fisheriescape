@@ -106,6 +106,7 @@ event_field_list = [
     'email',
     'public_servant',
     'company_name',
+    'region',
     'trip_title',
     'departure_location',
     'destination',
@@ -182,10 +183,12 @@ event_group_field_list = [
 event_child_field_list = [
     'first_name',
     'last_name',
-    'address',
-    'phone',
-    'email',
+    # 'address',
+    # 'phone',
+    # 'email',
     'public_servant',
+    'region',
+
     # 'company_name',
     'departure_location',
     'role',
