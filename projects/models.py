@@ -22,6 +22,12 @@ LANGUAGE_CHOICES = (
 )
 
 
+YES_NO_CHOICES = (
+    (True, _("Yes")),
+    (False, _("No")),
+)
+
+
 class BudgetCode(models.Model):
     code = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name"))
@@ -124,7 +130,7 @@ class Program2(models.Model):
         else:
             national_responsibility = "{}".format(self.national_responsibility_eng)
 
-        my_str = "{} - {}".format(national_responsibility, regional_program_name)
+        my_str = "{} - {} ({})".format(national_responsibility, regional_program_name, self.get_is_core_display())
 
         if self.examples:
             return "{} (e.g., {})".format(my_str, self.examples)
@@ -206,18 +212,10 @@ class Project(models.Model):
     programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("linkage to Science programs"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
-    # coding
-    responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
-                                              null=True, related_name='projects_projects',
-                                              verbose_name=_("responsibility center (if known)"))
-    allotment_code = models.ForeignKey(shared_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                       related_name='projects_projects', verbose_name=_("allotment code (if known)"))
-    existing_project_code = models.ForeignKey(shared_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                              related_name='projects_projects', verbose_name=_("existing project code (if known)"))
 
     # details
     is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
-    is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or non-negotiable?"), choices=is_negotiable_choices)
+    # is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or non-negotiable?"), choices=is_negotiable_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"), limit_choices_to={"used_for": 1})
     is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding competitive?"))
@@ -269,14 +267,23 @@ class Project(models.Model):
     # HTML field
     ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
 
-    # admin
     # HTML field
-    impacts_if_not_approved = models.TextField(blank=True, null=True, verbose_name=_("impacts if project is not approved"))
+    impacts_if_not_approved = models.TextField(blank=True, null=True, verbose_name=_("impacts if project is not approved (deprecated)"))
+
+    # coding
+    responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
+                                              null=True, related_name='projects_projects',
+                                              verbose_name=_("responsibility center (if known)"))
+    allotment_code = models.ForeignKey(shared_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                       related_name='projects_projects', verbose_name=_("allotment code (if known)"))
+    existing_project_code = models.ForeignKey(shared_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                              related_name='projects_projects', verbose_name=_("existing project code (if known)"))
 
     feedback = models.TextField(blank=True, null=True,
                                 verbose_name=_("Do you have any feedback you would like to submit about this process"))
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
 
+    # admin
     section_head_approved = models.BooleanField(default=False, verbose_name=_("section head approved"))
     section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
 
@@ -414,19 +421,10 @@ class Staff(models.Model):
 
 
 class Collaborator(models.Model):
-    # TYPE_CHOICES
-    COL = 1
-    PAR = 2
-    TYPE_CHOICES = [
-        (COL, _("Collaborator")),
-        (PAR, _("Partner")),
-    ]
-
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators",
                                 verbose_name=_("project"))
     name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)
-    type = models.IntegerField(choices=TYPE_CHOICES, verbose_name=_("type"))
-    critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery"))
+    critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery"), choices=YES_NO_CHOICES)
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
 
     class Meta:
@@ -447,7 +445,7 @@ class CollaborativeAgreement(models.Model):
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="agreements", verbose_name=_("project"))
     partner_organization = models.CharField(max_length=255, blank=True, null=True,
-                                            verbose_name=_("partner organization"))
+                                            verbose_name=_("collaborating organization"))
     project_lead = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("project lead"))
     agreement_title = models.CharField(max_length=255, verbose_name=_("Title of the agreement"), blank=True, null=True)
     new_or_existing = models.IntegerField(choices=NEW_OR_EXISTING_CHOICES, verbose_name=_("new or existing"))
