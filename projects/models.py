@@ -75,12 +75,19 @@ class Tag(models.Model):
 
 # This model will eventually be renamed once we get rid on the original Program table
 class Program2(models.Model):
+    is_core_choices = (
+        # (None, _("Unknown")),
+        (True, _("Core")),
+        (False, _("Flex")),
+    )
+
     national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (English)")
     national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (French)")
     program_inventory = models.CharField(max_length=255, blank=True, null=True, verbose_name="program inventory")
     funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
     regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (English)")
     regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (French)")
+    is_core = models.BooleanField(verbose_name=_("Is program core or flex?"), choices=is_core_choices)
     examples = models.CharField(max_length=255, blank=True, null=True)
 
     @property
