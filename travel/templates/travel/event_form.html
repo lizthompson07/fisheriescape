@@ -1,6 +1,7 @@
 {% extends "travel/travel_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load i18n %}
 {% block header %}
 {% endblock %}
 {% block content %}
@@ -52,7 +53,9 @@
                 {% bootstrap_field field placeholder="" %}
                 <div class="show-me blue-font">
                     <p>
-                        <em>(One this form is submitted, you will be able to add group travellers to the trip.)</em>
+                        <em>
+                            {% trans "(One this form is submitted, you will be able to add group travellers to the trip. You will be automatically added as a traveller.)" %}
+                        </em>
                     </p>
                 </div>
             {% elif field.name == "role" %}
