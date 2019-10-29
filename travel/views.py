@@ -600,7 +600,7 @@ class EventCloneUpdateView(EventUpdateView):
 
 
 
-class ChildEventCloneUpdateView(EventUpdateView):
+class ChildEventCloneUpdateView(EventCreateView):
     def test_func(self):
         if self.request.user.id:
             return True
@@ -608,9 +608,21 @@ class ChildEventCloneUpdateView(EventUpdateView):
     def get_initial(self):
         my_object = models.Event.objects.get(pk=self.kwargs["pk"])
         init = super().get_initial()
-        init["trip_title"] = "DUPLICATE OF: {}".format(my_object.trip_title)
-        init["year"] = fiscal_year(sap_style=True, next=True)
-        # init["created_by"] = self.request.user
+        init["parent_event"] = my_object.parent_event
+        init["departure_location"] = my_object.departure_location
+        init["role"] = my_object.role
+        init["role_of_participant"] = my_object.role_of_participant
+        init["air"] = my_object.air
+        init["rail"] = my_object.rail
+        init["rental_motor_vehicle"] = my_object.rental_motor_vehicle
+        init["personal_motor_vehicle"] = my_object.personal_motor_vehicle
+        init["taxi"] = my_object.taxi
+        init["other_transport"] = my_object.other_transport
+        init["meals"] = my_object.meals
+        init["accommodations"] = my_object.accommodations
+        init["incidentals"] = my_object.incidentals
+        init["registration"] = my_object.registration
+        init["other"] = my_object.other
         return init
 
     def get_context_data(self, **kwargs):
@@ -618,13 +630,9 @@ class ChildEventCloneUpdateView(EventUpdateView):
         context["cloned"] = True
         return context
 
-    def form_valid(self, form):
-        new_obj = form.save(commit=False)
-        old_obj = models.Event.objects.get(pk=new_obj.pk)
-        new_obj.pk = None
-        new_obj.submitted = None
-        new_obj.save()
-        return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": new_obj.id}))
+    # def form_valid(self, form):
+    #     new_obj = form.save()
+    #     return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": new_obj.id}))
 
 
 
