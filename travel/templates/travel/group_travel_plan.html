@@ -165,7 +165,7 @@
     </table>
 </div>
 <div class="block">
-    <table class="real">
+    <table class="">
         <tr class="real">
             <th rowspan="2" colspan="2" class="real center" style="text-align: center;">Traveller name</th>
             <th rowspan="2" class="real center" style="text-align: center;">Origin / Destination(s) of Travel</th>
@@ -197,21 +197,21 @@
                 <td class="real center">{{ child.first_name }} {{ child.last_name }}</td>
                 <td class="real center">{{ child.departure_location }} to {{ object.destination }}</td>
                 <td class="real center" style="text-align: center;">{{ child.public_servant|yesno }}</td>
-                <td class="real center" style="text-align: center;">{{ child.air|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ child.rail|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ child.rental_motor_vehicle|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ child.personal_motor_vehicle|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ child.taxi|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ child.other_transport|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ child.accommodations|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ child.meals|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ child.incidentals|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.air|zero2val:""|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.rail|zero2val:""|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.rental_motor_vehicle|zero2val:""|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.personal_motor_vehicle|zero2val:""|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.taxi|zero2val:""|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.other_transport|zero2val:""|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.accommodations|zero2val:""|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.meals|zero2val:""|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.incidentals|zero2val:""|currency|nz:"" }}</td>
                 {% with child.other|nz:0 as other %}
                     {% with child.registration|nz:0 as reg %}
-                        <td class="real center" style="text-align: center;">{{ other|add:reg|currency|zero2val:"" }}</td>
+                        <td class="real center" style="text-align: center;">{{ other|add:reg|zero2val:""|currency|zero2val:"" }}</td>
                     {% endwith %}
                 {% endwith %}
-                <td class="real center" style="text-align: center;">{{ child.total_cost|currency|nz:"" }}</td>
+                <td class="real center" style="text-align: center;">{{ child.total_cost|zero2val:""|currency|nz:"" }}</td>
                 <td class="real center" style="text-align: center;">{{ object.event|yesno }}</td>
                 <td class="real center">{{ object.registered_event.number|nz:"" }}</td>
 
@@ -219,7 +219,7 @@
 
         {% endfor %}
 
-        <tr>
+        <tr style="border: 0px">
             <td class="center" style="width: 25px;"></td>
             <td class="center" style="width: 175px;"></td>
             <td class="center" style="width: 200px;"></td>
@@ -227,11 +227,11 @@
 
             {# starting with AIR #}
             {% for key in key_list %}
-                <td class="real center wset" style="text-align: center;">{{ total_dict|lookup:key|currency }}</td>
+                <td class="real center wset" style="text-align: center; font-weight: bold">{{ total_dict|lookup:key|zero2val:""|currency }}</td>
             {% endfor %}
 
-            <td class="real center wset"></td>
-            <td class="real center wset"></td>
+            <td class="center wset"></td>
+            <td class="center wset"></td>
         </tr>
     </table>
 </div>
