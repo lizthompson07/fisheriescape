@@ -130,7 +130,19 @@ class RegisteredEvent(models.Model):
 
     @property
     def traveller_list(self):
-        return list(set([trip.user for trip in self.trips.filter(~Q(status_id=10))]))
+        # from travel.models import Event
+        # must factor in group and non-group...
+
+        # start simple... non-group
+        my_list = [trip.user for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if trip.user]
+        # now those without names...
+        my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if not trip.user])
+
+        # group travellers
+        my_list.extend([trip.user for trip in Event.objects.filter(parent_event__registered_event=self).filter(~Q(status_id=10)) if trip.user])
+        my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in Event.objects.filter(parent_event__registered_event=self).filter(~Q(status_id=10)) if not trip.user])
+
+        return set(my_list)
 
     @property
     def total_traveller_list(self):
