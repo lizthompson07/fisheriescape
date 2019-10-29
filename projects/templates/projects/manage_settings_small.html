@@ -47,20 +47,33 @@
             <br><br>
             <table class="table" style="width: auto">
                 <thead>
-                <tr>
-                    {% for field in field_list %}
-                        <th scope="col">{% get_verbose_label my_object field %}</th>
-                    {% endfor %}
-                </tr>
+                {% for field in field_list %}
+                    <th scope="col">{% get_verbose_label my_object field %}</th>
+                {% endfor %}
+                {% if "program" in title|lower %}
+                    <th scope="col">Number of projects tagged with this program?</th>
+                {% endif %}
+
                 </thead>
                 <tbody>
                 {% for form in formset %}
                     <tr>
                         {% for field in form %}
+                            {% if not field.is_hidden %}
+
+                                <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
+                                    {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                        {% if "program" in title|lower and form.instance.id %}
+                            <td class="center-col">{{ form.instance.projects.count }}</td>
+                        {% endif %}
+                        {% if field.is_hidden %}
                             <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
                                 {% bootstrap_field field size='small' show_label=False placeholder="" %}
                             </td>
-                        {% endfor %}
+                        {% endif %}
                         {% if form.instance.id %}
 
                             <td>

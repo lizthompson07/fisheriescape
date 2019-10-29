@@ -1569,6 +1569,7 @@ def manage_programs(request):
         'funding_source_and_type',
         'regional_program_name_eng',
         'regional_program_name_fra',
+        'is_core',
         'examples',
     ]
     context['title'] = "Manage Programs"
