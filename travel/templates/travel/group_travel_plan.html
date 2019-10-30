@@ -246,8 +246,8 @@
                     <th class="right wide-cell">Expenditure Initiation approved by (Print):</th>
                     <td class="left wide-cell" colspan="3">
                         {#                        <u>Serge Doucet, Regional Director General, Gulf Region___</u>#}
-                        {{ object.approver|nz:"n/a" }}
-                        {% if object.approver %} | Regional Director General | {{ object.approver.shared_models_regions.first }}
+                        {{ object.rdg|nz:"n/a" }}
+                        {% if object.rdg %} | Regional Director General | {{ object.rdg.shared_models_regions.first }}
                         {% endif %}
                     </td>
                 </tr>
