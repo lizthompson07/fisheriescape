@@ -1,3 +1,10 @@
+# This is an auto-generated Django model module.
+# You'll have to do the following manually to clean this up:
+#   * Rearrange models' order
+#   * Make sure each model has one field with primary_key=True
+#   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
+#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
+# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
 
@@ -61,7 +68,7 @@ class EccCalibrationValue(models.Model):
 
 class EcpChannelProperties(models.Model):
     ecp_id = models.BigIntegerField(primary_key=True)
-    emm = models.ForeignKey('EqrRecorderProperties', models.DO_NOTHING)
+    emm = models.ForeignKey('EmmMakeModel', models.DO_NOTHING)
     ecp_channel_no = models.BigIntegerField()
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', models.DO_NOTHING, db_column='eqa_adc_bits')
     ecp_voltage_range_min = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
@@ -161,16 +168,6 @@ class EqpEquipment(models.Model):
         return "{} - {} - {}".format(self.emm, self.eqp_serial, self.eqp_asset_id)
 
 
-class EqrRecorderProperties(models.Model):
-    emm = models.OneToOneField(EmmMakeModel, models.DO_NOTHING, primary_key=True)
-    eqc_max_channels = models.BigIntegerField()
-    eqc_max_sample_rate = models.BigIntegerField()
-
-    class Meta:
-        managed = False
-        db_table = 'eqr_recorder_properties'
-
-
 class EqtEquipmentTypeCode(models.Model):
     eqt_id = models.BigIntegerField(primary_key=True)
     eqt_name = models.CharField(unique=True, max_length=50)
@@ -187,7 +184,6 @@ class MorMooringSetups(models.Model):
     mor_id = models.BigIntegerField(primary_key=True)
     mor_name = models.CharField(unique=True, max_length=50)
     mor_max_depth = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True)
-    mor_num_hydrophones = models.BigIntegerField(blank=True, null=True)
     mor_link_setup_image = models.CharField(max_length=4000, blank=True, null=True)
     mor_additional_equipment = models.CharField(max_length=4000, blank=True, null=True)
     mor_general_moor_description = models.CharField(max_length=4000, blank=True, null=True)

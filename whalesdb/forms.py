@@ -12,13 +12,7 @@ def get_short_labels(for_model):
     # You can override the longer more descriptive labels from get_descriptions()
     # here. If not overriden the else clause will just call get_descriptions()
 
-    if for_model is models.EqrRecorderProperties:
-        labels = {
-            'emm': _("Make & Model"),
-            'eqc_max_channels': _("Max Channels"),
-            'eqc_max_sample_rate': _("Max Sample Rate")
-        }
-    elif for_model is models.EqhHydrophoneProperties:
+    if for_model is models.EqhHydrophoneProperties:
         labels = {
             'emm': _("Make & Model"),
             'eqh_range_min': _("Bottom frequency"),
@@ -129,11 +123,6 @@ def get_descriptions(for_model):
             'eqp_date_purchase': _("Date Purchased"),
             'eqp_notes': _("Notes"),
         }
-    elif for_model is models.EqrRecorderProperties:
-        labels = {
-            'eqc_max_channels': _("Maximum number of channels a piece of equipment can handle."),
-            'eqc_max_sample_rate': _("How fast data can be recorded in KHz"),
-        }
     elif for_model is models.EqtEquipmentTypeCode:
         labels = {
             'eqt_id': _("Equipment Type Code ID"),
@@ -143,7 +132,6 @@ def get_descriptions(for_model):
         labels = {
             'mor_name': _('Mooring Setup Name'),
             'mor_max_depth': _('Max Depth'),
-            'mor_num_hydrophones': _('Number of Hydrophones'),
             'mor_link_setup_image': _('Setup Image Location'),
             'mor_additional_equipment': _('Additional Equipment'),
             'mor_general_moor_description': _('General Description'),
@@ -319,6 +307,27 @@ class EqaForm(forms.ModelForm):
         }
 
 
+class EmmForm(forms.ModelForm):
+
+    eqt = forms.ChoiceField(label=_("Equipment category"))
+    emm_make = forms.CharField(max_length=50, label=_("Equipment make"))
+    emm_model = forms.CharField(max_length=50, label=_("Equipment model"))
+    emm_depth_rating = forms.IntegerField(label=_("The depth in metres this piece of equipment is rated for"))
+    emm_description = forms.CharField(max_length=500, label=_("Short description of the piece of equipment"))
+
+    class Meta:
+        model = models.EmmMakeModel
+
+        labels = get_descriptions(model)
+        fields = list(labels.keys())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        eqt_choices = models.EqtEquipmentTypeCode.objects.all().values()
+        self.fields['eqt'].choices = eqt_choices
+
+
 class EqhForm(forms.ModelForm):
 
     eqt = forms.ChoiceField(label=_("Equipment category"))
@@ -335,6 +344,8 @@ class EqhForm(forms.ModelForm):
 
         labels = get_descriptions(model)
         fields.extend(list(labels.keys()))
+
+        print("Fields: " + str(fields))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -364,13 +375,10 @@ class EqrForm(forms.ModelForm):
     emm_description = forms.CharField(max_length=500, label=_("Short description of the piece of equipment"))
 
     class Meta:
-        model = models.EqrRecorderProperties
+        model = models.EmmMakeModel
 
         p_lbls = get_descriptions(models.EmmMakeModel)
         fields = list(p_lbls.keys())
-
-        labels = get_descriptions(model)
-        fields.extend(list(labels.keys()))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
