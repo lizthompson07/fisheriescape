@@ -202,8 +202,8 @@ class Event(models.Model):
         "rationale for individual attending multiple conferences"))
     multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for multiple attendees at this event"))
-    funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
+    funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes (will not be included in travel plan)"))
 
     # costs
