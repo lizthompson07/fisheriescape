@@ -60,7 +60,7 @@
             {% for field in field_list %}
                 <th class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
                     {% if field == "sample_date" %}
-                        Sample date (yyyy-mm-dd)
+                        Sample date<br>(yyyy-mm-dd)
                     {% else %}
                         {% get_verbose_label object_list.first field %}
                     {% endif %}
@@ -68,15 +68,8 @@
             {% endfor %}
 
 
-            {#            <th scope="col">Sample #</th>#}
-            {#            <th scope="col">Type</th>#}
-            {#            <th scope="col">Sample Collection Date</th>#}
-            {#            <th scope="col">Port</th>#}
-            {#            <th scope="col" style="text-align: center;">Sampler Ref. No.</th>#}
-            {#            <th scope="col" style="text-align: center;">Experimental?</th>#}
-            {#            <th scope="col">Sampler</th>#}
             <th scope="col" class="center-col"># Fish processed</th>
-            <th scope="col">Date processed (yyyy-mm-dd)</th>
+            <th scope="col">Date processed<br>(yyyy-mm-dd)</th>
             <th scope="col" class="center-col">Lab complete</th>
             <th scope="col" class="center-col">Otoliths complete</th>
             </thead>
