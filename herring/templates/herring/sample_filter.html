@@ -4,6 +4,7 @@
 {% load humanize %}
 {% load verbose_names %}
 {% load el_pagination_tags %}
+{% load custom_filters %}
 {% block content %}
 
     <style type="text/css">
@@ -70,13 +71,19 @@
         <table class="table table-hover table-sm sortable">
             <thead>
             {% for field in field_list %}
-                <th class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
-                    {% if field == "sample_date" %}
+                {% if field == "sample_date" %}
+                    <th>
                         Sample date<br>(yyyy-mm-dd)
-                    {% else %}
+                    </th>
+                {% elif field == "sampler_ref_number" %}
+                    <th style="width: 8%">
                         {% get_verbose_label object_list.first field %}
-                    {% endif %}
-                </th>
+                    </th>
+                {% else %}
+                    <th class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
+                        {% get_verbose_label object_list.first field %}
+                    </th>
+                {% endif %}
             {% endfor %}
 
 
@@ -87,7 +94,7 @@
             </thead>
             <tbody>
             {% for sample in filter_list %}
-                <tr href="{% url 'herring:sample_detail' sample.id  %}">
+                <tr href="{% url 'herring:sample_detail' sample.id %}">
 
                     {% for field in field_list %}
                         <td class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
@@ -96,7 +103,7 @@
                     {% endfor %}
 
                     <td class='center-col'>{{ sample.fish_details.count }}</td>
-                    <td class=''>{{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}</td>
+                    <td class=''>{{ sample.fish_details.last.lab_processed_date|date:"Y-m-d"|nz:"---" }}</td>
                     <td class='center-col'>
                         {% if sample.lab_processing_complete %}
                             <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
