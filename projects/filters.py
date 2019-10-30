@@ -25,7 +25,7 @@ class ProjectFilter(django_filters.FilterSet):
         region_choices = views.get_region_choices()
         division_choices = views.get_division_choices()
         section_choices = views.get_section_choices()
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all()]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)
@@ -64,6 +64,28 @@ class ProjectFilter(django_filters.FilterSet):
         except KeyError:
             print('no data in filter')
 
+
+class StaffFilter(django_filters.FilterSet):
+    fiscal_year = django_filters.ChoiceFilter(field_name='project__year', lookup_expr='exact')
+    region = django_filters.ChoiceFilter(field_name="project__section__division__branch__region", label=_("Region"), lookup_expr='exact')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        region_choices = views.get_region_choices()
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        yes_no_choices = [(True, "Yes"), (False, "No"), ]
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='project__year', lookup_expr='exact', choices=fy_choices)
+        self.filters['region'] = django_filters.ChoiceFilter(field_name="project__section__division__branch__region", label=_("Region"),
+                                                              lookup_expr='exact', choices=region_choices)
+
+    class Meta:
+        model = models.Staff
+        fields = {
+            'employee_type': ['exact'],
+            'lead': ['exact'],
+            'project__submitted': ['exact'],
+        }
 
 
 class MySectionFilter(django_filters.FilterSet):

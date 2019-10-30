@@ -53,43 +53,46 @@
         <br><br>
 
         <div class="row">
-            <div class="col-3">
+            <div class="col-4">
                 <h3>
                     {% trans "Entry Detail:" %}
                 </h3>
-                {% for field in field_list %}
-                    {% if field == "organizations" %}
-                        <p><span class="label">Organizations:</span><br>
-                            {% for org in object.organizations.all %}
-                                <a href="{% url 'ihub:org_detail' org.id %}" target="_blank">
-                                    {{ org }}
-                                </a><br>
-                            {% endfor %}
-                        </p>
-                    {% else %}
-                        {% verbose_field_display object field %}
-                    {% endif %}
-                {% endfor %}
-                <br>
-            </div>
 
-            <div class="col-3">
+                <table class="table table-sm table-striped">
+                    {% for field in field_list %}
+                        {% if field == "organizations" %}
+                            <tr>
+                                <th>
+                                    {% get_verbose_label instance=object field_name=field %}
+                                </th>
+                                <td>
+                                    {% for org in object.organizations.all %}
+                                        <a href="{% url 'ihub:org_detail' org.id %}" target="_blank">
+                                            {{ org }}
+                                        </a><br>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            {% verbose_td_display instance=object field_name=field date_format="%d-%b-%Y" %}
+
+                        {% endif %}
+                    {% endfor %}
+                </table>
+                <br>
                 <h3>
                     {% trans "Funding Detail:" %}
                 </h3>
-                {% for field in field_list_1 %}
-                    {% if "amount" in  field %}
-                        {% verbose_field_display object field "currency" %}
-                    {% else %}
-                        {% verbose_field_display object field %}
-                    {% endif %}
-                {% endfor %}
-                <p><span class="label">
-                    {% trans "Amount Outstanding:" %}
-                </span><br>
-                    ${{ object.amount_outstanding|floatformat:2|intcomma }}
-                </p><br>
+
+                <table class="table table-sm table-striped">
+                    {% for field in field_list_1 %}
+                        {% verbose_td_display instance=object field_name=field format="currency" %}
+                    {% endfor %}
+                </table>
+
+                <br>
             </div>
+
             <div class="col-6">
                 {% include "ihub/_people.html" %}
                 {% include "ihub/_notes.html" %}

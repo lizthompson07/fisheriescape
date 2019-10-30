@@ -4,7 +4,7 @@
 {% load static %}
 {% load custom_filters %}
 {% block body %}
-    {% bootstrap_javascript 'full'%}
+    {% bootstrap_javascript 'full' %}
     {% bootstrap_css %}
     <style>
         .gone {
@@ -20,21 +20,7 @@
     </style>
 
 
-    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
-    <script>
-        window.resizeTo(width = 800, height = 800);
 
-        window.onunload = refreshParent;
-
-        function refreshParent() {
-            window.opener.location.reload();
-        }
-
-        $(document).ready(function () {
-            // Stuff to do as soon as the DOM is ready
-            $("#id_employee_type")[0].focus()
-        });
-    </script>
     {% url 'projects:user_new' as user_url %}
 
     <div class="container">
@@ -137,12 +123,11 @@
                 {% elif field.name == "user" %}
                     <div class="row">
                         <div class="col-4">
-
                             {% bootstrap_label field.label %}
                             {% with help_text_dict|lookup:field.name as help_text %}
                                 <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
                                      title="{{ field.label }}"
-                                     data-content="{{ help_text }}">
+                                     data-content="{{ help_text|safe }}">
                                 {% bootstrap_field field placeholder="" show_label=False %}
                             {% endwith %}
                         </div>
@@ -158,12 +143,12 @@
                         </div>
 
                     </div>
-                    <p>
-                        {% blocktrans %}
-                            (User not in list?
-                            <a href="#" id="new-user">Click here to add a new one.)</a>
-                        {% endblocktrans %}
-                    </p><br>
+                    {#                    <p>#}
+                    {#                        {% blocktrans %}#}
+                    {#                            (User not in list?#}
+                    {#                            <a href="#" id="new-user">Click here to add a new one.)</a>#}
+                    {#                        {% endblocktrans %}#}
+                    {#                    </p><br>#}
                 {% else %}
                     {% bootstrap_field field placeholder="" size="small" %}
                 {% endif %}
@@ -180,64 +165,64 @@
         </form>
     </div>
 
-    {% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." as warning %}
 
     <script type="application/javascript">
+
+    </script>
+
+
+{% endblock %}
+
+{% block body_js %}
+    <script type="application/javascript">
+
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
             checkFields();
         });
 
         $("#new-user").click(function () {
-            popitup('{{ user_url }}', 'popoutWindow1')
+            popitup('{{ user_url }}', 'popoutWindow1');
         });
 
         $("#ot_calc").click(function () {
             {% if object %}
-                popitup('{% url 'projects:ot_calc' object.id %}', 'popoutWindow')
+                popitup('{% url 'projects:ot_calc' object.id %}', 'popoutWindow');
             {% else %}
-                $("#id_save_then_go_OT").val("1")
-                $("form").submit()
+                $("#id_save_then_go_OT").val("1");
+                $("form").submit();
             {% endif %}
 
         });
 
+        var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
+
         $("#id_lead").change(function () {
             currentUser = {{ user.id }}
-                selectedUser = $("#id_user").val()
+                selectedUser = $("#id_user").val();
             if (currentUser == selectedUser && $(this).val() == "False") {
-                alert("{{warning}}")
+                alert(warningMsg);
             }
-        });
-
-        $("form").change(function () {
-            checkFields()
         });
 
 
         function checkFields() {
             // if employee type is not student, disable student program field
             if ($("#id_employee_type").val() != "4") {
-                $("#id_student_program").val("")
-                $("#id_student_program").prop("disabled", true)
+                $("#id_student_program").val("").prop("disabled", true);
             } else {
                 $("#id_student_program").prop("disabled", false)
             }
             // if employee type is fte, disable "cost" field and the "name" field and the "level" field (ONLY IF a-base ***)
             if (($("#id_employee_type").val() == "1" || $("#id_employee_type").val() == "6") && $("#id_funding_source").val() == "1") {
-                $("#id_cost").val("")
-                $("#id_cost").prop("disabled", true)
-
-                $("#id_level").val("")
-                $("#id_level").prop("disabled", true)
+                $("#id_cost").val("").prop("disabled", true);
+                $("#id_level").val("").prop("disabled", true);
 
                 //$("#id_name").val("")
                 //$("#id_name").prop("disabled", true)
-
-
             } else {
-                $("#id_cost").prop("disabled", false)
-                $("#id_level").prop("disabled", false)
+                $("#id_cost").prop("disabled", false);
+                $("#id_level").prop("disabled", false);
             }
             checkUser()
 
@@ -248,14 +233,33 @@
         function checkUser() {
             // if there is a user given, disable and clean the "name" field
             if ($("#id_user").val() != "") {
-                $("#id_name").val("")
-                $("#id_name").prop("disabled", true)
+                $("#id_name").val("").prop("disabled", true);
             } else {
-                $("#id_name").prop("disabled", false)
+                $("#id_name").prop("disabled", false);
             }
         }
+
+
+        $("form").change(function () {
+            checkFields();
+        });
+
+
     </script>
 
+    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
+    <script>
+        window.resizeTo(width = 800, height = 800);
 
+        window.onunload = refreshParent;
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            $("#id_employee_type")[0].focus();
+        });
+    </script>
 {% endblock %}
-

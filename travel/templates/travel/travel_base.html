@@ -26,42 +26,36 @@
 {% block left_auth %}
 
     <li class="nav-item"><a class="nav-link" href="{% url 'travel:event_list' %}">
-        {% trans "Events" %}
+        {% trans "Trips" %}
     </a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'travel:report_search' %}">
         {% trans "Reports" %}
     </a></li>
-{#    <li class="nav-item"><a class="nav-link" href="{% url 'travel:org_list' %}">#}
-{#        {% trans "Organizations" %}#}
-{#    </a></li>#}
-{##}
-{#    <li class="nav-item"><a class="nav-link" href="{% url 'travel:report_search' %}">#}
-{#        {% trans "Reports" %}#}
-{#    </a></li>#}
-{##}
-{#    {% for group in user.groups.all %}#}
-{#        {% if group.name == "masterlist_admin" %}#}
-{##}
-{#            <li class="nav-item dropdown">#}
-{#                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"#}
-{#                   aria-haspopup="true" aria-expanded="false">#}
-{#                    Settings#}
-{#                </a>#}
-{#                <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
-{#                    <a class="dropdown-item" href="{% url 'travel:manage_sectors' %}">Manage Sectors</a>#}
-{#                    <a class="dropdown-item" href="{% url 'travel:manage_roles' %}">Manage Member Roles</a>#}
-{#                    <a class="dropdown-item" href="{% url 'travel:manage_orgs' %}">Manage Organizations</a>#}
-{#                    <a class="dropdown-item" href="{% url 'travel:manage_statuses' %}">Manage Statuses</a>#}
-{#                    <a class="dropdown-item" href="{% url 'travel:manage_entry_types' %}">Manage Entry Types</a>#}
-{#                    <a class="dropdown-item" href="{% url 'travel:manage_funding_purposes' %}">Manage Funding Purposes</a>#}
-{#                    <a class="dropdown-item" href="{% url 'travel:manage_regions' %}">Manage DFO Regions</a>#}
-{#                    <a class="dropdown-item" href="{% url 'travel:manage_groupings' %}">Manage Groupings</a>#}
-{#                </div>#}
-{#            </li>#}
-{##}
-{#        {% endif %}#}
-{##}
-{#    {% endfor %}#}
+
+    {% for group in user.groups.all %}
+        {% if group.name == "projects_admin" %}
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    {% trans "Settings" %}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                    <a class="dropdown-item" href="{% url 'travel:manage_statuses' %}">
+                        {% trans "Manage Statuses" %}
+                    </a>
+                     <a class="dropdown-item" href="{% url 'travel:revent_list' %}">
+                        {% trans "Registered Events" %}
+                    </a>
+
+                </div>
+            </li>
+
+        {% endif %}
+
+    {% endfor %}
+
 
 
 {% endblock left_auth %}
