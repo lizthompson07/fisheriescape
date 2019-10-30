@@ -21,7 +21,7 @@
     <br>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-8">
+            <div class="col-7">
 
                 <div class="jumbotron">
                     <h1 class="three-em">
@@ -55,16 +55,7 @@
                     {% endif %}
                     <br>
                     <div style="">
-                        {#                        <h4>#}
-                        {#                            {% trans "Please use <u>Microsoft Edge</u> or <u>Google Chrome</u> to view this page." %}#}
-                        {#                            <br><br><b>#}
-                        {#                        <span class="">#}
-                        {#                            {% trans "DO NOT USE Internet Explorer." %}#}
-                        {#                        </span>#}
-                        {#                        </b>#}
-                        {##}
-                        {##}
-                        {#                        </h4>#}
+
 
                         {% if user.is_authenticated %}
                             <div align="">
@@ -100,7 +91,7 @@
 
 
             </div>
-            <div class="col-4">
+            <div class="col-5">
                 <div class="card" style="width: 100%; background: #ffd738;">
                     <div class="card-body">
                         <h5 class="card-title">
@@ -110,34 +101,84 @@
                         <h6 class="card-subtitle mb-2 text-muted">
                             GULF REGION:
                         </h6>
-{#                        <p class="card-text">#}
-                            <table class="table table-bordered card-text">
-                                <tr>
-                                    <th style="width: 20%;">Nov 1</th>
-                                    <td>
-                                        Official launch of project planning. Start building projects in app.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th class="red-font">Dec 1</th>
-                                    <td class="red-font">
-                                        Submission deadline for core and non-optional programs.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Dec 5</th>
-                                    <td class="">
-                                        Review of core and non-optional projects.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>...</th>
-                                    <td class="">...</td>
-                                </tr>
-                            </table>
-{#                        </p>#}
-                        {#                        <a href="#" class="card-link">Card link</a>#}
-                        {#                        <a href="#" class="card-link">Another link</a>#}
+                        {#                        <p class="card-text">#}
+                        <table class="table table-bordered card-text">
+                            <tr>
+                                <th rowspan="2">Phase</th>
+                                <th colspan="2" class="center-col">Region specific date</th>
+                            </tr>
+                            <tr>
+                                <th class="center-col">Gulf</th>
+                                <th class="center-col">Maritimes</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Official launch of project planning. Start building projects in app.
+                                </td>
+                                <td class="center-col" style="width: 20%;">Nov 1</td>
+                                <td class="center-col" style="width: 20%;">Nov 4</td>
+                            </tr>
+                            <tr>
+                                <td class="red-font">
+                                    Submission deadline for core and non-optional programs.
+                                </td>
+                                <td class="center-col red-font">Dec 1</td>
+                                <td class="center-col red-font">Dec 18</td>
+                            </tr>
+                            <tr>
+                                <td class="">
+                                    Review of core and non-optional program requests.
+                                </td>
+                                <td class="center-col">Dec 5</td>
+                                <td class="center-col">TBD</td>
+                            </tr>
+                            <tr>
+                                <td class="">
+                                    Review non-core program requests.
+                                </td>
+                                <td class="center-col">Jan 16</td>
+                                <td class="center-col">TBD</td>
+                            </tr>
+                            <tr>
+                                <td class="">
+                                    Review final versions of program descriptions, budgets and deliverables for fiscal 2020-2021.
+                                </td>
+                                <td class="center-col">Mar 17</td>
+                                <td class="center-col">TBD</td>
+                            </tr>
+                        </table>
+
+                        {##}
+                        {#                        <br>#}
+                        {#                        <h6 class="card-subtitle mb-2 text-muted">#}
+                        {#                            MARITIMES REGION:#}
+                        {#                        </h6>#}
+                        {#                        <p class="card-text">#}
+                        {#                        <table class="table table-bordered card-text">#}
+                        {#                            <tr>#}
+                        {#                                <th style="width: 20%;">Nov 4</th>#}
+                        {#                                <td>#}
+                        {#                                    Official launch of project planning. Start building projects in app.#}
+                        {#                                </td>#}
+                        {#                            </tr>#}
+                        {#                            <tr>#}
+                        {#                                <th class="red-font">Dec 18</th>#}
+                        {#                                <td class="red-font">#}
+                        {#                                    Submission deadline for core and non-optional programs.#}
+                        {#                                </td>#}
+                        {#                            </tr>#}
+                        {#                            <tr>#}
+                        {#                                <th>TBD</th>#}
+                        {#                                <td class="">#}
+                        {#                                    Review of core and non-optional projects.#}
+                        {#                                </td>#}
+                        {#                            </tr>#}
+                        {#                            <tr>#}
+                        {#                                <th>...</th>#}
+                        {#                                <td class="">...</td>#}
+                        {#                            </tr>#}
+                        {#                        </table>#}
+
                     </div>
                 </div>
             </div>
