@@ -1,10 +1,3 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
 
@@ -71,7 +64,8 @@ class EcpChannelProperties(models.Model):
     emm = models.ForeignKey('EqrRecorderProperties', models.DO_NOTHING)
     ecp_channel_no = models.BigIntegerField()
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', models.DO_NOTHING, db_column='eqa_adc_bits')
-    ecp_voltage_range = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    ecp_voltage_range_min = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    ecp_voltage_range_max = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     ecp_gain = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
@@ -204,7 +198,7 @@ class MorMooringSetups(models.Model):
         db_table = 'mor_mooring_setups'
 
     def __str__(self):
-        return "{} - {:0.5} m - {} hydrophones".format(self.mor_name, self.mor_max_depth, self.mor_num_hydrophones)
+        return "{}".format(self.mor_name)
 
 
 class PrjProjects(models.Model):

@@ -74,7 +74,7 @@
                 </h3>
                 <table class="table table-sm table-striped">
                     {% for field in field_list_2 %}
-                        {% verbose_td_display object field %}
+                        {% verbose_td_display instance=object field_name=field date_format="%d-%b-%Y" %}
                     {% endfor %}
                 </table>
                 <br>

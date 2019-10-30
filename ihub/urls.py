@@ -61,10 +61,16 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/capacity-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
+    path('reports/capacity-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.capacity_export_spreadsheet,
+         name="capacity_xlsx"),
     path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
-    path('reports/summary-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.summary_export_spreadsheet, name="summary_xlsx"),
-    path('reports/summary-report-pdf/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.PDFSummaryReport.as_view(), name="summary_pdf"),
+    path('reports/summary-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.summary_export_spreadsheet,
+         name="summary_xlsx"),
+    path('reports/summary-report-pdf/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.PDFSummaryReport.as_view(),
+         name="summary_pdf"),
+    path(
+        'reports/consultation-log/fy/<str:fy>/orgs/<str:orgs>/statuses/<str:statuses>/entry-types/<str:entry_types>/report-title/<str:report_title>/',
+        views.ConsultationLogPDFTemplateView.as_view(), name="consultation_log"),
 
     # SETTINGS #
     ############
@@ -74,10 +80,12 @@ urlpatterns = [
     path('settings/entry-types/', views.manage_entry_types, name="manage_entry_types"),
     path('settings/funding-purpose/', views.manage_funding_purposes, name="manage_funding_purposes"),
     path('settings/reserves/', views.manage_reserves, name="manage_reserves"),
+    path('settings/nations/', views.manage_nations, name="manage_nations"),
 
     path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
     path('settings/entry-type/<int:pk>/delete/', views.delete_entry_type, name="delete_entry_type"),
     path('settings/funding-purpose/<int:pk>/delete/', views.delete_funding_purpose, name="delete_funding_purpose"),
     path('settings/reserve/<int:pk>/delete/', views.delete_reserve, name="delete_reserve"),
+    path('settings/nation/<int:pk>/delete/', views.delete_nation, name="delete_nation"),
 
 ]
