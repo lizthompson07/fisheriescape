@@ -57,12 +57,18 @@
                 </div>
 
 
-                <table class="table table-sm table-hover sortable">
+                <table class="table table-sm table-hover sortable" style="font-size: small">
                     <thead>
                     <tr>
                         {% for field in field_list %}
                             {% if "is_group" in field %}
                                 <th scope="col">Type</th>
+                            {% elif "year" in field %}
+                                <th style="width: 4%;" scope="col">{% get_verbose_label my_object field %}</th>
+                            {% elif "status" in field %}
+                                <th style="width: 8%;" scope="col">{% get_verbose_label my_object field %}</th>
+                            {% elif "title" in field %}
+                                <th style="width: 25%;" scope="col">{% get_verbose_label my_object field %}</th>
                             {% else %}
                                 <th scope="col">{% get_verbose_label my_object field %}</th>
                             {% endif %}
@@ -77,7 +83,7 @@
 
                             {% for field in field_list %}
                                 {% if "is_group" in field %}
-                                    <td>{{object.is_group_trip|yesno:"Group,Individual"}}</td>
+                                    <td>{{ object.is_group_trip|yesno:"Group,Individual" }}</td>
                                 {% elif "status" in field %}
                                     <td style="background-color: {{ object.status.color }}">{% get_field_value object field format="currency" %}</td>
 
