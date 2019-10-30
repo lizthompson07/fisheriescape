@@ -25,10 +25,10 @@
         </ul>
         <table class="table table-sm table-bordered" style="font-size: small; width: 60%;">
             <tr>
-                <th>COLUMN</th>
-                <th>DATA TYPE</th>
-                <th>DESCRIPTION</th>
-                <th>CAN BE NULL / MISSING?</th>
+                <th>Column header name</th>
+                <th>Data type</th>
+                <th>Description</th>
+                <th class="center-col">Column can be null or omitted?</th>
             </tr>
 
             <tr>
@@ -40,19 +40,7 @@
                         <code>old_id</code> for historical reference
                     </em>
                 </td>
-                <td>no</td>
-            </tr>
-            <tr>
-                <td>species</td>
-                <td>string</td>
-                <td>
-                    <em>
-                        Scientific name of species sampled;
-                        If this column is present, only the rows with Clupea harengus will be imported. If the column is absent, all rows
-                        will be imported
-                    </em>
-                </td>
-                <td>yes</td>
+                <td  class="bad center-col">no</td>
             </tr>
             <tr>
                 <td>type</td>
@@ -62,7 +50,7 @@
                         Must be either <code>1</code> (port sample) or <code>2</code> (sea sample); integer
                     </em>
                 </td>
-                <td>no</td>
+                <td class="bad center-col">no</td>
             </tr>
             <tr>
                 <td>sample_date</td>
@@ -74,57 +62,18 @@
                         where UTC offset in the form +HHMM or -HHMM (e.g., 2019-10-22 13:42:51+0000).
                     </em>
                 </td>
-                <td>no</td>
+                <td class="bad center-col">no</td>
             </tr>
             <tr>
-                <td>survey_id</td>
-                <td>string</td>
+                <td>sampler_ref_number</td>
+                <td>integer</td>
                 <td>
                     <em>
-                        This is the <code>mission_number</code> field in the sedna shared_models.Cruise object
+                        This is a reference number assigned to the sample. If this is a port sample, this is a sequential number
+                        provided by the sampler. If this is a sea sample, it will be the set number.
                     </em>
                 </td>
-                <td>yes</td>
-            </tr>
-            <tr>
-                <td>sampler</td>
-                <td>formatted string</td>
-                <td>
-                    <em>
-                        Name of sampler; must have following format: [last name], [first_name] (e.g., Butts, Seymour)
-                    </em>
-                </td>
-                <td>yes</td>
-            </tr>
-            <tr>
-                <td>fishing_area</td>
-                <td>string</td>
-                <td>
-                    <em>
-                        NAFO fishing area (e.g., 4T)
-                    </em>
-                </td>
-                <td>yes</td>
-            </tr>
-            <tr>
-                <td>latitude_n</td>
-                <td>float</td>
-                <td>
-                    <em>
-                        In this case, the starting latitude is provided in decimal degrees
-                    </em>
-                </td>
-                <td>yes</td>
-            </tr>
-            <tr>
-                <td>longitude_w</td>
-                <td>float</td>
-                <td>
-                    <em>
-                        In tdis case, the starting longitude is provided in decimal degrees
-                    </em>
-                </td>
-                <td>yes</td>
+                <td class="bad center-col">no</td>
             </tr>
             <tr>
                 <td>gear</td>
@@ -134,7 +83,7 @@
                         Gear type used (NAFO gear code) (e.g., GNS)
                     </em>
                 </td>
-                <td>no</td>
+                <td class="bad center-col">no</td>
             </tr>
             <tr>
                 <td>experimental_net_used</td>
@@ -144,25 +93,87 @@
                         Must be either <code>1</code> (yes) or <code>0</code> (no)
                     </em>
                 </td>
-                <td>no</td>
+                <td class="bad center-col">no</td>
+            </tr>
+            <tr>
+                <td>species</td>
+                <td>string</td>
+                <td>
+                    <em>
+                        Scientific name of species sampled;
+                        If this column is present, only the rows with Clupea harengus will be imported. If the column is absent, all rows
+                        will be imported
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>survey_id</td>
+                <td>string</td>
+                <td>
+                    <em>
+                        This is the <code>mission_number</code> field in the sedna shared_models.Cruise object
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>sampler</td>
+                <td>formatted string</td>
+                <td>
+                    <em>
+                        Name of sampler; must have following format: [last name], [first_name] (e.g., Butts, Seymour)
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>fishing_area</td>
+                <td>string</td>
+                <td>
+                    <em>
+                        NAFO fishing area (e.g., 4T)
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>latitude_n</td>
+                <td>float</td>
+                <td>
+                    <em>
+                        In this case, the starting latitude is provided in decimal degrees
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>longitude_w</td>
+                <td>float</td>
+                <td>
+                    <em>
+                        In tdis case, the starting longitude is provided in decimal degrees
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>port_code</td>
                 <td>integer</td>
                 <td><em>Integer; 5-digit port code of the port where sample was collected</em></td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>vessel_cfvn</td>
                 <td>integer</td>
                 <td><em>Integer; identification number of vessel from which sample was collected </em></td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>mesh_size</td>
                 <td>integer</td>
                 <td><em>Integer; mesh size of net used in millimeters (mm)</em></td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
 
 
@@ -174,7 +185,7 @@
                         Total weight of the sample in lbs
                     </em>
                 </td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>catch_weight_lbs</td>
@@ -184,7 +195,7 @@
                         Total weight of the catch in lbs
                     </em>
                 </td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>total_fish_measured</td>
@@ -194,7 +205,7 @@
                         Total number of fish measured in the originating set
                     </em>
                 </td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>total_fish_preserved</td>
@@ -204,7 +215,7 @@
                         Total number of fish measure kept in the originating set
                     </em>
                 </td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>remarks</td>
@@ -214,7 +225,7 @@
                         miscellaneous remarks
                     </em>
                 </td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>creation_date</td>
@@ -226,7 +237,7 @@
                         where UTC offset in the form +HHMM or -HHMM (e.g., 2019-10-22 13:42:51+0000).
                     </em>
                 </td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             <tr>
                 <td>last_modified_date</td>
@@ -238,7 +249,7 @@
                         where UTC offset in the form +HHMM or -HHMM (e.g., 2019-10-22 13:42:51+0000).
                     </em>
                 </td>
-                <td>yes</td>
+                <td class="good center-col">yes</td>
             </tr>
             {#            <tr>#}
             {#                <td></td>#}
@@ -254,7 +265,7 @@
             {% csrf_token %}
             {% for field in form %}
 
-                {#                <h2 class="red-font">WARNING: running this function will overwrite any existing points in this record.</h2>#}
+                {#                <h2 class="bad center-col">WARNING: running this function will overwrite any existing points in this record.</h2>#}
                 <h3>Please select the file to upload:</h3>
                 {{ field }}
             {% endfor %}
