@@ -3,6 +3,7 @@
 {% load bootstrap4 %}
 {% load humanize %}
 {% load verbose_names %}
+{% load el_pagination_tags %}
 {% block content %}
 
     <style type="text/css">
@@ -26,15 +27,13 @@
     </nav>
 
     <div class="container-fluid">
+        {% paginate 50 filter.qs as filter_list %}
 
         <h1 class="big-header">Herring Samples </h1>
-        <p>TOTAL: {{ object_list.count }}</p>
-        <p>
-        </p>
 
-        <form class="form" action="." method="get">
+
+        <form id="filter-form" action="." method="get">
             <div class="row">
-
                 {% for field in filter.form %}
                     {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
                     <div class="col">
@@ -55,6 +54,19 @@
         </div>
         <br>
         <br>
+
+        <div class="row">
+            <div class="col">
+                (click on a header to sort table)
+            </div>
+            <div class="col" style="text-align: center">
+                {% show_pages %}
+                <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'herring:sample_new' %}" class="btn btn-sm btn-primary">New</a>
+            </div>
+        </div>
         <table class="table table-hover table-sm sortable">
             <thead>
             {% for field in field_list %}
@@ -74,8 +86,8 @@
             <th scope="col" class="center-col">Otoliths complete</th>
             </thead>
             <tbody>
-            {% for sample in filter.qs %}
-                <tr>
+            {% for sample in filter_list %}
+                <tr href="{% url 'herring:sample_detail' sample.id  %}">
 
                     {% for field in field_list %}
                         <td class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
