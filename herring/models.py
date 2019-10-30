@@ -144,7 +144,7 @@ class Sample(models.Model):
 
     type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES)
     sample_date = models.DateTimeField()
-    sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number", blank=True, null=True)
+    sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number / set number", blank=True, null=True)
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     port = models.ForeignKey(shared_models.Port, related_name="herring_samples", on_delete=models.DO_NOTHING, null=True, blank=True)
