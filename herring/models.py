@@ -5,7 +5,10 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import auth
+from django.utils.translation import gettext_lazy as _
+
 from shared_models import models as shared_models
+
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -214,6 +217,9 @@ class Sample(models.Model):
                 self.otolith_processing_complete = False
 
         return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{} {}".format(_("Sample"), self.id)
 
 
 class Maturity(models.Model):

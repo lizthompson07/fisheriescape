@@ -5,13 +5,24 @@
 {% load static %}
 
 {% block content %}
-    <div class="nav-map">
-        <br>
-        <p>
-            <a href="{% url 'herring:sample_list' %}">All Samples</a> >
-            Sample {{ object.id }}
-        </p>
-    </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'herring:index' %}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'herring:sample_list' %}">
+                    Sample List
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Sample Detail
+            </li>
+
+        </ol>
+    </nav>
 
     <div class="container-fluid">
 
