@@ -2,6 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load humanize %}
+{% load verbose_names %}
 {% block content %}
 
     <style type="text/css">
@@ -56,40 +57,49 @@
         <br>
         <table class="table table-hover table-sm sortable">
             <thead>
-            <th scope="col">Sample #</th>
-            <th scope="col">Type</th>
-            <th scope="col">Sample Collection Date</th>
-            <th scope="col">Port</th>
-            <th scope="col" style="text-align: center;">Sampler Ref. No.</th>
-            <th scope="col" style="text-align: center;">Experimental?</th>
-            <th scope="col">Sampler</th>
-            <th scope="col" style="text-align: center;"># Fish Processed</th>
-            <th scope="col" style="text-align: center;">Date Processed</th>
-            <th scope="col" style="text-align: center;">Lab Complete</th>
-            <th scope="col" style="text-align: center;">Otoliths Complete</th>
+            {% for field in field_list %}
+                <th class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
+                    {% if field == "sample_date" %}
+                        Sample date (yyyy-mm-dd)
+                    {% else %}
+                        {% get_verbose_label object_list.first field %}
+                    {% endif %}
+                </th>
+            {% endfor %}
+
+
+            {#            <th scope="col">Sample #</th>#}
+            {#            <th scope="col">Type</th>#}
+            {#            <th scope="col">Sample Collection Date</th>#}
+            {#            <th scope="col">Port</th>#}
+            {#            <th scope="col" style="text-align: center;">Sampler Ref. No.</th>#}
+            {#            <th scope="col" style="text-align: center;">Experimental?</th>#}
+            {#            <th scope="col">Sampler</th>#}
+            <th scope="col" class="center-col"># Fish processed</th>
+            <th scope="col">Date processed (yyyy-mm-dd)</th>
+            <th scope="col" class="center-col">Lab complete</th>
+            <th scope="col" class="center-col">Otoliths complete</th>
             </thead>
             <tbody>
             {% for sample in filter.qs %}
-                <tr href="{% url 'herring:sample_detail' sample.id %}">
-                    <td>{{ sample.id }}</td>
-                    <td>{{ sample.get_type_display }}</td>
-                    <td>{{ sample.sample_date|date:'Y-m-d' }}</td>
-                    <td>{{ sample.port }}</td>
-                    <td align='center'>{{ sample.sampler_ref_number }}</td>
-                    <td align='center'>{{ sample.experimental_net_used|yesno:"yes,no,n/a" }}</td>
-                    <td>{{ sample.sampler }}</td>
+                <tr>
 
-                    <td align='center'>{{ sample.fish_details.count }}</td>
-                    <td align='center'>{{ sample.fish_details.last.lab_processed_date|date:"F d, Y" }}</td>
+                    {% for field in field_list %}
+                        <td class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
+                            {% get_field_value sample field %}
+                        </td>
+                    {% endfor %}
 
-                    <td align='center'>
+                    <td class='center-col'>{{ sample.fish_details.count }}</td>
+                    <td class=''>{{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}</td>
+                    <td class='center-col'>
                         {% if sample.lab_processing_complete %}
                             <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
                         {% else %}
                             <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
                         {% endif %}
                     </td>
-
+                    {##}
                     <td align='center'>
                         {% if sample.otolith_processing_complete %}
                             <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
@@ -97,9 +107,8 @@
                             <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
                         {% endif %}
                     </td>
-
-
                 </tr>
+
             {% endfor %}
             </tbody>
         </table>
