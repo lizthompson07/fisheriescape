@@ -1,6 +1,8 @@
 {% load static %}
 {% load custom_filters %}
 {% load custom_tags %}
+<br>
+<br>
 <h4>Length Frequencies:</h4>
 <br>
 <div class="row">
@@ -16,11 +18,11 @@
 
     {% else %}
       <h5><em>From Sample:</em></h5>
-    <table>
+    <table width="100%">
       {% for freq in object.length_frequency_objects.all  %}
       <tr>
-        <td>{{freq.length_bin}}&nbsp;</td>
-        <td width = "75%">
+        <td width="15%">{{freq.length_bin}}&nbsp;</td>
+        <td>
           <div class="progress">
             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="{{freq.count}}" aria-valuemin="0" aria-valuemax="{{max_count}}" style="width: {{ freq.count|divide:max_count|percentage}}">
               {{freq.count}}
@@ -58,11 +60,11 @@
     </p>
 
     {% else %}
-    <table>
+    <table width="100%">
       {% for bin in bin_list  %}
       <tr>
-        <td>{{bin}} cm&nbsp;</td>
-        <td width = "75%">
+        <td width="15%">{{bin}} cm&nbsp;</td>
+        <td>
           <div class="progress">
             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="bin_dict|lookup:bin" aria-valuemin="0" aria-valuemax="{{max_fish_detail_count}}" style="width: {{ bin_dict|lookup:bin|divide:max_fish_detail_count|percentage}}">
               {{bin_dict|lookup:bin}}
