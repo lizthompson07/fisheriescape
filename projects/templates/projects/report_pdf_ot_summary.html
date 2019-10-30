@@ -1,0 +1,236 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+{% block extra_style %}
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    .center-col {
+        text-align: center;
+    }
+
+    .right-col {
+        text-align: right;
+    }
+
+    table, td, th {
+        border-bottom: 1px solid black;
+        padding-top: 2px;
+    }
+
+    th {
+        background-color: lightblue;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+        font-weight: bold;
+    }
+
+    .subtotal {
+        background-color: lightgray;
+        color: black;
+        font-style: italic;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 14px;
+    }
+
+    @page {
+        size: legal;
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+
+<div class="container-fluid">
+    {# financial summary #}
+    {% with "---" as na %}
+        {% with "** The hours on this table cannot be summed since projects can be associated with multiple programs (i.e., there are hours counted twice)" as summable_warning %}
+
+            <h1>{{ fy }} Overtime Hours By Section </h1>
+
+            <table>
+                <thead>
+                <th style="width: 40%; text-align: left">Division</th>
+                <th style="width: 40%; text-align: left">Section</th>
+                <th style="width: 20%; text-align: right">Overtime Hours</th>
+                </thead>
+                <tbody>
+                {% for division in division_list %}
+                    {% for section in division.sections.all %}
+                        <tr>
+                        {% if forloop.counter == 1 %}
+                            <td rowspan="{% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">
+                                {{ division }}
+                            </td>
+                        {% endif %}
+                        {% if section in section_list %}
+
+                            <td>{{ section }}</td>
+                            {% with ot_summary_data|lookup:division|lookup:section|lookup:"total" as ot %}
+                                <td class="right-col">
+                                    {% if not ot or ot == 0 %}
+                                        ---
+                                    {% else %}
+                                        {{ ot|floatformat:0|intcomma }}
+                                    {% endif %}
+                                </td>
+                            {% endwith %}
+                        {% endif %}
+
+                    {% endfor %}
+                {% if division.sections.count > 0 %}
+                    <tr>
+                        {% with ot_summary_data|lookup:division|lookup:"total" as ot %}
+                            <td class="subtotal">SUB-TOTAL</td>
+                            <td class="subtotal right-col">{{ ot|zero2val:na|floatformat:0|intcomma }}</td>
+                        {% endwith %}
+                    </tr>
+                {% endif %}
+                {% endfor %}
+                <tr>
+                    <td colspan="2" class="total">TOTAL</td>
+                    {% with ot_summary_data|lookup:"total" as ot %}
+                        <td class="total right-col">{{ ot|zero2val:na|floatformat:0|intcomma }}</td>
+                    {% endwith %}
+                </tr>
+                </tbody>
+
+            </table>
+
+            <div>
+                <pdf:nextpage/>
+            </div>
+
+
+            <h1>{{ fy }} Overtime Hours By Section and Program </h1>
+            <h3>{{ summable_warning }}</h3>
+
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 20%; text-align: left">Division</th>
+                    <th style="width: 20%; text-align: left">Section</th>
+                    <th style="width: 50%; text-align: left">Program</th>
+                    <th style="width: 10%; text-align: right">Overtime Hours</th>
+                </tr>
+                </thead>
+
+
+                {% for division in division_list %}
+                    {% for section in division.sections.all %}
+                        {% with ot_summary_data|lookup:division|lookup:section|lookup:"programs"|lookup:"list" as program_list %}
+                            {% for program in program_list %}
+
+                                <tr>
+                                    {% if forloop.parentloop.counter == 1 and forloop.counter == 1 %}
+                                        <td rowspan="{{ ot_summary_data|lookup:division|lookup:"nrows" }}">
+                                            {{ division }}
+                                        </td>
+
+                                    {% endif %}
+                                    {% if forloop.counter == 1 %}
+                                        <td rowspan="{{ program_list.count|zero2val:1 }}">
+                                            {{ section }}
+
+                                        </td>
+
+                                    {% endif %}
+
+                                    <td>
+                                        {{ program }}
+                                    </td>
+                                    {% with ot_summary_data|lookup:division|lookup:section|lookup:"programs"|lookup:program as ot %}
+                                        <td class="right-col">
+                                            {% if ot and ot != 0 %}
+                                                {{ ot|zero2val:na|floatformat:0|intcomma }}
+                                            {% else %}
+                                                {{ na }}
+                                            {% endif %}
+                                        </td>
+                                    {% endwith %}
+
+                                </tr>
+
+                            {% endfor %}
+                        {% endwith %}
+                    {% endfor %}
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            <div>
+                <pdf:nextpage/>
+            </div>
+
+
+            <h1>{{ fy }} Overtime Hours By Program </h1>
+            <h3>{{ summable_warning }}</h3>
+
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 50%; text-align: left">Program</th>
+                    <th style="width: 10%; text-align: right">Overtime Hours</th>
+                </tr>
+                </thead>
+                {% for program in ot_summary_data|lookup:"programs"|lookup:"list" %}
+
+                    {% with ot_summary_data|lookup:"programs"|lookup:program as ot %}
+                        {% if ot %}
+                            <tr>
+                                <td>
+                                    {{ program }}
+                                </td>
+                                <td class="right-col">
+                                    {{ ot|zero2val:na|floatformat:0|intcomma }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endwith %}
+
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+        {% endwith %}
+    {% endwith %}
+
+</div>
+

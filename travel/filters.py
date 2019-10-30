@@ -2,6 +2,8 @@
 from gettext import gettext as _
 from django import forms
 import django_filters
+from django.contrib.auth.models import User
+
 from . import models
 
 # YES_NO_CHOICES = (
@@ -14,13 +16,39 @@ from . import models
 #                                             lookup_expr='icontains', widget=forms.TextInput())
 #     indigenous = django_filters.ChoiceFilter(field_name='grouping__is_indigenous', choices=YES_NO_CHOICES, label=_("Indigenous?"),)
 #
+chosen_js = {"class": "chosen-select-contains"}
+
+
 class EventFilter(django_filters.FilterSet):
     class Meta:
         model = models.Event
         fields = {
-            'fiscal_year':['exact'],
-            'trip_title':['icontains'],
-            'section':['exact'],
+            'fiscal_year': ['exact'],
+            'trip_title': ['icontains'],
+            'section': ['exact'],
+            'user': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in User.objects.all().order_by("last_name", "first_name")
+                        if u.user_trips.count() > 0]
+        self.filters['user'] = django_filters.ChoiceFilter(field_name='user', lookup_expr='exact', choices=user_choices,
+                                                           widget=forms.Select(attrs=chosen_js))
+
+
+class RegisteredEventFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.RegisteredEvent
+        fields = {
+            'name': ['icontains'],
+            'number': ['icontains'],
         }
 
 
+class EventApprovalFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Event
+        fields = {
+            'waiting_on': ['exact'],
+        }

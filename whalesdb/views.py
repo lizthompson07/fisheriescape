@@ -526,7 +526,8 @@ class CreateChannel(CreateTemplate):
 
         ecp = models.EcpChannelProperties(emm=emm, ecp_channel_no=form.cleaned_data['ecp_channel_no'],
                                           eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
-                                          ecp_voltage_range=form.cleaned_data['ecp_voltage_range'],
+                                          ecp_voltage_range_min=form.cleaned_data['ecp_voltage_range_min'],
+                                          ecp_voltage_range_max=form.cleaned_data['ecp_voltage_range_max'],
                                           ecp_gain=form.cleaned_data['ecp_gain'])
 
         ecp.save()
@@ -648,7 +649,7 @@ class DetailsMakeModel(DetailView):
         context = super().get_context_data(**kwargs)
         context['objects'] = []
 
-        labels = forms.get_labels(models.EmmMakeModel)
+        labels = forms.get_descriptions(models.EmmMakeModel)
         context['objects'].append({
             "object": kwargs['object'].emm,
             "fields": get_fields(labels)
@@ -667,7 +668,7 @@ class DetailsRecorder(DetailsMakeModel):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        labels = forms.get_labels(models.EqrRecorderProperties)
+        labels = forms.get_descriptions(models.EqrRecorderProperties)
         context['objects'].append({
             "object": kwargs['object'],
             "fields": get_fields(labels)
@@ -687,7 +688,7 @@ class DetailsHydrophone(DetailsMakeModel):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        labels = forms.get_labels(models.EqhHydrophoneProperties)
+        labels = forms.get_descriptions(models.EqhHydrophoneProperties)
         context['objects'].append({
             "object": kwargs['object'],
             "fields": get_fields(labels)
