@@ -164,7 +164,7 @@
     </table>
 </div>
 <div class="block">
-    <table class="real">
+    <table class="">
         <tr class="real">
             <th rowspan="2" style="text-align: center;" class="real center">Amended</th>
             <th rowspan="2" class="real center">Trip</th>
@@ -233,12 +233,12 @@
             <td class="center wset"></td>
             <td class="center wset"></td>
             <td class="center wset"></td>
-            <td style="width: 400px" class="real center"></td>
+            <td style="width: 400px" class="center"></td>
             {# starting with AIR #}
             {% for key in key_list %}
-                <td class="real center wset">{{ total_dict|lookup:key|currency }}</td>
+                <td class="real center wset"><b>{{ total_dict|lookup:key|currency }}</b></td>
             {% endfor %}
-            <td class="real center wset"></td>
+            <td class="center wset"></td>
         </tr>
     </table>
 </div>
