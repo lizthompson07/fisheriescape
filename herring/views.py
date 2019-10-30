@@ -112,6 +112,21 @@ class SampleFilterView(HerringAccessRequired, FilterView):
     def get_queryset(self):
         return models.Sample.objects.all().order_by("sample_date")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['field_list'] = [
+            'id',
+            'type',
+            'sample_date',
+            'sampler_ref_number',
+            'survey_id',
+            'sampler',
+            'port',
+            'total_fish_measured',
+            'total_fish_preserved',
+            'total_fish_preserved',
+        ]
+        return context
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
