@@ -124,6 +124,7 @@ event_field_list = [
     'benefit_to_dfo',
     'multiple_conferences_rationale',
     'multiple_attendee_rationale',
+    'late_justification',
     'bta_attendees',
     'notes',
 
@@ -170,6 +171,7 @@ event_group_field_list = [
     'multiple_attendee_rationale',
     'funding_source',
     'bta_attendees',
+    'late_justification',
     'notes',
     'total_trip_cost|{}'.format(_("Total trip cost")),
 
