@@ -244,6 +244,31 @@ class SampleDetailView(HerringAccessRequired, DetailView):
         # pass in the tests
         tests = models.Test.objects.filter(Q(id=205) | Q(id=230) | Q(id=231) | Q(id=232))
         context['tests'] = tests
+        context['field_list'] = [
+            'type',
+            'sample_date',
+            'sampler_ref_number',
+            'sampler',
+            'port',
+            'survey_id',
+            'latitude_n',
+            'longitude_w',
+            'fishing_area',
+            'gear',
+            'experimental_net_used',
+            'vessel_cfvn',
+            'mesh_size',
+            'catch_weight_lbs',
+            'sample_weight_lbs',
+            'total_fish_measured',
+            'total_fish_preserved',
+            'old_id',
+            'remarks',
+            'created_by',
+            'creation_date',
+            'last_modified_by',
+            'last_modified_date',
+        ]
 
         # create a list of length freq counts FOR SAMPLE
         if self.object.length_frequency_objects.count() > 0:
