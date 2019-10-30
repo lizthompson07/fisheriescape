@@ -900,46 +900,49 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                     my_sample.total_fish_preserved = nz(row.get("total_fish_preserved"), None)
                     my_sample.remarks = nz(row.get("remarks"), None)
                     my_sample.creation_date = datetime.strptime(row.get("creation_date"), "%Y-%m-%d %H:%M:%S%z")
-                    my_sample.last_modified_date = datetime.strptime(row.get("last_modified_date"), "%Y-%m-%d %H:%M:%S%z")
+                    my_sample.last_modified_date = datetime.strptime(row.get("last_modified_date"), "%Y-%m-%d %H:%M:%S%z") if row.get("last_modified_date") else None
                     my_sample.created_by = self.request.user
                     my_sample.last_modified_by = self.request.user
                     my_sample.vessel_cfvn = nz(row.get("vessel_cfvn"), None)
 
                     # now the trickier stuff:
                     # SAMPLER
-                    sedna_sampler = row.get("sampler").lower().split(", ")  # this will be in the format [last_name, first_name]
-                    # look for something similar in the hermorrhage db
-                    herm_sampler = models.Sampler.objects.filter(
-                        first_name__istartswith=sedna_sampler[1],
-                        last_name__iexact=sedna_sampler[0],
-                    )
-                    if herm_sampler.count() == 1:
-                        # bingo, we found our man
-                        print("bingo, we found our man")
-                        my_sample.sampler = herm_sampler.first()
-                    elif herm_sampler.count() == 0:
-                        print("no hits for sampler")
-                        # this user appears to be absent from hermorrhage db
-                        new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
-                        my_sample.sampler = new_sampler
-                    else:
-                        print("more than one hit for sampler")
-                        # we are in a position where there are more than one hits.. try using the whole first name.
-                        # if there are still more than one hits we can just choose the first sampler arbitrarily... means there is a duplicate
-                        # If no hits probably safer just to create a new sampler
+                    if row.get("sampler"):
+                        sedna_sampler = row.get("sampler").lower().split(", ")  # this will be in the format [last_name, first_name]
+                        # look for something similar in the hermorrhage db
                         herm_sampler = models.Sampler.objects.filter(
-                            first_name__iexact=sedna_sampler[1],
+                            first_name__istartswith=sedna_sampler[1],
                             last_name__iexact=sedna_sampler[0],
                         )
-                        if herm_sampler.count() > 0:
-                            # bingo, we found our man (after a few adjustments)
-                            print("bingo, we found our man (after a few adjustments)")
+                        if herm_sampler.count() == 1:
+                            # bingo, we found our man
+                            print("bingo, we found our man")
                             my_sample.sampler = herm_sampler.first()
-                        else:
-                            print("no hits for sampler, when using full first name")
+                        elif herm_sampler.count() == 0:
+                            print("no hits for sampler")
                             # this user appears to be absent from hermorrhage db
                             new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
                             my_sample.sampler = new_sampler
+                        else:
+                            print("more than one hit for sampler")
+                            # we are in a position where there are more than one hits.. try using the whole first name.
+                            # if there are still more than one hits we can just choose the first sampler arbitrarily... means there is a duplicate
+                            # If no hits probably safer just to create a new sampler
+                            herm_sampler = models.Sampler.objects.filter(
+                                first_name__iexact=sedna_sampler[1],
+                                last_name__iexact=sedna_sampler[0],
+                            )
+                            if herm_sampler.count() > 0:
+                                # bingo, we found our man (after a few adjustments)
+                                print("bingo, we found our man (after a few adjustments)")
+                                my_sample.sampler = herm_sampler.first()
+                            else:
+                                print("no hits for sampler, when using full first name")
+                                # this user appears to be absent from hermorrhage db
+                                new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
+                                my_sample.sampler = new_sampler
+                    else:
+                        herm_sampler = models.Sampler.objects.get(pk=29) # sampler = UNKNOWN
 
                     # FISHING AREA
                     # since this is more fundamental, let's crush the script is not found
