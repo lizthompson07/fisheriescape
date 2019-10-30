@@ -10,7 +10,21 @@
         }
     </style>
 
-    <div class="indent-med">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'herring:index' %}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Sample List
+            </li>
+
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
 
         <h1 class="big-header">Herring Samples </h1>
         <p>TOTAL: {{ object_list.count }}</p>
