@@ -10,8 +10,11 @@ class GenericFilterSet(FilterSet):
         super().__init__(*args, **kwargs)
 
         labels = forms.get_short_labels(self._meta.model)
-        for key in labels.keys():
-            self.filters[key].label = labels[key]
+        try:
+            for key in labels.keys():
+                self.filters[key].label = labels[key]
+        except KeyError:
+            print("Label for key '" + key + "' not found")
 
 
 class CrsFilter(GenericFilterSet):
@@ -57,18 +60,18 @@ class EqpFilter(GenericFilterSet):
         fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqp_asset_id', 'eqp_notes']
 
 
-class EqrFilter(GenericFilterSet):
+class EmmFilter(GenericFilterSet):
 
     class Meta:
-        model = models.EqrRecorderProperties
-        fields = ['emm', 'eqc_max_channels', 'eqc_max_sample_rate']
+        model = models.EmmMakeModel
+        fields = ['eqt']
 
 
 class MorFilter(GenericFilterSet):
 
     class Meta:
         model = models.MorMooringSetups
-        fields = ['mor_name', 'mor_max_depth', 'mor_num_hydrophones', 'mor_link_setup_image',
+        fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image',
                   'mor_additional_equipment', 'mor_general_moor_description', 'more_notes', ]
 
 

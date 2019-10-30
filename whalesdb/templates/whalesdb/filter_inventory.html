@@ -22,14 +22,13 @@
 
                 {% endfor %}
                 <div class="col">
-                    <br>
+                <br>
                     <input type="submit" value="Filter" class="btn btn-warning btn-sm">
                    {% if obj_name %}
                 <a href="{% url new_object obj_name %}" class="btn btn-primary btn-sm">Create New</a>
                     {% else %}
                 <a href="{% url new_object %}" class="btn btn-primary btn-sm">Create New</a>
                     {% endif %}
-
                 </div>
             </div>
         </form>
