@@ -346,15 +346,16 @@ class Event(models.Model):
         if self.role_of_participant:
             my_str += "Role of Participant: {}".format(self.role_of_participant)
         if self.objective_of_event:
-            my_str += "\nObjective of Event: {}".format(self.objective_of_event)
+            my_str += "\n\nObjective of Event: {}".format(self.objective_of_event) if len(my_str) > 0 else "Objective of Event: {}".format(
+                self.objective_of_event)
         if self.benefit_to_dfo:
-            my_str += "\nBenefit to DFO: {}".format(self.benefit_to_dfo)
+            my_str += "\n\nBenefit to DFO: {}".format(self.benefit_to_dfo)
         if self.multiple_conferences_rationale:
-            my_str += "\nRationale for attending multiple conferences: {}".format(self.multiple_conferences_rationale)
+            my_str += "\n\nRationale for attending multiple conferences: {}".format(self.multiple_conferences_rationale)
         if self.multiple_attendee_rationale:
-            my_str += "\nRationale for multiple attendees: {}".format(self.multiple_attendee_rationale)
+            my_str += "\n\nRationale for multiple attendees: {}".format(self.multiple_attendee_rationale)
         if self.funding_source:
-            my_str += "\nFunding source: {}".format(self.multiple_attendee_rationale)
+            my_str += "\n\nFunding source: {}".format(self.multiple_attendee_rationale)
 
         return my_str
 
