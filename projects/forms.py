@@ -329,20 +329,27 @@ class FYForm(forms.Form):
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
-        (None, "-----"),
-        (3, "Project Summary Report (PDF)"),
-        (2, "Batch Workplan Export (PDF) (submitted and approved)"),
+        (None, ""),
+        (None, "----- GENERAL ------"),
+        (3, "Project Summary Report (PDF - section head approved projects)"),
+        (2, "Batch Workplan Export (PDF - section head approved projects)"),
         (1, "Master spreadsheet (MS Excel)"),
-        (4, "Science program list (MS Excel)"),
         (16, _("Feedback summary")),
+        (17, _("Data management summary")),
 
-        # Gulf region reports
-        (10, _("GULF: Weeks Worked by Employees")),
-        (11, _("GULF: Total Overtime Hours Requested")),
-        (12, _("GULF: Cost Summary by Section")),
-        (13, _("GULF: List of Collaborators")),
-        (15, _("GULF: List of Collaborative Agreements")),
-        (14, _("GULF: Doug's Report")),
+        (None, ""),
+        (None, "----- GULF ------"),
+        (10, _("Weeks Worked by Employees (PDF)")),
+        (11, _("Total Overtime Hours Requested (PDF)")),
+        (12, _("Cost Summary by Section (PDF)")),
+        (13, _("List of Collaborators (PDF)")),
+        (15, _("List of Collaborative Agreements (PDF)")),
+        (14, _("Doug's Report (MS Excel)")),
+
+        (None, ""),
+        (None, "----- ADMIN ------"),
+        (4, "Science program list (MS Excel)"),
+
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False)
