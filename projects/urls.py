@@ -163,7 +163,7 @@ urlpatterns = [
     path('reports/agreements/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFAgreementsReport.as_view(), name="pdf_agreements"),
     path('reports/dougs-report/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-         views.PDFProjectSummaryReport.as_view(), name="doug_report"),
+         views.dougs_spreadsheet, name="doug_report"),
     path('reports/feedback/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFFeedbackReport.as_view(), name="pdf_feedback"),
     path('reports/data-management/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',

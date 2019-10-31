@@ -183,7 +183,7 @@ def financial_summary_data(project):
     # first calc for staff
     for staff in project.staff_members.all():
         # exclude full time employees
-        if staff.employee_type.id != 1 or staff.employee_type.id != 6:
+        if not staff.employee_type.exclude_from_rollup:
             # if the staff member is being paid from bbase...
             if staff.funding_source.id == 1:
                 # if salary
@@ -1968,6 +1968,28 @@ def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, secti
                 fiscal_year)
             return response
     raise Http404
+
+
+
+def dougs_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None):
+    # sections arg will be coming in as None from the my_section view
+    if regions is None:
+        regions = "None"
+    if divisions is None:
+        divisions = "None"
+    if sections is None:
+        sections = "None"
+
+    file_url = reports.generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="Dougs Spreadsheet {}.xlsx"'.format(
+                fiscal_year)
+            return response
+    raise Http404
+
 
 
 class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):

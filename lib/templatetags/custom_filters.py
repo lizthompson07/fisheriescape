@@ -23,6 +23,7 @@ def nz(value, arg):
     else:
         return value
 
+
 @register.filter
 def nmissing(value):
     """if a value is equal to None, this function will return arg instead"""
@@ -30,7 +31,6 @@ def nmissing(value):
         return '<span class="red-font" style="font-size: large">MISSING</span>'
     else:
         return value
-
 
 
 @register.filter
@@ -41,7 +41,7 @@ def zero2val(value, arg):
         float(value) == 0
     # if not able to cast, then just return 'value'
     except (ValueError, TypeError):
-        print("val={},arg={}".format(value, arg))
+        # print("val={},arg={}".format(value, arg))
         return value
     else:
         #
@@ -164,4 +164,12 @@ def kmark(value, args):
     except (ValueError, TypeError):
         return value
     else:
-        return "{1:,.{0}f} K".format(precision, float(value)/1000) if with_sign else "{1:,.{0}f}".format(precision, float(value)/1000)
+        return "{1:,.{0}f} K".format(precision, float(value) / 1000) if with_sign else "{1:,.{0}f}".format(precision, float(value) / 1000)
+
+
+@register.filter
+def repeat(value, arg):
+    repeat_string = ""
+    for i in range(0, arg):
+        repeat_string = repeat_string + str(value)
+    return repeat_string
