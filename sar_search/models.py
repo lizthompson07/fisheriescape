@@ -186,7 +186,7 @@ class Species(models.Model):
     cosewic_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='cosewic_spp', verbose_name=_("COSEWIC status"),
                                     blank=True, null=True, limit_choices_to={"used_for": 1})
     sara_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='sara_spp',
-                                       verbose_name=_("SARA status"), blank=True, null=True)
+                                       verbose_name=_("SARA status"), blank=True, null=True, limit_choices_to={"used_for": 1})
     ns_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='ns_spp', verbose_name=_("NS status"),
                                   blank=True, null=True, limit_choices_to={"used_for": 2})
     nb_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='nb_spp', verbose_name=_("NB status"),
