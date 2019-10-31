@@ -21,7 +21,6 @@ LANGUAGE_CHOICES = (
     (FRE, 'French'),
 )
 
-
 YES_NO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
@@ -212,7 +211,6 @@ class Project(models.Model):
     programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("linkage to Science programs"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
-
     # details
     is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
     # is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or non-negotiable?"), choices=is_negotiable_choices)
@@ -278,6 +276,7 @@ class Project(models.Model):
                                        related_name='projects_projects', verbose_name=_("allotment code (if known)"))
     existing_project_code = models.ForeignKey(shared_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
                                               related_name='projects_projects', verbose_name=_("existing project code (if known)"))
+    existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"))
 
     feedback = models.TextField(blank=True, null=True,
                                 verbose_name=_("Do you have any feedback you would like to submit about this process"))
@@ -321,8 +320,11 @@ class Project(models.Model):
             ac = self.allotment_code.code
         else:
             ac = "xxx"
-        if self.existing_project_code:
-            pc = self.existing_project_code.code
+
+        if self.existing_project_codes.count() >= 1:
+            pc = listrify([project_code.code for project_code in self.existing_project_codes.all()])
+            if self.existing_project_codes.count() > 1:
+                pc = "[" + pc + "]"
         else:
             pc = "xxxxx"
         return "{}-{}-{}".format(rc, ac, pc)

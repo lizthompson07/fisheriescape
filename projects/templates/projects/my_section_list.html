@@ -95,9 +95,9 @@
                 <th scope="col">
                     {% trans "Section" %}
                 </th>
-                <th scope="col" style="width: 5%">
-                    {% trans "Project Code" %}
-                </th>
+{#                <th scope="col" style="width: 5%">#}
+{#                    {% trans "Project Code" %}#}
+{#                </th>#}
                 <th scope="col" style="width: 20%">
                     {% trans "Title" %}
                 </th>
@@ -146,9 +146,9 @@
                             <td>{{ obj.section.division.name }}</td>
                             <td>{{ obj.section.name }}</td>
                         {% endif %}
-                        <td>
-                            {{ obj.existing_project_code.code|nz:"" }}
-                        </td>
+{#                        <td>#}
+{#                            {{ obj.existing_project_code.code|nz:"" }}#}
+{#                        </td>#}
                         <td>
                             {{ obj.project_title }}
                         </td>
