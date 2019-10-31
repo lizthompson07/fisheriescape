@@ -126,9 +126,13 @@ urlpatterns = [
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
 
-    path('admin-staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
-    path('admin-staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
-    path('admin-staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
+    path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
+    path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),
+    path('admin/project-program/<int:pk>/edit/<str:qry>/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),
+    path('admin/project-program/<int:pk>/edit/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),
+
+    path('admin/staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
+    path('admin/staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
 
     # Reports #
     ###########
