@@ -68,6 +68,8 @@ class ProjectForm(forms.ModelForm):
             'rds_approved',
             'program',
             'impacts_if_not_approved',
+            'regional_dm',
+            'sectional_dm',
         ]
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
