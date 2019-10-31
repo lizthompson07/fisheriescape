@@ -1938,6 +1938,13 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
                 'divisions': divisions,
                 'sections': sections,
             }))
+        elif report == 17:
+            return HttpResponseRedirect(reverse("projects:pdf_data", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects:report_search"))
@@ -2279,6 +2286,47 @@ class PDFFeedbackReport(LoginRequiredMixin, PDFTemplateView):
             'project_title',
             'project_leads|Project leads',
             'feedback',
+        ]
+
+        return context
+
+
+class PDFDataReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_data.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+        context["fy"] = fy
+        context["object_list"] = project_list
+        context["my_object"] = project_list.first()
+        context["field_list"] = [
+            'id',
+            'project_title',
+            'project_leads|Project leads',
+            'data_collection',
+            'data_sharing',
+            'data_storage',
+            'metadata_url',
+            'regional_dm_needs',
+            'sectional_dm_needs',
         ]
 
         return context
