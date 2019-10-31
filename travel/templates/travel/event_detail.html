@@ -3,6 +3,7 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load custom_filters %}
+{% load i18n %}
 {% block header %}
 {% endblock %}
 {% block content %}
@@ -32,23 +33,41 @@
 
         <div class="btn-group">
 
+            {% if object.submitted %}
+                <span data-toggle="tooltip" title="{% trans "Only application administrators can modify a submitted trip" %}">
+            {% endif %}
             <a class="btn btn-warning {% if object.submitted and not is_admin %}disabled{% endif %}"
                href="{% url 'travel:event_edit' object.id %}">
-                Edit {% if is_admin %}(available to you because you are an admin){% endif %}
+                Edit
             </a>
+            {% if object.submitted %}
+                </span>
+            {% endif %}
+            {% if object.submitted %}
+                <span data-toggle="tooltip" title="{% trans "Submitted trips cannot be deleted." %}">
+            {% endif %}
             <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:event_delete' object.id %}">
                 Delete
             </a>
+            {% if object.submitted %}
+                </span>
+            {% endif %}
             <a class="btn btn-dark" href="{% url 'travel:event_print' object.id %}" data-toggle="tooltip" title="">
                 Print Travel Form
             </a>
             <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
                 Use as Template
             </a>
-            <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %}"
+            {% if object.submitted and not is_admin %}
+                <span data-toggle="tooltip" title="{% trans "Only application administrators can un-submit a trip" %}">
+            {% endif %}
+            <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin %}disabled{% endif %}"
                href="{% url 'travel:event_submit' object.id %}">
                 {% if object.submitted %}Un-submit {% else %} Submit {% endif %}
             </a>
+            {% if object.submitted and not is_admin %}
+                </span>
+            {% endif %}
         </div>
 
         <br><br>
