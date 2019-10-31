@@ -240,7 +240,7 @@ class Project(models.Model):
                                         "Which of these data / data products will be placed on the Open Data Platform this year?"))
     # HTML field
     data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
-    metadata_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("please provide link to metadata, if available"))
+    metadata_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Provide link to existing metadata record, if available"))
 
     # needs
     ########
@@ -248,11 +248,11 @@ class Project(models.Model):
         verbose_name=_("Does the program require assistance of the branch data manager"))
     # HTML field
     regional_dm_needs = models.TextField(blank=True, null=True,
-                                         verbose_name=_("Please describe assistance required from the branch data manager, if applicable"))
+                                         verbose_name=_("Describe assistance required from the branch data manager, if applicable"))
     sectional_dm = models.NullBooleanField(verbose_name=_("Does the program require assistance of the section's data manager"))
     # HTML field
     sectional_dm_needs = models.TextField(blank=True, null=True,
-                                          verbose_name=_("Please describe assistance required from the section data manager, if applicable"))
+                                          verbose_name=_("Describe assistance required from the section data manager, if applicable"))
     # HTML field
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_(
