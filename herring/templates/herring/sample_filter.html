@@ -80,7 +80,7 @@
                         {% get_verbose_label object_list.first field %}
                     </th>
                 {% else %}
-                    <th class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
+                    <th class="{% if 'total' in field or 'ref' in field or 'experiment' in field %}center-col{% endif %}">
                         {% get_verbose_label object_list.first field %}
                     </th>
                 {% endif %}
@@ -97,7 +97,7 @@
                 <tr href="{% url 'herring:sample_detail' sample.id %}">
 
                     {% for field in field_list %}
-                        <td class="{% if 'total' in field or 'ref' in field %}center-col{% endif %}">
+                        <td class="{% if 'total' in field or 'ref' in field or 'experiment' in field %}center-col{% endif %}">
                             {% get_field_value sample field %}
                         </td>
                     {% endfor %}
