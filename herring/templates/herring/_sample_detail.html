@@ -4,13 +4,45 @@
 
 <style media="screen">
     .value {
-        font-weight: bold;
         margin-left: 10px;
         margin-right: 10px;
     }
 </style>
 
 <h4>Sample Details:</h4>
+
+
+<p>
+    <span class="">Expected number of length frequencies: </span>
+    <span class="value"> {{ object.total_fish_measured }}</span>
+    <a href="#" pop-href="{% url 'herring:sample_edit_pop' object.id "measured" %}" data-toggle="tooltip" data-placement="top"
+       title="Edit the number of fish measured">
+        <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
+    </a>
+    <br>
+
+    <span class="">Actual number of length frequencies: </span>
+    <span class="value {% if sum_count ==  object.total_fish_measured %}green-font{% else %}red-font{% endif %}">
+    {{ sum_count }}
+  </span> <br>
+</p>
+<p>
+    <span class="">Expected number of lab samples: </span>
+    <span class="value"> {{ object.total_fish_preserved }}</span>
+
+
+    <a href="#" pop-href="{% url 'herring:sample_edit_pop' object.id "preserved" %}" data-toggle="tooltip" data-placement="top"
+       title="Edit the  number of fish preserved" class="badge badge-light">
+        <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
+    </a>
+    <br>
+
+    <span class="">Actual number of lab samples: </span>
+    <span class="value {% if object.fish_details.count ==  object.total_fish_preserved %}green-font{% else %}red-font{% endif %}">
+    {{ object.fish_details.count }} <br>
+  </span>
+</p>
+
 
 <table class="table table-sm table-striped" style="font-size: small">
     {% for field in field_list %}

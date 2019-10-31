@@ -285,9 +285,7 @@ project_field_list = [
     'it_needs',
     'chemical_needs',
     'ship_needs',
-    'responsibility_center',
-    'allotment_code',
-    'existing_project_code',
+    'coding|Known financial coding',
     'date_last_modified',
     'last_modified_by',
 ]

@@ -92,7 +92,7 @@ class ProjectForm(forms.ModelForm):
             "section": forms.Select(attrs=chosen_js),
             "responsibility_center": forms.Select(attrs=chosen_js),
             "allotment_code": forms.Select(attrs=chosen_js),
-            "existing_project_code": forms.Select(attrs=chosen_js),
+            "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
 
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "programs": forms.SelectMultiple(attrs=chosen_js),
