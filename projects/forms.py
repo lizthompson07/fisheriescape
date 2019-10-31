@@ -334,12 +334,14 @@ class ReportSearchForm(forms.Form):
         (2, "Batch Workplan Export (PDF) (submitted and approved)"),
         (1, "Master spreadsheet (MS Excel)"),
         (4, "Science program list (MS Excel)"),
+        (16, _("Feedback summary")),
 
         # Gulf region reports
         (10, _("GULF: Weeks Worked by Employees")),
         (11, _("GULF: Total Overtime Hours Requested")),
         (12, _("GULF: Cost Summary by Section")),
         (13, _("GULF: List of Collaborators")),
+        (15, _("GULF: List of Collaborative Agreements")),
         (14, _("GULF: Doug's Report")),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
