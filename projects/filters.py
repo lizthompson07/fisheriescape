@@ -78,6 +78,7 @@ class StaffFilter(django_filters.FilterSet):
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='project__year', lookup_expr='exact', choices=fy_choices)
         self.filters['region'] = django_filters.ChoiceFilter(field_name="project__section__division__branch__region", label=_("Region"),
                                                               lookup_expr='exact', choices=region_choices)
+        self.filters['project__submitted'].label = "Has the project been submitted?"
 
     class Meta:
         model = models.Staff
@@ -86,6 +87,31 @@ class StaffFilter(django_filters.FilterSet):
             'lead': ['exact'],
             'project__submitted': ['exact'],
         }
+
+
+
+class AdminProjectProgramFilter(django_filters.FilterSet):
+    fiscal_year = django_filters.ChoiceFilter(field_name='_year', lookup_expr='exact')
+    region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        region_choices = views.get_region_choices()
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        yes_no_choices = [(True, "Yes"), (False, "No"), ]
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)
+        self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"),
+                                                              lookup_expr='exact', choices=region_choices)
+        self.filters['submitted'].label = "Has the project been submitted?"
+
+    class Meta:
+        model = models.Project
+        fields = {
+            'project_title': ['icontains'],
+            'submitted': ['exact'],
+        }
+
 
 
 class MySectionFilter(django_filters.FilterSet):
