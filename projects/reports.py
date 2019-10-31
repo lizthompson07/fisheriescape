@@ -1,16 +1,419 @@
 import html2text as html2text
 import xlsxwriter as xlsxwriter
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.template.defaultfilters import yesno
 from django.utils import timezone
 
+from lib.templatetags.custom_filters import zero2val, repeat
 from lib.templatetags.verbose_names import get_field_value, get_verbose_label
 from shared_models import models as shared_models
 from lib.functions.custom_functions import nz
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
 import os
+
+
+def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'projects', 'temp', target_file)
+
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+    worksheet1 = workbook.add_worksheet(name="Programs by section")
+    worksheet2 = workbook.add_worksheet(name="Projects by section")
+    worksheet3 = workbook.add_worksheet(name="Unsubmitted projects")
+
+    # create formatting
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'normal',
+         "text_wrap": True})
+    divider_format = workbook.add_format(
+        {'bold': True, 'border': 0, 'bg_color': '#bcc5d4', "align": 'normal',
+         "text_wrap": True})
+    header_format_centered = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'center',
+         "text_wrap": True})
+    total_format = workbook.add_format({'bg_color': '#D6D1C0', "align": 'left', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
+    bold_format = workbook.add_format({"align": 'left', 'bold': True})
+
+    # need to assemble a section list
+    ## first look at the sections arg; if not null, we don't need anything else
+    if sections != "None":
+        section_list = shared_models.Section.objects.filter(id__in=sections.split(","))
+    ## next look at the divisions arg; if not null, we don't need anything else
+    elif divisions != "None":
+        section_list = shared_models.Section.objects.filter(division_id__in=divisions.split(","))
+    ## next look at the divisions arg; if not null, we don't need anything else
+    elif regions != "None":
+        section_list = shared_models.Section.objects.filter(division__branch__region_id__in=regions.split(","))
+    else:
+        section_list = shared_models.Section.objects.all()
+
+    # If there is no user, it means that this report is being called throught the report_search view (as opposed to my_section view)
+    project_list = models.Project.objects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
+    project_list = project_list.filter(section__in=section_list)
+
+    # spreadsheet: Programs by section #
+    #############################
+
+    worksheet1.write_row(0, 0, ["SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ], bold_format)
+    worksheet1.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
+
+
+    if project_list.count() == 0:
+        worksheet1.write_row(2, 0, ["There are no projects on which to report", ], bold_format)
+    else:
+        # get a project list for the year
+        worksheet1.merge_range('I3:K3', 'A-Base', header_format_centered)
+        worksheet1.merge_range('L3:N3', 'B-Base', header_format_centered)
+        worksheet1.merge_range('O3:Q3', 'C-Base', header_format_centered)
+        worksheet1.merge_range('R3:T3', 'Total', header_format_centered)
+
+        header = [
+            "Section",
+            "Division",
+            "Program",
+            "Core / flex",
+            "Number of projects",
+            "Contains projects with more than one program?",
+            'Total FTE (weeks)',
+            'Total OT (hours)',
+            'Salary (in excess of FTE)',
+            'O & M (including staff)',
+            'Capital',
+            'Salary (in excess of FTE)',
+            'O & M (including staff)',
+            'Capital',
+            'Salary (in excess of FTE)',
+            'O & M (including staff)',
+            'Capital',
+            'Salary (in excess of FTE)',
+            'O & M (including staff)',
+            'Capital',
+        ]
+
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+        worksheet1.write_row(3, 0, header, header_format)
+
+        i = 4
+        for s in section_list:
+            # get a list of projects..
+            project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
+
+            # get a list of programs..
+            program_id_list = []
+            for p in project_list:
+                if p.programs.count() > 0:
+                    program_id_list.extend([program.id for program in p.programs.all()])
+            program_list = models.Program2.objects.filter(id__in=program_id_list)
+            for program in program_list:
+
+                project_count = project_list.filter(programs=program).count()
+                is_double_count = len(
+                    [project for project in project_list.filter(programs=program).all() if project.programs.count() > 1]) > 0
+
+                total_fte = models.Staff.objects.filter(
+                    project__in=project_list.filter(programs=program)
+                ).order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))['dsum']
+                total_ot = models.Staff.objects.filter(
+                    project__in=project_list.filter(programs=program)
+                ).order_by("overtime_hours").aggregate(dsum=Sum("overtime_hours"))['dsum']
+
+                data_row = [
+                    s.name,
+                    s.division.name,
+                    "{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng),
+                    program.get_is_core_display(),
+                    project_count,
+                    yesno(is_double_count),
+                    zero2val(total_fte, None),
+                    zero2val(total_ot, None),
+                ]
+                total_salary = 0
+                total_om = 0
+                total_capital = 0
+                for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+                    staff_salary = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
+                        employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+                    ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                    staff_om = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
+                        employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+                    ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+
+                    other_om = models.OMCost.objects.filter(
+                        project__in=project_list.filter(programs=program), funding_source=source
+                    ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+
+                    capital = models.CapitalCost.objects.filter(
+                        project__in=project_list.filter(programs=program), funding_source=source
+                    ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+
+                    total_salary += nz(staff_salary, 0)
+                    total_om += nz(staff_om, 0) + nz(other_om, 0)
+                    total_capital += nz(capital, 0)
+
+                    data_row.extend([
+                        zero2val(staff_salary, None),
+                        zero2val(nz(staff_om, 0) + nz(other_om, 0), None),
+                        zero2val(capital, None),
+                    ])
+                data_row.extend([
+                    zero2val(total_salary, None),
+                    zero2val(total_om, None),
+                    zero2val(total_capital, None),
+                ])
+
+                j = 0
+                for d in data_row:
+                    # if new value > stored value... replace stored value
+                    if len(str(d)) > col_max[j]:
+                        if len(str(d)) < 100:
+                            col_max[j] = len(str(d))
+                        else:
+                            col_max[j] = 100
+                    j += 1
+
+                worksheet1.write_row(i, 0, data_row, normal_format)
+                i += 1
+            # if there are no projects, don't add a line!
+            if s.projects.count() > 0:
+                worksheet1.write_row(i, 0, repeat(" ,",len(header)-1).split(","), divider_format)
+                i += 1
+
+        for j in range(0, len(col_max)):
+            worksheet1.set_column(j, j, width=col_max[j] * 1.1)
+
+        # for p in s.projects.fitler(year=fiscal_year, submitted=True, section_head_approved=True):
+
+        #
+        # data_row = [
+        #
+        #     p.id,
+        #     p.project_title,
+        #     division,
+        #     programs,
+        #     tags,
+        #     p.coding,
+        #     status,
+        #     lead,
+        #     yesno(p.is_approved),
+        #     start,
+        #     end,
+        #     html2text.html2text(nz(p.description, "")),
+        #     html2text.html2text(nz(p.priorities, "")),
+        #     html2text.html2text(nz(p.deliverables, "")),
+        #     html2text.html2text(nz(p.data_collection, "")),
+        #     html2text.html2text(nz(p.data_sharing, "")),
+        #     html2text.html2text(nz(p.data_storage, "")),
+        #     p.metadata_url,
+        #     p.regional_dm,
+        #     html2text.html2text(nz(p.regional_dm_needs, "")),
+        #     p.sectional_dm,
+        #     html2text.html2text(nz(p.sectional_dm_needs, "")),
+        #     html2text.html2text(nz(p.vehicle_needs, "")),
+        #     html2text.html2text(nz(p.it_needs, "")),
+        #     html2text.html2text(nz(p.chemical_needs, "")),
+        #     html2text.html2text(nz(p.ship_needs, "")),
+        #     fte_total,
+        #     salary_total,
+        #     ot_total,
+        #     om_total,
+        #     capital_total,
+        #     gc_total,
+        #     yesno(p.submitted),
+        #     yesno(p.section_head_approved),
+        # ]
+    #
+    # adjust the width of the columns based on the max string length in each col
+    ## replace col_max[j] if str length j is bigger than stored value
+
+    #
+    # # spreadsheet: Programs by section #
+    # #############################
+    # if project_list.count() == 0:
+    #     worksheet1.write_row(0, 0, ["There are no projects to report", ], bold_format)
+    # else:
+    #     # get a project list for the year
+    #
+    #     header = [
+    #         "Section",
+    #         "Division",
+    #         "Program",
+    #         "Core / Flex",
+    #         "Project lead",
+    #         "Project ID",
+    #         verbose_field_name(project_list.first(), 'project_title'),
+    #         'Total FTE (weeks)',
+    #         'Total OT (hours)',
+    #         'Total Salary (in excess of FTE)',
+    #         'Total O & M (including staff)',
+    #         'Total Capital',
+    #     ]
+    #
+    #     # create the col_max column to store the length of each header
+    #     # should be a maximum column width to 100
+    #     col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+    #     worksheet1.write_row(0, 0, header, header_format)
+
+    # i = 1
+    # for s in section_list:
+    #     for p in s.projects.fitler(year=fiscal_year, submitted=True, section_head_approved=True):
+    #         data_row = [
+    #             p.section.name if p.section else "MISSING",
+    #             p.section.division.name if p.section else "MISSING",
+    #             p.id,
+
+    #     i = 1
+    #     for p in project_list:
+    #
+    #         fte_total = 0
+    #         salary_total = 0
+    #         ot_total = 0
+    #         om_total = 0
+    #         gc_total = 0
+    #         capital_total = 0
+    #
+    #         # first calc for staff
+    #         for staff in p.staff_members.all():
+    #             # exclude full time employees
+    #             if staff.employee_type.id != 1 or staff.employee_type.id != 6:
+    #                 # if salary
+    #                 if staff.employee_type.cost_type is 1:
+    #                     salary_total += nz(staff.cost, 0)
+    #                 # if o&M
+    #                 elif staff.employee_type.cost_type is 2:
+    #                     om_total += nz(staff.cost, 0)
+    #
+    #             # include only FTEs
+    #             fte_total += nz(staff.duration_weeks, 0)
+    #
+    #             ot_total += nz(staff.overtime_hours, 0)
+    #
+    #         # O&M costs
+    #         for cost in p.om_costs.all():
+    #             om_total += nz(cost.budget_requested, 0)
+    #
+    #         # Capital costs
+    #         for cost in p.capital_costs.all():
+    #             capital_total += nz(cost.budget_requested, 0)
+    #
+    #         # g&c costs
+    #         for cost in p.gc_costs.all():
+    #             gc_total += nz(cost.budget_requested, 0)
+    #
+    #         try:
+    #             budget_code = p.budget_code.code
+    #         except:
+    #             budget_code = "n/a"
+    #
+    #         try:
+    #             status = p.status.name
+    #         except:
+    #             status = "n/a"
+    #
+    #         try:
+    #             lead = str(
+    #                 ["{} {}".format(lead.user.first_name, lead.user.last_name) for lead in p.staff_members.filter(lead=True)]).replace(
+    #                 "[", "").replace("]", "").replace("'", "").replace('"', "")
+    #         except:
+    #             lead = "n/a"
+    #
+    #         try:
+    #             programs = get_field_value(p, "programs")
+    #         except:
+    #             programs = "n/a"
+    #
+    #         try:
+    #             tags = get_field_value(p, "tags")
+    #         except:
+    #             tags = "n/a"
+    #
+    #         try:
+    #             start = p.start_date.strftime('%Y-%m-%d')
+    #         except:
+    #             start = "n/a"
+    #
+    #         try:
+    #             end = p.end_date.strftime('%Y-%m-%d')
+    #         except:
+    #             end = "n/a"
+    #
+    #         try:
+    #             division = p.section.division.name
+    #         except:
+    #             division = "MISSING"
+    #
+    #         try:
+    #             section = p.section.name
+    #         except:
+    #             section = "MISSING"
+    #
+    #         data_row = [
+    #             p.id,
+    #             p.project_title,
+    #             division,
+    #             section,
+    #             programs,
+    #             tags,
+    #             p.coding,
+    #             status,
+    #             lead,
+    #             yesno(p.is_approved),
+    #             start,
+    #             end,
+    #             html2text.html2text(nz(p.description, "")),
+    #             html2text.html2text(nz(p.priorities, "")),
+    #             html2text.html2text(nz(p.deliverables, "")),
+    #             html2text.html2text(nz(p.data_collection, "")),
+    #             html2text.html2text(nz(p.data_sharing, "")),
+    #             html2text.html2text(nz(p.data_storage, "")),
+    #             p.metadata_url,
+    #             p.regional_dm,
+    #             html2text.html2text(nz(p.regional_dm_needs, "")),
+    #             p.sectional_dm,
+    #             html2text.html2text(nz(p.sectional_dm_needs, "")),
+    #             html2text.html2text(nz(p.vehicle_needs, "")),
+    #             html2text.html2text(nz(p.it_needs, "")),
+    #             html2text.html2text(nz(p.chemical_needs, "")),
+    #             html2text.html2text(nz(p.ship_needs, "")),
+    #             fte_total,
+    #             salary_total,
+    #             ot_total,
+    #             om_total,
+    #             capital_total,
+    #             gc_total,
+    #             yesno(p.submitted),
+    #             yesno(p.section_head_approved),
+    #         ]
+    #
+    #         # adjust the width of the columns based on the max string length in each col
+    #         ## replace col_max[j] if str length j is bigger than stored value
+    #
+    #         j = 0
+    #         for d in data_row:
+    #             # if new value > stored value... replace stored value
+    #             if len(str(d)) > col_max[j]:
+    #                 if len(str(d)) < 100:
+    #                     col_max[j] = len(str(d))
+    #                 else:
+    #                     col_max[j] = 100
+    #             j += 1
+    #
+    #         worksheet1.write_row(i, 0, data_row, normal_format)
+    #         i += 1
+    #
+    #     for j in range(0, len(col_max)):
+    #         worksheet1.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
 
 
 def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=None):
@@ -81,40 +484,40 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
 
         header = [
             "Project ID",
-            verbose_field_name(project_list[0], 'project_title'),
+            verbose_field_name(project_list.first(), 'project_title'),
             "Section",
             "Division",
-            verbose_field_name(project_list[0], 'programs'),
-            verbose_field_name(project_list[0], 'tags'),
+            verbose_field_name(project_list.first(), 'programs'),
+            verbose_field_name(project_list.first(), 'tags'),
             "Coding",
-            verbose_field_name(project_list[0], 'status'),
+            verbose_field_name(project_list.first(), 'status'),
             "Project lead",
-            verbose_field_name(project_list[0], 'is_approved'),
-            verbose_field_name(project_list[0], 'start_date'),
-            verbose_field_name(project_list[0], 'end_date'),
-            verbose_field_name(project_list[0], 'description'),
-            verbose_field_name(project_list[0], 'priorities'),
-            verbose_field_name(project_list[0], 'deliverables'),
-            verbose_field_name(project_list[0], 'data_collection'),
-            verbose_field_name(project_list[0], 'data_sharing'),
-            verbose_field_name(project_list[0], 'data_storage'),
-            verbose_field_name(project_list[0], 'metadata_url'),
-            verbose_field_name(project_list[0], 'regional_dm'),
-            verbose_field_name(project_list[0], 'regional_dm_needs'),
-            verbose_field_name(project_list[0], 'sectional_dm'),
-            verbose_field_name(project_list[0], 'sectional_dm_needs'),
-            verbose_field_name(project_list[0], 'vehicle_needs'),
-            verbose_field_name(project_list[0], 'it_needs'),
-            verbose_field_name(project_list[0], 'chemical_needs'),
-            verbose_field_name(project_list[0], 'ship_needs'),
+            verbose_field_name(project_list.first(), 'is_approved'),
+            verbose_field_name(project_list.first(), 'start_date'),
+            verbose_field_name(project_list.first(), 'end_date'),
+            verbose_field_name(project_list.first(), 'description'),
+            verbose_field_name(project_list.first(), 'priorities'),
+            verbose_field_name(project_list.first(), 'deliverables'),
+            verbose_field_name(project_list.first(), 'data_collection'),
+            verbose_field_name(project_list.first(), 'data_sharing'),
+            verbose_field_name(project_list.first(), 'data_storage'),
+            verbose_field_name(project_list.first(), 'metadata_url'),
+            verbose_field_name(project_list.first(), 'regional_dm'),
+            verbose_field_name(project_list.first(), 'regional_dm_needs'),
+            verbose_field_name(project_list.first(), 'sectional_dm'),
+            verbose_field_name(project_list.first(), 'sectional_dm_needs'),
+            verbose_field_name(project_list.first(), 'vehicle_needs'),
+            verbose_field_name(project_list.first(), 'it_needs'),
+            verbose_field_name(project_list.first(), 'chemical_needs'),
+            verbose_field_name(project_list.first(), 'ship_needs'),
             'Total FTE (weeks)',
             'Total Salary (in excess of FTE)',
             'Total OT (hours)',
             'Total O & M (including staff)',
             'Total Capital',
             'Total G&Cs',
-            verbose_field_name(project_list[0], 'submitted'),
-            verbose_field_name(project_list[0], 'section_head_approved'),
+            verbose_field_name(project_list.first(), 'submitted'),
+            verbose_field_name(project_list.first(), 'section_head_approved'),
 
         ]
 
@@ -595,7 +998,7 @@ def generate_program_list():
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True,})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
 
     # get the program list
     program_list = models.Program2.objects.all()
