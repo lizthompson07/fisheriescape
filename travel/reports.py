@@ -22,9 +22,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'normal',
          "text_wrap": True})
-    total_format = workbook.add_format({'bg_color': '#D6D1C0', "align": 'left', "text_wrap": True})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
-    bold_format = workbook.add_format({"align": 'center', 'bold': True})
+    normal_format = workbook.add_format({"align": 'left', "valign": 'top', "text_wrap": True})
 
     # spreadsheet: Project List #
     #############################
@@ -75,6 +73,9 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
         notes = "TRAVELLER COST BREAKDOWN: " + trip.cost_breakdown
         if my_trip.late_justification:
             notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + my_trip.late_justification
+
+        if is_group:
+            notes += "\n\nROLE OF PARTICIPANT: " + trip.role_of_participant
 
         data_row = [
             "{}, {}".format(trip.last_name, trip.first_name),
