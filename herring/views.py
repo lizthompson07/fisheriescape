@@ -122,8 +122,7 @@ class SampleFilterView(HerringAccessRequired, FilterView):
             'survey_id',
             'sampler',
             'port',
-            'total_fish_measured',
-            'total_fish_preserved',
+            'experimental_net_used',
             'total_fish_preserved',
         ]
         return context

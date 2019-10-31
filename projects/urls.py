@@ -160,8 +160,12 @@ urlpatterns = [
          views.PDFCostSummaryReport.as_view(), name="pdf_costs"),
     path('reports/collaborators/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFCollaboratorReport.as_view(), name="pdf_collab"),
+    path('reports/agreements/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFAgreementsReport.as_view(), name="pdf_agreements"),
     path('reports/dougs-report/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFProjectSummaryReport.as_view(), name="doug_report"),
+    path('reports/feedback/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFFeedbackReport.as_view(), name="pdf_feedback"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
 ]
