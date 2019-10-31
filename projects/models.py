@@ -236,7 +236,8 @@ class Project(models.Model):
     data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
     # HTML field
     data_sharing = models.TextField(blank=True, null=True,
-                                    verbose_name=_("Which of these data will be share-worthy and what is the plan to share / disseminate"))
+                                    verbose_name=_(
+                                        "Which of these data / data products will be placed on the Open Data Platform this year?"))
     # HTML field
     data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
     metadata_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("please provide link to metadata, if available"))
@@ -247,11 +248,11 @@ class Project(models.Model):
         verbose_name=_("Does the program require assistance of the branch data manager"))
     # HTML field
     regional_dm_needs = models.TextField(blank=True, null=True,
-                                         verbose_name=_("If yes, please describe"))
+                                         verbose_name=_("Please describe assistance required from the branch data manager, if applicable"))
     sectional_dm = models.NullBooleanField(verbose_name=_("Does the program require assistance of the section's data manager"))
     # HTML field
     sectional_dm_needs = models.TextField(blank=True, null=True,
-                                          verbose_name=_("If yes, please describe"))
+                                          verbose_name=_("Please describe assistance required from the section data manager, if applicable"))
     # HTML field
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_(
@@ -266,7 +267,7 @@ class Project(models.Model):
     ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
 
     # HTML field
-    impacts_if_not_approved = models.TextField(blank=True, null=True, verbose_name=_("impacts if project is not approved (deprecated)"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))
 
     # coding
     responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
@@ -274,8 +275,6 @@ class Project(models.Model):
                                               verbose_name=_("responsibility center (if known)"))
     allotment_code = models.ForeignKey(shared_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
                                        related_name='projects_projects', verbose_name=_("allotment code (if known)"))
-    existing_project_code = models.ForeignKey(shared_models.Project, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                              related_name='projects_projects', verbose_name=_("existing project code (if known)"))
     existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"))
 
     feedback = models.TextField(blank=True, null=True,

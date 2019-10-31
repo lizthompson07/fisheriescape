@@ -62,6 +62,6 @@ def copy_over_project_codes():
     projects = models.Project.objects.filter(existing_project_code__isnull=False)
 
     for p in projects:
-        p.existing_project_codes.add(p.extisting_project_code)
+        p.existing_project_codes.add(p.existing_project_code)
 
 

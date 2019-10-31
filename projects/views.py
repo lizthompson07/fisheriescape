@@ -260,6 +260,7 @@ def financial_summary_data(project):
 
 project_field_list = [
     'id',
+    'year',
     'project_title',
     'section',
     'programs',
@@ -277,17 +278,17 @@ project_field_list = [
     'data_sharing',
     'data_storage',
     'metadata_url',
-    'regional_dm',
+    # 'regional_dm',
     'regional_dm_needs',
-    'sectional_dm',
+    # 'sectional_dm',
     'sectional_dm_needs',
     'vehicle_needs',
     'it_needs',
     'chemical_needs',
     'ship_needs',
     'coding|Known financial coding',
-    'date_last_modified',
     'last_modified_by',
+    'date_last_modified',
 ]
 
 
