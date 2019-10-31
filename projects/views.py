@@ -1917,8 +1917,22 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
                 'divisions': divisions,
                 'sections': sections,
             }))
+        elif report == 15:
+            return HttpResponseRedirect(reverse("projects:pdf_agreements", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
         elif report == 14:
             return HttpResponseRedirect(reverse("projects:doug_report", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 16:
+            return HttpResponseRedirect(reverse("projects:pdf_feedback", kwargs={
                 'fiscal_year': fiscal_year,
                 'regions': regions,
                 'divisions': divisions,
@@ -2187,10 +2201,84 @@ class PDFCollaboratorReport(LoginRequiredMixin, PDFTemplateView):
         context["my_object"] = collaborator_list.first()
         context["field_list"] = [
             'name',
-            'type',
             'critical',
             'notes',
             'project',
+        ]
+
+        return context
+
+
+class PDFAgreementsReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_agreements.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+        collaborator_list = models.CollaborativeAgreement.objects.filter(project__in=project_list)
+
+        context["fy"] = fy
+        context["object_list"] = collaborator_list
+        context["my_object"] = collaborator_list.first()
+        context["field_list"] = [
+            'agreement_title',
+            'partner_organization',
+            'project_lead',
+            'new_or_existing',
+            'project',
+            'notes',
+        ]
+        return context
+
+
+class PDFFeedbackReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_feedback.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id").filter(~Q(feedback=""))
+        context["fy"] = fy
+        context["object_list"] = project_list
+        context["my_object"] = project_list.first()
+        context["field_list"] = [
+            'id',
+            'project_title',
+            'project_leads|Project leads',
+            'feedback',
         ]
 
         return context
