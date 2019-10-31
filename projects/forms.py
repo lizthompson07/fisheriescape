@@ -73,7 +73,6 @@ class ProjectForm(forms.ModelForm):
         ]
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
-
             "description": forms.Textarea(attrs=class_editable),
             "priorities": forms.Textarea(attrs=class_editable),
             "deliverables": forms.Textarea(attrs=class_editable),
