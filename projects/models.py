@@ -208,7 +208,7 @@ class Project(models.Model):
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                                 verbose_name=_("section"))
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("old program (retired field)"))
-    programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("linkage to Science programs"), related_name="projects")
+    programs = models.ManyToManyField(Program2, blank=False, verbose_name=_("linkage to Science programs (mandatory)"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
     # details
