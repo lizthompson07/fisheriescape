@@ -195,6 +195,17 @@ class AdminStaffForm(forms.ModelForm):
 
 
 
+class AdminProjectProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = ["programs",]
+
+        widgets = {
+            'programs': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+
 class CollaboratorForm(forms.ModelForm):
     class Meta:
         model = models.Collaborator

@@ -1604,6 +1604,28 @@ class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
         return context
 
 
+class AdminProjectProgramListView(ManagerOrAdminRequiredMixin, FilterView):
+    template_name = 'projects/admin_project_program_list.html'
+    queryset = models.Project.objects.all().order_by('-year', 'id')
+    filterset_class = filters.AdminProjectProgramFilter
+
+
+class AdminProjectProgramUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    '''This is really just for the admin view'''
+    model = models.Project
+    template_name = 'projects/admin_project_program_form.html'
+    form_class = forms.AdminProjectProgramForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("projects:admin_project_program_list") + "?" + nz(self.kwargs.get("qry"), ""))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
+
+
 # STATUS REPORT #
 #################
 
@@ -2312,7 +2334,7 @@ class PDFOTSummaryReport(LoginRequiredMixin, PDFTemplateView):
                         if not my_dict["programs"].get(program):
                             my_dict["programs"][program] = 0
 
-                        my_dict["programs"][program] += nz(ot,0)
+                        my_dict["programs"][program] += nz(ot, 0)
 
         program_list = models.Program2.objects.filter(id__in=[program.id for program in my_dict["programs"]]).distinct()
         my_dict["programs"]["list"] = program_list
