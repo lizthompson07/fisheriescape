@@ -22,7 +22,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'normal',
          "text_wrap": True})
-    normal_format = workbook.add_format({"align": 'left', "valign": 'top', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "valign": 'top', "text_wrap": True, 'num_format': '[$$-409]#,##0.00'})
 
     # spreadsheet: Project List #
     #############################
