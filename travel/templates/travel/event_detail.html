@@ -31,8 +31,10 @@
 
 
         <div class="btn-group">
-            <a class="btn btn-warning {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:event_edit' object.id %}">
-                Edit
+
+            <a class="btn btn-warning {% if object.submitted and not is_admin %}disabled{% endif %}"
+               href="{% url 'travel:event_edit' object.id %}">
+                Edit {% if is_admin %}(available to you because you are an admin){% endif %}
             </a>
             <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:event_delete' object.id %}">
                 Delete
@@ -100,7 +102,8 @@
                                     <td>{% get_field_value child field format="currency" safe=True %}</td>
 
                                 {% endfor %}
-                                <td><a class="btn btn-sm btn-warning stop-pop" href="{% url 'travel:child_duplicate_event' child.id  'pop' %}">Clone</a></td>
+                                <td><a class="btn btn-sm btn-warning stop-pop"
+                                       href="{% url 'travel:child_duplicate_event' child.id  'pop' %}">Clone</a></td>
 
                             </tr>
                         {% endfor %}

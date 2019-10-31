@@ -306,6 +306,7 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
             my_event_child_field_list.remove("role")
             my_event_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_event_child_field_list
+        context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
 
         return context
 
@@ -771,7 +772,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
 
 
 def export_cfts_list(request, fy):
-    file_url = reports.generate_cfts_spreadsheet(fy)
+    file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -781,6 +782,17 @@ def export_cfts_list(request, fy):
             return response
     raise Http404
 
+
+def export_trip_cfts(request, pk):
+    file_url = reports.generate_cfts_spreadsheet(trip=pk)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="CFTS export {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
 
 class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     login_url = '/accounts/login_required/'

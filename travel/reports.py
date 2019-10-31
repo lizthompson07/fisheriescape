@@ -7,7 +7,7 @@ from . import models
 import os
 
 
-def generate_cfts_spreadsheet(fiscal_year):
+def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
     target_file = "temp_export.xlsx"
@@ -30,7 +30,20 @@ def generate_cfts_spreadsheet(fiscal_year):
     #############################
 
     # get a project list for the year
-    non_group_trip_list = models.Event.objects.filter(fiscal_year_id=fiscal_year, parent_event__isnull=True, is_group_trip=False)
+    if trip:
+        my_trip = models.Event.objects.get(pk=trip)
+        if my_trip.is_group_trip:
+            is_group = True
+            trip_list = my_trip.children_events.all()
+        else:
+            is_group = False
+            trip_list = models.Event.objects.filter(pk=trip)
+    else:
+        is_group = False
+        my_trip = None
+        trip_list = None
+
+    # non_group_trip_list = models.Event.objects.all()
 
     # we need a list of ADM unapproaved but recommended
     # group travdellers need to be on one row
@@ -57,27 +70,25 @@ def generate_cfts_spreadsheet(fiscal_year):
     ws.write_row(0, 0, header, header_format)
 
     i = 1
-    for e in event_list:
+    for trip in trip_list:
 
-        try:
-            section = p.section.name
-        except:
-            section = "MISSING"
+        notes = "TRAVELLER COST BREAKDOWN: " + trip.cost_breakdown
+        if my_trip.late_justification:
+            notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + my_trip.late_justification
 
         data_row = [
-
-            "{}, {}".format(e.last_name,e.first_name),
-            "Gulf",
-            str(e.role),
-            str(e.reason),
-            e.trip_title,
-            e.destination,
-            e.start_date.strftime("%d/%m/%Y"),
-            e.end_date.strftime("%d/%m/%Y"),
-            e.total_cost,
+            "{}, {}".format(trip.last_name, trip.first_name),
+            str(trip.region),
+            str(trip.role),
+            str(my_trip.reason),
+            my_trip.trip_title,
+            my_trip.destination,
+            my_trip.start_date.strftime("%d/%m/%Y"),
+            my_trip.end_date.strftime("%d/%m/%Y"),
+            trip.total_cost,
             "0",
-            e.purpose_long_text,
-            e.cost_breakdown,
+            my_trip.purpose_long_text,
+            notes,
         ]
 
         # adjust the width of the columns based on the max string length in each col
@@ -99,7 +110,5 @@ def generate_cfts_spreadsheet(fiscal_year):
     for j in range(0, len(col_max)):
         ws.set_column(j, j, width=col_max[j] * 1.1)
 
-
     workbook.close()
     return target_url
-

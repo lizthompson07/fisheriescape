@@ -43,6 +43,7 @@ urlpatterns = [
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     path('reports/export-cfts-list/year/<int:fy>/user/<int:user>/', views.export_cfts_list, name="export_cfts_list"),
+    path('reports/cfts/trip/<int:pk>/', views.export_trip_cfts, name="export_cfts"),
     # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
 
     # SETTINGS #
