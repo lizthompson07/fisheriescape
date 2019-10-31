@@ -752,6 +752,13 @@ class ProjectCloneUpdateView(ProjectUpdateView):
             new_rel_obj.project = new_obj
             new_rel_obj.save()
 
+        # 7) Milestones
+        for old_rel_obj in old_obj.milestones.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.project = new_obj
+            new_rel_obj.save()
+
         return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": new_obj.id}))
 
 
