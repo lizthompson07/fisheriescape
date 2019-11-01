@@ -75,7 +75,6 @@ class ProjectForm(forms.ModelForm):
         ]
         labels = {
             "programs": get_verbose_label(models.Project.objects.first(), "programs") + " (mandatory - select multiple, if necessary)"
-
         }
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),

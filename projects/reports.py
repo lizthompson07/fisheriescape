@@ -8,7 +8,7 @@ from django.utils import timezone
 from lib.templatetags.custom_filters import zero2val, repeat
 from lib.templatetags.verbose_names import get_field_value, get_verbose_label
 from shared_models import models as shared_models
-from lib.functions.custom_functions import nz
+from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
 import os
@@ -61,18 +61,26 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     # spreadsheet: Programs by section #
     #############################
 
-    worksheet1.write_row(0, 0, ["SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ], bold_format)
-    worksheet1.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
+    # This is too complicated a worksheet. let's create column widths manually
+    col_max = [35, 30, 50, 8, 10, 30, 10, 10, 10]
+    col_max.extend(repeat("10,", 12)[:-1].split(","))
+    for j in range(0, len(col_max)):
+        worksheet1.set_column(j, j, width=int(col_max[j]))
 
+    worksheet1.write_row(0, 0, [
+        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
+                         bold_format)
+
+    worksheet1.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
 
     if project_list.count() == 0:
         worksheet1.write_row(2, 0, ["There are no projects on which to report", ], bold_format)
     else:
         # get a project list for the year
-        worksheet1.merge_range('I3:K3', 'A-Base', header_format_centered)
-        worksheet1.merge_range('L3:N3', 'B-Base', header_format_centered)
-        worksheet1.merge_range('O3:Q3', 'C-Base', header_format_centered)
-        worksheet1.merge_range('R3:T3', 'Total', header_format_centered)
+        worksheet1.merge_range('j3:l3'.upper(), 'A-Base', header_format_centered)
+        worksheet1.merge_range('m3:o3'.upper(), 'B-Base', header_format_centered)
+        worksheet1.merge_range('p3:r3'.upper(), 'C-Base', header_format_centered)
+        worksheet1.merge_range('s3:u3'.upper(), 'Total', header_format_centered)
 
         header = [
             "Section",
@@ -80,26 +88,27 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             "Program",
             "Core / flex",
             "Number of projects",
+            "Project leads",
             "Contains projects with more than one program?",
-            'Total FTE (weeks)',
-            'Total OT (hours)',
-            'Salary (in excess of FTE)',
-            'O & M (including staff)',
+            'Total FTE\n(weeks)',
+            'Total OT\n(hours)',
+            'Salary\n(in excess of FTE)',
+            'O & M\n(including staff)',
             'Capital',
-            'Salary (in excess of FTE)',
-            'O & M (including staff)',
+            'Salary\n(in excess of FTE)',
+            'O & M\n(including staff)',
             'Capital',
-            'Salary (in excess of FTE)',
-            'O & M (including staff)',
+            'Salary\n(in excess of FTE)',
+            'O & M\n(including staff)',
             'Capital',
-            'Salary (in excess of FTE)',
-            'O & M (including staff)',
+            'Salary\n(in excess of FTE)',
+            'O & M\n(including staff)',
             'Capital',
         ]
 
         # create the col_max column to store the length of each header
         # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
         worksheet1.write_row(3, 0, header, header_format)
 
         i = 4
@@ -116,6 +125,9 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             for program in program_list:
 
                 project_count = project_list.filter(programs=program).count()
+                leads = listrify(
+                    list(set([str(staff.user) for staff in
+                              models.Staff.objects.filter(project__in=project_list.filter(programs=program), lead=True) if staff.user])))
                 is_double_count = len(
                     [project for project in project_list.filter(programs=program).all() if project.programs.count() > 1]) > 0
 
@@ -132,6 +144,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                     "{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng),
                     program.get_is_core_display(),
                     project_count,
+                    leads,
                     yesno(is_double_count),
                     zero2val(total_fte, None),
                     zero2val(total_ot, None),
@@ -171,246 +184,24 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                 ])
 
                 j = 0
-                for d in data_row:
-                    # if new value > stored value... replace stored value
-                    if len(str(d)) > col_max[j]:
-                        if len(str(d)) < 100:
-                            col_max[j] = len(str(d))
-                        else:
-                            col_max[j] = 100
-                    j += 1
 
                 worksheet1.write_row(i, 0, data_row, normal_format)
                 i += 1
             # if there are no projects, don't add a line!
             if s.projects.count() > 0:
-                worksheet1.write_row(i, 0, repeat(" ,",len(header)-1).split(","), divider_format)
+                worksheet1.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
                 i += 1
 
-        for j in range(0, len(col_max)):
-            worksheet1.set_column(j, j, width=col_max[j] * 1.1)
+    # # set formatting for finances
+    # for status in models.Status.objects.all():
+    #     worksheet1.conditional_format(4, 9, i, 9,
+    #                              {
+    #                                  'type': 'cell',
+    #                                  'criteria': 'equal to',
+    #                                  'value': '"{}"'.format(status.name),
+    #                                  'format': workbook.add_format({'bg_color': status.color, }),
+    #                              })
 
-        # for p in s.projects.fitler(year=fiscal_year, submitted=True, section_head_approved=True):
-
-        #
-        # data_row = [
-        #
-        #     p.id,
-        #     p.project_title,
-        #     division,
-        #     programs,
-        #     tags,
-        #     p.coding,
-        #     status,
-        #     lead,
-        #     yesno(p.is_approved),
-        #     start,
-        #     end,
-        #     html2text.html2text(nz(p.description, "")),
-        #     html2text.html2text(nz(p.priorities, "")),
-        #     html2text.html2text(nz(p.deliverables, "")),
-        #     html2text.html2text(nz(p.data_collection, "")),
-        #     html2text.html2text(nz(p.data_sharing, "")),
-        #     html2text.html2text(nz(p.data_storage, "")),
-        #     p.metadata_url,
-        #     p.regional_dm,
-        #     html2text.html2text(nz(p.regional_dm_needs, "")),
-        #     p.sectional_dm,
-        #     html2text.html2text(nz(p.sectional_dm_needs, "")),
-        #     html2text.html2text(nz(p.vehicle_needs, "")),
-        #     html2text.html2text(nz(p.it_needs, "")),
-        #     html2text.html2text(nz(p.chemical_needs, "")),
-        #     html2text.html2text(nz(p.ship_needs, "")),
-        #     fte_total,
-        #     salary_total,
-        #     ot_total,
-        #     om_total,
-        #     capital_total,
-        #     gc_total,
-        #     yesno(p.submitted),
-        #     yesno(p.section_head_approved),
-        # ]
-    #
-    # adjust the width of the columns based on the max string length in each col
-    ## replace col_max[j] if str length j is bigger than stored value
-
-    #
-    # # spreadsheet: Programs by section #
-    # #############################
-    # if project_list.count() == 0:
-    #     worksheet1.write_row(0, 0, ["There are no projects to report", ], bold_format)
-    # else:
-    #     # get a project list for the year
-    #
-    #     header = [
-    #         "Section",
-    #         "Division",
-    #         "Program",
-    #         "Core / Flex",
-    #         "Project lead",
-    #         "Project ID",
-    #         verbose_field_name(project_list.first(), 'project_title'),
-    #         'Total FTE (weeks)',
-    #         'Total OT (hours)',
-    #         'Total Salary (in excess of FTE)',
-    #         'Total O & M (including staff)',
-    #         'Total Capital',
-    #     ]
-    #
-    #     # create the col_max column to store the length of each header
-    #     # should be a maximum column width to 100
-    #     col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-    #     worksheet1.write_row(0, 0, header, header_format)
-
-    # i = 1
-    # for s in section_list:
-    #     for p in s.projects.fitler(year=fiscal_year, submitted=True, section_head_approved=True):
-    #         data_row = [
-    #             p.section.name if p.section else "MISSING",
-    #             p.section.division.name if p.section else "MISSING",
-    #             p.id,
-
-    #     i = 1
-    #     for p in project_list:
-    #
-    #         fte_total = 0
-    #         salary_total = 0
-    #         ot_total = 0
-    #         om_total = 0
-    #         gc_total = 0
-    #         capital_total = 0
-    #
-    #         # first calc for staff
-    #         for staff in p.staff_members.all():
-    #             # exclude full time employees
-    #             if staff.employee_type.id != 1 or staff.employee_type.id != 6:
-    #                 # if salary
-    #                 if staff.employee_type.cost_type is 1:
-    #                     salary_total += nz(staff.cost, 0)
-    #                 # if o&M
-    #                 elif staff.employee_type.cost_type is 2:
-    #                     om_total += nz(staff.cost, 0)
-    #
-    #             # include only FTEs
-    #             fte_total += nz(staff.duration_weeks, 0)
-    #
-    #             ot_total += nz(staff.overtime_hours, 0)
-    #
-    #         # O&M costs
-    #         for cost in p.om_costs.all():
-    #             om_total += nz(cost.budget_requested, 0)
-    #
-    #         # Capital costs
-    #         for cost in p.capital_costs.all():
-    #             capital_total += nz(cost.budget_requested, 0)
-    #
-    #         # g&c costs
-    #         for cost in p.gc_costs.all():
-    #             gc_total += nz(cost.budget_requested, 0)
-    #
-    #         try:
-    #             budget_code = p.budget_code.code
-    #         except:
-    #             budget_code = "n/a"
-    #
-    #         try:
-    #             status = p.status.name
-    #         except:
-    #             status = "n/a"
-    #
-    #         try:
-    #             lead = str(
-    #                 ["{} {}".format(lead.user.first_name, lead.user.last_name) for lead in p.staff_members.filter(lead=True)]).replace(
-    #                 "[", "").replace("]", "").replace("'", "").replace('"', "")
-    #         except:
-    #             lead = "n/a"
-    #
-    #         try:
-    #             programs = get_field_value(p, "programs")
-    #         except:
-    #             programs = "n/a"
-    #
-    #         try:
-    #             tags = get_field_value(p, "tags")
-    #         except:
-    #             tags = "n/a"
-    #
-    #         try:
-    #             start = p.start_date.strftime('%Y-%m-%d')
-    #         except:
-    #             start = "n/a"
-    #
-    #         try:
-    #             end = p.end_date.strftime('%Y-%m-%d')
-    #         except:
-    #             end = "n/a"
-    #
-    #         try:
-    #             division = p.section.division.name
-    #         except:
-    #             division = "MISSING"
-    #
-    #         try:
-    #             section = p.section.name
-    #         except:
-    #             section = "MISSING"
-    #
-    #         data_row = [
-    #             p.id,
-    #             p.project_title,
-    #             division,
-    #             section,
-    #             programs,
-    #             tags,
-    #             p.coding,
-    #             status,
-    #             lead,
-    #             yesno(p.is_approved),
-    #             start,
-    #             end,
-    #             html2text.html2text(nz(p.description, "")),
-    #             html2text.html2text(nz(p.priorities, "")),
-    #             html2text.html2text(nz(p.deliverables, "")),
-    #             html2text.html2text(nz(p.data_collection, "")),
-    #             html2text.html2text(nz(p.data_sharing, "")),
-    #             html2text.html2text(nz(p.data_storage, "")),
-    #             p.metadata_url,
-    #             p.regional_dm,
-    #             html2text.html2text(nz(p.regional_dm_needs, "")),
-    #             p.sectional_dm,
-    #             html2text.html2text(nz(p.sectional_dm_needs, "")),
-    #             html2text.html2text(nz(p.vehicle_needs, "")),
-    #             html2text.html2text(nz(p.it_needs, "")),
-    #             html2text.html2text(nz(p.chemical_needs, "")),
-    #             html2text.html2text(nz(p.ship_needs, "")),
-    #             fte_total,
-    #             salary_total,
-    #             ot_total,
-    #             om_total,
-    #             capital_total,
-    #             gc_total,
-    #             yesno(p.submitted),
-    #             yesno(p.section_head_approved),
-    #         ]
-    #
-    #         # adjust the width of the columns based on the max string length in each col
-    #         ## replace col_max[j] if str length j is bigger than stored value
-    #
-    #         j = 0
-    #         for d in data_row:
-    #             # if new value > stored value... replace stored value
-    #             if len(str(d)) > col_max[j]:
-    #                 if len(str(d)) < 100:
-    #                     col_max[j] = len(str(d))
-    #                 else:
-    #                     col_max[j] = 100
-    #             j += 1
-    #
-    #         worksheet1.write_row(i, 0, data_row, normal_format)
-    #         i += 1
-    #
-    #     for j in range(0, len(col_max)):
-    #         worksheet1.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
     return target_url
