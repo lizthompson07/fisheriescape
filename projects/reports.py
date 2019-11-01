@@ -38,8 +38,17 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     header_format_centered = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#9ae0f5', "align": 'center', "text_wrap": True})
     divider_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#d1dfe3', "align": 'normal', "text_wrap": False})
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#d1dfe3', "align": 'left', "text_wrap": False, 'italic': True,
+         'num_format': '#,##0'})
+    normal_num_format = workbook.add_format(
+        {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
+    summary_right_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#d1dfe3', "align": 'right', 'italic': True,
+         'num_format': '#,##0', "text_wrap": False, })
+    summary_left_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#d1dfe3', "align": 'left', 'italic': True,
+         'num_format': '#,##0', "text_wrap": False, })
     bold_format_lg = workbook.add_format({"align": 'left', 'bold': True, 'font_size': 16})
     bold_format = workbook.add_format({"align": 'left', 'bold': True, 'font_size': 14})
 
@@ -65,7 +74,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         worksheet1.set_column(j, j, width=int(col_max[j]))
 
     worksheet1.write_row(0, 0, [
-        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
+        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF PROGRAMS BY SECTION (Projects Submitted and Approved by Section Heads)", ],
                          bold_format_lg)
     worksheet1.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
     worksheet1.merge_range('j3:l3'.upper(), 'A-Base', header_format_centered)
@@ -177,7 +186,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             worksheet1.write_row(i, 0, data_row, normal_format)
             i += 1
         # if there are no projects, don't add a line!
-        if s.projects.filter(submitted=True, section_head_approved=True, year=fiscal_year).count() > 0:
+        if project_list.count() > 0:
             worksheet1.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
             i += 1
 
@@ -185,20 +194,20 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         'type': 'cell',
         'criteria': 'greater than',
         'value': 0,
-        'format': workbook.add_format(
-            {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+        'format': normal_num_format,
     })
 
     # 2) spreadsheet: Core Projects by section #
     #############################
     # This is too complicated a worksheet. let's create column widths manually
+    division_list = []
     col_max = [30, 30, 8, 35, 15, 8, 40, 20, 10, 10]
     col_max.extend(repeat("10,", 12)[:-1].split(","))
     for j in range(0, len(col_max)):
         worksheet2.set_column(j, j, width=int(col_max[j]))
 
     worksheet2.write_row(0, 0, [
-        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
+        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF CORE PROJECTS BY SECTION (Projects Submitted and Approved by Section Heads)", ],
                          bold_format_lg)
     worksheet2.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
     worksheet2.merge_range('k3:m3'.upper(), 'A-Base', header_format_centered)
@@ -295,16 +304,92 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             i += 1
         # if there are no projects, don't add a line!
         if project_list.count() > 0:
-            worksheet2.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
+            division_list.append(s.division)
+            section_summary = repeat(" ,", 9).split(",")
+            total_salary = 0
+            total_om = 0
+            total_capital = 0
+            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+                staff_salary = models.Staff.objects.filter(project__in=project_list).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                staff_om = models.Staff.objects.filter(project__in=project_list).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                other_om = models.OMCost.objects.filter(
+                    project__in=project_list, funding_source=source
+                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+                capital = models.CapitalCost.objects.filter(
+                    project__in=project_list, funding_source=source).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))[
+                    'dsum']
+
+                total_salary += nz(staff_salary, 0)
+                total_om += nz(staff_om, 0) + nz(other_om, 0)
+                total_capital += nz(capital, 0)
+
+                section_summary.extend([
+                    zero2val(nz(staff_salary, 0), '--'),
+                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+                    zero2val(nz(capital, 0), '--'),
+                ])
+            section_summary.extend([
+                zero2val(total_salary, '--'),
+                zero2val(total_om, '--'),
+                zero2val(total_capital, '--'),
+            ])
+            worksheet2.write_row(i, 0, section_summary, divider_format)
             i += 1
 
-    worksheet2.conditional_format(4, 9, i, 20, {
+    worksheet2.conditional_format(4, 10, i, 21, {
         'type': 'cell',
         'criteria': 'greater than',
         'value': 0,
-        'format': workbook.add_format(
-            {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+        'format': normal_num_format,
     })
+
+    i += 1
+    for division in list(set(division_list)):
+        projects = models.Project.objects.filter(section__division=division).filter(
+            year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True)
+
+        j = 9
+        # worksheet2.write(i, j, division.name, summary_right_format)
+        worksheet2.merge_range(i, j - 2, i, j, division.name, summary_right_format)
+
+        j += 1
+        total_salary = 0
+        total_om = 0
+        total_capital = 0
+        for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+            staff_salary = models.Staff.objects.filter(project__in=projects).filter(
+                employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+            ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+            staff_om = models.Staff.objects.filter(project__in=projects).filter(
+                employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+            ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+            other_om = models.OMCost.objects.filter(
+                project__in=projects, funding_source=source
+            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+            capital = models.CapitalCost.objects.filter(
+                project__in=projects, funding_source=source).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))[
+                'dsum']
+
+            total_salary += nz(staff_salary, 0)
+            total_om += nz(staff_om, 0) + nz(other_om, 0)
+            total_capital += nz(capital, 0)
+            worksheet2.write(i, j, zero2val(nz(staff_salary, 0), '--'), summary_left_format)
+            j += 1
+            worksheet2.write(i, j, zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'), summary_left_format)
+            j += 1
+            worksheet2.write(i, j, zero2val(nz(capital, 0), '--'), summary_left_format)
+            j += 1
+
+        worksheet2.write(i, j, zero2val(total_salary, '--'), summary_left_format)
+        j += 1
+        worksheet2.write(i, j, zero2val(total_om, '--'), summary_left_format)
+        j += 1
+        worksheet2.write(i, j, zero2val(total_capital, '--'), summary_left_format)
+        i += 1
 
     # 3) spreadsheet: Flex Projects by section #
     #############################
@@ -315,7 +400,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         worksheet3.set_column(j, j, width=int(col_max[j]))
 
     worksheet3.write_row(0, 0, [
-        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
+        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF FLEX PROJECTS BY SECTION (Projects Submitted and Approved by Section Heads)", ],
                          bold_format_lg)
     worksheet3.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
     worksheet3.merge_range('k3:m3'.upper(), 'A-Base', header_format_centered)
@@ -417,16 +502,92 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             i += 1
         # if there are no projects, don't add a line!
         if project_list.count() > 0:
-            worksheet3.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
+            section_summary = repeat(" ,", 9).split(",")
+            total_salary = 0
+            total_om = 0
+            total_capital = 0
+            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+                staff_salary = models.Staff.objects.filter(project__in=project_list).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                staff_om = models.Staff.objects.filter(project__in=project_list).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                other_om = models.OMCost.objects.filter(
+                    project__in=project_list, funding_source=source
+                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+                capital = models.CapitalCost.objects.filter(
+                    project__in=project_list, funding_source=source).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))[
+                    'dsum']
+
+                total_salary += nz(staff_salary, 0)
+                total_om += nz(staff_om, 0) + nz(other_om, 0)
+                total_capital += nz(capital, 0)
+
+                section_summary.extend([
+                    zero2val(nz(staff_salary, 0), '--'),
+                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+                    zero2val(nz(capital, 0), '--'),
+                ])
+            section_summary.extend([
+                zero2val(total_salary, '--'),
+                zero2val(total_om, '--'),
+                zero2val(total_capital, '--'),
+            ])
+            worksheet3.write_row(i, 0, section_summary, divider_format)
             i += 1
 
-    worksheet3.conditional_format(4, 9, i, 20, {
+    worksheet3.conditional_format(4, 10, i, 21, {
         'type': 'cell',
         'criteria': 'greater than',
         'value': 0,
-        'format': workbook.add_format(
-            {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+        'format': normal_num_format,
     })
+
+    i += 1
+    for division in list(set(division_list)):
+        project_list = models.Project.objects.filter(section__division=division).filter(
+            year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
+        print(project_list)
+        j = 9
+        # worksheet2.write(i, j, division.name, summary_right_format)
+        worksheet3.merge_range(i, j - 2, i, j, division.name, summary_right_format)
+
+        j += 1
+        total_salary = 0
+        total_om = 0
+        total_capital = 0
+        for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+            staff_salary = models.Staff.objects.filter(project__in=project_list).filter(
+                employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+            ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+            staff_om = models.Staff.objects.filter(project__in=project_list).filter(
+                employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+            ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+            other_om = models.OMCost.objects.filter(
+                project__in=project_list, funding_source=source
+            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+            capital = models.CapitalCost.objects.filter(
+                project__in=project_list, funding_source=source).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))[
+                'dsum']
+
+            total_salary += nz(staff_salary, 0)
+            total_om += nz(staff_om, 0) + nz(other_om, 0)
+            total_capital += nz(capital, 0)
+            worksheet3.write(i, j, zero2val(nz(staff_salary, 0), '--'), summary_left_format)
+            j += 1
+            worksheet3.write(i, j, zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'), summary_left_format)
+            j += 1
+            worksheet3.write(i, j, zero2val(nz(capital, 0), '--'), summary_left_format)
+            j += 1
+
+        worksheet3.write(i, j, zero2val(total_salary, '--'), summary_left_format)
+        j += 1
+        worksheet3.write(i, j, zero2val(total_om, '--'), summary_left_format)
+        j += 1
+        worksheet3.write(i, j, zero2val(total_capital, '--'), summary_left_format)
+        i += 1
+
 
     # 4) spreadsheet: No Gos#
     #############################
@@ -437,8 +598,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         worksheet4.set_column(j, j, width=int(col_max[j]))
 
     worksheet4.write_row(0, 0, [
-        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
-                         bold_format_lg)
+        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF UNSUMBITTED OR UNAPPROVED PROJECTS BY SECTION", ], bold_format_lg)
     worksheet4.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
     worksheet4.merge_range('m3:o3'.upper(), 'A-Base', header_format_centered)
     worksheet4.merge_range('p3:r3'.upper(), 'B-Base', header_format_centered)
@@ -545,15 +705,46 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             i += 1
         # if there are no projects, don't add a line!
         if project_list.count() > 0:
-            worksheet4.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
+            section_summary = repeat(" ,", 9).split(",")
+            total_salary = 0
+            total_om = 0
+            total_capital = 0
+            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+                staff_salary = models.Staff.objects.filter(project__in=project_list).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                staff_om = models.Staff.objects.filter(project__in=project_list).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                other_om = models.OMCost.objects.filter(
+                    project__in=project_list, funding_source=source
+                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+                capital = models.CapitalCost.objects.filter(
+                    project__in=project_list, funding_source=source).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))[
+                    'dsum']
+
+                total_salary += nz(staff_salary, 0)
+                total_om += nz(staff_om, 0) + nz(other_om, 0)
+                total_capital += nz(capital, 0)
+
+                section_summary.extend([
+                    zero2val(nz(staff_salary, 0), '--'),
+                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+                    zero2val(nz(capital, 0), '--'),
+                ])
+            section_summary.extend([
+                zero2val(total_salary, '--'),
+                zero2val(total_om, '--'),
+                zero2val(total_capital, '--'),
+            ])
+            worksheet4.write_row(i, 0, section_summary, divider_format)
             i += 1
 
-    worksheet4.conditional_format(4, 9, i, 20, {
+    worksheet4.conditional_format(4, 10, i, 21, {
         'type': 'cell',
         'criteria': 'greater than',
         'value': 0,
-        'format': workbook.add_format(
-            {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+        'format': normal_num_format,
     })
 
     workbook.close()
