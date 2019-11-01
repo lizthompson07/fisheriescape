@@ -26,17 +26,18 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
     worksheet1 = workbook.add_worksheet(name="Programs by section")
-    worksheet2 = workbook.add_worksheet(name="Projects by section")
-    worksheet3 = workbook.add_worksheet(name="Unsubmitted projects")
+    worksheet2 = workbook.add_worksheet(name="Core projects by section")
+    worksheet2 = workbook.add_worksheet(name="Flex projects by section")
+    worksheet3 = workbook.add_worksheet(name="Unapproved projects")
 
     # create formatting
     header_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#bcc5d4', "align": 'normal',
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#9ae0f5', "align": 'normal',
          "text_wrap": True})
-    divider_format = workbook.add_format(
-        {'bold': True, 'border': 0, 'bg_color': '#9ae0f5', "align": 'normal',"text_wrap": False})
     header_format_centered = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'center', "text_wrap": True})
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#9ae0f5', "align": 'center', "text_wrap": True})
+    divider_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#d1dfe3', "align": 'normal', "text_wrap": False})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
     bold_format_lg = workbook.add_format({"align": 'left', 'bold': True, 'font_size': 16})
     bold_format = workbook.add_format({"align": 'left', 'bold': True, 'font_size': 14})
@@ -83,8 +84,8 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         worksheet1.merge_range('s3:u3'.upper(), 'Total', header_format_centered)
 
         header = [
-            "Section",
             "Division",
+            "Section",
             "Program",
             "Core / flex",
             "Number of projects",
@@ -98,6 +99,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             'O & M\n(including staff)',
             'Capital',
         ]
+        header.extend(financial_headers)
         header.extend(financial_headers)
         header.extend(financial_headers)
         header.extend(financial_headers)
@@ -135,8 +137,8 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                 ).order_by("overtime_hours").aggregate(dsum=Sum("overtime_hours"))['dsum']
 
                 data_row = [
-                    s.name,
                     s.division.name,
+                    s.name,
                     "{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng),
                     program.get_is_core_display(),
                     project_count,
@@ -169,9 +171,9 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                     total_capital += nz(capital, 0)
 
                     data_row.extend([
-                        zero2val(staff_salary, '--'),
+                        zero2val(nz(staff_salary, 0), '--'),
                         zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
-                        zero2val(capital, '--'),
+                        zero2val(nz(capital, 0), '--'),
                     ])
                 data_row.extend([
                     zero2val(total_salary, '--'),
@@ -184,7 +186,8 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                 worksheet1.write_row(i, 0, data_row, normal_format)
                 i += 1
             # if there are no projects, don't add a line!
-            if s.projects.count() > 0:
+            if s.projects.filter(submitted=True, section_head_approved=True, year=fiscal_year).count() > 0:
+                print(s.projects.filter(submitted=True, section_head_approved=True, year=fiscal_year))
                 worksheet1.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
                 i += 1
 
