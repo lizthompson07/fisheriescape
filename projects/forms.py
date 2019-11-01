@@ -74,7 +74,7 @@ class ProjectForm(forms.ModelForm):
             'sectional_dm',
         ]
         labels = {
-            "programs": get_verbose_label(models.Project.objects.first(), "programs") + " (mandatory field - select multiple, if necessary)"
+            "programs": get_verbose_label(models.Project.objects.first(), "programs") + " (mandatory - select multiple, if necessary)"
 
         }
         widgets = {
