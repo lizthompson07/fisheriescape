@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import html2text as html2text
 import xlsxwriter as xlsxwriter
 from django.conf import settings
@@ -29,17 +31,15 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
 
     # create formatting
     header_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'normal',
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#bcc5d4', "align": 'normal',
          "text_wrap": True})
     divider_format = workbook.add_format(
-        {'bold': True, 'border': 0, 'bg_color': '#bcc5d4', "align": 'normal',
-         "text_wrap": True})
+        {'bold': True, 'border': 0, 'bg_color': '#9ae0f5', "align": 'normal',"text_wrap": False})
     header_format_centered = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'center',
-         "text_wrap": True})
-    total_format = workbook.add_format({'bg_color': '#D6D1C0', "align": 'left', "text_wrap": True})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
-    bold_format = workbook.add_format({"align": 'left', 'bold': True})
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'center', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
+    bold_format_lg = workbook.add_format({"align": 'left', 'bold': True, 'font_size': 16})
+    bold_format = workbook.add_format({"align": 'left', 'bold': True, 'font_size': 14})
 
     # need to assemble a section list
     ## first look at the sections arg; if not null, we don't need anything else
@@ -69,7 +69,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
 
     worksheet1.write_row(0, 0, [
         "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
-                         bold_format)
+                         bold_format_lg)
 
     worksheet1.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
 
@@ -92,19 +92,15 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             "Contains projects with more than one program?",
             'Total FTE\n(weeks)',
             'Total OT\n(hours)',
-            'Salary\n(in excess of FTE)',
-            'O & M\n(including staff)',
-            'Capital',
-            'Salary\n(in excess of FTE)',
-            'O & M\n(including staff)',
-            'Capital',
-            'Salary\n(in excess of FTE)',
-            'O & M\n(including staff)',
-            'Capital',
+        ]
+        financial_headers = [
             'Salary\n(in excess of FTE)',
             'O & M\n(including staff)',
             'Capital',
         ]
+        header.extend(financial_headers)
+        header.extend(financial_headers)
+        header.extend(financial_headers)
 
         # create the col_max column to store the length of each header
         # should be a maximum column width to 100
@@ -173,14 +169,14 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                     total_capital += nz(capital, 0)
 
                     data_row.extend([
-                        zero2val(staff_salary, None),
-                        zero2val(nz(staff_om, 0) + nz(other_om, 0), None),
-                        zero2val(capital, None),
+                        zero2val(staff_salary, '--'),
+                        zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+                        zero2val(capital, '--'),
                     ])
                 data_row.extend([
-                    zero2val(total_salary, None),
-                    zero2val(total_om, None),
-                    zero2val(total_capital, None),
+                    zero2val(total_salary, '--'),
+                    zero2val(total_om, '--'),
+                    zero2val(total_capital, '--'),
                 ])
 
                 j = 0
@@ -192,16 +188,26 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                 worksheet1.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
                 i += 1
 
-    # # set formatting for finances
-    # for status in models.Status.objects.all():
-    #     worksheet1.conditional_format(4, 9, i, 9,
-    #                              {
-    #                                  'type': 'cell',
-    #                                  'criteria': 'equal to',
-    #                                  'value': '"{}"'.format(status.name),
-    #                                  'format': workbook.add_format({'bg_color': status.color, }),
-    #                              })
-
+        # set formatting for finances
+        # for source in models.FundingSource.objects.all():
+        #     i0 = 4
+        #     if source.id == 1:
+        #         j = 9
+        #     elif source.id == 2:
+        #         j = 12
+        #     elif source.id == 3:
+        #         j = 15
+        #     else:
+        #         j = 18
+        #
+        worksheet1.conditional_format(4, 9, i, 20, {
+            'type': 'cell',
+            'criteria': 'greater than',
+            'value': 0,
+            'format': workbook.add_format(
+                {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+        })
+        # {'bg_color': status.color, }
 
     workbook.close()
     return target_url

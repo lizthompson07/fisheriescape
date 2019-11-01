@@ -1377,7 +1377,7 @@ def manage_om_cats(request):
 def delete_employee_type(request, pk):
     my_obj = models.EmployeeType.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+    return HttpResponseRedirect(reverse("projects:manage_employee_types"))
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -1390,7 +1390,7 @@ def manage_employee_types(request):
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+            return HttpResponseRedirect(reverse("projects:manage_employee_types"))
     else:
         formset = forms.EmployeeTypeFormSet(
             queryset=qs)
@@ -1481,7 +1481,7 @@ def manage_tags(request):
 def delete_help_text(request, pk):
     my_obj = models.HelpText.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_tags"))
+    return HttpResponseRedirect(reverse("projects:manage_help_text"))
 
 
 @login_required(login_url='/accounts/login_required/')
