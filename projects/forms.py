@@ -3,6 +3,8 @@ from django.db.models import Q
 from django.forms import modelformset_factory
 from django.urls import reverse
 from django.utils.translation import gettext as _
+
+from lib.templatetags.verbose_names import get_verbose_label
 from . import models
 from . import views
 from django.contrib.auth.models import User
@@ -71,6 +73,10 @@ class ProjectForm(forms.ModelForm):
             'regional_dm',
             'sectional_dm',
         ]
+        labels = {
+            "programs": get_verbose_label(models.Project.objects.first(), "programs") + " (mandatory field - select multiple, if necessary)"
+
+        }
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
             "description": forms.Textarea(attrs=class_editable),
