@@ -109,7 +109,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     worksheet1.write_row(3, 0, header, header_format)
 
     i = 4
-    for s in section_list:
+    for s in section_list.order_by("division", "name"):
         # get a list of projects..
         project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
 
@@ -240,7 +240,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
 
     worksheet2.write_row(3, 0, header, header_format)
     i = 4
-    for s in section_list:
+    for s in section_list.order_by("division", "name"):
         # get a list of projects..
         project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True)
 
@@ -433,7 +433,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
 
     worksheet3.write_row(3, 0, header, header_format)
     i = 4
-    for s in section_list:
+    for s in section_list.order_by("division", "name"):
         # get a list of projects..
         project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
 
@@ -633,7 +633,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
 
     worksheet4.write_row(3, 0, header, header_format)
     i = 4
-    for s in section_list:
+    for s in section_list.order_by("division", "name"):
         # get a list of projects..
         project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False))
 
