@@ -27,8 +27,9 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     workbook = xlsxwriter.Workbook(target_file_path)
     worksheet1 = workbook.add_worksheet(name="Programs by section")
     worksheet2 = workbook.add_worksheet(name="Core projects by section")
-    worksheet2 = workbook.add_worksheet(name="Flex projects by section")
-    worksheet3 = workbook.add_worksheet(name="Unapproved projects")
+    worksheet3 = workbook.add_worksheet(name="Flex projects by section")
+    worksheet4 = workbook.add_worksheet(name="No-Gos")
+    # worksheet3 = workbook.add_worksheet(name="Unapproved projects")
 
     # create formatting
     header_format = workbook.add_format(
@@ -55,15 +56,10 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     else:
         section_list = shared_models.Section.objects.all()
 
-    # If there is no user, it means that this report is being called throught the report_search view (as opposed to my_section view)
-    project_list = models.Project.objects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
-    project_list = project_list.filter(section__in=section_list)
-
-    # spreadsheet: Programs by section #
+    # 1) spreadsheet: Programs by section #
     #############################
-
     # This is too complicated a worksheet. let's create column widths manually
-    col_max = [35, 30, 50, 8, 10, 30, 10, 10, 10]
+    col_max = [30, 30, 50, 8, 10, 30, 10, 10, 10]
     col_max.extend(repeat("10,", 12)[:-1].split(","))
     for j in range(0, len(col_max)):
         worksheet1.set_column(j, j, width=int(col_max[j]))
@@ -71,146 +67,494 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     worksheet1.write_row(0, 0, [
         "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
                          bold_format_lg)
-
     worksheet1.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
+    worksheet1.merge_range('j3:l3'.upper(), 'A-Base', header_format_centered)
+    worksheet1.merge_range('m3:o3'.upper(), 'B-Base', header_format_centered)
+    worksheet1.merge_range('p3:r3'.upper(), 'C-Base', header_format_centered)
+    worksheet1.merge_range('s3:u3'.upper(), 'Total', header_format_centered)
 
-    if project_list.count() == 0:
-        worksheet1.write_row(2, 0, ["There are no projects on which to report", ], bold_format)
-    else:
-        # get a project list for the year
-        worksheet1.merge_range('j3:l3'.upper(), 'A-Base', header_format_centered)
-        worksheet1.merge_range('m3:o3'.upper(), 'B-Base', header_format_centered)
-        worksheet1.merge_range('p3:r3'.upper(), 'C-Base', header_format_centered)
-        worksheet1.merge_range('s3:u3'.upper(), 'Total', header_format_centered)
+    header = [
+        "Division",
+        "Section",
+        "Program",
+        "Core / flex",
+        "Number of projects",
+        "Project leads",
+        "Contains projects with more than one program?",
+        'Total FTE\n(weeks)',
+        'Total OT\n(hours)',
+    ]
+    financial_headers = [
+        'Salary\n(in excess of FTE)',
+        'O & M\n(including staff)',
+        'Capital',
+    ]
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+    header.extend(financial_headers)
 
-        header = [
-            "Division",
-            "Section",
-            "Program",
-            "Core / flex",
-            "Number of projects",
-            "Project leads",
-            "Contains projects with more than one program?",
-            'Total FTE\n(weeks)',
-            'Total OT\n(hours)',
-        ]
-        financial_headers = [
-            'Salary\n(in excess of FTE)',
-            'O & M\n(including staff)',
-            'Capital',
-        ]
-        header.extend(financial_headers)
-        header.extend(financial_headers)
-        header.extend(financial_headers)
-        header.extend(financial_headers)
+    # create the col_max column to store the length of each header
+    # should be a maximum column width to 100
 
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
+    worksheet1.write_row(3, 0, header, header_format)
 
-        worksheet1.write_row(3, 0, header, header_format)
+    i = 4
+    for s in section_list:
+        # get a list of projects..
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
 
-        i = 4
-        for s in section_list:
-            # get a list of projects..
-            project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
+        # get a list of programs..
+        program_id_list = []
+        for p in project_list:
+            if p.programs.count() > 0:
+                program_id_list.extend([program.id for program in p.programs.all()])
+        program_list = models.Program2.objects.filter(id__in=program_id_list)
+        for program in program_list:
 
-            # get a list of programs..
-            program_id_list = []
-            for p in project_list:
-                if p.programs.count() > 0:
-                    program_id_list.extend([program.id for program in p.programs.all()])
-            program_list = models.Program2.objects.filter(id__in=program_id_list)
-            for program in program_list:
+            project_count = project_list.filter(programs=program).count()
+            leads = listrify(
+                list(set([str(staff.user) for staff in
+                          models.Staff.objects.filter(project__in=project_list.filter(programs=program), lead=True) if
+                          staff.user])))
+            is_double_count = len(
+                [project for project in project_list.filter(programs=program).all() if project.programs.count() > 1]) > 0
 
-                project_count = project_list.filter(programs=program).count()
-                leads = listrify(
-                    list(set([str(staff.user) for staff in
-                              models.Staff.objects.filter(project__in=project_list.filter(programs=program), lead=True) if staff.user])))
-                is_double_count = len(
-                    [project for project in project_list.filter(programs=program).all() if project.programs.count() > 1]) > 0
+            total_fte = models.Staff.objects.filter(
+                project__in=project_list.filter(programs=program)
+            ).order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))['dsum']
+            total_ot = models.Staff.objects.filter(
+                project__in=project_list.filter(programs=program)
+            ).order_by("overtime_hours").aggregate(dsum=Sum("overtime_hours"))['dsum']
 
-                total_fte = models.Staff.objects.filter(
-                    project__in=project_list.filter(programs=program)
-                ).order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))['dsum']
-                total_ot = models.Staff.objects.filter(
-                    project__in=project_list.filter(programs=program)
-                ).order_by("overtime_hours").aggregate(dsum=Sum("overtime_hours"))['dsum']
+            data_row = [
+                s.division.name,
+                s.name,
+                "{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng),
+                program.get_is_core_display(),
+                project_count,
+                leads,
+                yesno(is_double_count),
+                zero2val(total_fte, None),
+                zero2val(total_ot, None),
+            ]
+            total_salary = 0
+            total_om = 0
+            total_capital = 0
+            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+                staff_salary = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                staff_om = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
 
-                data_row = [
-                    s.division.name,
-                    s.name,
-                    "{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng),
-                    program.get_is_core_display(),
-                    project_count,
-                    leads,
-                    yesno(is_double_count),
-                    zero2val(total_fte, None),
-                    zero2val(total_ot, None),
-                ]
-                total_salary = 0
-                total_om = 0
-                total_capital = 0
-                for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
-                    staff_salary = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
-                        employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
-                    ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-                    staff_om = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
-                        employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
-                    ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                other_om = models.OMCost.objects.filter(
+                    project__in=project_list.filter(programs=program), funding_source=source
+                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
 
-                    other_om = models.OMCost.objects.filter(
-                        project__in=project_list.filter(programs=program), funding_source=source
-                    ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+                capital = models.CapitalCost.objects.filter(
+                    project__in=project_list.filter(programs=program), funding_source=source
+                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
 
-                    capital = models.CapitalCost.objects.filter(
-                        project__in=project_list.filter(programs=program), funding_source=source
-                    ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+                total_salary += nz(staff_salary, 0)
+                total_om += nz(staff_om, 0) + nz(other_om, 0)
+                total_capital += nz(capital, 0)
 
-                    total_salary += nz(staff_salary, 0)
-                    total_om += nz(staff_om, 0) + nz(other_om, 0)
-                    total_capital += nz(capital, 0)
-
-                    data_row.extend([
-                        zero2val(nz(staff_salary, 0), '--'),
-                        zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
-                        zero2val(nz(capital, 0), '--'),
-                    ])
                 data_row.extend([
-                    zero2val(total_salary, '--'),
-                    zero2val(total_om, '--'),
-                    zero2val(total_capital, '--'),
+                    zero2val(nz(staff_salary, 0), '--'),
+                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+                    zero2val(nz(capital, 0), '--'),
                 ])
+            data_row.extend([
+                zero2val(total_salary, '--'),
+                zero2val(total_om, '--'),
+                zero2val(total_capital, '--'),
+            ])
 
-                j = 0
+            j = 0
 
-                worksheet1.write_row(i, 0, data_row, normal_format)
-                i += 1
-            # if there are no projects, don't add a line!
-            if s.projects.filter(submitted=True, section_head_approved=True, year=fiscal_year).count() > 0:
-                print(s.projects.filter(submitted=True, section_head_approved=True, year=fiscal_year))
-                worksheet1.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
-                i += 1
+            worksheet1.write_row(i, 0, data_row, normal_format)
+            i += 1
+        # if there are no projects, don't add a line!
+        if s.projects.filter(submitted=True, section_head_approved=True, year=fiscal_year).count() > 0:
+            worksheet1.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
+            i += 1
 
-        # set formatting for finances
-        # for source in models.FundingSource.objects.all():
-        #     i0 = 4
-        #     if source.id == 1:
-        #         j = 9
-        #     elif source.id == 2:
-        #         j = 12
-        #     elif source.id == 3:
-        #         j = 15
-        #     else:
-        #         j = 18
-        #
-        worksheet1.conditional_format(4, 9, i, 20, {
-            'type': 'cell',
-            'criteria': 'greater than',
-            'value': 0,
-            'format': workbook.add_format(
-                {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
-        })
-        # {'bg_color': status.color, }
+    worksheet1.conditional_format(4, 9, i, 20, {
+        'type': 'cell',
+        'criteria': 'greater than',
+        'value': 0,
+        'format': workbook.add_format(
+            {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+    })
+
+    # 2) spreadsheet: Core Projects by section #
+    #############################
+    # This is too complicated a worksheet. let's create column widths manually
+    col_max = [30, 30, 8, 35, 15, 8, 40, 20, 10, 10]
+    col_max.extend(repeat("10,", 12)[:-1].split(","))
+    for j in range(0, len(col_max)):
+        worksheet2.set_column(j, j, width=int(col_max[j]))
+
+    worksheet2.write_row(0, 0, [
+        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
+                         bold_format_lg)
+    worksheet2.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
+    worksheet2.merge_range('k3:m3'.upper(), 'A-Base', header_format_centered)
+    worksheet2.merge_range('n3:p3'.upper(), 'B-Base', header_format_centered)
+    worksheet2.merge_range('q3:s3'.upper(), 'C-Base', header_format_centered)
+    worksheet2.merge_range('t3:v3'.upper(), 'Total', header_format_centered)
+
+    header = [
+        "Division",
+        "Section",
+        "Core / flex",
+        verbose_field_name(models.Project.objects.first(), 'programs'),
+        verbose_field_name(models.Project.objects.first(), 'tags'),
+        "Project ID",
+        verbose_field_name(models.Project.objects.first(), 'project_title'),
+        "Project leads",
+        'Total FTE\n(weeks)',
+        'Total OT\n(hours)',
+    ]
+
+    financial_headers = [
+        'Salary\n(in excess of FTE)',
+        'O & M\n(including staff)',
+        'Capital',
+    ]
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+
+    worksheet2.write_row(3, 0, header, header_format)
+    i = 4
+    for s in section_list:
+        # get a list of projects..
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True)
+
+        for project in project_list:
+            core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
+            leads = listrify(
+                list(set([str(staff.user) for staff in
+                          models.Staff.objects.filter(project=project, lead=True) if staff.user])))
+            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+                                 project.programs.all()])
+            tags = listrify([str(tag) for tag in project.tags.all()])
+            total_fte = models.Staff.objects.filter(
+                project=project).order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))['dsum']
+            total_ot = models.Staff.objects.filter(
+                project=project).order_by("overtime_hours").aggregate(dsum=Sum("overtime_hours"))['dsum']
+
+            data_row = [
+                s.division.name,
+                s.name,
+                core_flex,
+                programs,
+                tags,
+                project.id,
+                project.project_title,
+                leads,
+                zero2val(total_fte, None),
+                zero2val(total_ot, None),
+            ]
+            total_salary = 0
+            total_om = 0
+            total_capital = 0
+            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+                staff_salary = models.Staff.objects.filter(project=project).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                staff_om = models.Staff.objects.filter(project=project).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+
+                other_om = models.OMCost.objects.filter(project=project, funding_source=source
+                                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+
+                capital = models.CapitalCost.objects.filter(project=project, funding_source=source
+                                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+
+                total_salary += nz(staff_salary, 0)
+                total_om += nz(staff_om, 0) + nz(other_om, 0)
+                total_capital += nz(capital, 0)
+
+                data_row.extend([
+                    zero2val(nz(staff_salary, 0), '--'),
+                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+                    zero2val(nz(capital, 0), '--'),
+                ])
+            data_row.extend([
+                zero2val(total_salary, '--'),
+                zero2val(total_om, '--'),
+                zero2val(total_capital, '--'),
+            ])
+            worksheet2.write_row(i, 0, data_row, normal_format)
+            i += 1
+        # if there are no projects, don't add a line!
+        if project_list.count() > 0:
+            worksheet2.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
+            i += 1
+
+    worksheet2.conditional_format(4, 9, i, 20, {
+        'type': 'cell',
+        'criteria': 'greater than',
+        'value': 0,
+        'format': workbook.add_format(
+            {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+    })
+
+    # 3) spreadsheet: Flex Projects by section #
+    #############################
+    # This is too complicated a worksheet. let's create column widths manually
+    col_max = [30, 30, 8, 35, 15, 8, 40, 20, 10, 10]
+    col_max.extend(repeat("10,", 12)[:-1].split(","))
+    for j in range(0, len(col_max)):
+        worksheet3.set_column(j, j, width=int(col_max[j]))
+
+    worksheet3.write_row(0, 0, [
+        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
+                         bold_format_lg)
+    worksheet3.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
+    worksheet3.merge_range('k3:m3'.upper(), 'A-Base', header_format_centered)
+    worksheet3.merge_range('n3:p3'.upper(), 'B-Base', header_format_centered)
+    worksheet3.merge_range('q3:s3'.upper(), 'C-Base', header_format_centered)
+    worksheet3.merge_range('t3:v3'.upper(), 'Total', header_format_centered)
+
+    header = [
+        "Division",
+        "Section",
+        "Core / flex",
+        verbose_field_name(models.Project.objects.first(), 'programs'),
+        verbose_field_name(models.Project.objects.first(), 'tags'),
+        "Project ID",
+        verbose_field_name(models.Project.objects.first(), 'project_title'),
+        "Project leads",
+        'Total FTE\n(weeks)',
+        'Total OT\n(hours)',
+    ]
+
+    financial_headers = [
+        'Salary\n(in excess of FTE)',
+        'O & M\n(including staff)',
+        'Capital',
+    ]
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+
+    worksheet3.write_row(3, 0, header, header_format)
+    i = 4
+    for s in section_list:
+        # get a list of projects..
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
+
+        for project in project_list:
+            core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
+
+            leads = listrify(
+                list(set([str(staff.user) for staff in
+                          models.Staff.objects.filter(project=project, lead=True) if staff.user])))
+            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+                                 project.programs.all()])
+            tags = listrify([str(tag) for tag in project.tags.all()])
+            total_fte = models.Staff.objects.filter(
+                project=project).order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))['dsum']
+            total_ot = models.Staff.objects.filter(
+                project=project).order_by("overtime_hours").aggregate(dsum=Sum("overtime_hours"))['dsum']
+
+            data_row = [
+                s.division.name,
+                s.name,
+                core_flex,
+                programs,
+                tags,
+                project.id,
+                project.project_title,
+                leads,
+                zero2val(total_fte, None),
+                zero2val(total_ot, None),
+            ]
+            total_salary = 0
+            total_om = 0
+            total_capital = 0
+            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+                staff_salary = models.Staff.objects.filter(project=project).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                staff_om = models.Staff.objects.filter(project=project).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+
+                other_om = models.OMCost.objects.filter(project=project, funding_source=source
+                                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+
+                capital = models.CapitalCost.objects.filter(project=project, funding_source=source
+                                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))[
+                    'dsum']
+
+                total_salary += nz(staff_salary, 0)
+                total_om += nz(staff_om, 0) + nz(other_om, 0)
+                total_capital += nz(capital, 0)
+
+                data_row.extend([
+                    zero2val(nz(staff_salary, 0), '--'),
+                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+                    zero2val(nz(capital, 0), '--'),
+                ])
+            data_row.extend([
+                zero2val(total_salary, '--'),
+                zero2val(total_om, '--'),
+                zero2val(total_capital, '--'),
+            ])
+
+            j = 0
+
+            worksheet3.write_row(i, 0, data_row, normal_format)
+            i += 1
+        # if there are no projects, don't add a line!
+        if project_list.count() > 0:
+            worksheet3.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
+            i += 1
+
+    worksheet3.conditional_format(4, 9, i, 20, {
+        'type': 'cell',
+        'criteria': 'greater than',
+        'value': 0,
+        'format': workbook.add_format(
+            {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+    })
+
+    # 4) spreadsheet: No Gos#
+    #############################
+    # This is too complicated a worksheet. let's create column widths manually
+    col_max = [30, 30, 8, 35, 15, 8, 40, 20, 10, 10, 20, 10, 10]
+    col_max.extend(repeat("10,", 12)[:-1].split(","))
+    for j in range(0, len(col_max)):
+        worksheet4.set_column(j, j, width=int(col_max[j]))
+
+    worksheet4.write_row(0, 0, [
+        "SCIENCE BRANCH WORKPLANNING - SUMMARY OF INPUTTING WORKPLANS (Projects Submitted and Approved by Section Heads in the Workplanning Application)", ],
+                         bold_format_lg)
+    worksheet4.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
+    worksheet4.merge_range('m3:o3'.upper(), 'A-Base', header_format_centered)
+    worksheet4.merge_range('p3:r3'.upper(), 'B-Base', header_format_centered)
+    worksheet4.merge_range('s3:u3'.upper(), 'C-Base', header_format_centered)
+    worksheet4.merge_range('v3:x3'.upper(), 'Total', header_format_centered)
+
+    header = [
+        "Division",
+        "Section",
+        "Core / flex",
+        verbose_field_name(models.Project.objects.first(), 'programs'),
+        verbose_field_name(models.Project.objects.first(), 'tags'),
+        "Project ID",
+        verbose_field_name(models.Project.objects.first(), 'project_title'),
+        "Project leads",
+        "Submitted",
+        "Approved by section head",
+        "Section head feedback",
+        'Total FTE\n(weeks)',
+        'Total OT\n(hours)',
+    ]
+
+    financial_headers = [
+        'Salary\n(in excess of FTE)',
+        'O & M\n(including staff)',
+        'Capital',
+    ]
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+    header.extend(financial_headers)
+
+    worksheet4.write_row(3, 0, header, header_format)
+    i = 4
+    for s in section_list:
+        # get a list of projects..
+        project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False))
+
+        for project in project_list:
+            core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
+
+            leads = listrify(
+                list(set([str(staff.user) for staff in
+                          models.Staff.objects.filter(project=project, lead=True) if staff.user])))
+            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+                                 project.programs.all()])
+            tags = listrify([str(tag) for tag in project.tags.all()])
+            total_fte = models.Staff.objects.filter(
+                project=project).order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))['dsum']
+            total_ot = models.Staff.objects.filter(
+                project=project).order_by("overtime_hours").aggregate(dsum=Sum("overtime_hours"))['dsum']
+
+            data_row = [
+                s.division.name,
+                s.name,
+                core_flex,
+                programs,
+                tags,
+                project.id,
+                project.project_title,
+                leads,
+                yesno(project.submitted),
+                yesno(project.section_head_approved),
+                project.section_head_feedback,
+                zero2val(total_fte, None),
+                zero2val(total_ot, None),
+            ]
+            total_salary = 0
+            total_om = 0
+            total_capital = 0
+            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+                staff_salary = models.Staff.objects.filter(project=project).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+                staff_om = models.Staff.objects.filter(project=project).filter(
+                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+
+                other_om = models.OMCost.objects.filter(project=project, funding_source=source
+                                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+
+                capital = models.CapitalCost.objects.filter(project=project, funding_source=source
+                                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))[
+                    'dsum']
+
+                total_salary += nz(staff_salary, 0)
+                total_om += nz(staff_om, 0) + nz(other_om, 0)
+                total_capital += nz(capital, 0)
+
+                data_row.extend([
+                    zero2val(nz(staff_salary, 0), '--'),
+                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+                    zero2val(nz(capital, 0), '--'),
+                ])
+            data_row.extend([
+                zero2val(total_salary, '--'),
+                zero2val(total_om, '--'),
+                zero2val(total_capital, '--'),
+            ])
+
+            j = 0
+
+            worksheet4.write_row(i, 0, data_row, normal_format)
+            i += 1
+        # if there are no projects, don't add a line!
+        if project_list.count() > 0:
+            worksheet4.write_row(i, 0, repeat(" ,", len(header) - 1).split(","), divider_format)
+            i += 1
+
+    worksheet4.conditional_format(4, 9, i, 20, {
+        'type': 'cell',
+        'criteria': 'greater than',
+        'value': 0,
+        'format': workbook.add_format(
+            {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'}),
+    })
 
     workbook.close()
     return target_url
