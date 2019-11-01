@@ -356,6 +356,8 @@ class EmployeeType(models.Model):
         else:
             return "{}".format(self.name)
 
+    class Meta:
+        ordering = ['name']
 
 class Level(models.Model):
     name = models.CharField(max_length=255)
