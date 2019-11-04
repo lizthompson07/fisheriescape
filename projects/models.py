@@ -9,6 +9,7 @@ from django.utils import timezone
 from textile import textile
 from lib.functions.custom_functions import fiscal_year, listrify
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext
 from shared_models import models as shared_models
 
 from dm_apps import custom_widgets
@@ -22,8 +23,8 @@ LANGUAGE_CHOICES = (
 )
 
 YES_NO_CHOICES = (
-    (True, _("Yes")),
-    (False, _("No")),
+    (True, gettext("Yes")),
+    (False, gettext("No")),
 )
 
 
@@ -240,7 +241,8 @@ class Project(models.Model):
                                         "Which of these data / data products will be placed on the Open Data Platform this year?"))
     # HTML field
     data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
-    metadata_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Provide link to existing metadata record, if available"))
+    metadata_url = models.CharField(max_length=1000, blank=True, null=True,
+                                    verbose_name=_("Provide link to existing metadata record, if available"))
 
     # needs
     ########
@@ -358,6 +360,7 @@ class EmployeeType(models.Model):
 
     class Meta:
         ordering = ['name']
+
 
 class Level(models.Model):
     name = models.CharField(max_length=255)
