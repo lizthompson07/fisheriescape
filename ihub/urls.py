@@ -87,5 +87,8 @@ urlpatterns = [
     path('settings/funding-purpose/<int:pk>/delete/', views.delete_funding_purpose, name="delete_funding_purpose"),
     path('settings/reserve/<int:pk>/delete/', views.delete_reserve, name="delete_reserve"),
     path('settings/nation/<int:pk>/delete/', views.delete_nation, name="delete_nation"),
-
+    path('settings/users/', views.UserListView.as_view(), name='user_list'),
+    path('settings/users/ihub/<int:ihub>/', views.UserListView.as_view(), name='user_list'),
+    path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+    # path('settings/user/<int:pk>/edit/', views.UserUpdateView.as_view(), name='user_edit'),
 ]
