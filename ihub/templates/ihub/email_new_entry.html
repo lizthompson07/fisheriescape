@@ -1,36 +1,13 @@
-<em>
-    *** un message français suivra
-</em>
-<br><br>
+{% load verbose_names %}
+
 <p>
     A new entry in the iHub web app has been logged with the following details:
 </p>
-<table>
-    <tr>
-        <td><b>title:</b></td>
-        <td>{{ object.title }}</td>
-    </tr>
-    <tr>
-        <td><b>sector:</b></td>
-        <td>{{ object.sector }}</td>
-    </tr>
-    <tr>
-        <td><b>entry_type:</b></td>
-        <td>{{ object.entry_type }}</td>
-    </tr>
-    <tr>
-        <td><b>subject:</b></td>
-        <td>{{ object.subject }}</td>
-    </tr>
-    <tr>
-        <td><b>date_created:</b></td>
-        <td>{{ object.date_created }}</td>
-    </tr>
-    <tr>
-        <td><b>created_by:</b></td>
-        <td>{{ object.created_by }}</td>
-    </tr>
-</table>
+
+{% for field in field_list %}
+    {% verbose_field_display object field %}
+{% endfor %}
+
 <p>
     The full entry can be viewed <a href="http://dmapps{% url 'ihub:entry_detail' object.id %}">HERE</a>.
 </p>
@@ -40,3 +17,4 @@
         border: solid 1px black;
     }
 </style>
+

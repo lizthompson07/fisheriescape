@@ -478,11 +478,12 @@ class EntryCreateView(iHubEditRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewEntryEmail(object)
         # send the email object
+
         if settings.PRODUCTION_SERVER:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
-            print('not sending email since in dev mode')
+            print(email)
         messages.success(self.request,
                          _("The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!"))
         return HttpResponseRedirect(reverse_lazy('ihub:entry_detail', kwargs={"pk": object.id}))
