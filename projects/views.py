@@ -873,7 +873,8 @@ def temp_formset(request):
     else:
         # prep the formset...for display
         formset = forms.TempFormSet(
-            queryset=models.Project.objects.filter(section__division__branch__region__id=2).order_by("program")
+            queryset=models.Project.objects.filter(submitted=True, year=2020, section__division__branch__region__id=1,
+                                                   programs__isnull=True).order_by("program")
         )
     context['formset'] = formset
     context['my_object'] = models.Project.objects.first()
@@ -1970,7 +1971,6 @@ def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, secti
     raise Http404
 
 
-
 def dougs_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None):
     # sections arg will be coming in as None from the my_section view
     if regions is None:
@@ -1989,7 +1989,6 @@ def dougs_spreadsheet(request, fiscal_year, regions=None, divisions=None, sectio
                 fiscal_year)
             return response
     raise Http404
-
 
 
 class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
