@@ -1179,7 +1179,7 @@ class UserListView(iHubAdminRequiredMixin, FilterView):
     filterset_class = filters.UserFilter
 
     def get_queryset(self):
-        queryset = User.objects.filter(is_superuser=False).order_by("first_name", "last_name").annotate(
+        queryset = User.objects.order_by("first_name", "last_name").annotate(
             search_term=Concat('first_name', Value(""), 'last_name', output_field=TextField())
         )
 
