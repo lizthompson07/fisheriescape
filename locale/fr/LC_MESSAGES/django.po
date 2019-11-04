@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-04 10:53-0400\n"
+"POT-Creation-Date: 2019-11-04 11:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1552,7 +1552,7 @@ msgstr ""
 #: .\inventory\templates\inventory\resource_list.html:67
 #: .\masterlist\reports.py:76 .\projects\filters.py:16 .\projects\filters.py:39
 #: .\projects\filters.py:74 .\projects\filters.py:83 .\projects\filters.py:98
-#: .\projects\filters.py:107
+#: .\projects\filters.py:107 .\projects\forms.py:26
 #: .\projects\templates\projects\my_project_list.html:87
 #: .\projects\templates\projects\project_list.html:78
 msgid "Region"
@@ -2376,13 +2376,15 @@ msgstr "L'accord a été supprimé avec succès."
 msgid "Indigenous?"
 msgstr "Autochtone?"
 
-#: .\masterlist\forms.py:8 .\projects\models.py:26 .\shares\forms.py:11
-#: .\spot\forms.py:18 .\travel\forms.py:14 .\travel\models.py:15
+#: .\masterlist\forms.py:8 .\projects\forms.py:20 .\projects\models.py:26
+#: .\shares\forms.py:11 .\spot\forms.py:18 .\travel\forms.py:14
+#: .\travel\models.py:15
 msgid "Yes"
 msgstr "Oui"
 
-#: .\masterlist\forms.py:9 .\projects\models.py:27 .\shares\forms.py:12
-#: .\spot\forms.py:19 .\travel\forms.py:15 .\travel\models.py:16
+#: .\masterlist\forms.py:9 .\projects\forms.py:21 .\projects\models.py:27
+#: .\shares\forms.py:12 .\spot\forms.py:19 .\travel\forms.py:15
+#: .\travel\models.py:16
 msgid "No"
 msgstr "Non"
 
@@ -2904,74 +2906,78 @@ msgstr "Exercice fiscal"
 msgid "Submitted?"
 msgstr "Soumis?"
 
-#: .\projects\forms.py:179 .\projects\forms.py:193
+#: .\projects\forms.py:78
+msgid "mandatory - select multiple, if necessary"
+msgstr ""
+
+#: .\projects\forms.py:180 .\projects\forms.py:194
 msgid "DFO User"
 msgstr "Utilisateur du MPO"
 
-#: .\projects\forms.py:307
+#: .\projects\forms.py:306
 msgid "Section head comments (visible to section head only)"
 msgstr ""
 "Commentaires de chef de section (visibles uniquement par la chef de section)"
 
-#: .\projects\forms.py:308
+#: .\projects\forms.py:307
 msgid "Section review complete (visible to section head only)?"
 msgstr ""
 "Examen de la section terminé (visible par le chef de section uniquement)?"
 
-#: .\projects\forms.py:342
+#: .\projects\forms.py:341
 msgid "Feedback summary"
 msgstr "Résumé des commentaires"
 
-#: .\projects\forms.py:343
+#: .\projects\forms.py:342
 msgid "Data management summary"
 msgstr "Résumé de la gestion des données"
 
-#: .\projects\forms.py:347
+#: .\projects\forms.py:346
 msgid "Weeks Worked by Employees (PDF)"
 msgstr "Semaines travaillées par les employés (PDF)"
 
-#: .\projects\forms.py:348
+#: .\projects\forms.py:347
 msgid "Total Overtime Hours Requested (PDF)"
 msgstr "Total des heures supplémentaires demandées (PDF)"
 
-#: .\projects\forms.py:349
+#: .\projects\forms.py:348
 msgid "Cost Summary by Section (PDF)"
 msgstr "Résumé des coûts par section (PDF)"
 
-#: .\projects\forms.py:350
+#: .\projects\forms.py:349
 msgid "List of Collaborators (PDF)"
 msgstr "Liste des collaborateurs (PDF)"
 
-#: .\projects\forms.py:351
+#: .\projects\forms.py:350
 msgid "List of Collaborative Agreements (PDF)"
 msgstr "Liste des accords de collaboration (PDF)"
 
-#: .\projects\forms.py:352
+#: .\projects\forms.py:351
 msgid "Doug's Report (MS Excel)"
 msgstr "Rapport de Doug (MS Excel)"
 
-#: .\projects\forms.py:387
+#: .\projects\forms.py:386
 msgid "First name"
 msgstr "Prénom"
 
-#: .\projects\forms.py:388
+#: .\projects\forms.py:387
 msgid "Last name"
 msgstr "nom de famille"
 
-#: .\projects\forms.py:389
+#: .\projects\forms.py:388
 msgid "Email"
 msgstr "Courriel"
 
-#: .\projects\forms.py:390
+#: .\projects\forms.py:389
 msgid "Confirm email address"
 msgstr "Courriel"
 
-#: .\projects\forms.py:399
+#: .\projects\forms.py:398
 msgid "The email address provided must be a DFO email address."
 msgstr ""
 "Le courriel électronique fournie doit être une adresse électronique du MPO."
 
-#: .\projects\forms.py:415
+#: .\projects\forms.py:414
 msgid "Please make sure the two email addresses provided match."
 msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
 
@@ -3204,7 +3210,7 @@ msgstr "rétroaction du directeur régional"
 
 #: .\projects\models.py:296
 msgid "Should the project be hidden from other users?"
-msgstr ""
+msgstr "Le projet doit-il être caché des autres utilisateurs?"
 
 #: .\projects\models.py:343
 msgid "Salary"
@@ -3875,6 +3881,101 @@ msgstr ""
 "branche, allez dans <a href=\"%(all_proj_url)s\">Tous les projets\n"
 "                        </a>.\n"
 "                    "
+
+#: .\projects\templates\projects\index.html:98
+msgid ""
+"\n"
+"                                %(y)s Timelines\n"
+"                            "
+msgstr ""
+"\n"
+"                                Calendrier %(y)s \n"
+"                            "
+
+#: .\projects\templates\projects\index.html:105
+msgid "Phase"
+msgstr "Phase"
+
+#: .\projects\templates\projects\index.html:106
+msgid "Region specific date"
+msgstr "Date spécifique à la région"
+
+#: .\projects\templates\projects\index.html:109
+msgid "Gulf"
+msgstr "Golfe"
+
+#: .\projects\templates\projects\index.html:110
+msgid "Maritimes"
+msgstr "Maritimes"
+
+#: .\projects\templates\projects\index.html:114
+msgid "Official launch of project planning. Start building projects in app."
+msgstr ""
+"Lancement officiel de la planification du projet. Commencez à construire des "
+"projets dans l'application."
+
+#: .\projects\templates\projects\index.html:116
+msgid "Nov 1"
+msgstr "1 nov"
+
+#: .\projects\templates\projects\index.html:117
+msgid "Nov 4"
+msgstr "4 nov"
+
+#: .\projects\templates\projects\index.html:121
+msgid "Submission deadline for core projects."
+msgstr "Date limite de soumission des projets principaux."
+
+#: .\projects\templates\projects\index.html:123
+msgid "Dec 2"
+msgstr "21 déc"
+
+#: .\projects\templates\projects\index.html:124
+msgid "Dec 18"
+msgstr "18 déc"
+
+#: .\projects\templates\projects\index.html:128
+msgid "Review of core projects."
+msgstr "Examen des projets de base."
+
+#: .\projects\templates\projects\index.html:130
+msgid "Dec 5-6"
+msgstr "5-6 déc"
+
+#: .\projects\templates\projects\index.html:131
+#: .\projects\templates\projects\index.html:138
+#: .\projects\templates\projects\index.html:145
+#: .\projects\templates\projects\index.html:152
+msgid "TBD"
+msgstr "À déterminer"
+
+#: .\projects\templates\projects\index.html:135
+msgid "Submission deadline for flex projects."
+msgstr "Date limite de soumission des projets supplémentaires."
+
+#: .\projects\templates\projects\index.html:137
+msgid "Jan 6"
+msgstr "6 jan"
+
+#: .\projects\templates\projects\index.html:142
+msgid "Review of flex projects."
+msgstr "Examen des projets supplémentaires."
+
+#: .\projects\templates\projects\index.html:144
+msgid "Jan 16-17"
+msgstr "16-17 jan"
+
+#: .\projects\templates\projects\index.html:149
+msgid ""
+"Review final versions of program descriptions, budgets and deliverables for "
+"fiscal 2020-2021."
+msgstr ""
+"Examiner les versions finales des descriptions de programme, des budgets et "
+"des résultats attendus pour l'exercice 2020-2021."
+
+#: .\projects\templates\projects\index.html:151
+msgid "Mar 17"
+msgstr "17 mar"
 
 #: .\projects\templates\projects\milestone_form_popout.html:16
 #: .\travel\templates\travel\event_form_popout.html:15
@@ -5958,16 +6059,12 @@ msgid "DM Apps"
 msgstr "Applications GD"
 
 #: .\templates\index.html:58
-#, fuzzy
-#| msgid "Data Management Home"
 msgid "Data Management Apps"
-msgstr "Gestion de données"
+msgstr "Applications de gestion de données"
 
 #: .\templates\index.html:61
-#, fuzzy
-#| msgid "DFO Science"
 msgid "By DFO Science"
-msgstr "Science du MPO"
+msgstr "par MPO Science"
 
 #: .\templates\index.html:71
 #, python-format
@@ -7222,6 +7319,11 @@ msgstr "Organisation"
 #: .\whalesdb\views.py:130
 msgid "Offset from GMT"
 msgstr ""
+
+#, fuzzy
+#~| msgid "Time in weeks"
+#~ msgid "Timelines"
+#~ msgstr "Durée en semaines"
 
 #~ msgid "Funding Requested"
 #~ msgstr "Financement demandé"

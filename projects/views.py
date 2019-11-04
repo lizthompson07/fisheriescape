@@ -1553,7 +1553,7 @@ def delete_program(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def manage_programs(request):
-    qs = models.Program2.objects.all()
+    qs = models.Program2.objects.all().order_by("regional_program_name_eng")
     if request.method == 'POST':
         formset = forms.ProgramFormSet(request.POST, )
         if formset.is_valid():
