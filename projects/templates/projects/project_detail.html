@@ -81,12 +81,12 @@
 
             <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-warning" data-toggle="tooltip"
                title="{% trans "Use this project as a template for a new project" %}">
-                Clone Project
+                {% trans "Clone Project" %}
             </a>
             {% if object.submitted %}
                 <a href="#" pop-href="{% url 'projects:report_new' object.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip"
                    title="{% trans "Create a new status report for this project" %}">
-                    New Status Report
+                    {% trans "New Status Report" %}
                 </a>
             {% endif %}
         </div>
