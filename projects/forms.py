@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 from django.forms import modelformset_factory
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from lib.templatetags.verbose_names import get_verbose_label
 from . import models
@@ -17,13 +17,13 @@ class_editable = {"class": "editable"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
-    (True, "Yes"),
-    (False, "No"),
+    (True, _("Yes")),
+    (False, _("No")),
 )
 
 
 class NewProjectForm(forms.ModelForm):
-    region = forms.ChoiceField()
+    region = forms.ChoiceField(label=_("Region"))
     division = forms.ChoiceField()
     field_order = ['year', 'project_title', 'region', 'division', 'section']
 
@@ -74,7 +74,8 @@ class ProjectForm(forms.ModelForm):
             'sectional_dm',
         ]
         labels = {
-            "programs": get_verbose_label(models.Project.objects.first(), "programs") + " (mandatory - select multiple, if necessary)"
+            "programs": "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
+                                         _("mandatory - select multiple, if necessary"))
         }
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
@@ -188,27 +189,25 @@ class StaffForm(forms.ModelForm):
 class AdminStaffForm(forms.ModelForm):
     class Meta:
         model = models.Staff
-        fields = ["user",'name']
+        fields = ["user", 'name']
         labels = {
             "user": _("DFO User"),
         }
         widgets = {
-        #     'project': forms.HiddenInput(),
-        #     'overtime_description': forms.Textarea(attrs={"rows": 5}),
+            #     'project': forms.HiddenInput(),
+            #     'overtime_description': forms.Textarea(attrs={"rows": 5}),
             'user': forms.Select(attrs=chosen_js),
         }
-
 
 
 class AdminProjectProgramForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ["programs",]
+        fields = ["programs", ]
 
         widgets = {
             'programs': forms.SelectMultiple(attrs=chosen_js),
         }
-
 
 
 class CollaboratorForm(forms.ModelForm):
