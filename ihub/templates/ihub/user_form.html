@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% block content %}
+
+    <div class="container">
+        <div class="jumbotron">
+            {% if message %}
+                <h3>{% bootstrap_alert message alert_type='warning' %}</h3>
+            {% endif %}
+
+            <h2>Account Details for @{{ object }}</h2>
+            <hr>
+            <br><br>
+
+            <form method="POST" class='form'>
+                {% csrf_token %}
+                {% for field in form %}
+                    {% if field.name != "password" %}
+                        {% bootstrap_field field %}
+
+                    {% endif %}
+                {% endfor %}
+
+                <br>
+                <p>
+                    <a href="{% url 'accounts:change_password' object.id %}" class="btn btn-warning">{% trans "Change Password" %}</a>
+                    <a href="{% url 'accounts:get_profile_from_user' object.id "user_edit" %}" class="btn btn-success">{% trans "Edit User Profile" %}</a>
+                    <a href="/admin/auth/user/{{ object.id }}/change/" target="_blank" class="btn btn-secondary">{% trans "Edit User in Site Admin Menu" %}</a>
+                </p>
+                <br>
+                {% buttons %}
+                    <input type="submit" class="btn btn-primary" value="OK">
+                    <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">{% trans "Back" %}</a>
+                {% endbuttons %}
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

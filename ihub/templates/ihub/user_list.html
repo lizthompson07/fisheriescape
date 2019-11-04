@@ -1,0 +1,124 @@
+{% extends "ihub/ihub_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+{% load verbose_names %}
+{% load bootstrap4 %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ihub:index' %}">
+                    {% trans "Home" %}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "All Users" %}
+            </li>
+        </ol>
+    </nav>
+    <div class="container-fluid">
+
+        <h1 class="big-header">{% trans "User List" %}</h1>
+        <h3>
+            {% if view.kwargs.ihub %}
+                (<a href="{% url 'ihub:user_list' %}">Show all users</a>)
+            {% else %}
+                (<a href="{% url 'ihub:user_list' 1 %}">Show only current iHub users</a>)
+
+            {% endif %}
+        </h3>
+        <br><br>
+        <form class="form" action="." method="get" id="filter-form" style="width: 50%;">
+            <div class="row">
+
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <div class="btn-group">
+                        <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+                        <a href="." class="btn btn btn-secondary btn-sm">
+                            {% trans "Clear" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <br><br>
+        <div class="row">
+            <div class="col-6">
+
+                <div class="row">
+                    <div class="col">
+                        (click on a header to sort table)
+                    </div>
+                    <div class="col" style="text-align: center">
+                        <em>displaying all {{ object_list.count }} records</em>
+                    </div>
+                </div>
+                <table class="table table-sm table-hover sortable">
+                    <thead>
+                    {% for field in field_list %}
+                        {% if field == "last_login" %}
+                            <th scope="col">Last login to DM Apps</th>
+                        {% else %}
+                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% endif %}
+                    {% endfor %}
+                    <th class="center-col">
+                        {% trans "iHub Administrator" %}
+                    </th>
+                    <th class="center-col">
+                        {% trans "Read / write permissions" %}
+                    </th>
+                    </thead>
+                    <tbody>
+                    {% for object in object_list %}
+                        <tr id="user_{{ object.id }}">
+                            {% for field in field_list %}
+                                <td>
+                                    {% if field == "last_login" %}
+                                        {{ object.last_login|naturaltime }}
+                                    {% else %}
+                                        {% get_field_value object field %}
+                                    {% endif %}
+                                </td>
+
+                            {% endfor %}
+
+                            <td class="center-col">
+                                {% url 'ihub:toggle_user' object.id "admin" as admin_url %}
+                                {% url 'ihub:toggle_user' object.id "edit" as edit_url %}
+
+                                {% if admin_group in object.groups.all %}
+
+                                    <a class="btn btn-sm btn-success" href="{{ admin_url }}">Yes</a>
+                                {% else %}
+                                    <a class="btn btn-sm btn-danger" href="{{ admin_url }}">No</a>
+                                {% endif %}
+                            </td>
+                            <td class="center-col">
+                                {% if admin_group in object.groups.all %}
+                                    Yes
+                                {% elif edit_group in object.groups.all %}
+                                    <a class="btn btn-sm btn-success" href="{{ edit_url }}">Yes</a>
+                                {% else %}
+                                    <a class="btn btn-sm btn-danger" href="{{ edit_url }}">No</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

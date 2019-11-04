@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.db.models import TextField, Q, Value
 from django.db.models.functions import Concat
@@ -15,7 +16,7 @@ from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView, ListView
 ###
 from easy_pdf.views import PDFTemplateView
 
@@ -1170,3 +1171,53 @@ def manage_nations(request):
     context['title'] = "Manage Nation List"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
+
+
+class UserListView(iHubAdminRequiredMixin, FilterView):
+    template_name = "ihub/user_list.html"
+    filterset_class = filters.UserFilter
+
+    def get_queryset(self):
+        queryset = User.objects.filter(is_superuser=False).order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(""), 'last_name', output_field=TextField())
+        )
+
+        if self.kwargs.get("ihub"):
+            queryset = queryset.filter(groups__in=[18, 35])
+
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["field_list"] = [
+            "first_name",
+            "last_name",
+            "last_login",
+        ]
+        context["my_object"] = User.objects.first()
+        context["admin_group"] = Group.objects.get(pk=18)
+        context["edit_group"] = Group.objects.get(pk=35)
+
+        return context
+
+
+def toggle_user(request, pk, type):
+    my_user = User.objects.get(pk=pk)
+    admin_group = Group.objects.get(pk=18)
+    edit_group = Group.objects.get(pk=35)
+    if type == "admin":
+        # if the user is in the admin group, remove them
+        if admin_group in my_user.groups.all():
+            my_user.groups.remove(admin_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(admin_group)
+    elif type == "edit":
+        # if the user is in the edit group, remove them
+        if edit_group in my_user.groups.all():
+            my_user.groups.remove(edit_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(edit_group)
+
+    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
