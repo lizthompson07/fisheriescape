@@ -45,8 +45,11 @@
                 <a class="btn btn-secondary" href="{% url 'projects:index' %}">Back</a>
             </div>
             <br><br>
-            <table class="table" style="width: auto">
+            <table class="table sortable" style="width: auto">
                 <thead>
+                {% if "program" in title|lower %}
+                    <th scope="col">Program ID</th>
+                {% endif %}
                 {% for field in field_list %}
                     <th scope="col">{% get_verbose_label my_object field %}</th>
                 {% endfor %}
@@ -59,6 +62,9 @@
                 <tbody>
                 {% for form in formset %}
                     <tr>
+                        {% if "program" in title|lower and form.instance.id %}
+                            <td class="center-col">{{ form.instance.id }}</td>
+                        {% endif %}
                         {% for field in form %}
                             <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
                                 {% bootstrap_field field size='small' show_label=False placeholder="" %}
