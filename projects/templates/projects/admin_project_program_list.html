@@ -100,7 +100,7 @@
                     <td>
                         {{ obj.project_title }} {% if not obj.submitted %} - <span class="red-font">UNSUBMITTED</span>   {% endif %}
                     </td>
-                    <td>
+                    <td class="{% if obj.programs.count == 0 %}bad{% endif %}">
                         {% for program in obj.programs.all %}
                             {{ program }}<br>
                         {% endfor %}
