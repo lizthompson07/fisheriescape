@@ -307,6 +307,7 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
             my_event_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_event_child_field_list
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
+        context["is_owner"] = my_object.user == self.request.user
 
         return context
 
