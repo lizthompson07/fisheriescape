@@ -223,42 +223,6 @@ class Event(models.Model):
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
 
     submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
-
-    recommender_1 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_1_trips",
-                                      verbose_name=_("recommender 1"), blank=True, null=True)
-    recommender_2 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_2_trips",
-                                      verbose_name=_("recommender 2"), blank=True, null=True)
-    recommender_3 = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="recommender_3_trips",
-                                      verbose_name=_("recommender 3"), blank=True, null=True)
-    rdg = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="rdg_trips",
-                            verbose_name=_("RDG"), blank=True, null=True)
-    adm = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="adm_trips",
-                            verbose_name=_("ADM"), blank=True, null=True)
-
-    recommender_1_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec1_trips",
-                                                      limit_choices_to={"used_for": 1}, verbose_name=_("recommender 1 approval status"),
-                                                      default=4)
-
-    recommender_2_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec2_trips",
-                                                      limit_choices_to={"used_for": 1}, verbose_name=_("recommender 2 approval status"),
-                                                      default=4)
-    recommender_3_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rec3_trips",
-                                                      limit_choices_to={"used_for": 1}, verbose_name=_("recommender 3 approval status"),
-                                                      default=4)
-    adm_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="adm_trips",
-                                            limit_choices_to={"used_for": 1}, verbose_name=_("ADM approval status"),
-                                            default=4)
-    rdg_approval_status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="rgd_trips",
-                                            limit_choices_to={"used_for": 1},
-                                            verbose_name=_("expenditure initiation (RDG) approval status"),
-                                            default=4)
-    recommender_1_approval_date = models.DateTimeField(verbose_name=_("recommender 1 approval date"), blank=True, null=True)
-    recommender_2_approval_date = models.DateTimeField(verbose_name=_("recommender 2 approval date"), blank=True, null=True)
-    recommender_3_approval_date = models.DateTimeField(verbose_name=_("recommender 3 approval date"), blank=True, null=True)
-    adm_approval_date = models.DateTimeField(verbose_name=_("ADM approval date"), blank=True, null=True)
-    rdg_approval_date = models.DateTimeField(verbose_name=_("expenditure initiation approval date"), blank=True, null=True)
-    waiting_on = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="waiting_on_trips", verbose_name=_("Waiting on"),
-                                   blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
                                limit_choices_to={"used_for": 2}, verbose_name=_("Trip approval status"),
                                blank=True, null=True)
@@ -283,7 +247,7 @@ class Event(models.Model):
             self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
 
         # run the approval seeker function
-        self.approval_seeker()
+        # self.approval_seeker()
         # self.set_trip_status()
         return super().save(*args, **kwargs)
 
@@ -358,49 +322,6 @@ class Event(models.Model):
             my_str += "\n\nFunding source: {}".format(self.multiple_attendee_rationale)
 
         return my_str
-
-    def get_status_str(self, approver):
-        if getattr(self, approver):
-            my_status = getattr(self, approver + "_approval_status")
-            if my_status.id in [1, 4, 5]:
-                status = "{}".format(
-                    my_status
-                )
-            else:
-                status = "{} {} {}".format(
-                    my_status,
-                    _("on"),
-                    getattr(self, approver + "_approval_date").strftime("%Y-%m-%d"),
-                )
-
-            my_str = "<span style='background-color:{}'>{} ({})</span>".format(
-                my_status.color,
-                getattr(self, approver),
-                status,
-            )
-        else:
-            my_str = "n/a"
-        return mark_safe(my_str)
-
-    @property
-    def recommender_1_status(self):
-        return self.get_status_str("recommender_1")
-
-    @property
-    def recommender_2_status(self):
-        return self.get_status_str("recommender_2")
-
-    @property
-    def recommender_3_status(self):
-        return self.get_status_str("recommender_3")
-
-    @property
-    def adm_status(self):
-        return self.get_status_str("adm")
-
-    @property
-    def rdg_status(self):
-        return self.get_status_str("rdg")
 
     def approval_seeker(self):
         """ This method if meant to seek approvals via email, set waiting_ons and set project status"""
@@ -494,25 +415,58 @@ class Event(models.Model):
             self.waiting_on = None
             self.status_id = 8
 
-    # def set_trip_status(self):
-    #     # if someone denied it at any point, the trip is 'denied'
-    #     if self.recommender_1_approval_status_id == 3 or \
-    #             self.recommender_2_approval_status_id == 3 or \
-    #             self.recommender_3_approval_status_id == 3 or \
-    #             self.adm_approval_status_id == 3 or \
-    #             self.rdg_approval_status_id == 3:
-    #         self.status_id = 10
-    #     # if approved by the rdg, the trip is 'approved'
-    #     elif self.rdg_approval_status_id == 2:
-    #         self.status_id = 11
-    #     # if approved by the adm, the trip is "Pending RDG Approval"
-    #     elif self.adm_approval_status_id == 2:
-    #         self.status_id = 15
-    #
-    #
-    #     else:
-    #         # otherwise, it is either submitted or draft..
-    #         if self.submitted:
-    #             self.status_id = 9
-    #         else:
-    #             self.status_id = 8
+
+class ReviewerRole(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
+    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
+    order = models.IntegerField()
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ["order", ]
+
+
+class Reviewer(models.Model):
+    trip = models.ForeignKey(Event, on_delete=models.DO_NOTHING, related_name="reviewers")
+    order = models.IntegerField(blank=True, null=True, verbose_name=_("approval order"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers", verbose_name=_("DM Apps user"))
+    role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 1},
+                               verbose_name=_("review status"), default=4)
+    status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
+
+    class Meta:
+        unique_together = ['trip', 'user', 'role', ]
+        ordering = ['trip', 'order', ]
+
+    def save(self, *args, **kwargs):
+        self.order = self.trip.reviewers.count()
+        return super().save(*args, **kwargs)
+
+    @property
+    def status_string(self):
+
+        if self.status.id in [1, 4, 5]:
+            status = "{}".format(
+                self.status
+            )
+        else:
+            status = "{} {} {}".format(
+                self.status,
+                _("on"),
+                self.status_date.strftime("%Y-%m-%d"),
+            )
+
+        my_str = "<span style='background-color:{}'>{} ({})</span>".format(
+            self.status.color,
+            self.user,
+            status,
+        )
+        return mark_safe(my_str)

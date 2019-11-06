@@ -84,13 +84,13 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["number_waiting"] = models.Event.objects.filter(waiting_on=self.request.user).count()
-        approval_count = models.Event.objects.filter(
-            Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-                rdg=self.request.user) | Q(adm=self.request.user)).count()
-
-        context["is_approver"] = True if approval_count > 0 else False
-        print(approval_count)
+        # context["number_waiting"] = models.Event.objects.filter(waiting_on=self.request.user).count()
+        # approval_count = models.Event.objects.filter(
+        #     Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
+        #         rdg=self.request.user) | Q(adm=self.request.user)).count()
+        #
+        # context["is_approver"] = True if approval_count > 0 else False
+        # print(approval_count)
         return context
 
 
@@ -145,11 +145,11 @@ event_field_list = [
     'purpose_long|{}'.format(_("purpose")),
 
     # costs
-    'recommender_1_status|{}'.format(_("Recommender 1")),
-    'recommender_2_status|{}'.format(_("Recommender 2")),
-    'recommender_3_status|{}'.format(_("Recommender 3")),
-    'adm_status|{}'.format(_("ADM")),
-    'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
+    # 'recommender_1_status|{}'.format(_("Recommender 1")),
+    # 'recommender_2_status|{}'.format(_("Recommender 2")),
+    # 'recommender_3_status|{}'.format(_("Recommender 3")),
+    # 'adm_status|{}'.format(_("ADM")),
+    # 'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
 ]
 
 event_group_field_list = [
@@ -175,11 +175,11 @@ event_group_field_list = [
     'notes',
     'total_trip_cost|{}'.format(_("Total trip cost")),
 
-    'recommender_1_status|{}'.format(_("Recommender 1")),
-    'recommender_2_status|{}'.format(_("Recommender 2")),
-    'recommender_3_status|{}'.format(_("Recommender 3")),
-    'adm_status|{}'.format(_("ADM")),
-    'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
+    # 'recommender_1_status|{}'.format(_("Recommender 1")),
+    # 'recommender_2_status|{}'.format(_("Recommender 2")),
+    # 'recommender_3_status|{}'.format(_("Recommender 3")),
+    # 'adm_status|{}'.format(_("ADM")),
+    # 'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
 ]
 
 event_child_field_list = [
@@ -252,11 +252,11 @@ class EventApprovalListView(TravelAccessRequiredMixin, ListView):
             'start_date',
             'end_date',
             'total_trip_cost|{}'.format(_("Total trip cost")),
-            'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
-            'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
-            'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
-            'adm_status|{}'.format(_("ADM<br>(status)")),
-            'rdg_status|{}'.format(_("RDG<br>(status)")),
+            # 'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
+            # 'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
+            # 'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
+            # 'adm_status|{}'.format(_("ADM<br>(status)")),
+            # 'rdg_status|{}'.format(_("RDG<br>(status)")),
         ]
         return context
 
@@ -285,11 +285,11 @@ class EventAdminApprovalListView(TravelAdminRequiredMixin, ListView):
             'start_date',
             'end_date',
             'total_trip_cost|{}'.format(_("Total trip cost")),
-            'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
-            'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
-            'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
-            'adm_status|{}'.format(_("ADM<br>(status)")),
-            'rdg_status|{}'.format(_("RDG<br>(status)")),
+            # 'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
+            # 'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
+            # 'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
+            # 'adm_status|{}'.format(_("ADM<br>(status)")),
+            # 'rdg_status|{}'.format(_("RDG<br>(status)")),
         ]
         return context
 
@@ -345,18 +345,18 @@ class EventUpdateView(TravelAccessRequiredMixin, UpdateView):
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
 
-        # need to create a dictionary for sections and who the recommenders / appovers are
-        section_dict = {}
-        for section in shared_models.Section.objects.all():
-            section_dict[section.id] = {}
-            section_dict[section.id]["recommender_1"] = section.head_id
-            section_dict[section.id]["recommender_2"] = section.division.head_id
-            section_dict[section.id]["recommender_3"] = section.division.branch.head_id
-            section_dict[section.id]["rdg"] = section.division.branch.region.head_id
-            section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
-        section_json = json.dumps(section_dict)
-        # send JSON file to template so that it can be used by js script
-        context['section_json'] = section_json
+        # # need to create a dictionary for sections and who the recommenders / appovers are
+        # section_dict = {}
+        # for section in shared_models.Section.objects.all():
+        #     section_dict[section.id] = {}
+        #     section_dict[section.id]["recommender_1"] = section.head_id
+        #     section_dict[section.id]["recommender_2"] = section.division.head_id
+        #     section_dict[section.id]["recommender_3"] = section.division.branch.head_id
+        #     section_dict[section.id]["rdg"] = section.division.branch.region.head_id
+        #     section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
+        # section_json = json.dumps(section_dict)
+        # # send JSON file to template so that it can be used by js script
+        # context['section_json'] = section_json
 
         return context
 
@@ -540,19 +540,19 @@ class EventCreateView(TravelAccessRequiredMixin, CreateView):
         user_json = json.dumps(user_dict)
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
-
-        # need to create a dictionary for sections and who the recommenders / appovers are
-        section_dict = {}
-        for section in shared_models.Section.objects.all():
-            section_dict[section.id] = {}
-            section_dict[section.id]["recommender_1"] = section.head_id
-            section_dict[section.id]["recommender_2"] = section.division.head_id
-            section_dict[section.id]["recommender_3"] = section.division.branch.head_id
-            section_dict[section.id]["rdg"] = section.division.branch.region.head_id
-            section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
-        section_json = json.dumps(section_dict)
-        # send JSON file to template so that it can be used by js script
-        context['section_json'] = section_json
+        #
+        # # need to create a dictionary for sections and who the recommenders / appovers are
+        # section_dict = {}
+        # for section in shared_models.Section.objects.all():
+        #     section_dict[section.id] = {}
+        #     section_dict[section.id]["recommender_1"] = section.head_id
+        #     section_dict[section.id]["recommender_2"] = section.division.head_id
+        #     section_dict[section.id]["recommender_3"] = section.division.branch.head_id
+        #     section_dict[section.id]["rdg"] = section.division.branch.region.head_id
+        #     section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
+        # section_json = json.dumps(section_dict)
+        # # send JSON file to template so that it can be used by js script
+        # context['section_json'] = section_json
         return context
 
 
