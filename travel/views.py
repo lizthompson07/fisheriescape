@@ -481,10 +481,10 @@ class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
 
         # if submitted, then unsumbit but only if admin
         if is_submitted:
-            if in_travel_admin_group(self.request.user):
+            if in_travel_admin_group(self.request.user) or my_event.user == self.request.user:
                 my_event.submitted = None
             else:
-                messages.error(self.request, "sorry, only admins can unsubmit trips")
+                messages.error(self.request, "sorry, only admins or owners can unsubmit trips")
         else:
             my_event.submitted = timezone.now()
         my_event.save()
