@@ -45,7 +45,7 @@ class EventForm(forms.ModelForm):
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
-            'adm': _("ADM (only if necessary)"),
+            'adm': _("ADM (only if necessary, e.g., events, int'l travel, etc. )"),
         }
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
