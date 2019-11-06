@@ -66,6 +66,13 @@
                 <div class="event_container">
                     {% bootstrap_field field placeholder="" %}
                 </div>
+            {% elif field.name == "recommender_1" %}
+                <hr>
+                <span class="red-font" style="font-weight: bold">NOTE: Please do not change the default recommenders and/or
+                    approvers unless you are certain that those changes are necessary. Please contact <a href="mailto:amelie.robichaud@dfo-mpo.gc.ca">Amélie Robichaud</a> or
+                    <a href="mailto:tracey.cote@dfo-mpo.gc.ca">Tracey Côté</a> if you have any questions.</span>
+                <br><br>
+                {% bootstrap_field field placeholder="" %}
             {% else %}
 
                 {% bootstrap_field field placeholder="" %}
