@@ -1,8 +1,9 @@
 {% load static %}
 
 
-<h4>Fish Details:</h4>
 <br>
+<br>
+<h4>Fish Details:</h4>
 {% if object.fish_details.count == 0  %}
 <br>
 <p>
@@ -13,8 +14,8 @@
 
 {% else %}
 <div class="row">
-  <div class="col-10">
-    <table class='table table-hover table-sm table-bordered' >
+  <div class="col">
+    <table class='table table-sm table-bordered' style="width:" >
       <thead>
         <th >#</th>
         <th style="text-align: center;">Lab</th>

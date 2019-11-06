@@ -44,7 +44,7 @@ def ecp_delete(request, ecp_id):
         emm_id = ecp.emm.emm_id
         ecp.delete()
     finally:
-        return HttpResponseRedirect(reverse("whalesdb:details_recorder", kwargs={'pk': emm_id}))
+        return HttpResponseRedirect(reverse("whalesdb:details_eqr", kwargs={'pk': emm_id}))
 
 
 def get_fields(labels):
@@ -84,21 +84,21 @@ def get_model_object(obj_name):
             'entry': obj_name,
             'fields': [_("ID"), _("Value")]
         }
-    elif obj_name == 'prm':
-        obj_def = {
-            'label': "Equipment Parameter",
-            'url': obj_name,
-            'order': "prm_id",
-            'model': models.PrmParameterCode,
-            'entry': obj_name,
-            'fields': [_("ID"), _("Value")]
-        }
     elif obj_name == 'eqt':
         obj_def = {
             'label': "Equipment Type",
             'url': obj_name,
             'order': "eqt_id",
             'model': models.EqtEquipmentTypeCode,
+            'entry': obj_name,
+            'fields': [_("ID"), _("Value")]
+        }
+    elif obj_name == 'prm':
+        obj_def = {
+            'label': "Equipment Parameter",
+            'url': obj_name,
+            'order': "prm_id",
+            'model': models.PrmParameterCode,
             'entry': obj_name,
             'fields': [_("ID"), _("Value")]
         }
@@ -522,7 +522,7 @@ class CreateChannel(CreateTemplate):
         form.save(commit=False)
 
         emm_id = self.kwargs['emm_id']
-        emm = models.EqrRecorderProperties.objects.get(pk=emm_id)
+        emm = models.EmmMakeModel.objects.get(pk=emm_id)
 
         ecp = models.EcpChannelProperties(emm=emm, ecp_channel_no=form.cleaned_data['ecp_channel_no'],
                                           eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
@@ -558,6 +558,12 @@ class CreateEMM(CreateChannel):
         return models.EmmMakeModel.objects.all().order_by("-pk")[0]
 
 
+class CreateRecorder(CreateEMM):
+    form_class = forms.EmmForm
+    success_url = "whalesdb:list_eqr"
+    cancel_url = success_url
+
+
 class CreateHydrophone(CreateEMM):
     form_class = forms.EqhForm
     success_url = "whalesdb:list_eqh"
@@ -572,24 +578,6 @@ class CreateHydrophone(CreateEMM):
         eqh.save()
 
         return HttpResponseRedirect(reverse('whalesdb:details_eqh', kwargs={'pk': eqh.pk}))
-
-
-class CreateRecorder(CreateEMM):
-    form_class = forms.EqrForm
-
-    # if successful the form takes the user to the details form
-    # if canceled the form takes the user to the recorder list
-    cancel_url = "whalesdb:list_eqr"
-
-    def form_valid(self, form):
-        emm = super().form_valid(form)
-
-        eqr = models.EqrRecorderProperties(emm=emm,
-                                           eqc_max_channels=form.cleaned_data['eqc_max_channels'],
-                                           eqc_max_sample_rate=form.cleaned_data['eqc_max_sample_rate'])
-        eqr.save()
-
-        return HttpResponseRedirect(reverse('whalesdb:details_eqr', kwargs={'pk': eqr.pk}))
 
 
 class CreateDeployment(LoginRequiredMixin, CreateTemplate):
@@ -649,26 +637,27 @@ class DetailsMakeModel(DetailView):
         context = super().get_context_data(**kwargs)
         context['objects'] = []
 
-        labels = forms.get_descriptions(models.EmmMakeModel)
-        context['objects'].append({
-            "object": kwargs['object'].emm,
-            "fields": get_fields(labels)
-        })
+        if hasattr(kwargs['object'], 'emm'):
+            labels = forms.get_descriptions(models.EmmMakeModel)
+            context['objects'].append({
+                "object": kwargs['object'].emm,
+                "fields": get_fields(labels)
+            })
 
-        labels = forms.get_short_labels(models.EprEquipmentParameters)
-        context['parameter_fields'] = get_fields(labels)
-        context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=self.get_emm())]
+            labels = forms.get_short_labels(models.EprEquipmentParameters)
+            context['parameter_fields'] = get_fields(labels)
+            context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=self.get_emm())]
 
         return context
 
 
 class DetailsRecorder(DetailsMakeModel):
-    model = models.EqrRecorderProperties
+    model = models.EmmMakeModel
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        labels = forms.get_descriptions(models.EqrRecorderProperties)
+        labels = forms.get_descriptions(models.EmmMakeModel)
         context['objects'].append({
             "object": kwargs['object'],
             "fields": get_fields(labels)
@@ -677,7 +666,11 @@ class DetailsRecorder(DetailsMakeModel):
         labels = forms.get_short_labels(models.EcpChannelProperties)
         context['channel_fields'] = get_fields(labels)
         context['channels'] = [c for c in models.EcpChannelProperties.objects.filter(emm=kwargs['object'])]
-        context['url'] = 'recorder'
+        context['url'] = 'eqr'
+
+        labels = forms.get_short_labels(models.EprEquipmentParameters)
+        context['parameter_fields'] = get_fields(labels)
+        context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=kwargs['object'])]
 
         return context
 
@@ -687,6 +680,7 @@ class DetailsHydrophone(DetailsMakeModel):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        print("kwargs: " + str(kwargs['object'].emm))
 
         labels = forms.get_descriptions(models.EqhHydrophoneProperties)
         context['objects'].append({
@@ -695,6 +689,7 @@ class DetailsHydrophone(DetailsMakeModel):
         })
         context['url'] = 'eqh'
 
+        print("context: " + str(context['objects'][0]['object'].eqt))
         return context
 
 
@@ -721,8 +716,9 @@ class ListEMM(ListGeneric):
 
 
 class ListRecorder(ListEMM):
-    model = models.EqrRecorderProperties
-    filterset_class = filters.EqrFilter
+    model = models.EmmMakeModel
+    filterset_class = filters.EmmFilter
+    detail_type = 'general'
     create_link = "whalesdb:create_eqr"
     detail_link = "whalesdb:details_eqr"
     title = "Recorder Equipment"

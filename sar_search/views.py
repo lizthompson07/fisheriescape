@@ -335,6 +335,9 @@ class SpeciesListView(SARSearchAccessRequiredMixin, FilterView):
             'taxon',
             'sara_status',
             'cosewic_status',
+            'nb_status',
+            'ns_status',
+            'pe_status',
             'sara_schedule',
             # 'province_range',
             # 'tsn',
@@ -357,9 +360,15 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
             'tsn',
             'taxon',
             'sara_status',
+            'nb_status',
+            'ns_status',
+            'pe_status',
+            'iucn_red_list_status',
             'cosewic_status',
             'sara_schedule',
+            'cites_appendix',
             'province_range',
+            'responsible_authority',
             'notes',
         ]
 
@@ -574,8 +583,7 @@ def manage_taxa(request):
             messages.success(request, "Taxa have been successfully updated")
             return HttpResponseRedirect(reverse("sar_search:manage_taxa"))
     else:
-        formset = forms.TaxonFormSet(
-            queryset=qs)
+        formset = forms.TaxonFormSet(queryset=qs)
     context = {}
     context['title'] = "Manage Taxa"
     context['formset'] = formset
@@ -608,13 +616,13 @@ def manage_statuses(request):
             messages.success(request, "Species status has been successfully updated")
             return HttpResponseRedirect(reverse("sar_search:manage_statuses"))
     else:
-        formset = forms.SpeciesStatusFormSet(
-            queryset=qs)
+        formset = forms.SpeciesStatusFormSet(queryset=qs)
     context = {}
     context['title'] = "Manage Species Statuses"
     context['formset'] = formset
     context["my_object"] = qs.first()
     context["field_list"] = [
+        'used_for',
         'code',
         'name',
         'nom',
@@ -644,8 +652,7 @@ def manage_schedules(request):
             messages.success(request, "schedules have been successfully updated")
             return HttpResponseRedirect(reverse("sar_search:manage_schedules"))
     else:
-        formset = forms.SARAScheduleFormSet(
-            queryset=qs)
+        formset = forms.SARAScheduleFormSet(queryset=qs)
     context = {}
     context['title'] = "Manage SARA Schedules"
     context['formset'] = formset
@@ -730,3 +737,68 @@ class RegionDeleteView(SARSearchAdminRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def manage_appendices(request):
+    qs = models.CITESAppendix.objects.all()
+    if request.method == 'POST':
+        formset = forms.CITESAppendixFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "schedules have been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_appendices"))
+    else:
+        formset = forms.CITESAppendixFormSet(queryset=qs)
+    context = {}
+    context['title'] = "Manage CITES Appendices"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'description_eng',
+        'description_fre',
+    ]
+    return render(request, 'sar_search/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def delete_appendix(request, pk):
+    my_obj = models.CITESAppendix.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("sar_search:manage_appendices"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def manage_authorities(request):
+    qs = models.ResponsibleAuthority.objects.all()
+    if request.method == 'POST':
+        formset = forms.ResponsibleAuthorityFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "schedules have been successfully updated")
+            return HttpResponseRedirect(reverse("sar_search:manage_authorities"))
+    else:
+        formset = forms.ResponsibleAuthorityFormSet(queryset=qs)
+    context = {}
+    context['title'] = "Manage Responsible Authorities"
+    context['formset'] = formset
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    return render(request, 'sar_search/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+def delete_authority(request, pk):
+    my_obj = models.ResponsibleAuthority.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("sar_search:manage_authorities"))

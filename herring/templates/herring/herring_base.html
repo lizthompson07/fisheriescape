@@ -16,6 +16,7 @@
 {% endblock left_unauth %}
 
 {% block left_auth %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'herring:index' %}">Home</a></li>
 
     {# Samples #}
     <li class="nav-item dropdown">
@@ -34,15 +35,28 @@
     {# Reports #}
     <li class="nav-item"><a class="nav-link" href="{% url 'herring:report_search' %}">Reports</a></li>
 
-
-
-
-
+    {% for group in user.groups.all %}
+        {% if group.name == 'herring_admin' %}
+            {# Admin #}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Hermorrhage Admin
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'herring:check_usage' %}">Check Usage</a>
+                    <a class="dropdown-item" href="{% url 'herring:import' "sample" %}">Import Sample Data from Sedna</a>
+                    <a class="dropdown-item" href="{% url 'herring:import' "lf" %}">Import LF Data from Sedna</a>
+                    <a class="dropdown-item" href="{% url 'herring:import' "detail" %}">Import Fish Detail Data from Sedna</a>
+                </div>
+            </li>
+        {% endif %}
+    {% endfor %}
 
 {% endblock left_auth %}
 
 {% block left_admin %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'herring:check_usage' %}">Check Usage</a></li>
 
 
 {% endblock left_admin %}

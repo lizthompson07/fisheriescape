@@ -409,6 +409,14 @@ class Port(models.Model):
     alias_wharf_id = models.IntegerField(blank=True, null=True)
     alias_wharf_name = models.CharField(max_length=100, blank=True, null=True)
 
+    @property
+    def full_district(self):
+        return "{}{}".format(self.province_code, self.district_code, )
+
+    @property
+    def full_code(self):
+        return "{}{}{}".format(self.province_code, self.district_code, self.port_code)
+
     def __str__(self):
         return "{}, {} ({}{}{})".format(self.port_name, self.get_province_code_display(), self.province_code, self.district_code,
                                         self.port_code)

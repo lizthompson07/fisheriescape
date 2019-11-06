@@ -2,6 +2,8 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load i18n %}
+
 {% block content %}
 
     <style>
@@ -23,7 +25,7 @@
 
         <h1 class="big-header">Trips </h1>
 
-    <form class="form" action="." method="get" id="filter-form">
+        <form class="form" action="." method="get" id="filter-form">
             <div class="row">
 
                 {% for field in filter.form %}
@@ -44,24 +46,34 @@
         <div class="row">
             <div class="col-12">
 
-                <div class="row" >
+                <div class="row">
                     <div class="col">
-                        (click on a header to sort table)
+                        {% trans "(click on a header to sort table)" %}
                     </div>
                     <div class="col" style="text-align: center">
                         <em>displaying all {{ filter.qs.count }} records</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'travel:event_new' %}" class="btn btn-sm btn-primary">New Event</a>
+                        <a href="{% url 'travel:event_new' %}" class="btn btn-sm btn-primary">New Trip</a>
                     </div>
                 </div>
 
 
-                <table class="table table-sm table-hover sortable" >
+                <table class="table table-sm table-hover sortable" style="font-size: small">
                     <thead>
                     <tr>
                         {% for field in field_list %}
-                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                            {% if "is_group" in field %}
+                                <th scope="col">Type</th>
+                            {% elif "year" in field %}
+                                <th style="width: 4%;" scope="col">{% get_verbose_label my_object field %}</th>
+                            {% elif "status" in field %}
+                                <th style="width: 8%;" scope="col">{% get_verbose_label my_object field %}</th>
+                            {% elif "title" in field %}
+                                <th style="width: 25%;" scope="col">{% get_verbose_label my_object field %}</th>
+                            {% else %}
+                                <th scope="col">{% get_verbose_label my_object field %}</th>
+                            {% endif %}
                         {% endfor %}
                     </tr>
                     </thead>
@@ -69,8 +81,18 @@
                     {% for object in filter.qs %}
                         {% url 'travel:event_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
+
+
                             {% for field in field_list %}
-                                <td>{% get_field_value object field format="currency" %}</td>
+                                {% if "is_group" in field %}
+                                    <td>{{ object.is_group_trip|yesno:"Group,Individual" }}</td>
+                                {% elif "status" in field %}
+                                    <td style="background-color: {{ object.status.color }}">{% get_field_value object field format="currency" %}</td>
+
+                                {% else %}
+                                    <td>{% get_field_value object field format="currency" %}</td>
+                                {% endif %}
+
                             {% endfor %}
 
                         </tr>

@@ -17,14 +17,25 @@ class SpeciesFilter(django_filters.FilterSet):
             'taxon': ['exact'],
             'cosewic_status': ['exact'],
             'sara_status': ['exact'],
+            'nb_status': ['exact'],
+            'ns_status': ['exact'],
+            'pe_status': ['exact'],
             'sara_schedule': ['exact'],
             'province_range': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # prov_choices = [(obj.id, str(obj)) for obj in shared_models.Province.objects.filter(id__in=[7, 1, 3, 4])]
-        self.filters.get("province_range").querset = shared_models.Province.objects.filter(id__in=[7, 1, 3, 4])
+        SARA = 1
+        NS = 2
+        NB = 3
+        PE = 4
+        self.filters.get("nb_status").queryset = models.SpeciesStatus.objects.filter(used_for=NB)
+        self.filters.get("ns_status").queryset = models.SpeciesStatus.objects.filter(used_for=NS)
+        self.filters.get("pe_status").queryset = models.SpeciesStatus.objects.filter(used_for=PE)
+        self.filters.get("sara_status").queryset = models.SpeciesStatus.objects.filter(used_for=SARA)
+        self.filters.get("cosewic_status").queryset = models.SpeciesStatus.objects.filter(used_for=SARA)
+        self.filters.get("province_range").queryset = shared_models.Province.objects.filter(id__in=[7, 1, 3, 4])
 
 
 class RegionFilter(django_filters.FilterSet):

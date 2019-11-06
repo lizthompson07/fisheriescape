@@ -1,5 +1,6 @@
 import os
 
+import textile
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
@@ -144,6 +145,15 @@ class Ticket(models.Model):
     def get_absolute_url(self):
         return reverse('tickets:detail', kwargs={'pk': self.id})
 
+    @property
+    def description_html(self):
+        if self.description:
+            return textile.textile(self.description)
+
+    @property
+    def sd_description_html(self):
+        if self.sd_description:
+            return textile.textile(self.sd_description)
 
 class FollowUp(models.Model):
     ticket = models.ForeignKey(Ticket, related_name="follow_ups", on_delete=models.CASCADE)
