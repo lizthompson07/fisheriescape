@@ -19,7 +19,7 @@ class EntryCreateForm(forms.ModelForm):
             'date_created',
         ]
         widgets = {
-            'initial_date': forms.DateInput(attrs={"type": "date"}),
+            'initial_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
             'created_by': forms.HiddenInput(),
         }

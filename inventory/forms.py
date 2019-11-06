@@ -1,12 +1,14 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core import validators
+from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from . import models
 from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
+attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
 
 
 class ResourceCreateForm(forms.ModelForm):
@@ -77,7 +79,7 @@ class ResourceForm(forms.ModelForm):
             'uuid',
             'date_verified',
             # 'date_last_modified',
-            'fgp_publication_date',
+            # 'fgp_publication_date',
             'citations',
             'keywords',
             'people',
@@ -111,6 +113,7 @@ class ResourceForm(forms.ModelForm):
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
             "notes": forms.Textarea(attrs={"rows": 5}),
             "parent": forms.NumberInput(),
+            "fgp_publication_date": forms.DateInput(attrs=attr_fp_date_time),
         }
         labels = {
             "section": "Section (Region / Branch / Division / Section)",
@@ -167,12 +170,14 @@ class ResourceForm(forms.ModelForm):
             'time_end_year',
             'additional_credit',
             'parent',
+            # 'fgp_publication_date',
         ]
 
         internal_fields = [
             'storage_envr_notes',
             'notes',
             'open_data_notes',
+            'fgp_url',
             'public_url',
             'analytic_software',
         ]
@@ -405,3 +410,28 @@ class ReportSearchForm(forms.Form):
         self.fields['sections'].choices = [(s.id, "{}".format(s.full_name)) for s in
                                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch",
                                                                                         'division', "name")]
+
+
+
+
+class TempForm(forms.ModelForm):
+    class Meta:
+        model = models.Resource
+        fields = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
+        widgets = {
+            # 'programs': forms.SelectMultiple(attrs=chosen_js),
+            # 'tags': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['section'].choices = [(s.id, "{}".format(s.full_name)) for s in
+                                           shared_models.Section.objects.filter(division__branch__region__id=7).order_by("division__branch__region", "division__branch",
+                                                                                        'division', "name")]
+
+
+TempFormSet = modelformset_factory(
+    model=models.Resource,
+    form=TempForm,
+    extra=0,
+)

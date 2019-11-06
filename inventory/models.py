@@ -385,10 +385,11 @@ class Resource(models.Model):
     additional_credit = models.TextField(blank=True, null=True)
     analytic_software = models.TextField(blank=True, null=True, verbose_name="Analytic software notes")
     date_verified = models.DateTimeField(blank=True, null=True)
+    fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
+    public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Data")
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     open_data_notes = models.CharField(max_length=255, blank=True, null=True,
                                        verbose_name="Open data notes")
-    public_url = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Public URL")
     notes = models.TextField(blank=True, null=True, verbose_name="General notes")
     citations = models.ManyToManyField(Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
@@ -480,7 +481,7 @@ class WebService(models.Model):
 
 
 class ResourcePerson(models.Model):
-    resource = models.ForeignKey(Resource, on_delete=models.DO_NOTHING, related_name="resource_people")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="resource_people")
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="resource_people")
     role = models.ForeignKey(PersonRole, on_delete=models.DO_NOTHING)
     notes = models.TextField(blank=True, null=True)

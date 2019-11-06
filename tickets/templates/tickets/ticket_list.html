@@ -4,6 +4,8 @@
 {% load humanize %}
 {% load custom_filters %}
 {% load verbose_names %}
+{% load i18n %}
+
 
 {% block content %}
 
@@ -76,7 +78,7 @@
         <div class="my-table" style="">
             <div class="row">
                 <div class="col">
-                    (click on a header to sort table)
+                    {% trans "(click on a header to sort table)" %}
                 </div>
                 <div class="col" style="text-align: center">
                     <em>displaying {{ filter.qs.count }} of {{ filter.qs.count }}</em>
