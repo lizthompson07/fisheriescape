@@ -85,35 +85,44 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             field_value = ""
 
     else:
-        try:
-            field_instance = instance._meta.get_field(field_name)
+        field_instance = instance._meta.get_field(field_name)
 
-            # first check if there is a value :
-            if getattr(instance, field_name) is not None and getattr(instance, field_name) != "":
-                # check to see if it is a many to many field
-                if field_instance.get_internal_type() == 'ManyToManyField' or field_instance.get_internal_type() == 'ManyToManyRel':
-                    m2m = getattr(instance, field_name)
-                    field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
+        # first check if there is a value :
+        if getattr(instance, field_name) is not None and getattr(instance, field_name) != "":
+            # check to see if it is a many to many field
+            if field_instance.get_internal_type() == 'ManyToManyField' or field_instance.get_internal_type() == 'ManyToManyRel':
+                m2m = getattr(instance, field_name)
+                field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
 
-                # check to see if there are choices
-                elif len(field_instance.choices) > 0:
-                    field_value = getattr(instance, "get_{}_display".format(field_name))()
+            # check to see if there are choices
+            elif len(field_instance.choices) > 0:
+                field_value = getattr(instance, "get_{}_display".format(field_name))()
 
-                # check to see if it is a datefield
-                elif field_instance.get_internal_type() == 'DateTimeField':
-                    if not date_format:
-                        date_format = "%Y-%m-%d"
-                    datetime_obj = getattr(instance, field_name)
-                    if display_time:
-                        field_value = datetime_obj.strftime('{} %H:%M'.format(date_format))
-
+            # check to see if it is a datefield
+            elif field_instance.get_internal_type() == 'DateTimeField':
+                if not date_format:
+                    date_format = "%Y-%m-%d"
+                datetime_obj = getattr(instance, field_name)
+                if display_time:
+                    field_value = datetime_obj.strftime('{} %H:%M'.format(date_format))
                 else:
-                    field_value = getattr(instance, field_name)
+                    field_value = datetime_obj.strftime(date_format)
+
+            # check to see if it is a url
+            elif str(getattr(instance, field_name)).startswith("http"):
+                field_value = '<a href="{url}">{url}</a>'.format(url=getattr(instance, field_name))
+
+            # check to see if it is a BooleanField
+            elif field_instance.get_internal_type() == 'BooleanField' or field_instance.get_internal_type() == 'NullBooleanField':
+                field_value = yesno(getattr(instance, field_name), "Yes,No,Unknown")
+
+            # check to see if hyperlink was provided
+            elif hyperlink:
+                field_value = mark_safe('<a href="{}">{}</a>'.format(hyperlink, getattr(instance, field_name)))
             else:
-                field_value = nullmark
-        except FieldDoesNotExist:
-            print("Could not find field '" + str(field_name) + "'")
-            field_value = "Tag not found"
+                field_value = getattr(instance, field_name)
+        else:
+            field_value = nullmark
 
     # TODO: specify special formatting
     if format == "currency":
@@ -121,7 +130,6 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             field_value = '${:,.2f}'.format(float(field_value))
         except:
             pass
-
 
     field_value = markdown.markdown(field_value) if "HTML" in str(format) else field_value
     field_value = mark_safe(field_value) if safe else field_value
