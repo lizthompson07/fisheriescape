@@ -1,6 +1,7 @@
 {% extends "travel/travel_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load i18n %}
 {% block header %}
 {% endblock %}
 {% block content %}
@@ -23,6 +24,9 @@
 
         <h1>
             {% if object %}
+                {% if cloned %}
+                    CLONING:
+                {% endif %}
                 {{ object }}
             {% else %}
                 New Trip
@@ -35,26 +39,49 @@
             {% csrf_token %}
 
             {% for field in form %}
-                {% if field.name == "registered_event" %}
-                    {% bootstrap_field field placeholder="" %}
-
-                    <div id="new_event_container">
-                        (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
-                        <br><br>
-                    </div>
-
-                {% else %}
-
-                    {% bootstrap_field field placeholder="" %}
+                {% if "hide-me" in field.field.widget.attrs.class %}
+                    <div class="hide-me">
                 {% endif %}
+
+            {% if field.name == "registered_event" %}
+                <div class="event_container">
+                    {% bootstrap_field field placeholder="" %}
+                    (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
+                    <br><br>
+                </div>
+            {% elif field.name == "is_group_trip" %}
+                {% bootstrap_field field placeholder="" %}
+                <div class="show-me blue-font">
+                    <p>
+                        <em>
+                            {% trans "(One this form is submitted, you will be able to add group travellers to the trip. You will be automatically added as a traveller.)" %}
+                        </em>
+                    </p>
+                </div>
+            {% elif field.name == "role" %}
+                <div class="event_container">
+                    {% bootstrap_field field placeholder="" %}
+                </div>
+            {% elif field.name == "role_of_participant" %}
+                <div class="event_container">
+                    {% bootstrap_field field placeholder="" %}
+                </div>
+            {% elif field.name == "recommender_1" %}
+                <hr>
+                <span class="red-font" style="font-weight: bold">NOTE: Please do not change the default recommenders and/or
+                    approvers unless you are certain that those changes are necessary. Please contact <a href="mailto:amelie.robichaud@dfo-mpo.gc.ca">Amélie Robichaud</a> or
+                    <a href="mailto:tracey.cote@dfo-mpo.gc.ca">Tracey Côté</a> if you have any questions.</span>
+                <br><br>
+                {% bootstrap_field field placeholder="" %}
+            {% else %}
+
+                {% bootstrap_field field placeholder="" %}
+            {% endif %}
+            {% if "hide-me" in field.field.widget.attrs.class %}
+                </div>
+            {% endif %}
             {% endfor %}
 
-            {% for field in form %}
-
-
-
-
-            {% endfor %}
 
 
             {% buttons %}
@@ -87,18 +114,32 @@
             $("#id_email").val(userObj[myId]["email"]);
         }
 
-
         function refreshRegisteredEvent() {
             if ($("#id_event").val() == "False") {
                 $("#id_registered_event").val("");
+                $("#id_role").val("");
+                $("#id_role_of_participant").val("");
                 $("#id_registered_event").prop("disabled", true);
-                $("#new_event_container").addClass("hidden")
+                $("#id_role").prop("disabled", true);
+                $("#id_role_of_participant").prop("disabled", true);
+                $(".event_container").addClass("gone");
             } else {
                 $("#id_registered_event").prop("disabled", false);
-                $("#new_event_container").removeClass("hidden")
+                $("#id_role").prop("disabled", false);
+                $("#id_role_of_participant").prop("disabled", false);
+                $(".event_container").removeClass("gone");
             }
         }
 
+        function refreshClassHideMe() {
+            if ($("#id_is_group_trip").val() == "False") {
+                $(".hide-me").removeClass("gone")
+                $(".show-me").addClass("gone")
+            } else {
+                $(".hide-me").addClass("gone")
+                $(".show-me").removeClass("gone")
+            }
+        }
 
         $("#id_user").change(function () {
             refreshUserInfo();
@@ -108,12 +149,17 @@
             refreshRegisteredEvent();
         });
 
+        $("#id_is_group_trip").change(function () {
+            refreshClassHideMe();
+        });
+
         $("#id_section").change(function () {
             mySectionId = $(this).val();
             $("#id_recommender_1").val(sectionObj[mySectionId]["recommender_1"]);
             $("#id_recommender_2").val(sectionObj[mySectionId]["recommender_2"]);
             $("#id_recommender_3").val(sectionObj[mySectionId]["recommender_3"]);
-            $("#id_approver").val(sectionObj[mySectionId]["approver"]);
+            $("#id_adm").val(sectionObj[mySectionId]["adm"]);
+            $("#id_rdg").val(sectionObj[mySectionId]["rdg"]);
             $('select').trigger("chosen:updated");
         });
 
@@ -121,6 +167,7 @@
             // Stuff to do as soon as the DOM is ready
             refreshUserInfo();
             refreshRegisteredEvent();
+            refreshClassHideMe();
         });
 
         $("#new_event").click(function () {

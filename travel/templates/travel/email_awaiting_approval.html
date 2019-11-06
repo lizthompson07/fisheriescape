@@ -1,16 +1,19 @@
 {% load verbose_names %}
 
+<h1>
+    A trip is awaiting your approval
+</h1>
+
 <p>
-    A trip is awaiting your approval:
+    To view the trips awaiting your approval, please click <a href="http://dmapps{% url 'travel:event_approval_list' 'awaiting' %}">HERE</a>. Here are the trip details:
 </p>
 
-{#{% for field in field_list %}#}
-{#    {% verbose_field_display event field %}#}
-{#{% endfor %}#}
-{##}
-<p>
-    To view the trips awaiting your approval, please click <a href="http://dmapps{% url 'travel:event_approval_list' 'awaiting' %}">HERE</a>.
-</p>
+<table>
+    {% for field in field_list %}
+        {% verbose_td_display event field %}
+    {% endfor %}
+</table>
+
 
 <style media="screen">
     table, td {

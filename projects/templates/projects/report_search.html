@@ -80,7 +80,13 @@
         function configureForm() {
             var reportChoice = $("#id_report").val();
             // masterlist count report
-            if ((reportChoice >= 1 && reportChoice < 4) || (reportChoice >= 10 && reportChoice < 15)) {
+            if (reportChoice == 14) {
+                $(".fiscal_year_div").removeClass("gone");
+                $(".region_div").removeClass("gone");
+                $("#id_fiscal_year").prop('required', true);
+                $("#id_region").prop('required', true);
+            }
+            else if ((reportChoice >= 1 && reportChoice < 4) || (reportChoice >= 10 && reportChoice <= 17)) {
                 $(".fiscal_year_div").removeClass("gone");
                 $(".region_div").removeClass("gone");
                 $(".division_div").removeClass("gone");

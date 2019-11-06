@@ -1,124 +1,64 @@
 {% load static %}
 {% load verbose_names %}
+{% load custom_filters %}
 
 <style media="screen">
-  .value{
-    font-weight: bold;
-    margin-left: 10px;
-    margin-right: 10px;
-  }
+    .value {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
 </style>
 
 <h4>Sample Details:</h4>
-<br>
+
+
 <p>
-  <span class="label">{%get_verbose_field_name object "id"%}:</span>
-  <span class="value">{{object.id}}</span> <br>
+    <span class="">Expected number of length frequencies: </span>
+    <span class="value"> {{ object.total_fish_measured }}</span>
+    <a href="#" pop-href="{% url 'herring:sample_edit_pop' object.id "measured" %}" data-toggle="tooltip" data-placement="top"
+       title="Edit the number of fish measured">
+        <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
+    </a>
+    <br>
 
-  <span class="label">Date of sample collection:</span>
-  <span class="value">{{object.sample_date|date:"F d, Y"}}</span> <br>
-
-  <span class="label">{%get_verbose_field_name object "sampler_ref_number"%}:</span>
-  <span class="value">{{object.sampler_ref_number}}</span> <br>
-
-  <span class="label">Collected by: </span>
-  <span class="value">{{object.sampler}}</span> <br>
-</p>
-<p>
-  <span class="label">Expected number of length frequencies: </span>
-  <span class="value"> {{object.total_fish_measured}}</span>
-  <a href="#" data-toggle="tooltip" data-placement="top" title="Edit the number of fish measured" onclick="return popitup('{% url 'herring:sample_edit_pop' object.id "measured" %}','popoutWindow0')">
-    <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
-  </a>
-  <br>
-
-  <span class="label">Actual number of length frequencies: </span>
-  <span class="value {% if sum_count ==  object.total_fish_measured %}green-font{%else%}red-font{% endif %}">
-    {{sum_count}}
+    <span class="">Actual number of length frequencies: </span>
+    <span class="value {% if sum_count ==  object.total_fish_measured %}green-font{% else %}red-font{% endif %}">
+    {{ sum_count }}
   </span> <br>
 </p>
 <p>
-  <span class="label">Expected number of lab samples: </span>
-  <span class="value"> {{object.total_fish_preserved}}</span>
+    <span class="">Expected number of lab samples: </span>
+    <span class="value"> {{ object.total_fish_preserved }}</span>
 
 
-  <a href="#" data-toggle="tooltip" data-placement="top" title="Edit the  number of fish preserved" onclick="return popitup('{% url 'herring:sample_edit_pop' object.id "preserved" %}','popoutWindow0')">
-    <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
-  </a>
-  <br>
+    <a href="#" pop-href="{% url 'herring:sample_edit_pop' object.id "preserved" %}" data-toggle="tooltip" data-placement="top"
+       title="Edit the  number of fish preserved" class="badge badge-light">
+        <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
+    </a>
+    <br>
 
-  <span class="label">Actual number of lab samples: </span>
-  <span class="value {% if object.fish_details.count ==  object.total_fish_preserved %}green-font{%else%}red-font{% endif %}">
-    {{object.fish_details.count}} <br>
+    <span class="">Actual number of lab samples: </span>
+    <span class="value {% if object.fish_details.count ==  object.total_fish_preserved %}green-font{% else %}red-font{% endif %}">
+    {{ object.fish_details.count }} <br>
   </span>
 </p>
 
 
-<div id="full" class="collapse">
-  <p>
-    <span class="label">    District code:  </span>
-    <span class="value">{{object.district.district_code}}</span> <br>
+<table class="table table-sm table-striped" style="font-size: small;">
+    {% for field in field_list %}
+        {% verbose_td_display object field %}
 
-    <span class="label">    Mission:  </span>
-    <span class="value">{{object.mission_id}}</span> <br>
+    {% endfor %}
 
-    <span class="label">    Lat. / Long. (decimal degree)  </span>
-    <span class="value">{{object.latitude_n}} / {{object.longitude_w}}</span> <br>
 
-    <span class="label">    {%get_verbose_field_name object "fishing_area"%}:  </span>
-    <span class="value">{{object.fishing_area}} </span><br>
+</table>
 
-    <span class="label">    {%get_verbose_field_name object "gear"%}:  </span>
-    <span class="value">{{object.gear}} </span><br>
 
-    <span class="label">    {%get_verbose_field_name object "experimental_net_used"%}:  </span>
-    <span class="value">{{object.experimental_net_used|yesno:"yes,no,not-specified"}} </span><br>
-
-    <span class="label">    {%get_verbose_field_name object "vessel_cfvn"%}:  </span>
-    <span class="value">{{object.vessel_cfvn}} </span><br>
-
-    <span class="label">    {%get_verbose_field_name object "mesh_size"%}:  </span>
-    <span class="value">{{object.mesh_size}}</span><br>
-
-    <span class="label">    {%get_verbose_field_name object "catch_weight_lbs"%}:  </span>
-    <span class="value">{{object.catch_weight_lbs}} </span><br>
-    <span class="label">    {%get_verbose_field_name object "sample_weight_lbs"%}:  </span>
-    <span class="value">{{object.sample_weight_lbs}}</span> <br>
-
-    <span class="label">    {%get_verbose_field_name object "remarks"%}:  </span>
-    <span class="value">{{object.remarks}}</span> <br>
-  </p>
-  <p>
-    <span class="label">    {%get_verbose_field_name object "creation_date"%}:  </span>
-    <span class="value">{{object.creation_date}}</span> <br>
-
-    <span class="label">    {%get_verbose_field_name object "created_by"%}:  </span>
-    <span class="value">{{object.created_by}}</span> <br>
-  </p>
-  <p>
-    <span class="label">    {%get_verbose_field_name object "last_modified_date"%}:  </span>
-    <span class="value">{{object.last_modified_date}}</span><br>
-
-    <span class="label">    {%get_verbose_field_name object "last_modified_by"%}:  </span>
-    <span class="value">{{object.last_modified_by}}</span>    <br>
-  </p>
-  <div class="hidden" style="height: 0px;">
-    <span class="mandatory">{{object.get_type_display}}</span>
-    <span class="mandatory">{{object.sample_date}}</span>
-    <span class="mandatory">{{object.sampler}}</span>
-    <span class="mandatory">{{object.sampler_ref_number}}</span>
-    <span class="mandatory">{{object.total_fish_preserved}}</span>
-    <span class="mandatory">{{object.total_fish_measured}}</span>
-  </div>
+<div class="hidden" style="height: 0px;">
+    <span class="mandatory">{{ object.get_type_display }}</span>
+    <span class="mandatory">{{ object.sample_date }}</span>
+    <span class="mandatory">{{ object.sampler }}</span>
+    <span class="mandatory">{{ object.sampler_ref_number }}</span>
+    <span class="mandatory">{{ object.total_fish_preserved }}</span>
+    <span class="mandatory">{{ object.total_fish_measured }}</span>
 </div>
-<a href="#full" data-toggle="collapse" id="fold">(more...)</a>
-
-<script type="text/javascript">
-  $(document).ready(function () {
-      $("#fold").click(function () {
-          $("#fold").fadeOut(function () {
-              $("#fold").text(($("#fold").text() == '(less...)') ? '(more...)' : '(less...)').fadeIn();
-          })
-      })
-  });
-</script>

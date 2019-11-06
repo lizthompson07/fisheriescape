@@ -1,0 +1,285 @@
+{% extends 'herring/herring_base.html' %}
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <h1>
+            Sedna Sample Import Form:
+        </h1>
+        <ul>
+            <li>
+                the file must be in csv format
+            </li>
+            <li>
+                This function is designed to import a csv export of herring sample data collected in Sedna
+            </li>
+            <li>
+                the order of the columns in the file is NOT important
+            </li>
+            <li>
+                the column names must have the follow format:
+            </li>
+        </ul>
+        <table class="table table-sm table-bordered" style="font-size: small; width: 60%;">
+            <tr>
+                <th>Column header name</th>
+                <th>Data type</th>
+                <th>Description</th>
+                <th class="center-col">Column can be null or omitted?</th>
+            </tr>
+
+            <tr>
+                <td>uuid</td>
+                <td>string</td>
+                <td>
+                    <em>
+                        This is a unique universal identifier assigned to a sample from sedna. This will be stored as the
+                        <code>old_id</code> for historical reference
+                    </em>
+                </td>
+                <td  class="bad center-col">no</td>
+            </tr>
+            <tr>
+                <td>type</td>
+                <td>integer</td>
+                <td>
+                    <em>
+                        Must be either <code>1</code> (port sample) or <code>2</code> (sea sample); integer
+                    </em>
+                </td>
+                <td class="bad center-col">no</td>
+            </tr>
+            <tr>
+                <td>sample_date</td>
+                <td>formatted string</td>
+                <td>
+                    <em>
+                        Date of the set from which the sample originated;
+                        format must be: [yyyy]-[mm]-[dd] [hh]:[mm]:[ss][UTC_OFFSET]
+                        where UTC offset in the form +HHMM or -HHMM (e.g., 2019-10-22 13:42:51+0000).
+                    </em>
+                </td>
+                <td class="bad center-col">no</td>
+            </tr>
+            <tr>
+                <td>sampler_ref_number</td>
+                <td>integer</td>
+                <td>
+                    <em>
+                        This is a reference number assigned to the sample. If this is a port sample, this is a sequential number
+                        provided by the sampler. If this is a sea sample, it will be the set number.
+                    </em>
+                </td>
+                <td class="bad center-col">no</td>
+            </tr>
+            <tr>
+                <td>gear</td>
+                <td>string</td>
+                <td>
+                    <em>
+                        Gear type used (NAFO gear code) (e.g., GNS)
+                    </em>
+                </td>
+                <td class="bad center-col">no</td>
+            </tr>
+            <tr>
+                <td>experimental_net_used</td>
+                <td>integer</td>
+                <td>
+                    <em>
+                        Must be either <code>1</code> (yes) or <code>0</code> (no)
+                    </em>
+                </td>
+                <td class="bad center-col">no</td>
+            </tr>
+            <tr>
+                <td>species</td>
+                <td>string</td>
+                <td>
+                    <em>
+                        Scientific name of species sampled;
+                        If this column is present, only the rows with Clupea harengus will be imported. If the column is absent, all rows
+                        will be imported
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>survey_id</td>
+                <td>string</td>
+                <td>
+                    <em>
+                        This is the <code>mission_number</code> field in the sedna shared_models.Cruise object
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>sampler</td>
+                <td>formatted string</td>
+                <td>
+                    <em>
+                        Name of sampler; must have following format: [last name], [first_name] (e.g., Butts, Seymour)
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>fishing_area</td>
+                <td>string</td>
+                <td>
+                    <em>
+                        NAFO fishing area (e.g., 4T)
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>latitude_n</td>
+                <td>float</td>
+                <td>
+                    <em>
+                        In this case, the starting latitude is provided in decimal degrees
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>longitude_w</td>
+                <td>float</td>
+                <td>
+                    <em>
+                        In tdis case, the starting longitude is provided in decimal degrees
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>port_code</td>
+                <td>integer</td>
+                <td><em>Integer; 5-digit port code of the port where sample was collected</em></td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>vessel_cfvn</td>
+                <td>integer</td>
+                <td><em>Integer; identification number of vessel from which sample was collected </em></td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>mesh_size</td>
+                <td>integer</td>
+                <td><em>Integer; mesh size of net used in millimeters (mm)</em></td>
+                <td class="good center-col">yes</td>
+            </tr>
+
+
+            <tr>
+                <td>sample_weight_lbs</td>
+                <td>float</td>
+                <td>
+                    <em>
+                        Total weight of the sample in lbs
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>catch_weight_lbs</td>
+                <td>float</td>
+                <td>
+                    <em>
+                        Total weight of the catch in lbs
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>total_fish_measured</td>
+                <td>integer</td>
+                <td>
+                    <em>
+                        Total number of fish measured in the originating set
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>total_fish_preserved</td>
+                <td>integer</td>
+                <td>
+                    <em>
+                        Total number of fish measure kept in the originating set
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>remarks</td>
+                <td>blob</td>
+                <td>
+                    <em>
+                        miscellaneous remarks
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>creation_date</td>
+                <td>formatted string</td>
+                <td>
+                    <em>
+                        Date the sample record was created;
+                        format must be: [yyyy]-[mm]-[dd] [hh]:[mm]:[ss][UTC_OFFSET]
+                        where UTC offset in the form +HHMM or -HHMM (e.g., 2019-10-22 13:42:51+0000).
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            <tr>
+                <td>last_modified_date</td>
+                <td>formatted string</td>
+                <td>
+                    <em>
+                        Date the sample record was last modified;
+                        format must be: [yyyy]-[mm]-[dd] [hh]:[mm]:[ss][UTC_OFFSET]
+                        where UTC offset in the form +HHMM or -HHMM (e.g., 2019-10-22 13:42:51+0000).
+                    </em>
+                </td>
+                <td class="good center-col">yes</td>
+            </tr>
+            {#            <tr>#}
+            {#                <td></td>#}
+            {#                <td><em></em></td>#}
+            {#            </tr>#}
+
+        </table>
+
+
+        <br><br>
+
+        <form method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+
+                {#                <h2 class="bad center-col">WARNING: running this function will overwrite any existing points in this record.</h2>#}
+                <h3>Please select the file to upload:</h3>
+                {{ field }}
+            {% endfor %}
+
+            <br>
+            <br>
+
+            <button type="submit" class="btn btn-success">Submit</button>
+            <br>
+            <br>
+            <a class="btn btn-secondary" href="#" onclick="window.close()">Cancel</a>
+
+        </form>
+
+    </div>
+
+{% endblock content %}
