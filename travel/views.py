@@ -1,5 +1,6 @@
 import json
 import os
+from copy import deepcopy
 
 from django.conf import settings
 from django.contrib import messages
@@ -86,7 +87,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         context["number_waiting"] = models.Event.objects.filter(waiting_on=self.request.user).count()
         approval_count = models.Event.objects.filter(
             Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-                approver=self.request.user)).count()
+                rdg=self.request.user) | Q(adm=self.request.user)).count()
 
         context["is_approver"] = True if approval_count > 0 else False
         print(approval_count)
@@ -95,6 +96,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
 event_field_list = [
     'fiscal_year',
+    'status',
     'user',
     'section',
     'first_name',
@@ -104,6 +106,7 @@ event_field_list = [
     'email',
     'public_servant',
     'company_name',
+    'region',
     'trip_title',
     'departure_location',
     'destination',
@@ -121,6 +124,7 @@ event_field_list = [
     'benefit_to_dfo',
     'multiple_conferences_rationale',
     'multiple_attendee_rationale',
+    'late_justification',
     'bta_attendees',
     'notes',
 
@@ -144,14 +148,64 @@ event_field_list = [
     'recommender_1_status|{}'.format(_("Recommender 1")),
     'recommender_2_status|{}'.format(_("Recommender 2")),
     'recommender_3_status|{}'.format(_("Recommender 3")),
-    'approver_status|{}'.format(_("Expenditure Initiation")),
+    'adm_status|{}'.format(_("ADM")),
+    'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
+]
+
+event_group_field_list = [
+    'fiscal_year',
+    'status',
+    'user',
+    'section',
+    'trip_title',
+    'destination',
+    'start_date',
+    'end_date',
+    'event',
+    'registered_event',
+
+    'reason',
+    'purpose',
+    'objective_of_event',
+    'benefit_to_dfo',
+    'multiple_attendee_rationale',
+    'funding_source',
+    'bta_attendees',
+    'late_justification',
+    'notes',
+    'total_trip_cost|{}'.format(_("Total trip cost")),
+
+    'recommender_1_status|{}'.format(_("Recommender 1")),
+    'recommender_2_status|{}'.format(_("Recommender 2")),
+    'recommender_3_status|{}'.format(_("Recommender 3")),
+    'adm_status|{}'.format(_("ADM")),
+    'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
+]
+
+event_child_field_list = [
+    'first_name',
+    'last_name',
+    # 'address',
+    # 'phone',
+    # 'email',
+    'public_servant',
+    'region',
+
+    # 'company_name',
+    'departure_location',
+    'role',
+    'role_of_participant',
+    # 'reason',
+    # 'purpose_long|{}'.format(_("purpose")),
+    # 'cost_breakdown|{}'.format(_("cost summary")),
+    'total_cost',
 ]
 
 
 # EVENT #
 #########
 class EventListView(TravelAccessRequiredMixin, FilterView):
-    model = models.Event
+    queryset = models.Event.objects.filter(parent_event__isnull=True)
     filterset_class = filters.EventFilter
     template_name = 'travel/event_list.html'
 
@@ -160,6 +214,8 @@ class EventListView(TravelAccessRequiredMixin, FilterView):
         context["my_object"] = models.Event.objects.first()
         context["field_list"] = [
             'fiscal_year',
+            'is_group_trip',
+            'status',
             'section',
             'first_name',
             'last_name',
@@ -167,7 +223,8 @@ class EventListView(TravelAccessRequiredMixin, FilterView):
             'destination',
             'start_date',
             'end_date',
-            'total_cost',
+            'total_trip_cost|{}'.format(_("Total trip cost")),
+
         ]
         return context
 
@@ -177,9 +234,9 @@ class EventApprovalListView(TravelAccessRequiredMixin, ListView):
     template_name = 'travel/event_approval_list.html'
 
     def get_queryset(self):
-        qs = models.Event.objects.filter(
+        qs = models.Event.objects.filter(parent_event__isnull=True).filter(
             Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-                approver=self.request.user)).order_by("-submitted")
+                adm=self.request.user) | Q(rdg=self.request.user)).order_by("-submitted")
         return qs.filter(waiting_on=self.request.user) if self.kwargs.get("which_ones") == "awaiting" else qs
 
     def get_context_data(self, **kwargs):
@@ -187,17 +244,52 @@ class EventApprovalListView(TravelAccessRequiredMixin, ListView):
         context["my_object"] = models.Event.objects.first()
         context["awaiting"] = True if self.kwargs.get("which_ones") else False
         context["field_list"] = [
+            'is_group_trip',
             'first_name',
             'last_name',
             'trip_title',
             'destination',
             'start_date',
             'end_date',
-            'total_cost',
-            'recommender_1_status|{}'.format(_("Recommender 1 (status)")),
-            'recommender_2_status|{}'.format(_("Recommender 2 (status)")),
-            'recommender_3_status|{}'.format(_("Recommender 3 (status)")),
-            'approver_status|{}'.format(_("Final Approval (status)")),
+            'total_trip_cost|{}'.format(_("Total trip cost")),
+            'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
+            'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
+            'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
+            'adm_status|{}'.format(_("ADM<br>(status)")),
+            'rdg_status|{}'.format(_("RDG<br>(status)")),
+        ]
+        return context
+
+
+class EventAdminApprovalListView(TravelAdminRequiredMixin, ListView):
+    model = models.Event
+    template_name = 'travel/event_approval_list.html'
+
+    def get_queryset(self):
+        # return a list only of those awaiting ADM or RDG approval
+        qs = models.Event.objects.filter(
+            parent_event__isnull=True,
+        ).filter(Q(status_id=14) | Q(status_id=15)).order_by("-submitted")
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Event.objects.first()
+        context["admin"] = True
+        context["field_list"] = [
+            'is_group_trip',
+            'first_name',
+            'last_name',
+            'trip_title',
+            'destination',
+            'start_date',
+            'end_date',
+            'total_trip_cost|{}'.format(_("Total trip cost")),
+            'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
+            'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
+            'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
+            'adm_status|{}'.format(_("ADM<br>(status)")),
+            'rdg_status|{}'.format(_("RDG<br>(status)")),
         ]
         return context
 
@@ -207,20 +299,37 @@ class EventDetailView(TravelAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["field_list"] = event_field_list
+        my_object = self.get_object()
+        context["field_list"] = event_field_list if not my_object.is_group_trip else event_group_field_list
+        my_event_child_field_list = deepcopy(event_child_field_list)
+        if not my_object.event:
+            my_event_child_field_list.remove("role")
+            my_event_child_field_list.remove("role_of_participant")
+        context["child_field_list"] = my_event_child_field_list
+        context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
+        context["is_owner"] = my_object.user == self.request.user
+
         return context
 
 
 class EventUpdateView(TravelAccessRequiredMixin, UpdateView):
     model = models.Event
-    form_class = forms.EventForm
+
+    def get_template_names(self):
+        return 'travel/event_form_popout.html' if self.kwargs.get("pop") else 'travel/event_form.html'
+
+    def get_form_class(self):
+        return forms.ChildEventForm if self.kwargs.get("pop") else forms.EventForm
 
     def form_valid(self, form):
         my_object = form.save()
-        if form.cleaned_data.get("stay_on_page"):
-            return HttpResponseRedirect(reverse("travel:event_edit", kwargs={"pk": my_object.id}))
+        if not my_object.parent_event:
+            if form.cleaned_data.get("stay_on_page"):
+                return HttpResponseRedirect(reverse_lazy("travel:event_edit", kwargs={"pk": my_object.id}))
+            else:
+                return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": my_object.id}))
         else:
-            return HttpResponseRedirect(reverse("travel:event_detail", kwargs={"pk": my_object.id}))
+            return HttpResponseRedirect(reverse("shared_models:close_me"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -243,7 +352,8 @@ class EventUpdateView(TravelAccessRequiredMixin, UpdateView):
             section_dict[section.id]["recommender_1"] = section.head_id
             section_dict[section.id]["recommender_2"] = section.division.head_id
             section_dict[section.id]["recommender_3"] = section.division.branch.head_id
-            section_dict[section.id]["approver"] = section.division.branch.region.head_id
+            section_dict[section.id]["rdg"] = section.division.branch.region.head_id
+            section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
         section_json = json.dumps(section_dict)
         # send JSON file to template so that it can be used by js script
         context['section_json'] = section_json
@@ -258,8 +368,10 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["field_list"] = event_field_list
-        context["object"] = models.Event.objects.get(pk=self.kwargs.get("pk"))
+        my_object = models.Event.objects.get(pk=self.kwargs.get("pk"))
+        context["object"] = my_object
+        context["field_list"] = event_field_list if not my_object.is_group_trip else event_group_field_list
+        context["child_field_list"] = event_child_field_list
 
         return context
 
@@ -273,12 +385,10 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_1_approval_status_id = 2
             else:
                 my_event.recommender_1_approval_status_id = 3
-                my_event.recommender_2 = None
-                my_event.recommender_3 = None
-                my_event.approver = None
                 my_event.recommender_2_approval_status_id = 5
                 my_event.recommender_3_approval_status_id = 5
-                my_event.approver_approval_status_id = 5
+                my_event.adm_approval_status_id = 5
+                my_event.rdg_approval_status_id = 5
 
         if my_event.recommender_2 == self.request.user:
             my_event.recommender_2_approval_date = timezone.now()
@@ -286,10 +396,9 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_2_approval_status_id = 2
             else:
                 my_event.recommender_2_approval_status_id = 3
-                my_event.recommender_3 = None
-                my_event.approver = None
                 my_event.recommender_3_approval_status_id = 5
-                my_event.approver_approval_status_id = 5
+                my_event.adm_approval_status_id = 5
+                my_event.rdg_approval_status_id = 5
 
         if my_event.recommender_3 == self.request.user:
             my_event.recommender_3_approval_date = timezone.now()
@@ -297,18 +406,58 @@ class EventApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
                 my_event.recommender_3_approval_status_id = 2
             else:
                 my_event.recommender_3_approval_status_id = 3
-                my_event.approver = None
-                my_event.approver_approval_status_id = 5
+                my_event.adm_approval_status_id = 5
+                my_event.rdg_approval_status_id = 5
 
-        if my_event.approver == self.request.user:
-            my_event.approver_approval_date = timezone.now()
+        if my_event.adm == self.request.user:
+            my_event.adm_approval_date = timezone.now()
             if is_approved:
-                my_event.approver_approval_status_id = 2
+                my_event.adm_approval_status_id = 2
             else:
-                my_event.approver_approval_status_id = 3
+                my_event.adm_approval_status_id = 3
+                my_event.rdg_approval_status_id = 5
+
+        if my_event.rdg == self.request.user:
+            my_event.rdg_approval_date = timezone.now()
+            if is_approved:
+                my_event.rdg_approval_status_id = 2
+            else:
+                my_event.rdg_approval_status_id = 3
 
         my_event.save()
         return HttpResponseRedirect(reverse("travel:event_approval_list"))
+
+
+class EventAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.Event
+    form_class = forms.AdminEventForm
+    template_name = 'travel/event_approval_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = self.get_object()
+        context["admin"] = True
+        context["object"] = my_object
+
+        return context
+
+    def form_valid(self, form):
+        my_event = form.save(commit=False)
+
+        # if approval status is not pending, we add a date stamp
+        if my_event.adm_approval_status_id != 1:
+            my_event.adm_approval_date = timezone.now()
+
+        if my_event.rdg_approval_status_id != 1:
+            my_event.rdg_approval_date = timezone.now()
+
+        # if denied by adm, rdg will be canceled
+        if my_event.adm_approval_status_id == 3:
+            my_event.rdg_approval_status_id = 5
+
+        # Now do a full save
+        my_event.save()
+        return HttpResponseRedirect(reverse("travel:admin_approval_list"))
 
 
 class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
@@ -318,26 +467,24 @@ class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["field_list"] = event_field_list
-        context["object"] = models.Event.objects.get(pk=self.kwargs.get("pk"))
+        my_object = models.Event.objects.get(pk=self.kwargs.get("pk"))
+        context["object"] = my_object
+        context["field_list"] = event_field_list if not my_object.is_group_trip else event_group_field_list
+        context["child_field_list"] = event_child_field_list
 
         return context
 
     def form_valid(self, form):
         my_event = models.Event.objects.get(pk=self.kwargs.get("pk"))
+        # figure out the current state of the trip
         is_submitted = True if my_event.submitted else False
-        if is_submitted:
-            my_event.submitted = None
-            # # now clear all the reviewers
-            # my_event.recommender_1_approval_date = None
-            # my_event.recommender_1_approval_status_id = 1
-            # my_event.recommender_2_approval_date = None
-            # my_event.recommender_2_approval_status_id = 1
-            # my_event.recommender_3_approval_date = None
-            # my_event.recommender_3_approval_status_id = 1
-            # my_event.approver_approval_date = None
-            # my_event.approver_approval_status_id = 1
 
+        # if submitted, then unsumbit but only if admin
+        if is_submitted:
+            if in_travel_admin_group(self.request.user) or my_event.user == self.request.user:
+                my_event.submitted = None
+            else:
+                messages.error(self.request, "sorry, only admins or owners can unsubmit trips")
         else:
             my_event.submitted = timezone.now()
         my_event.save()
@@ -346,17 +493,39 @@ class EventSubmitUpdateView(TravelAccessRequiredMixin, FormView):
 
 class EventCreateView(TravelAccessRequiredMixin, CreateView):
     model = models.Event
-    form_class = forms.EventForm
+
+    def get_template_names(self):
+        my_object = models.Event.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
+        return 'travel/event_form_popout.html' if my_object else 'travel/event_form.html'
+
+    def get_form_class(self):
+        my_object = models.Event.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
+        return forms.ChildEventForm if my_object else forms.EventForm
 
     def get_initial(self):
-        return {"user": self.request.user}
+        my_object = models.Event.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
+        return {"user": self.request.user} if not my_object else {"parent_event": my_object}
 
     def form_valid(self, form):
         my_object = form.save()
-        if form.cleaned_data.get("stay_on_page"):
-            return HttpResponseRedirect(reverse_lazy("travel:event_edit", kwargs={"pk": my_object.id}))
+
+        # if it is a group trip, add the main user as a traveller
+        if my_object.is_group_trip:
+            models.Event.objects.create(
+                user=self.request.user,
+                first_name=self.request.user.first_name,
+                last_name=self.request.user.last_name,
+                email=self.request.user.email,
+                parent_event=my_object,
+            )
+
+        if not my_object.parent_event:
+            if form.cleaned_data.get("stay_on_page"):
+                return HttpResponseRedirect(reverse_lazy("travel:event_edit", kwargs={"pk": my_object.id}))
+            else:
+                return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": my_object.id}))
         else:
-            return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": my_object.id}))
+            return HttpResponseRedirect(reverse("shared_models:close_me"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -379,7 +548,8 @@ class EventCreateView(TravelAccessRequiredMixin, CreateView):
             section_dict[section.id]["recommender_1"] = section.head_id
             section_dict[section.id]["recommender_2"] = section.division.head_id
             section_dict[section.id]["recommender_3"] = section.division.branch.head_id
-            section_dict[section.id]["approver"] = section.division.branch.region.head_id
+            section_dict[section.id]["rdg"] = section.division.branch.region.head_id
+            section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
         section_json = json.dumps(section_dict)
         # send JSON file to template so that it can be used by js script
         context['section_json'] = section_json
@@ -388,27 +558,93 @@ class EventCreateView(TravelAccessRequiredMixin, CreateView):
 
 class EventDeleteView(TravelAccessRequiredMixin, DeleteView):
     model = models.Event
-    success_url = reverse_lazy('travel:event_list')
     success_message = 'The event was deleted successfully!'
+
+    def get_template_names(self):
+        if self.kwargs.get('pop'):
+            template_name = 'travel/event_confirm_delete_popout.html'
+        else:
+            template_name = 'travel/event_confirm_delete.html'
+        return template_name
+
+    def get_success_url(self):
+        if self.kwargs.get('pop'):
+            success_url = reverse('shared_models:close_me')
+        else:
+            success_url = reverse_lazy('travel:event_list')
+        return success_url
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
 
-def duplicate_event(request, pk):
-    # get record to duplicate
-    event = models.Event.objects.get(pk=pk)
-    # remove the pk
-    event.pk = None
-    # save the record
-    event.save()
-    return HttpResponseRedirect(reverse("travel:event_edit", kwargs={"pk": event.id}))
+class EventCloneUpdateView(EventUpdateView):
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def get_initial(self):
+        my_object = models.Event.objects.get(pk=self.kwargs["pk"])
+        init = super().get_initial()
+        init["trip_title"] = "DUPLICATE OF: {}".format(my_object.trip_title)
+        init["year"] = fiscal_year(sap_style=True, next=True)
+        # init["created_by"] = self.request.user
+        return init
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloned"] = True
+        return context
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Event.objects.get(pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.submitted = None
+        new_obj.save()
+        return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": new_obj.id}))
+
+
+
+class ChildEventCloneUpdateView(EventCreateView):
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def get_initial(self):
+        my_object = models.Event.objects.get(pk=self.kwargs["pk"])
+        init = super().get_initial()
+        init["parent_event"] = my_object.parent_event
+        init["departure_location"] = my_object.departure_location
+        init["role"] = my_object.role
+        init["role_of_participant"] = my_object.role_of_participant
+        init["air"] = my_object.air
+        init["rail"] = my_object.rail
+        init["rental_motor_vehicle"] = my_object.rental_motor_vehicle
+        init["personal_motor_vehicle"] = my_object.personal_motor_vehicle
+        init["taxi"] = my_object.taxi
+        init["other_transport"] = my_object.other_transport
+        init["meals"] = my_object.meals
+        init["accommodations"] = my_object.accommodations
+        init["incidentals"] = my_object.incidentals
+        init["registration"] = my_object.registration
+        init["other"] = my_object.other
+        return init
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloned"] = True
+        return context
+
+    # def form_valid(self, form):
+    #     new_obj = form.save()
+    #     return HttpResponseRedirect(reverse_lazy("travel:event_detail", kwargs={"pk": new_obj.id}))
+
 
 
 # REGISTERED EVENT #
 ####################
-
 
 class RegisteredEventListView(TravelAccessRequiredMixin, FilterView):
     model = models.RegisteredEvent
@@ -517,10 +753,12 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         fy = form.cleaned_data["fiscal_year"]
+        user = form.cleaned_data["user"]
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
                 'fy': fy,
+                'user': user,
             }))
         elif report == 2:
             email = form.cleaned_data["traveller"]
@@ -535,7 +773,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
 
 
 def export_cfts_list(request, fy):
-    file_url = reports.generate_cfts_spreadsheet(fy)
+    file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -546,15 +784,32 @@ def export_cfts_list(request, fy):
     raise Http404
 
 
+def export_trip_cfts(request, pk):
+    file_url = reports.generate_cfts_spreadsheet(trip=pk)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="CFTS export {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
 class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     login_url = '/accounts/login_required/'
-    template_name = "travel/travel_plan.html"
+
+    def get_template_names(self):
+        my_object = models.Event.objects.get(id=self.kwargs['pk'])
+        if my_object.is_group_trip:
+            template_name = "travel/group_travel_plan.html"
+        else:
+            template_name = "travel/travel_plan.html"
+        return template_name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        object_list = models.Event.objects.filter(id=self.kwargs['pk'])
-        context["object"] = object_list.first()
-        context["object_list"] = object_list
+        my_object = models.Event.objects.get(id=self.kwargs['pk'])
+        context["object"] = my_object
         context["purpose_list"] = models.Purpose.objects.all()
 
         key_list = [
@@ -571,6 +826,13 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
             'total_cost',
         ]
         total_dict = {}
+
+        # first, let's create an object list; if this is
+        if my_object.is_group_trip:
+            object_list = my_object.children_events.all()
+        else:
+            object_list = models.Event.objects.filter(pk=my_object.id)
+
         for key in key_list:
             # registration is not in the travel plan form. therefore it should be added under the 'other' category
             if key == "other":

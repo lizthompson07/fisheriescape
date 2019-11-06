@@ -1,102 +1,102 @@
 {% load static %}
 {% load custom_filters %}
 {% load custom_tags %}
+<br>
+<br>
 <h4>Length Frequencies:</h4>
 <br>
-<div class="row">
+        {% if object.length_frequencies.count == 0 %}
+            <br>
+            <p>
+                <em>
+                    No length frequencies have been entered for this sample.
+                </em>
+            </p>
 
-  <div class="col">
-    {% if object.length_frequencies.count == 0  %}
-    <br>
-    <p>
-      <em>
-        No length frequencies have been entered for this sample.
-      </em>
-    </p>
+        {% else %}
+            <h5><em>From Sample:</em></h5>
+            <table width="100%">
+                {% for freq in object.length_frequency_objects.all %}
+                    <tr>
+                        <td width="15%">{{ freq.length_bin }}&nbsp;</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                     aria-valuenow="{{ freq.count }}" aria-valuemin="0" aria-valuemax="{{ max_count }}"
+                                     style="width: {{ freq.count|divide:max_count|percentage }}">
+                                    {{ freq.count }}
+                                </div>
+                            </div>
+                        </td>
+                        <td width="5%">
+                            <a href="#"
+                               onclick="return popitup('{% url 'herring:lf_wizard_correction' object.id freq.length_bin.bin_length_cm freq.id %}','popoutWindow0')">
+                                <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td><b>TOTAL:</b></td>
+                    <td><b>{{ sum_count }}</b></td>
+                    <td width="5%"></td>
+                </tr>
+            </table>
+            <br>
+            <p>
+                <button class='btn btn-sm btn-dark' id="read-aloud"> Read back list</button>
+            </p>
 
-    {% else %}
-      <h5><em>From Sample:</em></h5>
-    <table>
-      {% for freq in object.length_frequency_objects.all  %}
-      <tr>
-        <td>{{freq.length_bin}}&nbsp;</td>
-        <td width = "75%">
-          <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="{{freq.count}}" aria-valuemin="0" aria-valuemax="{{max_count}}" style="width: {{ freq.count|divide:max_count|percentage}}">
-              {{freq.count}}
-            </div>
-          </div>
-        </td>
-        <td>
-          <a href="#" onclick="return popitup('{% url 'herring:lf_wizard_correction' object.id freq.length_bin.bin_length_cm freq.id %}','popoutWindow0')">
-            <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
-          </a>
-        </td>
-      </tr>
-      {% endfor %}
-      <tr>
-        <td><b>TOTAL:</b></td>
-        <td><b>{{sum_count}}</b></td>
-      </tr>
-    </table>
-    <br>
-    <p>
-      <button class='btn btn-sm btn-dark' id="read-aloud"> Read back list </button>
-    </p>
+        {% endif %}
 
-    {% endif %}
-  </div>
-  <div class="col">
-    <h5><em>From Fish Detail:</em></h5>
 
-    {% if object.fish_details.count == 0  %}
-    <br>
-    <p>
-      <em>
-        No fish details have been entered for this sample.
-      </em>
-    </p>
+        <h5><em>From Fish Detail:</em></h5>
 
-    {% else %}
-    <table>
-      {% for bin in bin_list  %}
-      <tr>
-        <td>{{bin}} cm&nbsp;</td>
-        <td width = "75%">
-          <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="bin_dict|lookup:bin" aria-valuemin="0" aria-valuemax="{{max_fish_detail_count}}" style="width: {{ bin_dict|lookup:bin|divide:max_fish_detail_count|percentage}}">
-              {{bin_dict|lookup:bin}}
-            </div>
-          </div>
-        </td>
+        {% if object.fish_details.count == 0 %}
+            <br>
+            <p>
+                <em>
+                    No fish details have been entered for this sample.
+                </em>
+            </p>
 
-      </tr>
-      {% endfor %}
-      <tr>
-        <td><b>TOTAL:</b></td>
-        <td><b>{{sum_fish_detail_count}}</b></td>
-      </tr>
-    </table>
-    {% endif %}
+        {% else %}
+            <table width="100%" style="font-size: small">
+                {% for bin in bin_list %}
+                    <tr>
+                        <td width="15%">{{ bin }} cm&nbsp;</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                     aria-valuenow="bin_dict|lookup:bin" aria-valuemin="0" aria-valuemax="{{ max_fish_detail_count }}"
+                                     style="width: {{ bin_dict|lookup:bin|divide:max_fish_detail_count|percentage }}">
+                                    {{ bin_dict|lookup:bin }}
+                                </div>
+                            </div>
+                        </td>
 
-  </div>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td><b>TOTAL:</b></td>
+                    <td><b>{{ sum_fish_detail_count }}</b></td>
+                </tr>
+            </table>
+        {% endif %}
 
-</div>
+
 
 
 {# <b>TOTAL: {{sum_fish_detail_count}}</b> #}
 
 
+<script type="text/javascript">
+    // PREPARE THE STRING TO READ IN THE VIEW AND PASS AS CONTEXT...
+    var playbackString = "{{playback_string}}"
 
+    console.log(speechSynthesis.getVoices());
 
-
-  <script type="text/javascript">
-        // PREPARE THE STRING TO READ IN THE VIEW AND PASS AS CONTEXT...
-      var playbackString = "{{playback_string}}"
-
-      console.log(speechSynthesis.getVoices());
-
-      $("#read-aloud").click(function() {
+    $("#read-aloud").click(function () {
         speak(playbackString);
-      })
-  </script>
+    })
+</script>

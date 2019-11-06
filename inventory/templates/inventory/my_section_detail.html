@@ -4,6 +4,8 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load custom_filters %}
+{% load i18n %}
+
 {% block content %}
 
 
@@ -71,7 +73,7 @@
                 </h3>
                 <div class="row">
                     <div class="col">
-                        (click on a header to sort table)
+                        {% trans "(click on a header to sort table)" %}
                     </div>
                     <div class="col" style="text-align: center">
                     </div>

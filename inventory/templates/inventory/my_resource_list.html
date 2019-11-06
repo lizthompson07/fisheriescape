@@ -37,6 +37,12 @@
             <th scope="col">
                 {% trans "Completedness Rating" %}
             </th>
+            <th scope="col">
+                {% trans "Published to Open Data?" %}
+            </th>
+            <th scope="col" colspan="2">
+                {% trans "External Links" %}
+            </th>
             </thead>
             <tbody>
             {% for obj in custodian_list %}
@@ -86,6 +92,25 @@
                     {% endif %}
                     </td>
                     <td>{{ obj.resource.completedness_rating|percentage:0 }}</td>
+                    <td>
+                        {{ obj.resource.fgp_publication_date|yesno:"yes,no,no" }}
+                    </td>
+                    <td>
+                        {% if obj.resource.fgp_url %}
+                            <a class="stop-blank" href="{{ obj.resource.fgp_url }}" data-toggle="tooltip"
+                               title="Open URL in the Federal Geospatial Platform">
+                                <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if obj.resource.public_url %}
+                            <a class="stop-blank" href="{{ obj.resource.public_url }}" data-toggle="tooltip"
+                               title="Open URL in the Open Government Portal">
+                                <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
+                            </a>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -108,9 +133,15 @@
                 <th scope="col">Section</th>
                 <th scope="col">Role(s)</th>
                 <th scope="col">Previous time certified</th>
-                 <th scope="col">
-                {% trans "Completedness Rating" %}
-            </th>
+                <th scope="col">
+                    {% trans "Completedness Rating" %}
+                </th>
+                <th scope="col">
+                    {% trans "Published to Open Data?" %}
+                </th>
+                <th scope="col" colspan="2">
+                    {% trans "External Links" %}
+                </th>
                 </tr>
                 </thead>
                 <tbody>
@@ -165,7 +196,25 @@
 
                         </td>
                         <td>{{ obj.completedness_rating|percentage:0 }}</td>
-
+                        <td>
+                            {{ obj.fgp_publication_date|yesno:"yes,no,no" }}
+                        </td>
+                        <td>
+                            {% if obj.fgp_url %}
+                                <a class="stop-blank" href="{{ obj.fgp_url }}" data-toggle="tooltip"
+                                   title="Open URL in the Federal Geospatial Platform">
+                                    <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if obj.public_url %}
+                                <a class="stop-blank" href="{{ obj.public_url }}" data-toggle="tooltip"
+                                   title="Open URL in the Open Government Portal">
+                                    <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
+                                </a>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
 
