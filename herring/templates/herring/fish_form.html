@@ -3,71 +3,88 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div class="nav-map">
-<br>
-  {% if object.id %}
-  <p>
-    <a href="{% url 'herring:sample_list' %}">All samples</a> >
-    <a href="{% url 'herring:sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
-    <a href="{% url 'herring:fish_detail' object.sample.id object.id %}">Fish {{object.id}}</a> >
-    Edit
-  </p>
-  {% else %}
-  <p>
-    <a href="{% url 'herring:sample_list' %}">All samples</a> >
-    <a href="{% url 'herring:sample_detail' view.kwargs.sample %}">Sample {{view.kwargs.sample}}</a> >
-    New Fish
-  </p>
-  {% endif %}
-</div>
-<div class="container">
-
-  {% load static %}
-  {# Load js file to allow for popout window #}
-  {% if object.id %}
-    <h1>Port Sample {{object.id}}</h1><br>
-  {% else %}
-    <h1>New Port Sample</h1>
-  {% endif %}
-
-  <form method="post" class="form">
-      {% csrf_token %}
-      <br>
-      <div class="row">
-        <div class="col-8">
-          <table>
-            {% for field in form  %}
-            <tr>
-
-
-              {% if field.name == 'district' %}
-              <td width='80%'>
-
-                {% bootstrap_field field size='small' layout='horizontal' %}
-              </td>
-              {% else %}
-              <td width='80%'>
-                {% bootstrap_field field size='small' layout='horizontal' %}
-              </td>
-              {% endif %}
-
-            </tr>
-
-            {% endfor %}
-          </table>
-
-        </div>
-      </div>
-
-      <p>
-        <button type="submit" class="btn btn-primary">Submit</button>
+    <div class="nav-map">
+        <br>
         {% if object.id %}
-          <a class="btn btn-secondary" href="#">Cancel</a>
+            <p>
+                <a href="{% url 'herring:sample_list' %}">All samples</a> >
+                <a href="{% url 'herring:sample_detail' object.sample.id %}">Sample {{ object.sample.id }}</a> >
+                <a href="{% url 'herring:fish_detail' object.sample.id object.id %}">Fish {{ object.id }}</a> >
+                Edit
+            </p>
         {% else %}
-          <a class="btn btn-secondary" href="{% url 'herring:index' %}">Cancel</a>
+            <p>
+                <a href="{% url 'herring:sample_list' %}">All samples</a> >
+                <a href="{% url 'herring:sample_detail' view.kwargs.sample %}">Sample {{ view.kwargs.sample }}</a> >
+                New Fish
+            </p>
         {% endif %}
-      </p>
-  </form>
-</div>
+    </div>
+    <div class="container">
+
+        {% load static %}
+        {# Load js file to allow for popout window #}
+        {% if object.id %}
+            <h1>Port Sample {{ object.id }}</h1><br>
+        {% else %}
+            <h1>New Port Sample</h1>
+        {% endif %}
+
+        <form method="post" class="form">
+            {% csrf_token %}
+            <br>
+            <div class="row">
+                <div class="col-8">
+                    <table>
+                        {% for field in form %}
+                            {% if field.name == 'district' %}
+                                <tr>
+                                    <td width='80%'>
+
+                                        {% bootstrap_field field size='small' layout='horizontal' %}
+                                    </td>
+                                </tr>
+                            {% elif field.name == 'sample' %}
+                                {# Do nothing #}
+                            {% else %}
+                                <tr>
+                                    <td width='80%'>
+                                        {% bootstrap_field field size='small' layout='horizontal' %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+
+                        {% endfor %}
+                        {% for field in form %}
+                            {% if field.name == 'sample' %}
+                                <tr>
+                                    <td width='80%'>
+
+                                        <span class="red-font">
+                                        <b>WARNING</b>: Changing the sample can royally mess things up.
+                                            Only do this if there is a mistake that needs to be fixed,
+                                            such as if a fish was entered under the wrong sample number.
+                                        </span><br><br>
+                                        {% bootstrap_field field size='small' layout='horizontal' %}
+
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+
+                </div>
+            </div>
+
+            <p>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                {% if object.id %}
+                    <a class="btn btn-secondary" href="#">Cancel</a>
+                {% else %}
+                    <a class="btn btn-secondary" href="{% url 'herring:index' %}">Cancel</a>
+                {% endif %}
+            </p>
+        </form>
+    </div>
 
 {% endblock content %}

@@ -1,6 +1,8 @@
 {% extends "trapnet/trapnet_base.html" %}
 {% load static %}
 {% load verbose_names %}
+{% load i18n %}
+
 
 {% block content %}
     <nav aria-label="breadcrumb">
@@ -31,7 +33,7 @@
 
         <div class="row">
             <div class="col">
-                (click on a header to sort table)
+                {% trans "(click on a header to sort table)" %}
             </div>
             <div class="col" style="text-align: center">
                 <em>displaying {{ filter.qs.count }} of {{ object_list.count }}</em>
