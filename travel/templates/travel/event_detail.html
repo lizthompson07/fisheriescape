@@ -58,14 +58,14 @@
             <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
                 Use as Template
             </a>
-            {% if object.submitted and not is_admin %}
-                <span data-toggle="tooltip" title="{% trans "Only application administrators can un-submit a trip" %}">
+            {% if object.submitted and not is_admin and not is_owner %}
+                <span data-toggle="tooltip" title="{% trans "Only application administrators and owners can un-submit a trip" %}">
             {% endif %}
-            <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin %}disabled{% endif %}"
+            <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin and not is_owner %}disabled{% endif %}"
                href="{% url 'travel:event_submit' object.id %}">
                 {% if object.submitted %}Un-submit {% else %} Submit {% endif %}
             </a>
-            {% if object.submitted and not is_admin %}
+            {% if object.submitted and not is_admin and not is_owner %}
                 </span>
             {% endif %}
         </div>
