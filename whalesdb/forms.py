@@ -345,8 +345,6 @@ class EqhForm(forms.ModelForm):
         labels = get_descriptions(model)
         fields.extend(list(labels.keys()))
 
-        print("Fields: " + str(fields))
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
