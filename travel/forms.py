@@ -28,17 +28,17 @@ class EventForm(forms.ModelForm):
         exclude = [
             "total_cost",
             "fiscal_year",
-            "recommender_1_approval_date",
-            "recommender_1_approval_status",
-            "recommender_2_approval_date",
-            "recommender_2_approval_status",
-            "recommender_3_approval_date",
-            "recommender_3_approval_status",
-            "adm_approval_date",
-            "adm_approval_status",
-            "rdg_approval_date",
-            "rdg_approval_status",
-            "waiting_on",
+            # "recommender_1_approval_date",
+            # "recommender_1_approval_status",
+            # "recommender_2_approval_date",
+            # "recommender_2_approval_status",
+            # "recommender_3_approval_date",
+            # "recommender_3_approval_status",
+            # "adm_approval_date",
+            # "adm_approval_status",
+            # "rdg_approval_date",
+            # "rdg_approval_status",
+            # "waiting_on",
             "submitted",
             "status",
             "departure_location",
@@ -126,11 +126,11 @@ class EventForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
         self.fields['bta_attendees'].choices = user_choices
-        self.fields['recommender_1'].choices = recommender_chocies
-        self.fields['recommender_2'].choices = recommender_chocies
-        self.fields['recommender_3'].choices = recommender_chocies
-        self.fields['adm'].choices = recommender_chocies
-        self.fields['rdg'].choices = recommender_chocies
+        # self.fields['recommender_1'].choices = recommender_chocies
+        # self.fields['recommender_2'].choices = recommender_chocies
+        # self.fields['recommender_3'].choices = recommender_chocies
+        # self.fields['adm'].choices = recommender_chocies
+        # self.fields['rdg'].choices = recommender_chocies
         self.fields['section'].choices = section_choices
 
 
@@ -138,8 +138,8 @@ class AdminEventForm(forms.ModelForm):
     class Meta:
         model = models.Event
         fields = [
-            "adm_approval_status",
-            "rdg_approval_status",
+            # "adm_approval_status",
+            # "rdg_approval_status",
         ]
 
     def __init__(self, *args, **kwargs):
