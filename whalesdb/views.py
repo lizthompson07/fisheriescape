@@ -44,7 +44,7 @@ def ecp_delete(request, ecp_id):
         emm_id = ecp.emm.emm_id
         ecp.delete()
     finally:
-        return HttpResponseRedirect(reverse("whalesdb:details_recorder", kwargs={'pk': emm_id}))
+        return HttpResponseRedirect(reverse("whalesdb:details_eqr", kwargs={'pk': emm_id}))
 
 
 def get_fields(labels):
@@ -666,7 +666,11 @@ class DetailsRecorder(DetailsMakeModel):
         labels = forms.get_short_labels(models.EcpChannelProperties)
         context['channel_fields'] = get_fields(labels)
         context['channels'] = [c for c in models.EcpChannelProperties.objects.filter(emm=kwargs['object'])]
-        context['url'] = 'recorder'
+        context['url'] = 'eqr'
+
+        labels = forms.get_short_labels(models.EprEquipmentParameters)
+        context['parameter_fields'] = get_fields(labels)
+        context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=kwargs['object'])]
 
         return context
 
