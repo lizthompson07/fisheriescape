@@ -17,6 +17,12 @@ urlpatterns = [
     path('settings/schedules/', views.manage_schedules, name="manage_schedules"),
     path('settings/schedule/<int:pk>/delete/', views.delete_schedule, name="delete_schedule"),
 
+    path('settings/CITES-appendices/', views.manage_appendices, name="manage_appendices"),
+    path('settings/appendix/<int:pk>/delete/', views.delete_appendix, name="delete_appendix"),
+
+    path('settings/authorities/', views.manage_authorities, name="manage_authorities"),
+    path('settings/authority/<int:pk>/delete/', views.delete_authority, name="delete_authority"),
+
     # REGION #
     ###########
     path('regions/', views.RegionListView.as_view(), name="region_list"),

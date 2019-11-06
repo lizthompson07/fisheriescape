@@ -30,20 +30,22 @@
             {% endblocktrans %}
         </h1>
         <br>
-        <h3>Here's a breakdown of your time allocation:</h3>
+        <h3>
+            {% trans "Here's a breakdown of your time allocation:" %}
+        </h3>
         <table class="table table-bordered table-sm" style="width: auto;">
             <tr>
-                <th rowspan="3" style="width: 100px; vertical-align: bottom">Fiscal Year</th>
-                <th colspan="4" style="text-align: center">Time in Weeks</th>
+                <th rowspan="3" style="width: 100px; vertical-align: bottom">{% trans "Fiscal year" %}</th>
+                <th colspan="4" style="text-align: center">{% trans "Time in weeks" %}</th>
             </tr>
             <tr>
-                <th colspan="2" style="width: 150px; text-align: center">Submitted Projects</th>
-                <th rowspan="2" style="width: 150px; text-align: center; vertical-align: bottom">Un-submitted Projects</th>
-                <th rowspan="2" style="width: 150px; text-align: center; vertical-align: bottom">Total</th>
+                <th colspan="2" style="width: 150px; text-align: center">{% trans "Submitted projects" %}</th>
+                <th rowspan="2" style="width: 150px; text-align: center; vertical-align: bottom">{% trans "Un-submitted projects" %}</th>
+                <th rowspan="2" style="width: 150px; text-align: center; vertical-align: bottom">{% trans "Total" %}</th>
             </tr>
             <tr>
-                <th style="width: 150px; text-align: center">Approved</th>
-                <th style="width: 150px; text-align: center">Unapproved</th>
+                <th style="width: 150px; text-align: center">{% trans "Approved" %}</th>
+                <th style="width: 150px; text-align: center">{% trans "Unapproved" %}</th>
             </tr>
             <tbody>
             {% for fy in fy_list %}
@@ -57,19 +59,10 @@
             {% endfor %}
             </tbody>
         </table>
-
-        <h3>
-
-            {#            {% blocktrans with wt=weeks_total|floatformat:1 plur=weeks_total|pluralize %}#}
-            {#                You are currently being planned for a total of <span class="highlight"> {{ wt }} week{{ plur }} </span>#}
-            {#            {% endblocktrans %}#}
-        </h3>
-        <br>
-
         <br> <br>
         <div class="row">
             <div class="col">
-                (click on a header to sort table)
+                {% trans "(click on a header to sort table)" %}
             </div>
             <div class="col" style="text-align: center">
                 {#                {% show_pages %}#}

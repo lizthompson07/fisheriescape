@@ -256,12 +256,7 @@ def load_ecp(file_name):
 
             emm = models.EmmMakeModel.objects.get(emm_make=emm_make, emm_model=emm_model)
 
-            if not models.EqrRecorderProperties.objects.filter(emm=emm):
-                models.EqrRecorderProperties(emm=emm, eqc_max_channels=2, eqc_max_sample_rate=-1).save()
-
-            eqr = models.EqrRecorderProperties.objects.get(emm=emm)
-
-            if not model.objects.filter(emm=eqr, ecp_channel_no=data[2]):
+            if not model.objects.filter(emm=emm, ecp_channel_no=data[2]):
                 print(str(data))
 
                 ecp_channel_no = data[2]
@@ -271,7 +266,7 @@ def load_ecp(file_name):
                 ecp_gain = data[6] if data[6] else None
 
                 print("Setting Channel properties for '" + str(emm) + "'")
-                models.EcpChannelProperties(emm=eqr, ecp_channel_no=ecp_channel_no, eqa_adc_bits=eqa_adc_bits,
+                models.EcpChannelProperties(emm=emm, ecp_channel_no=ecp_channel_no, eqa_adc_bits=eqa_adc_bits,
                                             ecp_voltage_range_min=ecp_voltage_range_min,
                                             ecp_voltage_range_max=ecp_voltage_range_max, ecp_gain=ecp_gain).save()
         except models.EmmMakeModel.DoesNotExist:

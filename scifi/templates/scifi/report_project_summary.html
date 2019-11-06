@@ -27,12 +27,13 @@
     <div class="indent-med">
         <h1>{{ project }} - FY {{ fiscal_year }}</h1>
 
-        <h3>Summary:</h3>
+        <h3>Project Summary:</h3>
         {% include "scifi/_report_summary_table.html" %}
 
 
         <br>
-        <table class="table table-sm table-hover table-bordered sortable" style="width:auto;">
+        <h3>Transactions:</h3>
+        <table class="table table-sm table-hover sortable" style="width:auto;">
             <thead>
             <tr>
                 {% for field in field_list %}
@@ -50,7 +51,7 @@
             </thead>
             <tbody>
             {% for object in object_list %}
-                <tr>
+                <tr href="{% url 'scifi:trans_detail' object.id %}">
 
                     {% for field in field_list %}
                         {% if field == "allotment_code" %}
@@ -98,8 +99,6 @@
 
                 </tr>
             {% endfor %}
-
-            <br>
             </tbody>
         </table>
 

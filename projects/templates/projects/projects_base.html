@@ -33,7 +33,7 @@
 {#                {% trans "Manage Programs" %}#}
 {#            </a>#}
             <a class="dropdown-item" href="{% url 'projects:project_list' %}">
-                {% trans "View All" %}
+                {% trans "All" %}
             </a>
             <a class="dropdown-item" href="{% url 'projects:my_project_list' %}">
                 {% trans "My Projects" %}
@@ -97,6 +97,9 @@
 
                     <a class="dropdown-item" href="{% url 'projects:admin_staff_list' %}">
                         {% trans "ADMIN: Non-registered Staff List" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:admin_project_program_list' %}">
+                        {% trans "ADMIN: Project Program List" %}
                     </a>
                 </div>
             </li>
