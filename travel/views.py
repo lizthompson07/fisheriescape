@@ -455,6 +455,7 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
 
         # if submitted, then unsumbit but only if admin or owner
         if is_submitted:
+            #  UNSUBMIT TRIP
             if in_travel_admin_group(self.request.user) or my_trip.user == self.request.user:
                 my_trip.submitted = None
                 # reset all the reviewer statuses
@@ -462,10 +463,14 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
             else:
                 messages.error(self.request, "sorry, only admins or owners can unsubmit trips")
         else:
+            #  SUBMIT TRIP
             my_trip.submitted = timezone.now()
-            # start all the reviewer statuses
+            # set all the reviewer statuses to 'queued'
             utils.start_review_process(my_trip)
+            #go and get approvals!!
 
+        # No matter what business what done, we will call this function to sort through reviewer and trip statuses
+        utils.approval_seeker(my_trip)
         my_trip.save()
         return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
 
