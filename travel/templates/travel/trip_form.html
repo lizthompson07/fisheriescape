@@ -10,9 +10,9 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Trips</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:event_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">New</li>
@@ -43,10 +43,10 @@
                     <div class="hide-me">
                 {% endif %}
 
-            {% if field.name == "registered_event" %}
+            {% if field.name == "conference" %}
                 <div class="event_container">
                     {% bootstrap_field field placeholder="" %}
-                    (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
+                    (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new event</a>)
                     <br><br>
                 </div>
             {% elif field.name == "is_group_trip" %}
@@ -87,10 +87,10 @@
             {% buttons %}
                 {% if object %}
                     <button type="submit" class="btn btn-success">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:event_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">Cancel</a>
                 {% else %}
                     <button type="submit" class="btn btn-success">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:event_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">Cancel</a>
                 {% endif %}
 
 
@@ -114,17 +114,17 @@
             $("#id_email").val(userObj[myId]["email"]);
         }
 
-        function refreshRegisteredEvent() {
-            if ($("#id_event").val() == "False") {
-                $("#id_registered_event").val("");
+        function refreshConference() {
+            if ($("#id_is_conference").val() == "False") {
+                $("#id_conference").val("");
                 $("#id_role").val("");
                 $("#id_role_of_participant").val("");
-                $("#id_registered_event").prop("disabled", true);
+                $("#id_conference").prop("disabled", true);
                 $("#id_role").prop("disabled", true);
                 $("#id_role_of_participant").prop("disabled", true);
                 $(".event_container").addClass("gone");
             } else {
-                $("#id_registered_event").prop("disabled", false);
+                $("#id_conference").prop("disabled", false);
                 $("#id_role").prop("disabled", false);
                 $("#id_role_of_participant").prop("disabled", false);
                 $(".event_container").removeClass("gone");
@@ -145,8 +145,8 @@
             refreshUserInfo();
         });
 
-        $("#id_event").change(function () {
-            refreshRegisteredEvent();
+        $("#id_is_conference").change(function () {
+            refreshConference();
         });
 
         $("#id_is_group_trip").change(function () {
@@ -166,7 +166,7 @@
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
             refreshUserInfo();
-            refreshRegisteredEvent();
+            refreshConference();
             refreshClassHideMe();
         });
 

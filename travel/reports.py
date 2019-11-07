@@ -29,19 +29,19 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
 
     # get a project list for the year
     if trip:
-        my_trip = models.Event.objects.get(pk=trip)
+        my_trip = models.Trip.objects.get(pk=trip)
         if my_trip.is_group_trip:
             is_group = True
-            trip_list = my_trip.children_events.all()
+            trip_list = my_trip.children_trips.all()
         else:
             is_group = False
-            trip_list = models.Event.objects.filter(pk=trip)
+            trip_list = models.Trip.objects.filter(pk=trip)
     else:
         is_group = False
         my_trip = None
         trip_list = None
 
-    # non_group_trip_list = models.Event.objects.all()
+    # non_group_trip_list = models.Trip.objects.all()
 
     # we need a list of ADM unapproaved but recommended
     # group travdellers need to be on one row

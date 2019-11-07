@@ -3,10 +3,10 @@ from django.template import loader
 from_email = 'DoNotReply@DMApps.com'
 
 
-class NewEventEmail:
+class NewTripEmail:
     def __init__(self, event):
         self.event = event
-        self.subject = 'Somebody registered a new event'
+        self.subject = 'Somebody created a new conference'
         self.message = self.load_html_template()
         self.from_email = from_email
         self.to_list = ["Amelie.Robichaud@dfo-mpo.gc.ca", ]

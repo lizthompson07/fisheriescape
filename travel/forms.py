@@ -16,15 +16,15 @@ YES_NO_CHOICES = (
 )
 
 
-class EventApprovalForm(forms.Form):
+class TripApprovalForm(forms.Form):
     is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
 
-class EventForm(forms.ModelForm):
+class TripForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
-        model = models.Event
+        model = models.Trip
         exclude = [
             "total_cost",
             "fiscal_year",
@@ -59,7 +59,7 @@ class EventForm(forms.ModelForm):
             'rdg': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
             'is_group_trip': forms.Select(choices=YES_NO_CHOICES),
-            'parent_event': forms.HiddenInput(),
+            'parent_trip': forms.HiddenInput(),
 
             # hidden fields
 
@@ -134,9 +134,9 @@ class EventForm(forms.ModelForm):
         self.fields['section'].choices = section_choices
 
 
-class AdminEventForm(forms.ModelForm):
+class AdminTripForm(forms.ModelForm):
     class Meta:
-        model = models.Event
+        model = models.Trip
         fields = [
             # "adm_approval_status",
             # "rdg_approval_status",
@@ -154,9 +154,9 @@ class AdminEventForm(forms.ModelForm):
             self.fields.get("adm_approval_status").choices = status_choices
 
 
-class ChildEventForm(forms.ModelForm):
+class ChildTripForm(forms.ModelForm):
     class Meta:
-        model = models.Event
+        model = models.Trip
         fields = [
             'user',
             'first_name',
@@ -183,18 +183,18 @@ class ChildEventForm(forms.ModelForm):
             'incidentals',
             'registration',
             'other',
-            'parent_event',
+            'parent_trip',
         ]
         widgets = {
             'user': forms.Select(attrs=chosen_js),
-            'parent_event': forms.HiddenInput(),
+            'parent_trip': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
-        parent_event = kwargs.get("initial").get("parent_event") if kwargs.get("initial") else None
-        print(parent_event)
-        if not parent_event:
-            parent_event = kwargs.get("instance").parent_event
+        parent_trip = kwargs.get("initial").get("parent_trip") if kwargs.get("initial") else None
+        print(parent_trip)
+        if not parent_trip:
+            parent_trip = kwargs.get("instance").parent_trip
 
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.all().order_by("last_name", "first_name")]
@@ -202,14 +202,14 @@ class ChildEventForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-        if not parent_event.event:
+        if not parent_trip.event:
             del self.fields['role']
             del self.fields['role_of_participant']
 
 
-class RegisteredEventForm(forms.ModelForm):
+class ConferenceForm(forms.ModelForm):
     class Meta:
-        model = models.RegisteredEvent
+        model = models.Conference
         fields = "__all__"
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
@@ -232,7 +232,7 @@ class ReportSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trips.count() > 0]
         # TRAVELLER_CHOICES = [(e['email'], "{}, {}".format(e['last_name'], e['first_name'])) for e in
-        #                      models.Event.objects.values("email", "first_name", "last_name").order_by("last_name", "first_name").distinct()]
+        #                      models.Trip.objects.values("email", "first_name", "last_name").order_by("last_name", "first_name").distinct()]
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trips.count() > 0]
         user_choices.insert(0, tuple((None, "---")))

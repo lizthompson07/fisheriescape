@@ -25,7 +25,7 @@
 
 {% block left_auth %}
 
-    <li class="nav-item"><a class="nav-link" href="{% url 'travel:event_list' %}">
+    <li class="nav-item"><a class="nav-link" href="{% url 'travel:trip_list' %}">
         {% trans "Trips" %}
     </a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'travel:report_search' %}">
@@ -45,8 +45,8 @@
                     <a class="dropdown-item" href="{% url 'travel:manage_statuses' %}">
                         {% trans "Manage Statuses" %}
                     </a>
-                    <a class="dropdown-item" href="{% url 'travel:revent_list' %}">
-                        {% trans "Registered Events" %}
+                    <a class="dropdown-item" href="{% url 'travel:conf_list' %}">
+                        {% trans "Conferences" %}
                     </a>
                     <a class="dropdown-item" href="{% url 'travel:admin_approval_list' %}">
                         {% trans "Admin Approval" %}

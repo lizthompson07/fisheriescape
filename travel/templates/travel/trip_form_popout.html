@@ -28,7 +28,7 @@
                     {% trans "Submit" %}
                 </button>
                 {% if object %}
-                    <a class="btn btn-danger" href="{% url 'travel:event_delete' object.id 'pop' %}">
+                    <a class="btn btn-danger" href="{% url 'travel:trip_delete' object.id 'pop' %}">
                         {% trans "Delete" %}
                     </a>
                 {% endif %}
@@ -49,7 +49,7 @@
                     {% trans "Submit" %}
                 </button>
                 {% if object %}
-                    <a class="btn btn-danger" href="{% url 'travel:event_delete' object.id 'pop' %}">
+                    <a class="btn btn-danger" href="{% url 'travel:trip_delete' object.id 'pop' %}">
                         {% trans "Delete" %}
                     </a>
                 {% endif %}
