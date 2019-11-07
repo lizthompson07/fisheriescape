@@ -25,7 +25,7 @@
                 </li>
 
             {% else %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:event_approval_list' 'awaiting' %}">Trips Awaiting Your Approval</a>
+                <li class="breadcrumb-item"><a href="{% url 'travel:trip_approval_list' 'awaiting' %}">Trips Awaiting Your Approval</a>
                 </li>
             {% endif %}
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
@@ -49,10 +49,10 @@
 
 
             <div class="float-right">
-                <a class="btn btn-warning " href="{% url 'travel:event_print' object.id %}">
+                <a class="btn btn-warning " href="{% url 'travel:trip_print' object.id %}">
                     View Travel Plan  &nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
                 </a>
-                <a class="btn btn-dark " href="{% url 'travel:event_detail' object.id %}">
+                <a class="btn btn-dark " href="{% url 'travel:trip_detail' object.id %}">
                     View Trip Detail Page
                 </a>
                 <a class="btn btn-success " href="{% url 'travel:export_cfts' object.id %}">
@@ -73,7 +73,7 @@
                     </a>
                 {% endif %}
 
-                <a class="btn btn-lg btn-secondary" href="{% url 'travel:event_approval_list' %}">
+                <a class="btn btn-lg btn-secondary" href="{% url 'travel:trip_approval_list' %}">
                     Cancel
                 </a>
                 <input type="submit" class="hidden">
@@ -122,7 +122,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for child in object.children_events.all %}
+                        {% for child in object.children_trips.all %}
 
                             <tr>
 
