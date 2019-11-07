@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from django.db import IntegrityError
 
 from . import models
@@ -32,15 +34,15 @@ def get_reviewers(trip):
     if trip.is_international or trip.is_conference:
         # add the ADMs office staff
         try:
-            models.Reviewer.objects.create(trip=trip, user_id=749, role_id=3, ) # Kim Cotton
+            models.Reviewer.objects.create(trip=trip, user_id=749, role_id=3, )  # Kim Cotton
         except IntegrityError:
             print("not adding NCR reviewer")
         try:
-            models.Reviewer.objects.create(trip=trip, user_id=736, role_id=4, ) # Andy White
+            models.Reviewer.objects.create(trip=trip, user_id=736, role_id=4, )  # Andy White
         except IntegrityError:
             print("not adding NCR recommender")
         try:
-            models.Reviewer.objects.create(trip=trip, user_id=754, role_id=4, ) # Stephen Birc
+            models.Reviewer.objects.create(trip=trip, user_id=754, role_id=4, )  # Stephen Birc
         except IntegrityError:
             print("not adding NCR recommender")
         try:
@@ -63,7 +65,8 @@ def start_review_process(trip):
     """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip.reviewers.all():
-        reviewer.status_id = 1
+        # set everyone to being queued
+        reviewer.status_id = 20
         reviewer.save()
 
 
@@ -75,10 +78,110 @@ def end_review_process(trip):
         reviewer.save()
 
 
-# def approval_seeker(trip):
-#     """ This method if meant to seek approvals via email, set waiting_ons and set project status"""
+def set_trip_status(trip):
+    """
+    IF POSSIBLE, THIS SHOULD ONLY BE CALLED BY THE approval_seeker() function.
+    This will look at the reviewers and decide on  what the project status should be. Will return False is trip is denied
+    """
+
+    # first order of business: if the trip is unsubmitted, and the status is NOT "changes requested", it is in 'draft' status
+    if not trip.submitted and trip.status_id != 16:
+        trip.status_id = 8
+        # don't stick around any longer. save the trip and leave exit the function
+        trip.save()
+        return False
+
+    else:
+        # if someone denied it at any point, the trip is 'denied' and all subsequent reviewers are set to "cancelled"
+        is_denied = False
+        for reviewer in trip.reviewers.all():
+            # if reviewer status is denied, set the is_denied var to true
+            if reviewer.status_id == 3:
+                is_denied = True
+            # if is_denied, all subsequent reviewer statuses should be set to "cancelled"
+            if is_denied:
+                reviewer.status_id = 5
+                reviewer.save()
+        if is_denied:
+            trip.status_id = 10
+            # don't stick around any longer. save the trip and leave exit the function
+            trip.save()
+            return False
+
+        # The trip should be approved if everyone has approved it.
+        # The total number of reviewers should equal the number of reviewer who approved.
+        elif trip.reviewers.all().count() == trip.reviewers.filter(status_id=2).count():
+            trip.status_id = 11
+            # don't stick around any longer. save the trip and leave exit the function
+            trip.save()
+            return False
+        else:
+            for reviewer in trip.reviewers.all():
+                # if a reviewer's status is 'pending', we are waiting on them and the status should be set.
+                if reviewer.status_id == 20:
+                    # if role is 'reviewer'
+                    if reviewer.role_id == 1:
+                        trip.status_id = 17
+                        # if role is 'reviewer'
+                    elif reviewer.role_id == 2:
+                        trip.status_id = 12
+                    elif reviewer.role_id == 3:
+                        trip.status_id = 18
+                    elif reviewer.role_id == 4:
+                        trip.status_id = 19
+                    elif reviewer.role_id == 5:
+                        trip.status_id = 14
+                    elif reviewer.role_id == 6:
+                        trip.status_id = 15
+
+    trip.save()
+    return True
+
+
+def approval_seeker(trip):
+    """
+    This method is meant to seek approvals via email + set reveiwer statuses.
+    It will also set the trip status vis a vis set_trip_status()
+
+    """
+
+    # start by setting the trip status... if the trip is "denied" OR "draft" or "approved", do not continue
+    if set_trip_status(trip):
+        next_reviewer = None
+        my_email = None
+        for reviewer in trip.reviewers.all():
+            # if the reviewer's status is set to 'queued', they will be our next selection
+            # we should then exit the loop and set the next_reviewer var
+            if reviewer.status_id == 20:
+                next_reviewer = reviewer
+                break
+
+        # if there is a next reviewer, set their status to pending
+        if next_reviewer:
+            next_reviewer.status_id = 1
+            next_reviewer.save()
+
+            # now, depending on the role of this reviewer, perhaps we want to send an email.
+            # if they are a recommender, rev...
+            if next_reviewer.role_id in [1, 2, 3, 4, 5, ]: # essentially, just not the RDG
+                my_email = emails.ReviewAwaitingEmail(trip, next_reviewer)
+
+            if my_email:
+                # send the email object
+                if settings.PRODUCTION_SERVER:
+                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                              recipient_list=my_email.to_list, fail_silently=False, )
+                else:
+                    print(my_email)
+
+            # Then, lets set the trip status again to account for the fact that something happened
+            set_trip_status(trip)
+
+    else:
+        # we should not be seeking any approvals..
+        pass
+
 #
-#     # if someone denied it at any point, the trip is 'denied'
 #
 #
 #         if trip.recommender_1_approval_status_id == 3 or \

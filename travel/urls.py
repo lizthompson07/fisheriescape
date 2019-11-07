@@ -20,8 +20,8 @@ urlpatterns = [
     path('trip/<int:pk>/new-child-trip/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/clone-duplicate/pop/<str:pop>', views.ChildTripCloneUpdateView.as_view(), name="child_duplicate_event"),
 
-    path('trips/approval/', views.TripApprovalListView.as_view(), name="trip_approval_list"),
-    path('trips/approval/<str:which_ones>/', views.TripApprovalListView.as_view(), name="trip_approval_list"),
+    path('trips/approval/', views.TripApprovalListView.as_view(), name="trip_review_list"),
+    path('trips/approval/<str:which_ones>/', views.TripApprovalListView.as_view(), name="trip_review_list"),
     path('trip/<int:pk>/approve/', views.TripApproveUpdateView.as_view(), name="trip_approve"),
 
     path('trip/<int:pk>/submit/', views.TripSubmitUpdateView.as_view(), name="trip_submit"),

@@ -72,7 +72,7 @@ class Status(models.Model):
     APPROVAL = 1
     TRIPS = 2
     USED_FOR_CHOICES = (
-        (APPROVAL, "Approval status"),
+        (APPROVAL, "Reviewer status"),
         (TRIPS, "Trip status"),
     )
 
@@ -226,8 +226,7 @@ class Trip(models.Model):
 
     submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
-                               limit_choices_to={"used_for": 2}, verbose_name=_("Trip approval status"),
-                               blank=True, null=True)
+                               limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
     parent_trip = models.ForeignKey("Trip", on_delete=models.CASCADE, related_name="children_trips", blank=True, null=True)
 
     def __str__(self):
@@ -247,19 +246,7 @@ class Trip(models.Model):
             self.other, 0) + nz(self.registration, 0)
         if self.start_date:
             self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
-
-        # run the approval seeker function
-        # self.approval_seeker()
-        # self.set_trip_status()
         return super().save(*args, **kwargs)
-
-    @property
-    def waiting_on(self):
-        if self.submitted:
-            return None
-
-
-        return
 
     @property
     def cost_breakdown(self):
