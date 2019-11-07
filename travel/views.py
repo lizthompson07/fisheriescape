@@ -287,6 +287,13 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
             my_trip_child_field_list.remove("role")
             my_trip_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_trip_child_field_list
+        context["reviewer_field_list"] = [
+            'order',
+            'user',
+            'role',
+            'status',
+            'status_date',
+        ]
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
 
@@ -439,24 +446,28 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         context["object"] = my_object
         context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
         context["child_field_list"] = trip_child_field_list
-
         return context
 
     def form_valid(self, form):
-        my_event = models.Trip.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         # figure out the current state of the trip
-        is_submitted = True if my_event.submitted else False
+        is_submitted = True if my_trip.submitted else False
 
-        # if submitted, then unsumbit but only if admin
+        # if submitted, then unsumbit but only if admin or owner
         if is_submitted:
-            if in_travel_admin_group(self.request.user) or my_event.user == self.request.user:
-                my_event.submitted = None
+            if in_travel_admin_group(self.request.user) or my_trip.user == self.request.user:
+                my_trip.submitted = None
+                # reset all the reviewer statuses
+                utils.end_review_process(my_trip)
             else:
                 messages.error(self.request, "sorry, only admins or owners can unsubmit trips")
         else:
-            my_event.submitted = timezone.now()
-        my_event.save()
-        return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_event.id}))
+            my_trip.submitted = timezone.now()
+            # start all the reviewer statuses
+            utils.start_review_process(my_trip)
+
+        my_trip.save()
+        return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
 
 
 class TripCreateView(TravelAccessRequiredMixin, CreateView):

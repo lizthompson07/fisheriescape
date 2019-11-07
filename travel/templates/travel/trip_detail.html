@@ -144,48 +144,40 @@
             <h3>
                 {% trans "Reviewers, Recommenders and Approvers" %}
             </h3>
-            {% if object.groups.count > 0 %}
+            {% if object.reviewers.count > 0 %}
                 <div class="btn-group">
-                    <a href="{% url 'shared_models:reviewer_new' object.id %}" class="btn btn-sm btn-primary">New</a>
-                    <a href="{% url 'shared_models:reviewer_order' object.id %}" class="btn btn-sm btn-warning">Adjust Order</a>
+                    <a href="#" class="btn btn-sm btn-primary">New</a>
+                    <a href="#" class="btn btn-sm btn-warning">Adjust Order</a>
                 </div>
                 <br>
                 <br>
 
-
-                <div class="row">
-                    <div class="col">
-                        (click on a header to sort table)
-                    </div>
-                    <div class="col" style="text-align: center">
-                        <em>displaying all {{ object.groups.count }} reviewers</em>
-                    </div>
-                    <div class="col" style="text-align: right; padding-bottom: 10px">
-                    </div>
-                </div>
-                <table class="table table-sm sortable table-hover">
+                <table class="table table-sm sortable" style="width: 60%">
                     <thead>
-                    {% for field in group_field_list %}
+                    {% for field in reviewer_field_list %}
                         {% if "strat" in field or "active" in field %}
                             <th scope="col" class="center-col">{% get_verbose_label my_obs_group_object field %}</th>
                         {% else %}
-                            <th scope="col">{% get_verbose_label my_obs_group_object field %}</th>
+                            <th scope="col">{% get_verbose_label object.reviewers.first field %}</th>
                         {% endif %}
                     {% endfor %}
                     </thead>
                     <tbody>
-                    {% for obj in object.groups.all %}
-{#                        {% url 'shared_models:group_detail' obj.id %}#}
+                    {% for obj in object.reviewers.all %}
+                        {#                        {% url 'shared_models:group_detail' obj.id %}#}
                         <tr href="#">
-                            {% for field in group_field_list %}
-                                {% if field == "is_active" %}
-                                    <td class="center-col {% if obj.is_active %}good{% else %}bad{% endif %}">{% get_field_value obj field %}</td>
-                                {% elif "strat" in field %}
-                                    <td class="center-col">{% get_field_value obj field %}</td>
+                            {% for field in reviewer_field_list %}
+                                {% if field == "status" %}
+                                    <td style="background-color: {{ obj.status.color }}">
+                                        {% get_field_value obj field %}
+                                    </td>
                                 {% else %}
                                     <td>{% get_field_value obj field %}</td>
                                 {% endif %}
                             {% endfor %}
+                            {% if not trip.submitted or is_admin %}
+                                <td>(<a href="#" class="under-dev">remove</a>)</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -194,12 +186,13 @@
                 <em>
                     {% trans "No reviewers, recommenders or approvers have been added to this project." %}
                     <br>
-{#                    {% url 'shared_models:group_new' object.id %}#}
+                    {#                    {% url 'shared_models:group_new' object.id %}#}
                     <a href="#" class="btn btn-sm btn-primary">New</a>
-                    <br><br>
                 </em>
             {% endif %}
         </div>
     </div>
+    <br><br>
+    <br><br>
 
 {% endblock content %}
