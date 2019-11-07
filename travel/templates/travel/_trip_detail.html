@@ -1,0 +1,138 @@
+{% load static %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{#  BASIC DETAIL #}
+<div class="row">
+    <div class="col">
+        <h3>
+            Trip Detail:
+        </h3>
+
+        <table class="table table-sm" style="width: 75%">
+            {% for field in field_list %}
+                {% if "status" in field %}
+                    <tr>
+                        <th>{% get_verbose_label trip field %}</th>
+                        <td style="background-color: {{ trip.status.color }};">{% get_field_value trip field %}</td>
+                    </tr>
+                {% else %}
+                    {% verbose_td_display trip field format="currency" th_width="30%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" %}
+                {% endif %}
+            {% endfor %}
+        </table>
+
+    </div>
+
+</div>
+<br><br>
+
+{#  GROUP TRAVELLERS  #}
+<div class="row">
+    {% if trip.is_group_trip %}
+
+        <div class="col">
+            {% if not report_mode %}
+                <div class="float-right">
+                    <a href="#" pop-href="{% url 'travel:trip_new' trip.id %}" class="btn btn-primary">Add Traveller</a>
+                </div>
+            {% endif %}
+            <h3>
+                Group Travellers:
+            </h3>
+            <br>
+            <table class="table table-sm table-hover sortable" style="width: 100%">
+                <thead>
+                <tr>
+                    {% for field in child_field_list %}
+                        {% if "cost_breakdown" in field or "purpose_long" in field %}
+                            <th style="width: 20%">{% get_verbose_label trip field %}</th>
+                        {% else %}
+                            <th scope="col">{% get_verbose_label trip field %}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for child in trip.children_trips.all %}
+
+                    <tr {% if not report_mode %}pop href="{% url 'travel:trip_edit' child.id "pop" %}" {% endif %}
+                        class="{% if child.total_cost == 0 %}bad{% endif %}">
+
+                        {% for field in child_field_list %}
+                            <td>{% get_field_value child field format="currency" safe=True %}</td>
+
+                        {% endfor %}
+                        {% if not report_mode %}
+                            <td>
+                                <a class="btn btn-sm btn-warning stop-pop" href="{% url 'travel:child_duplicate_event' child.id  'pop' %}">
+                                    Clone
+                                </a>
+                            </td>
+                        {% endif %}
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tr>
+                    <th colspan="{{ child_field_list|length|subtract:1|floatformat }}" style="text-align: right">TOTAL COST:</th>
+                    <th style="width: 8%;">{{ trip.total_trip_cost|currency:"True" }}</th>
+                </tr>
+            </table>
+
+
+        </div>
+    {% endif %}
+
+</div>
+{#  REVIEWERS  #}
+<div class="row">
+    <div class="col">
+        <h3>
+            {% trans "Reviewers, Recommenders and Approvers" %}
+        </h3>
+        {% if not report_mode %}
+            <a href="{% url 'travel:manage_reviewers' trip.id %}" class="btn btn-sm btn-primary">Modify</a>
+        {% endif %}
+        {% if trip.reviewers.count > 0 %}
+            <br>
+            <br>
+
+            <table class="table table-sm sortable" style="width: 100%">
+                <thead>
+                {% for field in reviewer_field_list %}
+                    {% if "strat" in field or "active" in field %}
+                        <th scope="col" class="center-col">{% get_verbose_label my_obs_group_trip field %}</th>
+                    {% else %}
+                        <th scope="col">{% get_verbose_label trip.reviewers.first field %}</th>
+                    {% endif %}
+                {% endfor %}
+                </thead>
+                <tbody>
+                {% for obj in trip.reviewers.all %}
+                    {#                        {% url 'shared_models:group_detail' obj.id %}#}
+                    <tr>
+                        {% for field in reviewer_field_list %}
+                            {% if field == "status" %}
+                                <td style="background-color: {{ obj.status.color }}">
+                                    {% get_field_value obj field %}
+                                </td>
+                            {% else %}
+                                <td>{% get_field_value obj field %}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <em>
+                {% trans "No reviewers, recommenders or approvers have been added to this project." %}
+            </em>
+        {% endif %}
+    </div>
+</div>
+<br><br>
+<br><br>
+

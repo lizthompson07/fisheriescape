@@ -19,15 +19,21 @@ urlpatterns = [
     path('trip/<int:pk>/duplicate/', views.TripCloneUpdateView.as_view(), name="duplicate_event"),
     path('trip/<int:pk>/new-child-trip/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/clone-duplicate/pop/<str:pop>', views.ChildTripCloneUpdateView.as_view(), name="child_duplicate_event"),
-
-    path('trips/approval/', views.TripApprovalListView.as_view(), name="trip_review_list"),
-    path('trips/approval/<str:which_ones>/', views.TripApprovalListView.as_view(), name="trip_review_list"),
-    path('trip/<int:pk>/approve/', views.TripApproveUpdateView.as_view(), name="trip_approve"),
-
     path('trip/<int:pk>/submit/', views.TripSubmitUpdateView.as_view(), name="trip_submit"),
 
+    # REVIEWER APPROVAL
+    path('trips/review/', views.TripReviewListView.as_view(), name="trip_review_list"),
+    path('trips/review/<str:which_ones>/', views.TripReviewListView.as_view(), name="trip_review_list"),
+    path('review/<int:pk>/approve/', views.ReviewerApproveUpdateView.as_view(), name="review_approve"),
+
+    # ADMIN APPROVAL
     path('admin/approval/', views.TripAdminApprovalListView.as_view(), name="admin_approval_list"),
     path('admin/<int:pk>/approve/', views.TripAdminApproveUpdateView.as_view(), name="admin_approve"),
+
+    # REVIEWERS #
+    #############
+    path('trip/<int:trip>/manage-reviewers/', views.manage_reviewers, name="manage_reviewers"),
+    path('reviewer/<int:pk>/delete/', views.delete_reviewer, name="delete_reviewer"),
 
 
     # CONFERENCE #

@@ -75,6 +75,7 @@ def end_review_process(trip):
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip.reviewers.all():
         reviewer.status_id = 4
+        reviewer.status_date = None
         reviewer.save()
 
 
@@ -117,20 +118,24 @@ def set_trip_status(trip):
             return False
         else:
             for reviewer in trip.reviewers.all():
-                # if a reviewer's status is 'pending', we are waiting on them and the status should be set.
-                if reviewer.status_id == 20:
+                # if a reviewer's status is 'pending', we are waiting on them and the project status should be set accordingly.
+                if reviewer.status_id == 1:
                     # if role is 'reviewer'
                     if reviewer.role_id == 1:
                         trip.status_id = 17
-                        # if role is 'reviewer'
+                    # if role is 'recommender'
                     elif reviewer.role_id == 2:
                         trip.status_id = 12
+                    # if role is 'ncr reviewer'
                     elif reviewer.role_id == 3:
                         trip.status_id = 18
+                    # if role is 'ncr recommender'
                     elif reviewer.role_id == 4:
                         trip.status_id = 19
+                    # if role is 'adm'
                     elif reviewer.role_id == 5:
                         trip.status_id = 14
+                    # if role is 'rdg'
                     elif reviewer.role_id == 6:
                         trip.status_id = 15
 

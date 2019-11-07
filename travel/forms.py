@@ -16,6 +16,17 @@ YES_NO_CHOICES = (
 )
 
 
+class ReviewerApprovalForm(forms.ModelForm):
+    is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = models.Reviewer
+        fields = [
+            "comments",
+        ]
+
+
 class TripApprovalForm(forms.Form):
     is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
@@ -28,20 +39,8 @@ class TripForm(forms.ModelForm):
         exclude = [
             "total_cost",
             "fiscal_year",
-            # "recommender_1_approval_date",
-            # "recommender_1_approval_status",
-            # "recommender_2_approval_date",
-            # "recommender_2_approval_status",
-            # "recommender_3_approval_date",
-            # "recommender_3_approval_status",
-            # "adm_approval_date",
-            # "adm_approval_status",
-            # "rdg_approval_date",
-            # "rdg_approval_status",
-            # "waiting_on",
             "submitted",
             "status",
-            "departure_location",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
@@ -52,17 +51,13 @@ class TripForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'bta_attendees': forms.SelectMultiple(attrs=chosen_js),
             'user': forms.Select(attrs=chosen_js),
-            'recommender_1': forms.Select(attrs=chosen_js),
-            'recommender_2': forms.Select(attrs=chosen_js),
-            'recommender_3': forms.Select(attrs=chosen_js),
-            'adm': forms.Select(attrs=chosen_js),
-            'rdg': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
             'is_group_trip': forms.Select(choices=YES_NO_CHOICES),
-            'parent_trip': forms.HiddenInput(),
 
             # hidden fields
+            'parent_trip': forms.HiddenInput(),
 
+            # non-group trip fields
             'first_name': forms.TextInput(attrs=attr_hide_me),
             'last_name': forms.TextInput(attrs=attr_hide_me),
             'address': forms.TextInput(attrs=attr_hide_me),
@@ -70,17 +65,11 @@ class TripForm(forms.ModelForm):
             'email': forms.EmailInput(attrs=attr_hide_me),
             'public_servant': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
             'company_name': forms.TextInput(attrs=attr_hide_me),
-
+            'departure_location': forms.TextInput(attrs=attr_hide_me),
             'role': forms.Select(attrs=attr_hide_me),
-            # 'reason': forms.Select(attrs=attr_hide_me),
-            # 'purpose': forms.Select(attrs=attr_hide_me),
+            'region': forms.Select(attrs=attr_hide_me),
             'role_of_participant': forms.Textarea(attrs=attr_hide_me),
-            # 'objective_of_event': forms.Textarea(attrs=attr_hide_me),
-            # 'benefit_to_dfo': forms.Textarea(attrs=attr_hide_me),
             'multiple_conferences_rationale': forms.Textarea(attrs=attr_hide_me),
-            # 'multiple_attendee_rationale': forms.Textarea(attrs=attr_hide_me),
-            # 'funding_source': forms.Textarea(attrs=attr_hide_me),
-            # 'notes': forms.Textarea(attrs=attr_hide_me),
             'air': forms.NumberInput(attrs=attr_hide_me),
             'rail': forms.NumberInput(attrs=attr_hide_me),
             'rental_motor_vehicle': forms.NumberInput(attrs=attr_hide_me),
@@ -202,7 +191,7 @@ class ChildTripForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-        if not parent_trip.event:
+        if not parent_trip.is_conference:
             del self.fields['role']
             del self.fields['role_of_participant']
 
@@ -253,3 +242,70 @@ StatusFormSet = modelformset_factory(
     form=StatusForm,
     extra=1,
 )
+
+
+class ReviewerForm(forms.ModelForm):
+    class Meta:
+        model = models.Reviewer
+        fields = [
+            'trip',
+            'order',
+            'user',
+            'role',
+        ]
+        widgets = {
+            'trip': forms.HiddenInput(),
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     my_trip = cleaned_data.get("trip")
+    #     my_order = cleaned_data.get("order")
+    #     my_role = cleaned_data.get("role")
+    #
+    #     # make sure the role is properly positioned
+    #     # last_reviewer = None
+    #     # for reviewer in my_trip.reviewers.all():
+    #     #     # basically, each subsequent reviewer should have a role that is further down in order than the previous
+    #     #     if last_reviewer:
+    #     #         if reviewer.role.order > last_reviewer.role.order:
+    #     #             raise forms.ValidationError("The roles of the reviewers are out of order!")
+    #     #     last_reviewer = reviewer
+    #
+    #
+    #     # we have to do something smart with the order...
+    #     # if there is nothing competing, our job is done. Otherwise...
+    #     # if my_trip.reviewers.filter(order=my_order).count() > 0:
+    #     #     print("found")
+    #     #     found_equal = False
+    #     #     for reviewer in my_trip.reviewers.all():
+    #     #         if reviewer.order == my_order:
+    #     #             found_equal = True
+    #     #
+    #     #         if found_equal:
+    #     #             reviewer.order += 1
+    #     #             reviewer.save()
+    #     return cleaned_data
+
+                # else:
+                #     reviewer.order = count
+                # count += 1
+
+        # north = cleaned_data.get("north")
+        # south = cleaned_data.get("south")
+        # east = cleaned_data.get("east")
+        # west = cleaned_data.get("west")
+        #
+        # if not north or not south or not east or not west:
+        #
+        # raise forms.ValidationError("You must enter valid values for all directions.")
+
+
+ReviewerFormSet = modelformset_factory(
+    model=models.Reviewer,
+    form=ReviewerForm,
+    extra=1,
+)
+
+
