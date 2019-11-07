@@ -246,7 +246,25 @@ class Trip(models.Model):
             self.other, 0) + nz(self.registration, 0)
         if self.start_date:
             self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
+
+        # ensure the process order makes sense
+        count = 1
+        for reviewer in self.reviewers.all():
+            reviewer.order = count
+            reviewer.save()
+            count += 1
+
         return super().save(*args, **kwargs)
+
+    @property
+    def reviewer_order_message(self):
+        last_reviewer = None
+        for reviewer in self.reviewers.all():
+            # basically, each subsequent reviewer should have a role that is further down in order than the previous
+            if last_reviewer:
+                if last_reviewer.role.order > reviewer.role.order:
+                    return "WARNING: The roles of the reviewers are out of order!"
+            last_reviewer = reviewer
 
     @property
     def cost_breakdown(self):
@@ -320,6 +338,19 @@ class Trip(models.Model):
 
         return my_str
 
+    @property
+    def current_reviewer(self):
+        """Send back the first reviewer whose status is 'pending' """
+        return self.reviewers.filter(status_id=1).first()
+
+    @property
+    def status_string(self):
+        my_status = self.status
+        #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
+        status_str = "{}".format(my_status)
+        if my_status.id not in [11, 8, ] and self.current_reviewer:
+            status_str += " {} {}".format(_("by"), self.current_reviewer.user)
+        return status_str
 
 
 class ReviewerRole(models.Model):
@@ -340,21 +371,37 @@ class ReviewerRole(models.Model):
 
 
 class Reviewer(models.Model):
-    trip = models.ForeignKey(Trip, on_delete=models.DO_NOTHING, related_name="reviewers")
-    order = models.IntegerField(blank=True, null=True, verbose_name=_("process order"))
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers", verbose_name=_("DM Apps user"))
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="reviewers")
+    order = models.IntegerField(null=True, verbose_name=_("process order"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 1},
                                verbose_name=_("review status"), default=4)
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
+    comments = models.TextField(null=True, verbose_name=_("Comments"))
+
 
     class Meta:
         unique_together = ['trip', 'user', 'role', ]
         ordering = ['trip', 'order', ]
 
     def save(self, *args, **kwargs):
-        if not self.order:
-            self.order = self.trip.reviewers.count()+1
+
+        # we have to do something smart with the order...
+        # if there is nothing competing, our job is done. Otherwise...
+        # if self.trip.reviewers.filter(order=self.order).count() > 0:
+        #     found_equal = False
+        #     count = 1
+        #     for reviewer in self.trip.reviewers.all():
+        #         if self.order == reviewer.order:
+        #             found_equal = True
+        #         if found_equal:
+        #             reviewer.order += 1
+        #             reviewer.save()
+        #         else:
+        #             reviewer.order = count
+        #         count += 1
+
         return super().save(*args, **kwargs)
 
     @property

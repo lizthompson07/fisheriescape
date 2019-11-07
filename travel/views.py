@@ -42,7 +42,7 @@ def in_travel_admin_group(user):
 
 
 def is_approver(user, event):
-    if user == event.recommender_1 or user == event.recommender_2 or user == event.recommender_3 or user == event.approver:
+    if user == event.current_reviewer:
         return True
 
 
@@ -85,19 +85,15 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context["number_waiting"] = models.Trip.objects.filter(waiting_on=self.request.user).count()
-        # approval_count = models.Trip.objects.filter(
-        #     Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-        #         rdg=self.request.user) | Q(adm=self.request.user)).count()
-        #
-        # context["is_approver"] = True if approval_count > 0 else False
-        # print(approval_count)
+        context["number_waiting"] = self.request.user.reviewers.filter(
+            status_id=1).count()  # the number of trips where their review is pending
+        context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         return context
 
 
 trip_field_list = [
     'fiscal_year',
-    'status',
+    'status_string|{}'.format(_("Trip status")),
     'user',
     'section',
     'first_name',
@@ -149,7 +145,7 @@ trip_field_list = [
 
 trip_group_field_list = [
     'fiscal_year',
-    'status',
+    'status_string|{}'.format(_("Trip status")),
     'user',
     'section',
     'trip_title',
@@ -182,6 +178,15 @@ trip_child_field_list = [
     'total_cost',
 ]
 
+reviewer_field_list = [
+    'order',
+    'user',
+    'role',
+    'status',
+    'status_date',
+    'comments',
+]
+
 
 # TRIP #
 #########
@@ -210,21 +215,23 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
         return context
 
 
-class TripApprovalListView(TravelAccessRequiredMixin, ListView):
+class TripReviewListView(TravelAccessRequiredMixin, ListView):
     model = models.Trip
-    template_name = 'travel/trip_approval_list.html'
+    template_name = 'travel/trip_review_list.html'
 
     def get_queryset(self):
-        qs = models.Trip.objects.filter(parent_trip__isnull=True).filter(
-            Q(recommender_1=self.request.user) | Q(recommender_2=self.request.user) | Q(recommender_3=self.request.user) | Q(
-                adm=self.request.user) | Q(rdg=self.request.user)).order_by("-submitted")
-        return qs.filter(waiting_on=self.request.user) if self.kwargs.get("which_ones") == "awaiting" else qs
+        if self.kwargs.get("which_ones") == "awaiting":
+            qs = models.Trip.objects.filter(pk__in=[reviewer.trip.id for reviewer in self.request.user.reviewers.filter(status_id=1)])
+        else:
+            qs = models.Trip.objects.filter(pk__in=[reviewer.trip.id for reviewer in self.request.user.reviewers.all()])
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Trip.objects.first()
         context["awaiting"] = True if self.kwargs.get("which_ones") else False
         context["field_list"] = [
+            'status_string|{}'.format(_("Trip status")),
             'is_group_trip',
             'first_name',
             'last_name',
@@ -287,15 +294,11 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
             my_trip_child_field_list.remove("role")
             my_trip_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_trip_child_field_list
-        context["reviewer_field_list"] = [
-            'order',
-            'user',
-            'role',
-            'status',
-            'status_date',
-        ]
+        context["reviewer_field_list"] = reviewer_field_list
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
+        if my_object.submitted:
+            context["report_mode"] = True
 
         return context
 
@@ -336,71 +339,56 @@ class TripUpdateView(TravelAccessRequiredMixin, UpdateView):
         return context
 
 
-class TripApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
-    model = models.Trip
-    form_class = forms.TripApprovalForm
-    template_name = 'travel/trip_approval_form.html'
+class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
+    model = models.Reviewer
+    form_class = forms.ReviewerApprovalForm
+    template_name = 'travel/reviewer_approval_form.html'
+
+    def test_func(self):
+        my_trip = self.get_object().trip
+        my_user = self.request.user
+        if in_travel_admin_group(my_user) or is_approver(my_user, my_trip):
+            return True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_object = models.Trip.objects.get(pk=self.kwargs.get("pk"))
-        context["object"] = my_object
-        context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
+        my_object = self.get_object()
+        context["field_list"] = trip_field_list if not my_object.trip.is_group_trip else trip_group_field_list
         context["child_field_list"] = trip_child_field_list
+        context["reviewer_field_list"] = reviewer_field_list
+        context["trip"] = my_object.trip
+        context["report_mode"] = True
 
         return context
 
     def form_valid(self, form):
+        my_reviewer = form.save(commit=False)
+
         is_approved = form.cleaned_data.get("is_approved")
-        my_event = models.Trip.objects.get(pk=self.kwargs.get("pk"))
-        # if the user approved the project, we should approve anything that is them
-        if my_event.recommender_1 == self.request.user:
-            my_event.recommender_1_approval_date = timezone.now()
-            if is_approved:
-                my_event.recommender_1_approval_status_id = 2
-            else:
-                my_event.recommender_1_approval_status_id = 3
-                my_event.recommender_2_approval_status_id = 5
-                my_event.recommender_3_approval_status_id = 5
-                my_event.adm_approval_status_id = 5
-                my_event.rdg_approval_status_id = 5
+        changes_requested = form.cleaned_data.get("changes_requested")
 
-        if my_event.recommender_2 == self.request.user:
-            my_event.recommender_2_approval_date = timezone.now()
-            if is_approved:
-                my_event.recommender_2_approval_status_id = 2
-            else:
-                my_event.recommender_2_approval_status_id = 3
-                my_event.recommender_3_approval_status_id = 5
-                my_event.adm_approval_status_id = 5
-                my_event.rdg_approval_status_id = 5
+        # first scenario: changes were requested for the trip
+        # in this case, the reviewer status does not change but the trip status will
+        if changes_requested:
+            my_reviewer.trip.status_id = 16
+            my_reviewer.trip.save()
 
-        if my_event.recommender_3 == self.request.user:
-            my_event.recommender_3_approval_date = timezone.now()
-            if is_approved:
-                my_event.recommender_3_approval_status_id = 2
-            else:
-                my_event.recommender_3_approval_status_id = 3
-                my_event.adm_approval_status_id = 5
-                my_event.rdg_approval_status_id = 5
+        # if it was approved, then we change the reviewer status to 'approved'
+        elif is_approved:
+            my_reviewer.status_id = 2
+            my_reviewer.status_date = timezone.now()
+        # if it was approved, then we change the reviewer status to 'approved'
+        else:
+            my_reviewer.status_id = 3
+            my_reviewer.status_date = timezone.now()
 
-        if my_event.adm == self.request.user:
-            my_event.adm_approval_date = timezone.now()
-            if is_approved:
-                my_event.adm_approval_status_id = 2
-            else:
-                my_event.adm_approval_status_id = 3
-                my_event.rdg_approval_status_id = 5
+        # now we save the reviewer for real
+        my_reviewer.save()
 
-        if my_event.rdg == self.request.user:
-            my_event.rdg_approval_date = timezone.now()
-            if is_approved:
-                my_event.rdg_approval_status_id = 2
-            else:
-                my_event.rdg_approval_status_id = 3
+        # update any statuses if necessary
+        utils.approval_seeker(my_reviewer.trip)
 
-        my_event.save()
-        return HttpResponseRedirect(reverse("travel:trip_approval_list"))
+        return HttpResponseRedirect(reverse("travel:trip_review_list"))
 
 
 class TripAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -413,6 +401,7 @@ class TripAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
         my_object = self.get_object()
         context["admin"] = True
         context["object"] = my_object
+        context["trip"] = my_object.trip
 
         return context
 
@@ -444,8 +433,12 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         my_object = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         context["object"] = my_object
+        context["trip"] = my_object
         context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
         context["child_field_list"] = trip_child_field_list
+        context["reviewer_field_list"] = reviewer_field_list
+        context["report_mode"] = True
+
         return context
 
     def form_valid(self, form):
@@ -467,7 +460,7 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
             my_trip.submitted = timezone.now()
             # set all the reviewer statuses to 'queued'
             utils.start_review_process(my_trip)
-            #go and get approvals!!
+            # go and get approvals!!
 
         # No matter what business what done, we will call this function to sort through reviewer and trip statuses
         utils.approval_seeker(my_trip)
@@ -578,8 +571,18 @@ class TripCloneUpdateView(TripUpdateView):
         new_obj.pk = None
         new_obj.submitted = None
         new_obj.save()
-        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": new_obj.id}))
 
+        # add the reviewers based on the new trip info
+        utils.get_reviewers(new_obj)
+        utils.approval_seeker(new_obj)
+
+        # need to clone any children of the old object...
+        for child_trip in old_obj.children_trips.all():
+            child_trip.pk = None
+            child_trip.parent_trip = new_obj
+            child_trip.save()
+
+        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": new_obj.id}))
 
 
 class ChildTripCloneUpdateView(TripCreateView):
@@ -616,6 +619,60 @@ class ChildTripCloneUpdateView(TripCreateView):
     #     new_obj = form.save()
     #     return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": new_obj.id}))
 
+
+# REVIEWER #
+############
+
+
+@login_required(login_url='/accounts/login_required/')
+# @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def delete_reviewer(request, pk):
+    my_obj = models.Reviewer.objects.get(pk=pk)
+    if my_obj.trip.submitted:
+        messages.error(request, "Cannot modify reviewers while project is submitted")
+        return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.trip.id}))
+    else:
+        my_obj.delete()
+        my_obj.trip.save()
+        return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip": my_obj.trip.id}))
+
+
+@login_required(login_url='/accounts/login_required/')
+# @user_passes_test(is_superuser, login_url='/accounts/denied/')
+def manage_reviewers(request, trip):
+    my_trip = models.Trip.objects.get(pk=trip)
+    if my_trip.submitted:
+        messages.error(request, "Cannot modify reviewers while project is submitted")
+        return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
+    else:
+        qs = models.Reviewer.objects.filter(trip=my_trip)
+        if request.method == 'POST':
+            formset = forms.ReviewerFormSet(request.POST)
+
+            if formset.is_valid():
+                formset.save()
+
+                my_trip.save()
+                # do something with the formset.cleaned_data
+                messages.success(request, _("The reviewer list has been successfully updated"))
+                return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip": my_trip.id}))
+        else:
+            formset = forms.ReviewerFormSet(
+                queryset=qs,
+                initial=[{"trip": my_trip}],
+            )
+
+        context = {}
+        context['trip'] = my_trip
+        context['formset'] = formset
+        context["my_object"] = models.Reviewer.objects.first()
+        context["field_list"] = [
+            'trip',
+            'order',
+            'user',
+            'role',
+        ]
+        return render(request, 'travel/reviewer_formset.html', context)
 
 
 # CONFERENCE #
@@ -769,6 +826,7 @@ def export_trip_cfts(request, pk):
                 timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
+
 
 class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     login_url = '/accounts/login_required/'
