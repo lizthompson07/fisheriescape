@@ -20,8 +20,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Trips</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:event_detail' object.id %}">{{ object }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' object.id %}">{{ object }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">
                 {% if object.submitted %}
                     Un-submit Request
@@ -34,7 +34,7 @@
 
     <div class="container">
         {#        <div class="float-right">#}
-        {#            <a class="btn btn-warning " href="{% url 'travel:event_print' object.id %}">#}
+        {#            <a class="btn btn-warning " href="{% url 'travel:trip_print' object.id %}">#}
         {#                Travel Plan <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">#}
         {#            </a>#}
         {#        </div>#}
@@ -55,7 +55,7 @@
 
                 <input type="submit" class="btn btn-lg btn-warning" value="Yes">
 
-                <a class="btn btn-lg btn-secondary" href="{% url 'travel:event_detail' object.id %}">
+                <a class="btn btn-lg btn-secondary" href="{% url 'travel:trip_detail' object.id %}">
                     Cancel
                 </a>
             </div>
@@ -100,7 +100,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for child in object.children_events.all %}
+                        {% for child in object.children_trips.all %}
 
                             <tr>
 

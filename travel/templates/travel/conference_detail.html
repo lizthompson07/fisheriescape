@@ -19,7 +19,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:revent_list' %}">Registered Events</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:conf_list' %}">Conferences</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -30,10 +30,10 @@
 
 
         <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'travel:revent_edit' object.id %}">
+            <a class="btn btn-warning" href="{% url 'travel:conf_edit' object.id %}">
                 Edit
             </a>
-            <a class="btn btn-danger " href="{% url 'travel:revent_delete' object.id %}">
+            <a class="btn btn-danger " href="{% url 'travel:conf_delete' object.id %}">
                 Delete
             </a>
         </div>
@@ -43,7 +43,7 @@
         <div class="row">
             <div class="col">
                 <h3>
-                    Event Detail:
+                    Conference Detail:
                 </h3>
 
                 <table class="table table-sm">
@@ -59,7 +59,7 @@
                 <ul>
                     {% for trip in object.trips.all %}
                         <li>
-                            <a href="{% url 'travel:event_detail' trip.id %}">{{ trip }}</a> by {{ trip.user }}
+                            <a href="{% url 'travel:trip_detail' trip.id %}">{{ trip }}</a> by {{ trip.user }}
                             (STATUS: <span style="background-color: {{ trip.status.color }}">{{ trip.status }}</span>)
 
                         </li>
