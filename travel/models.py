@@ -166,7 +166,7 @@ class Trip(models.Model):
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="user_trips",
                              verbose_name=_("user"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("DFO section"),
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"),
                                 limit_choices_to={'division__branch': 1})
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
@@ -177,16 +177,16 @@ class Trip(models.Model):
     public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES)
     company_name = models.CharField(max_length=255, verbose_name=_("company name (leave blank if DFO)"), blank=True, null=True)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
-                               blank=True, null=True, default=1)
+                               null=True, default=1)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location"), blank=True, null=True)
     destination = models.CharField(max_length=1000, verbose_name=_("destination location"), blank=True, null=True)
-    start_date = models.DateTimeField(verbose_name=_("start date of travel"), blank=True, null=True)
-    end_date = models.DateTimeField(verbose_name=_("end date of travel"), blank=True, null=True)
+    start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True)
+    end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True)
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     is_international = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
-        "is this travel international, or are international travellers part of this trip request?"))
+        "is this an international trip OR are international travellers included in this request?"))
     is_conference = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a conference?"))
     conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
                                    verbose_name=_("conference"), related_name="trips")
@@ -436,7 +436,7 @@ class ReviewerRole(models.Model):
 
 
 class Reviewer(models.Model):
-    # trip = models.ForeignKey(Event, on_delete=models.DO_NOTHING, related_name="reviewers")
+    trip = models.ForeignKey(Trip, on_delete=models.DO_NOTHING, related_name="reviewers")
     order = models.IntegerField(blank=True, null=True, verbose_name=_("approval order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers", verbose_name=_("DM Apps user"))
     role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
@@ -444,13 +444,13 @@ class Reviewer(models.Model):
                                verbose_name=_("review status"), default=4)
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
 
-    # class Meta:
-    #     unique_together = ['trip', 'user', 'role', ]
-    #     ordering = ['trip', 'order', ]
-    #
-    # def save(self, *args, **kwargs):
-    #     self.order = self.trip.reviewers.count()
-    #     return super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['trip', 'user', 'role', ]
+        ordering = ['trip', 'order', ]
+
+    def save(self, *args, **kwargs):
+        self.order = self.trip.reviewers.count()+1
+        return super().save(*args, **kwargs)
 
     @property
     def status_string(self):

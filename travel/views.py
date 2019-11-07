@@ -26,6 +26,7 @@ from . import forms
 from . import reports
 from . import emails
 from . import filters
+from . import utils
 
 from shared_models import models as shared_models
 
@@ -94,7 +95,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         return context
 
 
-event_field_list = [
+trip_field_list = [
     'fiscal_year',
     'status',
     'user',
@@ -112,6 +113,7 @@ event_field_list = [
     'destination',
     'start_date',
     'end_date',
+    'is_international',
     'is_conference',
     'conference',
 
@@ -143,16 +145,9 @@ event_field_list = [
     'total_cost',
     'cost_breakdown|{}'.format(_("cost summary")),
     'purpose_long|{}'.format(_("purpose")),
-
-    # costs
-    # 'recommender_1_status|{}'.format(_("Recommender 1")),
-    # 'recommender_2_status|{}'.format(_("Recommender 2")),
-    # 'recommender_3_status|{}'.format(_("Recommender 3")),
-    # 'adm_status|{}'.format(_("ADM")),
-    # 'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
 ]
 
-event_group_field_list = [
+trip_group_field_list = [
     'fiscal_year',
     'status',
     'user',
@@ -174,30 +169,16 @@ event_group_field_list = [
     'late_justification',
     'notes',
     'total_trip_cost|{}'.format(_("Total trip cost")),
-
-    # 'recommender_1_status|{}'.format(_("Recommender 1")),
-    # 'recommender_2_status|{}'.format(_("Recommender 2")),
-    # 'recommender_3_status|{}'.format(_("Recommender 3")),
-    # 'adm_status|{}'.format(_("ADM")),
-    # 'rdg_status|{}'.format(_("Expenditure Initiation (RDG)")),
 ]
 
-event_child_field_list = [
+trip_child_field_list = [
     'first_name',
     'last_name',
-    # 'address',
-    # 'phone',
-    # 'email',
     'public_servant',
     'region',
-
-    # 'company_name',
     'departure_location',
     'role',
     'role_of_participant',
-    # 'reason',
-    # 'purpose_long|{}'.format(_("purpose")),
-    # 'cost_breakdown|{}'.format(_("cost summary")),
     'total_cost',
 ]
 
@@ -300,12 +281,12 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_object = self.get_object()
-        context["field_list"] = event_field_list if not my_object.is_group_trip else event_group_field_list
-        my_event_child_field_list = deepcopy(event_child_field_list)
+        context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
+        my_trip_child_field_list = deepcopy(trip_child_field_list)
         if not my_object.is_conference:
-            my_event_child_field_list.remove("role")
-            my_event_child_field_list.remove("role_of_participant")
-        context["child_field_list"] = my_event_child_field_list
+            my_trip_child_field_list.remove("role")
+            my_trip_child_field_list.remove("role_of_participant")
+        context["child_field_list"] = my_trip_child_field_list
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
 
@@ -345,19 +326,6 @@ class TripUpdateView(TravelAccessRequiredMixin, UpdateView):
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
 
-        # # need to create a dictionary for sections and who the recommenders / appovers are
-        # section_dict = {}
-        # for section in shared_models.Section.objects.all():
-        #     section_dict[section.id] = {}
-        #     section_dict[section.id]["recommender_1"] = section.head_id
-        #     section_dict[section.id]["recommender_2"] = section.division.head_id
-        #     section_dict[section.id]["recommender_3"] = section.division.branch.head_id
-        #     section_dict[section.id]["rdg"] = section.division.branch.region.head_id
-        #     section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
-        # section_json = json.dumps(section_dict)
-        # # send JSON file to template so that it can be used by js script
-        # context['section_json'] = section_json
-
         return context
 
 
@@ -370,8 +338,8 @@ class TripApproveUpdateView(AdminOrApproverRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         my_object = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         context["object"] = my_object
-        context["field_list"] = event_field_list if not my_object.is_group_trip else event_group_field_list
-        context["child_field_list"] = event_child_field_list
+        context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
+        context["child_field_list"] = trip_child_field_list
 
         return context
 
@@ -469,8 +437,8 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         my_object = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         context["object"] = my_object
-        context["field_list"] = event_field_list if not my_object.is_group_trip else event_group_field_list
-        context["child_field_list"] = event_child_field_list
+        context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
+        context["child_field_list"] = trip_child_field_list
 
         return context
 
@@ -519,6 +487,9 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
                 parent_trip=my_object,
             )
 
+        # add reviewers
+        utils.get_reviewers(my_object)
+
         if not my_object.parent_trip:
             if form.cleaned_data.get("stay_on_page"):
                 return HttpResponseRedirect(reverse_lazy("travel:trip_edit", kwargs={"pk": my_object.id}))
@@ -540,19 +511,7 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
         user_json = json.dumps(user_dict)
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
-        #
-        # # need to create a dictionary for sections and who the recommenders / appovers are
-        # section_dict = {}
-        # for section in shared_models.Section.objects.all():
-        #     section_dict[section.id] = {}
-        #     section_dict[section.id]["recommender_1"] = section.head_id
-        #     section_dict[section.id]["recommender_2"] = section.division.head_id
-        #     section_dict[section.id]["recommender_3"] = section.division.branch.head_id
-        #     section_dict[section.id]["rdg"] = section.division.branch.region.head_id
-        #     section_dict[section.id]["adm"] = User.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca").id
-        # section_json = json.dumps(section_dict)
-        # # send JSON file to template so that it can be used by js script
-        # context['section_json'] = section_json
+
         return context
 
 
