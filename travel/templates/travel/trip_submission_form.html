@@ -33,16 +33,15 @@
     </nav>
 
     <div class="container">
-        {#        <div class="float-right">#}
-        {#            <a class="btn btn-warning " href="{% url 'travel:trip_print' object.id %}">#}
-        {#                Travel Plan <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">#}
-        {#            </a>#}
-        {#        </div>#}
+        {% if object.submitted %}
+            <h2 class="red-font">WARNING: Un-submitting this trip will reset the statuses of any exisitng recommendations and approvals.</h2>
+        {% endif %}
         <h1>
             <b>
                 Do you wish to {% if object.submitted %} un-submit {% else %} submit {% endif %} the following trip?
             </b>
         </h1>
+        <br>
         <form method="post" class="form">
             {% csrf_token %}
             {% for field in form %}
