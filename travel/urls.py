@@ -28,7 +28,7 @@ urlpatterns = [
 
     # ADMIN APPROVAL
     path('admin/approval/', views.TripAdminApprovalListView.as_view(), name="admin_approval_list"),
-    path('admin/<int:pk>/approve/', views.TripAdminApproveUpdateView.as_view(), name="admin_approve"),
+    # path('admin/<int:pk>/approve/', views.TripAdminApproveUpdateView.as_view(), name="admin_approve"),
 
     # REVIEWERS #
     #############

@@ -408,37 +408,37 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse("travel:index"))
 
 
-class TripAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
-    model = models.Trip
-    form_class = forms.AdminTripForm
-    template_name = 'travel/trip_approval_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        my_object = self.get_object()
-        context["admin"] = True
-        context["object"] = my_object
-        context["trip"] = my_object.trip
-
-        return context
-
-    def form_valid(self, form):
-        my_event = form.save(commit=False)
-
-        # if approval status is not pending, we add a date stamp
-        if my_event.adm_approval_status_id != 1:
-            my_event.adm_approval_date = timezone.now()
-
-        if my_event.rdg_approval_status_id != 1:
-            my_event.rdg_approval_date = timezone.now()
-
-        # if denied by adm, rdg will be canceled
-        if my_event.adm_approval_status_id == 3:
-            my_event.rdg_approval_status_id = 5
-
-        # Now do a full save
-        my_event.save()
-        return HttpResponseRedirect(reverse("travel:admin_approval_list"))
+# class TripAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
+#     model = models.Trip
+#     form_class = forms.AdminTripForm
+#     template_name = 'travel/trip_approval_form.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         my_object = self.get_object()
+#         context["admin"] = True
+#         context["object"] = my_object
+#         context["trip"] = my_object.trip
+#
+#         return context
+#
+#     def form_valid(self, form):
+#         my_event = form.save(commit=False)
+#
+#         # if approval status is not pending, we add a date stamp
+#         if my_event.adm_approval_status_id != 1:
+#             my_event.adm_approval_date = timezone.now()
+#
+#         if my_event.rdg_approval_status_id != 1:
+#             my_event.rdg_approval_date = timezone.now()
+#
+#         # if denied by adm, rdg will be canceled
+#         if my_event.adm_approval_status_id == 3:
+#             my_event.rdg_approval_status_id = 5
+#
+#         # Now do a full save
+#         my_event.save()
+#         return HttpResponseRedirect(reverse("travel:admin_approval_list"))
 
 
 class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
