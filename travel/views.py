@@ -152,6 +152,7 @@ trip_group_field_list = [
     'destination',
     'start_date',
     'end_date',
+    'is_international',
     'is_conference',
     'conference',
 
