@@ -206,7 +206,8 @@ class Trip(models.Model):
                                    verbose_name=_("conference"), related_name="trips")
 
     has_event_template = models.NullBooleanField(default=False,
-        verbose_name=_("Is there an event template being completed for this conference or meeting?"))
+                                                 verbose_name=_(
+                                                     "Is there an event template being completed for this conference or meeting?"))
     event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Event / Meeting Lead"),
                                    related_name="trip_events", blank=True, null=True)
 
@@ -383,37 +384,39 @@ class Trip(models.Model):
     def recommenders(self):
         return self.reviewers.filter(role_id=2)
 
+    @property
     def get_summary_dict(self):
         my_dict = {}
-        if self.is_group_trip:
-            for child_trip in self.children_trips.all():
-                my_user = child_trip.user
-                if my_user:
-                    my_dict[my_user] = {}
-                    qs = my_user.user_trips.filter(Q(is_international=True) | Q(is_conference=True))
-                    # how many trips, total and for fiscal:
-                    total_count = [trip for trip in qs if not trip.is_group_trip]
-                    fy_count = [trip for trip in qs.filter(fiscal_year=child_trip.fiscal_year) if not trip.is_group_trip]
-                    my_dict[my_user]["has_user"] = True
-                    my_dict[my_user]["total_list"] = total_count
-                    my_dict[my_user]["fy_list"] = fy_count
 
-                else:
-                    fullname = "{} {}".format(child_trip.first_name, child_trip.last_name)
-                    my_dict[fullname] = {}
-                    my_dict[fullname]["has_user"] = False
-                    my_dict[fullname]["total_list"] = _("no user connected")
-                    my_dict[fullname]["fy_list"] = _("no user connected")
-        else:
-            qs = self.user.user_trips.filter(Q(is_international=True) | Q(is_conference=True))
-            my_dict[self.user] = {}
-            # how many trips, total and for fiscal:
-            total_count = [trip for trip in qs if not trip.is_group_trip]
-            fy_count = [trip for trip in qs.filter(fiscal_year=self.fiscal_year) if not trip.is_group_trip]
-            my_dict[self.user]["has_user"] = True
-            my_dict[self.user]["total_list"] = total_count
-            my_dict[self.user]["fy_list"] = fy_count
+        # get a trip list that will be used to get a list of users (sigh...)
+        my_trip_list = self.children_trips.all() if self.is_group_trip else Trip.objects.filter(pk=self.id)
 
+        for trip in my_trip_list:
+            total_list = []
+            fy_list = []
+            my_user = trip.user
+            if my_user:
+                # there are two things we have to do to get this list...
+                # 1) get all non group travel
+                qs = my_user.user_trips.filter(Q(is_international=True) | Q(is_conference=True)).filter(is_group_trip=False)
+                total_list.extend([trip for trip in qs])
+                fy_list.extend([trip for trip in qs.filter(fiscal_year=self.fiscal_year)])
+
+                # 2) get all group travel - the trick part is that we have to grab the parent trip
+                qs = my_user.user_trips.filter(Q(parent_trip__is_international=True) | Q(parent_trip__is_conference=True))
+                total_list.extend([trip.parent_trip for trip in qs])
+                fy_list.extend([trip.parent_trip for trip in qs.filter(fiscal_year=self.fiscal_year)])
+
+                my_dict[my_user] = {}
+                my_dict[my_user]["total_list"] = list(set(total_list))
+                my_dict[my_user]["fy_list"] = list(set(fy_list))
+
+            else:
+                # This is the easy part
+                fullname = "{} {}".format(trip.first_name, trip.last_name)
+                my_dict[fullname] = {}
+                my_dict[fullname]["total_list"] = _("no user connected")
+                my_dict[fullname]["fy_list"] = _("no user connected")
         return my_dict
 
 
