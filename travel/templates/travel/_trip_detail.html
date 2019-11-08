@@ -32,41 +32,78 @@
         </th>
         <td>
             <table class="table table-sm table-bordered plainjane">
-                <thead class="plainjane">
-                <th class="plainjane">Name</th>
-                <th class="plainjane">Trips requested in ({{ trip.fiscal_year }})</th>
-                <th class="plainjane">Total trips requested</th>
-                </thead>
+                <tr class="plainjane">
+                    <th rowspan="2" class="plainjane">Name</th>
+                    <th colspan="2" class="plainjane center-col">Conferences or International Trips</th>
+                </tr>
+                <tr class="plainjane">
+                    <th class="plainjane center-col">{{ trip.fiscal_year }}</th>
+                    <th class="plainjane center-col">Total</th>
+                </tr>
                 <tbody class="plainjane">
                 {% for user in trip.get_summary_dict %}
                     {% with trip.get_summary_dict|lookup:user as d %}
                         <tr class="plainjane">
-{#                            <td class="plainjane">{{ user }}</td>#}
-{#                            <td class="plainjane">#}
-{#                                {% if d.has_user %}#}
-{#                                    {{ d.fy_list|length }}#}
-{#                                    (<a href="#" class="under-dev">{% trans "show list" %}</a>)#}
-{#                                {% else %}#}
-{#                                    {{ d.fy_list }}#}
-{#                                {% endif %}#}
-{#                            </td>#}
-{#                            <td class="plainjane">#}
-{#                                {% if d.has_user %}#}
-{#                                    {{ d.total_list|length }}#}
-{#                                    <span class="badge badge-primary" data-toggle="popover" title="{{ user.first_name }}'s Total Trip List"#}
-{#                                          data-content="{% include "travel/_user_trip_list.html" %}">#}
-{#                                        {% trans "show list" %}#}
-{#                                    </span>#}
-{#                                {% else %}#}
-{#                                    {{ d.total_list }}#}
-{#                                {% endif %}#}
-{#                            </td>#}
+                            <td class="plainjane">{{ user }}</td>
+                            <td class="plainjane center-col">
+                                {% if d.has_user %}
+                                    {{ d.fy_list|length }}
+                                    &nbsp;
+                                    {% with d.fy_list as my_list %}
+
+                                        <button class="badge" data-toggle="popover"
+                                                title="{{ user.first_name }}'s Total Trips for {{ trip.fiscal_year}}"
+                                                data-content="{% include "travel/_user_trip_list.html" %}">
+                                            {% trans "show" %}
+                                        </button>
+                                    {% endwith %}
+                                {% else %}
+                                    <em>
+                                        {{ d.fy_list }}
+                                    </em>
+                                {% endif %}
+                            </td>
+
+                            <td class="plainjane center-col">
+                                {% if d.has_user %}
+                                    {{ d.total_list|length }}
+                                    &nbsp;
+                                    {% with d.total_list as my_list %}
+
+                                        <button class="badge" data-toggle="popover"
+                                                title="{{ user.first_name }}'s Total Trips"
+                                                data-content="{% include "travel/_user_trip_list.html" %}">
+                                            {% trans "show" %}
+                                        </button>
+                                    {% endwith %}
+                                {% else %}
+                                    <em>
+                                        {{ d.total_list }}
+                                    </em>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+
                         </tr>
                     {% endwith %}
                 {% endfor %}
 
                 </tbody>
             </table>
+
+        </td>
+    </tr>
+    <tr>
+        <th>
+            {% trans "Total travellers (excluding BTA)" %}
+        </th>
+        <td>
+            {% if trip.is_group_trip %}
+                {{ trip.children_trips.count }}
+            {% else %}
+                1
+            {% endif %}
 
         </td>
     </tr>
@@ -92,7 +129,6 @@
                         {% url 'travel:trip_detail' obj.id as my_url %}
                         <ul>
                             <li>
-
                                 <a href="{% if obj.id != trip.id %}my_url{% endif %}">{{ obj }}</a> by {{ obj.user }}
                                 (STATUS: <span style="background-color: {{ trip.status.color }}">{{ obj.status }}</span>)
                                 {% if obj.id == trip.id %}
@@ -107,9 +143,9 @@
                 <th>Total list of attendees (all trips and BTA included)</th>
                 <td>
                     <ul>
-                        {% for traveller in object.conference.total_traveller_list %}
+                        {% for traveller in trip.conference.total_traveller_list %}
                             <li>
-                                {{ traveller }} {% if traveller in object.conference.bta_traveller_list %}(BTA){% endif %}
+                                {{ traveller }} {% if traveller in trip.conference.bta_traveller_list %}(BTA){% endif %}
                             </li>
                         {% empty %}
                             <em>There is nobody travelling to this event.</em>
