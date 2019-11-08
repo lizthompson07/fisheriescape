@@ -1,0 +1,10 @@
+Test test test
+<ul>
+    {% for obj in d.total_list %}
+        <li>
+{#            <a href="{% url 'travel:trip_detail' obj.id  %}">#}
+            {{ obj }}
+{#            </a>#}
+        </li>
+    {% endfor %}
+</ul>
