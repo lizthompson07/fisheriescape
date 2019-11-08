@@ -25,6 +25,9 @@ class ReviewerApprovalForm(forms.ModelForm):
         fields = [
             "comments",
         ]
+        labels = {
+            "comments": _("Please provide your comments here")
+        }
 
 
 class TripApprovalForm(forms.Form):
@@ -288,18 +291,18 @@ class ReviewerForm(forms.ModelForm):
     #     #             reviewer.save()
     #     return cleaned_data
 
-                # else:
-                #     reviewer.order = count
-                # count += 1
+    # else:
+    #     reviewer.order = count
+    # count += 1
 
-        # north = cleaned_data.get("north")
-        # south = cleaned_data.get("south")
-        # east = cleaned_data.get("east")
-        # west = cleaned_data.get("west")
-        #
-        # if not north or not south or not east or not west:
-        #
-        # raise forms.ValidationError("You must enter valid values for all directions.")
+    # north = cleaned_data.get("north")
+    # south = cleaned_data.get("south")
+    # east = cleaned_data.get("east")
+    # west = cleaned_data.get("west")
+    #
+    # if not north or not south or not east or not west:
+    #
+    # raise forms.ValidationError("You must enter valid values for all directions.")
 
 
 ReviewerFormSet = modelformset_factory(
@@ -307,5 +310,3 @@ ReviewerFormSet = modelformset_factory(
     form=ReviewerForm,
     extra=1,
 )
-
-

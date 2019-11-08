@@ -388,7 +388,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                           recipient_list=my_email.to_list, fail_silently=False, )
             else:
                 print(my_email)
-
+            messages.success(self.request, _("Success! An email has been sent to the trip owner."))
 
         # if it was approved, then we change the reviewer status to 'approved'
         elif is_approved:
@@ -405,7 +405,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         # update any statuses if necessary
         utils.approval_seeker(my_reviewer.trip)
 
-        return HttpResponseRedirect(reverse("travel:trip_review_list"))
+        return HttpResponseRedirect(reverse("travel:index"))
 
 
 class TripAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
