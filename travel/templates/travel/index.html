@@ -32,8 +32,9 @@
 
                     {% if user.reviewers.count %}
                         {% blocktrans %}
-                            Trips awaiting your <a href="{{ event_approval_list_url }}">review</a> ({{ number_waiting }}).
+                            Trips awaiting your <a href="{{ event_approval_list_url }}">review</a>
                         {% endblocktrans %}
+                        (<span class="{% if number_waiting > 0 %}red-font{% endif %}">{{ number_waiting }}</span>).
                         <br><br>
                     {% endif %}
 
