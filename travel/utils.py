@@ -113,6 +113,15 @@ def set_trip_status(trip):
                 reviewer.save()
         if is_denied:
             trip.status_id = 10
+            # send an email to the trip owner
+            # my_email = emails.ChangesRequestedEmail(my_reviewer.trip)
+            # # send the email object
+            # if settings.PRODUCTION_SERVER:
+            #     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+            #               recipient_list=my_email.to_list, fail_silently=False, )
+            # else:
+            #     print(my_email)
+
             # don't stick around any longer. save the trip and leave exit the function
             trip.save()
             return False
