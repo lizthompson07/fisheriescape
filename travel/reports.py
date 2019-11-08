@@ -79,9 +79,9 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
 
         data_row = [
             "{}, {}".format(trip.last_name, trip.first_name),
-            nz(trip.region, "n/a"),
-            nz(trip.role, "n/a"),
-            nz(my_trip.reason, "n/a"),
+            str(trip.region) if trip.region else "n/a",
+            str(trip.role) if trip.role else "n/a",
+            str(my_trip.reason) if my_trip.reason else "n/a",
             my_trip.trip_title,
             my_trip.destination,
             my_trip.start_date.strftime("%d/%m/%Y"),
