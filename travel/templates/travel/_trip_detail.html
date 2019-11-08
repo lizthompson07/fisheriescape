@@ -51,7 +51,7 @@
                         <tr class="plainjane">
                             <td class="plainjane">{{ user }}</td>
                             <td class="plainjane center-col">
-                                {% if user.id  %}
+                                {% if user.id %}
                                     {{ d.fy_list|length }}
                                     {% if d.fy_list|length %}
                                         &nbsp;
@@ -171,7 +171,7 @@
 
     {% if not report_mode %}
         <div class="float-right">
-            <a href="#" pop-href="{% url 'travel:trip_new' trip.id %}" class="btn btn-primary">Add Traveller</a>
+            <a href="#" pop-href="{% url 'travel:trip_new' trip.id %}" class="btn btn-sm btn-primary">Add Traveller</a>
         </div>
     {% endif %}
     <h3>
@@ -223,12 +223,15 @@
 
 
 {#  REVIEWERS  #}
+{% if not report_mode %}
+    <div class="float-right">
+        <a href="{% url 'travel:manage_reviewers' trip.id %}" class="btn btn-sm btn-primary">Modify</a>
+    </div>
+{% endif %}
 <h3>
     {% trans "Reviewers, Recommenders and Approvers" %}
 </h3>
-{% if not report_mode %}
-    <a href="{% url 'travel:manage_reviewers' trip.id %}" class="btn btn-sm btn-primary">Modify</a>
-{% endif %}
+
 {% if trip.reviewers.count > 0 %}
     <br>
     <table class="table table-sm sortable table-striped" style="width: 100%">
