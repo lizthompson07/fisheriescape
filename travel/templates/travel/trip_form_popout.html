@@ -2,7 +2,7 @@
 
 {% load bootstrap4 %}
 {% load i18n %}
-
+{% load custom_filters %}
 
 {% block body %}
 
@@ -68,7 +68,7 @@
 
     <script type="application/javascript">
         var userObj = {{ user_json|safe }};
-        var sectionObj = {{ section_json|safe }};
+        var sectionObj = {{ section_json|safe|nz:"{}" }};
         var myId = "";
 
         function refreshUserInfo() {
