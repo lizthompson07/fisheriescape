@@ -172,6 +172,7 @@ trip_child_field_list = [
     'first_name',
     'last_name',
     'is_public_servant',
+    'is_research_scientist',
     'region',
     'departure_location',
     'role',
@@ -186,6 +187,13 @@ reviewer_field_list = [
     'status',
     'status_date',
     'comments',
+]
+
+conf_field_list = [
+    'tname|{}'.format(_("Name")),
+    'number',
+    'start_date',
+    'end_date',
 ]
 
 
@@ -296,6 +304,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
             my_trip_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_trip_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
+        context["conf_field_list"] = conf_field_list
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
 
@@ -361,6 +370,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["field_list"] = trip_field_list if not my_object.trip.is_group_trip else trip_group_field_list
         context["child_field_list"] = trip_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
+        context["conf_field_list"] = conf_field_list
         context["trip"] = my_object.trip
         context["report_mode"] = True
         if my_object.role_id == 6:
@@ -454,6 +464,7 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
         context["child_field_list"] = trip_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
+        context["conf_field_list"] = conf_field_list
         context["report_mode"] = True
 
         return context
@@ -644,8 +655,6 @@ def re_add_reviewers(request, pk):
     my_obj = models.Trip.objects.get(pk=pk)
     utils.get_reviewers(my_obj)
     return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.id}))
-
-
 
 
 # REVIEWER #
