@@ -105,11 +105,11 @@ class Conference(models.Model):
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
+            my_str = "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.name)
+            my_str = "{}".format(self.name)
+        return "{} ({} {} {})".format(my_str, self.start_date.strftime("%d-%b-%y"), _("to"), self.end_date.strftime("%d-%b-%y"))
 
     class Meta:
         ordering = ['number', ]
@@ -157,6 +157,15 @@ class Conference(models.Model):
     def travellers(self):
         return listrify(self.total_traveller_list)
 
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str = "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = "{}".format(self.name)
+        return my_str
 
 class Trip(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
@@ -167,7 +176,7 @@ class Trip(models.Model):
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="user_trips",
                              verbose_name=_("user"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"),
-                                limit_choices_to={'division__branch__in': [1,3]})
+                                limit_choices_to={'division__branch__in': [1, 3]})
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     address = models.CharField(max_length=1000, verbose_name=_("address"), default="343 Université Avenue, Moncton, NB, E1C 9B6",
@@ -175,7 +184,8 @@ class Trip(models.Model):
     phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
     is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
-    is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a research scientist (RES)?"))
+    is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
+                                                verbose_name=_("Is the traveller a research scientist (RES)?"))
     company_name = models.CharField(max_length=255, verbose_name=_("company name (leave blank if DFO)"), blank=True, null=True)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
                                null=True, default=1)
@@ -250,7 +260,7 @@ class Trip(models.Model):
 
         # ensure the process order makes sense
         count = 1
-        for reviewer in self.reviewers.all(): # use the default sorting
+        for reviewer in self.reviewers.all():  # use the default sorting
             reviewer.order = count
             reviewer.save()
             count += 1
@@ -388,7 +398,6 @@ class Reviewer(models.Model):
                                verbose_name=_("review status"), default=4)
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
     comments = models.TextField(null=True, verbose_name=_("Comments"))
-
 
     class Meta:
         unique_together = ['trip', 'user', 'role', ]
