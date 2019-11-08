@@ -204,6 +204,12 @@ class Trip(models.Model):
     is_conference = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a conference?"))
     conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
                                    verbose_name=_("conference"), related_name="trips")
+
+    has_event_template = models.NullBooleanField(default=False,
+        verbose_name=_("Is there an event template being completed for this conference or meeting?"))
+    event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Event / Meeting Lead"),
+                                   related_name="trip_events", blank=True, null=True)
+
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
 
     # purpose
@@ -211,7 +217,7 @@ class Trip(models.Model):
         "role of participant (More expansive than just saying he/she “present a paper” for example.  "
         "This should describe how does his/her role at the event relate to his/her role at DFO)"))
     objective_of_event = models.TextField(blank=True, null=True, verbose_name=_(
-        "objective of the event (Brief description of what the event is about.  Not objective of the Participants in going to the event.)"))
+        "objective of the trip (Brief description of what the event is about.  Not objective of the Participants in going to the event.)"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_(
         "benefit to DFO (What does DFO get out of this? Saves money, better programs, etc…)"))
     multiple_conferences_rationale = models.TextField(blank=True, null=True, verbose_name=_(
