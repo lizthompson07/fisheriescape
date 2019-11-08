@@ -114,3 +114,32 @@ class ChangesRequestedEmail:
         context = {'trip': trip_object, 'field_list': field_list}
         rendered = t.render(context)
         return rendered
+
+
+class StatusUpdateEmail:
+    def __init__(self, trip_object):
+
+        self.subject = 'Your trip request has been ' + trip_object.status.name + " - Votre demande de voyage a été " + trip_object.status.nom
+        self.message = self.load_html_template(trip_object)
+        self.from_email = from_email
+        self.to_list = [trip_object.user.email, ]
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
+    def load_html_template(self, trip_object):
+        t = loader.get_template('travel/email_changes_requested.html')
+
+        field_list = [
+            'fiscal_year',
+            'section',
+            'user',
+            'trip_title',
+            'destination',
+            'start_date',
+            'end_date',
+        ]
+
+        context = {'trip': trip_object, 'field_list': field_list}
+        rendered = t.render(context)
+        return rendered

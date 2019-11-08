@@ -113,25 +113,33 @@ def set_trip_status(trip):
                 reviewer.save()
         if is_denied:
             trip.status_id = 10
+            trip.save()
             # send an email to the trip owner
-            # my_email = emails.ChangesRequestedEmail(my_reviewer.trip)
+            my_email = emails.StatusUpdateEmail(trip)
             # # send the email object
-            # if settings.PRODUCTION_SERVER:
-            #     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-            #               recipient_list=my_email.to_list, fail_silently=False, )
-            # else:
-            #     print(my_email)
+            if settings.PRODUCTION_SERVER:
+                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                          recipient_list=my_email.to_list, fail_silently=False, )
+            else:
+                print(my_email)
 
             # don't stick around any longer. save the trip and leave exit the function
-            trip.save()
             return False
 
         # The trip should be approved if everyone has approved it.
         # The total number of reviewers should equal the number of reviewer who approved.
         elif trip.reviewers.all().count() == trip.reviewers.filter(status_id=2).count():
             trip.status_id = 11
-            # don't stick around any longer. save the trip and leave exit the function
             trip.save()
+            # send an email to the trip owner
+            my_email = emails.StatusUpdateEmail(trip)
+            # # send the email object
+            if settings.PRODUCTION_SERVER:
+                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                          recipient_list=my_email.to_list, fail_silently=False, )
+            else:
+                print(my_email)
+            # don't stick around any longer. save the trip and leave exit the function
             return False
         else:
             for reviewer in trip.reviewers.all():
