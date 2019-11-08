@@ -22,7 +22,12 @@
                 <th>{% get_verbose_label trip field %}</th>
                 <td style="background-color: {{ trip.status.color }};">{% get_field_value trip field %}</td>
             </tr>
+
+        {% elif "has_event_template" in field %}
+            {% trans "Unsure" as not_sure %}
+            {% verbose_td_display trip field format="currency" th_width="20%" nullmark=not_sure date_format="%B %d, %Y" %}
         {% else %}
+
             {% verbose_td_display trip field format="currency" th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
         {% endif %}
     {% endfor %}
