@@ -83,7 +83,7 @@
         </h3>
         <table class="table table-sm table-striped">
             {% for field in conf_field_list %}
-                {% verbose_td_display object.conference field th_width="30%" date_format="%B %d, %Y" %}
+                {% verbose_td_display trip.conference field th_width="30%" date_format="%B %d, %Y" %}
             {% endfor %}
             <tr>
                 <th>Connected trips</th>
