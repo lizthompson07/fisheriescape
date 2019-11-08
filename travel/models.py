@@ -167,7 +167,7 @@ class Trip(models.Model):
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="user_trips",
                              verbose_name=_("user"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"),
-                                limit_choices_to={'division__branch': 1})
+                                limit_choices_to={'division__branch__in': [1,3]})
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     address = models.CharField(max_length=1000, verbose_name=_("address"), default="343 Université Avenue, Moncton, NB, E1C 9B6",
@@ -249,7 +249,7 @@ class Trip(models.Model):
 
         # ensure the process order makes sense
         count = 1
-        for reviewer in self.reviewers.all():
+        for reviewer in self.reviewers.all(): # use the default sorting
             reviewer.order = count
             reviewer.save()
             count += 1
@@ -375,7 +375,7 @@ class ReviewerRole(models.Model):
             return "{}".format(self.name)
 
     class Meta:
-        ordering = ["order", ]
+        ordering = ["order", "id"]
 
 
 class Reviewer(models.Model):

@@ -30,7 +30,7 @@
 
         <h1>{{ object }}</h1>
         {% if is_current_reviewer and object.submitted %}
-        <h3 class="red-font">You are able to edit this record because you are the current reviewer.</h3>
+            <h3 class="red-font">You are able to edit this record because you are the current reviewer.</h3>
         {% endif %}
 
         <div class="btn-group">
@@ -60,6 +60,15 @@
             <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
                 Use as Template
             </a>
+            {% if object.submitted %}
+                <span data-toggle="tooltip" title="{% trans "Cannot modify reviewers while trip is submitted." %}">
+            {% endif %}
+            <a class="btn btn-secondary {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:re_add_reviewers' object.id  %}">
+                Re-add Default Reviewers
+            </a>
+            {% if object.submitted %}
+                </span>
+            {% endif %}
             {% if object.submitted and not is_admin and not is_owner %}
                 <span data-toggle="tooltip" title="{% trans "Only application administrators and owners can un-submit a trip" %}">
             {% endif %}

@@ -637,9 +637,15 @@ class ChildTripCloneUpdateView(TripCreateView):
         context["cloned"] = True
         return context
 
-    # def form_valid(self, form):
-    #     new_obj = form.save()
-    #     return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": new_obj.id}))
+
+@login_required(login_url='/accounts/login_required/')
+# @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def re_add_reviewers(request, pk):
+    my_obj = models.Trip.objects.get(pk=pk)
+    utils.get_reviewers(my_obj)
+    return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.id}))
+
+
 
 
 # REVIEWER #
