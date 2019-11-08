@@ -178,7 +178,7 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('travel:index'),
             "icon_path": 'img/icons/paper-plane.svg',
-            "region": "regional",
+            "region": "all",
         }
     except NoReverseMatch:
         pass
