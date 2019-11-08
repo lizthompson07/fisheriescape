@@ -85,8 +85,12 @@ def set_trip_status(trip):
     This will look at the reviewers and decide on  what the project status should be. Will return False is trip is denied
     """
 
-    # first order of business: if the trip is unsubmitted, and the status is NOT "changes requested", it is in 'draft' status
-    if not trip.submitted and trip.status_id != 16:
+    # first order of business, if the trip is status "changes requested' do not continue
+    if trip.status_id == 16:
+        return False
+
+    # Next: if the trip is unsubmitted, it is in 'draft' status
+    elif not trip.submitted:
         trip.status_id = 8
         # don't stick around any longer. save the trip and leave exit the function
         trip.save()
@@ -157,7 +161,9 @@ def approval_seeker(trip):
         for reviewer in trip.reviewers.all():
             # if the reviewer's status is set to 'queued', they will be our next selection
             # we should then exit the loop and set the next_reviewer var
-            if reviewer.status_id == 20:
+
+            # if this is a resubmission, there might still be a reviewer whose status is 'pending'. This should be the reviewer
+            if reviewer.status_id == 20 or reviewer.status_id == 1:
                 next_reviewer = reviewer
                 break
 
@@ -171,6 +177,9 @@ def approval_seeker(trip):
             if next_reviewer.role_id in [1, 2, 3, 4, 5, ]: # essentially, just not the RDG
                 my_email = emails.ReviewAwaitingEmail(trip, next_reviewer)
 
+            elif next_reviewer.role_id == 6: # if we are going for RDG signature...
+                my_email = emails.AdminApprovalAwaitingEmail(trip)
+
             if my_email:
                 # send the email object
                 if settings.PRODUCTION_SERVER:
@@ -182,96 +191,4 @@ def approval_seeker(trip):
             # Then, lets set the trip status again to account for the fact that something happened
             set_trip_status(trip)
 
-    else:
-        # we should not be seeking any approvals..
-        pass
 
-#
-#
-#
-#         if trip.recommender_1_approval_status_id == 3 or \
-#                 trip.recommender_2_approval_status_id == 3 or \
-#                 trip.recommender_3_approval_status_id == 3 or \
-#                 trip.adm_approval_status_id == 3 or \
-#                 trip.rdg_approval_status_id == 3:
-#             trip.status_id = 10  # DENIED
-#             # The statuses of recommenders and approvers are handled by the form_valid method of the ApprovalUpdateView
-#
-#         # otherwise, if the project is submitted
-#         elif trip.submitted:
-#             # make sure the statuses are changed from 4 to 1
-#             if trip.recommender_1_approval_status_id == 4:
-#                 trip.recommender_1_approval_status_id = 1
-#             if trip.recommender_2_approval_status_id == 4:
-#                 trip.recommender_2_approval_status_id = 1
-#             if trip.recommender_3_approval_status_id == 4:
-#                 trip.recommender_3_approval_status_id = 1
-#             if trip.adm_approval_status_id == 4:
-#                 trip.adm_approval_status_id = 1
-#             if trip.rdg_approval_status_id == 4:
-#                 trip.rdg_approval_status_id = 1
-#
-#             # check to see if recommender 1 has reviewed the trip
-#             my_email = None
-#
-#             if trip.recommender_1 and not trip.recommender_1_approval_date:
-#                 # we need to get approval and need to set recommender 1 as who we are waiting on
-#                 trip.waiting_on = trip.recommender_1
-#                 # project status will be "pending recommendation"
-#                 trip.status_id = 12
-#                 # build email to recommender 1
-#                 my_email = emails.ApprovalAwaitingEmail(trip, "recommender_1")
-#             elif trip.recommender_2 and not trip.recommender_2_approval_date:
-#                 # we need to get approval and need to set recommender 2 as who we are waiting on
-#                 trip.waiting_on = trip.recommender_2
-#                 # project status will be "pending recommendation"
-#                 trip.status_id = 12
-#                 # build email to recommender 2
-#                 my_email = emails.ApprovalAwaitingEmail(trip, "recommender_2")
-#
-#             elif trip.recommender_3 and not trip.recommender_3_approval_date:
-#                 # we need to get approval and need to set recommender 3 as who we are waiting on
-#                 trip.waiting_on = trip.recommender_3
-#                 # project status will be "pending recommendation"
-#                 trip.status_id = 12
-#                 # build email to recommender 3
-#                 my_email = emails.ApprovalAwaitingEmail(trip, "recommender_3")
-#             elif trip.adm and not trip.adm_approval_date:
-#                 # we need to get approval and need to set approver as who we are waiting on
-#                 trip.waiting_on = trip.adm
-#                 # project status will be "pending adm approval"
-#                 trip.status_id = 14
-#                 # send email to TMS admin
-#                 my_email = emails.AdminApprovalAwaitingEmail(trip, "adm")
-#             elif trip.rdg and not trip.rdg_approval_date:
-#                 # we need to get approval and need to set approver as who we are waiting on
-#                 trip.waiting_on = trip.rdg
-#                 # project status will be "pending rdg approval"
-#                 trip.status_id = 15
-#                 # send email to TMS admin
-#                 my_email = emails.AdminApprovalAwaitingEmail(trip, "rdg")
-#             else:
-#                 # project has been fully approved?
-#                 trip.status_id = 11
-#                 trip.waiting_on = None
-#
-#             if my_email:
-#                 # send the email object
-#                 if settings.PRODUCTION_SERVER:
-#                     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-#                               recipient_list=my_email.to_list, fail_silently=False, )
-#                 else:
-#                     print(my_email)
-#         else:
-#             trip.recommender_1_approval_status_id = 4
-#             trip.recommender_2_approval_status_id = 4
-#             trip.recommender_3_approval_status_id = 4
-#             trip.rdg_approval_status_id = 4
-#             trip.adm_approval_status_id = 4
-#             trip.recommender_1_approval_date = None
-#             trip.recommender_2_approval_date = None
-#             trip.recommender_3_approval_date = None
-#             trip.rdg_approval_date = None
-#             trip.adm_approval_date = None
-#             trip.waiting_on = None
-#             trip.status_id = 8

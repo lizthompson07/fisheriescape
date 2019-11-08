@@ -60,7 +60,6 @@
                     </div>
                 </div>
 
-
                 <table class="table table-sm table-hover sortable" style="font-size: small">
                     <thead>
                     <tr>
@@ -75,10 +74,11 @@
                     </thead>
                     <tbody>
                     {% for object in object_list %}
+
                         {% url 'travel:review_approve' object.current_reviewer.id as my_approval_url %}
                         {% url 'travel:trip_detail' object.id as my_detail_url %}
                         {% url 'travel:admin_approve' object.id as admin_approve_url %}
-                        <tr href="{% if awaiting %}{{ my_approval_url }}{% else %}{{ my_detail_url }}{% endif %}">
+                        <tr href="{% if admin or awaiting %}{{ my_approval_url }}{% else %}{{ my_detail_url }}{% endif %}">
 
                             {% for field in field_list %}
                                 {% if "is_group" in field %}
