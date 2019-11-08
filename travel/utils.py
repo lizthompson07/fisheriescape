@@ -42,7 +42,7 @@ def get_reviewers(trip):
         except IntegrityError:
             print("not adding NCR recommender")
         try:
-            models.Reviewer.objects.create(trip=trip, user_id=754, role_id=4, )  # Stephen Birc
+            models.Reviewer.objects.create(trip=trip, user_id=758, role_id=4, )  # Stephen Virc
         except IntegrityError:
             print("not adding NCR recommender")
         try:
