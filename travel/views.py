@@ -139,6 +139,8 @@ trip_field_list = [
     'registration',
     'other',
     'total_cost',
+    'non_dfo_costs',
+    'non_dfo_org',
     'cost_breakdown|{}'.format(_("cost summary")),
     'purpose_long|{}'.format(_("purpose")),
 ]
@@ -165,7 +167,9 @@ trip_group_field_list = [
     'bta_attendees',
     'late_justification',
     'notes',
-    'total_trip_cost|{}'.format(_("Total trip cost")),
+    'total_trip_cost|{}'.format(_("Total trip cost (DFO)")),
+    'non_dfo_costs',
+    'non_dfo_org',
 ]
 
 trip_child_field_list = [
@@ -218,7 +222,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'destination',
             'start_date',
             'end_date',
-            'total_trip_cost|{}'.format(_("Total trip cost")),
+            'total_trip_cost|{}'.format(_("Total trip cost (DFO)")),
 
         ]
         return context
@@ -248,7 +252,7 @@ class TripReviewListView(TravelAccessRequiredMixin, ListView):
             'destination',
             'start_date',
             'end_date',
-            'total_trip_cost|{}'.format(_("Total trip cost")),
+            'total_trip_cost|{}'.format(_("Total trip cost (DFO)")),
             # 'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
             # 'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
             # 'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
@@ -281,7 +285,7 @@ class TripAdminApprovalListView(TravelAdminRequiredMixin, ListView):
             'destination',
             'start_date',
             'end_date',
-            'total_trip_cost|{}'.format(_("Total trip cost")),
+            'total_trip_cost|{}'.format(_("Total trip cost (DFO)")),
             # 'recommender_1_status|{}'.format(_("Recommender 1<br>(status)")),
             # 'recommender_2_status|{}'.format(_("Recommender 2<br>(status)")),
             # 'recommender_3_status|{}'.format(_("Recommender 3<br>(status)")),
@@ -305,6 +309,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         context["child_field_list"] = my_trip_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
+        context["fy"] = fiscal_year()
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
 

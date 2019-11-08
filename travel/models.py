@@ -136,13 +136,13 @@ class Conference(models.Model):
         # start simple... non-group
         my_list = [trip.user for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if trip.user]
         # now those without names...
-        my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in
+        my_list.extend(["{} {} (no user connected)".format(trip.first_name, trip.last_name) for trip in
                         self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if not trip.user])
 
         # group travellers
         my_list.extend(
             [trip.user for trip in Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10)) if trip.user])
-        my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in
+        my_list.extend(["{} {} (no user connected)".format(trip.first_name, trip.last_name) for trip in
                         Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10)) if not trip.user])
 
         return set(my_list)
@@ -167,13 +167,14 @@ class Conference(models.Model):
             my_str = "{}".format(self.name)
         return my_str
 
+
 class Trip(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trips")
     is_group_trip = models.BooleanField(default=False,
                                         verbose_name=_("Is this a group trip (i.e., is this a request for multiple individuals)?"))
     # traveller info
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="user_trips",
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, related_name="user_trips",
                              verbose_name=_("user"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"),
                                 limit_choices_to={'division__branch__in': [1, 3]})
@@ -190,8 +191,10 @@ class Trip(models.Model):
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
                                null=True, default=1)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
-    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location"), blank=True, null=True)
-    destination = models.CharField(max_length=1000, verbose_name=_("destination location"), blank=True, null=True)
+    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city / province / country)"), blank=True,
+                                          null=True)
+    destination = models.CharField(max_length=1000, verbose_name=_("destination location (city / province / country)"), blank=True,
+                                   null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True)
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
@@ -231,7 +234,10 @@ class Trip(models.Model):
     incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidental costs"))
     registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
     other = models.FloatField(blank=True, null=True, verbose_name=_("other costs"))
-    total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost"))
+    total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost (DFO)"))
+    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Estimated non-DFO costs"))
+    non_dfo_org = models.CharField(max_length=1000, verbose_name=_("Full name(s) of organization paying non-DFO costs"), blank=True,
+                                   null=True)
 
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
 
@@ -370,6 +376,39 @@ class Trip(models.Model):
     @property
     def recommenders(self):
         return self.reviewers.filter(role_id=2)
+
+    def get_summary_dict(self):
+        my_dict = {}
+        if self.is_group_trip:
+            for child_trip in self.children_trips.all():
+                my_user = child_trip.user
+                if my_user:
+                    my_dict[my_user] = {}
+                    # how many trips, total:
+                    total_count = [trip for trip in my_user.user_trips.all() if not trip.is_group_trip or trip.children_trips.count() == 0]
+                    # how many trips, fiscal:
+                    fy_count = [trip for trip in my_user.user_trips.filter(fiscal_year=child_trip.fiscal_year) if
+                                not trip.is_group_trip or trip.children_trips.count() == 0]
+                    my_dict[my_user]["has_user"] = True
+                    my_dict[my_user]["total_list"] = total_count
+                    my_dict[my_user]["fy_list"] = fy_count
+
+                else:
+                    fullname = "{} {}".format(child_trip.first_name, child_trip.last_name)
+                    my_dict[fullname] = {}
+                    my_dict[fullname]["has_user"] = False
+                    my_dict[fullname]["total_list"] = _("no user connected")
+                    my_dict[fullname]["fy_list"] = _("no user connected")
+        else:
+            my_dict[self.user] = {}
+            # how many trips, total:
+            total_count = [trip for trip in self.user.user_trips.all() if not trip.is_group_trip or trip.children_trips.count() == 0]
+            # how many trips, fiscal:
+            fy_count = [trip for trip in self.user.user_trips.filter(fiscal_year=self.fiscal_year) if
+                        not trip.is_group_trip or trip.children_trips.count() == 0]
+            my_dict[self.user]["total_list"] = total_count
+            my_dict[self.user]["fy_list"] = fy_count
+        return my_dict
 
 
 class ReviewerRole(models.Model):

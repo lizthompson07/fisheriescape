@@ -63,7 +63,7 @@
             {% if object.submitted %}
                 <span data-toggle="tooltip" title="{% trans "Cannot modify reviewers while trip is submitted." %}">
             {% endif %}
-            <a class="btn btn-secondary {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:re_add_reviewers' object.id  %}">
+            <a class="btn btn-secondary {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:re_add_reviewers' object.id %}">
                 Re-add Default Reviewers
             </a>
             {% if object.submitted %}
@@ -80,11 +80,11 @@
                 </span>
             {% endif %}
         </div>
-    </div>
-<div class="container-fluid">
+{#    </div>#}
+{#    <div class="container-fluid">#}
         <br><br>
         {% include "travel/_trip_detail.html" %}
-</div>
+    </div>
 
 
 {% endblock content %}
