@@ -17,9 +17,9 @@
                     {% trans "Travel Management System" %}
                 </h1>
                 <hr>
-                {% url 'travel:event_list' as event_list_url %}
-                {% url 'travel:event_approval_list' "awaiting" as event_approval_list_url %}
-                {% url 'travel:event_new' as event_new_url %}
+                {% url 'travel:trip_list' as event_list_url %}
+                {% url 'travel:trip_review_list' "awaiting" as event_approval_list_url %}
+                {% url 'travel:trip_new' as event_new_url %}
                 {% url 'travel:admin_approval_list' as admin_approval_list_url %}
                 <br>
                 <h2>
@@ -30,9 +30,9 @@
                         <br><br>
                     {% endblocktrans %}
 
-                    {% if is_approver %}
+                    {% if user.reviewers.count %}
                         {% blocktrans %}
-                            Trips awaiting your <a href="{{ event_approval_list_url }}">approval</a> ({{ number_waiting }}).
+                            Trips awaiting your <a href="{{ event_approval_list_url }}">review</a> ({{ number_waiting }}).
                         {% endblocktrans %}
                         <br><br>
                     {% endif %}

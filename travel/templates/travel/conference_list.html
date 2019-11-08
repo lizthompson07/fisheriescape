@@ -16,13 +16,13 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Registered Events</li>
+            <li class="breadcrumb-item active" aria-current="page">Conferences</li>
         </ol>
     </nav>
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Registered Events </h1>
+        <h1 class="big-header">Conferences </h1>
 
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
@@ -53,7 +53,7 @@
                         <em>displaying all {{ filter.qs.count }} records</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'travel:revent_new' %}" class="btn btn-sm btn-primary">New Event</a>
+                        <a href="{% url 'travel:conf_new' %}" class="btn btn-sm btn-primary">New Conference</a>
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@
                     </thead>
                     <tbody>
                     {% for object in filter.qs %}
-                        {% url 'travel:revent_detail' object.id as my_url %}
+                        {% url 'travel:conf_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
