@@ -7,15 +7,16 @@ from . import emails
 
 
 def get_reviewers(trip):
-    # if in gulf region, add Amelie as a reviewer
-    if trip.region_id == 1:
-        try:
-            models.Reviewer.objects.create(trip=trip, user_id=385, role_id=1, )
-        except IntegrityError:
-            print("not adding amelie")
 
-    # assuming there is a section, assign section management
+    # assuming there is a section, assign amelie and section management
     if trip.section:
+        # if in gulf region, add Amelie as a reviewer
+        if trip.section.division.branch.region_id == 1:
+            try:
+                models.Reviewer.objects.create(trip=trip, user_id=385, role_id=1, )
+            except IntegrityError:
+                print("not adding amelie")
+
         # try adding section head, division manager and rds
         try:
             models.Reviewer.objects.create(trip=trip, user=trip.section.head, role_id=2, )
