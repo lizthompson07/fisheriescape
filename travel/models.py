@@ -141,7 +141,7 @@ class Conference(models.Model):
 
         # group travellers
         my_list.extend(
-            [trip.user for trip in Trip.objects.filter(parent_trip__confernce=self).filter(~Q(status_id=10)) if trip.user])
+            [trip.user for trip in Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10)) if trip.user])
         my_list.extend(["{} {} (not connected to a user)".format(trip.first_name, trip.last_name) for trip in
                         Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10)) if not trip.user])
 
