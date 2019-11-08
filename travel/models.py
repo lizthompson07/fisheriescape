@@ -352,6 +352,14 @@ class Trip(models.Model):
             status_str += " {} {}".format(_("by"), self.current_reviewer.user)
         return status_str
 
+    @property
+    def rdg(self):
+        return self.reviewers.filter(role_id=6).first()
+
+    @property
+    def recommenders(self):
+        return self.reviewers.filter(role_id=2)
+
 
 class ReviewerRole(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)

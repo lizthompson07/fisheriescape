@@ -41,8 +41,8 @@ def in_travel_admin_group(user):
         return user.groups.filter(name='travel_admin').count() != 0
 
 
-def is_approver(user, event):
-    if user == event.current_reviewer:
+def is_approver(user, trip):
+    if user == trip.current_reviewer.user:
         return True
 
 
@@ -63,9 +63,9 @@ class AdminOrApproverRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        my_event = models.Trip.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         my_user = self.request.user
-        if in_travel_admin_group(my_user) or is_approver(my_user, my_event):
+        if in_travel_admin_group(my_user) or is_approver(my_user, my_trip):
             return True
 
     def dispatch(self, request, *args, **kwargs):
@@ -252,13 +252,13 @@ class TripReviewListView(TravelAccessRequiredMixin, ListView):
 
 class TripAdminApprovalListView(TravelAdminRequiredMixin, ListView):
     model = models.Trip
-    template_name = 'travel/trip_approval_list.html'
+    template_name = 'travel/trip_review_list.html'
 
     def get_queryset(self):
         # return a list only of those awaiting ADM or RDG approval
         qs = models.Trip.objects.filter(
             parent_trip__isnull=True,
-        ).filter(Q(status_id=14) | Q(status_id=15)).order_by("-submitted")
+        ).filter(status_id=15).order_by("-submitted")
         return qs
 
     def get_context_data(self, **kwargs):
@@ -298,7 +298,10 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         context["reviewer_field_list"] = reviewer_field_list
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
-        if my_object.submitted:
+
+        is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
+        context["is_current_reviewer"] = is_current_reviewer
+        if my_object.submitted and not is_current_reviewer:
             context["report_mode"] = True
 
         return context
@@ -348,6 +351,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
     def test_func(self):
         my_trip = self.get_object().trip
         my_user = self.request.user
+        print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip))
         if in_travel_admin_group(my_user) or is_approver(my_user, my_trip):
             return True
 
@@ -359,6 +363,8 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["reviewer_field_list"] = reviewer_field_list
         context["trip"] = my_object.trip
         context["report_mode"] = True
+        if my_object.role_id == 6:
+            context["admin"] = True
 
         return context
 
@@ -372,7 +378,17 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         # in this case, the reviewer status does not change but the trip status will
         if changes_requested:
             my_reviewer.trip.status_id = 16
+            my_reviewer.trip.submitted = None
             my_reviewer.trip.save()
+            # send an email to the trip owner
+            my_email = emails.ChangesRequestedEmail(my_reviewer.trip)
+            # send the email object
+            if settings.PRODUCTION_SERVER:
+                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                          recipient_list=my_email.to_list, fail_silently=False, )
+            else:
+                print(my_email)
+
 
         # if it was approved, then we change the reviewer status to 'approved'
         elif is_approved:
@@ -459,9 +475,14 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         else:
             #  SUBMIT TRIP
             my_trip.submitted = timezone.now()
-            # set all the reviewer statuses to 'queued'
-            utils.start_review_process(my_trip)
-            # go and get approvals!!
+            # if the trip is being resubmitted, this is a special case...
+            if my_trip.status_id == 16:
+                my_trip.status_id = 8
+                my_trip.save()
+            else:
+                # set all the reviewer statuses to 'queued'
+                utils.start_review_process(my_trip)
+                # go and get approvals!!
 
         # No matter what business what done, we will call this function to sort through reviewer and trip statuses
         utils.approval_seeker(my_trip)

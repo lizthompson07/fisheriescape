@@ -34,11 +34,13 @@
 
     <div class="container">
         {% if object.submitted %}
-            <h2 class="red-font">WARNING: Un-submitting this trip will reset the statuses of any exisitng recommendations and approvals.</h2>
+            <h2 class="red-font">WARNING: Un-submitting this trip will reset the statuses of any exisitng recommendations and
+                approvals.</h2>
         {% endif %}
         <h1>
             <b>
-                Do you wish to {% if object.submitted %} un-submit {% else %} submit {% endif %} the following trip?
+                Do you wish to {% if object.submitted %} un-submit {% else %} {% if object.status.id == 16 %} re-submit {% else %} submit
+            {% endif %} {% endif %} the following trip?
             </b>
         </h1>
         <br>
@@ -59,7 +61,7 @@
                 </a>
             </div>
         </form>
-    
+
         <br>
         <hr>
         {% include "travel/_trip_detail.html" %}

@@ -75,13 +75,13 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
             notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + my_trip.late_justification
 
         if is_group:
-            notes += "\n\nROLE OF PARTICIPANT: " + trip.role_of_participant
+            notes += "\n\nROLE OF PARTICIPANT: " + nz(trip.role_of_participant, "")
 
         data_row = [
             "{}, {}".format(trip.last_name, trip.first_name),
-            str(trip.region),
-            str(trip.role),
-            str(my_trip.reason),
+            nz(trip.region, "n/a"),
+            nz(trip.role, "n/a"),
+            nz(my_trip.reason, "n/a"),
             my_trip.trip_title,
             my_trip.destination,
             my_trip.start_date.strftime("%d/%m/%Y"),
