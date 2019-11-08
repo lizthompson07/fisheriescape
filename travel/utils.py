@@ -61,6 +61,8 @@ def get_reviewers(trip):
     except (IntegrityError, AttributeError):
         print("not adding RDG")
 
+    trip.save()
+
 
 def start_review_process(trip):
     """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""

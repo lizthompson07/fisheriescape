@@ -6,7 +6,7 @@ app_name = 'travel'
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
-    # EVENT (TRIPS) #
+    # TRIPS #
     ##########
     path('trips/', views.TripListView.as_view(), name="trip_list"),
     path('trip/new/', views.TripCreateView.as_view(), name="trip_new"),
@@ -20,6 +20,7 @@ urlpatterns = [
     path('trip/<int:pk>/new-child-trip/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/clone-duplicate/pop/<str:pop>', views.ChildTripCloneUpdateView.as_view(), name="child_duplicate_event"),
     path('trip/<int:pk>/submit/', views.TripSubmitUpdateView.as_view(), name="trip_submit"),
+    path('trip/<int:pk>/re-add-reviewers/', views.re_add_reviewers, name="re_add_reviewers"),
 
     # REVIEWER APPROVAL
     path('trips/review/', views.TripReviewListView.as_view(), name="trip_review_list"),
