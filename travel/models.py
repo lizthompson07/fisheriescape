@@ -384,11 +384,10 @@ class Trip(models.Model):
                 my_user = child_trip.user
                 if my_user:
                     my_dict[my_user] = {}
-                    # how many trips, total:
-                    total_count = [trip for trip in my_user.user_trips.all() if not trip.is_group_trip or trip.children_trips.count() == 0]
-                    # how many trips, fiscal:
-                    fy_count = [trip for trip in my_user.user_trips.filter(fiscal_year=child_trip.fiscal_year) if
-                                not trip.is_group_trip or trip.children_trips.count() == 0]
+                    qs = my_user.user_trips.filter(Q(is_international=True) | Q(is_conference=True))
+                    # how many trips, total and for fiscal:
+                    total_count = [trip for trip in qs if not trip.is_group_trip]
+                    fy_count = [trip for trip in qs.filter(fiscal_year=child_trip.fiscal_year) if not trip.is_group_trip]
                     my_dict[my_user]["has_user"] = True
                     my_dict[my_user]["total_list"] = total_count
                     my_dict[my_user]["fy_list"] = fy_count
@@ -400,14 +399,15 @@ class Trip(models.Model):
                     my_dict[fullname]["total_list"] = _("no user connected")
                     my_dict[fullname]["fy_list"] = _("no user connected")
         else:
+            qs = self.user.user_trips.filter(Q(is_international=True) | Q(is_conference=True))
             my_dict[self.user] = {}
-            # how many trips, total:
-            total_count = [trip for trip in self.user.user_trips.all() if not trip.is_group_trip or trip.children_trips.count() == 0]
-            # how many trips, fiscal:
-            fy_count = [trip for trip in self.user.user_trips.filter(fiscal_year=self.fiscal_year) if
-                        not trip.is_group_trip or trip.children_trips.count() == 0]
+            # how many trips, total and for fiscal:
+            total_count = [trip for trip in qs if not trip.is_group_trip]
+            fy_count = [trip for trip in qs.filter(fiscal_year=self.fiscal_year) if not trip.is_group_trip]
+            my_dict[self.user]["has_user"] = True
             my_dict[self.user]["total_list"] = total_count
             my_dict[self.user]["fy_list"] = fy_count
+
         return my_dict
 
 

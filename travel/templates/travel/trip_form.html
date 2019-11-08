@@ -37,7 +37,7 @@
 
         <form method="post" class="form">
             {% csrf_token %}
-
+            {% bootstrap_form_errors form %}
             {% for field in form %}
                 {% if "hide-me" in field.field.widget.attrs.class %}
                     <div class="hide-me">
@@ -158,6 +158,9 @@
             refreshUserInfo();
             refreshConference();
             refreshClassHideMe();
+            // do not make these fields required, otherwise we will not see the form errors if omitted
+            $("#id_user").prop("required", false);
+            $("#id_section").prop("required", false);
         });
 
         $("#new_event").click(function () {
