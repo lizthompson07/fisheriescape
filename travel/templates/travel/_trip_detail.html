@@ -51,17 +51,18 @@
                         <tr class="plainjane">
                             <td class="plainjane">{{ user }}</td>
                             <td class="plainjane center-col">
-                                {% if d.has_user %}
+                                {% if user.id  %}
                                     {{ d.fy_list|length }}
-                                    &nbsp;
-                                    {% with d.fy_list as my_list %}
-
-                                        <button class="badge" data-toggle="popover"
-                                                title="{{ user.first_name }}'s Total Trips for {{ trip.fiscal_year}}"
-                                                data-content="{% include "travel/_user_trip_list.html" %}">
-                                            {% trans "show" %}
-                                        </button>
-                                    {% endwith %}
+                                    {% if d.fy_list|length %}
+                                        &nbsp;
+                                        {% with d.fy_list as my_list %}
+                                            <button class="badge" data-toggle="popover"
+                                                    title="{{ user.first_name }}'s Total Trips for {{ trip.fiscal_year }}"
+                                                    data-content="{% include "travel/_user_trip_list.html" %}">
+                                                {% trans "show" %}
+                                            </button>
+                                        {% endwith %}
+                                    {% endif %}
                                 {% else %}
                                     <em>
                                         {{ d.fy_list }}
@@ -70,17 +71,18 @@
                             </td>
 
                             <td class="plainjane center-col">
-                                {% if d.has_user %}
+                                {% if user.id %}
                                     {{ d.total_list|length }}
-                                    &nbsp;
-                                    {% with d.total_list as my_list %}
-
-                                        <button class="badge" data-toggle="popover"
-                                                title="{{ user.first_name }}'s Total Trips"
-                                                data-content="{% include "travel/_user_trip_list.html" %}">
-                                            {% trans "show" %}
-                                        </button>
-                                    {% endwith %}
+                                    {% if d.total_list|length %}
+                                        &nbsp;
+                                        {% with d.total_list as my_list %}
+                                            <button class="badge" data-toggle="popover"
+                                                    title="{{ user.first_name }}'s Total Trips"
+                                                    data-content="{% include "travel/_user_trip_list.html" %}">
+                                                {% trans "show" %}
+                                            </button>
+                                        {% endwith %}
+                                    {% endif %}
                                 {% else %}
                                     <em>
                                         {{ d.total_list }}
