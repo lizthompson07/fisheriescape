@@ -79,6 +79,7 @@ def end_review_process(trip):
     for reviewer in trip.reviewers.all():
         reviewer.status_id = 4
         reviewer.status_date = None
+        reviewer.comments = None
         reviewer.save()
 
 
