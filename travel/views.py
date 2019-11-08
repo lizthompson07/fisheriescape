@@ -112,6 +112,8 @@ trip_field_list = [
     'is_international',
     'is_conference',
     'conference',
+    'has_event_template',
+    'event_lead',
 
     # purpose
     'role',
@@ -157,6 +159,8 @@ trip_group_field_list = [
     'is_international',
     'is_conference',
     'conference',
+    'has_event_template',
+    'event_lead',
 
     'reason',
     'purpose',
