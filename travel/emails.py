@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.template import loader
 
 from_email = 'DoNotReply@DMApps.com'
@@ -30,17 +31,16 @@ class NewTripEmail:
 
 
 class AdminApprovalAwaitingEmail:
-    def __init__(self, event, approver_field_name):
-        user = getattr(event, approver_field_name)
-        self.subject = 'A trip is awaiting {} approval'.format(approver_field_name.upper())
-        self.message = self.load_html_template(user, event)
+    def __init__(self, trip):
+        self.subject = 'A trip is awaiting RDG approval'
+        self.message = self.load_html_template(trip)
         self.from_email = from_email
-        self.to_list = ["Amelie.Robichaud@dfo-mpo.gc.ca", "Tracey.Cote@dfo-mpo.gc.ca"]
+        self.to_list = [user.email for user in User.objects.filter(groups__name="travel_admin")]
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
-    def load_html_template(self, user, event):
+    def load_html_template(self, trip):
         t = loader.get_template('travel/email_admin_awaiting_approval.html')
 
         field_list = [
@@ -54,7 +54,7 @@ class AdminApprovalAwaitingEmail:
             'end_date',
         ]
 
-        context = {'user': user, 'event': event, 'field_list': field_list}
+        context = {'trip': trip, 'field_list': field_list}
         rendered = t.render(context)
         return rendered
 
@@ -83,5 +83,34 @@ class ReviewAwaitingEmail:
         ]
 
         context = {'reviewer': reviewer_object, 'trip': trip_object, 'field_list': field_list}
+        rendered = t.render(context)
+        return rendered
+
+
+
+class ChangesRequestedEmail:
+    def __init__(self, trip_object):
+        self.subject = 'Changes to your trip are required - des modifications à votre voyage sont nécessaires'
+        self.message = self.load_html_template(trip_object)
+        self.from_email = from_email
+        self.to_list = [trip_object.user.email, ]
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
+    def load_html_template(self, trip_object):
+        t = loader.get_template('travel/email_changes_requested.html')
+
+        field_list = [
+            'fiscal_year',
+            'section',
+            'user',
+            'trip_title',
+            'destination',
+            'start_date',
+            'end_date',
+        ]
+
+        context = {'trip': trip_object, 'field_list': field_list}
         rendered = t.render(context)
         return rendered

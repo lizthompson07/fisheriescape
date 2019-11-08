@@ -35,7 +35,7 @@
     <div class="container">
 
         {% if admin %}
-            <h1>Admin Trip Approval Form</h1>
+            <h1>Do you wish to approve on behalf of the {{trip.current_reviewer.user}} ({{ trip.current_reviewer.role }})?</h1>
         {% else %}
             <h1>Do you wish to approve the following trip?</h1>
         {% endif %}
@@ -58,23 +58,18 @@
                 </a>
             </div>
             <div class="">
-                {% if admin %}
-                    <input type="submit" value="Submit" class="btn btn-lg btn-primary">
-
-                {% else %}
-                    <a class="btn btn-lg btn-success" id="yes" href="#">
-                        Yes
-                    </a>
-                    <a class="btn btn-lg btn-danger" id="no" href="#">
-                        No
-                    </a>
-                    <a class="btn btn-lg" id="request_changes" href="#" style="background-color: orange">
-                        Request Changes
-                    </a>
-                    <a class="btn btn-lg btn-primary" href="{% url 'travel:trip_detail' trip.id %}">
-                        Make Changes Yourself
-                    </a>
-                {% endif %}
+                <a class="btn btn-lg btn-success" id="yes" href="#">
+                    Yes
+                </a>
+                <a class="btn btn-lg btn-danger" id="no" href="#">
+                    No
+                </a>
+                <a class="btn btn-lg" id="request_changes" href="#" style="background-color: orange">
+                    Request Changes
+                </a>
+                <a class="btn btn-lg btn-primary" href="{% url 'travel:trip_detail' trip.id %}">
+                    Make Changes Yourself
+                </a>
 
                 <a class="btn btn-lg btn-secondary" href="{% url 'travel:trip_review_list' %}">
                     Cancel
@@ -103,11 +98,11 @@
         $("#no").click(function () {
             $("#id_is_approved").val(false);
             $("form").submit();
-        })
+        });
         $("#request_changes").click(function () {
             $("#id_changes_requested").val(true);
             $("form").submit();
-        })
+        });
 
     </script>
 
