@@ -174,7 +174,7 @@ class Trip(models.Model):
     is_group_trip = models.BooleanField(default=False,
                                         verbose_name=_("Is this a group trip (i.e., is this a request for multiple individuals)?"))
     # traveller info
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, related_name="user_trips",
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trips",
                              verbose_name=_("user"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"),
                                 limit_choices_to={'division__branch__in': [1, 3]})
