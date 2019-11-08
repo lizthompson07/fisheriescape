@@ -101,7 +101,7 @@ trip_field_list = [
     'address',
     'phone',
     'email',
-    'public_servant',
+    'is_public_servant',
     'company_name',
     'region',
     'trip_title',
@@ -171,7 +171,7 @@ trip_group_field_list = [
 trip_child_field_list = [
     'first_name',
     'last_name',
-    'public_servant',
+    'is_public_servant',
     'region',
     'departure_location',
     'role',

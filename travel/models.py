@@ -174,7 +174,8 @@ class Trip(models.Model):
                                blank=True, null=True)
     phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
-    public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES)
+    is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
+    is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a research scientist (RES)?"))
     company_name = models.CharField(max_length=255, verbose_name=_("company name (leave blank if DFO)"), blank=True, null=True)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
                                null=True, default=1)

@@ -196,7 +196,7 @@
                 <th class="real center" style="text-align: center;">{{ forloop.counter }}</th>
                 <td class="real center">{{ child.first_name }} {{ child.last_name }}</td>
                 <td class="real center">{{ child.departure_location }} to {{ object.destination }}</td>
-                <td class="real center" style="text-align: center;">{{ child.public_servant|yesno }}</td>
+                <td class="real center" style="text-align: center;">{{ child.is_public_servant|yesno }}</td>
                 <td class="real center" style="text-align: center;">{{ child.air|zero2val:""|currency|nz:"" }}</td>
                 <td class="real center" style="text-align: center;">{{ child.rail|zero2val:""|currency|nz:"" }}</td>
                 <td class="real center" style="text-align: center;">{{ child.rental_motor_vehicle|zero2val:""|currency|nz:"" }}</td>
