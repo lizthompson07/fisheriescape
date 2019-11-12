@@ -1,137 +1,141 @@
+{% extends "_base_pdf_legal_landscape.html" %}
+
 {% load verbose_names %}
 {% load bootstrap4 %}
 {% load humanize %}
 {% load custom_filters %}
 {% load i18n %}
+{% load static %}
 
-{% bootstrap_css %}
-
-{% block extra_style %}
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% block page_title %}
+    {#  HTML Title of the report  #}
 {% endblock %}
 
-<style>
-    .label {
-        font-weight: bold;
-    }
+{% block extra_style %}
+    <style type="text/css">
+        {# Extra CSS styles here #}
+        .label {
+            font-weight: bold;
+        }
 
-    table, td, th {
-        font-size: small;
-        border: 1px solid black;
-        text-align: left;
-        border-collapse: collapse;
-    }
+        table, td, th {
+            font-size: small;
+            border: 1px solid black;
+            text-align: left;
+            border-collapse: collapse;
+        }
 
-    td, th {
-        padding: 2px;
-    }
+        td, th {
+            padding: 2px;
+        }
 
-    th {
-    {#background-color: lightblue;#}{#color: white;#} border: 1px solid black;
-        font-weight: bold;
-    }
+        th {
+            background-color: lightblue;
+            color: black;
+            border: 1px solid black;
+            font-weight: bold;
+        }
 
-    .total {
-    {#background-color: lightgray;#}{#color: black;#}
-    }
+        h2 {
+            {#font-size: 24px;#}
+            margin: 0cm;
+        }
+    </style>
+{% endblock %}
 
-
-    h1 {
-        font-size: 24px;
-    }
-
-    @page {
-        size: legal landscape;
-        margin: 1cm;
-        @frame footer {
-        -pdf-frame-content: footerContent;
-        bottom: 0cm;
-        margin-left: 18cm;
-        margin-right: 0cm;
-        height: 1cm;
-    }
-    }
-
-</style>
-
-
-<div id="footerContent">
-    {% block page_foot %}
-        <pdf:pagenumber/>
-    {% endblock %}
-</div>
-
-
-<h1>
-    {{ report_title }} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
-</h1>
+{% block page_header %}
+    <div style="text-align: right; display: inline-block;">
+        Page <pdf:pagenumber/>
+    </div>
+    <h2>
+        {{ report_title }} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
+    </h2>
+    {#    <div style="text-align: center; display: inline-block;">#}
+    {##}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
+    {#    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#}
 
 
-<table>
-    <thead>
-    <th>
-        Project / Location
-    </th>
-    <th>
-        Proponent
-    </th>
-    <th>
-        Date offer to Consult
-    </th>
-    <th>
-        Other Departments Involved (Prov & Fed)
-    </th>
-    <th style="width: 40%">
-        Project Status/ Correspondence / Notes
-    </th>
-    <th>
-        Follow-up Actions required
-    </th>
-    </thead>
 
-    {% for entry in entry_list %}
-        <tr>
-            <td>
-                TITLE: {{ entry.title }}
-                <br><br>
-                TYPE: {{ entry.entry_type}}
-                <br><br>
-                LOCATION: {{ entry.location|nz:"----" }}
-            </td>
-            <td>
-                ORGANIZATIONS: {{ entry.orgs_str }}
-                <br><br>
-                DFO SECTORS: {{ entry.sectors_str }}
-            </td>
-            <td>
-                {{ entry.initial_date|date:"M d, Y" }}
-            </td>
-            <td>
-                {% for person in entry.people.all %}
-                    {{ person }}<br>
-                {% endfor %}
-            </td>
-            <td>
-                Overall status: {{ entry.status }}
-                <br><br>
-                {% for note in entry.other_notes %}
-                    {{ note }}
+    <table>
+        <th style="width: 12%">
+            Project / Location
+        </th>
+        <th style="width: 12%">
+            Proponent
+        </th>
+        <th style="width: 12%">
+            Date offer to Consult
+        </th>
+        <th style="width: 12%">
+            Other Departments Involved<br>(Prov & Fed)
+        </th>
+        <th style="width: 40%">
+            Project Status/ Correspondence / Notes
+        </th>
+        <th style="width: 12%">
+            Follow-up Actions required
+        </th>
+    </table>
+{% endblock %}
+
+{% block page_content %}
+
+    <table>
+        {% for entry in entry_list %}
+            <tr>
+                <td style="width: 12%">
+                    TITLE: {{ entry.title }}
                     <br><br>
-                {% endfor %}
-
-            </td>
-            <td>
-                {% for note in entry.followups %}
-                    {{ note }}
+                    TYPE: {{ entry.entry_type }}
                     <br><br>
-                {% endfor %}
-            </td>
+                    LOCATION: {{ entry.location|nz:"----" }}
+                </td>
+                <td style="width: 12%">
+                    ORGANIZATIONS: {{ entry.orgs_str }}
+                    <br><br>
+                    DFO SECTORS: {{ entry.sectors_str }}
+                </td>
+                <td style="width: 12%">
+                    {{ entry.initial_date|date:"M d, Y" }}
+                </td>
+                <td style="width: 12%">
+                    {% for person in entry.people.all %}
+                        {{ person }}<br>
+                    {% endfor %}
+                </td>
+                <td style="width: 40%">
+                    Overall status: {{ entry.status }}
+                    <br><br>
+                    {% for note in entry.other_notes %}
+                        {{ note }}
+                        <br><br>
+                    {% endfor %}
 
+                </td>
+                <td style="width: 12%">
+                    {% for note in entry.followups %}
+                        {{ note }}
+                        <br><br>
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
 
-        </tr>
-    {% endfor %}
+{% endblock %}
 
-</table>
-
-
-
+{% block page_foot %}
+{% endblock %}
