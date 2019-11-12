@@ -34,22 +34,22 @@ def get_reviewers(trip):
     # should the ADMs office be invovled?
     if trip.is_international or trip.is_conference:
         # add the ADMs office staff
-        try:
-            models.Reviewer.objects.create(trip=trip, user_id=749, role_id=3, )  # Kim Cotton
-        except IntegrityError:
-            print("not adding NCR reviewer")
-        try:
-            models.Reviewer.objects.create(trip=trip, user_id=736, role_id=4, )  # Andy White
-        except IntegrityError:
-            print("not adding NCR recommender")
-        try:
-            models.Reviewer.objects.create(trip=trip, user_id=758, role_id=4, )  # Stephen Virc
-        except IntegrityError:
-            print("not adding NCR recommender")
-        try:
-            models.Reviewer.objects.create(trip=trip, user_id=740, role_id=4, )  # Wayne Moore
-        except IntegrityError:
-            print("not adding NCR recommender")
+        # try:
+        #     models.Reviewer.objects.create(trip=trip, user_id=749, role_id=3, )  # Kim Cotton
+        # except IntegrityError:
+        #     print("not adding NCR reviewer")
+        # try:
+        #     models.Reviewer.objects.create(trip=trip, user_id=736, role_id=4, )  # Andy White
+        # except IntegrityError:
+        #     print("not adding NCR recommender")
+        # try:
+        #     models.Reviewer.objects.create(trip=trip, user_id=758, role_id=4, )  # Stephen Virc
+        # except IntegrityError:
+        #     print("not adding NCR recommender")
+        # try:
+        #     models.Reviewer.objects.create(trip=trip, user_id=740, role_id=4, )  # Wayne Moore
+        # except IntegrityError:
+        #     print("not adding NCR recommender")
         try:
             models.Reviewer.objects.create(trip=trip, user_id=626, role_id=5, )  # Arran McPherson
         except IntegrityError:
@@ -195,10 +195,10 @@ def approval_seeker(trip):
 
             # now, depending on the role of this reviewer, perhaps we want to send an email.
             # if they are a recommender, rev...
-            if next_reviewer.role_id in [1, 2, 3, 4, 5, ]: # essentially, just not the RDG
+            if next_reviewer.role_id in [1, 2, 3, 4, ]: # essentially, just not the RDG or ADM
                 my_email = emails.ReviewAwaitingEmail(trip, next_reviewer)
 
-            elif next_reviewer.role_id == 6: # if we are going for RDG signature...
+            elif next_reviewer.role_id in [5,6]: # if we are going for RDG signature...
                 my_email = emails.AdminApprovalAwaitingEmail(trip)
 
             if my_email:

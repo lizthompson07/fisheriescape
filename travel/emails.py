@@ -32,7 +32,7 @@ class NewTripEmail:
 
 class AdminApprovalAwaitingEmail:
     def __init__(self, trip):
-        self.subject = 'A trip is awaiting RDG approval'
+        self.subject = 'A trip is awaiting {} approval'.format(trip.current_reviewer.role)
         self.message = self.load_html_template(trip)
         self.from_email = from_email
         self.to_list = [user.email for user in User.objects.filter(groups__name="travel_admin")]
