@@ -41,8 +41,9 @@
                     {% for group in user.groups.all %}
                         {% if group.name == "travel_admin" %}
                             {% blocktrans %}
-                                Click <a href="{{ admin_approval_list_url }}">here</a> to access the admin approval menu.
+                                Trips awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
                             {% endblocktrans %}
+                        (<span class="{% if admin_number_waiting > 0 %}red-font{% endif %}">{{ admin_number_waiting  }}</span>).
                         {% endif %}
 
                     {% endfor %}
