@@ -62,7 +62,7 @@ class ReportSearchForm(forms.Form):
             (2, _("Organizational Report / Cue Card (PDF)")),
             (3, _("iHub Summary Report (Excel Spreadsheet)")),
             (4, _("iHub Summary Report (PDF)")),
-            (5, _("Consultations Update Log (PDF)")),
+            (5, _("Engagement Update Log (PDF)")),
         )
         fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
                       models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
