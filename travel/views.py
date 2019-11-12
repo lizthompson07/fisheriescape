@@ -85,8 +85,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["number_waiting"] = self.request.user.reviewers.filter(
-            status_id=1).count()  # the number of trips where their review is pending
+        context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of trips where review is pending
+        context["admin_number_waiting"] = models.Reviewer.objects.filter(status_id=1, role_id__in=[5,6]).count()  # number of trips where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         return context
 
@@ -274,7 +274,7 @@ class TripAdminApprovalListView(TravelAdminRequiredMixin, ListView):
         # return a list only of those awaiting ADM or RDG approval
         qs = models.Trip.objects.filter(
             parent_trip__isnull=True,
-        ).filter(status_id=15).order_by("-submitted")
+        ).filter(status_id__in=[14, 15]).order_by("-submitted")
         return qs
 
     def get_context_data(self, **kwargs):
@@ -382,7 +382,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["conf_field_list"] = conf_field_list
         context["trip"] = my_object.trip
         context["report_mode"] = True
-        if my_object.role_id == 6:
+        if my_object.role_id in [5, 6, ]:
             context["admin"] = True
 
         return context

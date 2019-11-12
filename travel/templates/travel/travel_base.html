@@ -49,7 +49,7 @@
             {% for group in user.groups.all %}
                 {% if group.name == "travel_admin" %}
                     <a class="dropdown-item" href="{% url 'travel:admin_approval_list' %}">
-                        {% trans "Admin Approval List" %}
+                        {% trans "For Your Admin Approval" %}
                     </a>
                 {% endif %}
             {% endfor %}
