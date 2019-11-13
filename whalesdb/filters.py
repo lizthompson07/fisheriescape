@@ -3,6 +3,8 @@ from django_filters import FilterSet
 from . import models
 from . import forms
 
+from django.db.models.base import ModelBase
+
 
 class GenericFilterSet(FilterSet):
 
@@ -12,9 +14,11 @@ class GenericFilterSet(FilterSet):
         labels = forms.get_short_labels(self._meta.model)
         try:
             for key in labels.keys():
-                self.filters[key].label = labels[key]
+                if key in self.filters.keys():
+                    self.filters[key].label = labels[key]
         except KeyError:
-            print("Label for key '" + key + "' not found")
+            print("Label for key '" + key + "' not found in object '" + str(self._meta.model) + "'")
+            print("Filters: " + str(self.filters))
 
 
 class CrsFilter(GenericFilterSet):
@@ -64,7 +68,7 @@ class EmmFilter(GenericFilterSet):
 
     class Meta:
         model = models.EmmMakeModel
-        fields = ['eqt']
+        fields = ['emm_make', 'emm_model', 'emm_depth_rating']
 
 
 class MorFilter(GenericFilterSet):

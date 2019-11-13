@@ -233,6 +233,8 @@ def get_descriptions(for_model):
             'tea_last_name': _("Last Name of the team member"),
             'tea_first_name': _("First Name of the team Member"),
         }
+    else:
+        print('No descriptions found for object ' + str(type(for_model)) + "'")
 
     return labels
 
@@ -324,8 +326,19 @@ class EmmForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        eqt_choices = models.EqtEquipmentTypeCode.objects.all().values()
+        eqt_choices = models.EqtEquipmentTypeCode.objects.all().values_list()
         self.fields['eqt'].choices = eqt_choices
+
+
+class EqrForm(EmmForm):
+
+    class Meta:
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['eqt'].initial = 1
 
 
 class EqhForm(forms.ModelForm):
@@ -350,6 +363,7 @@ class EqhForm(forms.ModelForm):
 
         eqt_choices = models.EqtEquipmentTypeCode.objects.all().values_list()
         self.fields['eqt'].choices = eqt_choices
+        self.fields['eqt'].initial = 2
 
 
 class EqpForm(forms.ModelForm):
