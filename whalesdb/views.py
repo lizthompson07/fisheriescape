@@ -369,6 +369,11 @@ class IndexView(TemplateView):
                         'icon': "img/whales/record.svg",
                     },
                     {
+                        'title': "General Make&Model",
+                        'url': "whalesdb:list_emm",
+                        'icon': "img/whales/record.svg",
+                    },
+                    {
                         'obj_name': "eqp",
                         'title': "Equipment",
                         'url': "whalesdb:list_obj",
@@ -558,8 +563,21 @@ class CreateEMM(CreateChannel):
         return models.EmmMakeModel.objects.all().order_by("-pk")[0]
 
 
-class CreateRecorder(CreateEMM):
+class CreateMakeModel(CreateEMM):
     form_class = forms.EmmForm
+    success_url = "whalesdb:list_emm"
+    cancel_url = success_url
+
+    def form_valid(self, form):
+        emm = super().form_valid(form)
+
+        print("EQT: " + str(emm.eqt))
+
+        return HttpResponseRedirect(reverse('whalesdb:details_emm', kwargs={'pk': emm.pk}))
+
+
+class CreateRecorder(CreateEMM):
+    form_class = forms.EqrForm
     success_url = "whalesdb:list_eqr"
     cancel_url = success_url
 
@@ -644,9 +662,9 @@ class DetailsMakeModel(DetailView):
                 "fields": get_fields(labels)
             })
 
-            labels = forms.get_short_labels(models.EprEquipmentParameters)
-            context['parameter_fields'] = get_fields(labels)
-            context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=self.get_emm())]
+        labels = forms.get_short_labels(models.EprEquipmentParameters)
+        context['parameter_fields'] = get_fields(labels)
+        context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=self.get_emm())]
 
         return context
 
@@ -668,9 +686,9 @@ class DetailsRecorder(DetailsMakeModel):
         context['channels'] = [c for c in models.EcpChannelProperties.objects.filter(emm=kwargs['object'])]
         context['url'] = 'eqr'
 
-        labels = forms.get_short_labels(models.EprEquipmentParameters)
-        context['parameter_fields'] = get_fields(labels)
-        context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=kwargs['object'])]
+        # labels = forms.get_short_labels(models.EprEquipmentParameters)
+        # context['parameter_fields'] = get_fields(labels)
+        # context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=kwargs['object'])]
 
         return context
 
@@ -713,6 +731,15 @@ class ListEMM(ListGeneric):
     detail_type = 'emm'
 
 
+class ListMakeModel(ListEMM):
+    model = models.EmmMakeModel
+    filterset_class = filters.EmmFilter
+    detail_type = 'general'
+    create_link = "whalesdb:create_emm"
+    detail_link = "whalesdb:details_emm"
+    title = "General Make & Model"
+
+
 class ListRecorder(ListEMM):
     model = models.EmmMakeModel
     filterset_class = filters.EmmFilter
@@ -720,6 +747,9 @@ class ListRecorder(ListEMM):
     create_link = "whalesdb:create_eqr"
     detail_link = "whalesdb:details_eqr"
     title = "Recorder Equipment"
+
+    def get_queryset(self):
+        return self.model.objects.filter(eqt=1)
 
 
 class ListHydrophone(ListEMM):
