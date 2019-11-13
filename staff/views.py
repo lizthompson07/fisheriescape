@@ -197,6 +197,7 @@ def get_allotment(sp, context):
 
     return context
 
+
 class DetailPlan(LoginRequiredMixin, DetailView):
     model = models.StaffingPlan
     login_url = '/accounts/login_required/'
@@ -210,6 +211,31 @@ class DetailPlan(LoginRequiredMixin, DetailView):
             context = get_allotment(sp, context)
 
         return context
+
+
+def get_division_dump():
+    division_dict = {}
+    for d in get_division_choices(all=True):
+        my_division = shared_models.Division.objects.get(pk=d[0])
+        division_dict[my_division.id] = {}
+        division_dict[my_division.id]["display"] = "{} - {}".format(
+            getattr(my_division.branch, _("name")),
+            getattr(my_division, _("name")),
+        )
+        division_dict[my_division.id]["region_id"] = my_division.branch.region_id
+
+    return division_dict
+
+
+def get_section_dump():
+    section_dict = {}
+    for s in get_section_choices(all=True):
+        my_section = shared_models.Section.objects.get(pk=s[0])
+        section_dict[my_section.id] = {}
+        section_dict[my_section.id]["display"] = str(my_section)
+        section_dict[my_section.id]["division_id"] = my_section.division_id
+
+    return section_dict
 
 
 class CreatePlan(LoginRequiredMixin, CreateView):
@@ -229,22 +255,9 @@ class CreatePlan(LoginRequiredMixin, CreateView):
         # here are the option objects we want to send in through context
         # only from the science branches of each region
 
-        division_dict = {}
-        for d in get_division_choices(all=True):
-            my_division = shared_models.Division.objects.get(pk=d[0])
-            division_dict[my_division.id] = {}
-            division_dict[my_division.id]["display"] = "{} - {}".format(
-                getattr(my_division.branch, _("name")),
-                getattr(my_division, _("name")),
-            )
-            division_dict[my_division.id]["region_id"] = my_division.branch.region_id
+        division_dict = get_division_dump()
+        section_dict = get_section_dump()
 
-        section_dict = {}
-        for s in get_section_choices(all=True):
-            my_section = shared_models.Section.objects.get(pk=s[0])
-            section_dict[my_section.id] = {}
-            section_dict[my_section.id]["display"] = str(my_section)
-            section_dict[my_section.id]["division_id"] = my_section.division_id
         context['division_json'] = json.dumps(division_dict)
         context['section_json'] = json.dumps(section_dict)
 
@@ -266,6 +279,12 @@ class UpdatePlan(LoginRequiredMixin, UpdateView):
 
         if self.kwargs['pk'] and self.kwargs['pk'] != 0:
             context['object'] = models.StaffingPlan.objects.get(id=self.kwargs['pk'])
+
+        division_dict = get_division_dump()
+        section_dict = get_section_dump()
+
+        context['division_json'] = json.dumps(division_dict)
+        context['section_json'] = json.dumps(section_dict)
 
         return context
 
