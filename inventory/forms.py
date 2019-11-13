@@ -67,8 +67,20 @@ class ResourceCreateForm(forms.ModelForm):
                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
         SECTION_CHOICES.insert(0, tuple((None, "---")))
 
+
+
+        resource_type_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
+                           models.ResourceType.objects.all()]
+        resource_type_choices .insert(0, tuple((None, "---")))
+
+        status_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
+                                 models.Status.objects.all()]
+        status_choices.insert(0, tuple((None, "---")))
+
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = SECTION_CHOICES
+        self.fields['resource_type'].choices = resource_type_choices
+        self.fields['status'].choices = status_choices
 
 
 class ResourceForm(forms.ModelForm):
