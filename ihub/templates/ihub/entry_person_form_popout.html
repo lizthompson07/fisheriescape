@@ -92,15 +92,20 @@
             // if there is a user given, disable and clean the "name" field
             if ($("#id_user").val() != "") {
                 $("#id_name").val("")
-                $("#id_name").prop("disabled", true)
-                $("#id_organization").val("DFO")
-                $("#id_organization").prop("disabled", false)
+                $("#id_name").prop("disabled", true);
+                $("#id_organization").prop("disabled", false);
             } else {
-                $("#id_name").prop("disabled", false)
+                $("#id_name").prop("disabled", false);
                 {#$("#id_organization").val("")#}
-                $("#id_organization").prop("disabled", false)
+                $("#id_organization").prop("disabled", false);
             }
         }
+
+        $("#id_user").change(function () {
+            if ($("#id_user").val() != "") {
+                $("#id_organization").val("DFO")
+            }
+        })
     </script>
 
 
