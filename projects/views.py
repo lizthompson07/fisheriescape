@@ -1647,7 +1647,7 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
         context['status_report'] = True
-        context['files'] = project.files.filter(reference=2)
+        context['files'] = project.files.all()
         return context
 
     def form_valid(self, form):
