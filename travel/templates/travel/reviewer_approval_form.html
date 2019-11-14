@@ -1,0 +1,109 @@
+{% extends "travel/travel_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% block header %}
+{% endblock %}
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+
+        table, td {
+            font-size: small;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
+            {% if admin %}
+                <li class="breadcrumb-item"><a href="{% url 'travel:admin_approval_list' %}">Admin Trip Approval List</a>
+                </li>
+
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'travel:trip_review_list' 'awaiting' %}">Trips Awaiting Your Review</a>
+                </li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">{{ trip }} Reviewer Approval</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        {% if admin %}
+            <h1>Do you wish to approve on behalf of the {{trip.current_reviewer.user}} ({{ trip.current_reviewer.role }})?</h1>
+        {% else %}
+            <h1>Do you wish to approve the following trip?</h1>
+        {% endif %}
+
+        <br>
+        <form method="post" class="form">
+            {% csrf_token %}
+            {% for field in form %}
+                {% bootstrap_field field placeholder="" %}
+            {% endfor %}
+
+
+
+            <div class="float-right">
+                <a class="btn btn-info " href="{% url 'travel:trip_print' trip.id %}" target="_blank">
+                    View Travel Plan PDF &nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                </a>
+                <a class="btn btn-info " href="{% url 'travel:export_cfts' trip.id %}" target="_blank">
+                    Export CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+                </a>
+            </div>
+            <div class="">
+                <a class="btn btn-lg btn-success" id="yes" href="#">
+                    Yes
+                </a>
+                <a class="btn btn-lg btn-danger" id="no" href="#">
+                    No
+                </a>
+                <a class="btn btn-lg" id="request_changes" href="#" style="background-color: orange">
+                    Request Changes
+                </a>
+                <a class="btn btn-lg btn-primary" href="{% url 'travel:trip_detail' trip.id %}">
+                    Make Changes Yourself
+                </a>
+
+                <a class="btn btn-lg btn-secondary" href="{% url 'travel:trip_review_list' %}">
+                    Cancel
+                </a>
+                <input type="submit" class="hidden">
+            </div>
+
+        </form>
+
+        <br><br>
+        <hr>
+        {% include "travel/_trip_detail.html" %}
+    </div>
+
+
+
+    <br><br><br>
+{% endblock content %}
+{% block body_js %}
+
+    <script type="application/javascript">
+        $("#yes").click(function () {
+            $("#id_is_approved").val(true);
+            $("form").submit();
+        });
+        $("#no").click(function () {
+            $("#id_is_approved").val(false);
+            $("form").submit();
+        });
+        $("#request_changes").click(function () {
+            $("#id_changes_requested").val(true);
+            $("form").submit();
+        });
+
+    </script>
+
+{% endblock %}

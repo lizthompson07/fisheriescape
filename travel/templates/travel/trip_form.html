@@ -10,9 +10,9 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:event_list' %}">Trips</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:event_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">New</li>
@@ -37,16 +37,16 @@
 
         <form method="post" class="form">
             {% csrf_token %}
-
+            {% bootstrap_form_errors form %}
             {% for field in form %}
                 {% if "hide-me" in field.field.widget.attrs.class %}
                     <div class="hide-me">
                 {% endif %}
 
-            {% if field.name == "registered_event" %}
-                <div class="event_container">
+            {% if field.name == "conference" %}
+                <div class="conference_container">
                     {% bootstrap_field field placeholder="" %}
-                    (<a href="#" pop-href="{% url 'travel:revent_new' 1 %}" id="new_event">add a new event</a>)
+                    (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new event</a>)
                     <br><br>
                 </div>
             {% elif field.name == "is_group_trip" %}
@@ -59,20 +59,17 @@
                     </p>
                 </div>
             {% elif field.name == "role" %}
-                <div class="event_container">
+                <div class="conference_container">
                     {% bootstrap_field field placeholder="" %}
                 </div>
             {% elif field.name == "role_of_participant" %}
+                <div class="conference_container">
+                    {% bootstrap_field field placeholder="" %}
+                </div>
+            {% elif field.name == "event_lead" %}
                 <div class="event_container">
                     {% bootstrap_field field placeholder="" %}
                 </div>
-            {% elif field.name == "recommender_1" %}
-                <hr>
-                <span class="red-font" style="font-weight: bold">NOTE: Please do not change the default recommenders and/or
-                    approvers unless you are certain that those changes are necessary. Please contact <a href="mailto:amelie.robichaud@dfo-mpo.gc.ca">Amélie Robichaud</a> or
-                    <a href="mailto:tracey.cote@dfo-mpo.gc.ca">Tracey Côté</a> if you have any questions.</span>
-                <br><br>
-                {% bootstrap_field field placeholder="" %}
             {% else %}
 
                 {% bootstrap_field field placeholder="" %}
@@ -87,10 +84,10 @@
             {% buttons %}
                 {% if object %}
                     <button type="submit" class="btn btn-success">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:event_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">Cancel</a>
                 {% else %}
                     <button type="submit" class="btn btn-success">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:event_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">Cancel</a>
                 {% endif %}
 
 
@@ -104,7 +101,7 @@
 
     <script type="application/javascript">
         var userObj = {{ user_json|safe }};
-        var sectionObj = {{ section_json|safe }};
+        {#var sectionObj = {{ section_json|safe }};#}
         var myId = "";
 
         function refreshUserInfo() {
@@ -114,30 +111,37 @@
             $("#id_email").val(userObj[myId]["email"]);
         }
 
-        function refreshRegisteredEvent() {
-            if ($("#id_event").val() == "False") {
-                $("#id_registered_event").val("");
-                $("#id_role").val("");
-                $("#id_role_of_participant").val("");
-                $("#id_registered_event").prop("disabled", true);
-                $("#id_role").prop("disabled", true);
-                $("#id_role_of_participant").prop("disabled", true);
-                $(".event_container").addClass("gone");
+        function refreshConference() {
+            if ($("#id_is_conference").val() == "False") {
+                $("#id_conference").val("").prop("disabled", true);
+                $("#id_role").val("").prop("disabled", true);
+                $("#id_role_of_participant").val("").prop("disabled", true);
+                $(".conference_container").addClass("gone");
             } else {
-                $("#id_registered_event").prop("disabled", false);
+                $("#id_conference").prop("disabled", false);
                 $("#id_role").prop("disabled", false);
                 $("#id_role_of_participant").prop("disabled", false);
+                $(".conference_container").removeClass("gone");
+            }
+        }
+
+        function refreshEvent() {
+            if ($("#id_has_event_template").val() == "false") {
+                $("#id_event_lead").val("").prop("disabled", true);
+                $(".event_container").addClass("gone");
+            } else {
+                $("#id_event_lead").prop("disabled", false);
                 $(".event_container").removeClass("gone");
             }
         }
 
         function refreshClassHideMe() {
             if ($("#id_is_group_trip").val() == "False") {
-                $(".hide-me").removeClass("gone")
-                $(".show-me").addClass("gone")
+                $(".hide-me").removeClass("gone");
+                $(".show-me").addClass("gone");
             } else {
-                $(".hide-me").addClass("gone")
-                $(".show-me").removeClass("gone")
+                $(".hide-me").addClass("gone");
+                $(".show-me").removeClass("gone");
             }
         }
 
@@ -145,29 +149,27 @@
             refreshUserInfo();
         });
 
-        $("#id_event").change(function () {
-            refreshRegisteredEvent();
+        $("#id_has_event_template").change(function () {
+            refreshEvent();
+        });
+
+        $("#id_is_conference").change(function () {
+            refreshConference();
         });
 
         $("#id_is_group_trip").change(function () {
             refreshClassHideMe();
         });
 
-        $("#id_section").change(function () {
-            mySectionId = $(this).val();
-            $("#id_recommender_1").val(sectionObj[mySectionId]["recommender_1"]);
-            $("#id_recommender_2").val(sectionObj[mySectionId]["recommender_2"]);
-            $("#id_recommender_3").val(sectionObj[mySectionId]["recommender_3"]);
-            $("#id_adm").val(sectionObj[mySectionId]["adm"]);
-            $("#id_rdg").val(sectionObj[mySectionId]["rdg"]);
-            $('select').trigger("chosen:updated");
-        });
-
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
             refreshUserInfo();
-            refreshRegisteredEvent();
+            refreshConference();
+            refreshEvent();
             refreshClassHideMe();
+            // do not make these fields required, otherwise we will not see the form errors if omitted
+            $("#id_user").prop("required", false);
+            $("#id_section").prop("required", false);
         });
 
         $("#new_event").click(function () {

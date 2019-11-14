@@ -2,7 +2,7 @@
 
 {% load bootstrap4 %}
 {% load i18n %}
-
+{% load custom_filters %}
 
 {% block body %}
 
@@ -28,7 +28,7 @@
                     {% trans "Submit" %}
                 </button>
                 {% if object %}
-                    <a class="btn btn-danger" href="{% url 'travel:event_delete' object.id 'pop' %}">
+                    <a class="btn btn-danger" href="{% url 'travel:trip_delete' object.id 'pop' %}">
                         {% trans "Delete" %}
                     </a>
                 {% endif %}
@@ -49,7 +49,7 @@
                     {% trans "Submit" %}
                 </button>
                 {% if object %}
-                    <a class="btn btn-danger" href="{% url 'travel:event_delete' object.id 'pop' %}">
+                    <a class="btn btn-danger" href="{% url 'travel:trip_delete' object.id 'pop' %}">
                         {% trans "Delete" %}
                     </a>
                 {% endif %}
@@ -68,7 +68,7 @@
 
     <script type="application/javascript">
         var userObj = {{ user_json|safe }};
-        var sectionObj = {{ section_json|safe }};
+        var sectionObj = {{ section_json|safe|nz:"{}" }};
         var myId = "";
 
         function refreshUserInfo() {
