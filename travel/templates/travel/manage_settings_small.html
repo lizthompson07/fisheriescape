@@ -2,6 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load custom_filters %}
 {% load i18n %}
 {% block content %}
     <style>
@@ -48,6 +49,7 @@
             <table class="table" style="width: auto">
                 <thead>
                 <tr>
+                    <th>Id</th>
                     {% for field in field_list %}
                         <th scope="col">{% get_verbose_label my_object field %}</th>
                     {% endfor %}
@@ -56,6 +58,7 @@
                 <tbody>
                 {% for form in formset %}
                     <tr>
+                        <td>{{form.instance.id|nz:"---"}}</td>
                         {% for field in form %}
                             <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
                                 {% bootstrap_field field size='small' show_label=False placeholder="" %}

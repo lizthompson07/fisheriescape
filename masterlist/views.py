@@ -176,7 +176,6 @@ class OrganizationListView(MasterListAccessRequiredMixin, FilterView):
         context["my_object"] = models.Organization.objects.first()
         context["field_list"] = [
             'name_eng',
-            'name_fre',
             'name_ind',
             'abbrev',
             'province',
@@ -191,7 +190,6 @@ class OrganizationDetailView(MasterListAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'name_eng',
-            'name_fre',
             'name_ind',
             'abbrev',
             'address',

@@ -17,9 +17,9 @@
                     {% trans "Travel Management System" %}
                 </h1>
                 <hr>
-                {% url 'travel:event_list' as event_list_url %}
-                {% url 'travel:event_approval_list' "awaiting" as event_approval_list_url %}
-                {% url 'travel:event_new' as event_new_url %}
+                {% url 'travel:trip_list' as event_list_url %}
+                {% url 'travel:trip_review_list' "awaiting" as event_approval_list_url %}
+                {% url 'travel:trip_new' as event_new_url %}
                 {% url 'travel:admin_approval_list' as admin_approval_list_url %}
                 <br>
                 <h2>
@@ -30,18 +30,20 @@
                         <br><br>
                     {% endblocktrans %}
 
-                    {% if is_approver %}
+                    {% if user.reviewers.count %}
                         {% blocktrans %}
-                            Trips awaiting your <a href="{{ event_approval_list_url }}">approval</a> ({{ number_waiting }}).
+                            Trips awaiting your <a href="{{ event_approval_list_url }}">review</a>
                         {% endblocktrans %}
+                        (<span class="{% if number_waiting > 0 %}red-font{% endif %}">{{ number_waiting }}</span>).
                         <br><br>
                     {% endif %}
 
                     {% for group in user.groups.all %}
                         {% if group.name == "travel_admin" %}
                             {% blocktrans %}
-                                Click <a href="{{ admin_approval_list_url }}">here</a> to access the admin approval menu.
+                                Trips awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
                             {% endblocktrans %}
+                        (<span class="{% if admin_number_waiting > 0 %}red-font{% endif %}">{{ admin_number_waiting  }}</span>).
                         {% endif %}
 
                     {% endfor %}

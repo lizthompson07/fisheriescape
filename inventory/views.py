@@ -92,7 +92,14 @@ class ResourceListView(FilterView):
     template_name = 'inventory/resource_list.html'
     # queryset = models.Resource.objects.all().order_by("-status", "title_eng")
     queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
-        search_term=Concat('title_eng', 'descr_eng', 'purpose_eng', output_field=TextField()))
+        search_term=Concat('title_eng',
+                           Value(" "),
+                           'descr_eng',
+                           Value(" "),
+                           'purpose_eng',
+                           Value(" "),
+                           'uuid',
+                           output_field=TextField()))
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
