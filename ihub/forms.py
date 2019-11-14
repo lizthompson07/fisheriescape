@@ -149,8 +149,7 @@ class EntryPersonForm(forms.ModelForm):
         }
         widgets = {
             'entry': forms.HiddenInput(),
-            # 'overtime_description': forms.Textarea(attrs={"rows": 5}),
-            # 'user': forms.Select(choices=USER_CHOICES),
+            'user': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
