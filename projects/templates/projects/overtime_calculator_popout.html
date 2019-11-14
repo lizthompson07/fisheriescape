@@ -7,12 +7,13 @@
 {% block content %}
     <link rel="stylesheet" href="{% static 'css/master.css' %}">
     <style>
-    body{
-        font-size: small;
-    }
-    table, td, th {
-        font-size: small;
-    }
+        body {
+            font-size: small;
+        }
+
+        table, td, th {
+            font-size: small;
+        }
     </style>
     <script>
         window.resizeTo(width = 1200, height = 1000);
@@ -35,7 +36,7 @@
             <li>
                 {% blocktrans with next_fiscal_year as year %}
                     Enter overtime hours worked for each day in the {{ year }} fiscal year
-                {% endblocktrans  %}
+                {% endblocktrans %}
             </li>
             <li>
                 {% trans "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes" %}
@@ -178,10 +179,18 @@
             var weekdayOT = weekdayHoursWorked * 1.5;
 
             var satHoursWorked = 0;
+            var satSpecialHoursWorked = 0;
             $('.saturday').each(function () {
-                satHoursWorked += Number($(this).val());  // Or this.innerHTML, this.innerText
+                var myVal = Number($(this).val());
+
+                if (myVal <= 7.5) {
+                    satHoursWorked += myVal;  // Or this.innerHTML, this.innerText
+                } else {
+                    satHoursWorked += 7.5;
+                    satSpecialHoursWorked += myVal - 7.5;
+                }
             });
-            var satOT = satHoursWorked * 1.5;
+            var satOT = (satHoursWorked * 1.5) + (satSpecialHoursWorked * 2);
 
             var sunHoursWorked = 0;
             $('.sunday').each(function () {
@@ -196,28 +205,33 @@
             var statOT = statHoursWorked * 2;
 
             var OTDescriptionHTML = "";
-            var myStr;
             $('.ot_input').each(function () {
                 if ($(this).val() != "") {
-                    if ($(this).hasClass("weekday") || $(this).hasClass("saturday")) {
-                        myStr = $(this).attr("date_str") + " " + $(this).val() + "x1.5=" + $(this).val() * 1.5 + "h"
-                    }
-                    else if ($(this).hasClass("sunday")) {
-                        myStr = $(this).attr("date_str") + " " + $(this).val() + "x2=" + $(this).val() * 2 + "h"
-                    }
-                    else if ($(this).hasClass("stat")) {
-                        myStr = $(this).attr("date_str") + " " + $(this).val() + "x2=" + $(this).val() * 2 + "h (stat)"
-                    }
-                    else {
+                    if ($(this).hasClass("weekday")) {
+                        myStr = $(this).attr("date_str") + " " + $(this).val() + " x 1.5 = " + $(this).val() * 1.5 + "h";
+                    } else if ($(this).hasClass("saturday")) {
+                        var myVal = $(this).val();
+                        if (Number(myVal) <= 7.5) {
+                            myStr = $(this).attr("date_str") + " " + myVal + " x 1.5 = " + myVal * 1.5 + "h";
+                        } else {
+                            var myFirstPart = 7.5;
+                            var myLastPart = myVal - myFirstPart;
+                            myStr = $(this).attr("date_str") + " " + myFirstPart + " x 1.5 = " + myFirstPart * 1.5 + "h" + "<br>" + $(this).attr("date_str") + " " + myLastPart + " x 2 = " + myLastPart * 2 + "h";
+                        }
+                    } else if ($(this).hasClass("sunday")) {
+                        myStr = $(this).attr("date_str") + " " + $(this).val() + " x 2 = " + $(this).val() * 2 + "h";
+                    } else if ($(this).hasClass("stat")) {
+                        myStr = $(this).attr("date_str") + " " + $(this).val() + " x 2 = " + $(this).val() * 2 + "h (stat)";
+                    } else {
                         myStr = ""
                     }
 
                     if (OTDescriptionHTML == "") {
                         OTDescriptionHTML = myStr;
-                    }
-                    else {
-                        console.log("hello!")
-                        OTDescriptionHTML = OTDescriptionHTML + "<br>" + myStr;
+                    } else {
+                        if (myStr != "") {
+                            OTDescriptionHTML = OTDescriptionHTML + "<br>" + myStr;
+                        }
                     }
                 }
             });
@@ -226,12 +240,12 @@
             totalHoursWorked = weekdayHoursWorked + satHoursWorked + sunHoursWorked + statHoursWorked;
             totalOTHours = weekdayOT + satOT + sunOT + statOT;
 
-            OTDescription = OTDescriptionHTML.replace(/<br>/gi, "\n")
+            OTDescription = OTDescriptionHTML.replace(/<br>/gi, "\n");
             $("#extra_hours").text(totalHoursWorked);
             $("#ot_hours").text(totalOTHours);
             $("#ot_description").html(OTDescriptionHTML);
-            $("#id_overtime_hours").val(totalOTHours)
-            $("#id_overtime_description").val(OTDescription)
+            $("#id_overtime_hours").val(totalOTHours);
+            $("#id_overtime_description").val(OTDescription);
 
         }
 
