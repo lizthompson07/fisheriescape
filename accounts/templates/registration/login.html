@@ -56,7 +56,11 @@
 
                             {% trans "Shortcut" as hdr %}
                             {% trans "press the <code>Tab</code> key after entering the first part of your email address to use the autocomplete feautre (e.g., bart.simpson)" as txt %}
-                            <span data-toggle="popover" data-trigger="hover focus" data-content="{{ txt }}" data-title="{{ hdr }}" id="pop">
+                            <span data-toggle="popover"
+                                  data-trigger="hover focus"
+                                  data-content="{{ txt }}"
+                                  data-placement="top"
+                                  id="pop">
                             {% bootstrap_field field show_label=False placeholder="Email address" %}
                             </span>
                         {% else %}
