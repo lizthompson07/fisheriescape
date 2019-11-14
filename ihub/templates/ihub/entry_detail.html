@@ -109,7 +109,6 @@
 
     <script type="application/javascript">
 
-
         $(".note-delete-me").click(function () {
             var objectId = $(this)[0].getAttribute("val");
 
@@ -119,19 +118,20 @@
             if (userInput === true) {
                 $("#note-secrect-delete-btn-" + objectId)[0].click();
             }
-        })
+        });
 
 
-        $(".person-delete-me").click(function () {
+        $(".person-delete-me").click(function (e) {
             var objectId = $(this)[0].getAttribute("val");
-
             var userInput = "";
             userInput = confirm("{% trans "Are you sure you want to delete this person from the entry?" %}");
 
             if (userInput === true) {
                 $("#person-secrect-delete-btn-" + objectId)[0].click();
             }
-        })
+
+
+        });
         $(".file-delete-me").click(function () {
             var objectId = $(this)[0].getAttribute("val");
 
@@ -141,7 +141,7 @@
             if (userInput === true) {
                 $("#file-secrect-delete-btn-" + objectId)[0].click();
             }
-        })
+        });
 
     </script>
 

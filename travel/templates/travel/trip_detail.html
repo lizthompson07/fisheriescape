@@ -1,0 +1,90 @@
+{% extends "travel/travel_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% block header %}
+{% endblock %}
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+
+        table, td {
+            font-size: small;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>{{ object }}</h1>
+        {% if is_current_reviewer and object.submitted %}
+            <h3 class="red-font">You are able to edit this record because you are the current reviewer.</h3>
+        {% endif %}
+
+        <div class="btn-group">
+
+            {% if object.submitted %}
+                <span data-toggle="tooltip" title="{% trans "Only application administrators can modify a submitted trip" %}">
+            {% endif %}
+            <a class="btn btn-warning {% if object.submitted and not is_admin and not is_current_reviewer %}disabled{% endif %}"
+               href="{% url 'travel:trip_edit' object.id %}">
+                Edit
+            </a>
+            {% if object.submitted %}
+                </span>
+            {% endif %}
+            {% if object.submitted %}
+                <span data-toggle="tooltip" title="{% trans "Submitted trips cannot be deleted." %}">
+            {% endif %}
+            <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:trip_delete' object.id %}">
+                Delete
+            </a>
+            {% if object.submitted %}
+                </span>
+            {% endif %}
+            <a class="btn btn-dark" href="{% url 'travel:trip_print' object.id %}" data-toggle="tooltip" title="">
+                Print Travel Form
+            </a>
+            <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
+                Use as Template
+            </a>
+            {% if object.submitted %}
+                <span data-toggle="tooltip" title="{% trans "Cannot modify reviewers while trip is submitted." %}">
+            {% endif %}
+            <a class="btn btn-secondary {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:re_add_reviewers' object.id %}">
+                Re-add Default Reviewers
+            </a>
+            {% if object.submitted %}
+                </span>
+            {% endif %}
+            {% if object.submitted and not is_admin and not is_owner %}
+                <span data-toggle="tooltip" title="{% trans "Only application administrators and owners can un-submit a trip" %}">
+            {% endif %}
+            <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin and not is_owner %}disabled{% endif %}"
+               href="{% url 'travel:trip_submit' object.id %}">
+                {% if object.submitted %}Un-submit {% else %} Submit {% endif %}
+            </a>
+            {% if object.submitted and not is_admin and not is_owner %}
+                </span>
+            {% endif %}
+        </div>
+{#    </div>#}
+{#    <div class="container-fluid">#}
+        <br><br>
+        {% include "travel/_trip_detail.html" %}
+    </div>
+
+
+{% endblock content %}

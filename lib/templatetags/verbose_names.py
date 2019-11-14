@@ -68,11 +68,9 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
     To return a field from a foreign key, send in the field name as such: "user.first_name".
     To return a model property value, send in the property name as such: myprop|"label of my prop"
     """
-
-    # set field value to null mark, if any issues happen then it won't be null for the evaluation that happens later
+    # check to see if there were any arguments passed in with the field name
     field_value = nullmark
 
-    # check to see if there were any arguments passed in with the field name
     try:
         if len(field_name.split(".")) > 1:
             arg = field_name.split(".")[1]
@@ -82,6 +80,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
         elif len(field_name.split("|")) > 1:
             myprop = field_name.split("|")[0]
             field_value = getattr(instance, myprop)
+
         else:
             field_instance = instance._meta.get_field(field_name)
 
@@ -90,7 +89,9 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
                 # check to see if it is a many to many field
                 if field_instance.get_internal_type() == 'ManyToManyField' or field_instance.get_internal_type() == 'ManyToManyRel':
                     m2m = getattr(instance, field_name)
-                    field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
+                    field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'",
+                                                                                                                     "").replace(
+                        '"', "")
 
                 # check to see if there are choices
                 elif len(field_instance.choices) > 0:
@@ -103,12 +104,27 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
                     datetime_obj = getattr(instance, field_name)
                     if display_time:
                         field_value = datetime_obj.strftime('{} %H:%M'.format(date_format))
+                    else:
+                        field_value = datetime_obj.strftime(date_format)
 
+                # check to see if it is a url
+                elif str(getattr(instance, field_name)).startswith("http"):
+                    field_value = '<a href="{url}">{url}</a>'.format(url=getattr(instance, field_name))
+
+                # check to see if it is a BooleanField
+                elif field_instance.get_internal_type() == 'BooleanField' or field_instance.get_internal_type() == 'NullBooleanField':
+                    field_value = yesno(getattr(instance, field_name), "Yes,No,Unknown")
+
+                # check to see if hyperlink was provided
+                elif hyperlink:
+                    field_value = mark_safe('<a href="{}">{}</a>'.format(hyperlink, getattr(instance, field_name)))
                 else:
                     field_value = getattr(instance, field_name)
-    except FieldDoesNotExist:
-        print("Could not find field '" + str(field_name) + "'")
-        field_value = "Tag not found"
+            else:
+                field_value = nullmark
+    except:
+        print("Could not evaluate field value for '" + str(field_name) + "' for object '" + str(type(instance)) + "'")
+        field_value = nullmark
 
     # TODO: specify special formatting
     if format == "currency":
