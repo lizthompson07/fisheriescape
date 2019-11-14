@@ -337,9 +337,13 @@ def import_xml():
                 if suppl_info:
                     notes += " || SUPPLEMENTAL INFO: {}".format(suppl_info)
 
-                my_resource, created = models.Resource.objects.get_or_create(
-                    uuid=uuid,
-                )
+                try:
+                    my_resource, created = models.Resource.objects.get_or_create(
+                        uuid=uuid,
+                    )
+                except models.Resource.MultipleObjectsReturned:
+                    my_resource = models.Resource.objects.filter(uuid=uuid).first()
+                    created = False
 
                 if created:
                     print("creating new record", uuid)
