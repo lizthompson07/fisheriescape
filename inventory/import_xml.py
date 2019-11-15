@@ -56,9 +56,9 @@ def import_xml():
     #     section_id = 52
     # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
     #     section_id = 51
-    # with open(os.path.join(target_dir, "PED_Records_Output_v3.xml"), 'r') as xml_file:
+    # with open(os.path.join(target_dir, "PED_Records_Output_v3.xml"), 'r', encoding="utf8") as xml_file:
     #     section_id = 59
-    with open(os.path.join(target_dir, "BondSRecords_Output.xml"), 'r') as xml_file:
+    with open(os.path.join(target_dir, "BondSRecords_Output.xml"), 'r', encoding="utf8") as xml_file:
         section_id = 60
         if section_id == 52:
             uuid_list = [
@@ -168,14 +168,18 @@ def import_xml():
 
             if uuid:
                 title = record.find("record_title").text
+                title_fra = record.find("record_title_fra").text if record.find("record_title_fra") is not None else None
                 desc = record.find("record_abstract").text if record.find("record_abstract") is not None else None
+                desc_fra = record.find("record_abstract_fra").text if record.find("record_abstract_fra") is not None else None
                 purpose = record.find("record_purpose").text if record.find("record_purpose") is not None else None
+                purpose_fra = record.find("record_purpose_fra").text if record.find("record_purpose_fra") is not None else None
                 geo_desc = record.find("record_geographic_extent_geodescription").text if record.find(
                     "record_geographic_extent_geodescription") else None
 
                 prim_lang = record.find("record_primary_language").text if record.find("record_primary_language") is not None else None
                 series = record.find("record_series").text if record.find("record_series") is not None else None
                 suppl_info = record.find("record_supplemental_info").text if record.find("record_supplemental_info") is not None else None
+                suppl_info_fra = record.find("record_supplemental_info_fra").text if record.find("record_supplemental_info_fra") is not None else None
 
                 if record.find("record_geographic_extent_boundingbox") is not None:
                     geo_bbox_w = record.find("record_geographic_extent_boundingbox").find('record_extent_west').text if record.find(
@@ -429,7 +433,9 @@ def import_xml():
                 if series:
                     notes += " || SERIES: {}".format(series)
                 if suppl_info:
-                    notes += " || SUPPLEMENTAL INFO: {}".format(suppl_info)
+                    notes += " || SUPPLEMENTAL INFO (ENGLISH): {}".format(suppl_info)
+                if suppl_info_fra:
+                    notes += " || SUPPLEMENTAL INFO (FRENCH): {}".format(suppl_info_fra)
 
                 try:
                     my_resource, created = models.Resource.objects.get_or_create(uuid=uuid, )
@@ -444,8 +450,11 @@ def import_xml():
                     print("creating new record", uuid)
 
                 my_resource.title_eng = title
+                my_resource.title_fre = title_fra if title_fra else None
                 my_resource.purpose_eng = ' '.join(purpose.split()) if purpose else None
+                my_resource.purpose_fre = ' '.join(purpose_fra.split()) if purpose_fra else None
                 my_resource.descr_eng = ' '.join(desc.split()) if desc else None
+                my_resource.descr_fre = ' '.join(desc_fra.split()) if desc_fra else None
                 my_resource.geo_descr_eng = ' '.join(geo_desc.split()) if geo_desc else None
                 my_resource.section_id = section_id
                 my_resource.notes = ' '.join(notes.split()) if notes else None
@@ -530,7 +539,7 @@ def import_xml():
                                     my_role = models.PersonRole.objects.get(role__istartswith=xml_role[:3])
                                 except models.PersonRole.DoesNotExist:
                                     try:
-                                        my_role = models.PersonRole.objects.get(code__iexact=xml_role[:3])
+                                        my_role = models.PersonRole.objects.get(code__iexact=xml_role)
                                     except models.PersonRole.DoesNotExist:
                                         print("bad role:", xml_role, "need to create a new one.")
                                         my_role = models.PersonRole.objects.create(
@@ -674,3 +683,18 @@ def import_xml():
     print(set(time_period_list))
     print(set(org_list))
     print(count, "records added")
+
+
+
+def add_custodian():
+    # section_id = 52  # elliott
+    # section_id = 51  # kevin
+    section_id = 59 # mike
+    # section_id = 60  # shelley
+
+    for record in models.Resource.objects.filter(section_id=section_id):
+        models.ResourcePerson.objects.get_or_create(
+            person_id=514,
+            resource=record,
+            role_id=1,
+        )
