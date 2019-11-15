@@ -317,32 +317,6 @@ class Trip(models.Model):
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other").verbose_name, self.other)
         return my_str
 
-    @property
-    def cost_breakdown_html(self):
-        my_str = ""
-        if self.air:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("air").verbose_name, self.air)
-        if self.rail:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("rail").verbose_name, self.rail)
-        if self.rental_motor_vehicle:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("rental_motor_vehicle").verbose_name, self.rental_motor_vehicle)
-        if self.personal_motor_vehicle:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("personal_motor_vehicle").verbose_name, self.personal_motor_vehicle)
-        if self.taxi:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("taxi").verbose_name, self.taxi)
-        if self.other_transport:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("other_transport").verbose_name, self.other_transport)
-        if self.accommodations:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("accommodations").verbose_name, self.accommodations)
-        if self.meals:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("meals").verbose_name, self.meals)
-        if self.incidentals:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("incidentals").verbose_name, self.incidentals)
-        if self.registration:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("registration").verbose_name, self.registration)
-        if self.other:
-            my_str += "{}: ${:,.2f}<br>".format(self._meta.get_field("other").verbose_name, self.other)
-        return my_str
 
     @property
     def total_trip_cost(self):
