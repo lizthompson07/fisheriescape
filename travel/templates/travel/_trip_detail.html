@@ -190,6 +190,7 @@
                     <th scope="col">{% get_verbose_label trip field %}</th>
                 {% endif %}
             {% endfor %}
+        <th>Trip cost breakdown</th>
         </tr>
         </thead>
         <tbody>
@@ -202,6 +203,13 @@
                     <td>{% get_field_value child field format="currency" safe=True %}</td>
 
                 {% endfor %}
+                <td>
+                     <button class="badge" data-toggle="popover"
+                                                    title="{{ child.first_name }}'s Costs Breakdown"
+                                                    data-content="{% include "travel/_child_cost_breakdown.html" %}">
+                                                {% trans "show" %}
+                                            </button>
+                </td>
                 {% if not report_mode %}
                     <td>
                         <a class="btn btn-sm btn-warning stop-pop" href="{% url 'travel:child_duplicate_event' child.id  'pop' %}">
