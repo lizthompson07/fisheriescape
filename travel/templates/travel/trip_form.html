@@ -2,10 +2,16 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
+{% load custom_filters %}
 {% block header %}
 {% endblock %}
 {% block content %}
 
+    <style>
+        input.cost {
+            font-size: small;
+        }
+    </style>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -58,6 +64,15 @@
                         </em>
                     </p>
                 </div>
+            {% elif field.name == "is_international" %}
+                {% bootstrap_field field placeholder="" %}
+                <div class="show-me-intl blue-font">
+                    <p>
+                        <em>
+                            {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
+                        </em>
+                    </p>
+                </div>
             {% elif field.name == "role" %}
                 <div class="conference_container">
                     {% bootstrap_field field placeholder="" %}
@@ -79,6 +94,9 @@
                 <div class="event_container">
                     {% bootstrap_field field placeholder="" %}
                 </div>
+            {% elif "cost" in field.field.widget.attrs|lookup:"class" %}
+
+
             {% else %}
 
                 {% bootstrap_field field placeholder="" %}
@@ -87,7 +105,40 @@
                 </div>
             {% endif %}
             {% endfor %}
+            <br>
+            <div class="hide-me">
+                <h4>{% trans "Breakdown of Trip Costs" %}</h4>
+                <div class="show-me-intl blue-font">
+                    <p>
+                        <em>
+                            {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
+                        </em>
+                    </p>
+                </div>
+                <table class="table table-bordered" style="font-size: small ">
 
+                    <tr>
+                        {% for field in form %}
+                            {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                                <th>
+                                    {{ field.label }}
+                                </th>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for field in form %}
+                            {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                                <td>
+                                    {% bootstrap_field field show_label=False placeholder="CAD" %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+
+                </table>
+
+            </div>
 
 
             {% buttons %}
@@ -134,6 +185,14 @@
             }
         }
 
+        function refreshIntl() {
+            if ($("#id_is_international").val() == "False") {
+                $(".show-me-intl").addClass("gone");
+            } else {
+                $(".show-me-intl").removeClass("gone");
+            }
+        }
+
         function refreshEvent() {
             if ($("#id_has_event_template").val() == "false") {
                 $("#id_event_lead").val("").prop("disabled", true);
@@ -166,6 +225,10 @@
             refreshConference();
         });
 
+        $("#id_is_international").change(function () {
+            refreshIntl();
+        });
+
         $("#id_is_group_trip").change(function () {
             refreshClassHideMe();
         });
@@ -175,6 +238,7 @@
             refreshUserInfo();
             refreshConference();
             refreshEvent();
+            refreshIntl();
             refreshClassHideMe();
             // do not make these fields required, otherwise we will not see the form errors if omitted
             $("#id_user").prop("required", false);
