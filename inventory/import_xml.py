@@ -689,12 +689,12 @@ def import_xml():
 def add_custodian():
     # section_id = 52  # elliott
     # section_id = 51  # kevin
-    section_id = 59 # mike
-    # section_id = 60  # shelley
+    # section_id = 59 # mike
+    section_id = 60  # shelley
 
     for record in models.Resource.objects.filter(section_id=section_id):
         models.ResourcePerson.objects.get_or_create(
-            person_id=514,
+            person_id=322,
             resource=record,
             role_id=1,
         )
