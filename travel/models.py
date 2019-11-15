@@ -191,9 +191,9 @@ class Trip(models.Model):
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
                                null=True, blank=True)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
-    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city / province / country)"), blank=True,
+    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (e.g., city, province, country)"), blank=True,
                                           null=True)
-    destination = models.CharField(max_length=1000, verbose_name=_("destination location (city / province / country)"), blank=True,
+    destination = models.CharField(max_length=1000, verbose_name=_("destination location (e.g., city, province, country)"), blank=True,
                                    null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True)
@@ -201,14 +201,14 @@ class Trip(models.Model):
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     is_international = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "is this an international trip OR are international travellers included in this request?"))
-    is_conference = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a conference?"))
+    is_conference = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a conference or meeting?"))
     conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   verbose_name=_("conference"), related_name="trips")
+                                   verbose_name=_("conference / meeting"), related_name="trips")
 
     has_event_template = models.NullBooleanField(default=False,
                                                  verbose_name=_(
                                                      "Is there an event template being completed for this conference or meeting?"))
-    event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Event / Meeting Lead"),
+    event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
                                    related_name="trip_events", blank=True, null=True)
 
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
