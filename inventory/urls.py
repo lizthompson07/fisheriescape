@@ -134,7 +134,7 @@ urlpatterns = [
     ########
 
     #  this was used to walk over program to programs
-    path('ca-metadata-formset/', views.temp_formset, name="formset"),
+    path('metadata-formset/section/<int:section>/', views.temp_formset, name="formset"),
     # path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
     # path('reports/capacity-report/fy/<str:fy>/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     # path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),

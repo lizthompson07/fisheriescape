@@ -431,15 +431,17 @@ class TempForm(forms.ModelForm):
         model = models.Resource
         fields = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
         widgets = {
-            # 'programs': forms.SelectMultiple(attrs=chosen_js),
+            'section': forms.Select(attrs=chosen_js),
             # 'tags': forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['section'].choices = [(s.id, "{}".format(s.full_name)) for s in
-                                           shared_models.Section.objects.filter(division__branch__region__id=7).order_by("division__branch__region", "division__branch",
-                                                                                        'division', "name")]
+        SECTION_CHOICES = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
+        SECTION_CHOICES.insert(0, tuple((None, "---")))
+
+        self.fields['section'].choices = SECTION_CHOICES
 
 
 TempFormSet = modelformset_factory(
