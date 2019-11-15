@@ -908,9 +908,10 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 
         # first, let's create an object list; if this is
         if my_object.is_group_trip:
-            object_list = my_object.children_trips.all()
+            object_list = my_object.children_trips.filter(Q(region=my_object.section.division.branch.region)|Q(region__isnull=True)|Q(is_public_servant=False))
         else:
             object_list = models.Trip.objects.filter(pk=my_object.id)
+
 
         for key in key_list:
             # registration is not in the travel plan form. therefore it should be added under the 'other' category
@@ -923,6 +924,7 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
                     total_dict[key] = None
             else:
                 total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum']
+        context['object_list'] = object_list
         context['total_dict'] = total_dict
         context['key_list'] = key_list
         return context

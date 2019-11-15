@@ -122,6 +122,11 @@
     {% if not trip.conference %}
         <em>{% trans "It was indicated above that this trip is a conference however no conference was selected." %}</em>
     {% else %}
+        <div class="float-right">
+            <a class="btn btn-success under-dev" href="#" target="_blank">
+                CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+            </a>
+        </div>
         <h3>
             Conference/Meeting Detail:
         </h3>
@@ -190,7 +195,7 @@
                     <th scope="col">{% get_verbose_label trip field %}</th>
                 {% endif %}
             {% endfor %}
-        <th>{% trans "Cost breakdown" %}</th>
+            <th>{% trans "Cost breakdown" %}</th>
         </tr>
         </thead>
         <tbody>
@@ -204,11 +209,11 @@
 
                 {% endfor %}
                 <td>
-                     <button class="badge" data-toggle="popover"
-                                                    title="{{ child.first_name }}'s Costs Breakdown"
-                                                    data-content="{% include "travel/_child_cost_breakdown.html" %}">
-                                                {% trans "show" %}
-                                            </button>
+                    <button class="badge" data-toggle="popover"
+                            title="{{ child.first_name }}'s Costs Breakdown"
+                            data-content="{% include "travel/_child_cost_breakdown.html" %}">
+                        {% trans "show" %}
+                    </button>
                 </td>
                 {% if not report_mode %}
                     <td>
