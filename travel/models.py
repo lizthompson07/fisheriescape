@@ -180,7 +180,7 @@ class Trip(models.Model):
                                 limit_choices_to={'division__branch__in': [1, 3]})
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    address = models.CharField(max_length=1000, verbose_name=_("address"), default="343 Université Avenue, Moncton, NB, E1C 9B6",
+    address = models.CharField(max_length=1000, verbose_name=_("address"),
                                blank=True, null=True)
     phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)

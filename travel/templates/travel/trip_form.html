@@ -62,6 +62,15 @@
                 <div class="conference_container">
                     {% bootstrap_field field placeholder="" %}
                 </div>
+            {% elif field.name == "address" %}
+                {#                343 Université Avenue, Moncton, NB, E1C 9B6#}
+                {% bootstrap_field field placeholder="" %}
+                <span style="font-size: small">Predefined addresses:</span><br>
+                <a href="#" class="btn btn-sm btn-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
+                <a href="#" class="btn btn-sm btn-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
+                <a href="#" class="btn btn-sm btn-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
+                <br>
+                <br>
             {% elif field.name == "role_of_participant" %}
                 <div class="conference_container">
                     {% bootstrap_field field placeholder="" %}
@@ -176,6 +185,12 @@
             $("#id_stay_on_page").val(1);
             $("form").submit();
         })
+
+        $(".address-btn").click(function (e) {
+            e.preventDefault();
+            $myBtn = $(this);
+            $("#id_address").val($myBtn.text());
+        });
 
     </script>
 {% endblock %}

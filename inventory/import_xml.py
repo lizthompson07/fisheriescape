@@ -26,14 +26,15 @@ def create_user(email):
 
 
 def restart():
-    models.Resource.objects.filter(section_id=52).delete()
+    models.Resource.objects.filter(section_id=59).delete()
 
 
 def check_uuids():
     target_dir = os.path.join(settings.BASE_DIR, 'inventory', 'temp')
     # with open(os.path.join(target_dir, "QuiderE_v2b.xml"), 'r', encoding="utf8") as xml_file:
-    with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
-    # with open(os.path.join(target_dir, "PED_Records_Output.xml"), 'r') as xml_file:
+    # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
+    # with open(os.path.join(target_dir, "PED_Records_Output_v3.xml"), 'r') as xml_file:
+    with open(os.path.join(target_dir, "BondSRecords_Output.xml"), 'r') as xml_file:
 
         tree = ET.parse(xml_file)
         recordset = tree.getroot()
@@ -51,12 +52,14 @@ def check_uuids():
 
 def import_xml():
     target_dir = os.path.join(settings.BASE_DIR, 'inventory', 'temp')
-    with open(os.path.join(target_dir, "QuiderE_v2b.xml"), 'r', encoding="utf8") as xml_file:
-        section_id = 52
-        # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
-        #     section_id = 51
-        # with open(os.path.join(target_dir, "PED_Records_Output.xml"), 'r') as xml_file:
-        #     section_id = 59
+    # with open(os.path.join(target_dir, "QuiderE_v2b.xml"), 'r', encoding="utf8") as xml_file:
+    #     section_id = 52
+    # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
+    #     section_id = 51
+    # with open(os.path.join(target_dir, "PED_Records_Output_v3.xml"), 'r') as xml_file:
+    #     section_id = 59
+    with open(os.path.join(target_dir, "BondSRecords_Output.xml"), 'r') as xml_file:
+        section_id = 60
         if section_id == 52:
             uuid_list = [
                 "22fe66a9-f619-4014-8701-0a29740d61e1",
@@ -77,9 +80,9 @@ def import_xml():
         elif section_id == 51:
             uuid_list = [
                 "3659734a-3b89-4f9a-8558-f5dde61a7350",  # 2
-                "464e7176-06f6-11ea-b36c-f48c505b2a29",
+                "",
                 "b63de91e-71b8-4ec6-9e09-a12cb2fbf758",  # 2
-                "dcf47c86-06f6-11ea-986b-f48c505b2a29",
+                "",
                 "750b5f56-292c-4e4e-9b22-2644e2a463f4",  # 2
                 "",
                 "5215563c-48f3-4e3b-8c27-b40c5221f368",  # 2
@@ -309,6 +312,12 @@ def import_xml():
                                 start_year = int(start_list[index].split("-")[0])
                                 start_month = int(start_list[index].split("-")[1])
                                 start_day = int(start_list[index].split("-")[2])
+                    # less common scenario where we have: yyyy-mm
+                    elif len(start_list) == 2:
+                        if len(start_list[0]) == 4 and len(start_list[1]) == 2:
+                            start_year = int(start_list[0])
+                            start_month = int(start_list[1]) if int(start_list[1]) <= 12 else None
+
 
                     elif len(start_list) == 1:
                         start_list = start.split(" ")
@@ -374,6 +383,12 @@ def import_xml():
                                 end_month = int(end_list[index].split("-")[1])
                                 end_day = int(end_list[index].split("-")[2])
 
+                    # less common scenario where we have: yyyy-mm
+                    elif len(end_list) == 2:
+                        if len(end_list[0]) == 4 and len(end_list[1]) == 2:
+                            end_year = int(end_list[0])
+                            end_month = int(end_list[1]) if int(end_list[1]) <= 12 else None
+
                     elif len(end_list) == 1:
                         end_list = end.split(" ")
                         # simple yyyy etc
@@ -428,7 +443,7 @@ def import_xml():
                 if created:
                     print("creating new record", uuid)
 
-                my_resource.title_eng = title,
+                my_resource.title_eng = title
                 my_resource.purpose_eng = ' '.join(purpose.split()) if purpose else None
                 my_resource.descr_eng = ' '.join(desc.split()) if desc else None
                 my_resource.geo_descr_eng = ' '.join(geo_desc.split()) if geo_desc else None
@@ -481,7 +496,7 @@ def import_xml():
                                     try:
                                         my_kw = models.Keyword.objects.get(text_value_eng__icontains=kw_text)
                                         # print('good!', my_kw)
-                                    except models.Keyword.DoesNotExist:
+                                    except (models.Keyword.DoesNotExist, ValueError):
                                         print("bad topic:", kw_text)
                                         # my_kw = models.Keyword.objects.create(
                                         #     text_value_eng=kw_text,
