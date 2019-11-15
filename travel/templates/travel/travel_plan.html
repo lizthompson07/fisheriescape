@@ -223,7 +223,11 @@
                 {% endwith %}
             {% endwith %}
             <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>
-            <td class="real center">{{ object.is_conference|yesno }}</td>
+            {% if object.is_conference %}
+                <td class="real center">{{ object.has_event_template|yesno:"yes,no,unknown" }}</td>
+            {% else %}
+                <td class="real center">no</td>
+            {% endif %}
 
         </tr>
         <tr>
