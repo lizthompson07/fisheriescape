@@ -10,9 +10,10 @@
         td {
             padding-right: 10px;
         }
-    table,td,th {
-        border: 1px black solid;
-    }
+
+        table, td, th {
+            border: 1px black solid;
+        }
     </style>
 
 
@@ -51,19 +52,16 @@
                     {% bootstrap_form_errors form %}
                     <tr>
                         {% for field in form %}
-                            {% if not field.name == "observation_type" %}
-                                <td>
+                            <td>
+                                {% if field.name == "title_eng" %}
                                     {% bootstrap_field field size='small' show_label=False placeholder="" %}
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                        {% for field in form %}
-                            {% if field.name == "observation_type" %}
-                                <td>
+                                    (<a href="{% url 'inventory:resource_detail' form.instance.id  %}" class="" target="_blank">open record in new tab</a>)
+                                {% else %}
                                     {% bootstrap_field field size='small' show_label=False placeholder="" %}
-                                </td>
-                            {% endif %}
+                                {% endif %}
+                            </td>
                         {% endfor %}
+
                         {% if form.instance.id %}
                         {% else %}
                             <td>(new record)</td>
