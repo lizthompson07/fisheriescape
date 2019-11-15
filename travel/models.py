@@ -223,6 +223,7 @@ class Trip(models.Model):
         "benefit to DFO (What does DFO get out of this? Saves money, better programs, etc…)"))
     multiple_conferences_rationale = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for individual attending multiple conferences"))
+    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
     multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for multiple attendees at this event"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
@@ -242,11 +243,10 @@ class Trip(models.Model):
     registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
     other = models.FloatField(blank=True, null=True, verbose_name=_("other costs"))
     total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost (DFO)"))
-    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Estimated non-DFO costs"))
+    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Estimated non-DFO costs (CAD)"))
     non_dfo_org = models.CharField(max_length=1000, verbose_name=_("Full name(s) of organization paying non-DFO costs"), blank=True,
                                    null=True)
 
-    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
 
     submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
