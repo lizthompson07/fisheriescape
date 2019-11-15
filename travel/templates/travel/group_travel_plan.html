@@ -188,7 +188,7 @@
             <th class="real center">Is the trip part of an Event?</th>
             <th class="real center">Event number (optional)</th>
         </tr>
-        {% for child in object.children_trips.all %}
+        {% for child in object_list %}
 
 
 
@@ -212,7 +212,7 @@
                     {% endwith %}
                 {% endwith %}
                 <td class="real center" style="text-align: center;">{{ child.total_cost|zero2val:""|currency|nz:"" }}</td>
-                <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>
+{#                <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>#}
                 {% if object.is_conference %}
                     <td class="real center">{{ object.has_event_template|yesno:"yes,no,unknown" }}</td>
                 {% else %}
