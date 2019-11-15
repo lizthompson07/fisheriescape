@@ -136,7 +136,7 @@
                         {% url 'travel:trip_detail' obj.id as my_url %}
                         <ul>
                             <li>
-                                <a href="{% if obj.id != trip.id %}my_url{% endif %}">{{ obj }}</a> by {{ obj.user }}
+                                <a href="{% if obj.id != trip.id %}{{ my_url }}{% endif %}">{{ obj }}</a> by {{ obj.user }}
                                 (STATUS: <span style="background-color: {{ trip.status.color }}">{{ obj.status }}</span>)
                                 {% if obj.id == trip.id %}
                                     ({% trans "CURRENT TRIP" %})
