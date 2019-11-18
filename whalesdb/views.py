@@ -680,7 +680,6 @@ class DetailsHydrophone(DetailsMakeModel):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        print("kwargs: " + str(kwargs['object'].emm))
 
         labels = forms.get_descriptions(models.EqhHydrophoneProperties)
         context['objects'].append({
@@ -689,7 +688,6 @@ class DetailsHydrophone(DetailsMakeModel):
         })
         context['url'] = 'eqh'
 
-        print("context: " + str(context['objects'][0]['object'].eqt))
         return context
 
 
@@ -770,7 +768,6 @@ class SimpleEditView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('whalesdb:close_me')
 
     def get_initial(self):
-        print("init")
         return super().get_initial()
 
     def get_context_data(self, **kwargs):
