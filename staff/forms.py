@@ -104,3 +104,10 @@ class NewStaffingForm(forms.ModelForm):
                 if key != 'last_modified_by' and key != 'date_last_modified':
                     val = attrs[i][1]
                     self.fields[key].initial = val
+                    print("Field: " + key + " : " + str(val))
+
+            if obj.section:
+                obj_div = obj.section.division
+                obj_reg = obj_div.branch.region
+                self.fields['division'].initial = obj_div.id
+                self.fields['region'].initial = obj_reg.id

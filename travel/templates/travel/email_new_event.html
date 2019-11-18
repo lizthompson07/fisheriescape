@@ -1,7 +1,7 @@
 {% load verbose_names %}
 
 <p>
-    There was a new Registered Event created in the Travel Management System:
+    There was a new Conference created in the Travel Management System:
 </p>
 
 {% for field in field_list %}
@@ -9,7 +9,7 @@
 {% endfor %}
 
 <p>
-    To change or modify the event information, please click <a href="http://dmapps{% url 'travel:revent_detail' event.id %}">HERE</a>.
+    To change or modify the event information, please click <a href="http://dmapps{% url 'travel:conf_detail' event.id %}">HERE</a>.
 </p>
 
 <style media="screen">
