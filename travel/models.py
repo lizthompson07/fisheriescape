@@ -378,6 +378,10 @@ class Trip(models.Model):
         return status_str
 
     @property
+    def adm(self):
+        return self.reviewers.filter(role_id=5).first()
+
+    @property
     def rdg(self):
         return self.reviewers.filter(role_id=6).first()
 
