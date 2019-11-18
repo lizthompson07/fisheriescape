@@ -193,7 +193,7 @@ class Species(models.Model):
                                   blank=True, null=True, limit_choices_to={"used_for": 3})
     pe_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='pe_spp', verbose_name=_("PEI status"),
                                   blank=True, null=True, limit_choices_to={"used_for": 4})
-    iucn_red_list_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='iucn_spp',
+    iucn_red_list_status = models.ForeignKey(SpeciesStatus, on_delete=models.CASCADE, related_name='iucn_spp',
                                              verbose_name=_("IUCN Red Flag status"), blank=True, null=True,
                                              limit_choices_to={"used_for": 5})
 

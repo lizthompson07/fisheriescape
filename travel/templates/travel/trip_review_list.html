@@ -11,37 +11,42 @@
             margin-left: 5em;
             margin-right: 5em;
         }
-
     </style>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Trips</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% if awaiting %}
+                    Trips Awaiting Your Review
+                {% elif admin %}
+                    Admin Trip Approval List
+                {% else %}
+                    Trips Assigned to You for Review
+                {% endif %}
+            </li>
         </ol>
     </nav>
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Trips </h1>
+        <h1 class="big-header">
+            {% if awaiting %}
+                Trips Awaiting Your Review
+            {% elif admin %}
+                Admin Trip Approval List
+            {% else %}
+                Trips Assigned to You for Review
+            {% endif %}
+        </h1>
+        {% if awaiting %}
+            (<a href="{% url 'travel:trip_review_list' %}">view all trips</a>)
+        {% elif not admin %}
+            (<a href="{% url 'travel:trip_review_list' "awaiting" %}">view trips awaiting my approval</a>)
+        {% endif %}
 
-        <form class="form" action="." method="get" id="filter-form">
-            <div class="row">
-
-                {% for field in filter.form %}
-                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
-                    <div class="col">
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    </div>
-
-                {% endfor %}
-                <div class="col">
-                    <br>
-                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
-
-                </div>
-            </div>
-        </form>
+        <br>
+        <br>
         <br>
         <div class="row">
             <div class="col-12">
@@ -50,14 +55,10 @@
                     <div class="col">
                         {% trans "(click on a header to sort table)" %}
                     </div>
-                    <div class="col" style="text-align: center">
-                        <em>displaying all {{ filter.qs.count }} records</em>
-                    </div>
-                    <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'travel:event_new' %}" class="btn btn-sm btn-primary">New Trip</a>
+                    <div class="col" style="text-align: right">
+                        <em>displaying all {{ object_list.count }} records</em>
                     </div>
                 </div>
-
 
                 <table class="table table-sm table-hover sortable" style="font-size: small">
                     <thead>
@@ -65,12 +66,6 @@
                         {% for field in field_list %}
                             {% if "is_group" in field %}
                                 <th scope="col">Type</th>
-                            {% elif "year" in field %}
-                                <th style="width: 4%;" scope="col">{% get_verbose_label my_object field %}</th>
-                            {% elif "status" in field %}
-                                <th style="width: 8%;" scope="col">{% get_verbose_label my_object field %}</th>
-                            {% elif "title" in field %}
-                                <th style="width: 25%;" scope="col">{% get_verbose_label my_object field %}</th>
                             {% else %}
                                 <th scope="col">{% get_verbose_label my_object field %}</th>
                             {% endif %}
@@ -78,23 +73,22 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for object in filter.qs %}
-                        {% url 'travel:event_detail' object.id as my_url %}
-                        <tr href="{{ my_url }}">
+                    {% for object in object_list %}
 
+                        {% url 'travel:review_approve' object.current_reviewer.id as my_approval_url %}
+                        {% url 'travel:trip_detail' object.id as my_detail_url %}
+                        {% url 'travel:admin_approve' object.id as admin_approve_url %}
+                        <tr href="{% if admin or awaiting %}{{ my_approval_url }}{% else %}{{ my_detail_url }}{% endif %}">
 
                             {% for field in field_list %}
                                 {% if "is_group" in field %}
                                     <td>{{ object.is_group_trip|yesno:"Group,Individual" }}</td>
                                 {% elif "status" in field %}
                                     <td style="background-color: {{ object.status.color }}">{% get_field_value object field format="currency" %}</td>
-
                                 {% else %}
                                     <td>{% get_field_value object field format="currency" %}</td>
                                 {% endif %}
-
                             {% endfor %}
-
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -13,7 +13,22 @@
             <div class="text-center">
                 {% include report_path %}
             </div>
+
+            <br><br>
+            <h2>Recent History</h2>
+            <ul>
+                {% for visit in page_visits %}
+                    <li>
+                        {{ visit.visitor.user }} visited <a href="{{ visit.url|safe }}">{{ visit.url|safe }}</a> ({{ visit.view_time }})
+                    </li>
+                {% empty %}
+                    <em>No site visits in the past few days...</em>
+                {% endfor %}
+            </ul>
+
         </div>
+
+
         <div class="col">
             <h2>list of users:</h2>
             <table class="table table-sm table-striped" style="width: auto">
