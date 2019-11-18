@@ -344,7 +344,6 @@ class StnStations(models.Model):
         current = "Past"
 
         list = StnStations.objects.filter(stn_name=self.stn_name).order_by("-stn_revision").values_list("stn_revision")
-        print(list)
 
         if list[0][0] == self.stn_revision:
             current = "Current"
