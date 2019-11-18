@@ -118,8 +118,8 @@
                     </tr>
                     <tr>
                         <th style="width: 100px; text-align: right;" class="real">Region/Sector/Branch/<br>Directorate/Section:</th>
-                        <td style="width: 200px; text-align: left;" class="real">Gulf/Science and Ecosystems
-                            Management/{{ object.section.name }}</td>
+                        <td style="width: 200px; text-align: left;"
+                            class="real">{{ object.section.division.branch.region.name }}/{{ object.section.division.branch.name }}/{{ object.section.division.name }}/{{ object.section.name }}</td>
                         <td style="width: 200px; text-align: left;" class="real">{{ object.is_public_servant|yesno }}</td>
                     </tr>
                     <tr>
@@ -269,7 +269,7 @@
                     <th class="right wide-cell">Expenditure Initiation approved by (Print):</th>
                     <td class="left wide-cell" colspan="3">
                         {#                        <u>Serge Doucet, Regional Director General, Gulf Region___</u>#}
-                        {{ object.rdg|nz:"n/a" }}
+                        {{ object.rdg.user |nz:"n/a" }}
                         {% if object.rdg.user %} | Regional Director General | {{ object.rdg.user.shared_models_regions.first }}
                         {% endif %}
                     </td>
@@ -297,6 +297,14 @@
                         </td>
                     </tr>
                 {% endfor %}
+                {% if object.adm.status_id == 2 %}
+                    <tr>
+                        <th class="right wide-cell">Approved by:</th>
+                        <td rowspan="1" class="left wide-cell">
+                            {{ object.adm.user }} on {{ object.adm.status_date }}
+                        </td>
+                    </tr>
+                {% endif %}
             </table>
         </td>
     </table>
