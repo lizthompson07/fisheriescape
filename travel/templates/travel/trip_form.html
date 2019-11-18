@@ -248,12 +248,21 @@
         $("#new_event").click(function () {
             $("#id_stay_on_page").val(1);
             $("form").submit();
-        })
+        });
 
         $(".address-btn").click(function (e) {
             e.preventDefault();
             $myBtn = $(this);
             $("#id_address").val($myBtn.text());
+        });
+
+        $("#id_reason").change(function () {
+          var myVal = $(this).val()
+            // if the reason is for a meeting or conference, we already know the answer to the below question of `id_is_conference`
+          if(myVal == '2' || myVal == '4') {
+              $("#id_is_conference").val('True');
+              refreshConference();
+          }  
         });
 
     </script>
