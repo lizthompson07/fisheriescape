@@ -88,6 +88,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of trips where review is pending
         context["admin_number_waiting"] = models.Reviewer.objects.filter(status_id=1, role_id__in=[5,6]).count()  # number of trips where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
+        context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
 
 
