@@ -134,9 +134,11 @@ class EntryPerson(models.Model):
     # Choices for role
     LEAD = 1
     CONTACT = 2
+    SUPPORT = 3
     ROLE_CHOICES = (
         (LEAD, 'Lead'),
         (CONTACT, 'Contact'),
+        (SUPPORT, 'Support'),
     )
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="people", blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
