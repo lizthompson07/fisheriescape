@@ -117,7 +117,8 @@
                     </tr>
                     <tr>
                         <th style="width: 200px; text-align: right;" class="real">Region/Sector/Branch/<br>Directorate/Section:</th>
-                        <td style="width: 400px; text-align: left;" class="real">{{ object.section.division.branch.region.name }}/{{ object.section.division.branch.name }}/{{ object.section.division.name }}/{{ object.section.name }}</td>
+                        <td style="width: 400px; text-align: left;"
+                            class="real">{{ object.section.division.branch.region.name }}/{{ object.section.division.branch.name }}/{{ object.section.division.name }}/{{ object.section.name }}</td>
                     </tr>
                     <tr>
                         <th style="width: 200px; text-align: right;" class="real">Trip Purpose:</th>
@@ -257,10 +258,19 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="right wide-cell" style="width: 500px;">Signature:</th>
-                    <td class="left wide-cell" style="width: 500px;">______________________________________________</td>
-                    <th class="right wide-cell" style="width: 100px;">Date:</th>
-                    <td class="left wide-cell" style="width: 200px;">___________________</td>
+                    {% if object.rdg.status_id == 2 %}
+
+
+                        <th class="right wide-cell" style="width: 500px;"></th>
+                        <td class="left wide-cell" style="width: 500px; font-size: 18px" >Approved on {{ object.rdg.status_date }}</td>
+                        <th class="right wide-cell" style="width: 100px;"></th>
+                        <td class="left wide-cell" style="width: 200px;"></td>
+                    {% else %}
+                        <th class="right wide-cell" style="width: 500px;">Signature:</th>
+                        <td class="left wide-cell" style="width: 500px;">______________________________________________</td>
+                        <th class="right wide-cell" style="width: 100px;">Date:</th>
+                        <td class="left wide-cell" style="width: 200px;">___________________</td>
+                    {% endif %}
                 </tr>
             </table>
         </td>
