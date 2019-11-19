@@ -10,6 +10,7 @@
     <style>
         input.cost {
             font-size: small;
+            width: 100%;
         }
     </style>
 
@@ -85,7 +86,7 @@
                     {% for field in form %}
                         {% if "cost" in field.field.widget.attrs|lookup:"class" %}
                             <td>
-                                {% bootstrap_field field show_label=False placeholder="CAD" %}
+                                {{ field }}
                             </td>
                         {% endif %}
                     {% endfor %}
