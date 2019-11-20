@@ -180,7 +180,7 @@ class Trip(models.Model):
                                 limit_choices_to={'division__branch__in': [1, 3]})
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    address = models.CharField(max_length=1000, verbose_name=_("address"), default="343 Université Avenue, Moncton, NB, E1C 9B6",
+    address = models.CharField(max_length=1000, verbose_name=_("address"),
                                blank=True, null=True)
     phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
@@ -191,9 +191,9 @@ class Trip(models.Model):
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
                                null=True, blank=True)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
-    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city / province / country)"), blank=True,
+    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (e.g., city, province, country)"), blank=True,
                                           null=True)
-    destination = models.CharField(max_length=1000, verbose_name=_("destination location (city / province / country)"), blank=True,
+    destination = models.CharField(max_length=1000, verbose_name=_("destination location (e.g., city, province, country)"), blank=True,
                                    null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True)
@@ -201,14 +201,14 @@ class Trip(models.Model):
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     is_international = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "is this an international trip OR are international travellers included in this request?"))
-    is_conference = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a conference?"))
+    is_conference = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a conference or meeting?"))
     conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   verbose_name=_("conference"), related_name="trips")
+                                   verbose_name=_("conference / meeting"), related_name="trips")
 
     has_event_template = models.NullBooleanField(default=False,
                                                  verbose_name=_(
                                                      "Is there an event template being completed for this conference or meeting?"))
-    event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Event / Meeting Lead"),
+    event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
                                    related_name="trip_events", blank=True, null=True)
 
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
@@ -223,6 +223,7 @@ class Trip(models.Model):
         "benefit to DFO (What does DFO get out of this? Saves money, better programs, etc…)"))
     multiple_conferences_rationale = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for individual attending multiple conferences"))
+    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
     multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for multiple attendees at this event"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
@@ -242,11 +243,10 @@ class Trip(models.Model):
     registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
     other = models.FloatField(blank=True, null=True, verbose_name=_("other costs"))
     total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost (DFO)"))
-    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Estimated non-DFO costs"))
+    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Estimated non-DFO costs (CAD)"))
     non_dfo_org = models.CharField(max_length=1000, verbose_name=_("Full name(s) of organization paying non-DFO costs"), blank=True,
                                    null=True)
 
-    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
 
     submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
@@ -317,6 +317,7 @@ class Trip(models.Model):
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other").verbose_name, self.other)
         return my_str
 
+
     @property
     def total_trip_cost(self):
         if self.is_group_trip:
@@ -375,6 +376,10 @@ class Trip(models.Model):
         if my_status.id not in [11, 8, ] and self.current_reviewer:
             status_str += " {} {}".format(_("by"), self.current_reviewer.user)
         return status_str
+
+    @property
+    def adm(self):
+        return self.reviewers.filter(role_id=5).first()
 
     @property
     def rdg(self):

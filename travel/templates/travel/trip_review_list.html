@@ -32,17 +32,21 @@
 
         <h1 class="big-header">
             {% if awaiting %}
-                Trips Awaiting Your Review
+                {% trans "Trips Awaiting Your Review" %}
             {% elif admin %}
-                Admin Trip Approval List
+                {% trans "Admin Trip Approval List" %}
             {% else %}
-                Trips Assigned to You for Review
+                {% trans "Trips Assigned to You for Review" %}
             {% endif %}
         </h1>
         {% if awaiting %}
-            (<a href="{% url 'travel:trip_review_list' %}">view all trips</a>)
+            (<a href="{% url 'travel:trip_review_list' %}">
+            {% trans "view all trips assigned to me" %}
+        </a>)
         {% elif not admin %}
-            (<a href="{% url 'travel:trip_review_list' "awaiting" %}">view trips awaiting my approval</a>)
+            (<a href="{% url 'travel:trip_review_list' "awaiting" %}">
+            {% trans "view trips awaiting my approval" %}
+        </a>)
         {% endif %}
 
         <br>

@@ -9,6 +9,11 @@ from . import models
 chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 attr_hide_me = {"class": "hide-me"}
+attr_cost_hide_me = {"class": "hide-me cost"}
+attr_cost = {"class": "cost"}
+attr_row3_hide_me = {"class": "hide-me", "rows": 3}
+attr_row3 = {"rows": 3}
+attr_row4 = {"rows": 4}
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -56,6 +61,12 @@ class TripForm(forms.ModelForm):
             'user': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
             'is_group_trip': forms.Select(choices=YES_NO_CHOICES),
+            'objective_of_event': forms.Textarea(attrs=attr_row3),
+            'benefit_to_dfo': forms.Textarea(attrs=attr_row3),
+            'multiple_attendee_rationale': forms.Textarea(attrs=attr_row3),
+            'late_justification': forms.Textarea(attrs=attr_row3),
+            'funding_source': forms.Textarea(attrs=attr_row3),
+            'notes': forms.Textarea(attrs=attr_row3),
 
             # hidden fields
             'parent_trip': forms.HiddenInput(),
@@ -72,19 +83,19 @@ class TripForm(forms.ModelForm):
             'departure_location': forms.TextInput(attrs=attr_hide_me),
             'role': forms.Select(attrs=attr_hide_me),
             'region': forms.Select(attrs=attr_hide_me),
-            'role_of_participant': forms.Textarea(attrs=attr_hide_me),
-            'multiple_conferences_rationale': forms.Textarea(attrs=attr_hide_me),
-            'air': forms.NumberInput(attrs=attr_hide_me),
-            'rail': forms.NumberInput(attrs=attr_hide_me),
-            'rental_motor_vehicle': forms.NumberInput(attrs=attr_hide_me),
-            'personal_motor_vehicle': forms.NumberInput(attrs=attr_hide_me),
-            'taxi': forms.NumberInput(attrs=attr_hide_me),
-            'other_transport': forms.NumberInput(attrs=attr_hide_me),
-            'accommodations': forms.NumberInput(attrs=attr_hide_me),
-            'meals': forms.NumberInput(attrs=attr_hide_me),
-            'incidentals': forms.NumberInput(attrs=attr_hide_me),
-            'registration': forms.NumberInput(attrs=attr_hide_me),
-            'other': forms.NumberInput(attrs=attr_hide_me),
+            'role_of_participant': forms.Textarea(attrs=attr_row3_hide_me ),
+            'multiple_conferences_rationale': forms.Textarea(attrs=attr_row3_hide_me ),
+            'air': forms.NumberInput(attrs=attr_cost_hide_me),
+            'rail': forms.NumberInput(attrs=attr_cost_hide_me),
+            'rental_motor_vehicle': forms.NumberInput(attrs=attr_cost_hide_me),
+            'personal_motor_vehicle': forms.NumberInput(attrs=attr_cost_hide_me),
+            'taxi': forms.NumberInput(attrs=attr_cost_hide_me),
+            'other_transport': forms.NumberInput(attrs=attr_cost_hide_me),
+            'accommodations': forms.NumberInput(attrs=attr_cost_hide_me),
+            'meals': forms.NumberInput(attrs=attr_cost_hide_me),
+            'incidentals': forms.NumberInput(attrs=attr_cost_hide_me),
+            'registration': forms.NumberInput(attrs=attr_cost_hide_me),
+            'other': forms.NumberInput(attrs=attr_cost_hide_me),
         }
 
     def __init__(self, *args, **kwargs):
@@ -182,6 +193,19 @@ class ChildTripForm(forms.ModelForm):
         widgets = {
             'user': forms.Select(attrs=chosen_js),
             'parent_trip': forms.HiddenInput(),
+            'role_of_participant': forms.Textarea(attrs=attr_row4),
+            # costs
+            'air': forms.NumberInput(attrs=attr_cost),
+            'rail': forms.NumberInput(attrs=attr_cost),
+            'rental_motor_vehicle': forms.NumberInput(attrs=attr_cost),
+            'personal_motor_vehicle': forms.NumberInput(attrs=attr_cost),
+            'taxi': forms.NumberInput(attrs=attr_cost),
+            'other_transport': forms.NumberInput(attrs=attr_cost),
+            'accommodations': forms.NumberInput(attrs=attr_cost),
+            'meals': forms.NumberInput(attrs=attr_cost),
+            'incidentals': forms.NumberInput(attrs=attr_cost),
+            'registration': forms.NumberInput(attrs=attr_cost),
+            'other': forms.NumberInput(attrs=attr_cost),
         }
 
     def __init__(self, *args, **kwargs):
