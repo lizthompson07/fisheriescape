@@ -10,24 +10,27 @@ register = template.Library()
 
 
 @register.simple_tag
-def get_verbose_field_name(instance, field_name):
-    """
-    Returns verbose_name for a field. DEPRECATED use get_verbose_label instead
-    """
-    return instance._meta.get_field(field_name).verbose_name.capitalize()
-
-
-@register.simple_tag
 def get_verbose_label(instance, field_name):
     """
-    Returns verbose_name for a field.
+    :param instance: an instance of a model
+    :param field_name: string of a field name, property name etc.
+    :return: a label for that field
+
+    Returns verbose_name for a field. This function is used directly in some instances however it is often called by `verbose_field_display`
+    or `verbose_td_display`.
+
+    Custom labels can be provided as such: "first_name|The user's first name". If there is a custom label, this portion of the string is
+    simply returned by the function
+
     To return a label from a foreign key, send in the field name as such: "user.first_name".
-    To return a label from a model property, send in the property name as such: myprop|"label of my prop"
+
+    If a model property is received without a custom label, this function will just return the property name being passed in"
     """
 
     def __special_capitalize__(raw_string):
         """ Little dance to make sure the first letter is capitalized.
-        Do not want to use the capitalize() method since it makes the remaining portion of str lowercase """
+        Do not want to use the capitalize() method since it makes the remaining portion of str lowercase. This is problematic in
+         cases like: `DFO employee` since that would become `Dfo employee`"""
         first_letter = raw_string[0].upper()
         str_list = list(raw_string)
         str_list[0] = first_letter
@@ -41,59 +44,95 @@ def get_verbose_label(instance, field_name):
     if instance is None:
         return None
 
+    # at the end of the day, if the user is sending in a custom label, our work is done.
+    elif len(field_name.split("|")) > 1:
+        verbose_name = field_name.split("|")[1]
+
     # check to see if there were any arguments passed in with the field name
     # this means the field is a foreign key so we will need to separate the first part preceding the "."
-    if len(field_name.split(".")) > 1:
+    elif len(field_name.split(".")) > 1:
         field_name = field_name.split(".")[0]
         field_instance = instance._meta.get_field(field_name)
         verbose_name = field_instance.verbose_name
-    # this means a model property was sent in
-    elif len(field_name.split("|")) > 1:
-        verbose_name = field_name.split("|")[1]
-    # this means a plain old field_name was sent in
+
     else:
-        field_instance = instance._meta.get_field(field_name)
+        # try grabbing the instance of that field...
         try:
-            verbose_name = field_instance.verbose_name
-        except AttributeError:
-            # if there is no verbose_name attribute, just send back the field name
+            field_instance = instance._meta.get_field(field_name)
+        except FieldDoesNotExist:
+            # if it does not exist, perhaps we are receiving a model prop (with no custom label)
+            # in which case, the verbose name will in is the same as the field_name..
             verbose_name = field_name
+        else:
+            try:
+                verbose_name = field_instance.verbose_name
+            except AttributeError:
+                # if there is no verbose_name attribute, just send back the field name
+                verbose_name = field_name
     return mark_safe(__special_capitalize__(verbose_name))
 
 
 @register.simple_tag
-def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="---", date_format="%Y-%m-%d", safe=False):
+def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="---", date_format="%Y-%m-%d",
+                    safe=False):
     """
-    Returns verbose_name for a field.
-    To return a field from a foreign key, send in the field name as such: "user.first_name".
-    To return a model property value, send in the property name as such: myprop|"label of my prop"
+    :param instance: an instance of a model
+    :param field_name: string of a field name, property name etc.
+    :param format: a string of formatting trigger words [currency, html]
+    :param display_time: Should the time be displayed as well as the date? This arg is moot if a date_format string is provided
+    :param hyperlink: True / False about whether the resulting value is a hyperlink
+    :param nullmark: specify a string to return if value is null
+    :param date_format: the formatting string of a DateTime object
+    :param safe: should the resulting value be returned as a safestring?
+    :return: field value
+
+    Returns verbose_name for a field. This function is used directly in some instances however it is often called by `verbose_field_display`
+    or `verbose_td_display`.
+
+    To return a field value from a foreign key, send in the field name as such: "user.first_name".
+
+    To return a value from a model prop, simply send in the field name as such: "my_model_prop". Effectively there is no different
+    between entering a prop and a real field.
     """
-    # check to see if there were any arguments passed in with the field name
-    if len(field_name.split(".")) > 1:
+
+
+    # first, if there is no instance, we cannot return anything intelligable
+    if instance is None:
+        return None
+
+    #  next, let's see if it is field in another table that we are trying to access (e.g. user.first_name
+    elif len(field_name.split(".")) > 1:
         arg = field_name.split(".")[1]
         field_name = field_name.split(".")[0]
         try:
             field_value = getattr(getattr(instance, field_name), arg)
-        except:
-            field_value = ""
-
-    elif len(field_name.split("|")) > 1:
-        myprop = field_name.split("|")[0]
-        try:
-            field_value = getattr(instance, myprop)
-        except:
-            field_value = ""
-
+        except AttributeError:
+            # there is no value and therefore the getattr function fails..
+            field_value = nullmark
     else:
+        # if there is a custom label, we need to shed it.
+        if len(field_name.split("|")) > 1:
+            # overwrite the field_name arg with the first part of the string
+            field_name = field_name.split("|")[0]
+
         try:
             field_instance = instance._meta.get_field(field_name)
+        except FieldDoesNotExist:
+            # perhaps it is a model property
+            try:
+                field_value = getattr(instance, field_name)
+            except AttributeError:
+                print("Could not evaluate field value for '" + str(field_name) + "' for object '" + str(type(instance)) + "'")
+        else:
 
             # first check if there is a value :
             if getattr(instance, field_name) is not None and getattr(instance, field_name) != "":
                 # check to see if it is a many to many field
                 if field_instance.get_internal_type() == 'ManyToManyField' or field_instance.get_internal_type() == 'ManyToManyRel':
                     m2m = getattr(instance, field_name)
-                    field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"', "")
+                    field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'",
+                                                                                                                     "").replace(
+                        '"', "")
 
                 # check to see if there are choices
                 elif len(field_instance.choices) > 0:
@@ -106,31 +145,39 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
                     datetime_obj = getattr(instance, field_name)
                     if display_time:
                         field_value = datetime_obj.strftime('{} %H:%M'.format(date_format))
+                    else:
+                        field_value = datetime_obj.strftime(date_format)
 
+                # check to see if it is a url
+                elif str(getattr(instance, field_name)).startswith("http"):
+                    field_value = '<a href="{url}">{url}</a>'.format(url=getattr(instance, field_name))
+
+                # check to see if it is a BooleanField
+                elif field_instance.get_internal_type() == 'BooleanField' or field_instance.get_internal_type() == 'NullBooleanField':
+                    field_value = yesno(getattr(instance, field_name), "Yes,No,Unknown")
+
+                # check to see if hyperlink was provided
+                elif hyperlink:
+                    field_value = mark_safe('<a href="{}">{}</a>'.format(hyperlink, getattr(instance, field_name)))
                 else:
                     field_value = getattr(instance, field_name)
             else:
                 field_value = nullmark
-        except FieldDoesNotExist:
-            print("Could not find field '" + str(field_name) + "'")
-            field_value = "Tag not found"
 
-    # TODO: specify special formatting
-    if format == "currency":
+    # handle some of the formatting
+    if "currency" in str(format).lower():
         try:
             field_value = '${:,.2f}'.format(float(field_value))
         except:
             pass
 
-
-    field_value = markdown.markdown(field_value) if "HTML" in str(format) else field_value
+    field_value = markdown.markdown(field_value) if "html" in str(format).lower() else field_value
     field_value = mark_safe(field_value) if safe else field_value
     return field_value
 
 
-
 @register.simple_tag
-def verbose_field_display(instance, field_name, format=None, display_time=False, url=None, date_format=None):
+def verbose_field_display(instance, field_name, format=None, display_time=False, hyperlink=None, date_format=None):
     """
     Returns a standard display block for a field based on the verbose fieldname
     """
@@ -139,12 +186,12 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
     verbose_name = get_verbose_label(instance, field_name)
 
     # call on the get_field_value func to handle field value prep
-    field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format)
+    field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format, hyperlink=hyperlink)
 
-    if url and field_value != "n/a":
-        html_block = '<p><span class="label">{}:</span><br><a href="{}">{}</a></p>'.format(verbose_name, url, field_value)
-    else:
-        html_block = '<p><span class="label">{}:</span><br>{}</p>'.format(verbose_name, field_value)
+    # if url and field_value != "n/a":
+    #     html_block = '<p><span class="label">{}:</span><br><a href="{}">{}</a></p>'.format(verbose_name, url, field_value)
+    # else:
+    html_block = '<p><span class="label">{}:</span><br>{}</p>'.format(verbose_name, field_value)
 
     return SafeString(html_block)
 
@@ -172,6 +219,5 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
         html_block = '<tr>{}{}</th>{}<a href="{}">{}</a></td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, url, field_value)
     else:
         html_block = '<tr>{}{}</th>{}{}</td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, field_value)
-
 
     return SafeString(html_block)

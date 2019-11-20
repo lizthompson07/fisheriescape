@@ -1,0 +1,165 @@
+{% extends 'pop_base.html' %}
+
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+
+{% block body %}
+
+    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
+    <style>
+        input.cost {
+            font-size: small;
+            width: 100%;
+        }
+    </style>
+
+    <div class="container">
+        <h3>
+            {% if object %}
+                {% blocktrans with o=object %}
+                    {{ o }}
+                {% endblocktrans %}
+            {% else %}
+                {% trans "Add a Traveller" %}
+            {% endif %}
+        </h3>
+        <br>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" onclick="refreshParent()">
+                    {% trans "Submit" %}
+                </button>
+                {% if object %}
+                    <a class="btn btn-danger" href="{% url 'travel:trip_delete' object.id 'pop' %}">
+                        {% trans "Delete" %}
+                    </a>
+                {% endif %}
+                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                    {% trans "Close" %}
+                </a>
+            </div>
+
+            <br><br>
+
+            {% bootstrap_form_errors form %}
+            {% for field in form %}
+                {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                    {# DO NOTHING   #}
+                {% elif field.name == "address" %}
+                    {#                343 Université Avenue, Moncton, NB, E1C 9B6#}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                    <span style="font-size: small">Predefined addresses:</span><br>
+                    <a href="#" class="btn btn-sm btn-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
+                    <a href="#" class="btn btn-sm btn-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
+                    <a href="#" class="btn btn-sm btn-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
+                    <br>
+                    <br>
+                {% else %}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                {% endif %}
+            {% endfor %}
+
+            <br>
+            <h4>{% trans "Breakdown of Traveller Costs" %}</h4>
+            <div class="show-me-intl blue-font">
+                <p>
+                    <em>
+                        {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
+                    </em>
+                </p>
+            </div>
+            <table class="table table-bordered" style="font-size: small ">
+
+                <tr>
+                    {% for field in form %}
+                        {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                            <th>
+                                {{ field.label }}
+                            </th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for field in form %}
+                        {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                            <td>
+                                {{ field }}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+
+            </table>
+
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" onclick="refreshParent()">
+                    {% trans "Submit" %}
+                </button>
+                {% if object %}
+                    <a class="btn btn-danger" href="{% url 'travel:trip_delete' object.id 'pop' %}">
+                        {% trans "Delete" %}
+                    </a>
+                {% endif %}
+                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                    {% trans "Close" %}
+                </a>
+            </div>
+        </form>
+    </div>
+
+
+{% endblock %}
+
+{% block body_js %}
+
+
+    <script type="application/javascript">
+        var userObj = {{ user_json|safe }};
+        var sectionObj = {{ section_json|safe|nz:"{}" }};
+        var myId = "";
+
+        function refreshUserInfo() {
+            myId = $("#id_user").val();
+            $("#id_first_name").val(userObj[myId]["first_name"]);
+            $("#id_last_name").val(userObj[myId]["last_name"]);
+            $("#id_email").val(userObj[myId]["email"]);
+        }
+
+        $("#id_user").change(function () {
+            refreshUserInfo();
+        });
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            refreshUserInfo();
+        });
+
+    </script>
+
+
+    <script>
+        window.resizeTo(width = 1500, height = 800);
+
+        window.onunload = refreshParent;
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            $("#id_user")[0].focus()
+        });
+
+        $(".address-btn").click(function (e) {
+            e.preventDefault();
+            $myBtn = $(this);
+            $("#id_address").val($myBtn.text());
+        });
+
+    </script>
+{% endblock %}

@@ -43,17 +43,8 @@
             <div class="col">
                 <h3>Section Info:</h3>
 
-                <p><b>
-                    {% trans "Section:" %}
-                </b><br>
-                    {{ object.full_name }}
-                </p>
-
-                <p><b>
-                    {% get_verbose_field_name object "head" %}:
-                </b><br>
-                    {{ object.head.first_name }} {{ object.head.last_name }}
-                </p>
+                    {% verbose_field_display object "full_name|Section" %}
+                    {% verbose_field_display object "head" %}
 
             </div>
             <div class="col">

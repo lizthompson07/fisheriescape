@@ -1,7 +1,7 @@
 {% load verbose_names %}
 
 <h1>
-    A trip is awaiting the approval of {{ user }}.
+    A trip is awaiting the approval of {{ trip.current_reviewer.user }} as {{ trip.current_reviewer.role }}.
 </h1>
 
 <p>
@@ -11,7 +11,7 @@
 
 <table>
     {% for field in field_list %}
-        {% verbose_td_display event field %}
+        {% verbose_td_display trip field %}
     {% endfor %}
 </table>
 

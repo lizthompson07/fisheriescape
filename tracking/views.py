@@ -18,6 +18,7 @@ from django.utils.timezone import now
 
 from tracking.models import Visitor, Pageview, VisitSummary
 from tracking.settings import TRACK_PAGEVIEWS
+from . import utils
 import numpy as np
 
 log = logging.getLogger(__file__)
@@ -69,8 +70,8 @@ def dashboard(request):
 
     # get the last 100 page visits
     page_visits = Pageview.objects.all().order_by("-view_time")
-    if len(page_visits) > 201:
-        page_visits = page_visits[:200]
+    if len(page_visits) > 1001:
+        page_visits = page_visits[:1000]
 
     context = {
         'form': form,
@@ -106,6 +107,7 @@ def user_history(request, user):
         'page_visits': page_visits,
     }
     context = summarize_data(context, my_user)
+    # print(context)
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(base_dir, 'templates', 'tracking', 'temp')
@@ -121,11 +123,14 @@ def user_history(request, user):
 
 @permission_required('tracking.visitor_log')
 def app_history(request, app):
+    print(app)
+    page_visits = Pageview.objects.filter(url__icontains=app).order_by("-view_time")
     context = {
         'my_app': app,
+        'page_visits': page_visits,
     }
     context = summarize_data(context, None, app)
-
+    print(context)
     base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(base_dir, 'templates', 'tracking', 'temp')
     for root, dirs, files in os.walk(target_dir):
@@ -139,37 +144,11 @@ def app_history(request, app):
 
 
 def summarize_data(context, user=None, app=None):
-    # prelim...
 
-    # capture all lines of page view table in 2 summary tables
-    for view in Pageview.objects.filter(summarized=False):
-        # what app were they using?
-        url_list = view.url.split("/")
-        app_name = url_list[2] if len(url_list) > 2 else None
+    # start by chucking all the unsummarized data
+    utils.chunk_pageviews()
 
-        # who is the user?
-        my_user = view.visitor.user
-
-        if my_user and app_name and app_name not in ["", "accounts", "login_required", "denied", "reset", "password-reset", "auth", "login",
-                                                     "setlang", "shared", "tracking"]:
-            # what is the date?
-            my_date = timezone.datetime(view.view_time.year, view.view_time.month, view.view_time.day)
-
-            # add view to visitSummary table
-            # print(app_name)
-            visit_summary_obj, created = VisitSummary.objects.get_or_create(
-                date=my_date,
-                application_name=app_name,
-                user=my_user,
-            )
-
-            visit_summary_obj.page_visits += 1
-            visit_summary_obj.save()
-
-        # mark the view as summarized.
-        view.summarized = True
-        view.save()
-
+    # now build the context variable to pass in
     if not app:
         # get the list of apps
         if not user:
@@ -273,8 +252,6 @@ def summarize_data(context, user=None, app=None):
 
     generate_page_visit_report(app_list, user=user, app=app)
 
-    # delete any records older then three days
-    Pageview.objects.filter(summarized=True).filter(view_time__lte=timezone.now() - timezone.timedelta(days=3)).delete()
     return context
 
 
@@ -368,7 +345,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
                     dsum=Sum('page_visits'))
             total_count.append(result[0]["dsum"])
 
-        p.line(date_list, total_count, legend="total", line_color='black', line_width=3, line_dash = [6, 3])
+        p.line(date_list, total_count, legend="total", line_color='black', line_width=3, line_dash=[6, 3])
         p.circle(date_list, total_count, legend="total", fill_color='black', line_color="black", size=5)
         p.legend.location = "top_left"
 

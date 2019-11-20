@@ -1647,7 +1647,7 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
         context['status_report'] = True
-        context['files'] = project.files.filter(reference=2)
+        context['files'] = project.files.all()
         return context
 
     def form_valid(self, form):
@@ -1664,10 +1664,8 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
     def get_form_class(self):
         my_project = self.get_object().project
         if is_section_head(self.request.user, my_project):
-            print(123)
             return forms.StatusReportSectionHeadForm
         else:
-            print(321)
             return forms.StatusReportForm
 
     def get_initial(self):
