@@ -38,92 +38,18 @@
         </p>
 
 
-        <p><b>
-            {% get_verbose_field_name object "title_eng" %}:
-        </b><br>
-            {{ object.title_eng }}
-        </p>
-
-        <p><b>
-            {% get_verbose_field_name object "title_fre" %}:
-        </b><br>
-            {{ object.title_fre }}
-        </p>
-
-        <p><b>
-            {% get_verbose_field_name object "authors" %}:
-        </b><br>
-            {{ object.authors }}
-        </p>
-
-        <p><b>
-            {% get_verbose_field_name object "year" %}:
-        </b><br>
-            {{ object.year }}
-        </p>
-
-        <p><b>
-            {% get_verbose_field_name object "pub_number" %}:
-        </b><br>
-            {{ object.pub_number }}
-        </p>
-
-        <p><b>
-            {% get_verbose_field_name object "publication" %}:
-        </b><br>
-            {{ object.publication }}
-        </p>
-
-
-        <p><b>
-            {% get_verbose_field_name object "series" %}:
-        </b><br>
-            {{ object.series }}
-        </p>
-
-
-        <p><b>
-            {% get_verbose_field_name object "region" %}:
-        </b><br>
-            {{ object.region }}
-        </p>
-
-
-        <p><b>
-            {% get_verbose_field_name object "url_eng" %}:
-        </b><br>
-            {% if object.url_eng %}
-                <a href="{{ object.url_eng }}">
-                    {{ object.url_eng }}
-                </a>
-            {% else %}
-                {{ object.url_eng }}
-            {% endif %}
-        </p>
-        <p><b>
-            {% get_verbose_field_name object "url_fre" %}:
-        </b><br>
-            {% if object.url_fre %}
-                <a href="{{ object.url_fre }}">
-                    {{ object.url_fre }}
-                </a>
-            {% else %}
-                {{ object.url_fre }}
-            {% endif %}
-
-        </p>
-
-
-        <p><b>
-            {% get_verbose_field_name object "abstract_eng" %}:
-        </b><br>
-            {{ object.abstract_eng }}
-        </p>
-        <p><b>
-            {% get_verbose_field_name object "abstract_fre" %}:
-        </b><br>
-            {{ object.abstract_fre }}
-        </p>
+        {% verbose_field_display object "title_eng" %}
+        {% verbose_field_display object "title_fre" %}
+        {% verbose_field_display object "authors" %}
+        {% verbose_field_display object "year" %}
+        {% verbose_field_display object "pub_number" %}
+        {% verbose_field_display object "publication" %}
+        {% verbose_field_display object "series" %}
+        {% verbose_field_display object "region" %}
+        {% verbose_field_display object "url_eng" hyperlink=True %}
+        {% verbose_field_display object "url_fre" hyperlink=True %}
+        {% verbose_field_display object "abstract_eng" %}
+        {% verbose_field_display object "abstract_fre" %}
 
 
         <br>

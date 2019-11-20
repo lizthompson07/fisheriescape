@@ -653,7 +653,7 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
     form_class = forms.ReportSearchForm
 
     def get_initial(self):
-        return {"report_title": _("Consultations Update Log – Government of Canada")}
+        return {"report_title": _("Engagement Update Log – Government of Canada")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -935,7 +935,7 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             entry_types = None
 
         # get an entry list for the fiscal year (if any)
-        entry_list = models.Entry.objects.all().order_by("-initial_date")
+        entry_list = models.Entry.objects.all().order_by("sectors","status","-initial_date")
 
         if fy:
             entry_list = models.Entry.objects.filter(fiscal_year=fy)

@@ -18,10 +18,12 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_detail' object.resource.id %}">{{ object.resource.truncated_title }}</a></li>
+                <li class="breadcrumb-item"><a
+                        href="{% url 'inventory:resource_detail' object.resource.id %}">{{ object.resource.truncated_title }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit Resource Person</li>
             {% else %}
-                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a>
+                </li>
                 <li class="breadcrumb-item active" aria-current="page">Insert {{ person.full_name }}</li>
             {% endif %}
         </ol>
@@ -55,24 +57,16 @@
 
             {% endbuttons %}
         </form>
-        {% if object.id %}
+        {% if object %}
             <hr>
             <p>
                 <a href="{% url "inventory:person_edit" object.resource.id object.person.user_id %}"
                    class="btn btn-sm btn-warning">Edit User Details</a>
             </p>
 
-            <p><b>
-                {% get_verbose_field_name object.person.user "email" %}:
-            </b><br>
-                {{ object.person.user.email }}
-            </p>
+            {% verbose_field_display object.person.user "email" %}
 
-            <p><b>
-                {% get_verbose_field_name object.person "phone" %}:
-            </b><br>
-                {{ object.person.phone }}
-            </p>
+            {% verbose_field_display object.person "phone" %}
 
             <p><b>
                 Title (English | French)
@@ -80,17 +74,9 @@
                 {{ object.person.position_eng }} | {{ object.person.position_fre }}
             </p>
 
-            <p><b>
-                {% get_verbose_field_name object.person "language" %}:
-            </b><br>
-                {{ object.person.get_language_display }}
-            </p>
+            {% verbose_field_display object.person "language" %}
 
-            <p><b>
-                {% get_verbose_field_name object.person "organization" %}:
-            </b><br>
-                {{ object.person.organization }}
-            </p>
+            {% verbose_field_display object.person "organization" %}
 
         {% endif %}
     </div>
