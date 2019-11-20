@@ -35,16 +35,7 @@
         <br>
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'herring:sample_edit' object.id %}">Edit</a>
-            {% if object.length_frequencies.count == 0 and object.fish_details.count == 0 %}
-                <a class="btn btn-danger" href="{% url 'herring:sample_delete' object.id %}">Delete</a>
-            {% elif user.is_superuser %}
-                <a class="btn btn-danger" href="{% url 'herring:sample_delete' object.id %}">Delete</a>
-            {% else %}
-                <span class="d-inline-block" tabindex="0" data-toggle="tooltip"
-                      title="Cannot be deleted when there are fish detail files or length frequencies that exist.">
-      <a class="btn btn-danger disabled" href="{% url 'herring:sample_delete' object.id %}">Delete</a>
-    </span>
-            {% endif %}
+            <a class="btn btn-danger" href="{% url 'herring:sample_delete' object.id %}">Delete</a>
         </div>
 
 
