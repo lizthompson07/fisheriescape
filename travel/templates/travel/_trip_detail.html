@@ -122,8 +122,13 @@
     {% if not trip.conference %}
         <em>{% trans "It was indicated above that this trip is a conference however no conference was selected." %}</em>
     {% else %}
+        <div class="float-right">
+            <a class="btn btn-success under-dev" href="#" target="_blank">
+                CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+            </a>
+        </div>
         <h3>
-            Conference Detail:
+            Conference/Meeting Detail:
         </h3>
         <table class="table table-sm table-striped">
             {% for field in conf_field_list %}
@@ -136,7 +141,7 @@
                         {% url 'travel:trip_detail' obj.id as my_url %}
                         <ul>
                             <li>
-                                <a href="{% if obj.id != trip.id %}my_url{% endif %}">{{ obj }}</a> by {{ obj.user }}
+                                <a href="{% if obj.id != trip.id %}{{ my_url }}{% endif %}">{{ obj }}</a> by {{ obj.user }}
                                 (STATUS: <span style="background-color: {{ trip.status.color }}">{{ obj.status }}</span>)
                                 {% if obj.id == trip.id %}
                                     ({% trans "CURRENT TRIP" %})
@@ -190,6 +195,7 @@
                     <th scope="col">{% get_verbose_label trip field %}</th>
                 {% endif %}
             {% endfor %}
+            <th>{% trans "Cost breakdown" %}</th>
         </tr>
         </thead>
         <tbody>
@@ -202,6 +208,13 @@
                     <td>{% get_field_value child field format="currency" safe=True %}</td>
 
                 {% endfor %}
+                <td>
+                    <button class="badge" data-toggle="popover"
+                            title="{{ child.first_name }}'s Costs Breakdown"
+                            data-content="{% include "travel/_child_cost_breakdown.html" %}">
+                        {% trans "show" %}
+                    </button>
+                </td>
                 {% if not report_mode %}
                     <td>
                         <a class="btn btn-sm btn-warning stop-pop" href="{% url 'travel:child_duplicate_event' child.id  'pop' %}">

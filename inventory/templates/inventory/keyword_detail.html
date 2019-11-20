@@ -3,7 +3,7 @@
 {% load verbose_names %}
 
 {% block content %}
-    
+
     {% if user.is_authenticated %}
         {% url 'inventory:my_resource_list' as home_url %}
     {% else %}
@@ -31,20 +31,11 @@
         </p>
 
 
-        <p><b>
-            {% get_verbose_field_name object "text_value_eng" %}:
-        </b><br>
-            {{ object.text_value_eng }}
-        </p>
+        {% verbose_field_display object "text_value_eng" %}
+        {% verbose_field_display object "text_value_fre" %}
 
         <p><b>
-            {% get_verbose_field_name object "text_value_fre" %}:
-        </b><br>
-            {{ object.text_value_fre }}
-        </p>
-
-        <p><b>
-            {% get_verbose_field_name object "keyword_domain" %}:
+            {% get_verbose_label object "keyword_domain" %}:
         </b><br>
             {% if object.keyword_domain.url %}
                 <a href="{{ object.keyword_domain.url }}">
@@ -55,17 +46,8 @@
             {% endif %}
         </p>
 
-        <p><b>
-            {% get_verbose_field_name object "uid" %}:
-        </b><br>
-            {{ object.uid }}
-        </p>
-
-        <p><b>
-            {% get_verbose_field_name object "details" %}:
-        </b><br>
-            {{ object.details }}
-        </p>
+        {% verbose_field_display object "uid" %}
+        {% verbose_field_display object "details" %}
 
 
         <br>

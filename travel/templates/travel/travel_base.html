@@ -38,18 +38,23 @@
             <a class="dropdown-item" href="{% url 'travel:trip_list' %}">
                 {% trans "All" %}
             </a>
-            <a class="dropdown-item under-dev" href="#">
-                {% trans "Your Trips" %}
-            </a>
+            {% if user.user_trips.count > 0 %}
+                <a class="dropdown-item" href="{% url 'travel:trip_list' %}?user={{ user.id }}">
+                    {% trans "Your Trips" %}
+                </a>
+            {% endif %}
             {% if user.reviewers.count > 0 %}
                 <a class="dropdown-item" href="{% url 'travel:trip_review_list' "awaiting" %}">
-                    {% trans "For Your Review" %}
+                    {% trans "Awaiting your Review" %}
+                </a>
+                <a class="dropdown-item" href="{% url 'travel:trip_review_list' %}">
+                    {% trans "Assigned to You" %}
                 </a>
             {% endif %}
             {% for group in user.groups.all %}
                 {% if group.name == "travel_admin" %}
                     <a class="dropdown-item" href="{% url 'travel:admin_approval_list' %}">
-                        {% trans "For Your Admin Approval" %}
+                        {% trans "Awaiting your Admin Approval" %}
                     </a>
                 {% endif %}
             {% endfor %}
@@ -75,7 +80,7 @@
                         {% trans "Manage Statuses" %}
                     </a>
                     <a class="dropdown-item" href="{% url 'travel:conf_list' %}">
-                        {% trans "Conferences" %}
+                        {% trans "Conferences/Meetings" %}
                     </a>
 
 

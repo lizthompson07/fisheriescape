@@ -7,7 +7,12 @@
 {% block body %}
 
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
-
+    <style>
+        input.cost {
+            font-size: small;
+            width: 100%;
+        }
+    </style>
 
     <div class="container">
         <h3>
@@ -41,8 +46,54 @@
 
             {% bootstrap_form_errors form %}
             {% for field in form %}
-                {% bootstrap_field field placeholder="" size="small" %}
+                {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                    {# DO NOTHING   #}
+                {% elif field.name == "address" %}
+                    {#                343 Université Avenue, Moncton, NB, E1C 9B6#}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                    <span style="font-size: small">Predefined addresses:</span><br>
+                    <a href="#" class="btn btn-sm btn-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
+                    <a href="#" class="btn btn-sm btn-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
+                    <a href="#" class="btn btn-sm btn-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
+                    <br>
+                    <br>
+                {% else %}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                {% endif %}
             {% endfor %}
+
+            <br>
+            <h4>{% trans "Breakdown of Traveller Costs" %}</h4>
+            <div class="show-me-intl blue-font">
+                <p>
+                    <em>
+                        {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
+                    </em>
+                </p>
+            </div>
+            <table class="table table-bordered" style="font-size: small ">
+
+                <tr>
+                    {% for field in form %}
+                        {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                            <th>
+                                {{ field.label }}
+                            </th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for field in form %}
+                        {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                            <td>
+                                {{ field }}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+
+            </table>
+
 
             <div class="btn-group">
                 <button type="submit" class="btn btn-primary" onclick="refreshParent()">
@@ -91,7 +142,7 @@
 
 
     <script>
-        window.resizeTo(width = 1200, height = 800);
+        window.resizeTo(width = 1500, height = 800);
 
         window.onunload = refreshParent;
 
@@ -102,6 +153,12 @@
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
             $("#id_user")[0].focus()
+        });
+
+        $(".address-btn").click(function (e) {
+            e.preventDefault();
+            $myBtn = $(this);
+            $("#id_address").val($myBtn.text());
         });
 
     </script>

@@ -117,8 +117,8 @@
                     </tr>
                     <tr>
                         <th style="width: 200px; text-align: right;" class="real">Region/Sector/Branch/<br>Directorate/Section:</th>
-                        <td style="width: 400px; text-align: left;" class="real">Gulf/Science and Ecosystems
-                            Management/{{ object.section.name }}</td>
+                        <td style="width: 400px; text-align: left;"
+                            class="real">{{ object.section.division.branch.region.name }}/{{ object.section.division.branch.name }}/{{ object.section.division.name }}/{{ object.section.name }}</td>
                     </tr>
                     <tr>
                         <th style="width: 200px; text-align: right;" class="real">Trip Purpose:</th>
@@ -188,7 +188,7 @@
             <th class="real center">Is the trip part of an Event?</th>
             <th class="real center">Event number (optional)</th>
         </tr>
-        {% for child in object.children_trips.all %}
+        {% for child in object_list %}
 
 
 
@@ -212,7 +212,12 @@
                     {% endwith %}
                 {% endwith %}
                 <td class="real center" style="text-align: center;">{{ child.total_cost|zero2val:""|currency|nz:"" }}</td>
-                <td class="real center" style="text-align: center;">{{ object.is_conference|yesno }}</td>
+                {#                <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>#}
+                {% if object.is_conference %}
+                    <td class="real center">{{ object.has_event_template|yesno:"yes,no,unknown" }}</td>
+                {% else %}
+                    <td class="real center">no</td>
+                {% endif %}
                 <td class="real center">{{ object.conference.number|nz:"" }}</td>
 
             </tr>
@@ -253,10 +258,17 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="right wide-cell" style="width: 500px;">Signature:</th>
-                    <td class="left wide-cell" style="width: 500px;">______________________________________________</td>
-                    <th class="right wide-cell" style="width: 100px;">Date:</th>
-                    <td class="left wide-cell" style="width: 200px;">___________________</td>
+                    {% if object.rdg.status_id == 2 %}
+                        <th class="right wide-cell" style="width: 500px;"></th>
+                        <td class="left wide-cell" style="width: 500px; font-size: 18px" >Approved on {{ object.rdg.status_date }}</td>
+                        <th class="right wide-cell" style="width: 100px;"></th>
+                        <td class="left wide-cell" style="width: 200px;"></td>
+                    {% else %}
+                        <th class="right wide-cell" style="width: 500px;">Signature:</th>
+                        <td class="left wide-cell" style="width: 500px;">______________________________________________</td>
+                        <th class="right wide-cell" style="width: 100px;">Date:</th>
+                        <td class="left wide-cell" style="width: 200px;">___________________</td>
+                    {% endif %}
                 </tr>
             </table>
         </td>
@@ -275,33 +287,14 @@
                         </td>
                     </tr>
                 {% endfor %}
-
-                {#                {% if object.recommender_2 %}#}
-                {#                    <tr>#}
-                {#                        <th class="right wide-cell">Recommended by:</th>#}
-                {#                        <td rowspan="1" class="left wide-cell">#}
-                {#                            {{ object.recommender_2 }}#}
-                {#                            {% if object.recommender_2_approval_status_id == 2 %}#}
-                {#                                (digitally signed on {{ object.recommender_2_approval_date }})#}
-                {#                            {% else %}#}
-                {#                                (NOT RECOMMENDED)#}
-                {#                            {% endif %}#}
-                {#                        </td>#}
-                {#                    </tr>#}
-                {#                {% endif %}#}
-                {#                {% if object.recommender_3 %}#}
-                {#                    <tr>#}
-                {#                        <th class="right wide-cell">Recommended by:</th>#}
-                {#                        <td rowspan="1" class="left wide-cell">#}
-                {#                            {{ object.recommender_3 }}#}
-                {#                            {% if object.recommender_3_approval_status_id == 2 %}#}
-                {#                                (digitally signed on {{ object.recommender_3_approval_date }})#}
-                {#                            {% else %}#}
-                {#                                (NOT RECOMMENDED)#}
-                {#                            {% endif %}#}
-                {#                        </td>#}
-                {#                    </tr>#}
-                {#                {% endif %}#}
+                {% if object.adm.status_id == 2 %}
+                    <tr>
+                        <th class="right wide-cell">Approved by:</th>
+                        <td rowspan="1" class="left wide-cell">
+                            {{ object.adm.user }} on {{ object.adm.status_date }}
+                        </td>
+                    </tr>
+                {% endif %}
             </table>
         </td>
     </table>

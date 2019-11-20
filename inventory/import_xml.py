@@ -26,14 +26,15 @@ def create_user(email):
 
 
 def restart():
-    models.Resource.objects.filter(section_id=51).delete()
+    models.Resource.objects.filter(section_id=59).delete()
 
 
 def check_uuids():
     target_dir = os.path.join(settings.BASE_DIR, 'inventory', 'temp')
-    with open(os.path.join(target_dir, "QuiderE_v2b.xml"), 'r', encoding="utf8") as xml_file:
-        # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
-        # with open(os.path.join(target_dir, "PED_Records_Output.xml"), 'r') as xml_file:
+    # with open(os.path.join(target_dir, "QuiderE_v2b.xml"), 'r', encoding="utf8") as xml_file:
+    # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
+    # with open(os.path.join(target_dir, "PED_Records_Output_v3.xml"), 'r') as xml_file:
+    with open(os.path.join(target_dir, "BondSRecords_Output.xml"), 'r') as xml_file:
 
         tree = ET.parse(xml_file)
         recordset = tree.getroot()
@@ -51,29 +52,110 @@ def check_uuids():
 
 def import_xml():
     target_dir = os.path.join(settings.BASE_DIR, 'inventory', 'temp')
-    with open(os.path.join(target_dir, "QuiderE_v2b.xml"), 'r', encoding="utf8") as xml_file:
-        section_id = 52
-        # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
-        #     section_id = 51
-        # with open(os.path.join(target_dir, "PED_Records_Output.xml"), 'r') as xml_file:
-        #     section_id = 59
+    # with open(os.path.join(target_dir, "QuiderE_v2b.xml"), 'r', encoding="utf8") as xml_file:
+    #     section_id = 52
+    # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
+    #     section_id = 51
+    # with open(os.path.join(target_dir, "PED_Records_Output_v3.xml"), 'r', encoding="utf8") as xml_file:
+    #     section_id = 59
+    with open(os.path.join(target_dir, "BondSRecords_Output.xml"), 'r', encoding="utf8") as xml_file:
+        section_id = 60
+        if section_id == 52:
+            uuid_list = [
+                "22fe66a9-f619-4014-8701-0a29740d61e1",
+                "592b58ac-06e9-11ea-8df6-f48c505b2a29",
 
-        uuid_list = [
-            "22fe66a9-f619-4014-8701-0a29740d61e1",
-            "592b58ac-06e9-11ea-8df6-f48c505b2a29",
+                "9d2958d0-3b90-48e8-8f19-46adac3ffbb9",
+                "74c914ba-06e9-11ea-af8d-f48c505b2a29",
 
-            "9d2958d0-3b90-48e8-8f19-46adac3ffbb9",
-            "74c914ba-06e9-11ea-af8d-f48c505b2a29",
+                "b052a68e-61f8-4d3f-909f-cb658d903372",
+                "872cd03a-06e9-11ea-b8ef-f48c505b2a29",
+                "90059268-06e9-11ea-9320-f48c505b2a29",
+                "99fd4d6e-06e9-11ea-b9bf-f48c505b2a29",
 
-            "b052a68e-61f8-4d3f-909f-cb658d903372",
-            "872cd03a-06e9-11ea-b8ef-f48c505b2a29",
-            "90059268-06e9-11ea-9320-f48c505b2a29",
-            "99fd4d6e-06e9-11ea-b9bf-f48c505b2a29",
+                "cba41a6f-6000-4d5c-8761-6340d24c9079",
+                "a906d1de-06e9-11ea-ac0e-f48c505b2a29",
+                "ae0d86c0-06e9-11ea-a0dc-f48c505b2a29",
+            ]
+        elif section_id == 51:
+            uuid_list = [
+                "3659734a-3b89-4f9a-8558-f5dde61a7350",  # 2
+                "",
+                "b63de91e-71b8-4ec6-9e09-a12cb2fbf758",  # 2
+                "",
+                "750b5f56-292c-4e4e-9b22-2644e2a463f4",  # 2
+                "",
+                "5215563c-48f3-4e3b-8c27-b40c5221f368",  # 2
+                "",
+                "682abd8e-3923-46fa-ae3b-9d4c6ef9de81",  # 2
+                "",
+                "af74b18a-6ef1-41b9-9dc8-9b18197b6bec",  # 6
+                "",
+                "",
+                "",
+                "",
+                "",
+                "b07f55f1-3775-4029-bda2-e725da8be5d1",  # 4
+                "",
+                "",
+                "",
+                "a24e1b55-5441-4b5a-8d3f-dfa8f3e4123a",  # 2
+                "",
+                "c4de6d6c-c31e-4cfa-81fa-37c169e27bdc",  # 7
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "e7c6115f-8ae3-4bb0-9bfa-3ba0fb725d2f",  # 2
+                "",
+                "146ed171-8ce1-4f8a-b983-baf16ba3150f",  # 2
+                "",
+                "9ff019fc-1235-42b0-b7d9-ff96dfa3a3c7",  # 2
+                "",
+                "f48d8fbe-b1c0-4023-9727-de8769b1dbb6",  # 2
+                "",
+                "7035da9a-adf3-44e6-ae87-bce2eac5f7e8",  # 2
+                "",
+                "e036dec8-6479-4324-b9b1-0e264b7bbdb3",  # 2
+                "",
+                "614065d0-8ed2-4142-924a-cdc0689362b3",  # 2
+                "",
+                "9192f25a-0006-48f8-ad24-6db1913845be",  # 2
+                "",
+                "8b8e0e28-ea4d-4c53-bd3d-856dca19616c",  # 2
+                "",
+                "0c2a74d7-e511-45d8-bcda-9eaf15c59ea3",  # 2
+                "",
+                "a29af2e1-d205-4d1d-9051-24a3454ff0b7",  # 2
+                "",
+                "a59aa9af-b636-48d4-892f-872cff3acbc1",  # 2
+                "",
+                "12ef1e35-3b4a-4750-9004-ecb40c6d5216",  # 2
+                "",
+                "9405112b-9b3a-4beb-bb32-c52653790538",  # 2
+                "",
+                "23319b68-d6f5-4523-8561-6e282a07c08d",  # 2
+                "",
+                "b65b16ad-7554-4e50-9650-ff6b1bd75293",  # 2
+                "",
+                "5d94ca72-1843-4c41-a715-b1f40b44fff6",  # 2
+                "",
+                "4d5bf4e4-3889-4a96-89a0-59fd309dbde4",  # 2
+                "",
+                "eb18c77a-7630-4a6b-9217-f4a6dd26198b",  # 2
+                "",
+                "bcd0c49c-3244-4e31-a2f7-c921c7c8c5b2",  # 2
+                "",
+                "f9b277a3-9053-4818-aa30-5f772dc97a16",  # 3
+                "",
+                "",
+                "ba674977-9a60-4f2e-8012-a1b86583ab8e",  # 2
+                "",
+            ]
 
-            "cba41a6f-6000-4d5c-8761-6340d24c9079",
-            "a906d1de-06e9-11ea-ac0e-f48c505b2a29",
-            "ae0d86c0-06e9-11ea-a0dc-f48c505b2a29",
-        ]
+
         tree = ET.parse(xml_file)
         recordset = tree.getroot()
         time_period_list = []
@@ -84,16 +166,20 @@ def import_xml():
             # identifying fields; these should never change, no matter how many times we do the import
             uuid = record.find("record_uuid").text
 
-            if uuid in uuid_list:
+            if uuid:
                 title = record.find("record_title").text
+                title_fra = record.find("record_title_fra").text if record.find("record_title_fra") is not None else None
                 desc = record.find("record_abstract").text if record.find("record_abstract") is not None else None
+                desc_fra = record.find("record_abstract_fra").text if record.find("record_abstract_fra") is not None else None
                 purpose = record.find("record_purpose").text if record.find("record_purpose") is not None else None
+                purpose_fra = record.find("record_purpose_fra").text if record.find("record_purpose_fra") is not None else None
                 geo_desc = record.find("record_geographic_extent_geodescription").text if record.find(
                     "record_geographic_extent_geodescription") else None
 
                 prim_lang = record.find("record_primary_language").text if record.find("record_primary_language") is not None else None
                 series = record.find("record_series").text if record.find("record_series") is not None else None
                 suppl_info = record.find("record_supplemental_info").text if record.find("record_supplemental_info") is not None else None
+                suppl_info_fra = record.find("record_supplemental_info_fra").text if record.find("record_supplemental_info_fra") is not None else None
 
                 if record.find("record_geographic_extent_boundingbox") is not None:
                     geo_bbox_w = record.find("record_geographic_extent_boundingbox").find('record_extent_west').text if record.find(
@@ -230,6 +316,12 @@ def import_xml():
                                 start_year = int(start_list[index].split("-")[0])
                                 start_month = int(start_list[index].split("-")[1])
                                 start_day = int(start_list[index].split("-")[2])
+                    # less common scenario where we have: yyyy-mm
+                    elif len(start_list) == 2:
+                        if len(start_list[0]) == 4 and len(start_list[1]) == 2:
+                            start_year = int(start_list[0])
+                            start_month = int(start_list[1]) if int(start_list[1]) <= 12 else None
+
 
                     elif len(start_list) == 1:
                         start_list = start.split(" ")
@@ -295,6 +387,12 @@ def import_xml():
                                 end_month = int(end_list[index].split("-")[1])
                                 end_day = int(end_list[index].split("-")[2])
 
+                    # less common scenario where we have: yyyy-mm
+                    elif len(end_list) == 2:
+                        if len(end_list[0]) == 4 and len(end_list[1]) == 2:
+                            end_year = int(end_list[0])
+                            end_month = int(end_list[1]) if int(end_list[1]) <= 12 else None
+
                     elif len(end_list) == 1:
                         end_list = end.split(" ")
                         # simple yyyy etc
@@ -335,22 +433,28 @@ def import_xml():
                 if series:
                     notes += " || SERIES: {}".format(series)
                 if suppl_info:
-                    notes += " || SUPPLEMENTAL INFO: {}".format(suppl_info)
+                    notes += " || SUPPLEMENTAL INFO (ENGLISH): {}".format(suppl_info)
+                if suppl_info_fra:
+                    notes += " || SUPPLEMENTAL INFO (FRENCH): {}".format(suppl_info_fra)
 
                 try:
-                    my_resource, created = models.Resource.objects.get_or_create(
-                        uuid=uuid,
-                    )
+                    my_resource, created = models.Resource.objects.get_or_create(uuid=uuid, )
                 except models.Resource.MultipleObjectsReturned:
-                    my_resource = models.Resource.objects.filter(uuid=uuid).first()
-                    created = False
+                    # delete any pre-existing records (ruthless)
+                    models.Resource.objects.filter(uuid=uuid).delete()
+                    # try again
+                    my_resource, created = models.Resource.objects.get_or_create(uuid=uuid, )
+
 
                 if created:
                     print("creating new record", uuid)
 
-                my_resource.title_eng = title,
+                my_resource.title_eng = title
+                my_resource.title_fre = title_fra if title_fra else None
                 my_resource.purpose_eng = ' '.join(purpose.split()) if purpose else None
+                my_resource.purpose_fre = ' '.join(purpose_fra.split()) if purpose_fra else None
                 my_resource.descr_eng = ' '.join(desc.split()) if desc else None
+                my_resource.descr_fre = ' '.join(desc_fra.split()) if desc_fra else None
                 my_resource.geo_descr_eng = ' '.join(geo_desc.split()) if geo_desc else None
                 my_resource.section_id = section_id
                 my_resource.notes = ' '.join(notes.split()) if notes else None
@@ -401,7 +505,7 @@ def import_xml():
                                     try:
                                         my_kw = models.Keyword.objects.get(text_value_eng__icontains=kw_text)
                                         # print('good!', my_kw)
-                                    except models.Keyword.DoesNotExist:
+                                    except (models.Keyword.DoesNotExist, ValueError):
                                         print("bad topic:", kw_text)
                                         # my_kw = models.Keyword.objects.create(
                                         #     text_value_eng=kw_text,
@@ -435,7 +539,7 @@ def import_xml():
                                     my_role = models.PersonRole.objects.get(role__istartswith=xml_role[:3])
                                 except models.PersonRole.DoesNotExist:
                                     try:
-                                        my_role = models.PersonRole.objects.get(code__iexact=xml_role[:3])
+                                        my_role = models.PersonRole.objects.get(code__iexact=xml_role)
                                     except models.PersonRole.DoesNotExist:
                                         print("bad role:", xml_role, "need to create a new one.")
                                         my_role = models.PersonRole.objects.create(
@@ -579,3 +683,18 @@ def import_xml():
     print(set(time_period_list))
     print(set(org_list))
     print(count, "records added")
+
+
+
+def add_custodian():
+    # section_id = 52  # elliott
+    # section_id = 51  # kevin
+    # section_id = 59 # mike
+    section_id = 60  # shelley
+
+    for record in models.Resource.objects.filter(section_id=section_id):
+        models.ResourcePerson.objects.get_or_create(
+            person_id=322,
+            resource=record,
+            role_id=1,
+        )

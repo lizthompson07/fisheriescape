@@ -1664,10 +1664,8 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
     def get_form_class(self):
         my_project = self.get_object().project
         if is_section_head(self.request.user, my_project):
-            print(123)
             return forms.StatusReportSectionHeadForm
         else:
-            print(321)
             return forms.StatusReportForm
 
     def get_initial(self):
