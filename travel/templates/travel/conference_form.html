@@ -9,7 +9,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:conf_list' %}">Conferences</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:conf_list' %}">Conferences / Meetings</a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>

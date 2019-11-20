@@ -1,0 +1,31 @@
+{% load i18n %}
+{% load verbose_names %}
+{#<table class='table table-bordered' style='font-size: small'>#}
+{#{{ child.cost_breakdown_html }}#}
+
+
+<b>{% get_verbose_label child "air" %}</b> = {% get_field_value child "air" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "rail" %}</b> = {% get_field_value child "rail" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "rental_motor_vehicle" %}</b> = {% get_field_value child "rental_motor_vehicle" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "personal_motor_vehicle" %}</b> = {% get_field_value child "personal_motor_vehicle" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "taxi" %}</b> = {% get_field_value child "taxi" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "other_transport" %}</b> = {% get_field_value child "other_transport" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "accommodations" %}</b> = {% get_field_value child "accommodations" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "meals" %}</b> = {% get_field_value child "meals" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "incidentals" %}</b> = {% get_field_value child "incidentals" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "registration" %}</b> = {% get_field_value child "registration" format="currency" nullmark="n/a"%}
+<br>
+<b>{% get_verbose_label child "other" %}</b> = {% get_field_value child "other" format="currency" nullmark="n/a"%}
+<br>
+
+
+{#</table>#}

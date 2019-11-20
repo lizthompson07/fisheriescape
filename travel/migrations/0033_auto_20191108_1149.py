@@ -25,12 +25,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='trip',
             name='departure_location',
-            field=models.CharField(blank=True, max_length=1000, null=True, verbose_name='departure location (city / province / country)'),
+            field=models.CharField(blank=True, max_length=1000, null=True, verbose_name='departure location (city, province, country)'),
         ),
         migrations.AlterField(
             model_name='trip',
             name='destination',
-            field=models.CharField(blank=True, max_length=1000, null=True, verbose_name='destination location (city / province / country)'),
+            field=models.CharField(blank=True, max_length=1000, null=True, verbose_name='destination location (city, province, country)'),
         ),
         migrations.AlterField(
             model_name='trip',

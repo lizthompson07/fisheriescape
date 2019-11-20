@@ -2,10 +2,17 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
+{% load custom_filters %}
 {% block header %}
 {% endblock %}
 {% block content %}
 
+    <style>
+        input.cost {
+            font-size: small;
+            width: 100%;
+        }
+    </style>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -46,7 +53,7 @@
             {% if field.name == "conference" %}
                 <div class="conference_container">
                     {% bootstrap_field field placeholder="" %}
-                    (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new event</a>)
+                    (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new conference / meeting</a>)
                     <br><br>
                 </div>
             {% elif field.name == "is_group_trip" %}
@@ -58,10 +65,28 @@
                         </em>
                     </p>
                 </div>
+            {% elif field.name == "is_international" %}
+                {% bootstrap_field field placeholder="" %}
+                <div class="show-me-intl blue-font">
+                    <p>
+                        <em>
+                            {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
+                        </em>
+                    </p>
+                </div>
             {% elif field.name == "role" %}
                 <div class="conference_container">
                     {% bootstrap_field field placeholder="" %}
                 </div>
+            {% elif field.name == "address" %}
+                {#                343 Université Avenue, Moncton, NB, E1C 9B6#}
+                {% bootstrap_field field placeholder="" %}
+                <span style="font-size: small">Predefined addresses:</span><br>
+                <a href="#" class="btn btn-sm btn-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
+                <a href="#" class="btn btn-sm btn-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
+                <a href="#" class="btn btn-sm btn-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
+                <br>
+                <br>
             {% elif field.name == "role_of_participant" %}
                 <div class="conference_container">
                     {% bootstrap_field field placeholder="" %}
@@ -70,6 +95,9 @@
                 <div class="event_container">
                     {% bootstrap_field field placeholder="" %}
                 </div>
+            {% elif "cost" in field.field.widget.attrs|lookup:"class" %}
+
+
             {% else %}
 
                 {% bootstrap_field field placeholder="" %}
@@ -78,7 +106,41 @@
                 </div>
             {% endif %}
             {% endfor %}
+            <br>
+            <div class="hide-me">
+                <h4>{% trans "Breakdown of Trip Costs" %}</h4>
+                <div class="show-me-intl blue-font">
+                    <p>
+                        <em>
+                            {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
+                        </em>
+                    </p>
+                </div>
+                <table class="table table-bordered" style="font-size: small ">
 
+                    <tr>
+                        {% for field in form %}
+                            {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                                <th>
+                                    {{ field.label }}
+                                </th>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for field in form %}
+                            {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                                <td>
+                                    {{ field }}
+{#                                    {% bootstrap_field field show_label=False placeholder="CAD" %}#}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+
+                </table>
+
+            </div>
 
 
             {% buttons %}
@@ -125,6 +187,14 @@
             }
         }
 
+        function refreshIntl() {
+            if ($("#id_is_international").val() == "False") {
+                $(".show-me-intl").addClass("gone");
+            } else {
+                $(".show-me-intl").removeClass("gone");
+            }
+        }
+
         function refreshEvent() {
             if ($("#id_has_event_template").val() == "false") {
                 $("#id_event_lead").val("").prop("disabled", true);
@@ -157,6 +227,10 @@
             refreshConference();
         });
 
+        $("#id_is_international").change(function () {
+            refreshIntl();
+        });
+
         $("#id_is_group_trip").change(function () {
             refreshClassHideMe();
         });
@@ -166,6 +240,7 @@
             refreshUserInfo();
             refreshConference();
             refreshEvent();
+            refreshIntl();
             refreshClassHideMe();
             // do not make these fields required, otherwise we will not see the form errors if omitted
             $("#id_user").prop("required", false);
@@ -175,7 +250,22 @@
         $("#new_event").click(function () {
             $("#id_stay_on_page").val(1);
             $("form").submit();
-        })
+        });
+
+        $(".address-btn").click(function (e) {
+            e.preventDefault();
+            $myBtn = $(this);
+            $("#id_address").val($myBtn.text());
+        });
+
+        $("#id_reason").change(function () {
+          var myVal = $(this).val()
+            // if the reason is for a meeting or conference, we already know the answer to the below question of `id_is_conference`
+          if(myVal == '2' || myVal == '4') {
+              $("#id_is_conference").val('True');
+              refreshConference();
+          }  
+        });
 
     </script>
 {% endblock %}
