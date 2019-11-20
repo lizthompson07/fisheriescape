@@ -173,12 +173,12 @@ def get_app_dict(request):
     try:
         app_dict["travel"] = {
             "title": _("Travel Management System"),
-            "description": _("Gulf region travel management tool."),
+            "description": _("Regional travel management tool."),
             "status": "beta",
             "access": "permission-required",
             "url": reverse('travel:index'),
             "icon_path": 'img/icons/paper-plane.svg',
-            "region": "regional",
+            "region": "all",
         }
     except NoReverseMatch:
         pass

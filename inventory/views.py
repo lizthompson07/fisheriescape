@@ -92,7 +92,14 @@ class ResourceListView(FilterView):
     template_name = 'inventory/resource_list.html'
     # queryset = models.Resource.objects.all().order_by("-status", "title_eng")
     queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
-        search_term=Concat('title_eng', 'descr_eng', 'purpose_eng', output_field=TextField()))
+        search_term=Concat('title_eng',
+                           Value(" "),
+                           'descr_eng',
+                           Value(" "),
+                           'purpose_eng',
+                           Value(" "),
+                           'uuid',
+                           output_field=TextField()))
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -1552,7 +1559,7 @@ def export_batch_xml(request, sections):
 # this is a temp view DJF created to walkover the `program` field to the new `programs` field
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_inventory_dm_group, login_url='/accounts/denied/')
-def temp_formset(request):
+def temp_formset(request, section):
     context = {}
     # if the formset is being submitted
     if request.method == 'POST':
@@ -1569,7 +1576,7 @@ def temp_formset(request):
     else:
         # prep the formset...for display
         formset = forms.TempFormSet(
-            queryset=models.Resource.objects.filter(Q(section_id=51)|Q(section_id=52)).order_by("section")
+            queryset=models.Resource.objects.filter(section_id=section).order_by("section")
         )
     context['formset'] = formset
     context['my_object'] = models.Resource.objects.first()

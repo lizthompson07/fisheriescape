@@ -51,12 +51,12 @@
 
 
                 <td>
-                    <a class="person-delete-me" href="#" val="{{ obj.id }}">
+                    <a class="person-delete-me stop" href="#" val="{{ obj.id }}">
                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                              title="Delete">
                     </a>
                     <a id="person-secrect-delete-btn-{{ obj.id }}"
-                       href="{% url 'ihub:ep_delete' obj.id %}" class="hidden"></a>
+                       href="{% url 'ihub:ep_delete' obj.id %}" class="hidden stop"></a>
                 </td>
             </tr>
         {% endfor %}

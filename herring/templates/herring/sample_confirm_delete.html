@@ -46,22 +46,13 @@
         <h4>Sample Details:</h4>
         <br>
         <p>
-            <span class="label">{% get_verbose_field_name object "id" %}:</span>
-            <span class="value">{{ object.id }}</span> <br>
-
-            <span class="label">Date of sample collection:</span>
-            <span class="value">{{ object.sample_date|date:"F d, Y" }}</span> <br>
-
-            <span class="label">{% get_verbose_field_name object "sampler_ref_number" %}:</span>
-            <span class="value">{{ object.sampler_ref_number }}</span> <br>
-
-            <span class="label">Collected by: </span>
-            <span class="value">{{ object.sampler }}</span> <br>
-
-            <span class="label">District: </span>
-            <span class="value">{{ object.district.id }}</span> <br>
-
-            <span class="label">Actual number of lab samples: </span>
+            {% verbose_field_display object "id" %}
+            {% verbose_field_display object "sampler_ref_number" %}
+            {% verbose_field_display object "sample_date" %}
+            {% verbose_field_display object "sampler" %}
+            {% verbose_field_display object "port" %}
+            <br><br>
+            <span class="label">Actual number of lab samples: </span><br>
             <span class="value">
       {{ object.fish_details.count }} <br>
     </span>
