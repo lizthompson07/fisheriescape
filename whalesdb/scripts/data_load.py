@@ -15,7 +15,7 @@ def get_id(model, sort):
 
 def load_crs(file_name):
     file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
-    model = models.CrsCruises
+    model = models.CrsCruise
 
     file = open(file_path, "r")
     first = True
@@ -32,7 +32,7 @@ def load_crs(file_name):
 
 def load_prj(file_name):
     file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
-    model = models.PrjProjects
+    model = models.PrjProject
     print("file: " + file_path)
 
     file = open(file_path, "r")
@@ -44,9 +44,12 @@ def load_prj(file_name):
 
         data = line.strip().split(',')
         if not model.objects.filter(prj_name=data[0]):
-            model(prj_name=data[0],
-                  prj_descrption=(None if data[1]=='' else data[1]),
-                  prj_url=(None if data[2]=='' else data[2])).save()
+            try:
+                model(prj_name=data[0],
+                      prj_description=(None if data[1] == '' else data[1]),
+                      prj_url=(None if data[2] == '' else data[2])).save()
+            except:
+                print("Could not load project: " + str(data))
 
 
 def load_rtt(file_name):
@@ -94,7 +97,7 @@ def load_set(file_name):
 
 def load_stn(file_name):
     file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
-    model = models.StnStations
+    model = models.StnStation
     print("file: " + file_path)
 
     file = open(file_path, "r")
@@ -124,7 +127,7 @@ def load_stn(file_name):
 
 def load_tea(file_name):
     file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
-    model = models.TeaTeamMembers
+    model = models.TeaTeamMember
     print("file: " + file_path)
 
     file = open(file_path, "r")
@@ -229,7 +232,7 @@ def load_emm(file_name):
                 try:
                     emm = model.objects.get(emm_make=emm_make, emm_model=emm_model)
                     prm = models.PrmParameterCode.objects.get(prm_name=data[5])
-                    models.EprEquipmentParameters(emm=emm, prm=prm).save()
+                    models.EprEquipmentParameter(emm=emm, prm=prm).save()
                     print("prams added to '" + str(emm) + "'")
                 except models.PrmParameterCode.DoesNotExist:
                     print("Could not add parameter '" + data[4] + "' to equipment '" + str(emm) + "'")
@@ -239,7 +242,7 @@ def load_emm(file_name):
 
 def load_ecp(file_name):
     file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
-    model = models.EcpChannelProperties
+    model = models.EcpChannelProperty
     print("file: " + file_path)
 
     file = open(file_path, "r")
@@ -266,7 +269,7 @@ def load_ecp(file_name):
                 ecp_gain = data[6] if data[6] else None
 
                 print("Setting Channel properties for '" + str(emm) + "'")
-                models.EcpChannelProperties(emm=emm, ecp_channel_no=ecp_channel_no, eqa_adc_bits=eqa_adc_bits,
+                models.EcpChannelProperty(emm=emm, ecp_channel_no=ecp_channel_no, eqa_adc_bits=eqa_adc_bits,
                                             ecp_voltage_range_min=ecp_voltage_range_min,
                                             ecp_voltage_range_max=ecp_voltage_range_max, ecp_gain=ecp_gain).save()
         except models.EmmMakeModel.DoesNotExist:
