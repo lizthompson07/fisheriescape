@@ -12,13 +12,13 @@ def get_short_labels(for_model):
     # You can override the longer more descriptive labels from get_descriptions()
     # here. If not overriden the else clause will just call get_descriptions()
 
-    if for_model is models.EqhHydrophoneProperties:
+    if for_model is models.EqhHydrophoneProperty:
         labels = {
             'emm': _("Make & Model"),
             'eqh_range_min': _("Bottom frequency"),
             'eqh_range_max': _("Top frequency"),
         }
-    elif for_model is models.EcpChannelProperties:
+    elif for_model is models.EcpChannelProperty:
         labels = {
             'ecp_channel_no': _("Channel number"),
             'eqa_adc_bits': _("ADC Bits"),
@@ -26,16 +26,16 @@ def get_short_labels(for_model):
             'ecp_voltage_range_max': _("Voltage Range Maximum"),
             'ecp_gain': _("Gain in dB."),
         }
-    elif for_model is models.EprEquipmentParameters:
+    elif for_model is models.EprEquipmentParameter:
         labels = {
             'prm': _("Equipment Parameters"),
         }
-    elif for_model is models.RscRecordingSchedules:
+    elif for_model is models.RscRecordingSchedule:
         labels = {
             'rsc_name': _("Schedule Name"),
             'rsc_period': _("Period"),
         }
-    elif for_model is models.StnStations:
+    elif for_model is models.StnStation:
         labels = {
             'stn_name': _('Name'),
             'stn_code': _('Code'),
@@ -53,7 +53,7 @@ def get_short_labels(for_model):
 
 def get_descriptions(for_model):
     labels = {}
-    if for_model is models.CrsCruises:
+    if for_model is models.CrsCruise:
         labels = {
             'crs_name': _('Cruise Name'),
             'crs_pi_name': _('Principal Investigator Name'),
@@ -63,7 +63,7 @@ def get_descriptions(for_model):
             'crs_end_date': _('End Date'),
             'crs_notes': _('Cruise Notes'),
         }
-    elif for_model is models.DepDeployments:
+    elif for_model is models.DepDeployment:
         labels = {
             'dep_year': _('Deployment Year'),
             'dep_month': _('Deployment Month'),
@@ -72,13 +72,13 @@ def get_descriptions(for_model):
             'prj': _('Project'),
             'mor': _('Mooring Setup'),
         }
-    elif for_model is models.EdaEquipmentAttachments:
+    elif for_model is models.EdaEquipmentAttachment:
         labels = {
             "eqp": _("Equipment"),
             "dep": _("Deployment"),
             "rec": _("Recording Event"),
         }
-    elif for_model is models.EcpChannelProperties:
+    elif for_model is models.EcpChannelProperty:
         labels = {
             'ecp_channel_no': _("Channel number"),
             'eqa_adc_bits': _("ADC Bits represented in this channel"),
@@ -86,7 +86,7 @@ def get_descriptions(for_model):
             'ecp_voltage_range_max': _("Voltage Range Maximum"),
             'ecp_gain': _("How much a channel is amplified in dB."),
         }
-    elif for_model is models.EhaHydrophoneAttachements:
+    elif for_model is models.EhaHydrophoneAttachement:
         labels = {
             "eda": _("Equipment Attached To"),
             "eqp": _("Hydrophone"),
@@ -104,11 +104,11 @@ def get_descriptions(for_model):
             'eqa_id': _('Code ID'),
             'eqa_name': _('Code Value'),
         }
-    elif for_model is models.EprEquipmentParameters:
+    elif for_model is models.EprEquipmentParameter:
         labels = {
             'prm': _("The parameter type attached to a piece of equipment"),
         }
-    elif for_model is models.EqhHydrophoneProperties:
+    elif for_model is models.EqhHydrophoneProperty:
         labels = {
             'eqh_range_min': _("Bottom frequency in the functional flat range of the hydrophone in Hz (+-3 dB unless "
                                "stated in notes)"),
@@ -128,7 +128,7 @@ def get_descriptions(for_model):
             'eqt_id': _("Equipment Type Code ID"),
             'eqt_name': _("Equipment Type Code Name"),
         }
-    elif for_model is models.MorMooringSetups:
+    elif for_model is models.MorMooringSetup:
         labels = {
             'mor_name': _('Mooring Setup Name'),
             'mor_max_depth': _('Max Depth'),
@@ -142,13 +142,13 @@ def get_descriptions(for_model):
             'prm_id': _('Parameter ID'),
             'prm_name': _('Parameter Name'),
         }
-    elif for_model is models.PrjProjects:
+    elif for_model is models.PrjProject:
         labels = {
             'prj_name': _('Project Name'),
             'prj_descrption': _('Project Description'),
             'prj_url': _('Project URL'),
         }
-    elif for_model is models.RecRecordingEvents:
+    elif for_model is models.RecRecordingEvent:
         labels = {
             'rsc': _("Recording schedule associated with this recording event"),
             'tea_id_setup_by': _("Team member who programmed the recording setup"),
@@ -172,7 +172,7 @@ def get_descriptions(for_model):
             'rec_first_in_water': _("First in water recording"),
             'rec_last_in_water': _("Last in water recording"),
         }
-    elif for_model is models.RscRecordingSchedules:
+    elif for_model is models.RscRecordingSchedule:
         labels = {
             'rsc_name': _("A human readable name for this duty cycle if it is to be used as a preset configuration"),
             'rsc_period': _("Unit of time before the recording schedul repeats (seconds)"),
@@ -199,7 +199,7 @@ def get_descriptions(for_model):
             'set_name': _('Station Event Code Name'),
             'set_description': _('Station Event Code Description'),
         }
-    elif for_model is models.SteStationEvents:
+    elif for_model is models.SteStationEvent:
         labels = {
             'dep': _('Deployment'),
             'set_type': _('Event Type'),
@@ -217,7 +217,7 @@ def get_descriptions(for_model):
             'ste_logs': _('Event Log Location'),
             'ste_notes': _('Event Notes'),
         }
-    elif for_model is models.StnStations:
+    elif for_model is models.StnStation:
         labels = {
             'stn_name': _('Station Name'),
             'stn_code': _('Code or abbreviation used for a station'),
@@ -227,7 +227,7 @@ def get_descriptions(for_model):
             'stn_planned_depth': _('Planned Depth'),
             'stn_notes': _('Station Notes'),
         }
-    elif for_model is models.TeaTeamMembers:
+    elif for_model is models.TeaTeamMember:
         labels = {
             'tea_abb': _("Short Name of the team member"),
             'tea_last_name': _("Last Name of the team member"),
@@ -242,7 +242,7 @@ def get_descriptions(for_model):
 class CrsForm(forms.ModelForm):
 
     class Meta:
-        model = models.CrsCruises
+        model = models.CrsCruise
         labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
@@ -255,7 +255,7 @@ class CrsForm(forms.ModelForm):
 class DepForm(forms.ModelForm):
 
     class Meta:
-        model = models.DepDeployments
+        model = models.DepDeployment
         labels = get_descriptions(model)
         fields = labels.keys()
 
@@ -263,7 +263,7 @@ class DepForm(forms.ModelForm):
 class EdaForm(forms.ModelForm):
 
     class Meta:
-        model = models.EdaEquipmentAttachments
+        model = models.EdaEquipmentAttachment
         labels = get_descriptions(model)
         fields = labels.keys()
 
@@ -271,7 +271,7 @@ class EdaForm(forms.ModelForm):
 class EdhForm(forms.ModelForm):
 
     class Meta:
-        model = models.EhaHydrophoneAttachements
+        model = models.EhaHydrophoneAttachement
         labels = get_descriptions(model)
         fields = labels.keys()
 
@@ -285,7 +285,7 @@ class EcpChannelPropertiesForm(forms.ModelForm):
         return super().get_initial_for_field(field, field_name)
 
     class Meta:
-        model = models.EcpChannelProperties
+        model = models.EcpChannelProperty
         labels = get_descriptions(model)
         fields = labels.keys()
 
@@ -293,7 +293,7 @@ class EcpChannelPropertiesForm(forms.ModelForm):
 class EprForm(forms.ModelForm):
 
     class Meta:
-        model = models.EprEquipmentParameters
+        model = models.EprEquipmentParameter
         labels = get_descriptions(model)
         fields = labels.keys()
 
@@ -350,7 +350,7 @@ class EqhForm(forms.ModelForm):
     emm_description = forms.CharField(max_length=500, label=_("Short description of the piece of equipment"))
 
     class Meta:
-        model = models.EqhHydrophoneProperties
+        model = models.EqhHydrophoneProperty
 
         p_lbls = get_descriptions(models.EmmMakeModel)
         fields = list(p_lbls.keys())
@@ -413,7 +413,7 @@ class EqtForm(forms.ModelForm):
 class MorForm(forms.ModelForm):
 
     class Meta:
-        model = models.MorMooringSetups
+        model = models.MorMooringSetup
         labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
@@ -437,7 +437,7 @@ class PrmForm(forms.ModelForm):
 class PrjForm(forms.ModelForm):
 
     class Meta:
-        model = models.PrjProjects
+        model = models.PrjProject
         labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
@@ -448,7 +448,7 @@ class PrjForm(forms.ModelForm):
 class RecForm(forms.ModelForm):
 
     class Meta:
-        model = models.RecRecordingEvents
+        model = models.RecRecordingEvent
         labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
@@ -465,7 +465,7 @@ class RecForm(forms.ModelForm):
 class RscForm(forms.ModelForm):
 
     class Meta:
-        model = models.RscRecordingSchedules
+        model = models.RscRecordingSchedule
         labels = get_descriptions(model)
         fields = labels.keys()
 
@@ -504,7 +504,7 @@ class SetForm(forms.ModelForm):
 class SteForm(forms.ModelForm):
 
     class Meta:
-        model = models.SteStationEvents
+        model = models.SteStationEvent
         labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
@@ -519,7 +519,7 @@ class SteForm(forms.ModelForm):
 class StnForm(forms.ModelForm):
 
     class Meta:
-        model = models.StnStations
+        model = models.StnStation
         labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
@@ -530,6 +530,6 @@ class StnForm(forms.ModelForm):
 class TeaForm(forms.ModelForm):
 
     class Meta:
-        model = models.TeaTeamMembers
+        model = models.TeaTeamMember
         labels = get_descriptions(model)
         fields = labels.keys()

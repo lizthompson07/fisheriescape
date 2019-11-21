@@ -8,7 +8,7 @@
 from django.db import models
 
 
-class CrsCruises(models.Model):
+class CrsCruise(models.Model):
     crs_id = models.AutoField(primary_key=True)
     crs_name = models.CharField(unique=True, max_length=50)
     crs_pi_name = models.CharField(max_length=50, blank=True, null=True)
@@ -22,14 +22,14 @@ class CrsCruises(models.Model):
         return "{} : {} - {}".format(self.crs_name, self.crs_start_date, self.crs_end_date)
 
 
-class DepDeployments(models.Model):
+class DepDeployment(models.Model):
     dep_id = models.AutoField(primary_key=True)
     dep_year = models.BigIntegerField()
     dep_month = models.BigIntegerField()
     dep_name = models.CharField(max_length=255)
-    stn = models.ForeignKey('StnStations', models.DO_NOTHING)
-    prj = models.ForeignKey('PrjProjects', models.DO_NOTHING)
-    mor = models.ForeignKey('MorMooringSetups', models.DO_NOTHING)
+    stn = models.ForeignKey('StnStation', models.DO_NOTHING)
+    prj = models.ForeignKey('PrjProject', models.DO_NOTHING)
+    mor = models.ForeignKey('MorMooringSetup', models.DO_NOTHING)
 
     def __str__(self):
         return "{}".format(self.dep_name)
@@ -50,7 +50,7 @@ class EccCalibrationValue(models.Model):
     ecc_sensitivity = models.DecimalField(max_digits=10, decimal_places=6)
 
 
-class EcpChannelProperties(models.Model):
+class EcpChannelProperty(models.Model):
     ecp_id = models.AutoField(primary_key=True)
     emm = models.ForeignKey('EmmMakeModel', models.DO_NOTHING)
     ecp_channel_no = models.BigIntegerField()
@@ -63,16 +63,16 @@ class EcpChannelProperties(models.Model):
         unique_together = (('ecp_channel_no', 'emm'),)
 
 
-class EdaEquipmentAttachments(models.Model):
+class EdaEquipmentAttachment(models.Model):
     eda_id = models.AutoField(primary_key=True)
     eqp = models.ForeignKey('EqpEquipment', models.DO_NOTHING)
-    dep = models.ForeignKey(DepDeployments, models.DO_NOTHING)
-    rec = models.ForeignKey('RecRecordingEvents', models.DO_NOTHING)
+    dep = models.ForeignKey(DepDeployment, models.DO_NOTHING)
+    rec = models.ForeignKey('RecRecordingEvent', models.DO_NOTHING)
 
 
-class EhaHydrophoneAttachements(models.Model):
+class EhaHydrophoneAttachement(models.Model):
     eha_id = models.AutoField(primary_key=True)
-    eda = models.ForeignKey(EdaEquipmentAttachments, models.DO_NOTHING)
+    eda = models.ForeignKey(EdaEquipmentAttachment, models.DO_NOTHING)
     eqp = models.ForeignKey('EqpEquipment', models.DO_NOTHING)
 
     class Meta:
@@ -91,7 +91,7 @@ class EmmMakeModel(models.Model):
         return "{} {}".format(self.emm_make, self.emm_model)
 
 
-class EprEquipmentParameters(models.Model):
+class EprEquipmentParameter(models.Model):
     epr_id = models.AutoField(primary_key=True)
     emm = models.ForeignKey(EmmMakeModel, models.DO_NOTHING)
     prm = models.ForeignKey('PrmParameterCode', models.DO_NOTHING)
@@ -108,7 +108,7 @@ class EqaAdcBitsCode(models.Model):
         return "{}".format(self.eqa_name)
 
 
-class EqhHydrophoneProperties(models.Model):
+class EqhHydrophoneProperty(models.Model):
     emm = models.OneToOneField(EmmMakeModel, models.DO_NOTHING, primary_key=True)
     eqh_range_min = models.BigIntegerField()
     eqh_range_max = models.BigIntegerField()
@@ -134,7 +134,7 @@ class EqtEquipmentTypeCode(models.Model):
         return "{}".format(self.eqt_name)
 
 
-class MorMooringSetups(models.Model):
+class MorMooringSetup(models.Model):
     mor_id = models.AutoField(primary_key=True)
     mor_name = models.CharField(unique=True, max_length=50)
     mor_max_depth = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True)
@@ -147,7 +147,7 @@ class MorMooringSetups(models.Model):
         return "{}".format(self.mor_name)
 
 
-class PrjProjects(models.Model):
+class PrjProject(models.Model):
     prj_id = models.AutoField(primary_key=True)
     prj_name = models.CharField(unique=True, max_length=255)
     prj_descrption = models.CharField(max_length=4000, blank=True, null=True)
@@ -165,13 +165,13 @@ class PrmParameterCode(models.Model):
         return "{}".format(self.prm_name)
 
 
-class RecRecordingEvents(models.Model):
+class RecRecordingEvent(models.Model):
     rec_id = models.AutoField(primary_key=True)
-    rsc = models.ForeignKey('RscRecordingSchedules', models.DO_NOTHING)
-    tea_id_setup_by = models.ForeignKey('TeaTeamMembers', models.DO_NOTHING, db_column='tea_id_setup_by', blank=True,
+    rsc = models.ForeignKey('RscRecordingSchedule', models.DO_NOTHING)
+    tea_id_setup_by = models.ForeignKey('TeaTeamMember', models.DO_NOTHING, db_column='tea_id_setup_by', blank=True,
                                         null=True, related_name='tea_id_setup_by')
     rec_date_of_system_chk = models.DateField(blank=True, null=True)
-    tea_id_checked_by = models.ForeignKey('TeaTeamMembers', models.DO_NOTHING, db_column='tea_id_checked_by',
+    tea_id_checked_by = models.ForeignKey('TeaTeamMember', models.DO_NOTHING, db_column='tea_id_checked_by',
                                           blank=True, null=True, related_name='tea_id_checked_by')
     rec_date_first_recording = models.DateField(blank=True, null=True)
     rec_date_last_recording = models.DateField(blank=True, null=True)
@@ -180,11 +180,11 @@ class RecRecordingEvents(models.Model):
     rec_lf_mem = models.BigIntegerField(blank=True, null=True)
     rec_date_data_download = models.DateField(blank=True, null=True)
     rec_data_store_url = models.CharField(max_length=255, blank=True, null=True)
-    tea_id_downloaded_by = models.ForeignKey('TeaTeamMembers', models.DO_NOTHING, db_column='tea_id_downloaded_by',
+    tea_id_downloaded_by = models.ForeignKey('TeaTeamMember', models.DO_NOTHING, db_column='tea_id_downloaded_by',
                                              blank=True, null=True, related_name='tea_id_downloaded_by')
     rec_date_data_backed_up = models.DateField(blank=True, null=True)
     rec_data_backup_url = models.CharField(max_length=255, blank=True, null=True)
-    tea_id_backed_up_by = models.ForeignKey('TeaTeamMembers', models.DO_NOTHING, db_column='tea_id_backed_up_by',
+    tea_id_backed_up_by = models.ForeignKey('TeaTeamMember', models.DO_NOTHING, db_column='tea_id_backed_up_by',
                                             blank=True, null=True, related_name='tea_id_backed_up_by')
     rec_channel_count = models.BigIntegerField(blank=True, null=True)
     rec_notes = models.CharField(max_length=4000, blank=True, null=True)
@@ -193,7 +193,7 @@ class RecRecordingEvents(models.Model):
     rec_last_in_water = models.DateField(blank=True, null=True)
 
 
-class RscRecordingSchedules(models.Model):
+class RscRecordingSchedule(models.Model):
     rsc_id = models.AutoField(primary_key=True)
     rsc_name = models.CharField(max_length=100, blank=True, null=True)
     rsc_period = models.BigIntegerField()
@@ -202,7 +202,7 @@ class RscRecordingSchedules(models.Model):
 class RstRecordingStage(models.Model):
     rst_id = models.AutoField(primary_key=True)
     rst_channel_no = models.BigIntegerField(blank=True, null=True)
-    rsc = models.ForeignKey(RscRecordingSchedules, models.DO_NOTHING)
+    rsc = models.ForeignKey(RscRecordingSchedule, models.DO_NOTHING)
     rst_active = models.CharField(max_length=1)
     rst_duration = models.BigIntegerField()
     rst_rate = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
@@ -225,12 +225,12 @@ class SetStationEventCode(models.Model):
         return "{} - {}".format(self.set_name, self.set_description)
 
 
-class SteStationEvents(models.Model):
+class SteStationEvent(models.Model):
     ste_id = models.AutoField(primary_key=True)
-    dep = models.ForeignKey(DepDeployments, models.DO_NOTHING)
+    dep = models.ForeignKey(DepDeployment, models.DO_NOTHING)
     set_type = models.ForeignKey(SetStationEventCode, models.DO_NOTHING, db_column='set_type')
     ste_date = models.DateField()
-    crs = models.ForeignKey(CrsCruises, models.DO_NOTHING)
+    crs = models.ForeignKey(CrsCruise, models.DO_NOTHING)
     ste_lat_ship = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     ste_lon_ship = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     ste_depth_ship = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True)
@@ -244,7 +244,7 @@ class SteStationEvents(models.Model):
     ste_notes = models.CharField(max_length=4000, blank=True, null=True)
 
 
-class StnStations(models.Model):
+class StnStation(models.Model):
     stn_id = models.AutoField(primary_key=True)
     stn_name = models.CharField(max_length=100)
     stn_code = models.CharField(max_length=3)
@@ -257,7 +257,7 @@ class StnStations(models.Model):
     def __str__(self):
         current = "Past"
 
-        list = StnStations.objects.filter(stn_name=self.stn_name).order_by("-stn_revision").values_list("stn_revision")
+        list = StnStation.objects.filter(stn_name=self.stn_name).order_by("-stn_revision").values_list("stn_revision")
 
         if list[0][0] == self.stn_revision:
             current = "Current"
@@ -265,7 +265,7 @@ class StnStations(models.Model):
         return "{}: {} Revision {} ({})".format(self.stn_code, self.stn_name, self.stn_revision, current)
 
 
-class TeaTeamMembers(models.Model):
+class TeaTeamMember(models.Model):
     tea_id = models.AutoField(primary_key=True)
     tea_abb = models.CharField(max_length=50, blank=True, null=True)
     tea_last_name = models.CharField(max_length=50)
