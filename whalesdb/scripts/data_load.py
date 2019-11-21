@@ -44,9 +44,12 @@ def load_prj(file_name):
 
         data = line.strip().split(',')
         if not model.objects.filter(prj_name=data[0]):
-            model(prj_name=data[0],
-                  prj_descrption=(None if data[1]=='' else data[1]),
-                  prj_url=(None if data[2]=='' else data[2])).save()
+            try:
+                model(prj_name=data[0],
+                      prj_descrption=(None if data[1] == '' else data[1]),
+                      prj_url=(None if data[2] == '' else data[2])).save()
+            except:
+                print("Could not load project: " + str(data))
 
 
 def load_rtt(file_name):
