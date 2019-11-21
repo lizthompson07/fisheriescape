@@ -80,12 +80,12 @@ DATABASES = {
             'init_command': 'SET default_storage_engine=INNODB',
         },
     },
-    'whalesdb': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'DTRAN',
-        'USER': 'whale_amd',
-        'PASSWORD': 'BigSpla3h#',
-        'HOST': 'VSNSBIOD78.ENT.DFO-MPO.CA',
-        'PORT': '1521'
-    },
+    # 'whalesdb': {
+    #     'ENGINE': 'django.db.backends.oracle',
+    #     'NAME': 'DTRAN',
+    #     'USER': 'whale_amd',
+    #     'PASSWORD': 'BigSpla3h#',
+    #     'HOST': 'VSNSBIOD78.ENT.DFO-MPO.CA',
+    #     'PORT': '1521'
+    # },
 }
