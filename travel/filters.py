@@ -19,13 +19,14 @@ from . import models
 chosen_js = {"class": "chosen-select-contains"}
 
 
-class EventFilter(django_filters.FilterSet):
+class TripFilter(django_filters.FilterSet):
     class Meta:
-        model = models.Event
+        model = models.Trip
         fields = {
             'fiscal_year': ['exact'],
             'trip_title': ['icontains'],
             'section': ['exact'],
+            'status': ['exact'],
             'user': ['exact'],
         }
 
@@ -37,18 +38,18 @@ class EventFilter(django_filters.FilterSet):
                                                            widget=forms.Select(attrs=chosen_js))
 
 
-class RegisteredEventFilter(django_filters.FilterSet):
+class ConferenceFilter(django_filters.FilterSet):
     class Meta:
-        model = models.RegisteredEvent
+        model = models.Conference
         fields = {
             'name': ['icontains'],
             'number': ['icontains'],
         }
 
 
-class EventApprovalFilter(django_filters.FilterSet):
+class TripApprovalFilter(django_filters.FilterSet):
     class Meta:
-        model = models.Event
+        model = models.Trip
         fields = {
-            'waiting_on': ['exact'],
+            # 'waiting_on': ['exact'],
         }

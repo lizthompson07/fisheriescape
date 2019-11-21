@@ -2,13 +2,14 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
+from django.shortcuts import render
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
@@ -91,7 +92,14 @@ class ResourceListView(FilterView):
     template_name = 'inventory/resource_list.html'
     # queryset = models.Resource.objects.all().order_by("-status", "title_eng")
     queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
-        search_term=Concat('title_eng', 'descr_eng', 'purpose_eng', output_field=TextField()))
+        search_term=Concat('title_eng',
+                           Value(" "),
+                           'descr_eng',
+                           Value(" "),
+                           'purpose_eng',
+                           Value(" "),
+                           'uuid',
+                           output_field=TextField()))
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -1542,3 +1550,35 @@ def export_batch_xml(request, sections):
 #             response['Content-Disposition'] = 'inline; filename="iHub export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
 #             return response
 #     raise Http404
+
+
+# TEMP #
+########
+
+
+# this is a temp view DJF created to walkover the `program` field to the new `programs` field
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_inventory_dm_group, login_url='/accounts/denied/')
+def temp_formset(request, section):
+    context = {}
+    # if the formset is being submitted
+    if request.method == 'POST':
+        # choose the appropriate formset based on the `extra` arg
+        formset = forms.TempFormSet(request.POST)
+
+        if formset.is_valid():
+            formset.save()
+            # pass the specimen through the make_flags helper function to assign any QC flags
+
+            # redirect back to the observation_formset with the blind intention of getting another observation
+            return HttpResponseRedirect(reverse("inventory:formset"))
+    # otherwise the formset is just being displayed
+    else:
+        # prep the formset...for display
+        formset = forms.TempFormSet(
+            queryset=models.Resource.objects.filter(section_id=section).order_by("section")
+        )
+    context['formset'] = formset
+    context['my_object'] = models.Resource.objects.first()
+    context['field_list'] = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
+    return render(request, 'inventory/temp_formset.html', context)

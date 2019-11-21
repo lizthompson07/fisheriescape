@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.db.models import TextField, Q, Value
 from django.db.models.functions import Concat
@@ -15,7 +16,7 @@ from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView, ListView
 ###
 from easy_pdf.views import PDFTemplateView
 
@@ -27,6 +28,7 @@ from . import emails
 from . import reports
 from masterlist import models as ml_models
 from shared_models import models as shared_models
+
 
 def get_ind_organizations():
     return ml_models.Organization.objects.filter(grouping__is_indigenous=True)
@@ -47,6 +49,26 @@ class iHubAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
         return in_ihub_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+def in_ihub_edit_group(user):
+    """this group includes the admin group so there is no need to add an admin to this group"""
+    if user:
+        if in_ihub_admin_group(user) or user.groups.filter(name='ihub_edit').count() != 0:
+            return True
+
+
+class iHubEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_ihub_edit_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -123,7 +145,7 @@ class PersonDetailView(SiteLoginRequiredMixin, DetailView):
         return context
 
 
-class PersonUpdateView(iHubAdminRequiredMixin, UpdateView):
+class PersonUpdateView(iHubEditRequiredMixin, UpdateView):
     model = ml_models.Person
     template_name = 'ihub/person_form.html'
     form_class = forms.PersonForm
@@ -139,7 +161,7 @@ class PersonUpdateView(iHubAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk": object.id}))
 
 
-class PersonUpdateViewPopout(iHubAdminRequiredMixin, UpdateView):
+class PersonUpdateViewPopout(iHubEditRequiredMixin, UpdateView):
     template_name = 'ihub/person_form_popout.html'
     model = ml_models.Person
     form_class = forms.PersonForm
@@ -154,7 +176,7 @@ class PersonUpdateViewPopout(iHubAdminRequiredMixin, UpdateView):
         }
 
 
-class PersonCreateView(iHubAdminRequiredMixin, CreateView):
+class PersonCreateView(iHubEditRequiredMixin, CreateView):
     model = ml_models.Organization
     template_name = 'ihub/person_form.html'
     form_class = forms.PersonForm
@@ -169,7 +191,7 @@ class PersonCreateView(iHubAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy('ihub:person_detail', kwargs={"pk": object.id}))
 
 
-class PersonCreateViewPopout(iHubAdminRequiredMixin, CreateView):
+class PersonCreateViewPopout(iHubEditRequiredMixin, CreateView):
     model = ml_models.Person
     template_name = 'ihub/person_form_popout.html'
     form_class = forms.PersonForm
@@ -277,7 +299,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
         return context
 
 
-class OrganizationUpdateView(iHubAdminRequiredMixin, UpdateView):
+class OrganizationUpdateView(iHubEditRequiredMixin, UpdateView):
     model = ml_models.Organization
     template_name = 'ihub/organization_form.html'
     form_class = forms.OrganizationForm
@@ -287,7 +309,7 @@ class OrganizationUpdateView(iHubAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 
-class OrganizationCreateView(iHubAdminRequiredMixin, CreateView):
+class OrganizationCreateView(iHubEditRequiredMixin, CreateView):
     model = ml_models.Organization
     template_name = 'ihub/organization_form.html'
     form_class = forms.OrganizationForm
@@ -311,7 +333,7 @@ class OrganizationDeleteView(iHubAdminRequiredMixin, DeleteView):
 # MEMBER  (ORGANIZATION PERSON) #
 #################################
 
-class MemberCreateView(iHubAdminRequiredMixin, CreateView):
+class MemberCreateView(iHubEditRequiredMixin, CreateView):
     model = ml_models.OrganizationMember
     template_name = 'ihub/member_form_popout.html'
     login_url = '/accounts/login_required/'
@@ -345,7 +367,7 @@ class MemberCreateView(iHubAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
-class MemberUpdateView(iHubAdminRequiredMixin, UpdateView):
+class MemberUpdateView(iHubEditRequiredMixin, UpdateView):
     model = ml_models.OrganizationMember
     template_name = 'ihub/member_form_popout.html'
     form_class = forms.MemberForm
@@ -436,7 +458,7 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
         return context
 
 
-class EntryUpdateView(iHubAdminRequiredMixin, UpdateView):
+class EntryUpdateView(iHubEditRequiredMixin, UpdateView):
     model = models.Entry
     form_class = forms.EntryForm
 
@@ -444,7 +466,7 @@ class EntryUpdateView(iHubAdminRequiredMixin, UpdateView):
         return {'last_modified_by': self.request.user}
 
 
-class EntryCreateView(iHubAdminRequiredMixin, CreateView):
+class EntryCreateView(iHubEditRequiredMixin, CreateView):
     model = models.Entry
     form_class = forms.EntryCreateForm
 
@@ -456,11 +478,12 @@ class EntryCreateView(iHubAdminRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewEntryEmail(object)
         # send the email object
+
         if settings.PRODUCTION_SERVER:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
-            print('not sending email since in dev mode')
+            print(email)
         messages.success(self.request,
                          _("The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!"))
         return HttpResponseRedirect(reverse_lazy('ihub:entry_detail', kwargs={"pk": object.id}))
@@ -485,7 +508,7 @@ class EntryDeleteView(iHubAdminRequiredMixin, DeleteView):
 # NOTES #
 #########
 
-class NoteCreateView(iHubAdminRequiredMixin, CreateView):
+class NoteCreateView(iHubEditRequiredMixin, CreateView):
     model = models.EntryNote
     template_name = 'ihub/note_form_popout.html'
     form_class = forms.NoteForm
@@ -508,7 +531,7 @@ class NoteCreateView(iHubAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
-class NoteUpdateView(iHubAdminRequiredMixin, UpdateView):
+class NoteUpdateView(iHubEditRequiredMixin, UpdateView):
     model = models.EntryNote
     template_name = 'ihub/note_form_popout.html'
     form_class = forms.NoteForm
@@ -519,7 +542,7 @@ class NoteUpdateView(iHubAdminRequiredMixin, UpdateView):
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
 def note_delete(request, pk):
     object = models.EntryNote.objects.get(pk=pk)
     object.delete()
@@ -530,7 +553,7 @@ def note_delete(request, pk):
 # ENTRYPERSON #
 ###############
 
-class EntryPersonCreateView(iHubAdminRequiredMixin, CreateView):
+class EntryPersonCreateView(iHubEditRequiredMixin, CreateView):
     model = models.EntryPerson
     template_name = 'ihub/entry_person_form_popout.html'
     login_url = '/accounts/login_required/'
@@ -553,7 +576,7 @@ class EntryPersonCreateView(iHubAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('ihub:close_me'))
 
 
-class EntryPersonUpdateView(iHubAdminRequiredMixin, UpdateView):
+class EntryPersonUpdateView(iHubEditRequiredMixin, UpdateView):
     model = models.EntryPerson
     template_name = 'ihub/entry_person_form_popout.html'
     form_class = forms.EntryPersonForm
@@ -565,7 +588,7 @@ class EntryPersonUpdateView(iHubAdminRequiredMixin, UpdateView):
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
 def entry_person_delete(request, pk):
     object = models.EntryPerson.objects.get(pk=pk)
     object.delete()
@@ -576,7 +599,7 @@ def entry_person_delete(request, pk):
 # FILE #
 ########
 
-class FileCreateView(iHubAdminRequiredMixin, CreateView):
+class FileCreateView(iHubEditRequiredMixin, CreateView):
     model = models.File
     template_name = 'ihub/file_form_popout.html'
     login_url = '/accounts/login_required/'
@@ -596,7 +619,7 @@ class FileCreateView(iHubAdminRequiredMixin, CreateView):
         return context
 
 
-class FileUpdateView(iHubAdminRequiredMixin, UpdateView):
+class FileUpdateView(iHubEditRequiredMixin, UpdateView):
     model = models.File
     template_name = 'ihub/file_form_popout.html'
     form_class = forms.FileForm
@@ -614,7 +637,7 @@ class FileUpdateView(iHubAdminRequiredMixin, UpdateView):
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
 def file_delete(request, pk):
     object = models.File.objects.get(pk=pk)
     object.delete()
@@ -630,7 +653,7 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
     form_class = forms.ReportSearchForm
 
     def get_initial(self):
-        return {"report_title": _("Consultations Update Log – Government of Canada")}
+        return {"report_title": _("Engagement Update Log – Government of Canada")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -834,7 +857,6 @@ class PDFSummaryReport(PDFTemplateView):
             # apply the filter
             entry_list = entry_list.filter(q_objects)
 
-
         context["entry_list"] = entry_list
 
         # remove any orgs without entries
@@ -913,7 +935,7 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             entry_types = None
 
         # get an entry list for the fiscal year (if any)
-        entry_list = models.Entry.objects.all().order_by("-initial_date")
+        entry_list = models.Entry.objects.all().order_by("sectors","status","-initial_date")
 
         if fy:
             entry_list = models.Entry.objects.filter(fiscal_year=fy)
@@ -1150,3 +1172,53 @@ def manage_nations(request):
     context['title'] = "Manage Nation List"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
+
+
+class UserListView(iHubAdminRequiredMixin, FilterView):
+    template_name = "ihub/user_list.html"
+    filterset_class = filters.UserFilter
+
+    def get_queryset(self):
+        queryset = User.objects.order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(""), 'last_name', output_field=TextField())
+        )
+
+        if self.kwargs.get("ihub"):
+            queryset = queryset.filter(groups__in=[18, 35])
+
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["field_list"] = [
+            "first_name",
+            "last_name",
+            "last_login",
+        ]
+        context["my_object"] = User.objects.first()
+        context["admin_group"] = Group.objects.get(pk=18)
+        context["edit_group"] = Group.objects.get(pk=35)
+
+        return context
+
+
+def toggle_user(request, pk, type):
+    my_user = User.objects.get(pk=pk)
+    admin_group = Group.objects.get(pk=18)
+    edit_group = Group.objects.get(pk=35)
+    if type == "admin":
+        # if the user is in the admin group, remove them
+        if admin_group in my_user.groups.all():
+            my_user.groups.remove(admin_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(admin_group)
+    elif type == "edit":
+        # if the user is in the edit group, remove them
+        if edit_group in my_user.groups.all():
+            my_user.groups.remove(edit_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(edit_group)
+
+    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))

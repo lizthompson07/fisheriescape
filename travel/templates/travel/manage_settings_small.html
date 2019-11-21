@@ -2,6 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load custom_filters %}
 {% load i18n %}
 {% block content %}
     <style>
@@ -23,7 +24,7 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'ihub:index' %}">
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
                 {% trans "Home" %}
             </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
@@ -42,12 +43,13 @@
             {% bootstrap_formset_errors formset %}
             <div class="btn-group">
                 <button id="submit" type="submit" class="btn btn-primary">Save</button>
-                <a class="btn btn-secondary" href="{% url 'projects:index' %}">Back</a>
+                <a class="btn btn-secondary" href="{% url 'travel:index' %}">Back</a>
             </div>
             <br><br>
             <table class="table" style="width: auto">
                 <thead>
                 <tr>
+                    <th>Id</th>
                     {% for field in field_list %}
                         <th scope="col">{% get_verbose_label my_object field %}</th>
                     {% endfor %}
@@ -56,6 +58,7 @@
                 <tbody>
                 {% for form in formset %}
                     <tr>
+                        <td>{{form.instance.id|nz:"---"}}</td>
                         {% for field in form %}
                             <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
                                 {% bootstrap_field field size='small' show_label=False placeholder="" %}
@@ -65,22 +68,8 @@
 
                             <td>
 
-                                {% if "funding" in title|lower %}
-                                    {% url 'projects:delete_funding_source' form.instance.id as my_delete_url %}
-                                {% elif "categories" in title|lower %}
-                                    {% url 'projects:delete_om_cat' form.instance.id as my_delete_url %}
-                                {% elif "employee" in title|lower %}
-                                    {% url 'projects:delete_employee_type' form.instance.id as my_delete_url %}
-                                {% elif "tags" in title|lower %}
-                                    {% url 'projects:delete_tag' form.instance.id as my_delete_url %}
-                                {% elif "status" in title|lower %}
-                                    {% url 'projects:delete_status' form.instance.id as my_delete_url %}
-                                {% elif "help" in title|lower %}
-                                    {% url 'projects:delete_help_text' form.instance.id as my_delete_url %}
-                                {% elif "program" in title|lower %}
-                                    {% url 'projects:delete_program' form.instance.id as my_delete_url %}
-                                {% elif "level" in title|lower %}
-                                    {% url 'projects:delete_level' form.instance.id as my_delete_url %}
+                                {% if "status" in title|lower %}
+                                    {% url 'travel:delete_status' form.instance.id as my_delete_url %}
                                 {% endif %}
 
                                 <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
@@ -98,7 +87,7 @@
 
             <div class="btn-group">
                 <button id="submit" type="submit" class="btn btn-primary">Save</button>
-                <a class="btn btn-secondary" href="{% url 'projects:index' %}">Back</a>
+                <a class="btn btn-secondary" href="{% url 'travel:index' %}">Back</a>
             </div>
 
         </form>

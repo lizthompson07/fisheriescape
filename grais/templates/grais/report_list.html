@@ -1,5 +1,7 @@
 {% extends "grais/grais_base.html" %}
 {% load static %}
+{% load i18n %}
+
 
 {% block content %}
     <div class="container">
@@ -15,7 +17,7 @@
         <br><br>
         <div class="row">
             <div class="col">
-                (click on a header to sort table)
+                {% trans "(click on a header to sort table)" %}
             </div>
             <div class="col" style="text-align: center">
                 <em>displaying all {{ filter.qs.count }} records</em>

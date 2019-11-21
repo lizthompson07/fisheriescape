@@ -18,6 +18,12 @@ $("tr").each(function () {
     }
 });
 
+
+$(".stop").click(function (e) {
+    e.stopImmediatePropagation();
+    e.stopPropagation();
+});
+
 $(".stop-pop").click(function (e) {
     e.stopImmediatePropagation();
     e.preventDefault();

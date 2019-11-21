@@ -29,7 +29,7 @@ def par_delete(request, url, emm_id, prm_id):
         emm = models.EmmMakeModel.objects.get(emm_id=emm_id)
         prm = models.PrmParameterCode.objects.get(prm_id=prm_id)
 
-        prm_obj = models.EprEquipmentParameters.objects.get(emm=emm, prm=prm)
+        prm_obj = models.EprEquipmentParameter.objects.get(emm=emm, prm=prm)
 
         prm_obj.delete()
 
@@ -40,11 +40,11 @@ def par_delete(request, url, emm_id, prm_id):
 # Channel Deletion
 def ecp_delete(request, ecp_id):
     try:
-        ecp = models.EcpChannelProperties.objects.get(ecp_id=ecp_id)
+        ecp = models.EcpChannelProperty.objects.get(ecp_id=ecp_id)
         emm_id = ecp.emm.emm_id
         ecp.delete()
     finally:
-        return HttpResponseRedirect(reverse("whalesdb:details_recorder", kwargs={'pk': emm_id}))
+        return HttpResponseRedirect(reverse("whalesdb:details_eqr", kwargs={'pk': emm_id}))
 
 
 def get_fields(labels):
@@ -84,21 +84,21 @@ def get_model_object(obj_name):
             'entry': obj_name,
             'fields': [_("ID"), _("Value")]
         }
-    elif obj_name == 'prm':
-        obj_def = {
-            'label': "Equipment Parameter",
-            'url': obj_name,
-            'order': "prm_id",
-            'model': models.PrmParameterCode,
-            'entry': obj_name,
-            'fields': [_("ID"), _("Value")]
-        }
     elif obj_name == 'eqt':
         obj_def = {
             'label': "Equipment Type",
             'url': obj_name,
             'order': "eqt_id",
             'model': models.EqtEquipmentTypeCode,
+            'entry': obj_name,
+            'fields': [_("ID"), _("Value")]
+        }
+    elif obj_name == 'prm':
+        obj_def = {
+            'label': "Equipment Parameter",
+            'url': obj_name,
+            'order': "prm_id",
+            'model': models.PrmParameterCode,
             'entry': obj_name,
             'fields': [_("ID"), _("Value")]
         }
@@ -116,7 +116,7 @@ def get_model_object(obj_name):
             'label': "Team Member",
             'url': obj_name,
             'order': "tea_last_name",
-            'model': models.TeaTeamMembers,
+            'model': models.TeaTeamMember,
             'entry': obj_name,
             'fields': [_("ID"), _("Abbv."), _("Last Name"), _("First Name")]
         }
@@ -141,7 +141,7 @@ def get_smart_object(obj_name):
     model object.
 
     obj_def = {
-        'model': models.StnStations, <-- The model represented by the obj_name
+        'model': models.StnStation, <-- The model represented by the obj_name
         'form_class': forms.StationForm, <-- The form to use when the 'Crete New' button is checked on the list page
 
         'filter_class': filters.StnFilter, <-- the filter class to use on the list page
@@ -151,7 +151,7 @@ def get_smart_object(obj_name):
 
     if obj_name == 'crs':
         obj_def = {
-            'model': models.CrsCruises,
+            'model': models.CrsCruise,
             'form_class': forms.CrsForm,
 
             'filter_class': filters.CrsFilter,
@@ -159,7 +159,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'dep':
         obj_def = {
-            'model': models.DepDeployments,
+            'model': models.DepDeployment,
             'form_class': forms.DepForm,
 
             'filter_class': filters.DepFilter,
@@ -167,7 +167,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'eda':
         obj_def = {
-            'model': models.EdaEquipmentAttachments,
+            'model': models.EdaEquipmentAttachment,
             'form_class': forms.EdaForm,
 
             'filter_class': filters.EdaFilter,
@@ -175,7 +175,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'edh':
         obj_def = {
-            'model': models.EhaHydrophoneAttachements,
+            'model': models.EhaHydrophoneAttachment,
             'form_class': forms.EdhForm,
 
             'filter_class': filters.EdhFilter,
@@ -183,7 +183,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'eqh':
         obj_def = {
-            'model': models.EqhHydrophoneProperties,
+            'model': models.EqhHydrophoneProperty,
             'filterset_class': filters.EqhFilter,
 
             'create_link': 'whalesdb:create_eqh',
@@ -200,7 +200,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'mor':
         obj_def = {
-            'model': models.MorMooringSetups,
+            'model': models.MorMooringSetup,
             'form_class': forms.MorForm,
 
             'filter_class': filters.MorFilter,
@@ -208,7 +208,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'prj':
         obj_def = {
-            'model': models.PrjProjects,
+            'model': models.PrjProject,
             'form_class': forms.PrjForm,
 
             'filter_class': filters.PrjFilter,
@@ -216,7 +216,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'rec':
         obj_def = {
-            'model': models.RecRecordingEvents,
+            'model': models.RecRecordingEvent,
             'form_class': forms.RecForm,
 
             'filter_class': filters.RecFilter,
@@ -224,7 +224,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'rsc':
         obj_def = {
-            'model': models.RscRecordingSchedules,
+            'model': models.RscRecordingSchedule,
             'form_class': forms.RscForm,
 
             'filter_class': filters.RscFilter,
@@ -240,7 +240,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'ste':
         obj_def = {
-            'model': models.SteStationEvents,
+            'model': models.SteStationEvent,
             'form_class': forms.SteForm,
 
             'filter_class': filters.SteFilter,
@@ -248,7 +248,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'stn':
         obj_def = {
-            'model': models.StnStations,
+            'model': models.StnStation,
             'form_class': forms.StnForm,
 
             'filter_class': filters.StnFilter,
@@ -366,6 +366,11 @@ class IndexView(TemplateView):
                     {
                         'title': "Recorder",
                         'url': "whalesdb:list_eqr",
+                        'icon': "img/whales/record.svg",
+                    },
+                    {
+                        'title': "General Make&Model",
+                        'url': "whalesdb:list_emm",
                         'icon': "img/whales/record.svg",
                     },
                     {
@@ -508,7 +513,7 @@ class CreatePrmParameter(CreateTemplate):
         emm_id = self.kwargs['emm_id']
         emm = models.EmmMakeModel.objects.get(pk=emm_id)
 
-        epr = models.EprEquipmentParameters(emm=emm, prm=form.cleaned_data['prm'])
+        epr = models.EprEquipmentParameter(emm=emm, prm=form.cleaned_data['prm'])
 
         epr.save()
 
@@ -522,13 +527,13 @@ class CreateChannel(CreateTemplate):
         form.save(commit=False)
 
         emm_id = self.kwargs['emm_id']
-        emm = models.EqrRecorderProperties.objects.get(pk=emm_id)
+        emm = models.EmmMakeModel.objects.get(pk=emm_id)
 
-        ecp = models.EcpChannelProperties(emm=emm, ecp_channel_no=form.cleaned_data['ecp_channel_no'],
-                                          eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
-                                          ecp_voltage_range_min=form.cleaned_data['ecp_voltage_range_min'],
-                                          ecp_voltage_range_max=form.cleaned_data['ecp_voltage_range_max'],
-                                          ecp_gain=form.cleaned_data['ecp_gain'])
+        ecp = models.EcpChannelProperty(emm=emm, ecp_channel_no=form.cleaned_data['ecp_channel_no'],
+                                        eqa_adc_bits=form.cleaned_data['eqa_adc_bits'],
+                                        ecp_voltage_range_min=form.cleaned_data['ecp_voltage_range_min'],
+                                        ecp_voltage_range_max=form.cleaned_data['ecp_voltage_range_max'],
+                                        ecp_gain=form.cleaned_data['ecp_gain'])
 
         ecp.save()
 
@@ -558,6 +563,25 @@ class CreateEMM(CreateChannel):
         return models.EmmMakeModel.objects.all().order_by("-pk")[0]
 
 
+class CreateMakeModel(CreateEMM):
+    form_class = forms.EmmForm
+    success_url = "whalesdb:list_emm"
+    cancel_url = success_url
+
+    def form_valid(self, form):
+        emm = super().form_valid(form)
+
+        print("EQT: " + str(emm.eqt))
+
+        return HttpResponseRedirect(reverse('whalesdb:details_emm', kwargs={'pk': emm.pk}))
+
+
+class CreateRecorder(CreateEMM):
+    form_class = forms.EqrForm
+    success_url = "whalesdb:list_eqr"
+    cancel_url = success_url
+
+
 class CreateHydrophone(CreateEMM):
     form_class = forms.EqhForm
     success_url = "whalesdb:list_eqh"
@@ -566,34 +590,16 @@ class CreateHydrophone(CreateEMM):
     def form_valid(self, form):
         emm = super().form_valid(form)
 
-        eqh = models.EqhHydrophoneProperties(emm=emm,
-                                             eqh_range_min=form.cleaned_data['eqh_range_min'],
-                                             eqh_range_max=form.cleaned_data['eqh_range_max'])
+        eqh = models.EqhHydrophoneProperty(emm=emm,
+                                           eqh_range_min=form.cleaned_data['eqh_range_min'],
+                                           eqh_range_max=form.cleaned_data['eqh_range_max'])
         eqh.save()
 
         return HttpResponseRedirect(reverse('whalesdb:details_eqh', kwargs={'pk': eqh.pk}))
 
 
-class CreateRecorder(CreateEMM):
-    form_class = forms.EqrForm
-
-    # if successful the form takes the user to the details form
-    # if canceled the form takes the user to the recorder list
-    cancel_url = "whalesdb:list_eqr"
-
-    def form_valid(self, form):
-        emm = super().form_valid(form)
-
-        eqr = models.EqrRecorderProperties(emm=emm,
-                                           eqc_max_channels=form.cleaned_data['eqc_max_channels'],
-                                           eqc_max_sample_rate=form.cleaned_data['eqc_max_sample_rate'])
-        eqr.save()
-
-        return HttpResponseRedirect(reverse('whalesdb:details_eqr', kwargs={'pk': eqr.pk}))
-
-
 class CreateDeployment(LoginRequiredMixin, CreateTemplate):
-    model = models.DepDeployments
+    model = models.DepDeployment
     template_name = "whalesdb/create_deployment.html"
     success_url = "#"
     cancel_url = "whalesdb:index"
@@ -617,14 +623,14 @@ class CreateDeployment(LoginRequiredMixin, CreateTemplate):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in models.StnStations.objects.all().order_by('stn_id').values_list()]
+        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in models.StnStation.objects.all().order_by('stn_id').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
         return context
 
 
 class UpdateDeployment(LoginRequiredMixin, UpdateTemplate):
-    model = models.DepDeployments
+    model = models.DepDeployment
     template_name = "whalesdb/create_deployment.html"
     success_url = "#"
     cancel_url = "whalesdb:index"
@@ -633,7 +639,7 @@ class UpdateDeployment(LoginRequiredMixin, UpdateTemplate):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in models.StnStations.objects.all().order_by('stn_id').values_list()]
+        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in models.StnStation.objects.all().order_by('stn_id').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
         return context
@@ -649,46 +655,51 @@ class DetailsMakeModel(DetailView):
         context = super().get_context_data(**kwargs)
         context['objects'] = []
 
-        labels = forms.get_descriptions(models.EmmMakeModel)
-        context['objects'].append({
-            "object": kwargs['object'].emm,
-            "fields": get_fields(labels)
-        })
+        if hasattr(kwargs['object'], 'emm'):
+            labels = forms.get_descriptions(models.EmmMakeModel)
+            context['objects'].append({
+                "object": kwargs['object'].emm,
+                "fields": get_fields(labels)
+            })
 
-        labels = forms.get_short_labels(models.EprEquipmentParameters)
+        labels = forms.get_short_labels(models.EprEquipmentParameter)
         context['parameter_fields'] = get_fields(labels)
-        context['parameter'] = [p for p in models.EprEquipmentParameters.objects.filter(emm=self.get_emm())]
+        context['parameter'] = [p for p in models.EprEquipmentParameter.objects.filter(emm=self.get_emm())]
 
         return context
 
 
 class DetailsRecorder(DetailsMakeModel):
-    model = models.EqrRecorderProperties
+    model = models.EmmMakeModel
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        labels = forms.get_descriptions(models.EqrRecorderProperties)
+        labels = forms.get_descriptions(models.EmmMakeModel)
         context['objects'].append({
             "object": kwargs['object'],
             "fields": get_fields(labels)
         })
 
-        labels = forms.get_short_labels(models.EcpChannelProperties)
+        labels = forms.get_short_labels(models.EcpChannelProperty)
         context['channel_fields'] = get_fields(labels)
-        context['channels'] = [c for c in models.EcpChannelProperties.objects.filter(emm=kwargs['object'])]
-        context['url'] = 'recorder'
+        context['channels'] = [c for c in models.EcpChannelProperty.objects.filter(emm=kwargs['object'])]
+        context['url'] = 'eqr'
+
+        # labels = forms.get_short_labels(models.EprEquipmentParameter)
+        # context['parameter_fields'] = get_fields(labels)
+        # context['parameter'] = [p for p in models.EprEquipmentParameter.objects.filter(emm=kwargs['object'])]
 
         return context
 
 
 class DetailsHydrophone(DetailsMakeModel):
-    model = models.EqhHydrophoneProperties
+    model = models.EqhHydrophoneProperty
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        labels = forms.get_descriptions(models.EqhHydrophoneProperties)
+        labels = forms.get_descriptions(models.EqhHydrophoneProperty)
         context['objects'].append({
             "object": kwargs['object'],
             "fields": get_fields(labels)
@@ -720,16 +731,29 @@ class ListEMM(ListGeneric):
     detail_type = 'emm'
 
 
+class ListMakeModel(ListEMM):
+    model = models.EmmMakeModel
+    filterset_class = filters.EmmFilter
+    detail_type = 'general'
+    create_link = "whalesdb:create_emm"
+    detail_link = "whalesdb:details_emm"
+    title = "General Make & Model"
+
+
 class ListRecorder(ListEMM):
-    model = models.EqrRecorderProperties
-    filterset_class = filters.EqrFilter
+    model = models.EmmMakeModel
+    filterset_class = filters.EmmFilter
+    detail_type = 'general'
     create_link = "whalesdb:create_eqr"
     detail_link = "whalesdb:details_eqr"
     title = "Recorder Equipment"
 
+    def get_queryset(self):
+        return self.model.objects.filter(eqt=1)
+
 
 class ListHydrophone(ListEMM):
-    model = models.EqhHydrophoneProperties
+    model = models.EqhHydrophoneProperty
     filterset_class = filters.EqhFilter
     create_link = "whalesdb:create_eqh"
     detail_link = "whalesdb:details_eqh"
@@ -774,7 +798,6 @@ class SimpleEditView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('whalesdb:close_me')
 
     def get_initial(self):
-        print("init")
         return super().get_initial()
 
     def get_context_data(self, **kwargs):

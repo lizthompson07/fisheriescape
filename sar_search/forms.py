@@ -111,6 +111,31 @@ SARAScheduleFormSet = modelformset_factory(
     extra=1,
 )
 
+class CITESAppendixForm(forms.ModelForm):
+    class Meta:
+        model = models.CITESAppendix
+        fields = "__all__"
+
+
+CITESAppendixFormSet = modelformset_factory(
+    model=models.CITESAppendix,
+    form=CITESAppendixForm,
+    extra=1,
+)
+
+
+class ResponsibleAuthorityForm(forms.ModelForm):
+    class Meta:
+        model = models.ResponsibleAuthority
+        fields = "__all__"
+
+
+ResponsibleAuthorityFormSet = modelformset_factory(
+    model=models.ResponsibleAuthority,
+    form=ResponsibleAuthorityForm,
+    extra=1,
+)
+
 
 class RegionForm(forms.ModelForm):
     class Meta:

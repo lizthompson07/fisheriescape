@@ -1,0 +1,81 @@
+{% extends 'herring/herring_base.html' %}
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <h1>
+            Sedna Length-frequency Import Form:
+        </h1>
+        <ul>
+            <li>
+                the file must be in csv format
+            </li>
+            <li>
+                This function is designed to import a csv export of herring sample length frequency data collected in Sedna
+            </li>
+            <li>
+                the order of the columns in the file is NOT important
+            </li>
+            <li>
+                IT IS ASSUMED THAT ALL THE CORRESPONDING SAMPLES HAVE BEEN ADDED!!
+            </li>
+            <li>
+                the file must have the follow format:
+            </li>
+        </ul>
+
+        <table class="table table-sm table-bordered" style="font-size: small;width:50%">
+            <thead>
+            <th>sample_uuid</th>
+            <th>length_bin</th>
+            <th>count</th>
+            </thead>
+            <tr>
+                <td>
+                    <em>
+                        This is a unique universal identifier assigned to a sample from sedna. This will be stored as the
+                        <code>old_id</code> under the Sample object for historical reference
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        This is the length frequency bin
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        This is the count of the number of fish in that bin for the given sample
+                    </em>
+                </td>
+            </tr>
+
+        </table>
+
+
+        <br><br>
+
+        <form method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+
+                {#                <h2 class="red-font">WARNING: running this function will overwrite any existing points in this record.</h2>#}
+                <h3>Please select the file to upload:</h3>
+                {{ field }}
+            {% endfor %}
+
+            <br>
+            <br>
+
+            <button type="submit" class="btn btn-success">Submit</button>
+            <br>
+            <br>
+            <a class="btn btn-secondary" href="#" onclick="window.close()">Cancel</a>
+
+        </form>
+
+    </div>
+
+{% endblock content %}

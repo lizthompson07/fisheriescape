@@ -1,10 +1,3 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
 
@@ -47,8 +40,8 @@ class EcaCalibrationEvent(models.Model):
     eca_id = models.BigIntegerField(primary_key=True)
     eca_date = models.DateField()
     eca_hydrophone = models.ForeignKey('EqpEquipment', models.DO_NOTHING, related_name='eca_hydrophone')
-    eca_attachement = models.ForeignKey('EqpEquipment', models.DO_NOTHING, blank=True, null=True,
-                                        related_name='eca_attachement')
+    eca_attachment = models.ForeignKey('EqpEquipment', models.DO_NOTHING, blank=True, null=True,
+                                        related_name='eca_attachment')
     eca_notes = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
@@ -68,10 +61,11 @@ class EccCalibrationValue(models.Model):
 
 class EcpChannelProperties(models.Model):
     ecp_id = models.BigIntegerField(primary_key=True)
-    emm = models.ForeignKey('EqrRecorderProperties', models.DO_NOTHING)
+    emm = models.ForeignKey('EmmMakeModel', models.DO_NOTHING)
     ecp_channel_no = models.BigIntegerField()
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', models.DO_NOTHING, db_column='eqa_adc_bits')
-    ecp_voltage_range = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    ecp_voltage_range_min = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    ecp_voltage_range_max = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     ecp_gain = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
@@ -91,7 +85,7 @@ class EdaEquipmentAttachments(models.Model):
         db_table = 'eda_equipment_attachments'
 
 
-class EhaHydrophoneAttachements(models.Model):
+class EhaHydrophoneAttachments(models.Model):
     eha_id = models.BigIntegerField(primary_key=True)
     eda = models.ForeignKey(EdaEquipmentAttachments, models.DO_NOTHING)
     eqp = models.ForeignKey('EqpEquipment', models.DO_NOTHING)
@@ -204,13 +198,13 @@ class MorMooringSetups(models.Model):
         db_table = 'mor_mooring_setups'
 
     def __str__(self):
-        return "{} - {:0.5} m - {} hydrophones".format(self.mor_name, self.mor_max_depth, self.mor_num_hydrophones)
+        return "{}".format(self.mor_name)
 
 
 class PrjProjects(models.Model):
     prj_id = models.BigIntegerField(primary_key=True)
     prj_name = models.CharField(unique=True, max_length=255)
-    prj_descrption = models.CharField(max_length=4000, blank=True, null=True)
+    prj_description = models.CharField(max_length=4000, blank=True, null=True)
     prj_url = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
@@ -354,7 +348,6 @@ class StnStations(models.Model):
         current = "Past"
 
         list = StnStations.objects.filter(stn_name=self.stn_name).order_by("-stn_revision").values_list("stn_revision")
-        print(list)
 
         if list[0][0] == self.stn_revision:
             current = "Current"

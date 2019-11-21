@@ -6,35 +6,51 @@ app_name = 'travel'
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
-    # EVENT (TRIPS) #
+    # TRIPS #
     ##########
-    path('trips/', views.EventListView.as_view(), name="event_list"),
-    path('trip/new/', views.EventCreateView.as_view(), name="event_new"),
-    path('trip/<int:pk>/view/', views.EventDetailView.as_view(), name="event_detail"),
-    path('trip/<int:pk>/print/', views.TravelPlanPDF.as_view(), name="event_print"),
-    path('trip/<int:pk>/edit/', views.EventUpdateView.as_view(), name="event_edit"),
-    path('trip/<int:pk>/delete/', views.EventDeleteView.as_view(), name="event_delete"),
-    path('trip/<int:pk>/duplicate/', views.duplicate_event, name="duplicate_event"),
+    path('trips/', views.TripListView.as_view(), name="trip_list"),
+    path('trip/new/', views.TripCreateView.as_view(), name="trip_new"),
+    path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
+    path('trip/<int:pk>/print/', views.TravelPlanPDF.as_view(), name="trip_print"),
+    path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/edit/<str:pop>/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
+    path('trip/<int:pk>/delete/pop/<str:pop>/', views.TripDeleteView.as_view(), name="trip_delete"),
+    path('trip/<int:pk>/duplicate/', views.TripCloneUpdateView.as_view(), name="duplicate_event"),
+    path('trip/<int:pk>/new-child-trip/', views.TripCreateView.as_view(), name="trip_new"),
+    path('trip/<int:pk>/clone-duplicate/pop/<str:pop>', views.ChildTripCloneUpdateView.as_view(), name="child_duplicate_event"),
+    path('trip/<int:pk>/submit/', views.TripSubmitUpdateView.as_view(), name="trip_submit"),
+    path('trip/<int:pk>/re-add-reviewers/', views.re_add_reviewers, name="re_add_reviewers"),
 
-    path('trips/approval/', views.EventApprovalListView.as_view(), name="event_approval_list"),
-    path('trips/approval/<str:which_ones>/', views.EventApprovalListView.as_view(), name="event_approval_list"),
-    path('trip/<int:pk>/approve/', views.EventApproveUpdateView.as_view(), name="event_approve"),
+    # REVIEWER APPROVAL
+    path('trips/review/', views.TripReviewListView.as_view(), name="trip_review_list"),
+    path('trips/review/<str:which_ones>/', views.TripReviewListView.as_view(), name="trip_review_list"),
+    path('review/<int:pk>/approve/', views.ReviewerApproveUpdateView.as_view(), name="review_approve"),
 
-    path('trip/<int:pk>/submit/', views.EventSubmitUpdateView.as_view(), name="event_submit"),
+    # ADMIN APPROVAL
+    path('admin/approval/', views.TripAdminApprovalListView.as_view(), name="admin_approval_list"),
+    # path('admin/<int:pk>/approve/', views.TripAdminApproveUpdateView.as_view(), name="admin_approve"),
 
-    # REGISTERED EVENT #
+    # REVIEWERS #
+    #############
+    path('trip/<int:trip>/manage-reviewers/', views.manage_reviewers, name="manage_reviewers"),
+    path('reviewer/<int:pk>/delete/', views.delete_reviewer, name="delete_reviewer"),
+
+
+    # CONFERENCE #
     ####################
-    path('events/', views.RegisteredEventListView.as_view(), name="revent_list"),
-    path('event/new/', views.RegisteredEventCreateView.as_view(), name="revent_new"),
-    path('event/new/pop/<int:pop>/', views.RegisteredEventCreateView.as_view(), name="revent_new"),
-    path('event/<int:pk>/view/', views.RegisteredEventDetailView.as_view(), name="revent_detail"),
-    path('event/<int:pk>/edit/', views.RegisteredEventUpdateView.as_view(), name="revent_edit"),
-    path('event/<int:pk>/delete/', views.RegisteredEventDeleteView.as_view(), name="revent_delete"),
+    path('conferences/', views.ConferenceListView.as_view(), name="conf_list"),
+    path('conference/new/', views.ConferenceCreateView.as_view(), name="conf_new"),
+    path('conference/new/pop/<int:pop>/', views.ConferenceCreateView.as_view(), name="conf_new"),
+    path('conference/<int:pk>/view/', views.ConferenceDetailView.as_view(), name="conf_detail"),
+    path('conference/<int:pk>/edit/', views.ConferenceUpdateView.as_view(), name="conf_edit"),
+    path('conference/<int:pk>/delete/', views.ConferenceDeleteView.as_view(), name="conf_delete"),
 
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/export-cfts-list/<int:fy>/', views.export_cfts_list, name="export_cfts_list"),
+    path('reports/export-cfts-list/year/<int:fy>/user/<int:user>/', views.export_cfts_list, name="export_cfts_list"),
+    path('reports/cfts/trip/<int:pk>/', views.export_trip_cfts, name="export_cfts"),
     # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
 
     # SETTINGS #

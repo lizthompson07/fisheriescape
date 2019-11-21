@@ -81,12 +81,12 @@
 
             <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-warning" data-toggle="tooltip"
                title="{% trans "Use this project as a template for a new project" %}">
-                Clone Project
+                {% trans "Clone Project" %}
             </a>
             {% if object.submitted %}
                 <a href="#" pop-href="{% url 'projects:report_new' object.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip"
                    title="{% trans "Create a new status report for this project" %}">
-                    New Status Report
+                    {% trans "New Status Report" %}
                 </a>
             {% endif %}
         </div>
@@ -108,7 +108,15 @@
         <table class="table table-sm table-bordered" style="">
             {# cheating here to adjust header width #}
             {% for field in field_list %}
-                {% verbose_td_display object field th_width="30%" td_width="80%" %}
+                {% if field == "programs" %}
+                    <tr>
+                        <th>{% get_verbose_label object field %}</th>
+                        <td class="{% if object.programs.count == 0 %}bad{% endif %}">{% get_field_value object field %}</td>
+                    </tr>
+                {% else %}
+                    {% verbose_td_display object field th_width="30%" td_width="80%" %}
+                {% endif %}
+
             {% endfor %}
             {% verbose_td_display object "section_head_approved" %}
             {% verbose_td_display object "section_head_feedback" %}

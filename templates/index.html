@@ -7,8 +7,14 @@
 {% block header %}
     <style>
         body {
-            background-image: url("{% static 'img/waves.jpg' %}");
+            background-image: url("{% static 'img/waves1.jpg' %}");
             background-size: cover;
+        }
+        h1 {
+            font-size: 4.5em;
+        }
+        h2 {
+            font-size: 2em;
         }
 
         .card {
@@ -27,14 +33,15 @@
 
         .card-title {
             height: 50px;
+            font-size: 1.3em;
         }
 
         .card-img {
-            height: 120px;
+            height: 110px;
         }
 
         .card-img-top {
-            padding: 40px;
+            padding: 45px;
         }
 
         .card-text {
@@ -54,7 +61,7 @@
     <div class="container-fluid">
 
     <div class=" text-center">
-        <h1 class="text-center roboto" style="font-size: 80px">
+        <h1 class="text-center roboto">
             {% trans 'Data Management Apps' %}
         </h1>
         <h2 class="roboto">

@@ -7,7 +7,7 @@ from . import models
 import os
 
 
-def generate_cfts_spreadsheet(fiscal_year):
+def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
     target_file = "temp_export.xlsx"
@@ -22,15 +22,29 @@ def generate_cfts_spreadsheet(fiscal_year):
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'normal',
          "text_wrap": True})
-    total_format = workbook.add_format({'bg_color': '#D6D1C0', "align": 'left', "text_wrap": True})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
-    bold_format = workbook.add_format({"align": 'center', 'bold': True})
+    normal_format = workbook.add_format({"align": 'left', "valign": 'top', "text_wrap": True, 'num_format': '[$$-409]#,##0.00'})
 
     # spreadsheet: Project List #
     #############################
 
     # get a project list for the year
-    event_list = models.Event.objects.filter(fiscal_year_id=fiscal_year)
+    if trip:
+        my_trip = models.Trip.objects.get(pk=trip)
+        if my_trip.is_group_trip:
+            is_group = True
+            trip_list = my_trip.children_trips.all()
+        else:
+            is_group = False
+            trip_list = models.Trip.objects.filter(pk=trip)
+    else:
+        is_group = False
+        my_trip = None
+        trip_list = None
+
+    # non_group_trip_list = models.Trip.objects.all()
+
+    # we need a list of ADM unapproaved but recommended
+    # group travdellers need to be on one row
 
     header = [
         "Name",
@@ -54,27 +68,28 @@ def generate_cfts_spreadsheet(fiscal_year):
     ws.write_row(0, 0, header, header_format)
 
     i = 1
-    for e in event_list:
+    for trip in trip_list:
 
-        try:
-            section = p.section.name
-        except:
-            section = "MISSING"
+        notes = "TRAVELLER COST BREAKDOWN: " + trip.cost_breakdown
+        if my_trip.late_justification:
+            notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + my_trip.late_justification
+
+        if is_group:
+            notes += "\n\nROLE OF PARTICIPANT: " + nz(trip.role_of_participant, "")
 
         data_row = [
-
-            "{}, {}".format(e.last_name,e.first_name),
-            "Gulf",
-            str(e.role),
-            str(e.reason),
-            e.trip_title,
-            e.destination,
-            e.start_date.strftime("%d/%m/%Y"),
-            e.end_date.strftime("%d/%m/%Y"),
-            e.total_cost,
+            "{}, {}".format(trip.last_name, trip.first_name),
+            str(trip.region) if trip.region else "n/a",
+            str(trip.role) if trip.role else "n/a",
+            str(my_trip.reason) if my_trip.reason else "n/a",
+            my_trip.trip_title,
+            my_trip.destination,
+            my_trip.start_date.strftime("%d/%m/%Y"),
+            my_trip.end_date.strftime("%d/%m/%Y"),
+            trip.total_cost,
             "0",
-            e.purpose_long_text,
-            e.cost_breakdown,
+            my_trip.purpose_long_text,
+            notes,
         ]
 
         # adjust the width of the columns based on the max string length in each col
@@ -96,7 +111,5 @@ def generate_cfts_spreadsheet(fiscal_year):
     for j in range(0, len(col_max)):
         ws.set_column(j, j, width=col_max[j] * 1.1)
 
-
     workbook.close()
     return target_url
-

@@ -1,6 +1,8 @@
 {% extends "sar_search/sar_search_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load i18n %}
+
 {% load verbose_names %}
 
 {% block content %}
@@ -24,35 +26,29 @@
         <h1 class="big-header">Species List </h1>
         <p>TOTAL: {{ object_list.count }}</p>
 
-
         <form class="form" action="." method="get">
             <div class="row">
                 {% for field in filter.form %}
-                    <div class="col">
+                    <div class="col{% if field.name == "common_name_eng" %}-2{% endif %}">
                         {% bootstrap_field field placeholder="" size="small" %}
                     </div>
                 {% endfor %}
-                <div class="col-3">
+                <div class="col">
                     <br>
                     <input type="submit" value="Filter" class="btn btn btn-warning">
-                    <a href="{% url 'sar_search:species_new' %}" class="btn btn-success">New Species</a><br>
                 </div>
-
             </div>
-
-
         </form>
-
 
         <div class="row">
             <div class="col">
-                (click on a header to sort table)
+                {% trans "(click on a header to sort table)" %}
             </div>
             <div class="col" style="text-align: center">
                 <em>displaying {{ filter.qs.count }} of {{ object_list.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'sar_search:species_new' %}" class="btn btn-sm btn-primary">New</a>
+                <a href="{% url 'sar_search:species_new' %}" class="btn btn-sm btn-primary">New Species</a>
             </div>
         </div>
         <table class="table table-sm table-hover sortable">
@@ -61,7 +57,7 @@
                 {% for field in field_list %}
                     <th scope="col">{% get_verbose_label my_object field %}</th>
                 {% endfor %}
-                    <th scope="col">Number of Records</th>
+                <th scope="col">Number of Records</th>
             </tr>
             </thead>
             <tbody>
@@ -80,7 +76,7 @@
                         {% endif %}
 
                     {% endfor %}
-                    <td class="center-col">{{object.records.count}}</td>
+                    <td class="center-col">{{ object.records.count }}</td>
                 </tr>
             {% endfor %}
             </tbody>
