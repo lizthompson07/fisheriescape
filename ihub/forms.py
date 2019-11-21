@@ -19,7 +19,7 @@ class EntryCreateForm(forms.ModelForm):
             'date_created',
         ]
         widgets = {
-            'initial_date': forms.DateInput(attrs={"type": "date"}),
+            'initial_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
             'created_by': forms.HiddenInput(),
         }
@@ -62,7 +62,7 @@ class ReportSearchForm(forms.Form):
             (2, _("Organizational Report / Cue Card (PDF)")),
             (3, _("iHub Summary Report (Excel Spreadsheet)")),
             (4, _("iHub Summary Report (PDF)")),
-            (5, _("Consultations Update Log (PDF)")),
+            (5, _("Engagement Update Log (PDF)")),
         )
         fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
                       models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
@@ -149,8 +149,7 @@ class EntryPersonForm(forms.ModelForm):
         }
         widgets = {
             'entry': forms.HiddenInput(),
-            # 'overtime_description': forms.Textarea(attrs={"rows": 5}),
-            # 'user': forms.Select(choices=USER_CHOICES),
+            'user': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):

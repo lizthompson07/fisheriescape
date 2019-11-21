@@ -68,10 +68,10 @@
                         {% endif %}
                     </td>
                 {% endif %}
-                <td>{{ obj.recipient_org }}</td>
-                <td>{{ obj.project_lead }}</td>
-                <td>{{ obj.proposed_title }}</td>
-                <td>{{ obj.gc_program }}</td>
+                <td>{{ obj.recipient_org|nz:"-----" }}</td>
+                <td>{{ obj.project_lead|nz:"-----" }}</td>
+                <td>{{ obj.proposed_title|nz:"-----" }}</td>
+                <td>{{ obj.gc_program|nz:"-----" }}</td>
                 <td class="center-col {% if not obj.budget_requested %} major-error{% endif %}">
                     {{ obj.budget_requested|currency }}
                 </td>

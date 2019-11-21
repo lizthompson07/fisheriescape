@@ -65,7 +65,7 @@
                     </div>
                     <div class="col" style="text-align: center">
                         {% show_pages %}
-                        <em>displaying {{ filter_list.count }} of {{ filter.qs.count }}</em>
+                        <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
                         <a href="{% url 'ihub:person_new' %}" class="btn btn-sm btn-primary">

@@ -1,0 +1,86 @@
+{% extends "inventory/inventory_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+{% block content %}
+
+    <style>
+
+        td {
+            padding-right: 10px;
+        }
+
+        table, td, th {
+            border: 1px black solid;
+        }
+    </style>
+
+
+    <div class="container-fluid">
+        <h1>
+            Managing Metadata Records for C&A
+        </h1>
+        <br>
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            <p>
+                <button id="submit" type="submit" class="btn btn-primary">
+                    {% trans "Save" %}
+                </button>
+                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">
+                    {% trans "Back" %}
+                </a>
+            </p>
+
+            {{ formset.management_form }}
+            {% bootstrap_formset_errors formset %}
+
+            <table>
+                <thead>
+                <tr>
+                    {% for field in field_list %}
+                        {% if not field == "observation_type" %}
+                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for form in formset %}
+                    {% bootstrap_form_errors form %}
+                    <tr>
+                        {% for field in form %}
+                            <td>
+                                {% if field.name == "title_eng" %}
+                                    {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                                    (<a href="{% url 'inventory:resource_detail' form.instance.id  %}" class="" target="_blank">open record in new tab</a>)
+                                {% else %}
+                                    {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+
+                        {% if form.instance.id %}
+                        {% else %}
+                            <td>(new record)</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+            <p>
+                <button id="submit" type="submit" class="btn btn-primary">
+                    {% trans "Save" %}
+                </button>
+                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">
+                    {% trans "Back" %}
+                </a>
+            </p>
+
+        </form>
+    </div>
+{% endblock content %}

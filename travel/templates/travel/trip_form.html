@@ -1,0 +1,273 @@
+{% extends "travel/travel_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% block header %}
+{% endblock %}
+{% block content %}
+
+    <style>
+        input.cost {
+            font-size: small;
+            width: 100%;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">New</li>
+            {% endif %}
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>
+            {% if object %}
+                {% if cloned %}
+                    CLONING:
+                {% endif %}
+                {{ object }}
+            {% else %}
+                New Trip
+            {% endif %}
+        </h1>
+
+        <br>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+            {% bootstrap_form_errors form %}
+            {% for field in form %}
+                {% if "hide-me" in field.field.widget.attrs.class %}
+                    <div class="hide-me">
+                {% endif %}
+
+            {% if field.name == "conference" %}
+                <div class="conference_container">
+                    {% bootstrap_field field placeholder="" %}
+                    (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new conference / meeting</a>)
+                    <br><br>
+                </div>
+            {% elif field.name == "is_group_trip" %}
+                {% bootstrap_field field placeholder="" %}
+                <div class="show-me blue-font">
+                    <p>
+                        <em>
+                            {% trans "(One this form is submitted, you will be able to add group travellers to the trip. You will be automatically added as a traveller.)" %}
+                        </em>
+                    </p>
+                </div>
+            {% elif field.name == "is_international" %}
+                {% bootstrap_field field placeholder="" %}
+                <div class="show-me-intl blue-font">
+                    <p>
+                        <em>
+                            {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
+                        </em>
+                    </p>
+                </div>
+            {% elif field.name == "role" %}
+                <div class="conference_container">
+                    {% bootstrap_field field placeholder="" %}
+                </div>
+            {% elif field.name == "address" %}
+                {#                343 Université Avenue, Moncton, NB, E1C 9B6#}
+                {% bootstrap_field field placeholder="" %}
+                <span style="font-size: small">Predefined addresses:</span><br>
+                <a href="#" class="btn btn-sm btn-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
+                <a href="#" class="btn btn-sm btn-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
+                <a href="#" class="btn btn-sm btn-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
+                <br>
+                <br>
+            {% elif field.name == "role_of_participant" %}
+                <div class="conference_container">
+                    {% bootstrap_field field placeholder="" %}
+                </div>
+            {% elif field.name == "event_lead" %}
+                <div class="event_container">
+                    {% bootstrap_field field placeholder="" %}
+                </div>
+            {% elif "cost" in field.field.widget.attrs|lookup:"class" %}
+
+
+            {% else %}
+
+                {% bootstrap_field field placeholder="" %}
+            {% endif %}
+            {% if "hide-me" in field.field.widget.attrs.class %}
+                </div>
+            {% endif %}
+            {% endfor %}
+            <br>
+            <div class="hide-me">
+                <h4>{% trans "Breakdown of Trip Costs" %}</h4>
+                <div class="show-me-intl blue-font">
+                    <p>
+                        <em>
+                            {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
+                        </em>
+                    </p>
+                </div>
+                <table class="table table-bordered" style="font-size: small ">
+
+                    <tr>
+                        {% for field in form %}
+                            {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                                <th>
+                                    {{ field.label }}
+                                </th>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for field in form %}
+                            {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                                <td>
+                                    {{ field }}
+{#                                    {% bootstrap_field field show_label=False placeholder="CAD" %}#}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+            {% buttons %}
+                {% if object %}
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">Cancel</a>
+                {% else %}
+                    <button type="submit" class="btn btn-success">Add</button>
+                    <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">Cancel</a>
+                {% endif %}
+
+
+            {% endbuttons %}
+        </form>
+
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+
+    <script type="application/javascript">
+        var userObj = {{ user_json|safe }};
+        {#var sectionObj = {{ section_json|safe }};#}
+        var myId = "";
+
+        function refreshUserInfo() {
+            myId = $("#id_user").val();
+            $("#id_first_name").val(userObj[myId]["first_name"]);
+            $("#id_last_name").val(userObj[myId]["last_name"]);
+            $("#id_email").val(userObj[myId]["email"]);
+        }
+
+        function refreshConference() {
+            if ($("#id_is_conference").val() == "False") {
+                $("#id_conference").val("").prop("disabled", true);
+                $("#id_role").val("").prop("disabled", true);
+                $("#id_role_of_participant").val("").prop("disabled", true);
+                $(".conference_container").addClass("gone");
+            } else {
+                $("#id_conference").prop("disabled", false);
+                $("#id_role").prop("disabled", false);
+                $("#id_role_of_participant").prop("disabled", false);
+                $(".conference_container").removeClass("gone");
+            }
+        }
+
+        function refreshIntl() {
+            if ($("#id_is_international").val() == "False") {
+                $(".show-me-intl").addClass("gone");
+            } else {
+                $(".show-me-intl").removeClass("gone");
+            }
+        }
+
+        function refreshEvent() {
+            if ($("#id_has_event_template").val() == "false") {
+                $("#id_event_lead").val("").prop("disabled", true);
+                $(".event_container").addClass("gone");
+            } else {
+                $("#id_event_lead").prop("disabled", false);
+                $(".event_container").removeClass("gone");
+            }
+        }
+
+        function refreshClassHideMe() {
+            if ($("#id_is_group_trip").val() == "False") {
+                $(".hide-me").removeClass("gone");
+                $(".show-me").addClass("gone");
+            } else {
+                $(".hide-me").addClass("gone");
+                $(".show-me").removeClass("gone");
+            }
+        }
+
+        $("#id_user").change(function () {
+            refreshUserInfo();
+        });
+
+        $("#id_has_event_template").change(function () {
+            refreshEvent();
+        });
+
+        $("#id_is_conference").change(function () {
+            refreshConference();
+        });
+
+        $("#id_is_international").change(function () {
+            refreshIntl();
+        });
+
+        $("#id_is_group_trip").change(function () {
+            refreshClassHideMe();
+        });
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            refreshUserInfo();
+            refreshConference();
+            refreshEvent();
+            refreshIntl();
+            refreshClassHideMe();
+            // do not make these fields required, otherwise we will not see the form errors if omitted
+            $("#id_user").prop("required", false);
+            $("#id_section").prop("required", false);
+        });
+
+        $("#new_event").click(function () {
+            $("#id_stay_on_page").val(1);
+            $("form").submit();
+        });
+
+        $(".address-btn").click(function (e) {
+            e.preventDefault();
+            $myBtn = $(this);
+            $("#id_address").val($myBtn.text());
+        });
+
+        $("#id_reason").change(function () {
+          var myVal = $(this).val()
+            // if the reason is for a meeting or conference, we already know the answer to the below question of `id_is_conference`
+          if(myVal == '2' || myVal == '4') {
+              $("#id_is_conference").val('True');
+              refreshConference();
+          }  
+        });
+
+    </script>
+{% endblock %}
+
+

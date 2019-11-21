@@ -126,9 +126,13 @@ urlpatterns = [
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
 
-    path('admin-staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
-    path('admin-staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
-    path('admin-staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
+    path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
+    path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),
+    path('admin/project-program/<int:pk>/edit/<str:qry>/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),
+    path('admin/project-program/<int:pk>/edit/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),
+
+    path('admin/staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
+    path('admin/staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
 
     # Reports #
     ###########
@@ -156,8 +160,14 @@ urlpatterns = [
          views.PDFCostSummaryReport.as_view(), name="pdf_costs"),
     path('reports/collaborators/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFCollaboratorReport.as_view(), name="pdf_collab"),
+    path('reports/agreements/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFAgreementsReport.as_view(), name="pdf_agreements"),
     path('reports/dougs-report/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-         views.PDFProjectSummaryReport.as_view(), name="doug_report"),
+         views.dougs_spreadsheet, name="doug_report"),
+    path('reports/feedback/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFFeedbackReport.as_view(), name="pdf_feedback"),
+    path('reports/data-management/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.PDFDataReport.as_view(), name="pdf_data"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
 ]

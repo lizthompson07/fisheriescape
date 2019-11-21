@@ -35,7 +35,46 @@ class SARASchedule(models.Model):
         ordering = ['name', ]
 
 
+class CITESAppendix(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
+    description_eng = models.TextField(blank=True, null=True, verbose_name=_("english description"))
+    description_fre = models.TextField(blank=True, null=True, verbose_name=_("french description"))
+
+    def __str__(self):
+        return "{}".format(getattr(self, str(_("name"))))
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class ResponsibleAuthority(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
+
+    def __str__(self):
+        return "{}".format(getattr(self, str(_("name"))))
+
+    class Meta:
+        ordering = ['name', ]
+
+
 class SpeciesStatus(models.Model):
+    # choices for used_for
+    SARA = 1
+    NS = 2
+    NB = 3
+    PE = 4
+    REDLIST = 5
+    USED_FOR_CHOICES = (
+        (SARA, "SARA / COSEWIC"),
+        (NS, "Nova Scotia"),
+        (NB, "New Brunswick"),
+        (PE, "Prince Edward Island"),
+        (REDLIST, "IUCN Red List"),
+    )
+
+    used_for = models.IntegerField(choices=USED_FOR_CHOICES)
     code = models.CharField(max_length=5)
     name = models.CharField(max_length=255, verbose_name=_("english name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
@@ -46,7 +85,7 @@ class SpeciesStatus(models.Model):
         return "{} - {}".format(self.code, getattr(self, str(_("name"))))
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ['used_for', 'name', ]
 
 
 class Region(models.Model):
@@ -144,12 +183,27 @@ class Species(models.Model):
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
     taxon = models.ForeignKey(Taxon, on_delete=models.DO_NOTHING, related_name='spp', blank=True, null=True)
-    sara_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='sara_spp', verbose_name=_("COSEWIC status"),
-                                    blank=True, null=True)
-    cosewic_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='cosewic_spp',
-                                       verbose_name=_("SARA status"), blank=True, null=True)
+    cosewic_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='cosewic_spp', verbose_name=_("COSEWIC status"),
+                                    blank=True, null=True, limit_choices_to={"used_for": 1})
+    sara_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='sara_spp',
+                                       verbose_name=_("SARA status"), blank=True, null=True, limit_choices_to={"used_for": 1})
+    ns_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='ns_spp', verbose_name=_("NS status"),
+                                  blank=True, null=True, limit_choices_to={"used_for": 2})
+    nb_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='nb_spp', verbose_name=_("NB status"),
+                                  blank=True, null=True, limit_choices_to={"used_for": 3})
+    pe_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='pe_spp', verbose_name=_("PEI status"),
+                                  blank=True, null=True, limit_choices_to={"used_for": 4})
+    iucn_red_list_status = models.ForeignKey(SpeciesStatus, on_delete=models.CASCADE, related_name='iucn_spp',
+                                             verbose_name=_("IUCN Red Flag status"), blank=True, null=True,
+                                             limit_choices_to={"used_for": 5})
+
     sara_schedule = models.ForeignKey(SARASchedule, on_delete=models.DO_NOTHING, related_name='spp', verbose_name=_("SARA schedule"),
                                       blank=True, null=True)
+    cites_appendix = models.ForeignKey(CITESAppendix, on_delete=models.DO_NOTHING, related_name='spp', verbose_name=_("CITES appendix"),
+                                       blank=True, null=True)
+    responsible_authority = models.ForeignKey(ResponsibleAuthority, on_delete=models.DO_NOTHING, related_name='spp',
+                                              verbose_name=_("responsible authority"),
+                                              blank=True, null=True)
     province_range = models.ManyToManyField(shared_models.Province, blank=True)
     notes = models.TextField(max_length=255, null=True, blank=True)
     temp_file = models.FileField(upload_to='temp_file', null=True)

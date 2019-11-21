@@ -125,7 +125,7 @@
                         <div class="col-4">
                             {% bootstrap_label field.label %}
                             {% with help_text_dict|lookup:field.name as help_text %}
-                                <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
                                      title="{{ field.label }}"
                                      data-content="{{ help_text|safe }}">
                                 {% bootstrap_field field placeholder="" show_label=False %}

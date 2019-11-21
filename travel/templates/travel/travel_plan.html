@@ -118,9 +118,9 @@
                     </tr>
                     <tr>
                         <th style="width: 100px; text-align: right;" class="real">Region/Sector/Branch/<br>Directorate/Section:</th>
-                        <td style="width: 200px; text-align: left;" class="real">Gulf/Science and Ecosystems
-                            Management/{{ object.section.name }}</td>
-                        <td style="width: 200px; text-align: left;" class="real">{{ object.public_servent|yesno }}</td>
+                        <td style="width: 200px; text-align: left;"
+                            class="real">{{ object.section.division.branch.region.name }}/{{ object.section.division.branch.name }}/{{ object.section.division.name }}/{{ object.section.name }}</td>
+                        <td style="width: 200px; text-align: left;" class="real">{{ object.is_public_servant|yesno }}</td>
                     </tr>
                     <tr>
                         <th style="width: 100px; text-align: right;" class="real">Address:</th>
@@ -164,7 +164,7 @@
     </table>
 </div>
 <div class="block">
-    <table class="real">
+    <table class="">
         <tr class="real">
             <th rowspan="2" style="text-align: center;" class="real center">Amended</th>
             <th rowspan="2" class="real center">Trip</th>
@@ -200,8 +200,12 @@
             <th class="real center">1</th>
             <td class="real center">{{ object.start_date|date:"d-F" }}</td>
             <td class="real center">{{ object.end_date|date:"d-F" }}</td>
-            <td class="real center">{{ object.departure_location }}
-                to {{ object.destination }}</td>
+            <td class="real center">
+                {% if object.departure_location %}
+                    {{ object.departure_location }} to
+                {% endif %}
+                {{ object.destination }}
+            </td>
             <td class="real center">{{ object.purpose }}</td>
             <td class="real left">{{ object.purpose_long|safe }}</td>
             <td class="real center">{{ object.air|currency|nz:"" }}</td>
@@ -219,7 +223,11 @@
                 {% endwith %}
             {% endwith %}
             <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>
-            <td class="real center">{{ object.event|yesno }}</td>
+            {% if object.is_conference %}
+                <td class="real center">{{ object.has_event_template|yesno:"yes,no,unknown" }}</td>
+            {% else %}
+                <td class="real center">no</td>
+            {% endif %}
 
         </tr>
         <tr>
@@ -229,12 +237,12 @@
             <td class="center wset"></td>
             <td class="center wset"></td>
             <td class="center wset"></td>
-            <td style="width: 400px" class="real center"></td>
+            <td style="width: 400px" class="center"></td>
             {# starting with AIR #}
             {% for key in key_list %}
-                <td class="real center wset">{{ total_dict|lookup:key|currency }}</td>
+                <td class="real center wset"><b>{{ total_dict|lookup:key|currency }}</b></td>
             {% endfor %}
-            <td class="real center wset"></td>
+            <td class="center wset"></td>
         </tr>
     </table>
 </div>
@@ -261,53 +269,49 @@
                     <th class="right wide-cell">Expenditure Initiation approved by (Print):</th>
                     <td class="left wide-cell" colspan="3">
                         {#                        <u>Serge Doucet, Regional Director General, Gulf Region___</u>#}
-                        {{ object.approver|nz:"n/a" }}
-                        {% if object.approver %} | Regional Director General | {{ object.approver.shared_models_regions.first }}
+                        {{ object.rdg.user |nz:"n/a" }}
+                        {% if object.rdg.user %} | Regional Director General | {{ object.rdg.user.shared_models_regions.first }}
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
-                    <th class="right wide-cell" style="width: 500px;">Signature:</th>
-                    <td class="left wide-cell" style="width: 500px;">______________________________________________</td>
-                    <th class="right wide-cell" style="width: 100px;">Date:</th>
-                    <td class="left wide-cell" style="width: 200px;">___________________</td>
+                      {% if object.rdg.status_id == 2 %}
+                        <th class="right wide-cell" style="width: 500px;"></th>
+                        <td class="left wide-cell" style="width: 500px; font-size: 18px" >Approved on {{ object.rdg.status_date }}</td>
+                        <th class="right wide-cell" style="width: 100px;"></th>
+                        <td class="left wide-cell" style="width: 200px;"></td>
+                    {% else %}
+                        <th class="right wide-cell" style="width: 500px;">Signature:</th>
+                        <td class="left wide-cell" style="width: 500px;">______________________________________________</td>
+                        <th class="right wide-cell" style="width: 100px;">Date:</th>
+                        <td class="left wide-cell" style="width: 200px;">___________________</td>
+                    {% endif %}
                 </tr>
             </table>
         </td>
         <td>
             <table style="width: 50%;">
-                <tr>
-                    <th class="right wide-cell">Recommended by:</th>
-                    <td rowspan="1" class="left wide-cell">
-                        {% if object.recommender_1_approval_status_id == 2 %}
-                            {{ object.recommender_1 }} (digitally signed on {{ object.recommender_1_approval_date }})
-                        {% else %}
-                            ___________________________________________
-                        {% endif %}
-                    </td>
-                </tr>
-
-                <tr>
-                    <th class="right wide-cell">Recommended by:</th>
-                    <td rowspan="1" class="left wide-cell">
-                        {% if object.recommender_2_approval_status_id == 2 %}
-                            {{ object.recommender_2 }} (digitally signed on {{ object.recommender_2_approval_date }})
-                        {% else %}
-                            ___________________________________________
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th class="right wide-cell">Recommended by:</th>
-                    <td rowspan="1" class="left wide-cell">
-                        {% if object.recommender_3_approval_status_id == 2 %}
-                            {{ object.recommender_3 }} (digitally signed on {{ object.recommender_3_approval_date }})
-                        {% else %}
-                            ___________________________________________
-                        {% endif %}
-                    </td>
-                </tr>
-
+                {% for r in object.recommenders %}
+                    <tr>
+                        <th class="right wide-cell">Recommended by:</th>
+                        <td rowspan="1" class="left wide-cell">
+                            {{ r.user }}
+                            {% if r.status_id == 2 %}
+                                (digitally signed on {{ r.status_date }})
+                            {% else %}
+                                (NOT RECOMMENDED)
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% if object.adm.status_id == 2 %}
+                    <tr>
+                        <th class="right wide-cell">Approved by:</th>
+                        <td rowspan="1" class="left wide-cell">
+                            {{ object.adm.user }} on {{ object.adm.status_date }}
+                        </td>
+                    </tr>
+                {% endif %}
             </table>
         </td>
     </table>

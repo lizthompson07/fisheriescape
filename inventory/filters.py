@@ -8,7 +8,6 @@ from shared_models import models as shared_models
 
 
 class ResourceFilter(django_filters.FilterSet):
-
     search_term = django_filters.CharFilter(field_name='search_term', label=_("Search term"), lookup_expr='icontains',
                                             widget=forms.TextInput())
     region = django_filters.ModelChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact',
@@ -20,6 +19,10 @@ class ResourceFilter(django_filters.FilterSet):
     status = django_filters.ChoiceFilter(field_name="status", label=_("Status"), lookup_expr='exact')
     percent_complete = django_filters.NumberFilter(field_name="completedness_rating", label=_("Percent complete"), lookup_expr='gte',
                                                    widget=forms.NumberInput(attrs={"placeholder": "between 0 and 1"}))
+    fgp_publication_date = django_filters.BooleanFilter(field_name="fgp_publication_date",
+                                                        lookup_expr='isnull', label=_("Published?"),
+                                                        exclude=True, # this will reverse the logic
+                                                        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,7 +32,7 @@ class ResourceFilter(django_filters.FilterSet):
                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch",
                                                                         "division", "name")]
 
-        self.filters['status'] = django_filters.ChoiceFilter(field_name="status", label=_("Section"),
+        self.filters['status'] = django_filters.ChoiceFilter(field_name="status", label=_("Status"),
                                                              lookup_expr='exact', choices=status_choices)
         self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
                                                               lookup_expr='exact', choices=section_choices)

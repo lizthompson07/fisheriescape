@@ -65,8 +65,8 @@
                     <div class="fiscal_year_div">
                         {% bootstrap_field field %}
                     </div>
-                {% elif field.name == "traveller" %}
-                    <div class="traveller_div">
+                {% elif field.name == "user" %}
+                    <div class="user_div">
                         {% bootstrap_field field %}
                     </div>
 
@@ -90,10 +90,10 @@
 
         function hideAll() {
             $(".fiscal_year_div").addClass("gone");
-            $(".traveller_div").addClass("gone");
+            $(".user_div").addClass("gone");
 
             $("#id_fiscal_year").prop('required', true);
-            $("#id_traveller").prop('required', false);
+            $("#id_user").prop('required', false);
 
         }
 
@@ -102,10 +102,11 @@
             // species count report
             if (reportChoice == 1) {
                 $(".fiscal_year_div").removeClass("gone");
+                $(".user_div").removeClass("gone");
             }
             if (reportChoice == 2) {
                 $(".fiscal_year_div").removeClass("gone");
-                $(".traveller_div").removeClass("gone");
+                $(".user_div").removeClass("gone");
 
             }
 

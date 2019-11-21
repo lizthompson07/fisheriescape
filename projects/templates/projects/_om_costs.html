@@ -85,7 +85,7 @@
                 {% else %}
                     <td>{{ obj.om_category.name }}</td>
                 {% endif %}
-                <td> {{ obj.description }}</td>
+                <td> {{ obj.description|nz:"-----" }}</td>
 
                 <td style="text-align: center; background-color: {{ obj.funding_source.color }}">
                     {{ obj.funding_source }}

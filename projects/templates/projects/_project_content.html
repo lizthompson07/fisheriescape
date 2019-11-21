@@ -27,7 +27,14 @@
     {# cheating here to adjust header width #}
 
     {% for field in field_list %}
-        {% verbose_td_display object field th_width="30%" td_width="80%" %}
+        {% if field == "programs" %}
+            <tr>
+                <th>{% get_verbose_label object field %}</th>
+                <td class="{% if object.programs.count == 0 %}bad{% endif %}">{% get_field_value object field %}</td>
+            </tr>
+        {% else %}
+            {% verbose_td_display object field th_width="30%" td_width="80%" %}
+        {% endif %}
     {% endfor %}
     {% verbose_td_display object "section_head_approved" %}
     {% verbose_td_display object "section_head_feedback" %}

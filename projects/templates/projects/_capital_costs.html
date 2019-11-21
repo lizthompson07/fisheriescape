@@ -64,7 +64,7 @@
                     </td>
                 {% endif %}
                 <td>{{ obj.get_category_display }}</td>
-                <td>{{ obj.description|nz:"" }}</td>
+                <td>{{ obj.description|nz:"-----" }}</td>
 
                 <td style="text-align: center; background-color: {{ obj.funding_source.color }}">
                     {{ obj.funding_source }}

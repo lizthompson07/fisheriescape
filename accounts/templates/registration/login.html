@@ -3,6 +3,16 @@
 {% load i18n %}
 
 {% block content %}
+    <style>
+        .popover-header {
+            background-color: rgba(239, 255, 59, 0.55);
+        }
+
+        .popover-body {
+            background-color: #feffeb;
+        }
+    </style>
+
     {% if message %}
         <h3>{% bootstrap_alert message alert_type='danger' %}</h3>
     {% endif %}
@@ -43,8 +53,21 @@
                                 {% trans "forgot password?" %}
                             </a>)
                             </p>
-                            {% bootstrap_field field show_label=False placeholder="" %}
+
+                            {% trans "Shortcut" as hdr %}
+                            {% trans "press the <code>Tab</code> key after entering the first part of your email address to use the autocomplete feautre (e.g., bart.simpson)" as txt %}
+                            <span data-toggle="popover"
+                                  data-trigger="hover focus"
+                                  data-content="{{ txt }}"
+                                  data-placement="top"
+                                  id="pop">
+                            {% bootstrap_field field show_label=False placeholder="Email address" %}
+                            </span>
                         {% else %}
+
+
+
+
                             {% bootstrap_field field %}
                         {% endif %}
 
@@ -64,22 +87,29 @@
         </div>
     </div>
 
+
+{% endblock %}
+{% block body_js %}
     <script type="application/javascript">
         $("#id_username").change(function () {
             username = $(this).val()
-            if (username.match(/dfo-mpo.gc.ca/gi)==null && username.match(/@/gi)==null) {
+            if (username.match(/dfo-mpo.gc.ca/gi) == null && username.match(/@/gi) == null) {
                 newUsername = username + "@dfo-mpo.gc.ca"
                 $(this).val(newUsername)
             }
 
             username = $(this).val()
             // if the new username is not a dfo username, use red font
-            if (username.match(/@dfo-mpo.gc.ca/gi)==null) {
+            if (username.match(/@dfo-mpo.gc.ca/gi) == null) {
                 $(this).addClass("red-font")
             } else {
                 $(this).removeClass("red-font")
             }
-        })
+        });
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            $("#pop").popover('show')
+        });
     </script>
 
 {% endblock %}

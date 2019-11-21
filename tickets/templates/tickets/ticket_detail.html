@@ -3,6 +3,7 @@
 {% load static %}
 {% load humanize %}
 {% load verbose_names %}
+{% load custom_filters %}
 {% block content %}
     {#  <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>#}
 
@@ -59,7 +60,8 @@
                     {% endif %}
 
                     {% if not object.github_issue_number %}
-                        <a href="{% url "tickets:git_create"  object.id %}" class="btn btn-sm btn-outline-primary">Create as Issue in GitHub</a>
+                        <a href="{% url "tickets:git_create"  object.id %}" class="btn btn-sm btn-outline-primary">Create as Issue in
+                            GitHub</a>
                     {% else %}
                         <a href="https://github.com/dfo-mar-odis/dm_apps/issues/{{ object.github_issue_number }}" target="_blank"
                            class="btn btn-sm btn-outline-primary">
@@ -74,47 +76,47 @@
         <br><br>
 
         <div class="row">
-            <div class="col-2">
-                {% for field in field_group_1 %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
+            <div class="col">
+                <table class="table table-striped table-sm">
 
+                    {% for field in field_group_1 %}
+                        {% verbose_td_display object field th_width="30%" %}
+                    {% endfor %}
 
-                <p>
-                    <b>Service Desk Ticket</b> (<a href="http://assystSelfService.ent.dfo-mpo.ca/assystnet"
-                                                   target="_blank">AssystNet</a>):<br>
-                    <!-- Trigger/Open The Modal -->
-                    {% if object.sd_ref_number %}
-                        <a href="#" class="" data-toggle="modal" data-target="#sd_ticket_modal">{{ object.sd_ref_number }}</a>(logged:
-                        {{ object.sd_date_logged|naturaltime }})
-
-                    {% else %}
-                        None
-                    {% endif %}
-                </p>
+                </table>
 
             </div>
             <div class="col">
+                <table class="table table-striped table-sm">
+                    <tr>
+                        <th>
+                            Service Desk Ticket (<a href="http://assystSelfService.ent.dfo-mpo.ca/assystnet"
+                                                    target="_blank">AssystNet</a>):
+                        </th>
+                        <td>
+                            <!-- Trigger/Open The Modal -->
+                            <a href="#" class="" data-toggle="modal" data-target="#sd_ticket_modal">{{ object.sd_ref_number|nz:"click to add details" }}</a>
+                            {% if object.sd_ref_number %}
+                                (logged: {{ object.sd_date_logged|naturaltime }})
+                            {% endif %}
+                        </td>
+                    </tr>
 
-                {% for field in field_group_2 %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-
-
+                    {% for field in field_group_2 %}
+                        {% verbose_td_display object field th_width="40%" %}
+                    {% endfor %}
+                </table>
             </div>
             <div class="col">
                 <div class="neighbours">
                     <b>Updates / Follow Ups:</b>
                 </div>
-
-                {# function popitup(url,windowName, height=500, width=500,top=50,left=200) #}
                 <div class="neighbours">
                     <a class="btn btn-sm btn-light"
                        onclick="return popitup('{% url 'tickets:followup_create' ticket.id %}','FileCreate',500,1000)" data-toggle="tooltip"
                        title="Add a follow-up"> <i
                             class="material-icons">add</i></a>
                 </div>
-
 
                 <ul>
                     {% for msg in object.follow_ups.all %}
@@ -172,11 +174,6 @@
                 </ul>
             </div>
 
-            <div class="col-2">
-                {% for field in field_group_3 %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-            </div>
         </div>
     </div>
 
@@ -198,7 +195,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <a class="btn btn-warning" href="#" target="_blank">Edit</a>
+                    <a class="btn btn-warning" href="{% url 'tickets:update' object.id  %}#id_sd_ref_number">Edit</a>
                 </div>
             </div>
         </div>

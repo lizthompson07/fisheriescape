@@ -1,0 +1,286 @@
+{% load static %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+<style>
+    .plainjane {
+        background-color: white;
+        border: black solid 1px;
+    }
+</style>
+
+{#  BASIC DETAIL #}
+<h3>
+    Trip Detail:
+</h3>
+
+<table class="table table-sm table-striped" style="width: 100%">
+    {% for field in field_list %}
+        {% if "status" in field %}
+            <tr>
+                <th>{% get_verbose_label trip field %}</th>
+                <td style="background-color: {{ trip.status.color }};">{% get_field_value trip field %}</td>
+            </tr>
+
+        {% elif "has_event_template" in field %}
+            {% trans "Unsure" as not_sure %}
+            {% verbose_td_display trip field format="currency" th_width="20%" nullmark=not_sure date_format="%B %d, %Y" %}
+        {% else %}
+
+            {% verbose_td_display trip field format="currency" th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
+        {% endif %}
+    {% endfor %}
+    <tr>
+        <th>
+            {% trans "Summary of travellers (excluding BTA)" %}
+        </th>
+        <td>
+            <table class="table table-sm table-bordered plainjane">
+                <tr class="plainjane">
+                    <th rowspan="2" class="plainjane">Name</th>
+                    <th colspan="2" class="plainjane center-col">Conferences or International Trips</th>
+                </tr>
+                <tr class="plainjane">
+                    <th class="plainjane center-col">{{ trip.fiscal_year }}</th>
+                    <th class="plainjane center-col">Total</th>
+                </tr>
+                <tbody class="plainjane">
+                {% for user in trip.get_summary_dict %}
+                    {% with trip.get_summary_dict|lookup:user as d %}
+                        <tr class="plainjane">
+                            <td class="plainjane">{{ user }}</td>
+                            <td class="plainjane center-col">
+                                {% if user.id %}
+                                    {{ d.fy_list|length }}
+                                    {% if d.fy_list|length %}
+                                        &nbsp;
+                                        {% with d.fy_list as my_list %}
+                                            <button class="badge" data-toggle="popover"
+                                                    title="{{ user.first_name }}'s Total Trips for {{ trip.fiscal_year }}"
+                                                    data-content="{% include "travel/_user_trip_list.html" %}">
+                                                {% trans "show" %}
+                                            </button>
+                                        {% endwith %}
+                                    {% endif %}
+                                {% else %}
+                                    <em>
+                                        {{ d.fy_list }}
+                                    </em>
+                                {% endif %}
+                            </td>
+
+                            <td class="plainjane center-col">
+                                {% if user.id %}
+                                    {{ d.total_list|length }}
+                                    {% if d.total_list|length %}
+                                        &nbsp;
+                                        {% with d.total_list as my_list %}
+                                            <button class="badge" data-toggle="popover"
+                                                    title="{{ user.first_name }}'s Total Trips"
+                                                    data-content="{% include "travel/_user_trip_list.html" %}">
+                                                {% trans "show" %}
+                                            </button>
+                                        {% endwith %}
+                                    {% endif %}
+                                {% else %}
+                                    <em>
+                                        {{ d.total_list }}
+                                    </em>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+
+                        </tr>
+                    {% endwith %}
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+        </td>
+    </tr>
+    <tr>
+        <th>
+            {% trans "Total travellers (excluding BTA)" %}
+        </th>
+        <td>
+            {% if trip.is_group_trip %}
+                {{ trip.children_trips.count }}
+            {% else %}
+                1
+            {% endif %}
+
+        </td>
+    </tr>
+</table>
+<br><br>
+
+{#  CONFERENCE DETAIL  #}
+{% if trip.is_conference %}
+    {% if not trip.conference %}
+        <em>{% trans "It was indicated above that this trip is a conference however no conference was selected." %}</em>
+    {% else %}
+        <div class="float-right">
+            <a class="btn btn-success under-dev" href="#" target="_blank">
+                CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+            </a>
+        </div>
+        <h3>
+            Conference/Meeting Detail:
+        </h3>
+        <table class="table table-sm table-striped">
+            {% for field in conf_field_list %}
+                {% verbose_td_display trip.conference field th_width="30%" date_format="%B %d, %Y" %}
+            {% endfor %}
+            <tr>
+                <th>Connected trips</th>
+                <td>
+                    {% for obj in trip.conference.trips.all %}
+                        {% url 'travel:trip_detail' obj.id as my_url %}
+                        <ul>
+                            <li>
+                                <a href="{% if obj.id != trip.id %}{{ my_url }}{% endif %}">{{ obj }}</a> by {{ obj.user }}
+                                (STATUS: <span style="background-color: {{ trip.status.color }}">{{ obj.status }}</span>)
+                                {% if obj.id == trip.id %}
+                                    ({% trans "CURRENT TRIP" %})
+                                {% endif %}
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th>Total list of attendees (all trips and BTA included)</th>
+                <td>
+                    <ul>
+                        {% for traveller in trip.conference.total_traveller_list %}
+                            <li>
+                                {{ traveller }} {% if traveller in trip.conference.bta_traveller_list %}(BTA){% endif %}
+                            </li>
+                        {% empty %}
+                            <em>There is nobody travelling to this event.</em>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    {% endif %}
+{% endif %}
+<br><br>
+
+
+{#  GROUP TRAVELLERS  #}
+{% if trip.is_group_trip %}
+
+    {% if not report_mode %}
+        <div class="float-right">
+            <a href="#" pop-href="{% url 'travel:trip_new' trip.id %}" class="btn btn-sm btn-primary">Add Traveller</a>
+        </div>
+    {% endif %}
+    <h3>
+        {% trans "Group Travellers Associated with Trip" %}:
+    </h3>
+    <br>
+    <table class="table table-sm sortable {% if not report_mode %}table-hover{% else %}table-striped{% endif %}" style="width: 100%">
+        <thead>
+        <tr>
+            {% for field in child_field_list %}
+                {% if "cost_breakdown" in field or "purpose_long" in field %}
+                    <th style="width: 20%">{% get_verbose_label trip field %}</th>
+                {% elif "role_of" in field %}
+                    <th style="width: 50%">{% get_verbose_label trip field %}</th>
+                {% else %}
+                    <th scope="col">{% get_verbose_label trip field %}</th>
+                {% endif %}
+            {% endfor %}
+            <th>{% trans "Cost breakdown" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for child in trip.children_trips.all %}
+
+            <tr {% if not report_mode %}pop href="{% url 'travel:trip_edit' child.id "pop" %}" {% endif %}
+                class="{% if child.total_cost == 0 %}bad{% endif %}">
+
+                {% for field in child_field_list %}
+                    <td>{% get_field_value child field format="currency" safe=True %}</td>
+
+                {% endfor %}
+                <td>
+                    <button class="badge" data-toggle="popover"
+                            title="{{ child.first_name }}'s Costs Breakdown"
+                            data-content="{% include "travel/_child_cost_breakdown.html" %}">
+                        {% trans "show" %}
+                    </button>
+                </td>
+                {% if not report_mode %}
+                    <td>
+                        <a class="btn btn-sm btn-warning stop-pop" href="{% url 'travel:child_duplicate_event' child.id  'pop' %}">
+                            Clone
+                        </a>
+                    </td>
+                {% endif %}
+
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tr>
+            <th colspan="{{ child_field_list|length|subtract:1|floatformat }}" style="text-align: right">TOTAL COST:</th>
+            <th style="width: 8%;">{{ trip.total_trip_cost|currency:"True" }}</th>
+        </tr>
+    </table>
+{% endif %}
+<br><br>
+
+
+{#  REVIEWERS  #}
+{% if not report_mode %}
+    <div class="float-right">
+        <a href="{% url 'travel:manage_reviewers' trip.id %}" class="btn btn-sm btn-primary">Modify</a>
+    </div>
+{% endif %}
+<h3>
+    {% trans "Reviewers, Recommenders and Approvers" %}
+</h3>
+
+{% if trip.reviewers.count > 0 %}
+    <br>
+    <table class="table table-sm sortable table-striped" style="width: 100%">
+        <thead>
+        {% for field in reviewer_field_list %}
+            {% if "status" in field %}
+                <th style="width: 10%;">{% get_verbose_label trip.reviewers.first field %}</th>
+            {% else %}
+                <th scope="col">{% get_verbose_label trip.reviewers.first field %}</th>
+            {% endif %}
+        {% endfor %}
+        </thead>
+        <tbody>
+        {% for obj in trip.reviewers.all %}
+            {#                        {% url 'shared_models:group_detail' obj.id %}#}
+            <tr>
+                {% for field in reviewer_field_list %}
+                    {% if field == "status" %}
+                        <td style="background-color: {{ obj.status.color }}">
+                            {% get_field_value obj field %}
+                        </td>
+                    {% else %}
+                        <td>{% get_field_value obj field %}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <em>
+        {% trans "No reviewers, recommenders or approvers have been added to this project." %}
+    </em>
+{% endif %}
+</div>
+</div>
+<br><br>
+<br><br>
+
