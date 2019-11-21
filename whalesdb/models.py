@@ -39,8 +39,8 @@ class EcaCalibrationEvent(models.Model):
     eca_id = models.AutoField(primary_key=True)
     eca_date = models.DateField()
     eca_hydrophone = models.ForeignKey('EqpEquipment', models.DO_NOTHING, related_name='eca_hydrophone')
-    eca_attachement = models.ForeignKey('EqpEquipment', models.DO_NOTHING, blank=True, null=True,
-                                        related_name='eca_attachement')
+    eca_attachment = models.ForeignKey('EqpEquipment', models.DO_NOTHING, blank=True, null=True,
+                                       related_name='eca_attachment')
     eca_notes = models.CharField(max_length=50, blank=True, null=True)
 
 
@@ -70,7 +70,7 @@ class EdaEquipmentAttachment(models.Model):
     rec = models.ForeignKey('RecRecordingEvent', models.DO_NOTHING)
 
 
-class EhaHydrophoneAttachement(models.Model):
+class EhaHydrophoneAttachment(models.Model):
     eha_id = models.AutoField(primary_key=True)
     eda = models.ForeignKey(EdaEquipmentAttachment, models.DO_NOTHING)
     eqp = models.ForeignKey('EqpEquipment', models.DO_NOTHING)
@@ -150,7 +150,7 @@ class MorMooringSetup(models.Model):
 class PrjProject(models.Model):
     prj_id = models.AutoField(primary_key=True)
     prj_name = models.CharField(unique=True, max_length=255)
-    prj_descrption = models.CharField(max_length=4000, blank=True, null=True)
+    prj_description = models.CharField(max_length=4000, blank=True, null=True)
     prj_url = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):

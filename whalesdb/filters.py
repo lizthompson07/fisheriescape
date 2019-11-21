@@ -46,7 +46,7 @@ class EdaFilter(GenericFilterSet):
 class EdhFilter(GenericFilterSet):
 
     class Meta:
-        model = models.EhaHydrophoneAttachement
+        model = models.EhaHydrophoneAttachment
         fields = ['eda', 'eqp',]
 
 
@@ -83,7 +83,7 @@ class PrjFilter(GenericFilterSet):
 
     class Meta:
         model = models.PrjProject
-        fields = ['prj_name', 'prj_descrption', 'prj_url', ]
+        fields = ['prj_name', 'prj_description', 'prj_url', ]
 
 
 class RecFilter(GenericFilterSet):

@@ -86,7 +86,7 @@ def get_descriptions(for_model):
             'ecp_voltage_range_max': _("Voltage Range Maximum"),
             'ecp_gain': _("How much a channel is amplified in dB."),
         }
-    elif for_model is models.EhaHydrophoneAttachement:
+    elif for_model is models.EhaHydrophoneAttachment:
         labels = {
             "eda": _("Equipment Attached To"),
             "eqp": _("Hydrophone"),
@@ -145,7 +145,7 @@ def get_descriptions(for_model):
     elif for_model is models.PrjProject:
         labels = {
             'prj_name': _('Project Name'),
-            'prj_descrption': _('Project Description'),
+            'prj_description': _('Project Description'),
             'prj_url': _('Project URL'),
         }
     elif for_model is models.RecRecordingEvent:
@@ -271,7 +271,7 @@ class EdaForm(forms.ModelForm):
 class EdhForm(forms.ModelForm):
 
     class Meta:
-        model = models.EhaHydrophoneAttachement
+        model = models.EhaHydrophoneAttachment
         labels = get_descriptions(model)
         fields = labels.keys()
 
@@ -441,7 +441,7 @@ class PrjForm(forms.ModelForm):
         labels = get_descriptions(model)
         fields = labels.keys()
         widgets = {
-            'prj_descrption': forms.Textarea(attrs={"rows": 2}),
+            'prj_description': forms.Textarea(attrs={"rows": 2}),
         }
 
 

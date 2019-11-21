@@ -175,7 +175,7 @@ def get_smart_object(obj_name):
         }
     elif obj_name == 'edh':
         obj_def = {
-            'model': models.EhaHydrophoneAttachement,
+            'model': models.EhaHydrophoneAttachment,
             'form_class': forms.EdhForm,
 
             'filter_class': filters.EdhFilter,
