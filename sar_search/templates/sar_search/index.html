@@ -9,19 +9,28 @@
             <hr>
             <h3>Species at Risk Search Tool</h3>
         </div>
-        <h3>
-            <div class="text-center">
-            <p>Click <a href="{% url 'sar_search:map'  %}">here</a> to search the SAR map!</p>
-{#                Click <a href="{% url 'sar_search:trap_list' %}">HERE </a>to View the Samples#}
-            </div>
+        <h2>
+                Quickstart Menu:
+                <br>
+                <br>
+                <ul>
+                    <li>
+                        <a href="{% url 'sar_search:map' %}">SAR Map</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'sar_search:species_list' %}">Species List</a>
+                    </li>
+                </ul>
 
-        </h3>
+        </h2>
+        <br>
 
+        <br>
         <div align="center">
             <img src="{% static "/img/sar_search/louse.jpg" %}" class="rounded" width="350" alt="...">
         </div>
         <div align="center">
-{#            <p style="font-size: small">Photo credit: Jeffrey C. Domm</p>#}
+            {#            <p style="font-size: small">Photo credit: Jeffrey C. Domm</p>#}
         </div>
     </div>
 

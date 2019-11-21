@@ -183,7 +183,7 @@ def financial_summary_data(project):
     # first calc for staff
     for staff in project.staff_members.all():
         # exclude full time employees
-        if staff.employee_type.id != 1 or staff.employee_type.id != 6:
+        if not staff.employee_type.exclude_from_rollup:
             # if the staff member is being paid from bbase...
             if staff.funding_source.id == 1:
                 # if salary
@@ -260,15 +260,12 @@ def financial_summary_data(project):
 
 project_field_list = [
     'id',
+    'year',
     'project_title',
     'section',
     'programs',
     'tags',
-    'responsibility_center',
-    'allotment_code',
-    'existing_project_code',
     'is_national',
-    'is_negotiable',
     'status',
     'is_competitive',
     'is_approved',
@@ -281,17 +278,17 @@ project_field_list = [
     'data_sharing',
     'data_storage',
     'metadata_url',
-    'regional_dm',
+    # 'regional_dm',
     'regional_dm_needs',
-    'sectional_dm',
+    # 'sectional_dm',
     'sectional_dm_needs',
     'vehicle_needs',
     'it_needs',
     'chemical_needs',
     'ship_needs',
-    'impacts_if_not_approved',
-    'date_last_modified',
+    'coding|Known financial coding',
     'last_modified_by',
+    'date_last_modified',
 ]
 
 
@@ -755,6 +752,13 @@ class ProjectCloneUpdateView(ProjectUpdateView):
             new_rel_obj.project = new_obj
             new_rel_obj.save()
 
+        # 7) Milestones
+        for old_rel_obj in old_obj.milestones.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.project = new_obj
+            new_rel_obj.save()
+
         return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": new_obj.id}))
 
 
@@ -869,7 +873,8 @@ def temp_formset(request):
     else:
         # prep the formset...for display
         formset = forms.TempFormSet(
-            queryset=models.Project.objects.filter(section__division__branch__region__id=2).order_by("program")
+            queryset=models.Project.objects.filter(submitted=True, year=2020, section__division__branch__region__id=1,
+                                                   programs__isnull=True).order_by("program")
         )
     context['formset'] = formset
     context['my_object'] = models.Project.objects.first()
@@ -1373,7 +1378,7 @@ def manage_om_cats(request):
 def delete_employee_type(request, pk):
     my_obj = models.EmployeeType.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+    return HttpResponseRedirect(reverse("projects:manage_employee_types"))
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -1386,7 +1391,7 @@ def manage_employee_types(request):
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+            return HttpResponseRedirect(reverse("projects:manage_employee_types"))
     else:
         formset = forms.EmployeeTypeFormSet(
             queryset=qs)
@@ -1477,7 +1482,7 @@ def manage_tags(request):
 def delete_help_text(request, pk):
     my_obj = models.HelpText.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_tags"))
+    return HttpResponseRedirect(reverse("projects:manage_help_text"))
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -1549,7 +1554,7 @@ def delete_program(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def manage_programs(request):
-    qs = models.Program2.objects.all()
+    qs = models.Program2.objects.all().order_by("regional_program_name_eng")
     if request.method == 'POST':
         formset = forms.ProgramFormSet(request.POST, )
         if formset.is_valid():
@@ -1569,6 +1574,7 @@ def manage_programs(request):
         'funding_source_and_type',
         'regional_program_name_eng',
         'regional_program_name_fra',
+        'is_core',
         'examples',
     ]
     context['title'] = "Manage Programs"
@@ -1599,6 +1605,28 @@ class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
         return context
 
 
+class AdminProjectProgramListView(ManagerOrAdminRequiredMixin, FilterView):
+    template_name = 'projects/admin_project_program_list.html'
+    queryset = models.Project.objects.all().order_by('-year', 'id')
+    filterset_class = filters.AdminProjectProgramFilter
+
+
+class AdminProjectProgramUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    '''This is really just for the admin view'''
+    model = models.Project
+    template_name = 'projects/admin_project_program_form.html'
+    form_class = forms.AdminProjectProgramForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("projects:admin_project_program_list") + "?" + nz(self.kwargs.get("qry"), ""))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
+
+
 # STATUS REPORT #
 #################
 
@@ -1619,7 +1647,7 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(id=self.kwargs['project'])
         context['project'] = project
         context['status_report'] = True
-        context['files'] = project.files.filter(reference=2)
+        context['files'] = project.files.all()
         return context
 
     def form_valid(self, form):
@@ -1636,10 +1664,8 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
     def get_form_class(self):
         my_project = self.get_object().project
         if is_section_head(self.request.user, my_project):
-            print(123)
             return forms.StatusReportSectionHeadForm
         else:
-            print(321)
             return forms.StatusReportForm
 
     def get_initial(self):
@@ -1890,8 +1916,29 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
                 'divisions': divisions,
                 'sections': sections,
             }))
+        elif report == 15:
+            return HttpResponseRedirect(reverse("projects:pdf_agreements", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
         elif report == 14:
             return HttpResponseRedirect(reverse("projects:doug_report", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 16:
+            return HttpResponseRedirect(reverse("projects:pdf_feedback", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 17:
+            return HttpResponseRedirect(reverse("projects:pdf_data", kwargs={
                 'fiscal_year': fiscal_year,
                 'regions': regions,
                 'divisions': divisions,
@@ -1917,6 +1964,26 @@ def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, secti
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="Science project planning MASTER LIST {}.xlsx"'.format(
+                fiscal_year)
+            return response
+    raise Http404
+
+
+def dougs_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None):
+    # sections arg will be coming in as None from the my_section view
+    if regions is None:
+        regions = "None"
+    if divisions is None:
+        divisions = "None"
+    if sections is None:
+        sections = "None"
+
+    file_url = reports.generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="Dougs Spreadsheet {}.xlsx"'.format(
                 fiscal_year)
             return response
     raise Http404
@@ -2160,10 +2227,125 @@ class PDFCollaboratorReport(LoginRequiredMixin, PDFTemplateView):
         context["my_object"] = collaborator_list.first()
         context["field_list"] = [
             'name',
-            'type',
             'critical',
             'notes',
             'project',
+        ]
+
+        return context
+
+
+class PDFAgreementsReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_agreements.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+        collaborator_list = models.CollaborativeAgreement.objects.filter(project__in=project_list)
+
+        context["fy"] = fy
+        context["object_list"] = collaborator_list
+        context["my_object"] = collaborator_list.first()
+        context["field_list"] = [
+            'agreement_title',
+            'partner_organization',
+            'project_lead',
+            'new_or_existing',
+            'project',
+            'notes',
+        ]
+        return context
+
+
+class PDFFeedbackReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_feedback.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id").filter(~Q(feedback=""))
+        context["fy"] = fy
+        context["object_list"] = project_list
+        context["my_object"] = project_list.first()
+        context["field_list"] = [
+            'id',
+            'project_title',
+            'project_leads|Project leads',
+            'feedback',
+        ]
+
+        return context
+
+
+class PDFDataReport(LoginRequiredMixin, PDFTemplateView):
+    login_url = '/accounts/login_required/'
+    template_name = "projects/report_pdf_data.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
+        # need to assemble a section list
+        ## first look at the sections arg; if not null, we don't need anything else
+        if self.kwargs["sections"] != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.kwargs["sections"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["divisions"] != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.kwargs["divisions"].split(","))
+        ## next look at the divisions arg; if not null, we don't need anything else
+        elif self.kwargs["regions"] != "None":
+            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.kwargs["regions"].split(","))
+        else:
+            section_list = []
+
+        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+                                                     section_id__in=section_list).order_by("id")
+        context["fy"] = fy
+        context["object_list"] = project_list
+        context["my_object"] = project_list.first()
+        context["field_list"] = [
+            'id',
+            'project_title',
+            'project_leads|Project leads',
+            'data_collection',
+            'data_sharing',
+            'data_storage',
+            'metadata_url',
+            'regional_dm_needs',
+            'sectional_dm_needs',
         ]
 
         return context
@@ -2307,7 +2489,7 @@ class PDFOTSummaryReport(LoginRequiredMixin, PDFTemplateView):
                         if not my_dict["programs"].get(program):
                             my_dict["programs"][program] = 0
 
-                        my_dict["programs"][program] += nz(ot,0)
+                        my_dict["programs"][program] += nz(ot, 0)
 
         program_list = models.Program2.objects.filter(id__in=[program.id for program in my_dict["programs"]]).distinct()
         my_dict["programs"]["list"] = program_list

@@ -1,0 +1,204 @@
+{% extends 'herring/herring_base.html' %}
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <h1>
+            Sedna Fish Detail Import Form:
+        </h1>
+        <ul>
+            <li>
+                the file must be in csv format
+            </li>
+            <li>
+                This function is designed to import a csv export of herring fish detail data collected in Sedna
+            </li>
+            <li>
+                the order of the columns in the file is NOT important
+            </li>
+            <li>
+                IT IS ASSUMED THAT ALL THE CORRESPONDING SAMPLES HAVE BEEN ADDED!!
+            </li>
+            <li>
+                the file must have the follow format:
+            </li>
+        </ul>
+
+        <table class="table table-sm table-bordered" style="font-size: small;width:50%">
+            <thead>
+            <th>sample_uuid</th>
+            <th> fish_number</th>
+            <th>fish_length</th>
+            <th>fish_weight</th>
+            <th>sex</th>
+            <th>maturity</th>
+            <th>gonad_weight</th>
+            <th>parasite</th>
+            <th>lab_sampler</th>
+            <th>otolith_sampler</th>
+            <th>lab_processed_date</th>
+            <th>annulus_count</th>
+            <th>otolith_season</th>
+            <th>otolith_image_remote_filepath</th>
+            <th>otolith_processed_date</th>
+            <th>test_204_accepted</th>
+            <th>test_207_accepted</th>
+            <th>test_209_accepted</th>
+            <th>remarks</th>
+            <th>creation_date</th>
+            <th>created_by</th>
+            <th>last_modified_date</th>
+            <th>last_modified_by</th>
+
+
+            </thead>
+            <tr>
+                <td>
+                    <em>
+                        This is a unique universal identifier assigned to a sample from sedna. This will be stored as the
+                        <code>old_id</code> under the Sample object for historical reference
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        Intra-sample sequential fish number
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        fish length mm
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        fish wgt g
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        sex code
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        maturity level
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        gonad weight g
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        parasite presence (yes/no)
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        lab sampler user
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        otolith sampler user
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        date processing in lab completed
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        annulus count
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        otolith season
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        otolith image filepath
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        date processing otoliths completed
+
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        test result
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        test result
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        test result
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        remarks
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        date of lab detail record creation
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        created by who
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        last the detail record was last modified
+                    </em>
+                </td>
+                <td>
+                    <em>
+                        modified by who
+                    </em>
+                </td>
+            </tr>
+
+        </table>
+
+
+        <br><br>
+
+        <form method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+
+                {#                <h2 class="red-font">WARNING: running this function will overwrite any existing points in this record.</h2>#}
+                <h3>Please select the file to upload:</h3>
+                {{ field }}
+            {% endfor %}
+
+            <br>
+            <br>
+
+            <button type="submit" class="btn btn-success">Submit</button>
+            <br>
+            <br>
+            <a class="btn btn-secondary" href="#" onclick="window.close()">Cancel</a>
+
+        </form>
+
+    </div>
+
+{% endblock content %}

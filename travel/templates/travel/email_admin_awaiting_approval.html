@@ -1,0 +1,23 @@
+{% load verbose_names %}
+
+<h1>
+    A trip is awaiting the approval of {{ trip.current_reviewer.user }} as {{ trip.current_reviewer.role }}.
+</h1>
+
+<p>
+    You can manage approvals via the <a href="http://dmapps{% url 'travel:admin_approval_list' %}">TMS admin console</a>.
+{#    To view the trips awaiting your approval, please click <a href="">HERE</a>. Here are the trip details:#}
+</p>
+
+<table>
+    {% for field in field_list %}
+        {% verbose_td_display trip field %}
+    {% endfor %}
+</table>
+
+
+<style media="screen">
+    table, td {
+        border: solid 1px black;
+    }
+</style>

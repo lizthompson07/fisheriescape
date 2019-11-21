@@ -4,68 +4,74 @@
 {% load verbose_names %}
 
 {% block content %}
-<div class="nav-map">
-<br>
-  <p>
-    <a href="{% url 'herring:sample_list' %}">All samples</a> >
-    <a href="{% url 'herring:sample_detail' object.id %}">Sample {{object.id}}</a> >
-    Delete Confirmation
-  </p>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'herring:index' %}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'herring:sample_list' %}">
+                    Sample List
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'herring:sample_detail' object.id %}">
+                    {{ object }}
+                </a>
+            </li>
 
-</div>
-<div class="container">
+            <li class="breadcrumb-item active" aria-current="page">
+                Delete Sample
+            </li>
 
-{% load static %}
-{# Load js file to allow for popout window #}
-<h1>Are you sure you want to delete Sample {{object.id}}?</h1>
-  <p>(This action is permanent.)</p>
+        </ol>
+    </nav>
+    <div class="container">
 
-  <style media="screen">
-    .value{
-      font-weight: bold;
-      margin-left: 10px;
-      margin-right: 10px;
-    }
-  </style>
+        {% load static %}
+        {# Load js file to allow for popout window #}
+        <h1>Are you sure you want to delete Sample {{ object.id }}?</h1>
+        <p>(This action is permanent.)</p>
 
-  <h4>Sample Details:</h4>
-  <br>
-  <p>
-    <span class="label">{%get_verbose_field_name object "id"%}:</span>
-    <span class="value">{{object.id}}</span> <br>
+        <style media="screen">
+            .value {
+                font-weight: bold;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+        </style>
 
-    <span class="label">Date of sample collection:</span>
-    <span class="value">{{object.sample_date|date:"F d, Y"}}</span> <br>
-
-    <span class="label">{%get_verbose_field_name object "sampler_ref_number"%}:</span>
-    <span class="value">{{object.sampler_ref_number}}</span> <br>
-
-    <span class="label">Collected by: </span>
-    <span class="value">{{object.sampler}}</span> <br>
-
-    <span class="label">District: </span>
-    <span class="value">{{object.district.id}}</span> <br>
-
-    <span class="label">Actual number of lab samples: </span>
-    <span class="value">
-      {{object.fish_details.count}} <br>
+        <h4>Sample Details:</h4>
+        <br>
+        <p>
+            {% verbose_field_display object "id" %}
+            {% verbose_field_display object "sampler_ref_number" %}
+            {% verbose_field_display object "sample_date" %}
+            {% verbose_field_display object "sampler" %}
+            {% verbose_field_display object "port" %}
+            <br><br>
+            <span class="label">Actual number of lab samples: </span><br>
+            <span class="value">
+      {{ object.fish_details.count }} <br>
     </span>
 
-  </p>
-  <br>
+        </p>
+        <br>
 
-<form method="post" class="form">
-    {% csrf_token %}
+        <form method="post" class="form">
+            {% csrf_token %}
 
-    <p>
-      <button type="submit" class="btn btn-lg btn-danger">Delete</button>
-      <a class="btn btn-lg btn-secondary" href="{% url 'herring:sample_detail' object.id %}">Cancel</a>
-    </p>
-</form>
-</div>
+            <p>
+                <button type="submit" class="btn btn-lg btn-danger">Delete</button>
+                <a class="btn btn-lg btn-secondary" href="{% url 'herring:sample_detail' object.id %}">Cancel</a>
+            </p>
+        </form>
+    </div>
 
-<script type="text/javascript">
-  
-</script>
+    <script type="text/javascript">
+
+    </script>
 
 {% endblock content %}

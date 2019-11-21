@@ -27,6 +27,14 @@
                 {% trans "RDS Approval" %}
             {% endif %}
         </h3>
+        {% if view.kwargs.level == "section" %}
+            <br><h4>
+                <span style="font-weight: bold">
+                {% trans "Note to Section Heads:" %}
+                </span><br>
+                {% trans "Please verify that the Science Regional Program names are correct before approving a project." %}
+            </h4>
+        {% endif %}
         <br>
 
         <form method="post" class="form">
@@ -36,15 +44,15 @@
                 {% bootstrap_field field placeholder="" size="small" %}
             {% endfor %}
             <div class="">
-            <a class="btn btn-lg btn-primary my-btn" id="approve" href="#">
-                {% trans "Approve" %}
-            </a>
-            <a class="btn btn-lg btn-danger my-btn" id="unapprove" href="#">
-                {% trans "Do Not Approve" %}
-            </a>
-            <a class="btn btn-lg btn-secondary" onclick="window.close()" href="#">
-                {% trans "Cancel" %}
-            </a>
+                <a class="btn btn-lg btn-primary my-btn" id="approve" href="#">
+                    {% trans "Approve" %}
+                </a>
+                <a class="btn btn-lg btn-danger my-btn" id="unapprove" href="#">
+                    {% trans "Do Not Approve" %}
+                </a>
+                <a class="btn btn-lg btn-secondary" onclick="window.close()" href="#">
+                    {% trans "Cancel" %}
+                </a>
             </div>
         </form>
     </div>

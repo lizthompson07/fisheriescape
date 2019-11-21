@@ -31,7 +31,7 @@
             <a class="btn btn-danger " href="{% url 'scifi:trans_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
-            <a class="btn btn-success" href="{% url 'scifi:trans_duplicate' object.id %}">
+            <a class="btn btn-primary" href="{% url 'scifi:trans_duplicate' object.id %}">
                 {% trans "Duplicate Record" %}
             </a>
 
@@ -39,36 +39,33 @@
 
 
         <br><br>
-
         <div class="row">
-            <div class="col">
-                {% for field in field_list %}
-                    {% if field == "obligation_cost" or field == "invoice_cost" or field == "amount_paid_in_mrs" %}
-                        {% verbose_field_display object field format="currency" %}
-                    {% elif field == "allotment_code" %}
-                        {% url 'scifi:allotment_detail' object.allotment_code.id as my_url %}
-                        {% verbose_field_display object field url=my_url %}
-
-                    {% elif field == "business_line" %}
-                        {% url 'scifi:business_detail' object.business_line.id as my_url %}
-                        {% verbose_field_display object field url=my_url %}
-
-                    {% elif field == "line_object" %}
-                        {% url 'scifi:lo_detail' object.line_object.id as my_url %}
-                        {% verbose_field_display object field url=my_url %}
-
-                    {% elif field == "project" %}
-                        {% url 'scifi:project_detail' object.project.id as my_url %}
-                        {% verbose_field_display object field url=my_url %}
-
-                    {% else %}
-                        {% verbose_field_display object field %}
-                    {% endif %}
-                {% endfor %}
-                <br>
+            <div class="col-9">
+                <table class="table table-sm table-striped">
+                    {% for field in field_list %}
+                        {% if field == "obligation_cost" or field == "invoice_cost" or field == "amount_paid_in_mrs" %}
+                            {% verbose_td_display object field format="currency" %}
+                        {% elif field == "allotment_code" %}
+                            {% url 'scifi:allotment_detail' object.allotment_code.id as my_url %}
+                            {% verbose_td_display object field url=my_url %}
+                        {% elif field == "business_line" %}
+                            {% url 'scifi:business_detail' object.business_line.id as my_url %}
+                            {% verbose_td_display object field url=my_url %}
+                        {% elif field == "line_object" %}
+                            {% url 'scifi:lo_detail' object.line_object.id as my_url %}
+                            {% verbose_td_display object field url=my_url %}
+                        {% elif field == "project" %}
+                            {% url 'scifi:project_detail' object.project.id as my_url %}
+                            {% verbose_td_display object field url=my_url %}
+                        {% else %}
+                            {% verbose_td_display object field %}
+                        {% endif %}
+                    {% endfor %}
+                    <br>
+                </table>
             </div>
-
         </div>
+
     </div>
 
 

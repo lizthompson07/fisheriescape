@@ -45,6 +45,7 @@
         <br><br>
 
         <form method="post" class="form">
+            {% bootstrap_form_errors form %}
             {% csrf_token %}
             {% buttons %}
                 <div class="btn-group">
@@ -74,7 +75,7 @@
                     {% if field.name in help_text_dict %}
                         {% bootstrap_label field.label %}
                         {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
                                  title="{{ field.label }}"
                                  data-content="{{ help_text }}">
                             {{ field }}<br>
@@ -93,7 +94,7 @@
                     {% if field.name in help_text_dict %}
                         {% bootstrap_label field.label %}
                         {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
                                  title="{{ field.label }}"
                                  data-content="{{ help_text }}">
                             {% bootstrap_field field placeholder="" show_label=False %}

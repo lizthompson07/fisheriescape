@@ -2,7 +2,9 @@ from django import forms
 from django.db.models import Q
 from django.forms import modelformset_factory
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
+
+from lib.templatetags.verbose_names import get_verbose_label
 from . import models
 from . import views
 from django.contrib.auth.models import User
@@ -15,13 +17,13 @@ class_editable = {"class": "editable"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
-    (True, "Yes"),
-    (False, "No"),
+    (True, _("Yes")),
+    (False, _("No")),
 )
 
 
 class NewProjectForm(forms.ModelForm):
-    region = forms.ChoiceField()
+    region = forms.ChoiceField(label=_("Region"))
     division = forms.ChoiceField()
     field_order = ['year', 'project_title', 'region', 'division', 'section']
 
@@ -67,10 +69,16 @@ class ProjectForm(forms.ModelForm):
             'rds_feedback',
             'rds_approved',
             'program',
+            'impacts_if_not_approved',
+            'regional_dm',
+            'sectional_dm',
         ]
+        labels = {
+            "programs": "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
+                                         _("mandatory - select multiple, if necessary"))
+        }
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
-
             "description": forms.Textarea(attrs=class_editable),
             "priorities": forms.Textarea(attrs=class_editable),
             "deliverables": forms.Textarea(attrs=class_editable),
@@ -91,7 +99,7 @@ class ProjectForm(forms.ModelForm):
             "section": forms.Select(attrs=chosen_js),
             "responsibility_center": forms.Select(attrs=chosen_js),
             "allotment_code": forms.Select(attrs=chosen_js),
-            "existing_project_code": forms.Select(attrs=chosen_js),
+            "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
 
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "programs": forms.SelectMultiple(attrs=chosen_js),
@@ -181,16 +189,25 @@ class StaffForm(forms.ModelForm):
 class AdminStaffForm(forms.ModelForm):
     class Meta:
         model = models.Staff
-        fields = ["user",'name']
+        fields = ["user", 'name']
         labels = {
             "user": _("DFO User"),
         }
         widgets = {
-        #     'project': forms.HiddenInput(),
-        #     'overtime_description': forms.Textarea(attrs={"rows": 5}),
+            #     'project': forms.HiddenInput(),
+            #     'overtime_description': forms.Textarea(attrs={"rows": 5}),
             'user': forms.Select(attrs=chosen_js),
         }
 
+
+class AdminProjectProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = ["programs", ]
+
+        widgets = {
+            'programs': forms.SelectMultiple(attrs=chosen_js),
+        }
 
 
 class CollaboratorForm(forms.ModelForm):
@@ -316,18 +333,27 @@ class FYForm(forms.Form):
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
-        (None, "-----"),
-        (3, "Project Summary Report (PDF)"),
-        (2, "Batch Workplan Export (PDF) (submitted and approved)"),
+        (None, ""),
+        (None, "----- GENERAL ------"),
+        (3, "Project Summary Report (PDF - section head approved projects)"),
+        (2, "Batch Workplan Export (PDF - section head approved projects)"),
         (1, "Master spreadsheet (MS Excel)"),
+        (16, _("Feedback summary")),
+        (17, _("Data management summary")),
+
+        (None, ""),
+        (None, "----- GULF ------"),
+        (10, _("Weeks Worked by Employees (PDF)")),
+        (11, _("Total Overtime Hours Requested (PDF)")),
+        (12, _("Cost Summary by Section (PDF)")),
+        (13, _("List of Collaborators (PDF)")),
+        (15, _("List of Collaborative Agreements (PDF)")),
+        (14, _("Doug's Report (MS Excel)")),
+
+        (None, ""),
+        (None, "----- ADMIN ------"),
         (4, "Science program list (MS Excel)"),
 
-        # Gulf region reports
-        (10, _("GULF: Weeks Worked by Employees")),
-        (11, _("GULF: Total Overtime Hours Requested")),
-        (12, _("GULF: Cost Summary by Section")),
-        (13, _("GULF: List of Collaborators")),
-        (14, _("GULF: Doug's Report")),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False)

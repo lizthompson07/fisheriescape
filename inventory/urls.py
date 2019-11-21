@@ -129,6 +129,13 @@ urlpatterns = [
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     path('reports/export-batch-xml/<str:sections>/', views.export_batch_xml, name="export_batch_xml"),
 
+
+    # TEMP #
+    ########
+
+    #  this was used to walk over program to programs
+    path('metadata-formset/section/<int:section>/', views.temp_formset, name="formset"),
+    # path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
     # path('reports/capacity-report/fy/<str:fy>/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     # path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     # path('reports/capacity-report/fy/<str:fy>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),

@@ -1,3 +1,6 @@
+from datetime import datetime
+
+import requests
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView, ListView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -9,6 +12,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django_filters.views import FilterView
 from django.utils import timezone
 
+from lib.templatetags.custom_filters import nz
 from . import models
 from . import forms
 from . import filters
@@ -26,6 +30,24 @@ from shared_models import models as shared_models
 def in_herring_group(user):
     if user:
         return user.groups.filter(name='herring_access').count() != 0
+
+
+def in_herring_admin_group(user):
+    if user:
+        return user.groups.filter(name='herring_admin').count() != 0
+
+
+class HerringAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_herring_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class HerringAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
@@ -90,6 +112,20 @@ class SampleFilterView(HerringAccessRequired, FilterView):
     def get_queryset(self):
         return models.Sample.objects.all().order_by("sample_date")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['field_list'] = [
+            'id',
+            'type',
+            'sample_date',
+            'sampler_ref_number',
+            'survey_id',
+            'sampler',
+            'port',
+            'experimental_net_used',
+            'total_fish_preserved',
+        ]
+        return context
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
@@ -222,6 +258,31 @@ class SampleDetailView(HerringAccessRequired, DetailView):
         # pass in the tests
         tests = models.Test.objects.filter(Q(id=205) | Q(id=230) | Q(id=231) | Q(id=232))
         context['tests'] = tests
+        context['field_list'] = [
+            'type',
+            'sample_date',
+            'sampler_ref_number',
+            'sampler',
+            'port',
+            'survey_id',
+            'latitude_n',
+            'longitude_w',
+            'fishing_area',
+            'gear',
+            'experimental_net_used',
+            'vessel_cfvn',
+            'mesh_size',
+            'catch_weight_lbs',
+            'sample_weight_lbs',
+            'total_fish_measured',
+            'total_fish_preserved',
+            'old_id',
+            'remarks',
+            'created_by',
+            'creation_date',
+            'last_modified_by',
+            'last_modified_date',
+        ]
 
         # create a list of length freq counts FOR SAMPLE
         if self.object.length_frequency_objects.count() > 0:
@@ -286,7 +347,6 @@ def move_sample_next(request, sample):
     # shared vars
     message_end = "You are at the last sample."
 
-
     sample_list = models.Sample.objects.all().order_by("id")
     record_count = sample_list.count()
 
@@ -295,7 +355,6 @@ def move_sample_next(request, sample):
 
     # figure out where the current record is within recordset
     current_index = id_list.index(sample)
-
 
     # if you are at the end of the recordset, there is nowhere to go!
     if sample == id_list[-1]:
@@ -306,7 +365,6 @@ def move_sample_next(request, sample):
     else:
         target_id = id_list[current_index + 1]
         return HttpResponseRedirect(reverse(viewname='herring:sample_detail', kwargs={"pk": target_id, }))
-
 
 
 # Length Frequeny wizard #
@@ -705,7 +763,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         # sum of fish
         running_total = 0
         for sample in qs:
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum"] = running_total
 
         # LAB PROCESSING
@@ -725,7 +783,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         # sum of fish REMAINING
         running_total = 0
         for sample in qs.filter(lab_processing_complete=False):
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum_lab_remaining"] = running_total
 
         # OTOLITH PROCESSING
@@ -736,7 +794,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         # sum of fish COMPLETE
         running_total = 0
         for sample in qs.filter(otolith_processing_complete=True):
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum_oto_complete"] = running_total
 
         # sum of samples REMAINING
@@ -745,7 +803,7 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         # sum of fish REMAINING
         running_total = 0
         for sample in qs.filter(otolith_processing_complete=False):
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum_oto_remaining"] = running_total
 
         return context
@@ -784,9 +842,169 @@ def export_hdet(request, year):
 # ADMIN #
 #########
 
-class CheckUsageListView(HerringAccessRequired, ListView):
+class CheckUsageListView(HerringAdminAccessRequired, ListView):
     template_name = "herring/check_usage.html"
     model = models.FishDetail
 
     # show only the top twenty results
     queryset = model.objects.all().order_by('-last_modified_date')[:50]
+
+
+class ImportFileView(HerringAdminAccessRequired, CreateView):
+    model = models.File
+    fields = "__all__"
+
+    def get_template_names(self):
+        if self.kwargs.get("type") == "sample":
+            return 'herring/sample_file_import_form.html'
+        if self.kwargs.get("type") == "lf":
+            return 'herring/lf_file_import_form.html'
+        if self.kwargs.get("type") == 'detail':
+            return 'herring/detail_file_import_form.html'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        # now we need to do some magic with the file...
+
+        # load the file
+        url = self.request.META.get("HTTP_ORIGIN") + my_object.file.url
+        r = requests.get(url)
+        csv_reader = csv.DictReader(r.text.splitlines())
+
+        # loop through each row of the csv file
+        for row in csv_reader:
+            # what to do if we are importing a sample data export..
+            if self.kwargs.get("type") == "sample":
+                # each row will represent a sample
+                # we only want herring.. so if there is a species field, it should be clupea ...
+                species_name = row.get("species")
+                if not species_name or species_name.lower().startswith("clupea"):
+
+                    # let's get or create a sample based on the uuid
+                    my_sample, created = models.Sample.objects.get_or_create(
+                        old_id=row.get("uuid"),
+                        sample_date=datetime.strptime(row.get("sample_date"), "%Y-%m-%d %H:%M:%S%z"),
+                    )
+
+                    # let's do this easy stuff in one shot:
+                    my_sample.type = row.get("type")
+                    my_sample.survey_id = nz(row.get("survey_id"), None)
+                    my_sample.sampler_ref_number = nz(row.get("sampler_ref_number"), None)
+                    my_sample.latitude_n = nz(row.get("latitude_n"), None)
+                    my_sample.longitude_w = nz(row.get("longitude_w"), None)
+                    my_sample.experimental_net_used = row.get("experimental_net_used")
+                    my_sample.sample_weight_lbs = nz(row.get("sample_weight_lbs"), None)
+                    my_sample.catch_weight_lbs = nz(row.get("catch_weight_lbs"), None)
+                    my_sample.total_fish_measured = nz(row.get("total_fish_measured"), None)
+                    my_sample.total_fish_preserved = nz(row.get("total_fish_preserved"), None)
+                    my_sample.remarks = nz(row.get("remarks"), None)
+                    my_sample.creation_date = datetime.strptime(row.get("creation_date"), "%Y-%m-%d %H:%M:%S%z")
+                    my_sample.last_modified_date = datetime.strptime(row.get("last_modified_date"), "%Y-%m-%d %H:%M:%S%z") if row.get("last_modified_date") else None
+                    my_sample.created_by = self.request.user
+                    my_sample.last_modified_by = self.request.user
+                    my_sample.vessel_cfvn = nz(row.get("vessel_cfvn"), None)
+
+                    # now the trickier stuff:
+                    # SAMPLER
+                    if row.get("sampler"):
+                        sedna_sampler = row.get("sampler").lower().split(", ")  # this will be in the format [last_name, first_name]
+                        # look for something similar in the hermorrhage db
+                        herm_sampler = models.Sampler.objects.filter(
+                            first_name__istartswith=sedna_sampler[1],
+                            last_name__iexact=sedna_sampler[0],
+                        )
+                        if herm_sampler.count() == 1:
+                            # bingo, we found our man
+                            print("bingo, we found our man")
+                            my_sample.sampler = herm_sampler.first()
+                        elif herm_sampler.count() == 0:
+                            print("no hits for sampler")
+                            # this user appears to be absent from hermorrhage db
+                            new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
+                            my_sample.sampler = new_sampler
+                        else:
+                            print("more than one hit for sampler")
+                            # we are in a position where there are more than one hits.. try using the whole first name.
+                            # if there are still more than one hits we can just choose the first sampler arbitrarily... means there is a duplicate
+                            # If no hits probably safer just to create a new sampler
+                            herm_sampler = models.Sampler.objects.filter(
+                                first_name__iexact=sedna_sampler[1],
+                                last_name__iexact=sedna_sampler[0],
+                            )
+                            if herm_sampler.count() > 0:
+                                # bingo, we found our man (after a few adjustments)
+                                print("bingo, we found our man (after a few adjustments)")
+                                my_sample.sampler = herm_sampler.first()
+                            else:
+                                print("no hits for sampler, when using full first name")
+                                # this user appears to be absent from hermorrhage db
+                                new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
+                                my_sample.sampler = new_sampler
+                    else:
+                        herm_sampler = models.Sampler.objects.get(pk=29) # sampler = UNKNOWN
+
+                    # FISHING AREA
+                    # since this is more fundamental, let's crush the script is not found
+                    # look for something exactly the same in the hermorrhage db
+                    if row.get("fishing_area"):
+                        my_sample.fishing_area = models.FishingArea.objects.get(nafo_area_code__iexact=row.get("fishing_area"))
+
+                    # GEAR
+                    # same for gear. not finding something here is unacceptable
+                    if row.get("gear"):
+                        my_sample.gear = models.Gear.objects.get(gear_code__iexact=row.get("gear"))
+
+                    # MESH SIZE
+                    if row.get("mesh_size"):
+                        try:
+                            my_mesh = models.MeshSize.objects.get(size_mm=row.get("mesh_size"))
+                        except models.MeshSize.DoesNotExist:
+                            my_mesh = models.MeshSize.objects.create(
+                                size_mm=row.get("mesh_size")
+                            )
+                        my_sample.mesh_size = my_mesh
+
+                    # PORT
+                    if row.get("port_code"):
+                        # not finding something here is unacceptable
+                        for port in shared_models.Port.objects.all():
+                            if row.get("port_code") == port.full_code:
+                                my_sample.port = port
+                                break
+
+                    my_sample.save()
+                else:
+                    messages.warning(self.request,
+                                     "Skipping sample with uuid {} because it is not a herring sample.".format(row.get("uuid")))
+            elif self.kwargs.get("type") == "lf":
+                # each row will represent a length frequency object
+                # let's get the sample based on the uuid; if not found we should crash because something went wrong
+                try:
+                    my_sample = models.Sample.objects.get(old_id=row.get("sample_uuid"))
+                except models.Sample.DoesNotExist:
+                    messages.warning(self.request,
+                                   "Sample with uuid {} was not found in the hermorrhage db. This length frequecy will be skipped".format(
+                                       row.get("sample_uuid")))
+                else:
+                    my_lf, created = models.LengthFrequency.objects.get_or_create(
+                        sample=my_sample,
+                        length_bin_id=row.get("length_bin"),
+                    )
+                    my_lf.count = row.get("count")
+                    my_lf.save()
+                    my_sample.save()  # run the save method to do a few updates
+
+            elif self.kwargs.get("type") == "detail":
+                # each row will represent a fish detail
+                # let's get the sample based on the uuid; if not found we should crash because something went wrong
+                my_sample = models.Sample.objects.get(old_id=row.get("sample_uuid"))
+
+                # DJF: I DON'T HAVE THE TIME TO COMPLETE THIS RIGHT NOW. THIS YEAR (2019) THERE WERE NO FISH DETAIL RECORDS
+                # PROCCESSED IN SEDNA SO I WILL KICK THE CAN DOWN UNTIL A LATER DATE
+                # Note: this import scirpt is a combination of the sample import and the lf import above.
+                messages.info(self.request,
+                              "Due to limited time resources, this import script was not developed. Once fish details are process on "
+                              "boats, this function will be built")
+        # clear the file in my object
+        my_object.delete()
+        return HttpResponseRedirect(reverse_lazy('herring:index'))

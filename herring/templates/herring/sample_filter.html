@@ -2,6 +2,11 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load humanize %}
+{% load verbose_names %}
+{% load el_pagination_tags %}
+{% load custom_filters %}
+{% load i18n %}
+
 {% block content %}
 
     <style type="text/css">
@@ -10,16 +15,28 @@
         }
     </style>
 
-    <div class="indent-med">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'herring:index' %}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Sample List
+            </li>
+
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        {% paginate 100 filter.qs as filter_list %}
 
         <h1 class="big-header">Herring Samples </h1>
-        <p>TOTAL: {{ object_list.count }}</p>
-        <p>
-        </p>
 
-        <form class="form" action="." method="get">
+
+        <form id="filter-form" action="." method="get">
             <div class="row">
-
                 {% for field in filter.form %}
                     {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
                     <div class="col">
@@ -40,42 +57,63 @@
         </div>
         <br>
         <br>
+
+        <div class="row">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+            <div class="col" style="text-align: center">
+                {% show_pages %}
+                <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'herring:sample_new' %}" class="btn btn-sm btn-primary">New</a>
+            </div>
+        </div>
         <table class="table table-hover table-sm sortable">
             <thead>
-            <th scope="col">Sample #</th>
-            <th scope="col">Type</th>
-            <th scope="col">Sample Collection Date</th>
-            <th scope="col">Port</th>
-            <th scope="col" style="text-align: center;">Sampler Ref. No.</th>
-            <th scope="col" style="text-align: center;">Experimental?</th>
-            <th scope="col">Sampler</th>
-            <th scope="col" style="text-align: center;"># Fish Processed</th>
-            <th scope="col" style="text-align: center;">Date Processed</th>
-            <th scope="col" style="text-align: center;">Lab Complete</th>
-            <th scope="col" style="text-align: center;">Otoliths Complete</th>
+            {% for field in field_list %}
+                {% if field == "sample_date" %}
+                    <th>
+                        Sample date<br>(yyyy-mm-dd)
+                    </th>
+                {% elif field == "sampler_ref_number" %}
+                    <th style="width: 8%">
+                        {% get_verbose_label object_list.first field %}
+                    </th>
+                {% else %}
+                    <th class="{% if 'total' in field or 'ref' in field or 'experiment' in field %}center-col{% endif %}">
+                        {% get_verbose_label object_list.first field %}
+                    </th>
+                {% endif %}
+            {% endfor %}
+
+
+            <th scope="col" class="center-col"># Fish processed</th>
+            <th scope="col">Date processed<br>(yyyy-mm-dd)</th>
+            <th scope="col" class="center-col">Lab complete</th>
+            <th scope="col" class="center-col">Otoliths complete</th>
             </thead>
             <tbody>
-            {% for sample in filter.qs %}
+            {% for sample in filter_list %}
                 <tr href="{% url 'herring:sample_detail' sample.id %}">
-                    <td>{{ sample.id }}</td>
-                    <td>{{ sample.get_type_display }}</td>
-                    <td>{{ sample.sample_date|date:'Y-m-d' }}</td>
-                    <td>{{ sample.port }}</td>
-                    <td align='center'>{{ sample.sampler_ref_number }}</td>
-                    <td align='center'>{{ sample.experimental_net_used|yesno:"yes,no,n/a" }}</td>
-                    <td>{{ sample.sampler }}</td>
 
-                    <td align='center'>{{ sample.fish_details.count }}</td>
-                    <td align='center'>{{ sample.fish_details.last.lab_processed_date|date:"F d, Y" }}</td>
+                    {% for field in field_list %}
+                        <td class="{% if 'total' in field or 'ref' in field or 'experiment' in field %}center-col{% endif %}">
+                            {% get_field_value sample field %}
+                        </td>
+                    {% endfor %}
 
-                    <td align='center'>
+                    <td class='center-col'>{{ sample.fish_details.count }}</td>
+                    <td class=''>{{ sample.fish_details.last.lab_processed_date|date:"Y-m-d"|nz:"---" }}</td>
+                    <td class='center-col'>
                         {% if sample.lab_processing_complete %}
                             <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
                         {% else %}
                             <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
                         {% endif %}
                     </td>
-
+                    {##}
                     <td align='center'>
                         {% if sample.otolith_processing_complete %}
                             <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
@@ -83,9 +121,8 @@
                             <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
                         {% endif %}
                     </td>
-
-
                 </tr>
+
             {% endfor %}
             </tbody>
         </table>

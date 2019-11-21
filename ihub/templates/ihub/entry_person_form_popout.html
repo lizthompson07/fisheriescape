@@ -1,27 +1,16 @@
+{% extends 'pop_base.html' %}
+
 {% load bootstrap4 %}
 {% load i18n %}
 {% load static %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
 
-{% block content %}
+{% block body %}
 
     <link rel="stylesheet" href="{% static 'css/master.css' %}">
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
-    <script>
-        window.resizeTo(width = 600, height = 600);
 
-        window.onunload = refreshParent;
-
-        function refreshParent() {
-            window.opener.location.reload();
-        }
-
-        $(document).ready(function () {
-            // Stuff to do as soon as the DOM is ready
-            $("#id_digestion_level")[0].focus()
-        });
-    </script>
     <div class="indent-med">
 
         <h3>
@@ -41,13 +30,13 @@
                     {#                    do nothing #}
                 {% elif field.name == "user" %}
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-6">
                             {% bootstrap_field field size="small" %}
                         </div>
                         <div class="col-1">
                             {% trans "OR" %}
                         </div>
-                        <div class="col">
+                        <div class="col-5">
                             {% for field in form %}
                                 {% if field.name == "name" %}
                                     {% bootstrap_field field placeholder="" size="small" %}
@@ -73,9 +62,24 @@
 
 
     </div>
+{% endblock %}
+{% block body_js %}
 
 
+    <script>
+        window.resizeTo(width = 700, height = 600);
 
+        window.onunload = refreshParent;
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            $("#id_digestion_level")[0].focus()
+        });
+    </script>
     <script type="application/javascript">
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
@@ -92,16 +96,21 @@
             // if there is a user given, disable and clean the "name" field
             if ($("#id_user").val() != "") {
                 $("#id_name").val("")
-                $("#id_name").prop("disabled", true)
-                $("#id_organization").val("DFO")
-                $("#id_organization").prop("disabled", false)
+                $("#id_name").prop("disabled", true);
+                $("#id_organization").prop("disabled", false);
             } else {
-                $("#id_name").prop("disabled", false)
+                $("#id_name").prop("disabled", false);
                 {#$("#id_organization").val("")#}
-                $("#id_organization").prop("disabled", false)
+                $("#id_organization").prop("disabled", false);
             }
         }
+
+        $("#id_user").change(function () {
+            if ($("#id_user").val() != "") {
+                $("#id_organization").val("DFO")
+            }
+        })
     </script>
 
 
-{% endblock content %}
+{% endblock %}

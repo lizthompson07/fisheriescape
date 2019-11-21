@@ -7,6 +7,11 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
 
+    # General EMM Make and Model forms
+    path('create/emm', views.CreateMakeModel.as_view(), name="create_emm"),
+    path('details/<int:pk>/emm', views.DetailsMakeModel.as_view(), name="details_emm"),
+    path('list/emm', views.ListMakeModel.as_view(), name="list_emm"),
+
     # Specialized EQH hydrophone forms
     path('create/eqh', views.CreateHydrophone.as_view(), name="create_eqh"),
     path('details/<int:pk>/eqh', views.DetailsHydrophone.as_view(), name="details_eqh"),
@@ -20,8 +25,6 @@ urlpatterns = [
     # Sepcialized DEP Deploymnet forms
     path('create/dep', views.CreateDeployment.as_view(), name="create_dep"),
     path('update/dep/<int:pk>', views.UpdateDeployment.as_view(), name="update_dep"),
-    #path('details/<int:pk>/recorder', views.DetailsRecorder.as_view(), name="details_eqr"),
-    #path('list/eqr', views.ListRecorder.as_view(), name="list_eqr"),
 
     # Used in the details page for EQH hydrophones and EQR Recorders
     path('create/prm/<str:pop>/<int:emm_id>/', views.CreatePrmParameter.as_view(), name="create_parameter"),
