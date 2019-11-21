@@ -24,7 +24,7 @@ class GenericFilterSet(FilterSet):
 class CrsFilter(GenericFilterSet):
 
     class Meta:
-        model = models.CrsCruises
+        model = models.CrsCruise
         fields = ['crs_name', 'crs_pi_name', 'crs_institute_name', 'crs_geographic_location', 'crs_start_date',
                   'crs_end_date', 'crs_notes', ]
 
@@ -32,28 +32,28 @@ class CrsFilter(GenericFilterSet):
 class DepFilter(GenericFilterSet):
 
     class Meta:
-        model = models.DepDeployments
+        model = models.DepDeployment
         fields = ['dep_year', 'dep_month', 'dep_name', 'stn', 'prj', 'mor', ]
 
 
 class EdaFilter(GenericFilterSet):
 
     class Meta:
-        model = models.EdaEquipmentAttachments
+        model = models.EdaEquipmentAttachment
         fields = ['eqp', 'dep', 'rec']
 
 
 class EdhFilter(GenericFilterSet):
 
     class Meta:
-        model = models.EhaHydrophoneAttachements
+        model = models.EhaHydrophoneAttachement
         fields = ['eda', 'eqp',]
 
 
 class EqhFilter(GenericFilterSet):
 
     class Meta:
-        model = models.EqhHydrophoneProperties
+        model = models.EqhHydrophoneProperty
         fields = ['emm', 'eqh_range_max', 'eqh_range_min']
 
 
@@ -74,7 +74,7 @@ class EmmFilter(GenericFilterSet):
 class MorFilter(GenericFilterSet):
 
     class Meta:
-        model = models.MorMooringSetups
+        model = models.MorMooringSetup
         fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image',
                   'mor_additional_equipment', 'mor_general_moor_description', 'more_notes', ]
 
@@ -82,14 +82,14 @@ class MorFilter(GenericFilterSet):
 class PrjFilter(GenericFilterSet):
 
     class Meta:
-        model = models.PrjProjects
+        model = models.PrjProject
         fields = ['prj_name', 'prj_descrption', 'prj_url', ]
 
 
 class RecFilter(GenericFilterSet):
 
     class Meta:
-        model = models.RecRecordingEvents
+        model = models.RecRecordingEvent
         fields = ['rsc', 'tea_id_setup_by', 'rec_date_of_system_chk', 'tea_id_checked_by', 'rec_date_first_recording',
                   'rec_date_last_recording', 'rec_total_memory_used', 'rec_hf_mem', 'rec_lf_mem',
                   'rec_date_data_download', 'rec_data_store_url', 'tea_id_downloaded_by', 'rec_date_data_backed_up',
@@ -100,7 +100,7 @@ class RecFilter(GenericFilterSet):
 class RscFilter(GenericFilterSet):
 
     class Meta:
-        model = models.RscRecordingSchedules
+        model = models.RscRecordingSchedule
         fields = ['rsc_name', 'rsc_period']
 
 
@@ -114,7 +114,7 @@ class RstFilter(GenericFilterSet):
 class SteFilter(GenericFilterSet):
 
     class Meta:
-        model = models.SteStationEvents
+        model = models.SteStationEvent
         fields = ['dep', 'set_type', 'ste_date', 'crs', 'ste_lat_ship', 'ste_lon_ship', 'ste_depth_ship', 'ste_lat_mcal',
                   'ste_lon_mcal', 'ste_depth_mcal', 'ste_team', 'ste_instrument_cond', 'ste_weather_cond', 'ste_logs',
                   'ste_notes']
@@ -123,5 +123,5 @@ class SteFilter(GenericFilterSet):
 class StnFilter(GenericFilterSet):
 
     class Meta:
-        model = models.StnStations
+        model = models.StnStation
         fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon', 'stn_planned_depth', 'stn_notes', ]
