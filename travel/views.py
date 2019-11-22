@@ -144,8 +144,8 @@ trip_field_list = [
     'total_cost',
     'non_dfo_costs',
     'non_dfo_org',
-    'cost_breakdown|{}'.format(_("cost summary")),
-    'purpose_long|{}'.format(_("purpose")),
+    # 'cost_breakdown|{}'.format(_("cost summary")),
+    # 'purpose_long|{}'.format(_("purpose")),
 ]
 
 trip_group_field_list = [
