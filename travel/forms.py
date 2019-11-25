@@ -336,3 +336,12 @@ ReviewerFormSet = modelformset_factory(
     form=ReviewerForm,
     extra=1,
 )
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        exclude = ["date_created", ]
+        widgets = {
+            'trip': forms.HiddenInput(),
+        }

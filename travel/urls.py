@@ -46,12 +46,20 @@ urlpatterns = [
     path('conference/<int:pk>/edit/', views.ConferenceUpdateView.as_view(), name="conf_edit"),
     path('conference/<int:pk>/delete/', views.ConferenceDeleteView.as_view(), name="conf_delete"),
 
+    # FILES #
+    #########
+    path('trip/<int:trip>/file/new/', views.FileCreateView.as_view(), name='file_new'),
+    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
+    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
+
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     path('reports/export-cfts-list/year/<int:fy>/user/<int:user>/', views.export_cfts_list, name="export_cfts_list"),
     path('reports/cfts/trip/<int:pk>/', views.export_trip_cfts, name="export_cfts"),
     # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
+
 
     # SETTINGS #
     ############

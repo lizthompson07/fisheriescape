@@ -80,10 +80,61 @@
                 </span>
             {% endif %}
         </div>
-{#    </div>#}
-{#    <div class="container-fluid">#}
+        {#    </div>#}
+        {#    <div class="container-fluid">#}
         <br><br>
         {% include "travel/_trip_detail.html" %}
+
+        {% url 'travel:file_new' trip.id as add_url %}
+        <div class="float-right">
+            <a class="btn btn-sm btn-primary" href="#" pop-href="{{ add_url }}">
+                {% trans "Add a File" %}
+            </a>
+        </div>
+        <h3>
+            {% trans "File Attachments" %}
+        </h3>
+
+
+        {% if object.files.count == 0 %}
+            <em>
+                {% trans "No Files" %}...
+            </em>
+            <br>
+        {% else %}
+
+            <table class="table table-hover table-sm" style="width: auto">
+                <tr>
+                    <th>
+                        {% trans "Caption" %}
+                    </th>
+                    <th class="center-col">
+                        {% trans "File Attachment" %}
+                    </th>
+                    <th>
+                        {% trans "Date Created" %}
+                    </th>
+
+                </tr>
+                <tbody>
+                {% for obj in object.files.all %}
+                    <tr data-toggle="tooltip" title="Edit" href="{% url 'travel:file_detail' obj.id %}" pop>
+                        <td>{{ obj.name }}</td>
+                        <td class="center-col">
+                            <a href="{{ obj.file.url }}" data-toggle="tooltip" title="{% trans "Open the file" %}"
+                               class="stop-blank">
+                                <img src="{% static 'img/paperclip-1332775_1920.png' %}" alt="" width="20px">
+                            </a>
+                        </td>
+                        <td>{{ obj.date_created }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        <br>
+
+
     </div>
 
 
