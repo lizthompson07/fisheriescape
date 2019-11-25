@@ -1,8 +1,11 @@
+import os
+
 from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models import Q, Sum
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -532,3 +535,53 @@ class Reviewer(models.Model):
             status,
         )
         return mark_safe(my_str)
+
+
+def file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'travel/trip_{0}/{1}'.format(instance.trip.id, filename)
+
+
+class File(models.Model):
+    trip = models.ForeignKey(Trip, related_name="files", on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, verbose_name=_("caption"))
+    file = models.FileField(upload_to=file_directory_path, blank=True, verbose_name=_("file attachment"))
+    date_created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['trip', 'date_created']
+
+    def __str__(self):
+        return self.name
+
+
+@receiver(models.signals.post_delete, sender=File)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=File)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = File.objects.get(pk=instance.pk).file
+    except File.DoesNotExist:
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
