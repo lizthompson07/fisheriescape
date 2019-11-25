@@ -7,8 +7,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
+from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
-from lib.templatetags.custom_filters import nz
+from lib.templatetags.custom_filters import nz, currency
 from lib.functions.custom_functions import fiscal_year, listrify
 
 YES_NO_CHOICES = (
@@ -231,22 +233,21 @@ class Trip(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes (will not be included in travel plan)"))
 
     # costs
-    air = models.FloatField(blank=True, null=True, verbose_name=_("air fare costs"))
-    rail = models.FloatField(blank=True, null=True, verbose_name=_("rail costs"))
-    rental_motor_vehicle = models.FloatField(blank=True, null=True, verbose_name=_("rental motor vehicles costs"))
-    personal_motor_vehicle = models.FloatField(blank=True, null=True, verbose_name=_("personal motor vehicles costs"))
-    taxi = models.FloatField(blank=True, null=True, verbose_name=_("taxi costs"))
-    other_transport = models.FloatField(blank=True, null=True, verbose_name=_("other transport costs"))
-    accommodations = models.FloatField(blank=True, null=True, verbose_name=_("accommodation costs"))
-    meals = models.FloatField(blank=True, null=True, verbose_name=_("meal costs"))
-    incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidental costs"))
+    air = models.FloatField(blank=True, null=True, verbose_name=_("air fare"))
+    rail = models.FloatField(blank=True, null=True, verbose_name=_("rail"))
+    rental_motor_vehicle = models.FloatField(blank=True, null=True, verbose_name=_("rental motor vehicles"))
+    personal_motor_vehicle = models.FloatField(blank=True, null=True, verbose_name=_("personal motor vehicles"))
+    taxi = models.FloatField(blank=True, null=True, verbose_name=_("taxi"))
+    other_transport = models.FloatField(blank=True, null=True, verbose_name=_("other transport"))
+    accommodations = models.FloatField(blank=True, null=True, verbose_name=_("accommodation"))
+    meals = models.FloatField(blank=True, null=True, verbose_name=_("meal"))
+    incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidental"))
     registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
-    other = models.FloatField(blank=True, null=True, verbose_name=_("other costs"))
+    other = models.FloatField(blank=True, null=True, verbose_name=_("other"))
     total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost (DFO)"))
     non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Estimated non-DFO costs (CAD)"))
     non_dfo_org = models.CharField(max_length=1000, verbose_name=_("Full name(s) of organization paying non-DFO costs"), blank=True,
                                    null=True)
-
 
     submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
@@ -317,6 +318,42 @@ class Trip(models.Model):
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other").verbose_name, self.other)
         return my_str
 
+    @property
+    def cost_table(self):
+        cost_list = [
+            "air",
+            "rail",
+            "rental_motor_vehicle",
+            "personal_motor_vehicle",
+            "taxi",
+            "other_transport",
+            "accommodations",
+            "meals",
+            "incidentals",
+            "registration",
+            "other",
+        ]
+
+        # style #1 - costs as headers
+        # my_str = "<table class='table table-sm table-bordered plainjane'><tr>"
+        # for cost in cost_list:
+        #     my_str += "<th class='plainjane'>{}</th>".format(get_verbose_label(self, cost))
+        # my_str += "</tr><tr>"
+        # for cost in cost_list:
+        #     my_str += "<td class='plainjane'>{}</td>".format(nz(currency(getattr(self, cost)),"---"))
+        # my_str += "</tr></table>"
+
+        # style # 2 - 2 columns
+        my_str = "<table class='plainjane' style='width: 40%'>"
+        my_str += "<tr class='plainjane'><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
+            _("Cost category"), _("Amount (CAD)"))
+        for cost in cost_list:
+            my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{}</td></tr>".format(
+                get_verbose_label(self, cost), nz(currency(getattr(self, cost)), "---"))
+        my_str += "<tr><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
+            _("TOTAL"), nz(currency(self.total_trip_cost), "---"))
+        my_str += "</table>"
+        return mark_safe(my_str)
 
     @property
     def total_trip_cost(self):

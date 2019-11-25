@@ -4,9 +4,22 @@
 {% load i18n %}
 
 <style>
-    .plainjane {
-        background-color: white;
+
+
+    .plainjane table,
+    .plainjane td,
+    .plainjane tr,
+    .plainjane th,
+    .plainjane tr:hover,
+    .plainjane tbody td {
+        background-color: #f5efe6;
         border: black solid 1px;
+    }
+
+    .my-hdr {
+        background-color: black;
+        background-font: white;
+
     }
 </style>
 
@@ -33,73 +46,134 @@
     {% endfor %}
     <tr>
         <th>
-            {% trans "Summary of travellers (excluding BTA)" %}
+            {% trans "Traveller history (excluding BTA)" %}
         </th>
         <td>
-            <table class="table table-sm table-bordered plainjane">
-                <tr class="plainjane">
-                    <th rowspan="2" class="plainjane">Name</th>
-                    <th colspan="2" class="plainjane center-col">Conferences or International Trips</th>
-                </tr>
-                <tr class="plainjane">
-                    <th class="plainjane center-col">{{ trip.fiscal_year }}</th>
-                    <th class="plainjane center-col">Total</th>
-                </tr>
-                <tbody class="plainjane">
-                {% for user in trip.get_summary_dict %}
-                    {% with trip.get_summary_dict|lookup:user as d %}
-                        <tr class="plainjane">
-                            <td class="plainjane">{{ user }}</td>
-                            <td class="plainjane center-col">
-                                {% if user.id %}
-                                    {{ d.fy_list|length }}
-                                    {% if d.fy_list|length %}
-                                        &nbsp;
-                                        {% with d.fy_list as my_list %}
-                                            <button class="badge" data-toggle="popover"
-                                                    title="{{ user.first_name }}'s Total Trips for {{ trip.fiscal_year }}"
-                                                    data-content="{% include "travel/_user_trip_list.html" %}">
-                                                {% trans "show" %}
-                                            </button>
-                                        {% endwith %}
+            {% if not object.is_group_trip %}
+                <table class="plainjane" style="width: 75%;">
+                    <tr class="plainjane">
+                        <th colspan="2" class="plainjane center-col">Conferences or International Trips</th>
+                    </tr>
+                    <tr class="plainjane">
+                        <th class="plainjane center-col">{{ trip.fiscal_year }}</th>
+                        <th class="plainjane center-col">Total</th>
+                    </tr>
+                    {% for user in trip.get_summary_dict %}
+                        {% with trip.get_summary_dict|lookup:user as d %}
+                            <tr class="plainjane">
+                                <td class="plainjane center-col">
+                                    {% if user.id %}
+                                        {{ d.fy_list|length }}
+                                        {% if d.fy_list|length %}
+                                            &nbsp;
+                                            {% with d.fy_list as my_list %}
+                                                <button class="badge" data-toggle="popover"
+                                                        title="{{ user.first_name }}'s Total Trips for {{ trip.fiscal_year }}"
+                                                        data-content="{% include "travel/_user_trip_list.html" %}">
+                                                    {% trans "show" %}
+                                                </button>
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% else %}
+                                        <em>
+                                            {{ d.fy_list }}
+                                        </em>
                                     {% endif %}
-                                {% else %}
-                                    <em>
-                                        {{ d.fy_list }}
-                                    </em>
-                                {% endif %}
-                            </td>
+                                </td>
 
-                            <td class="plainjane center-col">
-                                {% if user.id %}
-                                    {{ d.total_list|length }}
-                                    {% if d.total_list|length %}
-                                        &nbsp;
-                                        {% with d.total_list as my_list %}
-                                            <button class="badge" data-toggle="popover"
-                                                    title="{{ user.first_name }}'s Total Trips"
-                                                    data-content="{% include "travel/_user_trip_list.html" %}">
-                                                {% trans "show" %}
-                                            </button>
-                                        {% endwith %}
+                                <td class="plainjane center-col">
+                                    {% if user.id %}
+                                        {{ d.total_list|length }}
+                                        {% if d.total_list|length %}
+                                            &nbsp;
+                                            {% with d.total_list as my_list %}
+                                                <button class="badge" data-toggle="popover"
+                                                        title="{{ user.first_name }}'s Total Trips"
+                                                        data-content="{% include "travel/_user_trip_list.html" %}">
+                                                    {% trans "show" %}
+                                                </button>
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% else %}
+                                        <em>
+                                            {{ d.total_list }}
+                                        </em>
                                     {% endif %}
-                                {% else %}
-                                    <em>
-                                        {{ d.total_list }}
-                                    </em>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
+                                </td>
+                            </tr>
+                            <tr>
 
-                        </tr>
-                    {% endwith %}
-                {% endfor %}
+                            </tr>
+                        {% endwith %}
+                    {% endfor %}
 
-                </tbody>
-            </table>
+                </table>
 
+            {% else %}
+
+                <table class="plainjane" style="width: 75%;">
+                    <tr class="plainjane">
+                        <th rowspan="2" class="plainjane">Name</th>
+                        <th colspan="2" class="plainjane center-col">Conferences or International Trips</th>
+                    </tr>
+                    <tr class="plainjane">
+                        <th class="plainjane center-col">{{ trip.fiscal_year }}</th>
+                        <th class="plainjane center-col">Total</th>
+                    </tr>
+                    {% for user in trip.get_summary_dict %}
+                        {% with trip.get_summary_dict|lookup:user as d %}
+                            <tr class="plainjane">
+                                <td class="plainjane">{{ user }}</td>
+                                <td class="plainjane center-col">
+                                    {% if user.id %}
+                                        {{ d.fy_list|length }}
+                                        {% if d.fy_list|length %}
+                                            &nbsp;
+                                            {% with d.fy_list as my_list %}
+                                                <button class="badge" data-toggle="popover"
+                                                        title="{{ user.first_name }}'s Total Trips for {{ trip.fiscal_year }}"
+                                                        data-content="{% include "travel/_user_trip_list.html" %}">
+                                                    {% trans "show" %}
+                                                </button>
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% else %}
+                                        <em>
+                                            {{ d.fy_list }}
+                                        </em>
+                                    {% endif %}
+                                </td>
+
+                                <td class="plainjane center-col">
+                                    {% if user.id %}
+                                        {{ d.total_list|length }}
+                                        {% if d.total_list|length %}
+                                            &nbsp;
+                                            {% with d.total_list as my_list %}
+                                                <button class="badge" data-toggle="popover"
+                                                        title="{{ user.first_name }}'s Total Trips"
+                                                        data-content="{% include "travel/_user_trip_list.html" %}">
+                                                    {% trans "show" %}
+                                                </button>
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% else %}
+                                        <em>
+                                            {{ d.total_list }}
+                                        </em>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+
+                            </tr>
+                        {% endwith %}
+                    {% endfor %}
+                </table>
+
+            {% endif %}
         </td>
+
     </tr>
     <tr>
         <th>
@@ -119,17 +193,17 @@
 
 {#  CONFERENCE DETAIL  #}
 {% if trip.is_conference %}
+    <h3>
+        Conference/Meeting Detail:
+    </h3>
     {% if not trip.conference %}
-        <em>{% trans "It was indicated above that this trip is a conference however no conference was selected." %}</em>
+        <em class="red-font blink-me">{% trans "It was indicated above that this trip is a conference/meeting however no conference or meeting was selected." %}</em>
     {% else %}
         <div class="float-right">
-            <a class="btn btn-success under-dev" href="#" target="_blank">
-                CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
-            </a>
+            {#            <a class="btn btn-success under-dev" href="#" target="_blank">#}
+            {#                CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">#}
+            {#            </a>#}
         </div>
-        <h3>
-            Conference/Meeting Detail:
-        </h3>
         <table class="table table-sm table-striped">
             {% for field in conf_field_list %}
                 {% verbose_td_display trip.conference field th_width="30%" date_format="%B %d, %Y" %}
