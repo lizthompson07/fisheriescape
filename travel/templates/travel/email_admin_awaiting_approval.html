@@ -1,5 +1,13 @@
 {% load verbose_names %}
 
+<style media="screen">
+    table, td, th, tr {
+        border: solid 1px black;
+        text-align: left;
+        margin-right: 15px;
+    }
+</style>
+
 <h1>
     A trip is awaiting the approval of {{ trip.current_reviewer.user }} as {{ trip.current_reviewer.role }}.
 </h1>
@@ -16,9 +24,3 @@
 </table>
 
 
-<style media="screen">
-    table, td, th, tr {
-        border: solid 1px black;
-        text-align: left;
-    }
-</style>
