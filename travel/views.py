@@ -969,3 +969,63 @@ def manage_statuses(request):
     context['title'] = "Manage Statuses"
     context['formset'] = formset
     return render(request, 'travel/manage_settings_small.html', context)
+
+
+
+# FILES #
+#########
+
+class FileCreateView(TravelAccessRequiredMixin, CreateView):
+    template_name = "travel/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        trip = models.Trip.objects.get(pk=self.kwargs['trip'])
+        context["trip"] = trip
+        return context
+
+    def get_initial(self):
+        trip = models.Trip.objects.get(pk=self.kwargs['trip'])
+        # status_report = models.StatusReport.objects.get(pk=self.kwargs['status_report']) if self.kwargs.get('status_report') else None
+
+        return {
+            'trip': trip,
+        }
+
+
+class FileUpdateView(TravelAccessRequiredMixin, UpdateView):
+    template_name = "travel/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("travel:file_detail", kwargs={"pk": self.object.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        return context
+
+
+class FileDetailView(FileUpdateView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["editable"] = False
+        return context
+
+
+class FileDeleteView(TravelAccessRequiredMixin, DeleteView):
+    template_name = "travel/file_confirm_delete.html"
+    model = models.File
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("shared_models:close_me")
