@@ -4,7 +4,7 @@
         <li>
             <b>{{ obj.fiscal_year }}</b> -
             {% if obj.id == trip.id %}
-                {{ obj }}
+                {{ obj }} - {% trans "CURRENT TRIP" %}
             {% else %}
                 <a href='{% url 'travel:trip_detail' obj.id %}' target='_blank'>{{ obj }}</a>
             {% endif %}
