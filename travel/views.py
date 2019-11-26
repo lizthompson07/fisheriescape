@@ -662,8 +662,11 @@ class ChildTripCloneUpdateView(TripCreateView):
 
 @login_required(login_url='/accounts/login_required/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def re_add_reviewers(request, pk):
+def reset_reviewers(request, pk):
     my_obj = models.Trip.objects.get(pk=pk)
+    # first remove any existing reviewers
+    my_obj.reviewers.all().delete()
+    # next, re-add the defaults...
     utils.get_reviewers(my_obj)
     return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.id}))
 
