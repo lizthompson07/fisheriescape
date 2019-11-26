@@ -183,6 +183,13 @@ class Trip(models.Model):
                                     default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trips")
     is_group_trip = models.BooleanField(default=False,
                                         verbose_name=_("Is this a group trip (i.e., is this a request for multiple individuals)?"))
+    is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
+        "does this trip require ADM approval?"))
+    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
+    reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
+    conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                   verbose_name=_("conference / meeting"), related_name="trips")
+
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trips",
                              verbose_name=_("user"))
@@ -207,13 +214,7 @@ class Trip(models.Model):
                                    null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True)
-    reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
-    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
-    is_international = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
-        "is this an international trip OR are international travellers included in this request?"))
-    is_conference = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a conference or meeting?"))
-    conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   verbose_name=_("conference / meeting"), related_name="trips")
+
     #############
     # these two fields should be deleted eventually if the event planning peice happens through this app...
     # has_event_template = models.NullBooleanField(default=False,
@@ -449,12 +450,12 @@ class Trip(models.Model):
             if my_user:
                 # there are two things we have to do to get this list...
                 # 1) get all non group travel
-                qs = my_user.user_trips.filter(Q(is_international=True) | Q(is_conference=True)).filter(is_group_trip=False)
+                qs = my_user.user_trips.filter(is_adm_approval_required=True).filter(is_group_trip=False)
                 total_list.extend([trip for trip in qs])
                 fy_list.extend([trip for trip in qs.filter(fiscal_year=self.fiscal_year)])
 
                 # 2) get all group travel - the trick part is that we have to grab the parent trip
-                qs = my_user.user_trips.filter(Q(parent_trip__is_international=True) | Q(parent_trip__is_conference=True))
+                qs = my_user.user_trips.filter(parent_trip__is_adm_approval_required=True)
                 total_list.extend([trip.parent_trip for trip in qs])
                 fy_list.extend([trip.parent_trip for trip in qs.filter(fiscal_year=self.fiscal_year)])
 

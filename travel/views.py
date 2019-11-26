@@ -110,16 +110,16 @@ trip_field_list = [
     'destination',
     'start_date',
     'end_date',
-    'is_international',
-    'is_conference',
+    'is_adm_approval_required',
+    'purpose',
+    'reason',
+    # 'is_conference',
     'conference',
     # 'has_event_template',
     # 'event_lead',
 
     # purpose
     'role',
-    'reason',
-    'purpose',
     'role_of_participant',
     'objective_of_event',
     'benefit_to_dfo',
@@ -158,14 +158,14 @@ trip_group_field_list = [
     'destination',
     'start_date',
     'end_date',
-    'is_international',
-    'is_conference',
+    'is_adm_approval_required',
+    'purpose',
+    'reason',
+    # 'is_conference',
     'conference',
     # 'has_event_template',
     # 'event_lead',
 
-    'reason',
-    'purpose',
     'objective_of_event',
     'benefit_to_dfo',
     'multiple_attendee_rationale',
@@ -312,7 +312,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         my_object = self.get_object()
         context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
         my_trip_child_field_list = deepcopy(trip_child_field_list)
-        if not my_object.is_conference:
+        if not my_object.reason.id == 2:
             my_trip_child_field_list.remove("role")
             my_trip_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_trip_child_field_list
@@ -676,8 +676,6 @@ def reset_reviewers(request, pk):
 
 # REVIEWER #
 ############
-
-
 @login_required(login_url='/accounts/login_required/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_reviewer(request, pk):
@@ -766,7 +764,7 @@ class ConferenceDetailView(TravelAccessRequiredMixin, DetailView):
         return context
 
 
-class ConferenceUpdateView(TravelAccessRequiredMixin, UpdateView):
+class ConferenceUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.Conference
     form_class = forms.ConferenceForm
 
@@ -811,7 +809,7 @@ class ConferenceCreateView(TravelAccessRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ConferenceDeleteView(TravelAccessRequiredMixin, DeleteView):
+class ConferenceDeleteView(TravelAdminRequiredMixin, DeleteView):
     model = models.Conference
     success_url = reverse_lazy('travel:conf_list')
     success_message = 'The event was deleted successfully!'
