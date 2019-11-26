@@ -12,7 +12,7 @@
         </div>
 
 
-        {% if object.files.count == 0 %}
+        {% if trip.files.count == 0 %}
             <br>
             <em>
                 {% trans "No Files" %}...
@@ -34,7 +34,7 @@
 
                 </tr>
                 <tbody>
-                {% for obj in object.files.all %}
+                {% for obj in trip.files.all %}
                     <tr data-toggle="tooltip" title="Edit" href="{% url 'travel:file_detail' obj.id %}" pop>
                         <td>{{ obj.name }}</td>
                         <td class="center-col">

@@ -36,9 +36,12 @@
                 <td style="background-color: {{ trip.status.color }};">{% get_field_value trip field %}</td>
             </tr>
 
-        {% elif "has_event_template" in field %}
-            {% trans "Unsure" as not_sure %}
-            {% verbose_td_display trip field format="currency" th_width="20%" nullmark=not_sure date_format="%B %d, %Y" %}
+        {% elif "section" in field %}
+            <tr>
+                <th>{% get_verbose_label trip field %}</th>
+                <td>{{ trip.section.full_name }}</td>
+            </tr>
+            {#            {% verbose_td_display trip field format="currency" th_width="20%" nullmark=not_sure date_format="%B %d, %Y" %}#}
         {% else %}
 
             {% verbose_td_display trip field format="currency" th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
@@ -192,7 +195,7 @@
 <br><br>
 
 {#  CONFERENCE DETAIL  #}
-{% if trip.is_conference %}
+{% if trip.conference %}
     <h3>
         Conference/Meeting Detail:
     </h3>
@@ -206,7 +209,13 @@
         </div>
         <table class="table table-sm table-striped">
             {% for field in conf_field_list %}
-                {% verbose_td_display trip.conference field th_width="30%" date_format="%B %d, %Y" %}
+                {% if "has_event_template" in field %}
+                    {% trans "Unsure" as not_sure %}
+                    {% verbose_td_display trip.conference field format="currency" th_width="30%" nullmark=not_sure date_format="%B %d, %Y" %}
+                {% else %}
+                    {% verbose_td_display trip.conference field format="currency" th_width="30%" date_format="%B %d, %Y" %}
+                {% endif %}
+
             {% endfor %}
             <tr>
                 <th>Connected trips</th>
@@ -365,6 +374,9 @@
 {% endif %}
 <br><br>
 <br><br>
+
+{% include "travel/_files.html" %}
+
 
 <script type="application/javascript">
     $("#reset-btn").click(function (e) {
