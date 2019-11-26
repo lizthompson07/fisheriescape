@@ -213,8 +213,8 @@
                 {% endwith %}
                 <td class="real center" style="text-align: center;">{{ child.total_cost|zero2val:""|currency|nz:"" }}</td>
                 {#                <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>#}
-                {% if object.is_conference %}
-                    <td class="real center">{{ object.has_event_template|yesno:"yes,no,unknown" }}</td>
+                {% if object.conference %}
+                    <td class="real center">{{ object.conference.has_event_template|yesno:"yes,no,unknown" }}</td>
                 {% else %}
                     <td class="real center">no</td>
                 {% endif %}
