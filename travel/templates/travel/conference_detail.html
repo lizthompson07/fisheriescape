@@ -19,7 +19,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:conf_list' %}">Conferences/Meetings</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:conf_list' %}">Conferences & Meetings</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -33,9 +33,17 @@
             <a class="btn btn-warning" href="{% url 'travel:conf_edit' object.id %}">
                 Edit
             </a>
-            <a class="btn btn-danger " href="{% url 'travel:conf_delete' object.id %}">
+            {% if object.trips.count %}
+                <span data-toggle="tooltip"
+                      title="You cannot delete a meeting or conference that is currently tagged on a trip.">
+            {% endif %}
+            <a class="btn btn-danger {% if object.trips.count %}disabled{% endif %}"
+               href="{% url 'travel:conf_delete' object.id %}">
                 Delete
             </a>
+            {% if object.trips.count %}
+                </span>
+            {% endif %}
         </div>
 
         <br><br>
