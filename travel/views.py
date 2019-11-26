@@ -201,6 +201,9 @@ reviewer_field_list = [
 
 conf_field_list = [
     'tname|{}'.format(_("Name")),
+    'location',
+    'lead',
+    'has_event_template',
     'number',
     'start_date',
     'end_date',
@@ -738,9 +741,8 @@ class ConferenceListView(TravelAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Conference.objects.first()
         context["field_list"] = [
-            'name',
-            'nom',
-            'number',
+            'tname|{}'.format("Name"),
+            'location',
             'start_date',
             'end_date',
         ]
@@ -753,8 +755,10 @@ class ConferenceDetailView(TravelAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'name',
-            'nom',
+            'tname|{}'.format("Name"),
+            'location',
+            'lead',
+            'has_event_template',
             'number',
             'start_date',
             'end_date',

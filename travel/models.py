@@ -103,6 +103,11 @@ class Status(models.Model):
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
+    lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is taking the lead?"),
+                                   related_name="meeting_leads", blank=True, null=True)
+    has_event_template = models.NullBooleanField(default=False, verbose_name=_(
+                                                     "Is there an event template being completed for this conference or meeting?"))
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
     start_date = models.DateTimeField(verbose_name=_("start date of event"))
     end_date = models.DateTimeField(verbose_name=_("end date of event"))
@@ -209,13 +214,14 @@ class Trip(models.Model):
     is_conference = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("is this a conference or meeting?"))
     conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
                                    verbose_name=_("conference / meeting"), related_name="trips")
-
+    #############
+    # these two fields should be deleted eventually if the event planning peice happens through this app...
     has_event_template = models.NullBooleanField(default=False,
                                                  verbose_name=_(
                                                      "Is there an event template being completed for this conference or meeting?"))
     event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
                                    related_name="trip_events", blank=True, null=True)
-
+    ################
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
 
     # purpose
@@ -545,7 +551,7 @@ def file_directory_path(instance, filename):
 class File(models.Model):
     trip = models.ForeignKey(Trip, related_name="files", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("caption"))
-    file = models.FileField(upload_to=file_directory_path, blank=True, verbose_name=_("file attachment"))
+    file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("file attachment"))
     date_created = models.DateTimeField(default=timezone.now)
 
     class Meta:
