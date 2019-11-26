@@ -316,8 +316,14 @@
 {% if not report_mode %}
     <div class="neighbours">
         <div class="btn-group">
-            <a href="{% url 'travel:index' %}" class="btn btn-sm btn-warning {% if object.submitted %}disabled{% endif %}"
+            {% if object.submitted %}
+                <span data-toggle="tooltip" title="{% trans "You cannot reset the reviewers while a trip is submitted." %}">
+            {% endif %}
+            <a href="{% url 'travel:reset_reviewers' trip.id %}" class="btn btn-sm btn-warning {% if object.submitted %}disabled{% endif %}"
                id="reset-btn">Reset</a>
+            {% if object.submitted %}
+                </span>
+            {% endif %}
             <a href="{% url 'travel:manage_reviewers' trip.id %}" class="btn btn-sm btn-primary">Modify</a>
         </div>
     </div>
@@ -363,7 +369,7 @@
 <script type="application/javascript">
     $("#reset-btn").click(function (e) {
         e.preventDefault();
-        var input = confirm("{% trans 'Are you sure you want to reset the reviewers?' %}");
+        var input = confirm("{% trans 'Are you sure you want to reset the reviewers? This will undo any changes that you have made to the reviewer list and process order.' %}");
         if (input) {
             window.location.href = $(this).attr("href")
         }
