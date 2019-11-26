@@ -216,11 +216,11 @@ class Trip(models.Model):
                                    verbose_name=_("conference / meeting"), related_name="trips")
     #############
     # these two fields should be deleted eventually if the event planning peice happens through this app...
-    has_event_template = models.NullBooleanField(default=False,
-                                                 verbose_name=_(
-                                                     "Is there an event template being completed for this conference or meeting?"))
-    event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
-                                   related_name="trip_events", blank=True, null=True)
+    # has_event_template = models.NullBooleanField(default=False,
+    #                                              verbose_name=_(
+    #                                                  "Is there an event template being completed for this conference or meeting?"))
+    # event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
+    #                                related_name="trip_events", blank=True, null=True)
     ################
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
 
