@@ -11,6 +11,7 @@ from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
+from spot import models as spot_models
 
 
 class EntryType(models.Model):
@@ -70,6 +71,7 @@ class Entry(models.Model):
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
                                            limit_choices_to={'grouping__is_indigenous': True})
     initial_date = models.DateTimeField(verbose_name=_("initial activity date"))
+    anticipated_end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
     sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
@@ -78,6 +80,8 @@ class Entry(models.Model):
     regions = models.ManyToManyField(shared_models.Region, related_name="entries")
 
     # funding
+    funding_program = models.ForeignKey(spot_models.Program, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                        verbose_name=_("funding program"), related_name="entries")
     fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
     funding_needed = models.NullBooleanField(verbose_name=_("is funding needed?"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
