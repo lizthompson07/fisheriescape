@@ -796,6 +796,7 @@ class ConferenceDetailView(TravelAccessRequiredMixin, DetailView):
             'number',
             'start_date',
             'end_date',
+            'total_cost|{}'.format("Total cost (from all connected trips, excluding BTA travel)"),
         ]
         return context
 

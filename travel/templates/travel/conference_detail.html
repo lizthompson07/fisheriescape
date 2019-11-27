@@ -56,7 +56,11 @@
 
                 <table class="table table-sm">
                     {% for field in field_list %}
-                        {% verbose_td_display object field th_width="30%" %}
+                        {% if "total" in field %}
+                            {% verbose_td_display object field th_width="30%" format="currency" %}
+                        {% else %}
+                            {% verbose_td_display object field th_width="30%" %}
+                        {% endif %}
                     {% endfor %}
 
                 </table>
