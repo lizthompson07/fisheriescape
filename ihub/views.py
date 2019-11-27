@@ -438,6 +438,7 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
             'sectors',
             'entry_type',
             'initial_date',
+            'anticipated_end_date',
             'regions',
             'date_last_modified',
             'last_modified_by',
@@ -446,6 +447,7 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
 
         context["field_list_1"] = [
             'fiscal_year',
+            'funding_program',
             'funding_needed',
             'funding_purpose',
             'amount_requested',
@@ -784,6 +786,7 @@ class OrganizationCueCard(PDFTemplateView):
         context["entry_field_list_1"] = [
             'fiscal_year',
             'initial_date',
+            'anticipated_end_date',
             'status',
         ]
         context["entry_field_list_2"] = [
@@ -792,6 +795,7 @@ class OrganizationCueCard(PDFTemplateView):
             'regions',
         ]
         context["entry_field_list_3"] = [
+            'funding_program',
             'funding_needed',
             'funding_purpose',
             'amount_requested',
@@ -888,12 +892,14 @@ class PDFSummaryReport(PDFTemplateView):
             'sectors',
             'entry_type',
             'initial_date',
+            'anticipated_end_date',
             'regions',
             'created_by',
         ]
 
         context["field_list_1"] = [
             'fiscal_year',
+            'funding_program',
             'funding_needed',
             'funding_purpose',
             'amount_requested',
