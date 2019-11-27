@@ -3,6 +3,7 @@
 {% load bootstrap4 %}
 {% load i18n %}
 {% load custom_filters %}
+{% load static %}
 
 {% block body %}
 
@@ -49,8 +50,20 @@
                 {% if "cost" in field.field.widget.attrs|lookup:"class" %}
                     {# DO NOTHING   #}
                 {% elif field.name == "address" %}
-                    {#                343 Université Avenue, Moncton, NB, E1C 9B6#}
-                    {% bootstrap_field field placeholder="" size="small" %}
+
+                    {% if field.name in help_text_dict %}
+                        {% bootstrap_label field.label %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 data-trigger="hover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {% bootstrap_field field placeholder="" show_label=False size="small" %}
+                        {% endwith %}
+                    {% else %}
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    {% endif %}
+
                     <span style="font-size: small">Predefined addresses:</span><br>
                     <a href="#" class="btn btn-sm btn-outline-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
                     <a href="#" class="btn btn-sm btn-outline-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
@@ -59,13 +72,35 @@
                     <br>
                 {% elif field.name == "role_of_participant" or field.name == "role" %}
                     <div class="conference_container">
-                        {% bootstrap_field field placeholder="" size="small"%}
+                        {% if field.name in help_text_dict %}
+                            {% bootstrap_label field.label %}
+                            {% with help_text_dict|lookup:field.name as help_text %}
+                                <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                     data-trigger="hover"
+                                     title="{{ field.label }}"
+                                     data-content="{{ help_text }}">
+                                {% bootstrap_field field placeholder="" show_label=False size="small" %}
+                            {% endwith %}
+                        {% else %}
+                            {% bootstrap_field field placeholder="" size="small" %}
+                        {% endif %}
                         <em class="blue-font">
                             ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})
                         </em><br><br>
                     </div>
                 {% else %}
-                    {% bootstrap_field field placeholder="" size="small" %}
+                    {% if field.name in help_text_dict %}
+                        {% bootstrap_label field.label %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 data-trigger="hover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {% bootstrap_field field placeholder="" show_label=False size="small" %}
+                        {% endwith %}
+                    {% else %}
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    {% endif %}
                 {% endif %}
             {% endfor %}
 
@@ -75,7 +110,7 @@
             <p>
                 {% blocktrans %}
                     Per diem rates for breakfast, lunch, supper and incidentals should follow the
-                    <a href="https://www.njc-cnm.gc.ca/">Nation Joint Council</a> Travel Directive. For travel within Canada and
+                    <a href="https://www.njc-cnm.gc.ca/">National Joint Council</a> Travel Directive. For travel within Canada and
                     USA, please refer to <a href="https://www.njc-cnm.gc.ca/directive/d10/v238/s659/en">Appendix C</a>
                     and for all other travel please refer to
                     <a href="https://www.njc-cnm.gc.ca/directive/app_d.php?lang=en">Appendix D</a>

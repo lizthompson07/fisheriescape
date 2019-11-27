@@ -105,9 +105,9 @@ class Conference(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location (city, province, country)"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is taking the lead?"),
-                                   related_name="meeting_leads", blank=True, null=True)
+                             related_name="meeting_leads", blank=True, null=True)
     has_event_template = models.NullBooleanField(default=False, verbose_name=_(
-                                                     "Is there an event template being completed for this conference or meeting?"))
+        "Is there an event template being completed for this conference or meeting?"))
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
     start_date = models.DateTimeField(verbose_name=_("start date of event"))
     end_date = models.DateTimeField(verbose_name=_("end date of event"))
@@ -119,7 +119,8 @@ class Conference(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             my_str = "{}".format(self.name)
-        return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"), self.end_date.strftime("%d-%b-%Y"))
+        return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"),
+                                          self.end_date.strftime("%d-%b-%Y"))
 
     class Meta:
         ordering = ['number', ]
@@ -178,7 +179,6 @@ class Conference(models.Model):
         my_list.extend(
             [trip.total_trip_cost for trip in Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10))])
 
-
         return sum(my_list)
 
     @property
@@ -217,13 +217,13 @@ class Trip(models.Model):
     is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
                                                 verbose_name=_("Is the traveller a research scientist (RES)?"))
-    company_name = models.CharField(max_length=255, verbose_name=_("company name (leave blank if DFO)"), blank=True, null=True)
+    company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
                                null=True, blank=True)
     trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
-    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (e.g., city, province, country)"), blank=True,
+    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True,
                                           null=True)
-    destination = models.CharField(max_length=1000, verbose_name=_("destination location (e.g., city, province, country)"), blank=True,
+    destination = models.CharField(max_length=1000, verbose_name=_("destination location (city, province, country)"), blank=True,
                                    null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True, blank=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True, blank=True)
@@ -239,21 +239,17 @@ class Trip(models.Model):
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
 
     # purpose
-    role_of_participant = models.TextField(blank=True, null=True, verbose_name=_(
-        "role of participant (More expansive than just saying he/she “present a paper” for example.  "
-        "This should describe how does his/her role at the event relate to his/her role at DFO)"))
-    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_(
-        "objective of the trip (Brief description of what the event is about.  Not objective of the Participants in going to the event.)"))
-    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_(
-        "benefit to DFO (What does DFO get out of this? Saves money, better programs, etc…)"))
-    multiple_conferences_rationale = models.TextField(blank=True, null=True, verbose_name=_(
-        "rationale for individual attending multiple conferences"))
+    role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role of participant"))
+    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of the trip"))
+    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("benefit to DFO"))
+    multiple_conferences_rationale = models.TextField(blank=True, null=True,
+                                                      verbose_name=_("rationale for individual attending multiple conferences"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
     multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for multiple attendees at this event"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes (will not be included in travel plan)"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
 
     # costs
     air = models.FloatField(blank=True, null=True, verbose_name=_("air fare"))
