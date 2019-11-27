@@ -66,25 +66,15 @@
                                  title="{{ field.label }}"
                                  data-content="{{ help_text }}">
                             {% bootstrap_field field placeholder="" show_label=False %}
-
-
                         {% endwith %}
-
                     {% else %}
-
                         {% bootstrap_field field placeholder="" %}
-
                     {% endif %}
-
-
-                    {#                    {% bootstrap_field field placeholder="" %}#}
                     <em class="blue-font">
                         ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})
                     </em><br><br>
                 </div>
             {% elif field.name == "conference" %}
-                {#                #}
-
                 {% if field.name in help_text_dict %}
                     {% bootstrap_label field.label %}
                     {% with help_text_dict|lookup:field.name as help_text %}
@@ -92,14 +82,10 @@
                              title="{{ field.label }}"
                              data-content="{{ help_text }}">
                         {% bootstrap_field field placeholder="" show_label=False %}
-
-
                     {% endwith %}
-
                 {% else %}
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
-
                 {% if field.name == "conference" %}
                     (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new conference / meeting</a>)
                     <br><br>
@@ -112,15 +98,10 @@
                              title="{{ field.label }}"
                              data-content="{{ help_text }}">
                         {% bootstrap_field field placeholder="" show_label=False %}
-
-
                     {% endwith %}
-
                 {% else %}
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
-
-                {#                {% bootstrap_field field placeholder="" %}#}
                 <div class="show-me blue-font">
                     <p>
                         <em>
@@ -136,10 +117,7 @@
                              title="{{ field.label }}"
                              data-content="{{ help_text }}">
                         {% bootstrap_field field placeholder="" show_label=False %}
-
-
                     {% endwith %}
-
                 {% else %}
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
@@ -161,12 +139,8 @@
                              title="{{ field.label }}"
                              data-content="{{ help_text }}">
                         {% bootstrap_field field placeholder="" show_label=False %}
-
-
                     {% endwith %}
-
                 {% else %}
-
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
             {% endif %}
@@ -176,13 +150,13 @@
             {% endfor %}
             <br>
 
-            {# TRIP COSTST #}
+            {# TRIP COSTS #}
             <div class="hide-me">
                 <h4>{% trans "Breakdown of Trip Costs" %}</h4>
                 <p>
                     {% blocktrans %}
                         Per diem rates for breakfast, lunch, supper and incidentals should follow the
-                        <a href="https://www.njc-cnm.gc.ca/">Nation Joint Council</a> Travel Directive. For travel within Canada and
+                        <a href="https://www.njc-cnm.gc.ca/">National Joint Council</a> Travel Directive. For travel within Canada and
                         USA, please refer to <a href="https://www.njc-cnm.gc.ca/directive/d10/v238/s659/en">Appendix C</a>
                         and for all other travel please refer to
                         <a href="https://www.njc-cnm.gc.ca/directive/app_d.php?lang=en">Appendix D</a>
