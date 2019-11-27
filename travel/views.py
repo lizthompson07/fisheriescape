@@ -184,6 +184,8 @@ trip_child_field_list = [
     'is_public_servant',
     'is_research_scientist',
     'region',
+    'start_date',
+    'end_date',
     'departure_location',
     'role',
     'role_of_participant',
@@ -312,7 +314,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         my_object = self.get_object()
         context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
         my_trip_child_field_list = deepcopy(trip_child_field_list)
-        if not my_object.reason.id == 2:
+        if not my_object.reason_id == 2:
             my_trip_child_field_list.remove("role")
             my_trip_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_trip_child_field_list
@@ -362,6 +364,17 @@ class TripUpdateView(TravelAccessRequiredMixin, UpdateView):
         user_json = json.dumps(user_dict)
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
+
+        conf_dict = {}
+        for conf in models.Conference.objects.all():
+            conf_dict[conf.id] = {}
+            conf_dict[conf.id]['location'] = conf.location
+            conf_dict[conf.id]['start_date'] = user.last_name
+            conf_dict[conf.id]['end_date'] = user.email
+
+        conf_json = json.dumps(conf_dict)
+        # send JSON file to template so that it can be used by js script
+        context['conf_json'] = conf_json
 
         return context
 
@@ -568,6 +581,17 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
 
+        conf_dict = {}
+        for conf in models.Conference.objects.all():
+            conf_dict[conf.id] = {}
+            conf_dict[conf.id]['location'] = conf.location
+            conf_dict[conf.id]['start_date'] = user.last_name
+            conf_dict[conf.id]['end_date'] = user.email
+
+        conf_json = json.dumps(conf_dict)
+        # send JSON file to template so that it can be used by js script
+        context['conf_json'] = conf_json
+
         return context
 
 
@@ -744,6 +768,7 @@ class ConferenceListView(TravelAccessRequiredMixin, FilterView):
             'start_date',
             'end_date',
         ]
+        context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
 
 
@@ -926,6 +951,17 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
                 total_dict[key] = nz(object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'], 0) + \
                                   nz(object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))[
                                          'dsum'], 0)
+                # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
+                if total_dict[key] == 0:
+                    total_dict[key] = None
+            elif key == "meals":
+                total_dict[key] = nz(object_list.values('breakfasts').order_by('breakfasts').aggregate(dsum=Sum("breakfasts"))[
+                                         'dsum'], 0) + \
+                                  nz(object_list.values('lunches').order_by('lunches').aggregate(dsum=Sum("lunches"))[
+                                         'dsum'], 0) + \
+                                  nz(object_list.values('suppers').order_by('suppers').aggregate(dsum=Sum("suppers"))[
+                                         'dsum'], 0)
+
                 # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
                 if total_dict[key] == 0:
                     total_dict[key] = None

@@ -52,9 +52,11 @@
                     <div class="col" style="text-align: center">
                         <em>displaying all {{ filter.qs.count }} records</em>
                     </div>
-                    <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'travel:conf_new' %}" class="btn btn-sm btn-primary">New Conference</a>
-                    </div>
+                    {% if is_admin %}
+                        <div class="col" style="text-align: right; padding-bottom: 10px">
+                            <a href="{% url 'travel:conf_new' %}" class="btn btn-sm btn-primary">New Conference</a>
+                        </div>
+                    {% endif %}
                 </div>
 
 
@@ -77,8 +79,8 @@
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
                             <td>{{ object.traveller_list|length }}</td>
-                            <td>{{ object.bta_traveller_list|length  }}</td>
-                            <td>{{ object.total_traveller_list|length  }}</td>
+                            <td>{{ object.bta_traveller_list|length }}</td>
+                            <td>{{ object.total_traveller_list|length }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
