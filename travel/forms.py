@@ -381,3 +381,21 @@ class FileForm(forms.ModelForm):
         widgets = {
             'trip': forms.HiddenInput(),
         }
+
+
+
+class HelpTextForm(forms.ModelForm):
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 4}),
+            'fra_text': forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+HelpTextFormSet = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
+)
