@@ -65,5 +65,7 @@ urlpatterns = [
     ############
     path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
     path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
+    path('settings/help-text/', views.manage_help_text, name="manage_help_text"),
+    path('settings/help-text/<int:pk>/delete/', views.delete_help_text, name="delete_help_text"),
 
 ]

@@ -86,7 +86,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of trips where review is pending
-        context["admin_number_waiting"] = models.Reviewer.objects.filter(status_id=1, role_id__in=[5,6]).count()  # number of trips where admin review is pending
+        context["admin_number_waiting"] = models.Reviewer.objects.filter(status_id=1, role_id__in=[5,
+                                                                                                   6]).count()  # number of trips where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
@@ -210,6 +211,14 @@ conf_field_list = [
     'start_date',
     'end_date',
 ]
+
+
+def get_help_text_dict():
+    my_dict = {}
+    for obj in models.HelpText.objects.all():
+        my_dict[obj.field_name] = str(obj)
+
+    return my_dict
 
 
 # TRIP #
@@ -369,12 +378,13 @@ class TripUpdateView(TravelAccessRequiredMixin, UpdateView):
         for conf in models.Conference.objects.all():
             conf_dict[conf.id] = {}
             conf_dict[conf.id]['location'] = conf.location
-            conf_dict[conf.id]['start_date'] = user.last_name
-            conf_dict[conf.id]['end_date'] = user.email
+            conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
+            conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
 
         conf_json = json.dumps(conf_dict)
         # send JSON file to template so that it can be used by js script
         context['conf_json'] = conf_json
+        context['help_text_dict'] = get_help_text_dict()
 
         return context
 
@@ -585,12 +595,13 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
         for conf in models.Conference.objects.all():
             conf_dict[conf.id] = {}
             conf_dict[conf.id]['location'] = conf.location
-            conf_dict[conf.id]['start_date'] = user.last_name
-            conf_dict[conf.id]['end_date'] = user.email
+            conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
+            conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
 
         conf_json = json.dumps(conf_dict)
         # send JSON file to template so that it can be used by js script
         context['conf_json'] = conf_json
+        context['help_text_dict'] = get_help_text_dict()
 
         return context
 
@@ -940,10 +951,10 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 
         # first, let's create an object list; if this is
         if my_object.is_group_trip:
-            object_list = my_object.children_trips.filter(Q(region=my_object.section.division.branch.region)|Q(region__isnull=True)|Q(is_public_servant=False))
+            object_list = my_object.children_trips.filter(
+                Q(region=my_object.section.division.branch.region) | Q(region__isnull=True) | Q(is_public_servant=False))
         else:
             object_list = models.Trip.objects.filter(pk=my_object.id)
-
 
         for key in key_list:
             # registration is not in the travel plan form. therefore it should be added under the 'other' category
@@ -1011,6 +1022,39 @@ def manage_statuses(request):
     context['formset'] = formset
     return render(request, 'travel/manage_settings_small.html', context)
 
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def delete_help_text(request, pk):
+    my_obj = models.HelpText.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("travel:manage_help_text"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def manage_help_text(request):
+    qs = models.HelpText.objects.all()
+    if request.method == 'POST':
+        formset = forms.HelpTextFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("travel:manage_help_text"))
+    else:
+        formset = forms.HelpTextFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'field_name',
+        'eng_text',
+        'fra_text',
+    ]
+    context['title'] = "Manage Help Text"
+    context['formset'] = formset
+    return render(request, 'travel/manage_settings_small.html', context)
 
 
 # FILES #
