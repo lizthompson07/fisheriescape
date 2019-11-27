@@ -45,6 +45,11 @@
         <form method="post" class="form">
             {% csrf_token %}
             {% bootstrap_form_errors form %}
+
+
+
+
+
             {% for field in form %}
                 {% if "hide-me" in field.field.widget.attrs.class %}
                     <div class="hide-me">
@@ -52,19 +57,70 @@
 
             {% if field.name == "role_of_participant" or field.name == "role" %}
                 <div class="conference_container">
-                    {% bootstrap_field field placeholder="" %}
+
+                    {% if field.name in help_text_dict %}
+                        {% bootstrap_label field.label %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 data-trigger="hover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {% bootstrap_field field placeholder="" show_label=False %}
+
+
+                        {% endwith %}
+
+                    {% else %}
+
+                        {% bootstrap_field field placeholder="" %}
+
+                    {% endif %}
+
+
+                    {#                    {% bootstrap_field field placeholder="" %}#}
                     <em class="blue-font">
                         ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})
                     </em><br><br>
                 </div>
             {% elif field.name == "conference" %}
-                {% bootstrap_field field placeholder="" %}
+                {#                #}
+
+                {% if field.name in help_text_dict %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False %}
+
+
+                    {% endwith %}
+
+                {% else %}
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
+
                 {% if field.name == "conference" %}
                     (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new conference / meeting</a>)
                     <br><br>
                 {% endif %}
             {% elif field.name == "is_group_trip" %}
-                {% bootstrap_field field placeholder="" %}
+                {% if field.name in help_text_dict %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False %}
+
+
+                    {% endwith %}
+
+                {% else %}
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
+
+                {#                {% bootstrap_field field placeholder="" %}#}
                 <div class="show-me blue-font">
                     <p>
                         <em>
@@ -73,8 +129,20 @@
                     </p>
                 </div>
             {% elif field.name == "address" %}
-                {#                343 Université Avenue, Moncton, NB, E1C 9B6#}
-                {% bootstrap_field field placeholder="" %}
+                {% if field.name in help_text_dict %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False %}
+
+
+                    {% endwith %}
+
+                {% else %}
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
                 <span style="font-size: small">Predefined addresses:</span><br>
                 <a href="#" class="btn btn-sm btn-outline-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
                 <a href="#" class="btn btn-sm btn-outline-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
@@ -86,8 +154,21 @@
 
 
             {% else %}
+                {% if field.name in help_text_dict %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False %}
 
-                {% bootstrap_field field placeholder="" %}
+
+                    {% endwith %}
+
+                {% else %}
+
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
             {% endif %}
             {% if "hide-me" in field.field.widget.attrs.class %}
                 </div>
@@ -206,13 +287,6 @@
             $("#id_email").val(userObj[myId]["email"]);
         }
 
-        // location and dates
-        function refreshConferenceDetails() {
-            myId = $("#id_user").val();
-            $("#id_first_name").val(userObj[myId]["first_name"]);
-            $("#id_last_name").val(userObj[myId]["last_name"]);
-            $("#id_email").val(userObj[myId]["email"]);
-        }
 
         function refreshConference() {
             if ($("#id_reason").val() != "2") {
@@ -247,6 +321,14 @@
             refreshConference();
         });
 
+        $("#id_conference").change(function () {
+            // update location and (maybe) dates
+            myId = $(this).val();
+            $("#id_destination").val(confObj[myId]["location"]);
+            $("#id_start_date").val(confObj[myId]["start_date"]);
+            $("#id_end_date").val(confObj[myId]["end_date"]);
+            {#$("#id_email").val(userObj[myId]["email"]);#}
+        });
 
         $("#id_is_group_trip").change(function () {
             refreshClassHideMe();

@@ -58,7 +58,7 @@
                 <tbody>
                 {% for form in formset %}
                     <tr>
-                        <td>{{form.instance.id|nz:"---"}}</td>
+                        <td>{{ form.instance.id|nz:"---" }}</td>
                         {% for field in form %}
                             <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
                                 {% bootstrap_field field size='small' show_label=False placeholder="" %}
@@ -70,6 +70,8 @@
 
                                 {% if "status" in title|lower %}
                                     {% url 'travel:delete_status' form.instance.id as my_delete_url %}
+                                {% elif "help" in title|lower %}
+                                    {% url 'travel:delete_help_text' form.instance.id as my_delete_url %}
                                 {% endif %}
 
                                 <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
