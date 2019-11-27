@@ -103,7 +103,7 @@ class Status(models.Model):
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
+    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location (city, province, country)"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is taking the lead?"),
                                    related_name="meeting_leads", blank=True, null=True)
     has_event_template = models.NullBooleanField(default=False, verbose_name=_(
@@ -119,7 +119,7 @@ class Conference(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             my_str = "{}".format(self.name)
-        return "{} ({} {} {})".format(my_str, self.start_date.strftime("%d-%b-%y"), _("to"), self.end_date.strftime("%d-%b-%y"))
+        return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"), self.end_date.strftime("%d-%b-%Y"))
 
     class Meta:
         ordering = ['number', ]
@@ -168,6 +168,20 @@ class Conference(models.Model):
         return listrify(self.total_traveller_list)
 
     @property
+    def total_cost(self):
+        # from travel.models import Event
+        # must factor in group and non-group...
+
+        # start simple... non-group
+        my_list = [trip.total_trip_cost for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False)]
+        # group travellers
+        my_list.extend(
+            [trip.total_trip_cost for trip in Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10))])
+
+
+        return sum(my_list)
+
+    @property
     def tname(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
@@ -193,8 +207,7 @@ class Trip(models.Model):
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trips",
                              verbose_name=_("user"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"),
-                                limit_choices_to={'division__branch__in': [1, 3]})
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"))
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     address = models.CharField(max_length=1000, verbose_name=_("address"),
@@ -212,8 +225,8 @@ class Trip(models.Model):
                                           null=True)
     destination = models.CharField(max_length=1000, verbose_name=_("destination location (e.g., city, province, country)"), blank=True,
                                    null=True)
-    start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True)
-    end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True)
+    start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True, blank=True)
+    end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True, blank=True)
 
     #############
     # these two fields should be deleted eventually if the event planning peice happens through this app...
@@ -250,8 +263,19 @@ class Trip(models.Model):
     taxi = models.FloatField(blank=True, null=True, verbose_name=_("taxi"))
     other_transport = models.FloatField(blank=True, null=True, verbose_name=_("other transport"))
     accommodations = models.FloatField(blank=True, null=True, verbose_name=_("accommodation"))
-    meals = models.FloatField(blank=True, null=True, verbose_name=_("meal"))
-    incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidental"))
+    # meals = models.FloatField(blank=True, null=True, verbose_name=_("meals"))
+    no_breakfasts = models.IntegerField(blank=True, null=True, verbose_name=_("number of breakfasts"))
+    breakfast_rate = models.FloatField(blank=True, null=True, verbose_name=_("breakfast rate (CAD/day)"), default=20.35)
+    breakfasts = models.FloatField(blank=True, null=True, verbose_name=_("breakfasts"))
+    no_lunches = models.IntegerField(blank=True, null=True, verbose_name=_("number of lunches"))
+    lunch_rate = models.FloatField(blank=True, null=True, verbose_name=_("lunch rate (CAD/day)"), default=20.60)
+    lunches = models.FloatField(blank=True, null=True, verbose_name=_("lunches"))
+    no_suppers = models.IntegerField(blank=True, null=True, verbose_name=_("number of suppers"))
+    supper_rate = models.FloatField(blank=True, null=True, verbose_name=_("supper rate (CAD/day)"), default=50.55)
+    suppers = models.FloatField(blank=True, null=True, verbose_name=_("suppers"))
+    no_incidentals = models.IntegerField(blank=True, null=True, verbose_name=_("number of incidentals"))
+    incidental_rate = models.FloatField(blank=True, null=True, verbose_name=_("incidental rate (CAD/day)"), default=17.30)
+    incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidentals"))
     registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
     other = models.FloatField(blank=True, null=True, verbose_name=_("other"))
     total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost (DFO)"))
@@ -274,13 +298,31 @@ class Trip(models.Model):
     def get_absolute_url(self):
         return reverse('travel:trip_detail', kwargs={'pk': self.id})
 
+    @property
+    def meals(self):
+        return nz(self.breakfasts, 0) + nz(self.lunches, 0) + nz(self.suppers, 0)
+
     def save(self, *args, **kwargs):
+        # total the meals and incidentals
+        self.breakfasts = nz(self.no_breakfasts, 0) * nz(self.breakfast_rate, 0)
+        self.lunches = nz(self.no_lunches, 0) * nz(self.lunch_rate, 0)
+        self.suppers = nz(self.no_suppers, 0) * nz(self.supper_rate, 0)
+        self.incidentals = nz(self.no_incidentals, 0) * nz(self.incidental_rate, 0)
+
         # total cost
         self.total_cost = nz(self.air, 0) + nz(self.rail, 0) + nz(self.rental_motor_vehicle, 0) + nz(self.personal_motor_vehicle, 0) + nz(
-            self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.meals, 0) + nz(self.incidentals, 0) + nz(
-            self.other, 0) + nz(self.registration, 0)
+            self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.incidentals, 0) + nz(
+            self.other, 0) + nz(self.registration, 0) + nz(self.breakfasts, 0) + nz(self.lunches, 0) + nz(self.suppers, 0)
         if self.start_date:
             self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
+
+        # if the start and end dates are null, but there is a conference, use those.. to populate
+        if self.conference and not self.start_date:
+            print("adding start date from conference")
+            self.start_date = self.conference.start_date
+        if self.conference and not self.end_date:
+            print("adding end date from conference")
+            self.end_date = self.conference.end_date
 
         # ensure the process order makes sense
         count = 1
@@ -338,7 +380,9 @@ class Trip(models.Model):
             "taxi",
             "other_transport",
             "accommodations",
-            "meals",
+            "breakfasts",
+            "lunches",
+            "suppers",
             "incidentals",
             "registration",
             "other",
@@ -387,7 +431,7 @@ class Trip(models.Model):
         if self.multiple_attendee_rationale:
             my_str += "<br><em>Rationale for multiple attendees:</em> {}".format(self.multiple_attendee_rationale)
         if self.funding_source:
-            my_str += "<br><em>Funding source:</em> {}".format(self.multiple_attendee_rationale)
+            my_str += "<br><em>Funding source:</em> {}".format(self.funding_source)
 
         return my_str
 
@@ -406,7 +450,7 @@ class Trip(models.Model):
         if self.multiple_attendee_rationale:
             my_str += "\n\nRationale for multiple attendees: {}".format(self.multiple_attendee_rationale)
         if self.funding_source:
-            my_str += "\n\nFunding source: {}".format(self.multiple_attendee_rationale)
+            my_str += "\n\nFunding source: {}".format(self.funding_source)
 
         return my_str
 

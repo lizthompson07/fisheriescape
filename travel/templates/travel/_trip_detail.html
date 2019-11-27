@@ -116,8 +116,8 @@
 
                 <table class="plainjane" style="width: 75%;">
                     <tr class="plainjane">
-                        <th rowspan="2" class="plainjane">Name</th>
-                        <th colspan="2" class="plainjane center-col">Conferences or International Trips</th>
+                        <th rowspan="2" class="plainjane">{% trans "Name" %}</th>
+                        <th colspan="2" class="plainjane center-col">{% trans "Conferences or International Trips" %}</th>
                     </tr>
                     <tr class="plainjane">
                         <th class="plainjane center-col">{{ trip.fiscal_year }}</th>
@@ -197,7 +197,7 @@
 {#  CONFERENCE DETAIL  #}
 {% if trip.conference %}
     <h3>
-        Conference/Meeting Detail:
+        {% trans "Conference/Meeting Detail:" %}
     </h3>
     {% if not trip.conference %}
         <em class="red-font blink-me">{% trans "It was indicated above that this trip is a conference/meeting however no conference or meeting was selected." %}</em>
@@ -218,7 +218,7 @@
 
             {% endfor %}
             <tr>
-                <th>Connected trips</th>
+                <th>{% trans "Connected trips" %}</th>
                 <td>
                     {% for obj in trip.conference.trips.all %}
                         {% url 'travel:trip_detail' obj.id as my_url %}
@@ -235,17 +235,29 @@
                 </td>
             </tr>
             <tr>
-                <th>Total list of attendees (all trips and BTA included)</th>
+                <th>
+                    {% trans "Total list of attendees (all trips and BTA included)" %}
+                </th>
                 <td>
                     <ul>
                         {% for traveller in trip.conference.total_traveller_list %}
                             <li>
-                                {{ traveller }} {% if traveller in trip.conference.bta_traveller_list %}(BTA){% endif %}
+                                {{ traveller }} {% if traveller in trip.conference.bta_traveller_list %}{% trans "(BTA)" %}{% endif %}
                             </li>
                         {% empty %}
-                            <em>There is nobody travelling to this event.</em>
+                            <em>
+                                {% trans "There is nobody travelling to this event." %}
+                            </em>
                         {% endfor %}
                     </ul>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    {% trans "Total cost (from all connected trips, excluding BTA travel)" %}
+                </th>
+                <td>
+                    {{ trip.conference.total_cost|currency:"True" }}
                 </td>
             </tr>
         </table>
@@ -271,9 +283,11 @@
         <tr>
             {% for field in child_field_list %}
                 {% if "cost_breakdown" in field or "purpose_long" in field %}
-                    <th style="width: 20%">{% get_verbose_label trip field %}</th>
+                    <th style="width: ">{% get_verbose_label trip field %}</th>
                 {% elif "role_of" in field %}
-                    <th style="width: 50%">{% get_verbose_label trip field %}</th>
+                    <th style="width: ">{% get_verbose_label trip field %}</th>
+                {% elif "_date" in field %}
+                    <th style="width: 80px">{% get_verbose_label trip field %}</th>
                 {% else %}
                     <th scope="col">{% get_verbose_label trip field %}</th>
                 {% endif %}
@@ -292,7 +306,7 @@
 
                 {% endfor %}
                 <td>
-                    <button class="badge" data-toggle="popover"
+                    <button class="badge" data-toggle="popover" id="cost-breakdown-btn"
                             title="{{ child.first_name }}'s Costs Breakdown"
                             data-content="{% include "travel/_child_cost_breakdown.html" %}">
                         {% trans "show" %}
@@ -301,7 +315,7 @@
                 {% if not report_mode %}
                     <td>
                         <a class="btn btn-sm btn-warning stop-pop" href="{% url 'travel:child_duplicate_event' child.id  'pop' %}">
-                            Clone
+                            {% trans "Clone" %}
                         </a>
                     </td>
                 {% endif %}
@@ -310,7 +324,7 @@
         {% endfor %}
         </tbody>
         <tr>
-            <th colspan="{{ child_field_list|length|subtract:1|floatformat }}" style="text-align: right">TOTAL COST:</th>
+            <th colspan="{{ child_field_list|length|subtract:1|floatformat }}" style="text-align: right">{% trans "TOTAL COST:" %}</th>
             <th style="width: 8%;">{{ trip.total_trip_cost|currency:"True" }}</th>
         </tr>
     </table>
@@ -385,5 +399,9 @@
         if (input) {
             window.location.href = $(this).attr("href")
         }
+    })
+    $("#cost-breakdown-btn").click(function (e) {
+        console.log(123)
+        e.stopPropagation();
     })
 </script>

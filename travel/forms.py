@@ -8,6 +8,7 @@ from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
+attr_fp_date_hide_me = {"class": "fp-date hide-me", "placeholder": "Click to select a date.."}
 attr_hide_me = {"class": "hide-me"}
 attr_cost_hide_me = {"class": "hide-me cost"}
 attr_cost = {"class": "cost"}
@@ -49,14 +50,17 @@ class TripForm(forms.ModelForm):
             "fiscal_year",
             "submitted",
             "status",
+            "breakfasts",
+            "lunches",
+            "suppers",
+            "incidentals",
+            "meals",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
             'adm': _("ADM (only if necessary, e.g., events, int'l travel, etc. )"),
         }
         widgets = {
-            'start_date': forms.DateInput(attrs=attr_fp_date),
-            'end_date': forms.DateInput(attrs=attr_fp_date),
             'bta_attendees': forms.SelectMultiple(attrs=chosen_js),
             'user': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
@@ -72,6 +76,8 @@ class TripForm(forms.ModelForm):
             'parent_trip': forms.HiddenInput(),
 
             # non-group trip fields
+            'start_date': forms.DateInput(attrs=attr_fp_date_hide_me),
+            'end_date': forms.DateInput(attrs=attr_fp_date_hide_me),
             'first_name': forms.TextInput(attrs=attr_hide_me),
             'last_name': forms.TextInput(attrs=attr_hide_me),
             'address': forms.TextInput(attrs=attr_hide_me),
@@ -83,8 +89,8 @@ class TripForm(forms.ModelForm):
             'departure_location': forms.TextInput(attrs=attr_hide_me),
             'role': forms.Select(attrs=attr_hide_me),
             'region': forms.Select(attrs=attr_hide_me),
-            'role_of_participant': forms.Textarea(attrs=attr_row3_hide_me ),
-            'multiple_conferences_rationale': forms.Textarea(attrs=attr_row3_hide_me ),
+            'role_of_participant': forms.Textarea(attrs=attr_row3_hide_me),
+            'multiple_conferences_rationale': forms.Textarea(attrs=attr_row3_hide_me),
             'air': forms.NumberInput(attrs=attr_cost_hide_me),
             'rail': forms.NumberInput(attrs=attr_cost_hide_me),
             'rental_motor_vehicle': forms.NumberInput(attrs=attr_cost_hide_me),
@@ -92,8 +98,18 @@ class TripForm(forms.ModelForm):
             'taxi': forms.NumberInput(attrs=attr_cost_hide_me),
             'other_transport': forms.NumberInput(attrs=attr_cost_hide_me),
             'accommodations': forms.NumberInput(attrs=attr_cost_hide_me),
-            'meals': forms.NumberInput(attrs=attr_cost_hide_me),
+            'breakfasts': forms.NumberInput(attrs=attr_cost_hide_me),
+            'breakfast_rate': forms.NumberInput(attrs=attr_cost_hide_me),
+            'no_breakfasts': forms.NumberInput(attrs=attr_cost_hide_me),
+            'lunches': forms.NumberInput(attrs=attr_cost_hide_me),
+            'lunch_rate': forms.NumberInput(attrs=attr_cost_hide_me),
+            'no_lunches': forms.NumberInput(attrs=attr_cost_hide_me),
+            'suppers': forms.NumberInput(attrs=attr_cost_hide_me),
+            'supper_rate': forms.NumberInput(attrs=attr_cost_hide_me),
+            'no_suppers': forms.NumberInput(attrs=attr_cost_hide_me),
             'incidentals': forms.NumberInput(attrs=attr_cost_hide_me),
+            'incidental_rate': forms.NumberInput(attrs=attr_cost_hide_me),
+            'no_incidentals': forms.NumberInput(attrs=attr_cost_hide_me),
             'registration': forms.NumberInput(attrs=attr_cost_hide_me),
             'other': forms.NumberInput(attrs=attr_cost_hide_me),
         }
@@ -122,9 +138,9 @@ class TripForm(forms.ModelForm):
         recommender_chocies.insert(0, tuple((None, "---")))
 
         section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(division__branch_id__in = [1,3,]).order_by("division__branch__region",
-                                                                                                "division__branch",
-                                                                                                "division", "name")]
+                           shared_models.Section.objects.filter(division__branch_id__in=[1, 3, ]).order_by("division__branch__region",
+                                                                                                           "division__branch",
+                                                                                                           "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -172,6 +188,8 @@ class ChildTripForm(forms.ModelForm):
             'is_research_scientist',
             'company_name',
             'region',
+            'start_date',
+            'end_date',
             'departure_location',
             'role',
             'role_of_participant',
@@ -184,8 +202,16 @@ class ChildTripForm(forms.ModelForm):
             'taxi',
             'other_transport',
             'accommodations',
-            'meals',
-            'incidentals',
+
+            'no_breakfasts',
+            'breakfast_rate',
+            'no_lunches',
+            'lunch_rate',
+            'no_suppers',
+            'supper_rate',
+            'no_incidentals',
+            'incidental_rate',
+
             'registration',
             'other',
             'parent_trip',
@@ -193,6 +219,8 @@ class ChildTripForm(forms.ModelForm):
         widgets = {
             'user': forms.Select(attrs=chosen_js),
             'parent_trip': forms.HiddenInput(),
+            'start_date': forms.DateInput(attrs=attr_fp_date),
+            'end_date': forms.DateInput(attrs=attr_fp_date),
             'role_of_participant': forms.Textarea(attrs=attr_row4),
             # costs
             'air': forms.NumberInput(attrs=attr_cost),
@@ -202,8 +230,16 @@ class ChildTripForm(forms.ModelForm):
             'taxi': forms.NumberInput(attrs=attr_cost),
             'other_transport': forms.NumberInput(attrs=attr_cost),
             'accommodations': forms.NumberInput(attrs=attr_cost),
-            'meals': forms.NumberInput(attrs=attr_cost),
-            'incidentals': forms.NumberInput(attrs=attr_cost),
+
+            'no_breakfasts': forms.NumberInput(attrs=attr_cost),
+            'breakfast_rate': forms.NumberInput(attrs=attr_cost),
+            'no_lunches': forms.NumberInput(attrs=attr_cost),
+            'lunch_rate': forms.NumberInput(attrs=attr_cost),
+            'no_suppers': forms.NumberInput(attrs=attr_cost),
+            'supper_rate': forms.NumberInput(attrs=attr_cost),
+            'no_incidentals': forms.NumberInput(attrs=attr_cost),
+            'incidental_rate': forms.NumberInput(attrs=attr_cost),
+
             'registration': forms.NumberInput(attrs=attr_cost),
             'other': forms.NumberInput(attrs=attr_cost),
         }
@@ -220,7 +256,7 @@ class ChildTripForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-        if parent_trip.reason.id != 2:
+        if parent_trip.reason_id != 2:
             del self.fields['role']
             del self.fields['role_of_participant']
 
