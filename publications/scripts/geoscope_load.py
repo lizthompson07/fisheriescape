@@ -1,6 +1,9 @@
 from publications import models
 
 import os
+import logging
+
+logging.basicConfig(level=logging.WARNING, filename="geoScope_load.log", filemode="w")
 
 FILE_PREFIX = "file:///"
 
@@ -13,7 +16,7 @@ def load_data(geoscope_name, file_path):
 
     geo_name = geoscope_name.upper()
     if models.GeographicScope.objects.filter(name=geo_name):
-        print(geoscope_name + ": \n\t" + file_path)
+        logging.debug(geoscope_name + ": \n\t" + file_path)
     else:
         return
 
@@ -48,7 +51,7 @@ def load_scope(file_name):
             try:
                 load_data(data[0], csv_file)
             except:
-                print("Error loading file: " + csv_file)
+                logging.error("Error loading file: " + csv_file)
 
 
 def load():
