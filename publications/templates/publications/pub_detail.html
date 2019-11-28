@@ -180,13 +180,13 @@
             // Define the LatLng coordinates for the polygon's path.
             {% for poly in polygon %}
             var shape_coord = [
-                {% for point in poly %}
+                {% for point in poly.points %}
                     {lat: {{point.latitude}}, lng: {{point.longitude}} },
                 {% endfor %}
             ];
 
             // Construct the polygon.
-            var shape = new google.maps.Polygon({
+            var polygon = new google.maps.Polygon({
               paths: shape_coord,
               strokeColor: '#FF0000',
               strokeOpacity: 0.8,
@@ -194,7 +194,14 @@
               fillColor: '#FF0000',
               fillOpacity: 0.35
             });
-            shape.setMap(map);
+            polygon.setMap(map);
+
+            google.maps.event.addListener(polygon, 'mouseover', function (e) {
+                iw.setContent("{{ poly.name }}");
+                var latLng = e.latLng;
+                iw.setPosition(latLng);
+                iw.open(map);
+             });
             {% endfor %}
 
         }

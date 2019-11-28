@@ -385,12 +385,13 @@ class ProjectDetailView(DetailView):
             for g in geo:
                 poly_points = models.Polygon.objects.filter(geoscope=g)
                 if poly_points:
-                    poly = []
+                    poly = {
+                        'name': str(g),
+                        'points': []
+                    }
                     for point in poly_points:
-                        poly.append(point)
-                        print(str(poly))
+                        poly['points'].append(point)
                     context["polygon"].append(poly)
-
         return context
 
 
