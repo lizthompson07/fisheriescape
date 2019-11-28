@@ -342,3 +342,16 @@ NationFormSet = modelformset_factory(
     form=NationForm,
     extra=1,
 )
+
+
+class FundingProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.FundingProgram
+        fields = "__all__"
+
+
+FundingProgramFormSet = modelformset_factory(
+    model=models.FundingProgram,
+    form=FundingProgramForm,
+    extra=1,
+)
