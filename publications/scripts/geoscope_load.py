@@ -3,7 +3,7 @@ from publications import models
 import os
 import logging
 
-logging.basicConfig(level=logging.WARNING, filename="geoScope_load.log", filemode="w")
+logging.basicConfig(level=logging.DEBUG, filename="geoScope_load.log", filemode="w")
 
 FILE_PREFIX = "file:///"
 
@@ -45,13 +45,19 @@ def load_scope(file_name):
             first = False
             continue
 
-        data = line.strip().split(',')
-        if data[1].startswith(FILE_PREFIX):
-            csv_file = data[1].replace(FILE_PREFIX, "")
-            try:
-                load_data(data[0], csv_file)
-            except:
-                logging.error("Error loading file: " + csv_file)
+        try:
+            data = line.strip()
+            if data:
+                data = data.split(',')
+                if data[1].startswith(FILE_PREFIX):
+                    csv_file = data[1].replace(FILE_PREFIX, "")
+                    try:
+                        load_data(data[0], csv_file)
+                    except:
+                        logging.error("Error loading file: " + csv_file)
+
+        except IndexError:
+            logging.error("Could not load '" + line.strip() + "'")
 
 
 def load():
