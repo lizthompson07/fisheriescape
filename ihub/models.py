@@ -11,7 +11,6 @@ from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
-from spot import models as spot_models
 
 
 class EntryType(models.Model):
@@ -64,6 +63,32 @@ class FundingPurpose(models.Model):
         ordering = ['name', ]
 
 
+class FundingProgram(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+    abbrev_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation (French)"))
+    abbrev_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation (French)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    @property
+    def full_eng(self):
+        return "{} ({})".format(self.name, self.abbrev_eng)
+
+    @property
+    def full_fre(self):
+        return "{} ({})".format(self.nom, self.abbrev_fre)
+
+    class Meta:
+        ordering = [_('name'), ]
+
+
 class Entry(models.Model):
     # basic
     title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
@@ -80,7 +105,7 @@ class Entry(models.Model):
     regions = models.ManyToManyField(shared_models.Region, related_name="entries")
 
     # funding
-    funding_program = models.ForeignKey(spot_models.Program, on_delete=models.DO_NOTHING, blank=True, null=True,
+    funding_program = models.ForeignKey(FundingProgram, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding program"), related_name="entries")
     fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
     funding_needed = models.NullBooleanField(verbose_name=_("is funding needed?"))
