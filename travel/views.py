@@ -111,7 +111,7 @@ trip_field_list = [
     'destination',
     'start_date',
     'end_date',
-    'is_adm_approval_required',
+    # 'is_adm_approval_required',
     'purpose',
     'reason',
     # 'is_conference',
@@ -159,7 +159,7 @@ trip_group_field_list = [
     'destination',
     'start_date',
     'end_date',
-    'is_adm_approval_required',
+    # 'is_adm_approval_required',
     'purpose',
     'reason',
     # 'is_conference',
@@ -210,6 +210,8 @@ conf_field_list = [
     'number',
     'start_date',
     'end_date',
+    'is_adm_approval_required',
+    'total_cost|{}'.format("Total cost (from all connected trips, excluding BTA travel)"),
 ]
 
 
@@ -778,6 +780,7 @@ class ConferenceListView(TravelAccessRequiredMixin, FilterView):
             'location',
             'start_date',
             'end_date',
+            'is_adm_approval_required|{}'.format(_("ADM approval required?")),
         ]
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
@@ -788,16 +791,7 @@ class ConferenceDetailView(TravelAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'tname|{}'.format("Name"),
-            'location',
-            'lead',
-            'has_event_template',
-            'number',
-            'start_date',
-            'end_date',
-            'total_cost|{}'.format("Total cost (from all connected trips, excluding BTA travel)"),
-        ]
+        context["conf_field_list"] = conf_field_list
         return context
 
 
@@ -807,6 +801,8 @@ class ConferenceUpdateView(TravelAdminRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+
         return context
 
 
@@ -818,7 +814,7 @@ class ConferenceCreateView(TravelAccessRequiredMixin, CreateView):
         if self.kwargs.get("pop"):
             return 'travel/conference_form_popout.html'
         else:
-            return 'travel/trip_form.html'
+            return 'travel/conference_form.html'
 
     def get_success_url(self):
         if self.kwargs.get("pop"):
@@ -828,6 +824,8 @@ class ConferenceCreateView(TravelAccessRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+
         return context
 
     def form_valid(self, form):

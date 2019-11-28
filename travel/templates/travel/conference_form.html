@@ -1,6 +1,7 @@
 {% extends "travel/travel_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load custom_filters %}
 {% block header %}
 {% endblock %}
 {% block content %}
@@ -25,7 +26,7 @@
             {% if object %}
                 {{ object }}
             {% else %}
-                New Trip
+                New Conference / Meeting
             {% endif %}
         </h1>
 
@@ -34,7 +35,21 @@
         <form method="post" class="form">
             {% csrf_token %}
             {% for field in form %}
-                {% bootstrap_field field placeholder="" %}
+
+                {% if field.name in help_text_dict and "_date" not in field.name %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False %}
+                    {% endwith %}
+                {% else %}
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
+
+
+{#                {% bootstrap_field field placeholder="" %}#}
 
             {% endfor %}
 
