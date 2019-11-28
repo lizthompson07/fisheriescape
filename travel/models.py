@@ -103,6 +103,8 @@ class Status(models.Model):
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255, blank=True, null=True)
+    is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
+        "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location (city, province, country)"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is taking the lead?"),
                              related_name="meeting_leads", blank=True, null=True)
@@ -131,11 +133,17 @@ class Conference(models.Model):
     @property
     def bta_traveller_list(self):
         # create a list of all TMS users going
+        legit_traveller_list = self.traveller_list
         travellers = []
         for trip in self.trips.filter(~Q(status_id=10)):
             # lets look at the list of BTA travels and add them all
             for bta_user in trip.bta_attendees.all():
-                travellers.append(bta_user)
+                # if this user for some reason turns up to be a real traveller on this trip
+                # (i.e. the assertion that they are a BTA traveller is wrong, they should not be added)
+                if bta_user not in legit_traveller_list:
+                    travellers.append(bta_user)
+
+
         # return a set of all users
         return list(set(travellers))
 
@@ -147,13 +155,13 @@ class Conference(models.Model):
         # start simple... non-group
         my_list = [trip.user for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if trip.user]
         # now those without names...
-        my_list.extend(["{} {} (no user connected)".format(trip.first_name, trip.last_name) for trip in
+        my_list.extend(["{} {} ({})".format(trip.first_name, trip.last_name, _("no DM Apps user connected")) for trip in
                         self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if not trip.user])
 
         # group travellers
         my_list.extend(
             [trip.user for trip in Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10)) if trip.user])
-        my_list.extend(["{} {} (no user connected)".format(trip.first_name, trip.last_name) for trip in
+        my_list.extend(["{} {} ({})".format(trip.first_name, trip.last_name, _("no DM Apps user connected")) for trip in
                         Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10)) if not trip.user])
 
         return set(my_list)
@@ -191,14 +199,60 @@ class Conference(models.Model):
             my_str = "{}".format(self.name)
         return my_str
 
+    @property
+    def conf_fiscal_year(self):
+        return shared_models.FiscalYear.objects.get(pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
+
+
+    @property
+    def get_summary_dict(self):
+        """
+        This method is used to return a dictionary of users attending a conference/meeting, as well as the number of
+        conferences or international meetings they have attended.
+        """
+        my_dict = {}
+
+        # get a trip list that will be used to get a list of users (sigh...)
+        # my_trip_list = self.children_trips.all() if self.is_group_trip else Trip.objects.filter(pk=self.id)
+
+        # get the fiscal year of the conference
+        fy = self.conf_fiscal_year
+
+        for traveller in self.total_traveller_list:
+            total_list = []
+            fy_list = []
+
+            # if this is not a real User instance, there is nothing to do.
+            try:
+
+                # there are two things we have to do to get this list...
+                # 1) get all non group travel
+                qs = traveller.user_trips.filter(conference__is_adm_approval_required=True).filter(is_group_trip=False)
+                total_list.extend([trip for trip in qs])
+                fy_list.extend([trip for trip in qs.filter(fiscal_year=fy)])
+
+                # 2) get all group travel - the trick part is that we have to grab the parent trip
+                qs = traveller.user_trips.filter(parent_trip__conference__is_adm_approval_required=True)
+                total_list.extend([trip.parent_trip for trip in qs])
+                fy_list.extend([trip.parent_trip for trip in qs.filter(fiscal_year=fy)])
+
+                my_dict[traveller] = {}
+                my_dict[traveller]["total_list"] = list(set(total_list))
+                my_dict[traveller]["fy_list"] = list(set(fy_list))
+
+            except AttributeError:
+                # This is the easy part
+                my_dict[traveller] = {}
+                my_dict[traveller]["total_list"] = "---"
+                my_dict[traveller]["fy_list"] = "---"
+        return my_dict
+
 
 class Trip(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trips")
     is_group_trip = models.BooleanField(default=False,
                                         verbose_name=_("Is this a group trip (i.e., is this a request for multiple individuals)?"))
-    is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
-        "does this trip require ADM approval?"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
@@ -475,41 +529,6 @@ class Trip(models.Model):
     @property
     def recommenders(self):
         return self.reviewers.filter(role_id=2)
-
-    @property
-    def get_summary_dict(self):
-        my_dict = {}
-
-        # get a trip list that will be used to get a list of users (sigh...)
-        my_trip_list = self.children_trips.all() if self.is_group_trip else Trip.objects.filter(pk=self.id)
-
-        for trip in my_trip_list:
-            total_list = []
-            fy_list = []
-            my_user = trip.user
-            if my_user:
-                # there are two things we have to do to get this list...
-                # 1) get all non group travel
-                qs = my_user.user_trips.filter(is_adm_approval_required=True).filter(is_group_trip=False)
-                total_list.extend([trip for trip in qs])
-                fy_list.extend([trip for trip in qs.filter(fiscal_year=self.fiscal_year)])
-
-                # 2) get all group travel - the trick part is that we have to grab the parent trip
-                qs = my_user.user_trips.filter(parent_trip__is_adm_approval_required=True)
-                total_list.extend([trip.parent_trip for trip in qs])
-                fy_list.extend([trip.parent_trip for trip in qs.filter(fiscal_year=self.fiscal_year)])
-
-                my_dict[my_user] = {}
-                my_dict[my_user]["total_list"] = list(set(total_list))
-                my_dict[my_user]["fy_list"] = list(set(fy_list))
-
-            else:
-                # This is the easy part
-                fullname = "{} {}".format(trip.first_name, trip.last_name)
-                my_dict[fullname] = {}
-                my_dict[fullname]["total_list"] = _("no user connected")
-                my_dict[fullname]["fy_list"] = _("no user connected")
-        return my_dict
 
 
 class ReviewerRole(models.Model):
