@@ -202,6 +202,10 @@
                 iw.setPosition(latLng);
                 iw.open(map);
              });
+
+            google.maps.event.addListener(polygon, 'mouseout', function () {
+                iw.close(map);
+             });
             {% endfor %}
 
         }
