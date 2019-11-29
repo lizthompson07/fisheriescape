@@ -128,7 +128,7 @@ class StatusUpdateEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
     def load_html_template(self, trip_object):
-        t = loader.get_template('travel/email_changes_requested.html')
+        t = loader.get_template('travel/email_status_update.html')
 
         field_list = [
             'fiscal_year',
