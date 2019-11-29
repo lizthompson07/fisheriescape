@@ -50,11 +50,11 @@
 
 
             <div class="float-right">
-                <a class="btn btn-info " href="{% url 'travel:trip_print' trip.id %}" target="_blank">
-                    View Travel Plan PDF &nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                <a class="btn btn-outline-dark " href="{% url 'travel:trip_print' trip.id %}" target="_blank">
+                    Print Travel Plan&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
                 </a>
-                <a class="btn btn-success" href="{% url 'travel:export_cfts' trip.id %}" target="_blank">
-                    Export CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+                <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts' trip.id %}" target="_blank">
+                    CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
                 </a>
             </div>
             <div class="">

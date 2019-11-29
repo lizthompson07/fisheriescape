@@ -86,7 +86,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of trips where review is pending
-        context["admin_number_waiting"] = models.Reviewer.objects.filter(status_id=1, role_id__in=[5,6]).count()  # number of trips where admin review is pending
+        context["admin_number_waiting"] = models.Reviewer.objects.filter(status_id=1, role_id__in=[5,
+                                                                                                   6]).count()  # number of trips where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
@@ -110,16 +111,16 @@ trip_field_list = [
     'destination',
     'start_date',
     'end_date',
-    'is_international',
-    'is_conference',
+    # 'is_adm_approval_required',
+    'purpose',
+    'reason',
+    # 'is_conference',
     'conference',
-    'has_event_template',
-    'event_lead',
+    # 'has_event_template',
+    # 'event_lead',
 
     # purpose
     'role',
-    'reason',
-    'purpose',
     'role_of_participant',
     'objective_of_event',
     'benefit_to_dfo',
@@ -130,22 +131,23 @@ trip_field_list = [
     'notes',
 
     # costs
-    'air',
-    'rail',
-    'rental_motor_vehicle',
-    'personal_motor_vehicle',
-    'taxi',
-    'other_transport',
-    'accommodations',
-    'meals',
-    'incidentals',
-    'registration',
-    'other',
-    'total_cost',
+    # 'air',
+    # 'rail',
+    # 'rental_motor_vehicle',
+    # 'personal_motor_vehicle',
+    # 'taxi',
+    # 'other_transport',
+    # 'accommodations',
+    # 'meals',
+    # 'incidentals',
+    # 'registration',
+    # 'other',
+    'cost_table|{}'.format(_("DFO trip costs")),
+    # 'total_cost',
     'non_dfo_costs',
     'non_dfo_org',
-    'cost_breakdown|{}'.format(_("cost summary")),
-    'purpose_long|{}'.format(_("purpose")),
+    # 'cost_breakdown|{}'.format(_("cost summary")),
+    # 'purpose_long|{}'.format(_("purpose")),
 ]
 
 trip_group_field_list = [
@@ -157,14 +159,14 @@ trip_group_field_list = [
     'destination',
     'start_date',
     'end_date',
-    'is_international',
-    'is_conference',
-    'conference',
-    'has_event_template',
-    'event_lead',
-
-    'reason',
+    # 'is_adm_approval_required',
     'purpose',
+    'reason',
+    # 'is_conference',
+    'conference',
+    # 'has_event_template',
+    # 'event_lead',
+
     'objective_of_event',
     'benefit_to_dfo',
     'multiple_attendee_rationale',
@@ -183,6 +185,8 @@ trip_child_field_list = [
     'is_public_servant',
     'is_research_scientist',
     'region',
+    'start_date',
+    'end_date',
     'departure_location',
     'role',
     'role_of_participant',
@@ -200,10 +204,23 @@ reviewer_field_list = [
 
 conf_field_list = [
     'tname|{}'.format(_("Name")),
+    'location',
+    'lead',
+    'has_event_template',
     'number',
     'start_date',
     'end_date',
+    'is_adm_approval_required',
+    'total_cost|{}'.format("Total cost (from all connected trips, excluding BTA travel)"),
 ]
+
+
+def get_help_text_dict():
+    my_dict = {}
+    for obj in models.HelpText.objects.all():
+        my_dict[obj.field_name] = str(obj)
+
+    return my_dict
 
 
 # TRIP #
@@ -308,7 +325,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         my_object = self.get_object()
         context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
         my_trip_child_field_list = deepcopy(trip_child_field_list)
-        if not my_object.is_conference:
+        if not my_object.reason_id == 2:
             my_trip_child_field_list.remove("role")
             my_trip_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_trip_child_field_list
@@ -358,6 +375,18 @@ class TripUpdateView(TravelAccessRequiredMixin, UpdateView):
         user_json = json.dumps(user_dict)
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
+
+        conf_dict = {}
+        for conf in models.Conference.objects.all():
+            conf_dict[conf.id] = {}
+            conf_dict[conf.id]['location'] = conf.location
+            conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
+            conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
+
+        conf_json = json.dumps(conf_dict)
+        # send JSON file to template so that it can be used by js script
+        context['conf_json'] = conf_json
+        context['help_text_dict'] = get_help_text_dict()
 
         return context
 
@@ -564,6 +593,18 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
 
+        conf_dict = {}
+        for conf in models.Conference.objects.all():
+            conf_dict[conf.id] = {}
+            conf_dict[conf.id]['location'] = conf.location
+            conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
+            conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
+
+        conf_json = json.dumps(conf_dict)
+        # send JSON file to template so that it can be used by js script
+        context['conf_json'] = conf_json
+        context['help_text_dict'] = get_help_text_dict()
+
         return context
 
 
@@ -661,16 +702,17 @@ class ChildTripCloneUpdateView(TripCreateView):
 
 @login_required(login_url='/accounts/login_required/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def re_add_reviewers(request, pk):
+def reset_reviewers(request, pk):
     my_obj = models.Trip.objects.get(pk=pk)
+    # first remove any existing reviewers
+    my_obj.reviewers.all().delete()
+    # next, re-add the defaults...
     utils.get_reviewers(my_obj)
     return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.id}))
 
 
 # REVIEWER #
 ############
-
-
 @login_required(login_url='/accounts/login_required/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_reviewer(request, pk):
@@ -734,12 +776,13 @@ class ConferenceListView(TravelAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Conference.objects.first()
         context["field_list"] = [
-            'name',
-            'nom',
-            'number',
+            'tname|{}'.format("Name"),
+            'location',
             'start_date',
             'end_date',
+            'is_adm_approval_required|{}'.format(_("ADM approval required?")),
         ]
+        context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
 
 
@@ -748,22 +791,18 @@ class ConferenceDetailView(TravelAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'name',
-            'nom',
-            'number',
-            'start_date',
-            'end_date',
-        ]
+        context["conf_field_list"] = conf_field_list
         return context
 
 
-class ConferenceUpdateView(TravelAccessRequiredMixin, UpdateView):
+class ConferenceUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.Conference
     form_class = forms.ConferenceForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+
         return context
 
 
@@ -775,7 +814,7 @@ class ConferenceCreateView(TravelAccessRequiredMixin, CreateView):
         if self.kwargs.get("pop"):
             return 'travel/conference_form_popout.html'
         else:
-            return 'travel/trip_form.html'
+            return 'travel/conference_form.html'
 
     def get_success_url(self):
         if self.kwargs.get("pop"):
@@ -785,6 +824,8 @@ class ConferenceCreateView(TravelAccessRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+
         return context
 
     def form_valid(self, form):
@@ -803,7 +844,7 @@ class ConferenceCreateView(TravelAccessRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ConferenceDeleteView(TravelAccessRequiredMixin, DeleteView):
+class ConferenceDeleteView(TravelAdminRequiredMixin, DeleteView):
     model = models.Conference
     success_url = reverse_lazy('travel:conf_list')
     success_message = 'The event was deleted successfully!'
@@ -909,10 +950,10 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 
         # first, let's create an object list; if this is
         if my_object.is_group_trip:
-            object_list = my_object.children_trips.filter(Q(region=my_object.section.division.branch.region)|Q(region__isnull=True)|Q(is_public_servant=False))
+            object_list = my_object.children_trips.filter(
+                Q(region=my_object.section.division.branch.region) | Q(region__isnull=True) | Q(is_public_servant=False))
         else:
             object_list = models.Trip.objects.filter(pk=my_object.id)
-
 
         for key in key_list:
             # registration is not in the travel plan form. therefore it should be added under the 'other' category
@@ -920,6 +961,17 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
                 total_dict[key] = nz(object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'], 0) + \
                                   nz(object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))[
                                          'dsum'], 0)
+                # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
+                if total_dict[key] == 0:
+                    total_dict[key] = None
+            elif key == "meals":
+                total_dict[key] = nz(object_list.values('breakfasts').order_by('breakfasts').aggregate(dsum=Sum("breakfasts"))[
+                                         'dsum'], 0) + \
+                                  nz(object_list.values('lunches').order_by('lunches').aggregate(dsum=Sum("lunches"))[
+                                         'dsum'], 0) + \
+                                  nz(object_list.values('suppers').order_by('suppers').aggregate(dsum=Sum("suppers"))[
+                                         'dsum'], 0)
+
                 # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
                 if total_dict[key] == 0:
                     total_dict[key] = None
@@ -968,3 +1020,96 @@ def manage_statuses(request):
     context['title'] = "Manage Statuses"
     context['formset'] = formset
     return render(request, 'travel/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def delete_help_text(request, pk):
+    my_obj = models.HelpText.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("travel:manage_help_text"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def manage_help_text(request):
+    qs = models.HelpText.objects.all()
+    if request.method == 'POST':
+        formset = forms.HelpTextFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("travel:manage_help_text"))
+    else:
+        formset = forms.HelpTextFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'field_name',
+        'eng_text',
+        'fra_text',
+    ]
+    context['title'] = "Manage Help Text"
+    context['formset'] = formset
+    return render(request, 'travel/manage_settings_small.html', context)
+
+
+# FILES #
+#########
+
+class FileCreateView(TravelAccessRequiredMixin, CreateView):
+    template_name = "travel/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def form_valid(self, form):
+        object = form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        trip = models.Trip.objects.get(pk=self.kwargs['trip'])
+        context["trip"] = trip
+        return context
+
+    def get_initial(self):
+        trip = models.Trip.objects.get(pk=self.kwargs['trip'])
+        # status_report = models.StatusReport.objects.get(pk=self.kwargs['status_report']) if self.kwargs.get('status_report') else None
+
+        return {
+            'trip': trip,
+        }
+
+
+class FileUpdateView(TravelAccessRequiredMixin, UpdateView):
+    template_name = "travel/file_form.html"
+    model = models.File
+    form_class = forms.FileForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("travel:file_detail", kwargs={"pk": self.object.id})
+
+    def get_context_data(self, **kwargs):
+        # get context
+        context = super().get_context_data(**kwargs)
+        context["editable"] = True
+        return context
+
+
+class FileDetailView(FileUpdateView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["editable"] = False
+        return context
+
+
+class FileDeleteView(TravelAccessRequiredMixin, DeleteView):
+    template_name = "travel/file_confirm_delete.html"
+    model = models.File
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("shared_models:close_me")

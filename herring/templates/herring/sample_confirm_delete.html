@@ -33,7 +33,7 @@
         {% load static %}
         {# Load js file to allow for popout window #}
         <h1>Are you sure you want to delete Sample {{ object.id }}?</h1>
-        <p>(This action is permanent.)</p>
+        <h2 class="blink-me red-font">WARNING: This action is permanent and cannot be reversed.</h2>
 
         <style media="screen">
             .value {
@@ -42,7 +42,8 @@
                 margin-right: 10px;
             }
         </style>
-
+        <br><br>
+        <hr>
         <h4>Sample Details:</h4>
         <br>
         <p>
