@@ -93,9 +93,9 @@ class Program2(models.Model):
     funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
     regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (English)")
     regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (French)")
+    short_name = models.CharField(max_length=255, blank=True, null=True)
     is_core = models.BooleanField(verbose_name=_("Is program core or flex?"), choices=is_core_choices)
     examples = models.CharField(max_length=255, blank=True, null=True)
-    short_name = models.CharField(max_length=255, blank=True, null=True)
 
     @property
     def tname(self):
