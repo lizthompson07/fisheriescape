@@ -82,30 +82,40 @@
             <th scope="col" style="">
                 {% trans "Program List" %}
             </th>
-
+            <th scope="col" style="">
+                {% trans "Submitted" %}
+            </th>
+            <th scope="col" style="">
+                {% trans "Approved" %}
+            </th>
             </thead>
             <tbody>
 
             {% for obj in filter_list %}
-                                {% if request.META.QUERY_STRING %}
-                                    {% url 'projects:admin_pp_edit' obj.id request.META.QUERY_STRING as url %}
-                                {% else %}
-                                    {% url 'projects:admin_pp_edit' obj.id as url %}
-                                {% endif %}
+                {% if request.META.QUERY_STRING %}
+                    {% url 'projects:admin_pp_edit' obj.id request.META.QUERY_STRING as url %}
+                {% else %}
+                    {% url 'projects:admin_pp_edit' obj.id as url %}
+                {% endif %}
                 <tr href="{{ url }}">
 
                     <td>{{ obj.year }}</td>
                     <td>{{ obj.section.division.branch.region.name }} - {{ obj.section.division.name }}
                         - {{ obj.section.name }}</td>
                     <td>
-                        {{ obj.project_title }} {% if not obj.submitted %} - <span class="red-font">UNSUBMITTED</span>   {% endif %}
+                        {{ obj.project_title }}
                     </td>
                     <td class="{% if obj.programs.count == 0 %}bad{% endif %}">
                         {% for program in obj.programs.all %}
                             {{ program }}<br>
                         {% endfor %}
                     </td>
-
+                    <td>
+                        {{ obj.submitted|yesno }}
+                    </td>
+                    <td>
+                        {{ obj.section_head_approved|yesno }}
+                    </td>
 
                 </tr>
             {% endfor %}
