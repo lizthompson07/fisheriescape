@@ -30,7 +30,13 @@
         {% if field == "programs" %}
             <tr>
                 <th>{% get_verbose_label object field %}</th>
-                <td class="{% if object.programs.count == 0 %}bad{% endif %}">{% get_field_value object field %}</td>
+                <td>
+                {% if object.programs.count > 0 %}
+                    {% get_field_value object field %}
+                {% else %}
+                    <span class="red-font blink-me">{% trans "MISSING PROGRAM INFORMATION" %}</span>
+                {% endif %}
+                </td>
             </tr>
         {% else %}
             {% verbose_td_display object field th_width="30%" td_width="80%" %}
