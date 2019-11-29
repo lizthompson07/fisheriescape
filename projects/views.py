@@ -1586,6 +1586,7 @@ def manage_programs(request):
         'regional_program_name_fra',
         'is_core',
         'examples',
+        'short_name',
     ]
     context['title'] = "Manage Programs"
     context['formset'] = formset

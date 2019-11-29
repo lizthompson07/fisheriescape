@@ -515,6 +515,7 @@ class ProgramForm(forms.ModelForm):
             'regional_program_name_eng': forms.Textarea(attrs={"rows": 3}),
             'regional_program_name_fra': forms.Textarea(attrs={"rows": 3}),
             'examples': forms.Textarea(attrs={"rows": 3}),
+            'short_name': forms.Textarea(attrs={"rows": 3}),
         }
 
 
