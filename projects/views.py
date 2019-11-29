@@ -688,6 +688,8 @@ class ProjectCloneUpdateView(ProjectUpdateView):
     def form_valid(self, form):
         new_obj = form.save(commit=False)
         old_obj = models.Project.objects.get(pk=new_obj.pk)
+        new_programs = form.cleaned_data.get("programs")
+        new_tags = form.cleaned_data.get("tags")
         new_obj.pk = None
         new_obj.submitted = False
         new_obj.section_head_approved = False
@@ -699,6 +701,13 @@ class ProjectCloneUpdateView(ProjectUpdateView):
         new_obj.date_last_modified = timezone.now()
         new_obj.last_modified_by = self.request.user
         new_obj.save()
+
+        # now that the new object has an id, we can add the many 2 many links
+        for p in new_programs:
+            new_obj.programs.add(p.id)
+
+        for t in  new_tags:
+            new_obj.tags.add(t.id)
 
         # Now we need to replicate all the related records:
         # 1) staff
@@ -723,6 +732,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
             new_rel_obj.pk = None
             new_rel_obj.project = new_obj
             new_rel_obj.save()
+
 
         # 3) Capital
         for old_rel_obj in old_obj.capital_costs.all():
