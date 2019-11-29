@@ -106,13 +106,15 @@ class AdminProjectProgramFilter(django_filters.FilterSet):
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)
         self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"),
                                                              lookup_expr='exact', choices=region_choices)
-        self.filters['submitted'].label = "Has the project been submitted?"
+        self.filters['submitted'].label = "Submitted?"
+        self.filters['section_head_approved'].label = "Approved by section head?"
 
     class Meta:
         model = models.Project
         fields = {
             'project_title': ['icontains'],
             'submitted': ['exact'],
+            'section_head_approved': ['exact'],
         }
 
 

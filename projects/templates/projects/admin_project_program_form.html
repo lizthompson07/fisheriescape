@@ -38,7 +38,6 @@
         </h1>
 
         <b>Project Id:</b> {{ object.id}}<br><br>
-        <b>Project title:</b> {{ object.project_title }}<br><br>
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
