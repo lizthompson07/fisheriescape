@@ -1584,9 +1584,9 @@ def manage_programs(request):
         'funding_source_and_type',
         'regional_program_name_eng',
         'regional_program_name_fra',
+        'short_name',
         'is_core',
         'examples',
-        'short_name',
     ]
     context['title'] = "Manage Programs"
     context['formset'] = formset
