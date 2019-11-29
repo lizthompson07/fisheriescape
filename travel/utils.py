@@ -32,7 +32,7 @@ def get_reviewers(trip):
             print("not adding RDS")
 
     # should the ADMs office be invovled?
-    if trip.is_international or trip.is_conference:
+    if trip.conference.is_adm_approval_required:
         # add the ADMs office staff
         # try:
         #     models.Reviewer.objects.create(trip=trip, user_id=749, role_id=3, )  # Kim Cotton

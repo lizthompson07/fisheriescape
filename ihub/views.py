@@ -438,6 +438,7 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
             'sectors',
             'entry_type',
             'initial_date',
+            'anticipated_end_date',
             'regions',
             'date_last_modified',
             'last_modified_by',
@@ -446,6 +447,7 @@ class EntryDetailView(SiteLoginRequiredMixin, DetailView):
 
         context["field_list_1"] = [
             'fiscal_year',
+            'funding_program',
             'funding_needed',
             'funding_purpose',
             'amount_requested',
@@ -784,6 +786,7 @@ class OrganizationCueCard(PDFTemplateView):
         context["entry_field_list_1"] = [
             'fiscal_year',
             'initial_date',
+            'anticipated_end_date',
             'status',
         ]
         context["entry_field_list_2"] = [
@@ -792,6 +795,7 @@ class OrganizationCueCard(PDFTemplateView):
             'regions',
         ]
         context["entry_field_list_3"] = [
+            'funding_program',
             'funding_needed',
             'funding_purpose',
             'amount_requested',
@@ -888,12 +892,14 @@ class PDFSummaryReport(PDFTemplateView):
             'sectors',
             'entry_type',
             'initial_date',
+            'anticipated_end_date',
             'regions',
             'created_by',
         ]
 
         context["field_list_1"] = [
             'fiscal_year',
+            'funding_program',
             'funding_needed',
             'funding_purpose',
             'amount_requested',
@@ -935,7 +941,7 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             entry_types = None
 
         # get an entry list for the fiscal year (if any)
-        entry_list = models.Entry.objects.all().order_by("sectors","status","-initial_date")
+        entry_list = models.Entry.objects.all().order_by("sectors", "status", "-initial_date")
 
         if fy:
             entry_list = models.Entry.objects.filter(fiscal_year=fy)
@@ -1170,6 +1176,39 @@ def manage_nations(request):
         'name',
     ]
     context['title'] = "Manage Nation List"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+
+def delete_program(request, pk):
+    my_obj = models.FundingProgram.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("ihub:manage_programs"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+def manage_programs(request):
+    if request.method == 'POST':
+        formset = forms.FundingProgramFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Funding program list has been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_programs"))
+    else:
+        qs = models.FundingProgram.objects.all()
+        formset = forms.FundingProgramFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'abbrev_eng',
+        'abbrev_fre',
+    ]
+    context['title'] = "Manage Funding Program List"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
 
