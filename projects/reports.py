@@ -243,8 +243,8 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
         project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True)
-
-        for project in project_list:
+        print(project_list)
+        for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
             leads = listrify(
                 list(set([str(staff.user) for staff in
@@ -437,7 +437,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         # get a list of projects..
         project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
 
-        for project in project_list:
+        for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
 
             leads = listrify(
@@ -637,7 +637,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         # get a list of projects..
         project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False))
 
-        for project in project_list:
+        for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
 
             leads = listrify(
