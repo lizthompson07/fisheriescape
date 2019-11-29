@@ -20,6 +20,7 @@ class EntryCreateForm(forms.ModelForm):
         ]
         widgets = {
             'initial_date': forms.DateInput(attrs=attr_fp_date),
+            'anticipated_end_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
             'created_by': forms.HiddenInput(),
         }
@@ -35,6 +36,7 @@ class EntryForm(forms.ModelForm):
         ]
         widgets = {
             'initial_date': forms.DateInput(attrs=attr_fp_date),
+            'anticipated_end_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
         }
 
@@ -338,5 +340,18 @@ class NationForm(forms.ModelForm):
 NationFormSet = modelformset_factory(
     model=ml_models.Nation,
     form=NationForm,
+    extra=1,
+)
+
+
+class FundingProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.FundingProgram
+        fields = "__all__"
+
+
+FundingProgramFormSet = modelformset_factory(
+    model=models.FundingProgram,
+    form=FundingProgramForm,
     extra=1,
 )
