@@ -706,7 +706,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
         for p in new_programs:
             new_obj.programs.add(p.id)
 
-        for t in  new_tags:
+        for t in new_tags:
             new_obj.tags.add(t.id)
 
         # Now we need to replicate all the related records:
@@ -732,7 +732,6 @@ class ProjectCloneUpdateView(ProjectUpdateView):
             new_rel_obj.pk = None
             new_rel_obj.project = new_obj
             new_rel_obj.save()
-
 
         # 3) Capital
         for old_rel_obj in old_obj.capital_costs.all():
@@ -1365,6 +1364,7 @@ def manage_om_cats(request):
         formset = forms.OMCategoryFormSet(request.POST, )
         if formset.is_valid():
             formset.save()
+            # do something with the formset.cleaned_data
             # do something with the formset.cleaned_data
             messages.success(request, "Items have been successfully updated")
             return HttpResponseRedirect(reverse("projects:manage_om_cats"))
@@ -2612,3 +2612,113 @@ class PDFCostSummaryReport(LoginRequiredMixin, PDFTemplateView):
         context["bbase"] = models.FundingSource.objects.get(pk=2).color
         context["cbase"] = models.FundingSource.objects.get(pk=3).color
         return context
+
+
+# EXTRAS #
+##########
+class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
+    template_name = 'projects/ips_program_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
+        context['fy'] = fy
+
+        project_list = models.Project.objects.filter(
+            section__division__branch__region_id=1,
+            year=fy,
+            submitted=True,
+            section_head_approved=True,
+        )
+        division_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by()
+        section_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by()
+
+        my_dict = {}
+        for d in division_list.order_by("name"):
+            my_dict[d] = {}
+            for s in section_list.order_by("division", "name"):
+                my_dict[d][s] = {}
+
+                # get a list of projects..  then programs
+                project_list = s.projects.filter(year=fy, submitted=True, section_head_approved=True)
+                program_list = models.Program2.objects.filter(projects__in=project_list).distinct().order_by("-is_core", )
+
+                for p in program_list:
+                    my_dict[d][s][p] = {}
+
+                    # get a list of project counts
+                    project_count = project_list.filter(programs=p).count()
+                    my_dict[d][s][p]["project_count"] = project_count
+
+                    # get a list of project leads
+                    leads = listrify(
+                        list(set([str(staff.user) for staff in
+                                  models.Staff.objects.filter(project__in=project_list.filter(programs=p), lead=True) if
+                                  staff.user])))
+                    my_dict[d][s][p]["leads"] = leads
+        context['my_dict'] = my_dict
+        return context
+
+
+class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
+    template_name = 'projects/ips_project_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
+        section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
+        program = models.Program2.objects.get(id=self.kwargs.get("program"))
+        context['fy'] = fy
+        context['section'] = section
+        context['program'] = program
+
+        project_list = models.Project.objects.filter(
+            section=section,
+            year=fy,
+            programs=program,
+            submitted=True,
+            section_head_approved=True,
+        ).order_by("project_title")
+        context['project_list'] = project_list
+
+        # import color schemes from funding_source table
+        context["abase"] = models.FundingSource.objects.get(pk=1).color
+        context["bbase"] = models.FundingSource.objects.get(pk=2).color
+        context["cbase"] = models.FundingSource.objects.get(pk=3).color
+
+        # calculate totals
+        for x in ['a', 'b', 'c', 'total']:
+            context[x + "_salary"] = sum([getattr(p, x + "_salary") for p in project_list])
+            context[x + "_om"] = sum([getattr(p, x + "_om") for p in project_list])
+            context[x + "_capital"] = sum([getattr(p, x + "_capital") for p in project_list])
+
+        return context
+
+
+class IPSProjectUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    model = models.Project
+    template_name = 'projects/ips_project_form.html'
+    form_class = forms.IPSProjectMeetingForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_object()
+        context["field_list"] = project_field_list
+        context["report_mode"] = True
+        context["program"] = models.Program2.objects.get(id=self.kwargs.get("program"))
+
+        # bring in financial summary data
+        my_context = financial_summary_data(project)
+        context = {**my_context, **context}
+
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("projects:ips_project_list", kwargs={
+            "fiscal_year": my_object.year.id,
+            "section": my_object.section.id,
+            "program": self.kwargs.get("program"),
+        }))

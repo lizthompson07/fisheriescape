@@ -170,4 +170,10 @@ urlpatterns = [
          views.PDFDataReport.as_view(), name="pdf_data"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
+    # EXTRAS #
+    ##########
+    path('gulf-region-meeting/<int:fiscal_year>/programs-by-section/', views.IPSProgramList.as_view(), name="ips_program_list"),
+    path('gulf-region-meeting/<int:fiscal_year>/section/<int:section>/program/<int:program>/projects/',
+         views.IPSProjectList.as_view(), name="ips_project_list"),
+    path('gulf-region-meeting/<int:pk>/program/<int:program>/', views.IPSProjectUpdateView.as_view(), name="ips_project_edit"),
 ]
