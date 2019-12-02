@@ -37,6 +37,7 @@ def in_inventory_dm_group(user):
 
 def is_custodian_or_admin(user, resource_id):
     """returns True if user is a custodian in the specified resource"""
+    print(user.id, resource_id)
     if user.id:
         # first, check to see if user is a dm admin
         if in_inventory_dm_group(user):
@@ -395,7 +396,7 @@ class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
     form_class = forms.ResourcePersonForm
 
     def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
+        return is_custodian_or_admin(self.request.user, self.get_object().resource.id)
 
     def form_valid(self, form):
         object = form.save()
@@ -427,7 +428,7 @@ class ResourcePersonDeleteView(CustodianRequiredMixin, DeleteView):
     success_message = 'The person has been removed from the data resource!'
 
     def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
+        return is_custodian_or_admin(self.request.user, self.get_object().resource.id)
 
     def delete(self, request, *args, **kwargs):
         object = models.ResourcePerson.objects.get(pk=self.kwargs["pk"])
