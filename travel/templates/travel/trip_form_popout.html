@@ -31,7 +31,7 @@
             {% csrf_token %}
             <div class="btn-group">
                 <button type="submit" class="btn btn-primary" onclick="refreshParent()">
-                    {% trans "Submit" %}
+                    {% trans "Update" %}
                 </button>
                 {% if object %}
                     <a class="btn btn-danger" href="{% url 'travel:trip_delete' object.id 'pop' %}">
@@ -187,7 +187,7 @@
 
             <div class="btn-group">
                 <button type="submit" class="btn btn-primary" onclick="refreshParent()">
-                    {% trans "Submit" %}
+                    {% trans "Update" %}
                 </button>
                 {% if object %}
                     <a class="btn btn-danger" href="{% url 'travel:trip_delete' object.id 'pop' %}">
