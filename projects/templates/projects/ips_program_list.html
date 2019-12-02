@@ -1,0 +1,126 @@
+{% extends "projects/projects_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block content %}
+    {% get_current_language as LANG %}
+
+    <style>
+        table, td {
+            font-size: 14px;
+        }
+
+        .division {
+            background-color: #2826ff;
+            color: white;
+        {#text-align: center;#}
+
+        }
+
+        .section {
+            background-color: #d5d1ff;
+            color: black;
+        {#text-align: center;#} font-style: italic;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:index' %}">
+                    {% trans "Home" %}
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "Program Summary" %}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        {{ get_current_language }}
+        <div class="row">
+            <div class="col-8">
+                <h1>
+                    {{ fy }} - {% trans "Summary of Programs by Section" %}
+                </h1>
+                <h3>
+                    {% trans "(Projects submitted and approved by section heads)" %}
+                </h3>
+            </div>
+            <div class="col">
+                <h4>Meeting Resources:</h4>
+                {% with "None" as n %}
+
+                    <ul>
+                        <li>
+                            <a href="{% url 'projects:pdf_fte_summary' fy.id 1 n n %}" target="_blank">Weeks worked by employees</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'projects:pdf_ot' fy.id 1 n n %}" target="_blank">Total OT hours requested</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'projects:pdf_costs' fy.id 1 n n %}" target="_blank">Financial summary</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'projects:pdf_collab' fy.id 1 n n %}" target="_blank">Collaborators</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'projects:pdf_agreements' fy.id 1 n n %}" target="_blank">Collaborative agreements</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'projects:doug_report' fy.id 1 n n %}" target="_blank">
+                                Summary spreadsheet
+                            </a>
+                            &nbsp; <img src="{% static 'img/icons/excel.svg' %}" width="20px">
+                        </li>
+
+                    </ul>
+                {% endwith %}
+
+            </div>
+        </div>
+
+        <br>
+        <div class="">
+            <table class="table table-hover table-sm sortable">
+                <thead>
+                <th>{% trans "Program" %}</th>
+                <th>{% trans "Core / flex" %}</th>
+                <th>{% trans "Number of projects" %}</th>
+                <th>{% trans "Project leads" %}</th>
+                </thead>
+                <tbody>
+
+                {% for d in my_dict %}
+                    <tr>
+                        <td colspan="4" class="division">DIVISON: {{ d }}</td>
+                    </tr>
+                    {% for s in my_dict|lookup:d %}
+                        <tr>
+                            <td colspan="6" class="section">SECTION: {{ s }}</td>
+                        </tr>
+                        {% for p in my_dict|lookup:d|lookup:s %}
+                            <tr href="{% url 'projects:ips_project_list' fy.id s.id p.id %}">
+                                <td colspan="1" class="program">{{ p.short_name }}</td>
+                                <td colspan="1" class="program {% if p.is_core %}green-font{% else %}orange-font{% endif %}">
+                                    {{ p.is_core|yesno:"core,flex" }}
+                                </td>
+                                <td colspan="1" class="program">{{ my_dict|lookup:d|lookup:s|lookup:p|lookup:"project_count" }}</td>
+                                <td colspan="1" class="program">{{ my_dict|lookup:d|lookup:s|lookup:p|lookup:"leads" }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+
+{% endblock content %}
