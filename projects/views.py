@@ -2680,7 +2680,7 @@ class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             programs=program,
             submitted=True,
             section_head_approved=True,
-        ).order_by("project_title")
+        ).order_by("id")
         context['project_list'] = project_list
 
         # import color schemes from funding_source table
