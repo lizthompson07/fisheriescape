@@ -72,7 +72,7 @@
                             <a href="{% url 'projects:pdf_agreements' fy.id 1 n n %}" target="_blank">Collaborative agreements</a>
                         </li>
                         <li>
-                            <a href="{% url 'projects:doug_report' fy.id 1 n n %}" target="_blank">
+                            <a href="{% url 'projects:doug_report' fy.id 1 n n %}">
                                 Summary spreadsheet
                             </a>
                             &nbsp; <img src="{% static 'img/icons/excel.svg' %}" width="20px">
@@ -89,8 +89,8 @@
             <table class="table table-hover table-sm sortable">
                 <thead>
                 <th>{% trans "Program" %}</th>
-                <th>{% trans "Core / flex" %}</th>
-                <th>{% trans "Number of projects" %}</th>
+                <th class="center-col">{% trans "Core / flex" %}</th>
+                <th class="center-col">{% trans "Number of projects" %}</th>
                 <th>{% trans "Project leads" %}</th>
                 </thead>
                 <tbody>
@@ -106,10 +106,10 @@
                         {% for p in my_dict|lookup:d|lookup:s %}
                             <tr href="{% url 'projects:ips_project_list' fy.id s.id p.id %}">
                                 <td colspan="1" class="program">{{ p.short_name }}</td>
-                                <td colspan="1" class="program {% if p.is_core %}green-font{% else %}orange-font{% endif %}">
+                                <td colspan="1" class="center-col {% if p.is_core %}green-font{% else %}orange-font{% endif %}">
                                     {{ p.is_core|yesno:"core,flex" }}
                                 </td>
-                                <td colspan="1" class="program">{{ my_dict|lookup:d|lookup:s|lookup:p|lookup:"project_count" }}</td>
+                                <td colspan="1" class="center-col">{{ my_dict|lookup:d|lookup:s|lookup:p|lookup:"project_count" }}</td>
                                 <td colspan="1" class="program">{{ my_dict|lookup:d|lookup:s|lookup:p|lookup:"leads" }}</td>
                             </tr>
                         {% endfor %}
