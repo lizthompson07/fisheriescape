@@ -77,31 +77,31 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         "SCIENCE BRANCH WORKPLANNING - SUMMARY OF PROGRAMS BY SECTION (Projects Submitted and Approved by Section Heads)", ],
                          bold_format_lg)
     worksheet1.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
-    worksheet1.merge_range('j3:l3'.upper(), 'A-Base', header_format_centered)
-    worksheet1.merge_range('m3:o3'.upper(), 'B-Base', header_format_centered)
-    worksheet1.merge_range('p3:r3'.upper(), 'C-Base', header_format_centered)
-    worksheet1.merge_range('s3:u3'.upper(), 'Total', header_format_centered)
+    # worksheet1.merge_range('j3:l3'.upper(), 'A-Base', header_format_centered)
+    # worksheet1.merge_range('m3:o3'.upper(), 'B-Base', header_format_centered)
+    # worksheet1.merge_range('p3:r3'.upper(), 'C-Base', header_format_centered)
+    # worksheet1.merge_range('s3:u3'.upper(), 'Total', header_format_centered)
 
     header = [
         "Division",
         "Section",
         "Program",
         "Core / flex",
-        "Number of projects",
+        "Tagged projects",
         "Project leads",
         "Contains projects with more than one program?",
         'Total FTE\n(weeks)',
         'Total OT\n(hours)',
     ]
-    financial_headers = [
-        'Salary\n(in excess of FTE)',
-        'O & M\n(including staff)',
-        'Capital',
-    ]
-    header.extend(financial_headers)
-    header.extend(financial_headers)
-    header.extend(financial_headers)
-    header.extend(financial_headers)
+    # financial_headers = [
+    #     'Salary\n(in excess of FTE)',
+    #     'O & M\n(including staff)',
+    #     'Capital',
+    # ]
+    # header.extend(financial_headers)
+    # header.extend(financial_headers)
+    # header.extend(financial_headers)
+    # header.extend(financial_headers)
 
     # create the col_max column to store the length of each header
     # should be a maximum column width to 100
@@ -118,10 +118,10 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         for p in project_list:
             if p.programs.count() > 0:
                 program_id_list.extend([program.id for program in p.programs.all()])
-        program_list = models.Program2.objects.filter(id__in=program_id_list)
+        program_list = models.Program2.objects.filter(id__in=program_id_list).order_by("-is_core")
         for program in program_list:
 
-            project_count = project_list.filter(programs=program).count()
+            project_count = listrify([p.id for p in project_list.filter(programs=program)])
             leads = listrify(
                 list(set([str(staff.user) for staff in
                           models.Staff.objects.filter(project__in=project_list.filter(programs=program), lead=True) if
@@ -139,7 +139,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             data_row = [
                 s.division.name,
                 s.name,
-                "{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng),
+                program.short_name,
                 program.get_is_core_display(),
                 project_count,
                 leads,
@@ -147,39 +147,39 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                 zero2val(total_fte, None),
                 zero2val(total_ot, None),
             ]
-            total_salary = 0
-            total_om = 0
-            total_capital = 0
-            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
-                staff_salary = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
-                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
-                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-                staff_om = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
-                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
-                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-
-                other_om = models.OMCost.objects.filter(
-                    project__in=project_list.filter(programs=program), funding_source=source
-                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-
-                capital = models.CapitalCost.objects.filter(
-                    project__in=project_list.filter(programs=program), funding_source=source
-                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-
-                total_salary += nz(staff_salary, 0)
-                total_om += nz(staff_om, 0) + nz(other_om, 0)
-                total_capital += nz(capital, 0)
-
-                data_row.extend([
-                    zero2val(nz(staff_salary, 0), '--'),
-                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
-                    zero2val(nz(capital, 0), '--'),
-                ])
-            data_row.extend([
-                zero2val(total_salary, '--'),
-                zero2val(total_om, '--'),
-                zero2val(total_capital, '--'),
-            ])
+            # total_salary = 0
+            # total_om = 0
+            # total_capital = 0
+            # for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+            #     staff_salary = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
+            #         employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+            #     ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+            #     staff_om = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
+            #         employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+            #     ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+            #
+            #     other_om = models.OMCost.objects.filter(
+            #         project__in=project_list.filter(programs=program), funding_source=source
+            #     ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+            #
+            #     capital = models.CapitalCost.objects.filter(
+            #         project__in=project_list.filter(programs=program), funding_source=source
+            #     ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+            #
+            #     total_salary += nz(staff_salary, 0)
+            #     total_om += nz(staff_om, 0) + nz(other_om, 0)
+            #     total_capital += nz(capital, 0)
+            #
+            #     data_row.extend([
+            #         zero2val(nz(staff_salary, 0), '--'),
+            #         zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+            #         zero2val(nz(capital, 0), '--'),
+            #     ])
+            # data_row.extend([
+            #     zero2val(total_salary, '--'),
+            #     zero2val(total_om, '--'),
+            #     zero2val(total_capital, '--'),
+            # ])
 
             j = 0
 
@@ -242,14 +242,13 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True)
-        print(project_list)
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True).order_by("id")
         for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
             leads = listrify(
                 list(set([str(staff.user) for staff in
                           models.Staff.objects.filter(project=project, lead=True) if staff.user])))
-            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+            programs = listrify(["{}".format(program.short_name) for program in
                                  project.programs.all()])
             tags = listrify([str(tag) for tag in project.tags.all()])
             total_fte = models.Staff.objects.filter(
@@ -435,7 +434,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False).order_by("id")
 
         for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
@@ -443,7 +442,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             leads = listrify(
                 list(set([str(staff.user) for staff in
                           models.Staff.objects.filter(project=project, lead=True) if staff.user])))
-            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+            programs = listrify(["{}".format(program.short_name) for program in
                                  project.programs.all()])
             tags = listrify([str(tag) for tag in project.tags.all()])
             total_fte = models.Staff.objects.filter(
@@ -548,7 +547,6 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     for division in list(set(division_list)):
         project_list = models.Project.objects.filter(section__division=division).filter(
             year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
-        print(project_list)
         j = 9
         # worksheet2.write(i, j, division.name, summary_right_format)
         worksheet3.merge_range(i, j - 2, i, j, division.name, summary_right_format)
@@ -635,7 +633,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False))
+        project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False)).order_by("id")
 
         for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
@@ -643,7 +641,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             leads = listrify(
                 list(set([str(staff.user) for staff in
                           models.Staff.objects.filter(project=project, lead=True) if staff.user])))
-            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+            programs = listrify(["{}".format(program.short_name) for program in
                                  project.programs.all()])
             tags = listrify([str(tag) for tag in project.tags.all()])
             total_fte = models.Staff.objects.filter(
