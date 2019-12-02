@@ -72,6 +72,7 @@ class ProjectForm(forms.ModelForm):
             'impacts_if_not_approved',
             'regional_dm',
             'sectional_dm',
+            'meeting_notes',
         ]
         labels = {
             "programs": "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
@@ -125,6 +126,18 @@ class ProjectSubmitForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'submitted': forms.HiddenInput(),
+        }
+
+
+class IPSProjectMeetingForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'meeting_notes',
+        ]
+        widgets = {
+            # 'last_modified_by': forms.HiddenInput(),
+            # 'submitted': forms.HiddenInput(),
         }
 
 
