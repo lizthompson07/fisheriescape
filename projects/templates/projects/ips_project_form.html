@@ -12,7 +12,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'projects:ips_program_list' object.year.id %}">
+                <a href="{% url 'projects:ips_program_list' object.section.division.branch.region.id object.year.id %}">
                     {% trans "Program Summary" %}
                 </a>
             </li>
