@@ -2624,9 +2624,11 @@ class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
         context['fy'] = fy
+        my_region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+        context['region'] = my_region
 
         project_list = models.Project.objects.filter(
-            section__division__branch__region_id=1,
+            section__division__branch__region=my_region,
             year=fy,
             submitted=True,
             section_head_approved=True,
