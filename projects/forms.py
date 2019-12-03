@@ -13,7 +13,8 @@ from shared_models import models as shared_models
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
-class_editable = {"class": "editable"}
+# class_editable = {"class": "editable"}
+class_editable = {"class": "widgEditor"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
