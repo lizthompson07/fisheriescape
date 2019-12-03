@@ -662,13 +662,6 @@ def file_directory_path(instance, filename):
 
 
 class File(models.Model):
-    # choices for reference
-    # CORE = 1
-    # STATUS_REPORT = 2
-    # CHOICES_FOR_REFERENCE = (
-    #     (CORE, _("Core project")),
-    #     (STATUS_REPORT, _("Status report")),
-    # )
     project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("resource name"))
     file = models.FileField(upload_to=file_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
