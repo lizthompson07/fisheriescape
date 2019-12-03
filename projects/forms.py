@@ -141,6 +141,15 @@ class IPSProjectMeetingForm(forms.ModelForm):
         }
 
 
+class SectionNoteForm(forms.ModelForm):
+    class Meta:
+        model = models.SectionNote
+        fields = ["pressures", "general_notes", ]
+        widgets = {
+            # 'submitted': forms.HiddenInput(),
+        }
+
+
 class SectionApprovalForm(forms.ModelForm):
     class Meta:
         model = models.Project

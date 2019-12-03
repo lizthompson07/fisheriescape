@@ -787,3 +787,17 @@ class MilestoneUpdate(models.Model):
             _("Update on "),
             self.milestone,
         )
+
+
+class SectionNote(models.Model):
+    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE)
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="section_notes", on_delete=models.CASCADE)
+    pressures = models.TextField(blank=True, null=True)
+    general_notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{} {} {}".format(
+            self.fiscal_year,
+            str(self.section).title(),
+            _("section notes").title(),
+        )
