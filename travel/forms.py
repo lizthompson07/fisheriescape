@@ -268,6 +268,8 @@ class ConferenceForm(forms.ModelForm):
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
+            'registration_deadline': forms.DateInput(attrs=attr_fp_date),
+            'abstract_deadline': forms.DateInput(attrs=attr_fp_date),
         }
 
 
