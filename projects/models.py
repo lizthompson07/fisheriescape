@@ -801,3 +801,13 @@ class SectionNote(models.Model):
             str(self.section).title(),
             _("section notes").title(),
         )
+
+    @property
+    def pressures_html(self):
+        if self.pressures:
+            return textile(self.pressures)
+
+    @property
+    def general_notes_html(self):
+        if self.general_notes:
+            return textile(self.general_notes)
