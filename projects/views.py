@@ -2722,3 +2722,40 @@ class IPSProjectUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
             "section": my_object.section.id,
             "program": self.kwargs.get("program"),
         }))
+
+
+# SECTION NOTE #
+################
+
+class SectionNoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    model = models.SectionNote
+    template_name = 'projects/section_note_form_popout.html'
+    form_class = forms.SectionNoteForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # project = self.get_object()
+        # context["field_list"] = project_field_list
+        # context["report_mode"] = True
+        # context["program"] = models.Program2.objects.get(id=self.kwargs.get("program"))
+        #
+        # bring in financial summary data
+        # my_context = financial_summary_data(project)
+        # context = {**my_context, **context}
+
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
+
+
+def get_create_section_note(request, section, fy):
+    print(123)
+    my_section = shared_models.Section.objects.get(pk=section)
+    my_fy = shared_models.FiscalYear.objects.get(pk=fy)
+
+    my_section_note, created = models.SectionNote.objects.get_or_create(
+        section=my_section, fiscal_year=my_fy
+    )
+    return HttpResponseRedirect(reverse("projects:section_note_edit", kwargs={"pk": my_section_note.id, "fy": my_fy.id}))

@@ -15,14 +15,22 @@
         .division {
             background-color: #2826ff;
             color: white;
-        {#text-align: center;#}
-
+            font-size: 16px;
         }
 
         .section {
             background-color: #d5d1ff;
             color: black;
-        {#text-align: center;#} font-style: italic;
+        }
+
+        .pressures {
+            background-color: #ffbc76;
+            font-style: italic;
+        }
+
+        .general-notes {
+            background-color: #c2ffc8;
+            font-style: italic;
         }
     </style>
 
@@ -86,7 +94,7 @@
 
         <br>
         <div class="">
-            <table class="table table-hover table-sm sortable">
+            <table class="table table-hover table-sm">
                 <thead>
                 <th>{% trans "Program" %}</th>
                 <th class="center-col">{% trans "Core / flex" %}</th>
@@ -101,7 +109,16 @@
                     </tr>
                     {% for s in my_dict|lookup:d %}
                         <tr>
-                            <td colspan="6" class="section">SECTION: {{ s }}</td>
+                        <td><br></td>
+                        </tr>
+                        <tr style="border: 20px" class="section">
+                            <td colspan="6" class="section">
+                                SECTION: {{ s }}
+                                &nbsp;
+                                <a href="#" pop-href="{% url 'projects:get_create_section_note' s.id fy.id %}"
+                                   class="badge badge-secondary">Notes</a>
+
+                            </td>
                         </tr>
                         {% for p in my_dict|lookup:d|lookup:s %}
                             <tr href="{% url 'projects:ips_project_list' fy.id s.id p.id %}">
@@ -113,6 +130,25 @@
                                 <td colspan="1" class="program">{{ my_dict|lookup:d|lookup:s|lookup:p|lookup:"leads" }}</td>
                             </tr>
                         {% endfor %}
+
+                        {#  PRESSURES and NOTES #}
+                        {% for section_note in s.notes.all %}
+                            {% if section_note.fiscal_year == fy and section_note.pressures %}
+                                <tr>
+                                    <td colspan="4" class="pressures">
+                                        PRESSURES: {{ section_note.pressures }}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            {% if section_note.fiscal_year == fy and section_note.general_notes %}
+                                <tr>
+                                    <td colspan="4" class="general-notes">
+                                        GENERAL NOTES: {{ section_note.general_notes }}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+
                     {% endfor %}
 
                 {% endfor %}
