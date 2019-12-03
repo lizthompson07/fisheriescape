@@ -155,7 +155,6 @@ class Ticket(models.Model):
         if self.sd_description:
             return textile.textile(self.sd_description)
 
-
 class FollowUp(models.Model):
     ticket = models.ForeignKey(Ticket, related_name="follow_ups", on_delete=models.CASCADE)
     message = models.TextField(verbose_name=_("follow up message"))
