@@ -15,12 +15,15 @@
         .division {
             background-color: #2826ff;
             color: white;
-            font-size: 16px;
+            font-size: 18px;
+            font-family: 'Open Sans', sans-serif;
         }
 
         .section {
             background-color: #d5d1ff;
             color: black;
+            font-size: 16px;
+            font-family: 'Open Sans', sans-serif;
         }
 
         .pressures {
@@ -109,14 +112,14 @@
                     </tr>
                     {% for s in my_dict|lookup:d %}
                         <tr>
-                        <td><br></td>
+                            <td><br></td>
                         </tr>
                         <tr style="border: 20px" class="section">
                             <td colspan="6" class="section">
                                 SECTION: {{ s }}
                                 &nbsp;
                                 <a href="#" pop-href="{% url 'projects:get_create_section_note' s.id fy.id %}"
-                                   class="badge badge-secondary">Notes</a>
+                                   class="badge badge-secondary">Add/Edit Notes</a>
 
                             </td>
                         </tr>
@@ -136,14 +139,28 @@
                             {% if section_note.fiscal_year == fy and section_note.pressures %}
                                 <tr>
                                     <td colspan="4" class="pressures">
-                                        PRESSURES: {{ section_note.pressures }}
+                                        <div class="row">
+                                            <div class="col-1">
+                                                PRESSURES:
+                                            </div>
+                                            <div class="col">
+                                                {{ section_note.pressures_html|safe }}
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endif %}
                             {% if section_note.fiscal_year == fy and section_note.general_notes %}
                                 <tr>
                                     <td colspan="4" class="general-notes">
-                                        GENERAL NOTES: {{ section_note.general_notes }}
+                                        <div class="row">
+                                            <div class="col-1">
+                                                GENERAL NOTES:
+                                            </div>
+                                            <div class="col">
+                                                {{ section_note.general_notes_html|safe }}
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endif %}
