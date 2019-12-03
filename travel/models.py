@@ -113,6 +113,10 @@ class Conference(models.Model):
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
     start_date = models.DateTimeField(verbose_name=_("start date of event"))
     end_date = models.DateTimeField(verbose_name=_("end date of event"))
+    meeting_url = models.URLField(verbose_name=_("meeting URL"), blank=True, null=True)
+    abstract_deadline = models.DateTimeField(verbose_name=_("abstract submission deadline"), blank=True, null=True)
+    registration_deadline = models.DateTimeField(verbose_name=_("registration deadline"), blank=True, null=True)
+    notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
 
     def __str__(self):
         # check to see if a french value is given

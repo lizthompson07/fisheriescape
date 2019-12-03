@@ -210,7 +210,11 @@ conf_field_list = [
     'number',
     'start_date',
     'end_date',
+    'meeting_url',
+    'abstract_deadline',
+    'registration_deadline',
     'is_adm_approval_required',
+    'notes',
     'total_cost|{}'.format("Total cost (from all connected trips, excluding BTA travel)"),
 ]
 
