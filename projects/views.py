@@ -1664,7 +1664,6 @@ class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterVie
                 for s in shared_models.Section.objects.all():
                     if s.projects.filter(submitted=True, section_head_approved=True).count() > 0:
                         project_list = context.get("filter").qs.filter(year=fy, section=s)
-                        print(project_list)
                         section_year_program_dict[fy.id][s.id] = \
                             models.Program2.objects.filter(projects__in=project_list).distinct()
 

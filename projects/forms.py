@@ -226,7 +226,7 @@ class AdminStaffForm(forms.ModelForm):
 class AdminProjectProgramForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ["project_title", "programs", ]
+        fields = ["project_title", "programs", "section_head_approved", "section_head_feedback"]
 
         widgets = {
             'programs': forms.SelectMultiple(attrs=chosen_js),
