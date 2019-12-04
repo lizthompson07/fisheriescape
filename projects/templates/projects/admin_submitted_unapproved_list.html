@@ -1,0 +1,120 @@
+{% extends "projects/projects_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block content %}
+    {% get_current_language as LANG %}
+    {% load bootstrap4 %}
+
+    <style>
+        form, input {
+            font-size: small;
+        }
+
+        table, td {
+            font-size: 14px;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">
+                Project Program List
+            </li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        <h1>
+            Project Program List
+        </h1>
+        <h3>
+            The purpose of this list view is to verify which programs have been selected by individual projects and to be able to re-assign
+            them if necessary.
+        </h3>
+        <br><br>
+
+        <form class="form" action="." method="get" id="filter-form">
+            <div class="row">
+
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+
+                </div>
+            </div>
+        </form>
+        <br>
+
+
+        <div class="row">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+            <div class="col" style="text-align: center">
+                {#                <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>#}
+            </div>
+        </div>
+        <table class="table table-bordered table-sm sortable">
+            <thead>
+            <th scope="col" style="width: 120px;">
+                {% trans "Fiscal year" %}
+            </th>
+            <th scope="col">
+                {% trans "Section" %}
+            </th>
+            <th scope="col">
+                {% trans "Section head" %}
+            </th>
+            <th scope="col" style="width: 35%">
+                {% trans "Number of projects" %}
+            </th>
+            <th scope="col" style="">
+                {% trans "Program List" %}
+            </th>
+            </thead>
+            <tbody>
+
+            {% for obj in my_qs %}
+                <tr>
+                    <td>{{ fy_dict|lookup:obj.year_id }}</td>
+                    {% with section_dict|lookup:obj.section_id as s %}
+                        <td>{{ s }}</td>
+                        <td>{{ s.head }}</td>
+                    {% endwith %}
+                    <td>{{ obj.dcount }}</td>
+                    <td>
+                        {% with section_year_program_dict|lookup:obj.year_id|lookup:obj.section_id as programs %}
+                            <ul>
+                                {% for p in programs %}
+                                    <li>
+                                        {{ p }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                        {% endwith %}
+                    </td>
+
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <b>
+            TOTAL: {{ object_list.count }}
+        </b>
+    </div>
+
+{% endblock content %}
+
