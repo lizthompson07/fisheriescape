@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Count, Value
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.text import slugify
@@ -1638,6 +1638,44 @@ class AdminProjectProgramUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
         return context
 
 
+class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterView):
+    template_name = 'projects/admin_submitted_unapproved_list.html'
+    queryset = models.Project.objects.filter(submitted=True, section_head_approved=False).order_by('-year', 'id')
+    filterset_class = filters.AdminSubmittedUnapprovedFilter
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_qs = context.get("filter").qs
+        # models.Project.objects.values("section").
+        my_qs = my_qs.values("year_id", "section_id").order_by("year_id", "section_id").distinct().annotate(dcount=Count("id"))
+
+        section_dict = {}
+        for s in shared_models.Section.objects.all():
+            section_dict[s.id] = s
+
+        fy_dict = {}
+        for fy in shared_models.FiscalYear.objects.all():
+            fy_dict[fy.id] = fy
+
+        section_year_program_dict = {}
+        for fy in shared_models.FiscalYear.objects.all():
+            if fy.projects.filter(submitted=True, section_head_approved=True).count() > 0:
+                section_year_program_dict[fy.id] = {}
+                for s in shared_models.Section.objects.all():
+                    if s.projects.filter(submitted=True, section_head_approved=True).count() > 0:
+                        project_list = context.get("filter").qs.filter(year=fy, section=s)
+                        print(project_list)
+                        section_year_program_dict[fy.id][s.id] = \
+                            models.Program2.objects.filter(projects__in=project_list).distinct()
+
+
+        context["my_qs"] = my_qs
+        context["section_dict"] = section_dict
+        context["fy_dict"] = fy_dict
+        context["section_year_program_dict"] = section_year_program_dict
+        return context
+
+
 # STATUS REPORT #
 #################
 
@@ -2696,6 +2734,9 @@ class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             context[x + "_salary"] = sum([getattr(p, x + "_salary") for p in project_list])
             context[x + "_om"] = sum([getattr(p, x + "_om") for p in project_list])
             context[x + "_capital"] = sum([getattr(p, x + "_capital") for p in project_list])
+
+        context["total_ot"] = sum([p.total_ot for p in project_list])
+        context["total_fte"] = sum([p.total_fte for p in project_list])
 
         return context
 

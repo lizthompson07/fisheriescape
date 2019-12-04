@@ -118,8 +118,8 @@
                             {% get_field_value p "tags" %}
                         </td>
                         <td>{{ p.project_leads }}</td>
-                        <td>{{ p.total_fte }}</td>
-                        <td>{{ p.total_ot }}</td>
+                        <td>{{ p.total_fte|floatformat:1 }}</td>
+                        <td>{{ p.total_ot|floatformat:1 }}</td>
 
                         <td class="abase">{{ p.a_salary|currency }}</td>
                         <td class="abase">{{ p.a_om|currency }}</td>
@@ -139,24 +139,27 @@
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan="8" class="total" >
+                    <td colspan="6" class="total" >
                     Totals
                     </td>
-                    <td class="abase total">{{ a_salary|currency }}</td>
-                    <td class="abase total">{{ a_om|currency }}</td>
-                    <td class="abase total">{{ a_capital|currency }}</td>
+                    <td class="total">{{ total_fte|intcomma }}</td>
+                    <td class="total">{{ total_ot|intcomma }}</td>
 
-                    <td class="bbase total">{{ b_salary|currency }}</td>
-                    <td class="bbase total">{{ b_om|currency }}</td>
-                    <td class="bbase total">{{ b_capital|currency }}</td>
+                    <td class="abase total">{{ a_salary|kmark:"2,False" }}</td>
+                    <td class="abase total">{{ a_om|kmark:"2,False" }}</td>
+                    <td class="abase total">{{ a_capital|kmark:"2,False" }}</td>
 
-                    <td class="cbase total">{{ c_salary|currency }}</td>
-                    <td class="cbase total">{{ c_om|currency }}</td>
-                    <td class="cbase total">{{ c_capital|currency }}</td>
+                    <td class="bbase total">{{ b_salary|kmark:"2,False" }}</td>
+                    <td class="bbase total">{{ b_om|kmark:"2,False" }}</td>
+                    <td class="bbase total">{{ b_capital|kmark:"2,False" }}</td>
 
-                    <td class="total">{{ total_salary|currency }}</td>
-                    <td class="total">{{ total_om|currency }}</td>
-                    <td class="total">{{ total_capital|currency }}</td>
+                    <td class="cbase total">{{ c_salary|kmark:"2,False" }}</td>
+                    <td class="cbase total">{{ c_om|kmark:"2,False" }}</td>
+                    <td class="cbase total">{{ c_capital|kmark:"2,False" }}</td>
+
+                    <td class="total">{{ total_salary|kmark:"2,False" }}</td>
+                    <td class="total">{{ total_om|kmark:"2,False" }}</td>
+                    <td class="total">{{ total_capital|kmark:"2,False" }}</td>
 
                 </tr>
                 </tbody>
