@@ -1663,10 +1663,14 @@ class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterVie
                 section_year_program_dict[fy.id] = {}
                 for s in shared_models.Section.objects.all():
                     if s.projects.filter(submitted=True, section_head_approved=True).count() > 0:
+                        section_year_program_dict[fy.id][s.id] = {}
                         project_list = context.get("filter").qs.filter(year=fy, section=s)
-                        section_year_program_dict[fy.id][s.id] = \
-                            models.Program2.objects.filter(projects__in=project_list).distinct()
+                        # section_year_program_dict[fy.id][s.id]["programs"] = \
+                        #     models.Program2.objects.filter(projects__in=project_list).distinct()
 
+                        # determine if there are submitted project with no programs
+                        # section_year_program_dict[fy.id][s.id]["program_errors"] = project_list.filter(programs__isnull=True)
+                        section_year_program_dict[fy.id][s.id]["project_list"] = project_list.order_by("programs__is_core").distinct()
 
         context["my_qs"] = my_qs
         context["section_dict"] = section_dict
