@@ -119,7 +119,7 @@
                                 {% for p in projects %}
                                     <li>
                                         {% if p.programs.count > 0 %}
-                                            <span class="purple-font">[{{ p.core_or_flex|upper }}]</span>
+                                            <span class="purple-font">[{{ p.core_status|upper }}]</span>
                                         {% else %}
                                             <span class="blink-me red-font">[NO PROGRAM ASSIGNED]</span>
                                         {% endif %}

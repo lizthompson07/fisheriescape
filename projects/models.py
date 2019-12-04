@@ -442,12 +442,6 @@ class Project(models.Model):
     def total_capital(self):
         return self.a_capital + self.b_capital + self.c_capital
 
-    @property
-    def core_or_flex(self):
-        core_flex = "/".join(list(set(([program.get_is_core_display() for program in self.programs.all()]))))
-        print(core_flex)
-        return core_flex
-
 
 class EmployeeType(models.Model):
     # cost_type choices
