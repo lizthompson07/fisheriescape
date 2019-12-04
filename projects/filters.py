@@ -141,7 +141,6 @@ class AdminSubmittedUnapprovedFilter(django_filters.FilterSet):
         fields = {
             'year': ['exact'],
             'section__division__branch__region': ['exact'],
-            'project_title': ['icontains'],
         }
 
 
