@@ -116,21 +116,23 @@
                         </tr>
                         <tr style="border: 20px" class="section">
                             <td colspan="6" class="section">
-                                SECTION: {{ s }}
+                                {% with my_dict|lookup:d|lookup:s|lookup:"projects" as projects %}
+                                    SECTION: {{ s }} ({{ projects.count }} project{{ projects.count|pluralize }})
+                                {% endwith %}
                                 &nbsp;
                                 <a href="#" pop-href="{% url 'projects:get_create_section_note' s.id fy.id %}"
                                    class="badge badge-secondary">Add/Edit Notes</a>
 
                             </td>
                         </tr>
-                        {% for p in my_dict|lookup:d|lookup:s %}
-                            <tr href="{% url 'projects:ips_project_list' fy.id s.id p.id %}">
+                        {% for p in my_dict|lookup:d|lookup:s|lookup:"programs" %}
+                            <tr>
                                 <td colspan="1" class="program">{{ p.short_name }}</td>
                                 <td colspan="1" class="center-col {% if p.is_core %}green-font{% else %}orange-font{% endif %}">
                                     {{ p.is_core|yesno:"core,flex" }}
                                 </td>
-                                <td colspan="1" class="center-col">{{ my_dict|lookup:d|lookup:s|lookup:p|lookup:"project_count" }}</td>
-                                <td colspan="1" class="program">{{ my_dict|lookup:d|lookup:s|lookup:p|lookup:"leads" }}</td>
+                                <td colspan="1" class="center-col">{{ my_dict|lookup:d|lookup:s|lookup:"programs"|lookup:p|lookup:"project_count" }}</td>
+                                <td colspan="1" class="program">{{ my_dict|lookup:d|lookup:s|lookup:"programs"|lookup:p|lookup:"leads" }}</td>
                             </tr>
                         {% endfor %}
 

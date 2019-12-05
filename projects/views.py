@@ -2687,20 +2687,22 @@ class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
                     # get a list of projects..  then programs
                     project_list = s.projects.filter(year=fy, submitted=True, section_head_approved=True)
                     program_list = models.Program2.objects.filter(projects__in=project_list).distinct().order_by("-is_core", )
+                    my_dict[d][s]["projects"] = project_list
+                    my_dict[d][s]["programs"] = {}
 
                     for p in program_list:
-                        my_dict[d][s][p] = {}
+                        my_dict[d][s]["programs"][p] = {}
 
                         # get a list of project counts
                         project_count = project_list.filter(programs=p).count()
-                        my_dict[d][s][p]["project_count"] = project_count
+                        my_dict[d][s]["programs"][p]["project_count"] = project_count
 
                         # get a list of project leads
                         leads = listrify(
                             list(set([str(staff.user) for staff in
                                       models.Staff.objects.filter(project__in=project_list.filter(programs=p), lead=True) if
                                       staff.user])))
-                        my_dict[d][s][p]["leads"] = leads
+                        my_dict[d][s]["programs"][p]["leads"] = leads
         context['my_dict'] = my_dict
         return context
 
