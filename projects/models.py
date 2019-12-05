@@ -579,12 +579,14 @@ class OMCategory(models.Model):
     MAT = 3
     HR = 4
     OTH = 5
+    OTH2 = 6
     GROUP_CHOICES = (
         (TRAV, _("Travel")),
         (EQUIP, _("Equipment Purchase")),
         (MAT, _("Material and Supplies")),
         (HR, _("Human Resources")),
         (OTH, _("Contracts, Leases, Services")),
+        (OTH2, _("Other")),
     )
     name = models.CharField(max_length=255, blank=True, null=True)
     nom = models.CharField(max_length=255, blank=True, null=True)
