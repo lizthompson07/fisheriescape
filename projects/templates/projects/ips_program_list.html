@@ -126,7 +126,7 @@
                             </td>
                         </tr>
                         {% for p in my_dict|lookup:d|lookup:s|lookup:"programs" %}
-                            <tr>
+                            <tr href="{% url 'projects:ips_project_list' fy.id s.id p.id %}">
                                 <td colspan="1" class="program">{{ p.short_name }}</td>
                                 <td colspan="1" class="center-col {% if p.is_core %}green-font{% else %}orange-font{% endif %}">
                                     {{ p.is_core|yesno:"core,flex" }}
