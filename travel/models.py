@@ -415,7 +415,7 @@ class Trip(models.Model):
         if self.accommodations:
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("accommodations").verbose_name, self.accommodations)
         if self.meals:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("meals").verbose_name, self.meals)
+            my_str += "{}: ${:,.2f}; ".format(_("meals"), self.meals)
         if self.incidentals:
             my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("incidentals").verbose_name, self.incidentals)
         if self.registration:
