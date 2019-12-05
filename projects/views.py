@@ -2715,7 +2715,7 @@ class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
         section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
-        program = models.Program2.objects.get(id=self.kwargs.get("program"))
+        program = models.Program2.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
         context['fy'] = fy
         context['section'] = section
         context['program'] = program
@@ -2723,10 +2723,13 @@ class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         project_list = models.Project.objects.filter(
             section=section,
             year=fy,
-            programs=program,
             submitted=True,
             section_head_approved=True,
         ).order_by("id")
+
+        if self.kwargs.get("program"):
+            project_list = project_list.filter(programs=program)
+
         context['project_list'] = project_list
 
         # import color schemes from funding_source table
@@ -2756,7 +2759,7 @@ class IPSProjectUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
         project = self.get_object()
         context["field_list"] = project_field_list
         context["report_mode"] = True
-        context["program"] = models.Program2.objects.get(id=self.kwargs.get("program"))
+        context["program"] = models.Program2.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
 
         # bring in financial summary data
         my_context = financial_summary_data(project)
