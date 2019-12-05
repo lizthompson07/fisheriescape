@@ -25,6 +25,7 @@ YES_NO_CHOICES = (
 class ReviewerApprovalForm(forms.ModelForm):
     is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = models.Reviewer
@@ -32,8 +33,12 @@ class ReviewerApprovalForm(forms.ModelForm):
             "comments",
         ]
         labels = {
-            "comments": _("Please provide your comments here")
+            "comments": _("Please provide your comments here...")
         }
+        widgets = {
+            "comments": forms.Textarea(attrs=attr_row3)
+        }
+
 
 
 class TripApprovalForm(forms.Form):
@@ -312,6 +317,7 @@ StatusFormSet = modelformset_factory(
 
 
 class ReviewerForm(forms.ModelForm):
+
     class Meta:
         model = models.Reviewer
         fields = [
@@ -383,7 +389,6 @@ class FileForm(forms.ModelForm):
         widgets = {
             'trip': forms.HiddenInput(),
         }
-
 
 
 class HelpTextForm(forms.ModelForm):
