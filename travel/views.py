@@ -425,32 +425,34 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         my_reviewer = form.save(commit=False)
 
         is_approved = form.cleaned_data.get("is_approved")
+        stay_on_page = form.cleaned_data.get("stay_on_page")
         changes_requested = form.cleaned_data.get("changes_requested")
-
+        print("stay on page", stay_on_page)
         # first scenario: changes were requested for the trip
         # in this case, the reviewer status does not change but the trip status will
-        if changes_requested:
-            my_reviewer.trip.status_id = 16
-            my_reviewer.trip.submitted = None
-            my_reviewer.trip.save()
-            # send an email to the trip owner
-            my_email = emails.ChangesRequestedEmail(my_reviewer.trip)
-            # send the email object
-            if settings.PRODUCTION_SERVER:
-                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                          recipient_list=my_email.to_list, fail_silently=False, )
-            else:
-                print(my_email)
-            messages.success(self.request, _("Success! An email has been sent to the trip owner."))
+        if not stay_on_page:
+            if changes_requested:
+                my_reviewer.trip.status_id = 16
+                my_reviewer.trip.submitted = None
+                my_reviewer.trip.save()
+                # send an email to the trip owner
+                my_email = emails.ChangesRequestedEmail(my_reviewer.trip)
+                # send the email object
+                if settings.PRODUCTION_SERVER:
+                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                              recipient_list=my_email.to_list, fail_silently=False, )
+                else:
+                    print(my_email)
+                messages.success(self.request, _("Success! An email has been sent to the trip owner."))
 
-        # if it was approved, then we change the reviewer status to 'approved'
-        elif is_approved:
-            my_reviewer.status_id = 2
-            my_reviewer.status_date = timezone.now()
-        # if it was approved, then we change the reviewer status to 'approved'
-        else:
-            my_reviewer.status_id = 3
-            my_reviewer.status_date = timezone.now()
+            # if it was approved, then we change the reviewer status to 'approved'
+            elif is_approved:
+                my_reviewer.status_id = 2
+                my_reviewer.status_date = timezone.now()
+            # if it was approved, then we change the reviewer status to 'approved'
+            else:
+                my_reviewer.status_id = 3
+                my_reviewer.status_date = timezone.now()
 
         # now we save the reviewer for real
         my_reviewer.save()
@@ -458,7 +460,10 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         # update any statuses if necessary
         utils.approval_seeker(my_reviewer.trip)
 
-        return HttpResponseRedirect(reverse("travel:index"))
+        if stay_on_page:
+            return HttpResponseRedirect(reverse("travel:review_approve", kwargs={"pk": my_reviewer.id}))
+        else:
+            return HttpResponseRedirect(reverse("travel:index"))
 
 
 # class TripAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
