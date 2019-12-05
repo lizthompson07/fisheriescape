@@ -25,7 +25,7 @@
             background-color: {{cbase}};
         }
 
-        .total{
+        .total {
             font-weight: bold;
         }
 
@@ -44,7 +44,10 @@
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                Projects  from {{ section }} Section under {{ program.short_name }}
+                Projects from {{ section }} Section
+                {% if program %}
+                    under {{ program.short_name }}
+                {% endif %}
             </li>
         </ol>
     </nav>
@@ -53,7 +56,10 @@
         {{ get_current_language }}
         <div class="">
             <h1>
-                Projects  from {{ section }} Section under {{ program.short_name }}
+                Projects from {{ section }} Section
+                {% if program %}
+                    under {{ program.short_name }}
+                {% endif %}
             </h1>
             <h3>
                 (Submitted and approved by {{ section.head }})
@@ -80,18 +86,18 @@
                 <tr>
                     {% with 60 as w %}
 
-                    <th style="width: {{w}}px">Salary</th>
-                    <th style="width: {{w}}px">O & M</th>
-                    <th style="width: {{w}}px">Capital</th>
-                    <th style="width: {{w}}px">Salary</th>
-                    <th style="width: {{w}}px">O & M</th>
-                    <th style="width: {{w}}px">Capital</th>
-                    <th style="width: {{w}}px">Salary</th>
-                    <th style="width: {{w}}px">O & M</th>
-                    <th style="width: {{w}}px">Capital</th>
-                    <th style="width: {{w}}px">Salary</th>
-                    <th style="width: {{w}}px">O & M</th>
-                    <th style="width: {{w}}px">Capital</th>
+                        <th style="width: {{ w }}px">Salary</th>
+                        <th style="width: {{ w }}px">O & M</th>
+                        <th style="width: {{ w }}px">Capital</th>
+                        <th style="width: {{ w }}px">Salary</th>
+                        <th style="width: {{ w }}px">O & M</th>
+                        <th style="width: {{ w }}px">Capital</th>
+                        <th style="width: {{ w }}px">Salary</th>
+                        <th style="width: {{ w }}px">O & M</th>
+                        <th style="width: {{ w }}px">Capital</th>
+                        <th style="width: {{ w }}px">Salary</th>
+                        <th style="width: {{ w }}px">O & M</th>
+                        <th style="width: {{ w }}px">Capital</th>
                     {% endwith %}
 
                 </tr>
@@ -99,7 +105,10 @@
                 <tbody>
 
                 {% for p in project_list %}
-                    <tr href="{% url 'projects:ips_project_edit' p.id program.id %}">
+                    <tr href="
+
+
+                            {% if program.id %}{% url 'projects:ips_project_edit' p.id program.id %}{% else %}{% url 'projects:ips_project_edit' p.id %}{% endif %}">
                         <td>{{ p.id }}</td>
                         <td>{{ p.project_title }}</td>
                         <td>{{ p.core_status }}</td>
@@ -139,8 +148,8 @@
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan="6" class="total" >
-                    Totals
+                    <td colspan="6" class="total">
+                        Totals
                     </td>
                     <td class="total">{{ total_fte|intcomma }}</td>
                     <td class="total">{{ total_ot|intcomma }}</td>

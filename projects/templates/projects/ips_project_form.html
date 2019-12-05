@@ -17,8 +17,17 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'projects:ips_project_list' object.year.id object.section.id program.id %}">
-                    Projects  from {{ object.section }} Section under {{ program.short_name }}
+                <a href="
+                {% if program %}
+{% url 'projects:ips_project_list' object.year.id object.section.id program.id %}
+{% else %}
+{% url 'projects:ips_project_list' object.year.id object.section.id %}
+{% endif %}
+">
+                    Projects from {{ object.section }} Section
+                    {% if program %}
+                        under {{ program.short_name }}
+                    {% endif %}
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
