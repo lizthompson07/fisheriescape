@@ -71,23 +71,32 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
     for trip in trip_list:
 
         notes = "TRAVELLER COST BREAKDOWN: " + trip.cost_breakdown
+
+        if my_trip.non_dfo_org:
+            notes += "\n\nORGANIZATIONS PAYING NON-DFO COSTS: " + my_trip.non_dfo_org
+
         if my_trip.late_justification:
             notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + my_trip.late_justification
 
-        if is_group:
-            notes += "\n\nROLE OF PARTICIPANT: " + nz(str(trip.role), "") + " - " + nz(trip.role_of_participant, "")
+        if my_trip.funding_source:
+            notes += "\n\nFUNDING SOURCE: {}".format(my_trip.funding_source)
+
+        my_role = "{} - {}".format(
+            nz(trip.role, "MISSING"),
+            nz(trip.role_of_participant, "No description provided")
+        )
 
         data_row = [
             "{}, {}".format(trip.last_name, trip.first_name),
             str(trip.region) if trip.region else "n/a",
-            "{} - {}".format(trip.role, trip.role_of_participant) if trip.role else "n/a",
+            my_role,
             str(my_trip.reason) if my_trip.reason else "n/a",
             my_trip.trip_title,
             my_trip.destination,
             my_trip.start_date.strftime("%d/%m/%Y"),
             my_trip.end_date.strftime("%d/%m/%Y"),
             trip.total_cost,
-            "0",
+            nz(trip.non_dfo_costs, 0),
             my_trip.purpose_long_text,
             notes,
         ]

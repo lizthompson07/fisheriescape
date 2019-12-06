@@ -20,20 +20,20 @@
 <br>
 
 {% get_field_value child "no_breakfasts" nullmark="0" as nb %}
-<b>{% get_verbose_label child "breakfasts" %}</b>:  {{ nb|floatformat }} &times; {% get_field_value child "breakfast_rate" nullmark="0"%} = {% get_field_value child "breakfasts" format="currency" nullmark="n/a"%}
+<b>{% get_verbose_label child "breakfasts" %}</b>:  {{ nb|floatformat }} &times; {% get_field_value child "breakfasts_rate" nullmark="0"%} = {% get_field_value child "breakfasts" format="currency" nullmark="n/a"%}
 <br>
 
 {% get_field_value child "no_lunches" nullmark="0" as nl %}
-<b>{% get_verbose_label child "lunches" %}</b>:  {{ nl|floatformat }} &times; {% get_field_value child "lunch_rate" nullmark="0"%} = {% get_field_value child "lunches" format="currency" nullmark="n/a"%}
+<b>{% get_verbose_label child "lunches" %}</b>:  {{ nl|floatformat }} &times; {% get_field_value child "lunches_rate" nullmark="0"%} = {% get_field_value child "lunches" format="currency" nullmark="n/a"%}
 <br>
 
 {% get_field_value child "no_suppers" nullmark="0" as ns %}
-<b>{% get_verbose_label child "suppers" %}</b>:  {{ ns|floatformat }} &times; {% get_field_value child "supper_rate" nullmark="0"%} = {% get_field_value child "suppers" format="currency" nullmark="n/a"%}
+<b>{% get_verbose_label child "suppers" %}</b>:  {{ ns|floatformat }} &times; {% get_field_value child "suppers_rate" nullmark="0"%} = {% get_field_value child "suppers" format="currency" nullmark="n/a"%}
 <br>
 
 
 {% get_field_value child "no_incidentals" nullmark="0" as ni %}
-<b>{% get_verbose_label child "incidentals" %}</b>:  {{ ni|floatformat }} &times; {% get_field_value child "incidental_rate" nullmark="0"%} = {% get_field_value child "incidentals" format="currency" nullmark="n/a"%}
+<b>{% get_verbose_label child "incidentals" %}</b>:  {{ ni|floatformat }} &times; {% get_field_value child "incidentals_rate" nullmark="0"%} = {% get_field_value child "incidentals" format="currency" nullmark="n/a"%}
 <br>
 
 
