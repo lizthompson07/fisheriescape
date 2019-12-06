@@ -147,7 +147,6 @@ class Conference(models.Model):
                 if bta_user not in legit_traveller_list:
                     travellers.append(bta_user)
 
-
         # return a set of all users
         return list(set(travellers))
 
@@ -206,7 +205,6 @@ class Conference(models.Model):
     @property
     def conf_fiscal_year(self):
         return shared_models.FiscalYear.objects.get(pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
-
 
     @property
     def get_summary_dict(self):
@@ -319,16 +317,16 @@ class Trip(models.Model):
     accommodations = models.FloatField(blank=True, null=True, verbose_name=_("accommodation"))
     # meals = models.FloatField(blank=True, null=True, verbose_name=_("meals"))
     no_breakfasts = models.IntegerField(blank=True, null=True, verbose_name=_("number of breakfasts"))
-    breakfast_rate = models.FloatField(blank=True, null=True, verbose_name=_("breakfast rate (CAD/day)"), default=20.35)
+    breakfasts_rate = models.FloatField(blank=True, null=True, verbose_name=_("breakfast rate (CAD/day)"), default=20.35)
     breakfasts = models.FloatField(blank=True, null=True, verbose_name=_("breakfasts"))
     no_lunches = models.IntegerField(blank=True, null=True, verbose_name=_("number of lunches"))
-    lunch_rate = models.FloatField(blank=True, null=True, verbose_name=_("lunch rate (CAD/day)"), default=20.60)
+    lunches_rate = models.FloatField(blank=True, null=True, verbose_name=_("lunch rate (CAD/day)"), default=20.60)
     lunches = models.FloatField(blank=True, null=True, verbose_name=_("lunches"))
     no_suppers = models.IntegerField(blank=True, null=True, verbose_name=_("number of suppers"))
-    supper_rate = models.FloatField(blank=True, null=True, verbose_name=_("supper rate (CAD/day)"), default=50.55)
+    suppers_rate = models.FloatField(blank=True, null=True, verbose_name=_("supper rate (CAD/day)"), default=50.55)
     suppers = models.FloatField(blank=True, null=True, verbose_name=_("suppers"))
     no_incidentals = models.IntegerField(blank=True, null=True, verbose_name=_("number of incidentals"))
-    incidental_rate = models.FloatField(blank=True, null=True, verbose_name=_("incidental rate (CAD/day)"), default=17.30)
+    incidentals_rate = models.FloatField(blank=True, null=True, verbose_name=_("incidental rate (CAD/day)"), default=17.30)
     incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidentals"))
     registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
     other = models.FloatField(blank=True, null=True, verbose_name=_("other"))
@@ -358,10 +356,10 @@ class Trip(models.Model):
 
     def save(self, *args, **kwargs):
         # total the meals and incidentals
-        self.breakfasts = nz(self.no_breakfasts, 0) * nz(self.breakfast_rate, 0)
-        self.lunches = nz(self.no_lunches, 0) * nz(self.lunch_rate, 0)
-        self.suppers = nz(self.no_suppers, 0) * nz(self.supper_rate, 0)
-        self.incidentals = nz(self.no_incidentals, 0) * nz(self.incidental_rate, 0)
+        self.breakfasts = nz(self.no_breakfasts, 0) * nz(self.breakfasts_rate, 0)
+        self.lunches = nz(self.no_lunches, 0) * nz(self.lunches_rate, 0)
+        self.suppers = nz(self.no_suppers, 0) * nz(self.suppers_rate, 0)
+        self.incidentals = nz(self.no_incidentals, 0) * nz(self.incidentals_rate, 0)
 
         # total cost
         self.total_cost = nz(self.air, 0) + nz(self.rail, 0) + nz(self.rental_motor_vehicle, 0) + nz(self.personal_motor_vehicle, 0) + nz(
@@ -399,29 +397,33 @@ class Trip(models.Model):
 
     @property
     def cost_breakdown(self):
+        cost_list = [
+            "air",
+            "rail",
+            "rental_motor_vehicle",
+            "personal_motor_vehicle",
+            "taxi",
+            "other_transport",
+            "accommodations",
+            "breakfasts",
+            "lunches",
+            "suppers",
+            "incidentals",
+            "registration",
+            "other",
+        ]
         my_str = ""
-        if self.air:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("air").verbose_name, self.air)
-        if self.rail:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("rail").verbose_name, self.rail)
-        if self.rental_motor_vehicle:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("rental_motor_vehicle").verbose_name, self.rental_motor_vehicle)
-        if self.personal_motor_vehicle:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("personal_motor_vehicle").verbose_name, self.personal_motor_vehicle)
-        if self.taxi:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("taxi").verbose_name, self.taxi)
-        if self.other_transport:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other_transport").verbose_name, self.other_transport)
-        if self.accommodations:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("accommodations").verbose_name, self.accommodations)
-        if self.meals:
-            my_str += "{}: ${:,.2f}; ".format(_("meals"), self.meals)
-        if self.incidentals:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("incidentals").verbose_name, self.incidentals)
-        if self.registration:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("registration").verbose_name, self.registration)
-        if self.other:
-            my_str += "{}: ${:,.2f}; ".format(self._meta.get_field("other").verbose_name, self.other)
+        for cost in cost_list:
+            if getattr(self, cost):
+                if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
+                    my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
+                        self._meta.get_field(cost).verbose_name,
+                        getattr(self, cost),
+                        getattr(self, "no_" + cost),
+                        getattr(self, cost + "_rate"),
+                    )
+                else:
+                    my_str += "{}: ${:,.2f}; ".format(self._meta.get_field(cost).verbose_name, getattr(self, cost))
         return my_str
 
     @property
@@ -456,8 +458,17 @@ class Trip(models.Model):
         my_str += "<tr class='plainjane'><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
             _("Cost category"), _("Amount (CAD)"))
         for cost in cost_list:
-            my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{}</td></tr>".format(
-                get_verbose_label(self, cost), nz(currency(getattr(self, cost)), "---"))
+            if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
+                my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{} ({} &times; {})</td></tr>".format(
+                    get_verbose_label(self, cost),
+                    nz(currency(getattr(self, cost)), "---"),
+                    nz(getattr(self, "no_"+cost), "---"),
+                    nz(currency(getattr(self, cost + "_rate")), "---"),
+                )
+            else:
+                my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{}</td></tr>".format(
+                    get_verbose_label(self, cost), nz(currency(getattr(self, cost)), "---"))
+
         my_str += "<tr><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
             _("TOTAL"), nz(currency(self.total_trip_cost), "---"))
         my_str += "</table>"
@@ -491,21 +502,19 @@ class Trip(models.Model):
 
     @property
     def purpose_long_text(self):
-        my_str = ""
-        if self.role_of_participant:
-            my_str += "Role of Participant: {}".format(self.role_of_participant)
-        if self.objective_of_event:
-            my_str += "\n\nObjective of Event: {}".format(self.objective_of_event) if len(my_str) > 0 else "Objective of Event: {}".format(
-                self.objective_of_event)
-        if self.benefit_to_dfo:
-            my_str += "\n\nBenefit to DFO: {}".format(self.benefit_to_dfo)
-        if self.multiple_conferences_rationale:
-            my_str += "\n\nRationale for attending multiple conferences: {}".format(self.multiple_conferences_rationale)
-        if self.multiple_attendee_rationale:
-            my_str += "\n\nRationale for multiple attendees: {}".format(self.multiple_attendee_rationale)
-        if self.funding_source:
-            my_str += "\n\nFunding source: {}".format(self.funding_source)
+        """
+        For CFTS report
+        """
+        my_str = "{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
 
+        my_str += "\n\n{}: {}".format("BENEFIT TO DFO", nz(self.benefit_to_dfo, "n/a"))
+
+        my_str += "\n\n{}: {}".format(
+            "Rationale for attending multiple conferences".upper(), nz(self.multiple_conferences_rationale, "n/a"))
+
+        my_str += "\n\n{}: {}".format(
+            "Rationale for multiple attendees".upper(),
+            nz(self.multiple_attendee_rationale, "n/a"))
         return my_str
 
     @property
