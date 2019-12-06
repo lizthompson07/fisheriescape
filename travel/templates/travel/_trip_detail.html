@@ -233,7 +233,7 @@
 
                 {% endfor %}
                 <td>
-                    <button class="badge" data-toggle="popover" id="cost-breakdown-btn"
+                    <button class="badge cost-breakdown-btn" data-toggle="popover"
                             title="{{ child.first_name }}'s Costs Breakdown"
                             data-content="{% include "travel/_child_cost_breakdown.html" %}">
                         {% trans "show" %}
@@ -326,9 +326,9 @@
         if (input) {
             window.location.href = $(this).attr("href")
         }
-    })
-    $("#cost-breakdown-btn").click(function (e) {
-        console.log(123)
+    });
+    $(".cost-breakdown-btn").click(function (e) {
+        console.log(123);
         e.stopPropagation();
     })
 </script>
