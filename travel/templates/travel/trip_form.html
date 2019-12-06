@@ -70,9 +70,9 @@
                     {% else %}
                         {% bootstrap_field field placeholder="" %}
                     {% endif %}
-                    <em class="blue-font">
-                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})
-                    </em><br><br>
+{#                    <em class="blue-font">#}
+{#                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})#}
+{#                    </em><br><br>#}
                 </div>
             {% elif field.name == "conference" %}
                 {% if field.name in help_text_dict %}
@@ -264,15 +264,13 @@
 
         function refreshConference() {
             if ($("#id_reason").val() != "2") {
-                {#$("#id_conference").val("").prop("disabled", true);#}
-                $("#id_role").val("").prop("disabled", true);
-                $("#id_role_of_participant").val("").prop("disabled", true);
-                $(".conference_container").addClass("gone");
+//                $("#id_role").val("").prop("disabled", true);
+  //              $("#id_role_of_participant").val("").prop("disabled", true);
+    //            $(".conference_container").addClass("gone");
             } else {
-                {#$("#id_conference").prop("disabled", false);#}
-                $("#id_role").prop("disabled", false);
-                $("#id_role_of_participant").prop("disabled", false);
-                $(".conference_container").removeClass("gone");
+      //          $("#id_role").prop("disabled", false);
+        //        $("#id_role_of_participant").prop("disabled", false);
+          //      $(".conference_container").removeClass("gone");
             }
         }
 

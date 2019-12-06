@@ -2769,12 +2769,17 @@ class IPSProjectUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse("projects:ips_project_list", kwargs={
-            "fiscal_year": my_object.year.id,
-            "section": my_object.section.id,
-            "program": self.kwargs.get("program"),
-        }))
-
+        if self.kwargs.get("program"):
+            return HttpResponseRedirect(reverse("projects:ips_project_list", kwargs={
+                "fiscal_year": my_object.year.id,
+                "section": my_object.section.id,
+                "program": self.kwargs.get("program"),
+            }))
+        else:
+            return HttpResponseRedirect(reverse("projects:ips_project_list", kwargs={
+                "fiscal_year": my_object.year.id,
+                "section": my_object.section.id,
+            }))
 
 # SECTION NOTE #
 ################
