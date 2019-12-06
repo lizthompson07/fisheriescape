@@ -261,9 +261,9 @@ class ChildTripForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-        if parent_trip.reason_id != 2:
-            del self.fields['role']
-            del self.fields['role_of_participant']
+        # if parent_trip.reason_id != 2:
+        #     del self.fields['role']
+        #     del self.fields['role_of_participant']
 
 
 class ConferenceForm(forms.ModelForm):
