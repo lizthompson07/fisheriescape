@@ -43,8 +43,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
 
     # non_group_trip_list = models.Trip.objects.all()
 
-    # we need a list of ADM unapproaved but recommended
-    # group travdellers need to be on one row
+    # we need a list of ADM unapproved but recommended
+    # group travellers need to be on one row
 
     header = [
         "Name",
@@ -75,12 +75,12 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
             notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + my_trip.late_justification
 
         if is_group:
-            notes += "\n\nROLE OF PARTICIPANT: " + nz(trip.role_of_participant, "")
+            notes += "\n\nROLE OF PARTICIPANT: " + nz(str(trip.role), "") + " - " + nz(trip.role_of_participant, "")
 
         data_row = [
             "{}, {}".format(trip.last_name, trip.first_name),
             str(trip.region) if trip.region else "n/a",
-            str(trip.role) if trip.role else "n/a",
+            "{} - {}".format(trip.role, trip.role_of_participant) if trip.role else "n/a",
             str(my_trip.reason) if my_trip.reason else "n/a",
             my_trip.trip_title,
             my_trip.destination,

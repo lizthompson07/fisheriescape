@@ -294,10 +294,10 @@ class Trip(models.Model):
     # event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
     #                                related_name="trip_events", blank=True, null=True)
     ################
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of participant"))
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of traveller"))
 
     # purpose
-    role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role of participant"))
+    role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
     objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of the trip"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("benefit to DFO"))
     multiple_conferences_rationale = models.TextField(blank=True, null=True,
