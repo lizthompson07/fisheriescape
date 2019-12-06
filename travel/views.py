@@ -329,9 +329,9 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         my_object = self.get_object()
         context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
         my_trip_child_field_list = deepcopy(trip_child_field_list)
-        if not my_object.reason_id == 2:
-            my_trip_child_field_list.remove("role")
-            my_trip_child_field_list.remove("role_of_participant")
+        # if not my_object.reason_id == 2:
+        #     my_trip_child_field_list.remove("role")
+        #     my_trip_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_trip_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
