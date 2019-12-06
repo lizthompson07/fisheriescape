@@ -210,11 +210,11 @@
         <tr>
             {% for field in child_field_list %}
                 {% if "cost_breakdown" in field or "purpose_long" in field %}
-                    <th style="width: ">{% get_verbose_label trip field %}</th>
+                    <th>{% get_verbose_label trip field %}</th>
                 {% elif "role_of" in field %}
-                    <th style="width: ">{% get_verbose_label trip field %}</th>
+                    <th>{% get_verbose_label trip field %}</th>
                 {% elif "_date" in field %}
-                    <th style="width: 80px">{% get_verbose_label trip field %}</th>
+                    <th>{% get_verbose_label trip field %}</th>
                 {% else %}
                     <th scope="col">{% get_verbose_label trip field %}</th>
                 {% endif %}
