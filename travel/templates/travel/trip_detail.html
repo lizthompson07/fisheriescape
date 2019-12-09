@@ -16,7 +16,8 @@
         table, td {
             font-size: small;
         }
-        .container{
+
+        .container {
             max-width: 1300px;
         }
     </style>
@@ -33,7 +34,13 @@
 
         <h1>{{ object }}</h1>
         {% if is_current_reviewer and object.submitted %}
-            <h3 class="red-font">You are able to edit this record because you are the current reviewer.</h3>
+            <h3 class="red-font">You are able to edit this record because you are
+                {% if is_admin %}
+                    an application administrator.
+                {% else %}
+                    the current reviewer.
+                {% endif %}
+            </h3>
         {% endif %}
 
 

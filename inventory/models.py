@@ -379,7 +379,15 @@ class Resource(models.Model):
         ordering = ['id', ]
 
     def __str__(self):
-        return "({}) {}".format(self.id, self.title_eng)
+        return "({}) {}".format(self.id, getattr(self, str(_("title_eng"))))
+
+    @property
+    def t_title(self):
+        return "{}".format(getattr(self, str(_("title_eng"))))
+
+    @property
+    def last_certification(self):
+        return self.certification_history.fisrt()
 
     def truncated_title(self):
         if self.title_eng:
