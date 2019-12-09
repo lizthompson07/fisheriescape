@@ -118,7 +118,7 @@ class MyResourceListView(LoginRequiredMixin, ListView):
     template_name = 'inventory/my_resource_list.html'
 
     def get_queryset(self):
-        return models.Resource.objects.filter(people__person_id=self.request.user.id)
+        return models.Resource.objects.filter(resource_people__person_id=self.request.user.id).order_by("resource_people__role")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
