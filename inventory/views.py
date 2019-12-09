@@ -10,11 +10,13 @@ from django.core.mail import send_mail
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
 from django.shortcuts import render
+from django.utils.translation import gettext as _
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+
 ###
 from collections import OrderedDict
 from . import models
@@ -118,7 +120,8 @@ class MyResourceListView(LoginRequiredMixin, ListView):
     template_name = 'inventory/my_resource_list.html'
 
     def get_queryset(self):
-        return models.Resource.objects.filter(resource_people__person_id=self.request.user.id).order_by("resource_people__role")
+        qs = models.Resource.objects.filter(resource_people__person_id=self.request.user.id).distinct().order_by("-date_last_modified")
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -126,7 +129,9 @@ class MyResourceListView(LoginRequiredMixin, ListView):
         context['field_list'] = [
             "t_title|Title",
             "status",
-            "section",
+            "date_last_modified",
+            "last_modified_by",
+            # "section",
             "roles|Role(s)",
             "last_certification|Previous time certified",
             "completedness_rating|Completedness rating",
@@ -159,6 +164,14 @@ class ResourceDetailView(DetailView):
             context['verified'] = True
         else:
             context['verified'] = False
+
+        my_resource = self.get_object()
+        user_roles = my_resource.resource_people.filter(person_id=self.request.user.id, role_id__in=[1, 2, 8, 19, 13, 10])
+
+        if user_roles.count() > 0:
+            messages.info(self.request, "As {}, you have the necessary permissions to modify this record.".format(user_roles.first().role))
+        elif in_inventory_dm_group(self.request.user):
+            messages.info(self.request, _("As an application administrator, you have the necessary permissions to modify this record."))
         return context
 
 
