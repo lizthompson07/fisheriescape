@@ -1,5 +1,6 @@
 import os
 
+import textile
 from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
 from django.core.mail import send_mail
@@ -575,23 +576,13 @@ class Reviewer(models.Model):
         unique_together = ['trip', 'user', 'role', ]
         ordering = ['trip', 'order', ]
 
+    @property
+    def comments_html(self):
+        if self.comments:
+            return textile.textile(self.comments)
+
     def save(self, *args, **kwargs):
-
-        # we have to do something smart with the order...
-        # if there is nothing competing, our job is done. Otherwise...
-        # if self.trip.reviewers.filter(order=self.order).count() > 0:
-        #     found_equal = False
-        #     count = 1
-        #     for reviewer in self.trip.reviewers.all():
-        #         if self.order == reviewer.order:
-        #             found_equal = True
-        #         if found_equal:
-        #             reviewer.order += 1
-        #             reviewer.save()
-        #         else:
-        #             reviewer.order = count
-        #         count += 1
-
+        self.status_date = timezone.now()
         return super().save(*args, **kwargs)
 
     @property
