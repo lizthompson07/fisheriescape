@@ -36,7 +36,7 @@ def in_inventory_dm_group(user):
 
 
 def is_custodian_or_admin(user, resource_id):
-    """returns True if user is a custodian in the specified resource"""
+    """returns True if user is a "custodian" in the specified resource"""
     print(user.id, resource_id)
     if user.id:
         # first, check to see if user is a dm admin
@@ -50,7 +50,9 @@ def is_custodian_or_admin(user, resource_id):
                 return False
             else:
                 # check to see if they are listed as custodian (role_id=1) on the specified resource id
-                return models.ResourcePerson.objects.filter(person=person, resource=resource_id, role_id=1).count() > 0
+                # custodian (1); principal investigator (2); data manager (8); steward (19); author (13); owner (10)
+                return models.ResourcePerson.objects.filter(person=person, resource=resource_id,
+                                                            role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
 
 
 class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -110,40 +112,27 @@ class ResourceListView(FilterView):
     #     return kwargs
 
 
-class MyResourceListView(LoginRequiredMixin, TemplateView):
+class MyResourceListView(LoginRequiredMixin, ListView):
+    model = models.Resource
     login_url = '/accounts/login_required/'
     template_name = 'inventory/my_resource_list.html'
+
+    def get_queryset(self):
+        return models.Resource.objects.filter(people__person_id=self.request.user.id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        custodian_queryset = []
-        try:
-            custodian_queryset = models.Person.objects.get(pk=self.request.user.id).resource_people.filter(role=1)
-        except ObjectDoesNotExist:
-            print("Person " + str(self.request.user.id) + "does not exit, Database may be empty")
-
-        context['custodian_list'] = custodian_queryset
-
-        non_custodian_queryset = []
-        for resource in models.Resource.objects.filter(people=self.request.user.id):
-            add = True
-            for resource_person in resource.resource_people.all():
-                if resource_person.role.id == 1 and resource_person.person.user_id == self.request.user.id:
-                    add = False
-            if add == True:
-                non_custodian_queryset.append(resource)
-
-        # retain only the unique items, and keep them in order according to keys (cannot use a set for this reason)
-        resource_dict = OrderedDict()
-        for item in non_custodian_queryset:
-            resource_dict[item.id] = item
-
-        # convert the dict back into a list
-        non_custodian_list = []
-        for item in resource_dict:
-            non_custodian_list.append(resource_dict[item])
-        context['non_custodian_list'] = non_custodian_list
+        context['field_list'] = [
+            "t_title|Title",
+            "status",
+            "section",
+            "roles|Role(s)",
+            "last_certification|Previous time certified",
+            "completedness_rating|Completedness rating",
+            "open_data|Published to Open Data",
+            "external_links|External links",
+        ]
 
         context['now'] = timezone.now()
 
@@ -801,6 +790,7 @@ def resource_keyword_add(request, resource, keyword, keyword_type=None):
         return HttpResponseRedirect(reverse('inventory:resource_location_filter', kwargs={'resource': resource}))
     else:
         return HttpResponseRedirect(reverse('inventory:resource_keyword_edit', kwargs={'pk': resource}))
+
 
 def resource_keyword_delete(request, resource, keyword):
     my_keyword = models.Keyword.objects.get(pk=keyword)
@@ -1541,6 +1531,7 @@ def export_batch_xml(request, sections):
     raise Http404
 
     # return HttpResponseRedirect(reverse("inventory:report_search"))
+
 
 # def capacity_export_spreadsheet(request, fy=None, orgs=None):
 #     file_url = reports.generate_capacity_spreadsheet(fy, orgs)

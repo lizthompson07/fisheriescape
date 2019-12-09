@@ -343,7 +343,11 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
 
-        is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
+        if context["is_admin"]:
+            is_current_reviewer = True
+        else:
+            is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
+
         context["is_current_reviewer"] = is_current_reviewer
         if my_object.submitted and not is_current_reviewer:
             context["report_mode"] = True
