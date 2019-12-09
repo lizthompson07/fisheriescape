@@ -203,7 +203,7 @@ reviewer_field_list = [
     'role',
     'status',
     'status_date',
-    'comments',
+    'comments_html',
 ]
 
 conf_field_list = [

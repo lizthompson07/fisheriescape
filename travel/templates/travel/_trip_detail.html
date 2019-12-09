@@ -301,7 +301,7 @@
                             {% get_field_value obj field %}
                         </td>
                     {% else %}
-                        <td>{% get_field_value obj field %}</td>
+                        <td>{% get_field_value obj field safe=True %}</td>
                     {% endif %}
                 {% endfor %}
             </tr>
