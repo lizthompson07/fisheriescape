@@ -41,25 +41,25 @@
             </th>
             </thead>
             <tbody>
-            {% for obj in custodian_list %}
-                <tr href="{% url 'inventory:resource_detail' obj.resource.id %}">
+            {% for obj in object_list %}
+                <tr href="{% url 'inventory:resource_detail' obj.id %}">
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ obj.resource.title_eng }}</td>
+                    <td>{{ obj.title_eng }}</td>
 
-                    {% if obj.resource.status.id == 3 %}
+                    {% if obj.status.id == 3 %}
                         <td class="green-font">
 
-                            {% elif obj.resource.status.id == 1 %}
+                            {% elif obj.status.id == 1 %}
                         <td class="red-font">
                             {% else %}
                         <td>
 
                     {% endif %}
-                    {{ obj.resource.status }}
+                    {{ obj.status }}
                     </td>
-                    <td>{{ obj.resource.section.name }}</td>
+                    <td>{{ obj.section.name }}</td>
                     <td>
-                        {% for person in obj.resource.resource_people.all %}
+                        {% for person in obj.resource_people.all %}
                             {% if person.person.user_id == user.id %}
                                 {% if person.role.id == 1 %}
                                     <b>{{ person.role }}</b>;
@@ -71,37 +71,37 @@
                         {% endfor %}
 
                     </td>
-                    {% if obj.resource.certification_history.count > 0 %}
-                        {% if now|timedelta:obj.resource.certification_history.first.certification_date < 90 %}
+                    {% if obj.certification_history.count > 0 %}
+                        {% if now|timedelta:obj.certification_history.first.certification_date < 90 %}
                             <td class="good">
-                                {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 180 %}
+                                {% elif now|timedelta:obj.certification_history.first.certification_date < 180 %}
                             <td class="mild-concern">
 
-                                {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 270 %}
+                                {% elif now|timedelta:obj.certification_history.first.certification_date < 270 %}
                             <td class="concern">
                                 {% else %}
                             <td class="bad">
                         {% endif %}
-                    {{ obj.resource.certification_history.first.certification_date|naturaltime }}
+                    {{ obj.certification_history.first.certification_date|naturaltime }}
                     {% else %}
                         <td><span class="red-font"><b>Never</b></span>
                     {% endif %}
                     </td>
-                    <td>{{ obj.resource.completedness_rating|percentage:0 }}</td>
+                    <td>{{ obj.completedness_rating|percentage:0 }}</td>
                     <td>
-                        {{ obj.resource.fgp_publication_date|yesno:"yes,no,no" }}
+                        {{ obj.fgp_publication_date|yesno:"yes,no,no" }}
                     </td>
                     <td>
-                        {% if obj.resource.fgp_url %}
-                            <a class="stop-blank" href="{{ obj.resource.fgp_url }}" data-toggle="tooltip"
+                        {% if obj.fgp_url %}
+                            <a class="stop-blank" href="{{ obj.fgp_url }}" data-toggle="tooltip"
                                title="Open URL in the Federal Geospatial Platform">
                                 <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">
                             </a>
                         {% endif %}
                     </td>
                     <td>
-                        {% if obj.resource.public_url %}
-                            <a class="stop-blank" href="{{ obj.resource.public_url }}" data-toggle="tooltip"
+                        {% if obj.public_url %}
+                            <a class="stop-blank" href="{{ obj.public_url }}" data-toggle="tooltip"
                                title="Open URL in the Open Government Portal">
                                 <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
                             </a>
@@ -112,118 +112,9 @@
             </tbody>
         </table>
         <b>
-            TOTAL: {{ custodian_list.count }}
+            TOTAL: {{ object_list.count }}
         </b>
 
-        <br><br><br>
-        <h3>Other roles:</h3>
-        {% if not non_custodian_list %}
-            <em>There are no data resources with you listed in other roles</em>
-        {% else %}
-
-            <table class="table table-hover table-sm">
-                <thead>
-                <th scope="col">#</th>
-                <th scope="col">Title</th>
-                <th scope="col">Status</th>
-                <th scope="col">Section</th>
-                <th scope="col">Role(s)</th>
-                <th scope="col">Previous time certified</th>
-                <th scope="col">
-                    {% trans "Completedness Rating" %}
-                </th>
-                <th scope="col">
-                    {% trans "Published to Open Data?" %}
-                </th>
-                <th scope="col" colspan="2">
-                    {% trans "External Links" %}
-                </th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for obj in non_custodian_list %}
-                    <tr href="{% url 'inventory:resource_detail' obj.id %}">
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ obj.title_eng }}</td>
-
-                        {% if obj.status.id == 3 %}
-                            <td class="green-font">
-
-                                {% elif obj.status.id == 1 %}
-                            <td class="red-font">
-                                {% else %}
-                            <td>
-
-                        {% endif %}
-                        {{ obj.status }}
-                        </td>
-
-                        <td>{{ obj.section.section }}</td>
-
-                        <td>
-                            {% for person in obj.resource_people.all %}
-                                {% if person.person.user_id == user.id %}
-                                    {% if person.role.id == 1 %}
-                                        <b>{{ person.role }}</b>;
-                                    {% else %}
-                                        {{ person.role }};
-                                    {% endif %}
-
-                                {% endif %}
-                            {% endfor %}
-
-                        </td>
-
-                        {% if obj.certification_history.count > 0 %}
-
-                            {% if now|timedelta:obj.certification_history.first.certification_date < 90 %}
-                                <td class="good">
-                                    {% elif now|timedelta:obj.certification_history.first.certification_date < 180 %}
-                                <td class="mild-concern">
-                                    {% elif now|timedelta:obj.certification_history.first.certification_date < 270 %}
-                                <td class="concern">
-                                    {% else %}
-                                <td class="bad">
-                            {% endif %}
-                        {{ obj.certification_history.first.certification_date|naturaltime }}
-                        {% else %}
-                            <td><span class="red-font"><b>Never</b></span>
-                        {% endif %}
-
-                        </td>
-                        <td>{{ obj.completedness_rating|percentage:0 }}</td>
-                        <td>
-                            {{ obj.fgp_publication_date|yesno:"yes,no,no" }}
-                        </td>
-                        <td>
-                            {% if obj.fgp_url %}
-                                <a class="stop-blank" href="{{ obj.fgp_url }}" data-toggle="tooltip"
-                                   title="Open URL in the Federal Geospatial Platform">
-                                    <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">
-                                </a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if obj.public_url %}
-                                <a class="stop-blank" href="{{ obj.public_url }}" data-toggle="tooltip"
-                                   title="Open URL in the Open Government Portal">
-                                    <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
-                                </a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-
-                </tbody>
-            </table>
-            <b>
-                TOTAL: {{ non_custodian_list.count }}
-            </b>
-
-        {% endif %}
-
-
-        {{ id_list }}
     </div>
 
 {% endblock content %}
