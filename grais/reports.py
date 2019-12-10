@@ -578,3 +578,64 @@ def generate_open_data_ver_1_wms_report(year, lang):
         writer.writerow(data_row)
 
     return response
+
+
+def generate_gc_cpue_report(year):
+    """
+    This is a view designed the analysis of green crab data.
+    :param year: int
+    :return: http response
+    """
+
+    filename = "{}_green_crab_CPUE_data.csv".format(year)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    header_row = [
+        'Estuary',
+        'Site',
+        'Traps set',
+        'Traps fished',
+        'Trap #',
+        'Sex',
+        'Width',
+    ]
+
+    writer.writerow(header_row)
+    for c in models.Crab.objects.filter(trap__sample__season=year, species_id=26):
+        data_row = [
+            c.trap.sample.site.estuary.name,
+            c.trap.sample.site.code,
+            c.trap.sample.traps_set.strftime("%Y-%m-%d") if c.trap.sample.traps_set else "",
+            c.trap.sample.traps_fished.strftime("%Y-%m-%d") if c.trap.sample.traps_fished else "",
+            c.trap.trap_number,
+            c.get_sex_display(),
+            c.width,
+        ]
+        writer.writerow(data_row)
+
+    return response
+
+
+
+def generate_gc_envr_report(year):
+    """
+        This is a view designed the analysis of green crab data.
+        :param year: int
+        :return: http response
+        """
+
+    # determine the filename based on whether we are looking at all years vs. a single year
+    filename = "{}_green_crab_environmental_data.csv".format(year)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    return response

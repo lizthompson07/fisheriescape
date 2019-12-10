@@ -42,11 +42,14 @@
 
         <br><br>
         <div class="row">
-            <div class="col-2">
+            <div class="col-5">
                 {# Detail about the sample #}
-                {% for field in field_list %}
-                    {% verbose_field_display object field display_time=True %}
-                {% endfor %}
+                <table class="table table-sm table-bordered">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field display_time=True %}
+                    {% endfor %}
+
+                </table>
             </div>
 
             <div class="col-6">
