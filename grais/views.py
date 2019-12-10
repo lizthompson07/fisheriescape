@@ -1331,6 +1331,10 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang":1}))
         elif report == 5:
             return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang":2}))
+        elif report == 6:
+            return HttpResponseRedirect(reverse("grais:gc_cpue_report", kwargs={"year": year}))
+        elif report == 7:
+            return HttpResponseRedirect(reverse("grais:gc_envr_report", kwargs={"year": year}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -1357,4 +1361,18 @@ def export_open_data_ver1_dictionary(request):
 
 def export_open_data_ver1_wms(request, year, lang):
     response = reports.generate_open_data_ver_1_wms_report(year, lang)
+    return response
+
+
+def export_gc_cpue(request, year):
+    response = reports.generate_gc_cpue_report(year)
+    return response
+
+def export_gc_envr(request, year):
+    response = reports.generate_gc_envr_report(year)
+    return response
+
+
+def export_gc_sites(request, year):
+    response = reports.generate_gc_envr_report(year)
     return response
