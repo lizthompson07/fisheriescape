@@ -36,7 +36,7 @@ class ReviewerApprovalForm(forms.ModelForm):
             "comments": _("Please provide your comments here...")
         }
         widgets = {
-            # "comments": forms.Textarea(attrs=attr_row3)
+            "comments": forms.Textarea(attrs=attr_row3)
         }
 
 
