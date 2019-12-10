@@ -514,7 +514,7 @@ class GCSample(models.Model):
         return "Sample {} - {}".format(self.id, self.site)
 
     class Meta:
-        ordering = ['traps_set', 'site']
+        ordering = ['-traps_set', 'site']
 
 
 class WeatherConditions(models.Model):
