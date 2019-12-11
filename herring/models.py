@@ -31,6 +31,9 @@ class Sampler(models.Model):
     class Meta:
         ordering = ['last_name', 'first_name']
 
+    @property
+    def full_name(self):
+        return str(self)
 
 class District(models.Model):
     # Choices for province

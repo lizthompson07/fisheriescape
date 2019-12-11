@@ -10,7 +10,7 @@ urlpatterns = [
 
     # SAMPLER #
     ###########
-    path('sampler/new/', views.SamplerPopoutCreateView.as_view(), name ="sampler_new_pop"),
+    path('sampler/new/pop/', views.SamplerPopoutCreateView.as_view(), name ="sampler_new_pop"),
     path('sample/sampler/<int:sampler>/close/', views.SamplerCloseTemplateView.as_view(), name ="close_sampler" ),
 
 
