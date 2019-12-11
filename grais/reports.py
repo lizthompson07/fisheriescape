@@ -355,7 +355,8 @@ def generate_open_data_ver_1_report(year=None):
     """
 
     # determine the filename based on whether we are looking at all years vs. a single year
-    filename = "biofouling_monitoring_report_{}.csv".format(year) if year and year != "None" else "biofouling_monitoring_report_all_years.csv"
+    filename = "biofouling_monitoring_report_{}.csv".format(
+        year) if year and year != "None" else "biofouling_monitoring_report_all_years.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -598,6 +599,7 @@ def generate_gc_cpue_report(year):
     header_row = [
         'Estuary',
         'Site',
+        'Sample ID',
         'Traps set',
         'Traps fished',
         'Trap #',
@@ -610,8 +612,9 @@ def generate_gc_cpue_report(year):
         data_row = [
             c.trap.sample.site.estuary.name,
             c.trap.sample.site.code,
-            c.trap.sample.traps_set.strftime("%Y-%m-%d") if c.trap.sample.traps_set else "",
-            c.trap.sample.traps_fished.strftime("%Y-%m-%d") if c.trap.sample.traps_fished else "",
+            c.trap.sample.id,
+            c.trap.sample.traps_set.strftime("%m/%d/%Y") if c.trap.sample.traps_set else "",
+            c.trap.sample.traps_fished.strftime("%m/%d/%Y") if c.trap.sample.traps_fished else "",
             c.trap.trap_number,
             c.get_sex_display(),
             c.width,
@@ -619,7 +622,6 @@ def generate_gc_cpue_report(year):
         writer.writerow(data_row)
 
     return response
-
 
 
 def generate_gc_envr_report(year):
@@ -637,5 +639,71 @@ def generate_gc_envr_report(year):
     response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
+
+    header_row = [
+        'Estuary',
+        'Site',
+        'Sample ID',
+        'Date',
+        'Temp',
+        'Salinity',
+        'Tide description',
+    ]
+
+    writer.writerow(header_row)
+    for obj in models.GCProbeMeasurement.objects.filter(sample__season=year):
+        data_row = [
+            obj.sample.site.estuary.name,
+            obj.sample.site.code,
+            obj.sample.id,
+            obj.time_date.strftime("%m/%d/%Y") if obj.time_date else "",
+            obj.temp_c,
+            obj.sal,
+            obj.tide_description,
+        ]
+        writer.writerow(data_row)
+
+    return response
+
+
+def generate_gc_sites_report():
+    """
+        This is a view designed the analysis of green crab data.
+        :return: http response
+    """
+
+    # determine the filename based on whether we are looking at all years vs. a single year
+    filename = "green_crab_site_descriptions.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    header_row = [
+        'Estuary name',
+        'Estuary description',
+        'Province',
+        'Site name',
+        'Site code',
+        'Site description',
+        'latitutde',
+        'longitude',
+    ]
+
+    writer.writerow(header_row)
+    for obj in models.Site.objects.all():
+        data_row = [
+            obj.estuary.name,
+            obj.estuary.description,
+            obj.estuary.province,
+            obj.name,
+            obj.code,
+            obj.description,
+            obj.latitude_n,
+            obj.longitude_w,
+        ]
+        writer.writerow(data_row)
 
     return response
