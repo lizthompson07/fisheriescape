@@ -1,0 +1,85 @@
+{% extends "herring/herring_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% load verbose_names %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'herring:index' %}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Samplers
+            </li>
+
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+
+        <h1 class="big-header">Samplers </h1>
+        <p>TOTAL: {{ object_list.count }}</p>
+
+
+        <form class="form" action="." method="get">
+            <div class="row">
+                {% for field in filter.form %}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+                {% endfor %}
+                <div class="col-3">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn btn-warning">
+                    <a href="{% url 'herring:sampler_new' %}" class="btn btn-success">New Sampler</a><br>
+                </div>
+
+            </div>
+
+
+        </form>
+
+
+        <div class="row">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+            <div class="col" style="text-align: center">
+                <em>displaying {{ filter.qs.count }} of {{ object_list.count }}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'herring:sampler_new' %}" class="btn btn-sm btn-primary">New</a>
+            </div>
+        </div>
+        <table class="table table-sm table-hover sortable">
+            <thead>
+            <tr>
+                {% for field in field_list %}
+                    <th scope="col">{% get_verbose_label my_object field %}</th>
+                {% endfor %}
+                <th scope="col">Number of samples</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in filter.qs %}
+                {% url 'herring:sampler_detail' object.id as my_url %}
+                <tr href="{{ my_url }}">
+
+                    {% for field in field_list %}
+                        <td>{% get_field_value object field nullmark="" %}</td>
+                    {% endfor %}
+                    <td>{{ object.samples.count }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock content %}

@@ -1,11 +1,12 @@
 from datetime import datetime
 
 import requests
+from django.db.models.functions import Concat
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView, ListView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Q
+from django.db.models import Q, TextField
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
@@ -1008,3 +1009,59 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
         # clear the file in my object
         my_object.delete()
         return HttpResponseRedirect(reverse_lazy('herring:index'))
+
+
+
+# SAMPLER #
+###########
+
+class SamplerListView(HerringAdminAccessRequired, FilterView):
+    template_name = "herring/sampler_list.html"
+    filterset_class = filters.SamplerFilter
+    queryset = models.Sampler.objects.annotate(
+        search_term=Concat('first_name', 'last_name', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['my_object'] = models.Sampler.objects.first()
+        context["field_list"] = [
+            'first_name',
+            'last_name',
+            'notes',
+        ]
+        return context
+
+
+class SamplerDetailView(HerringAdminAccessRequired, DetailView):
+    model = models.Sampler
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'first_name',
+            'last_name',
+            'notes',
+        ]
+        return context
+
+
+class SamplerUpdateView(HerringAdminAccessRequired, UpdateView):
+    model = models.Sampler
+    form_class = forms.SamplerForm
+
+
+class SamplerCreateView(HerringAdminAccessRequired, CreateView):
+    model = models.Sampler
+    form_class = forms.SamplerForm
+
+
+class SamplerDeleteView(HerringAdminAccessRequired, DeleteView):
+    model = models.Sampler
+    permission_required = "__all__"
+    success_url = reverse_lazy('herring:sampler_list')
+    success_message = 'The sampler was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
