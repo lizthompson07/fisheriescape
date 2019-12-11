@@ -1,0 +1,68 @@
+{% extends "herring/herring_base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block header %}
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 600px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+
+        .label {
+            font-weight: bold;
+
+        }
+    </style>
+
+{% endblock header %}
+
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'herring:index' %}"> Home </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'herring:sampler_list' %}"> Samplers</a></li>
+            <li class="breadcrumb-item active" aria-current="page"> {{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <br>
+        <h1>{{ object }}</h1>
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'herring:sampler_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger {% if object.samples.count %}disabled{% endif %}" href="{% url 'herring:sampler_delete' object.id %}">Delete</a>
+        </div>
+
+        <br><br>
+        <div class="row">
+            <div class="col">
+                {# Detail about the station #}
+                {% for field in field_list %}
+                    {% verbose_field_display object field %}
+                {% endfor %}
+                <br>
+                <br>
+                <h3>List of Samples ({{ object.samples.count }}):</h3>
+                <ul>
+                    {% for s in object.samples.all %}
+                        <li>
+                            <a href="{% url 'herring:sample_detail' s.id %}">{{ s }}</a>
+                        </li>
+                    {% empty %}
+                        <em>no samples are associated with this sampler</em>
+                    {% endfor %}
+
+                </ul>
+
+
+        </div>
+    </div>
+
+{% endblock content %}
+
+
+
