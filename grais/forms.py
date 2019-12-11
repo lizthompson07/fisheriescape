@@ -283,7 +283,7 @@ class ReportSearchForm(forms.Form):
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     species = forms.MultipleChoiceField(required=False)
-    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (optional)")
+    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
