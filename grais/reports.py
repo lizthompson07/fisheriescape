@@ -582,20 +582,23 @@ def generate_open_data_ver_1_wms_report(year, lang):
 
 
 def generate_gc_cpue_report(year):
-    """
-    This is a view designed the analysis of green crab data.
-    :param year: int
-    :return: http response
-    """
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'grais', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'grais', 'temp', target_file)
 
-    filename = "{}_green_crab_CPUE_data.csv".format(year)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
 
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
-    writer = csv.writer(response)
+    # create formatting variables
+    header_format = workbook.add_format({'bold': True, "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'normal', "text_wrap": True, })
 
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name='sheet1')
+
+    # define the header
     header_row = [
         'Estuary',
         'Site',
@@ -606,81 +609,134 @@ def generate_gc_cpue_report(year):
         'Sex',
         'Width',
     ]
+    my_ws.write_row(0, 0, header_row, header_format)
 
-    writer.writerow(header_row)
+    i = 1
+    # create the col_max column to store the length of each header
+    # should be a maximum column width to 100
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header_row]
     for c in models.Crab.objects.filter(trap__sample__season=year, species_id=26):
         data_row = [
             c.trap.sample.site.estuary.name,
             c.trap.sample.site.code,
             c.trap.sample.id,
-            c.trap.sample.traps_set.strftime("%m/%d/%Y") if c.trap.sample.traps_set else "",
-            c.trap.sample.traps_fished.strftime("%m/%d/%Y") if c.trap.sample.traps_fished else "",
+            c.trap.sample.traps_set.strftime("%Y-%m-%d") if c.trap.sample.traps_set else "",
+            c.trap.sample.traps_fished.strftime("%Y-%m-%d") if c.trap.sample.traps_fished else "",
             c.trap.trap_number,
             c.get_sex_display(),
             c.width,
         ]
-        writer.writerow(data_row)
 
-    return response
+        # adjust the width of the columns based on the max string length in each col
+        ## replace col_max[j] if str length j is bigger than stored value
+
+        j = 0
+        for d in data_row:
+            # if new value > stored value... replace stored value
+            if len(str(d)) > col_max[j]:
+                if len(str(d)) < 75:
+                    col_max[j] = len(str(d))
+                else:
+                    col_max[j] = 75
+            j += 1
+
+        my_ws.write_row(i, 0, data_row, normal_format)
+        i += 1
+
+    # set column widths
+    for j in range(0, len(col_max)):
+        my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
 
 
 def generate_gc_envr_report(year):
-    """
-        This is a view designed the analysis of green crab data.
-        :param year: int
-        :return: http response
-        """
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'grais', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'grais', 'temp', target_file)
 
-    # determine the filename based on whether we are looking at all years vs. a single year
-    filename = "{}_green_crab_environmental_data.csv".format(year)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
 
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
-    writer = csv.writer(response)
+    # create formatting variables
+    header_format = workbook.add_format({'bold': True, "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'normal', "text_wrap": True, })
 
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name='sheet1')
+
+    # define the header
     header_row = [
         'Estuary',
         'Site',
         'Sample ID',
         'Date',
-        'Temp',
+        'Temperature (C)',
         'Salinity',
         'Tide description',
     ]
+    my_ws.write_row(0, 0, header_row, header_format)
 
-    writer.writerow(header_row)
+    i = 1
+    # create the col_max column to store the length of each header
+    # should be a maximum column width to 100
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header_row]
     for obj in models.GCProbeMeasurement.objects.filter(sample__season=year):
         data_row = [
             obj.sample.site.estuary.name,
             obj.sample.site.code,
             obj.sample.id,
-            obj.time_date.strftime("%m/%d/%Y") if obj.time_date else "",
+            obj.time_date.strftime("%Y-%m-%d") if obj.time_date else "",
             obj.temp_c,
             obj.sal,
             obj.tide_description,
         ]
-        writer.writerow(data_row)
 
-    return response
+        # adjust the width of the columns based on the max string length in each col
+        ## replace col_max[j] if str length j is bigger than stored value
+
+        j = 0
+        for d in data_row:
+            # if new value > stored value... replace stored value
+            if len(str(d)) > col_max[j]:
+                if len(str(d)) < 75:
+                    col_max[j] = len(str(d))
+                else:
+                    col_max[j] = 75
+            j += 1
+
+        my_ws.write_row(i, 0, data_row, normal_format)
+        i += 1
+
+    # set column widths
+    for j in range(0, len(col_max)):
+        my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
 
 
 def generate_gc_sites_report():
-    """
-        This is a view designed the analysis of green crab data.
-        :return: http response
-    """
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'grais', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'grais', 'temp', target_file)
 
-    # determine the filename based on whether we are looking at all years vs. a single year
-    filename = "green_crab_site_descriptions.csv"
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
 
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
-    writer = csv.writer(response)
+    # create formatting variables
+    header_format = workbook.add_format({'bold': True, "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'normal', "text_wrap": True, })
 
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name='sheet1')
+
+    # define the header
     header_row = [
         'Estuary name',
         'Estuary description',
@@ -688,22 +744,46 @@ def generate_gc_sites_report():
         'Site name',
         'Site code',
         'Site description',
-        'latitutde',
-        'longitude',
+        'Latitutde',
+        'Longitude',
     ]
+    my_ws.write_row(0, 0, header_row, header_format)
 
-    writer.writerow(header_row)
+    i = 1
+    # create the col_max column to store the length of each header
+    # should be a maximum column width to 100
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header_row]
     for obj in models.Site.objects.all():
         data_row = [
             obj.estuary.name,
             obj.estuary.description,
-            obj.estuary.province,
+            obj.estuary.province.abbrev_eng,
             obj.name,
             obj.code,
             obj.description,
             obj.latitude_n,
             obj.longitude_w,
         ]
-        writer.writerow(data_row)
 
-    return response
+        # adjust the width of the columns based on the max string length in each col
+        ## replace col_max[j] if str length j is bigger than stored value
+
+        j = 0
+        for d in data_row:
+            # if new value > stored value... replace stored value
+            if len(str(d)) > col_max[j]:
+                if len(str(d)) < 75:
+                    col_max[j] = len(str(d))
+                else:
+                    col_max[j] = 75
+            j += 1
+
+        my_ws.write_row(i, 0, data_row, normal_format)
+        i += 1
+
+    # set column widths
+    for j in range(0, len(col_max)):
+        my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
