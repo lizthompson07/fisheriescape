@@ -19,7 +19,7 @@ class SpeciesFilter(django_filters.FilterSet):
             'sara_status': ['exact'],
             'nb_status': ['exact'],
             'ns_status': ['exact'],
-            'pe_status': ['exact'],
+            'iucn_red_list_status': ['exact'],
             'sara_schedule': ['exact'],
             'province_range': ['exact'],
         }
@@ -29,10 +29,10 @@ class SpeciesFilter(django_filters.FilterSet):
         SARA = 1
         NS = 2
         NB = 3
-        PE = 4
+        IUCN = 5
         self.filters.get("nb_status").queryset = models.SpeciesStatus.objects.filter(used_for=NB)
         self.filters.get("ns_status").queryset = models.SpeciesStatus.objects.filter(used_for=NS)
-        self.filters.get("pe_status").queryset = models.SpeciesStatus.objects.filter(used_for=PE)
+        self.filters.get("iucn_red_list_status").queryset = models.SpeciesStatus.objects.filter(used_for=IUCN)
         self.filters.get("sara_status").queryset = models.SpeciesStatus.objects.filter(used_for=SARA)
         self.filters.get("cosewic_status").queryset = models.SpeciesStatus.objects.filter(used_for=SARA)
         self.filters.get("province_range").queryset = shared_models.Province.objects.filter(id__in=[7, 1, 3, 4])

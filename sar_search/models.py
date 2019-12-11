@@ -64,13 +64,13 @@ class SpeciesStatus(models.Model):
     SARA = 1
     NS = 2
     NB = 3
-    PE = 4
+    # PE = 4
     REDLIST = 5
     USED_FOR_CHOICES = (
         (SARA, "SARA / COSEWIC"),
         (NS, "Nova Scotia"),
         (NB, "New Brunswick"),
-        (PE, "Prince Edward Island"),
+        # (PE, "Prince Edward Island"),
         (REDLIST, "IUCN Red List"),
     )
 
@@ -191,8 +191,8 @@ class Species(models.Model):
                                   blank=True, null=True, limit_choices_to={"used_for": 2})
     nb_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='nb_spp', verbose_name=_("NB status"),
                                   blank=True, null=True, limit_choices_to={"used_for": 3})
-    pe_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='pe_spp', verbose_name=_("PEI status"),
-                                  blank=True, null=True, limit_choices_to={"used_for": 4})
+    # pe_status = models.ForeignKey(SpeciesStatus, on_delete=models.DO_NOTHING, related_name='pe_spp', verbose_name=_("PEI status"),
+    #                               blank=True, null=True, limit_choices_to={"used_for": 4})
     iucn_red_list_status = models.ForeignKey(SpeciesStatus, on_delete=models.CASCADE, related_name='iucn_spp',
                                              verbose_name=_("IUCN Red Flag status"), blank=True, null=True,
                                              limit_choices_to={"used_for": 5})
@@ -205,7 +205,8 @@ class Species(models.Model):
                                               verbose_name=_("responsible authority"),
                                               blank=True, null=True)
     province_range = models.ManyToManyField(shared_models.Province, blank=True)
-    notes = models.TextField(max_length=255, null=True, blank=True)
+    notes_eng = models.TextField(max_length=255, null=True, blank=True, verbose_name=_("notes (English)"))
+    notes_fra = models.TextField(max_length=255, null=True, blank=True, verbose_name=_("notes (French)"))
     temp_file = models.FileField(upload_to='temp_file', null=True)
 
     # metadata
@@ -239,8 +240,23 @@ class Species(models.Model):
         else:
             return getattr(self, str(_("common_name_eng")))
 
+    @property
+    def tname(self):
+        my_str = getattr(self, str(_("common_name_eng"))) if getattr(self, str(_("common_name_eng"))) else self.common_name_eng
+        return my_str
+
+    @property
+    def tpopulation(self):
+        my_str = getattr(self, str(_("population_eng"))) if getattr(self, str(_("population_eng"))) else self.population_eng
+        return my_str
+
+    @property
+    def tnotes(self):
+        my_str = getattr(self, str(_("notes_eng"))) if getattr(self, str(_("notes_eng"))) else self.notes_eng
+        return my_str
+
     class Meta:
-        ordering = ['common_name_eng']
+        ordering = ['common_name_eng',]
 
 
 @receiver(models.signals.post_delete, sender=Species)
@@ -291,6 +307,7 @@ class Record(models.Model):
     regions = models.ManyToManyField(Region, blank=True, related_name="records")
     record_type = models.IntegerField(verbose_name=_("record type"), choices=RANGE_TYPE_CHOICES)
     source = models.CharField(max_length=1000, verbose_name=_("source"))
+    year = models.IntegerField(verbose_name=_("source year"), blank=True, null=True)
     # temp_file = models.FileField(upload_to='temp_file', null=True)
 
     # metadata
@@ -298,7 +315,7 @@ class Record(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     def __str__(self):
-        return getattr(self, str(_("name"))) if getattr(self, str(_("name"))) else self.name
+        return self.name
 
     class Meta:
         ordering = ['species', 'name']
