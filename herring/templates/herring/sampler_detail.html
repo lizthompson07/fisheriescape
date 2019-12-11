@@ -50,7 +50,7 @@
                 <ul>
                     {% for s in object.samples.all %}
                         <li>
-                            <a href="{% url 'herring:sample_detail' s.id %}">{{ s }}</a>
+                            <a href="{% url 'herring:sample_detail' s.id %}" target="_blank">{{ s }}</a>
                         </li>
                     {% empty %}
                         <em>no samples are associated with this sampler</em>

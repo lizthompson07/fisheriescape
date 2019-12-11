@@ -900,7 +900,8 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                     my_sample.total_fish_preserved = nz(row.get("total_fish_preserved"), None)
                     my_sample.remarks = nz(row.get("remarks"), None)
                     my_sample.creation_date = datetime.strptime(row.get("creation_date"), "%Y-%m-%d %H:%M:%S%z")
-                    my_sample.last_modified_date = datetime.strptime(row.get("last_modified_date"), "%Y-%m-%d %H:%M:%S%z") if row.get("last_modified_date") else None
+                    my_sample.last_modified_date = datetime.strptime(row.get("last_modified_date"), "%Y-%m-%d %H:%M:%S%z") if row.get(
+                        "last_modified_date") else None
                     my_sample.created_by = self.request.user
                     my_sample.last_modified_by = self.request.user
                     my_sample.vessel_cfvn = nz(row.get("vessel_cfvn"), None)
@@ -942,7 +943,7 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                                 new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
                                 my_sample.sampler = new_sampler
                     else:
-                        herm_sampler = models.Sampler.objects.get(pk=29) # sampler = UNKNOWN
+                        herm_sampler = models.Sampler.objects.get(pk=29)  # sampler = UNKNOWN
 
                     # FISHING AREA
                     # since this is more fundamental, let's crush the script is not found
@@ -984,8 +985,8 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                     my_sample = models.Sample.objects.get(old_id=row.get("sample_uuid"))
                 except models.Sample.DoesNotExist:
                     messages.warning(self.request,
-                                   "Sample with uuid {} was not found in the hermorrhage db. This length frequecy will be skipped".format(
-                                       row.get("sample_uuid")))
+                                     "Sample with uuid {} was not found in the hermorrhage db. This length frequecy will be skipped".format(
+                                         row.get("sample_uuid")))
                 else:
                     my_lf, created = models.LengthFrequency.objects.get_or_create(
                         sample=my_sample,
@@ -1011,7 +1012,6 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
         return HttpResponseRedirect(reverse_lazy('herring:index'))
 
 
-
 # SAMPLER #
 ###########
 
@@ -1025,9 +1025,7 @@ class SamplerListView(HerringAdminAccessRequired, FilterView):
         context = super().get_context_data(**kwargs)
         context['my_object'] = models.Sampler.objects.first()
         context["field_list"] = [
-            'first_name',
-            'last_name',
-            'notes',
+            'full_name|Sampler name',
         ]
         return context
 
@@ -1049,10 +1047,17 @@ class SamplerUpdateView(HerringAdminAccessRequired, UpdateView):
     model = models.Sampler
     form_class = forms.SamplerForm
 
+    def get_success_url(self):
+        return reverse_lazy("herring:sampler_detail", kwargs={"pk": self.get_object().id})
+
 
 class SamplerCreateView(HerringAdminAccessRequired, CreateView):
     model = models.Sampler
     form_class = forms.SamplerForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("herring:sampler_detail", kwargs={"pk": my_object.id}))
 
 
 class SamplerDeleteView(HerringAdminAccessRequired, DeleteView):
@@ -1064,4 +1069,3 @@ class SamplerDeleteView(HerringAdminAccessRequired, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
