@@ -1369,15 +1369,33 @@ def export_open_data_ver1_wms(request, year, lang):
 
 
 def export_gc_cpue(request, year):
-    response = reports.generate_gc_cpue_report(year)
-    return response
+    file_url = reports.generate_gc_cpue_report(year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="{} green crab CPUE data.xlsx"'.format(year)
+            return response
+    raise Http404
 
 
 def export_gc_envr(request, year):
-    response = reports.generate_gc_envr_report(year)
-    return response
+    file_url = reports.generate_gc_envr_report(year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="{} green crab environmental data.xlsx"'.format(year)
+            return response
+    raise Http404
 
 
 def export_gc_sites(request):
-    response = reports.generate_gc_sites_report()
-    return response
+    file_url = reports.generate_gc_sites_report()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
+            return response
+    raise Http404

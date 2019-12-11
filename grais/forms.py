@@ -264,13 +264,17 @@ class ReportForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
-        (None, "---"),
+        (None, ""),
+        (None, "----- BIOFOULING ------"),
         (1, "Biofouling: Species observations by sample"),
-        (8, "Green Crab: Site descriptions (csv)"),
-        (6, "Green Crab: Fukui traps/CPUE data (csv)"),
-        (7, "Green Crab: Environmental data (csv)"),
+        (None, ""),
+        (None, "----- GREEN CRAB ------"),
+        (8, "Green Crab: Site descriptions (xlsx)"),
+        (6, "Green Crab: Fukui traps/CPUE data (xlsx)"),
+        (7, "Green Crab: Environmental data (xlsx)"),
+        (None, ""),
+        (None, "----- OPEN DATA ------"),
         (3, "OPEN DATA: Data dictionary (csv)"),
-        # (6, "OPEN DATA: Species list"),
         (4, "OPEN DATA: WMS report ENGLISH (csv)"),
         (5, "OPEN DATA: WMS report FRENCH (csv)"),
         (2, "OPEN DATA - Version 1: Biofouling monitoring program"),
