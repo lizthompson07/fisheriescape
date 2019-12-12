@@ -64,14 +64,62 @@
                     <tr>
                         {% if "program" in title|lower and form.instance.id %}
                             <td class="center-col">{{ form.instance.id }}</td>
+                        {% else %}
+                            {% if "program" in title|lower %}
+                                <td class="center-col"></td>
+                            {% endif %}
                         {% endif %}
                         {% for field in form %}
-                            <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
-                                {% bootstrap_field field size='small' show_label=False placeholder="" %}
-                            </td>
+
+                            {% if "program" in title|lower %}
+                                {% if "_fr" in field.name %}
+                                    {# DO NOTHING #}
+                                {% elif field.name == "national_responsibility_eng" %}
+                                    <td>
+                                        English:
+                                        {{ field }}
+                                        <br>
+                                        {% for field in form %}
+                                            {% if field.name == "national_responsibility_fra" %}
+                                                French:
+                                                {{ field }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% elif field.name == "regional_program_name_eng" %}
+                                    <td>
+                                        English:
+                                        {{ field }}
+                                        <br>
+                                        {% for field in form %}
+                                            {% if field.name == "regional_program_name_fra" %}
+                                                French:
+                                                {{ field }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% else %}
+
+                                    <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
+                                        {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                                    </td>
+                                {% endif %}
+
+
+                            {% else %}
+
+                                <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
+                                    {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                                </td>
+                            {% endif %}
                         {% endfor %}
                         {% if "program" in title|lower and form.instance.id %}
-                            <td class="center-col">{{ form.instance.projects.count }}</td>
+                            <td class="center-col">
+                                {{ form.instance.projects.count }}
+                                ({{ form.instance.regions }})
+
+
+                            </td>
                         {% endif %}
                         {% if form.instance.id %}
 
