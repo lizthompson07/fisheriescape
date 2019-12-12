@@ -1578,12 +1578,10 @@ def manage_programs(request):
     context = {}
     context["my_object"] = qs.first()
     context["field_list"] = [
-        'national_responsibility_eng',
-        'national_responsibility_fra',
+        'national_responsibility_eng|National responsibility',
         'program_inventory',
         'funding_source_and_type',
-        'regional_program_name_eng',
-        'regional_program_name_fra',
+        'regional_program_name_eng|Regional program name',
         'short_name',
         'is_core',
         'examples',

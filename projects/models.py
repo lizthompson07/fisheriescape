@@ -100,6 +100,11 @@ class Program2(models.Model):
     examples = models.CharField(max_length=255, blank=True, null=True)
 
     @property
+    def regions(self):
+        projects = self.projects.filter(section__isnull=False)
+        return listrify(list(set([str(p.section.division.branch.region) for p in projects])))
+
+    @property
     def tname(self):
         # check to see if a french value is given
         if getattr(self, str(_("regional_program_name_eng"))):
