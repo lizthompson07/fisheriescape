@@ -303,7 +303,7 @@ class Trip(models.Model):
                                                       verbose_name=_("rationale for individual attending multiple conferences"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
     multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
-        "rationale for multiple attendees at this event"))
+        "rationale for multiple travelers"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
