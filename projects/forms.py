@@ -75,10 +75,6 @@ class ProjectForm(forms.ModelForm):
             'sectional_dm',
             'meeting_notes',
         ]
-        labels = {
-            "programs": "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
-                                         _("mandatory - select multiple, if necessary"))
-        }
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
             "description": forms.Textarea(attrs=class_editable),
@@ -115,6 +111,8 @@ class ProjectForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = SECTION_CHOICES
+        self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
+                                         _("mandatory - select multiple, if necessary"))
 
 
 class ProjectSubmitForm(forms.ModelForm):
