@@ -246,7 +246,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'section',
             'first_name',
             'last_name',
-            'conference',
+            'conference.tname',
             'destination',
             'start_date',
             'end_date',
