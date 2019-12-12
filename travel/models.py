@@ -10,7 +10,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 
 from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
@@ -277,7 +277,7 @@ class Trip(models.Model):
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
                                null=True, blank=True)
-    trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
+    # trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True,
                                           null=True)
     destination = models.CharField(max_length=1000, verbose_name=_("destination location (city, province, country)"), blank=True,
@@ -340,6 +340,21 @@ class Trip(models.Model):
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
     parent_trip = models.ForeignKey("Trip", on_delete=models.CASCADE, related_name="children_trips", blank=True, null=True)
+
+    @property
+    def trip_title(self):
+        group_status = " - {}".format(gettext("Group Request")) if self.is_group_trip else ""
+
+        my_str = "{} {}{}".format(
+            self.first_name,
+            self.last_name,
+            group_status,
+        )
+        if self.conference:
+            my_str += " - {}".format(self.conference.tname)
+        if self.destination:
+            my_str += " - {}".format(self.destination)
+        return my_str
 
     def __str__(self):
         return "{}".format(self.trip_title)
@@ -419,9 +434,9 @@ class Trip(models.Model):
                 if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
                     my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
                         self._meta.get_field(cost).verbose_name,
-                        getattr(self, cost),
-                        getattr(self, "no_" + cost),
-                        getattr(self, cost + "_rate"),
+                        nz(getattr(self, cost),0),
+                        nz(getattr(self, "no_" + cost),0),
+                        nz(getattr(self, cost + "_rate"),0),
                     )
                 else:
                     my_str += "{}: ${:,.2f}; ".format(self._meta.get_field(cost).verbose_name, getattr(self, cost))

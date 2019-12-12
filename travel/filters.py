@@ -76,7 +76,7 @@ class TripFilter(django_filters.FilterSet):
         model = models.Trip
         fields = {
             'fiscal_year': ['exact'],
-            'trip_title': ['icontains'],
+            'conference': ['exact'],
             'status': ['exact'],
             'user': ['exact'],
         }
