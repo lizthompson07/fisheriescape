@@ -91,7 +91,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
             str(trip.region) if trip.region else "n/a",
             my_role,
             str(my_trip.reason) if my_trip.reason else "n/a",
-            my_trip.trip_title,
+            my_trip.conference.tname,
             my_trip.destination,
             my_trip.start_date.strftime("%d/%m/%Y"),
             my_trip.end_date.strftime("%d/%m/%Y"),

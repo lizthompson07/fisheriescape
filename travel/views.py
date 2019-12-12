@@ -110,7 +110,6 @@ trip_field_list = [
     'is_public_servant',
     'company_name',
     'region',
-    'trip_title',
     'departure_location',
     'destination',
     'start_date',
@@ -159,7 +158,6 @@ trip_group_field_list = [
     'status_string|{}'.format(_("Trip status")),
     'user',
     'section',
-    'trip_title',
     'destination',
     'start_date',
     'end_date',
@@ -203,7 +201,7 @@ reviewer_field_list = [
     'role',
     'status',
     'status_date',
-    'comments_html',
+    'comments_html|Comments',
 ]
 
 conf_field_list = [
@@ -248,7 +246,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'section',
             'first_name',
             'last_name',
-            'trip_title',
+            'conference',
             'destination',
             'start_date',
             'end_date',
@@ -278,7 +276,7 @@ class TripReviewListView(TravelAccessRequiredMixin, ListView):
             'is_group_trip',
             'first_name',
             'last_name',
-            'trip_title',
+            'conference',
             'destination',
             'start_date',
             'end_date',
@@ -311,7 +309,7 @@ class TripAdminApprovalListView(TravelAdminRequiredMixin, ListView):
             'is_group_trip',
             'first_name',
             'last_name',
-            'trip_title',
+            'conference',
             'destination',
             'start_date',
             'end_date',
@@ -656,7 +654,7 @@ class TripCloneUpdateView(TripUpdateView):
     def get_initial(self):
         my_object = models.Trip.objects.get(pk=self.kwargs["pk"])
         init = super().get_initial()
-        init["trip_title"] = "DUPLICATE OF: {}".format(my_object.trip_title)
+        # init["trip_title"] = "DUPLICATE OF: {}".format(my_object.trip_title)
         init["year"] = fiscal_year(sap_style=True, next=True)
         # init["created_by"] = self.request.user
         return init
