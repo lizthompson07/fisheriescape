@@ -47,6 +47,78 @@ class BudgetCode(models.Model):
         ordering = ['code', ]
 
 
+class ThematicGroup(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    sections = models.ManyToManyField(shared_models.Section)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class ActivityType(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class FundingSourceType(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    color = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class FundingSource(models.Model):
+    name = models.CharField(max_length=50)
+    nom = models.CharField(max_length=50, blank=True, null=True)
+    funding_source_type = models.ForeignKey(FundingSourceType, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            related_name="funding_sources")
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
 class Program(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
@@ -216,13 +288,13 @@ class Project(models.Model):
     project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                                 verbose_name=_("section"))
-    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("old program (retired field)"))
+    thematic_group = models.ForeignKey(ThematicGroup, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("thematic group"))
+    funding_sources = models.ManyToManyField(FundingSource, blank=True, verbose_name=_("Science funding source(s)"), related_name="projects")
     programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
     # details
     is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
-    # is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or non-negotiable?"), choices=is_negotiable_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"), limit_choices_to={"used_for": 1})
     is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding competitive?"))
@@ -237,7 +309,7 @@ class Project(models.Model):
     # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities"))
     # HTML field
-    deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables / activities"))
 
     # data
     #######
@@ -254,21 +326,27 @@ class Project(models.Model):
 
     # needs
     ########
+
+    # DELETE ME!! #
     regional_dm = models.NullBooleanField(
         verbose_name=_("Does the program require assistance of the branch data manager"))
+    # DELETE ME!! #
     # HTML field
     regional_dm_needs = models.TextField(blank=True, null=True,
                                          verbose_name=_("Describe assistance required from the branch data manager, if applicable"))
+    # DELETE ME!! #
     sectional_dm = models.NullBooleanField(verbose_name=_("Does the program require assistance of the section's data manager"))
     # HTML field
+    # DELETE ME!! #
     sectional_dm_needs = models.TextField(blank=True, null=True,
                                           verbose_name=_("Describe assistance required from the section data manager, if applicable"))
+
     # HTML field
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_(
                                          "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
     # HTML field
-    it_needs = models.TextField(blank=True, null=True, verbose_name=_("IT requirements (software, licenses, hardware)"))
+    it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     # HTML field
     chemical_needs = models.TextField(blank=True, null=True,
                                       verbose_name=_(
@@ -480,24 +558,6 @@ class Level(models.Model):
 
     def __str__(self):
         return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
-class FundingSource(models.Model):
-    name = models.CharField(max_length=50)
-    nom = models.CharField(max_length=50, blank=True, null=True)
-    color = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
