@@ -63,21 +63,50 @@
                                 {% url 'projects:my_project_list' as my_proj_url %}
                                 {% url 'projects:project_list' as all_proj_url %}
 
-
+                                <h3>
+                                    {% trans "Projects:" %}
+                                </h3>
                                 <h4>
-                                    {% blocktrans %}
-                                        Click
-                                        <a href="{{ new_proj_url }}">HERE</a> to create a new project.
-                                        <br><br>
-                                        To view or edit an existing project, go to <a href="{{ my_proj_url }}">Your
-                                        Projects</a>.
-                                        <br><br>
-                                        For a list of all project in the branch, go to <a href="{{ all_proj_url }}">All
-                                        Projects</a>.
 
-                                    {% endblocktrans %}
+                                    <ul>
+                                        <li>
+                                            <a href="{{ new_proj_url }}">
+                                                {% trans "New" %}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ my_proj_url }}">
+                                                {% trans "Your List" %} ({{ user.staff_instances.count }})
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ all_proj_url }}">
+                                                {% trans "Explore" %}
+                                            </a>
+                                        </li>
+                                    </ul>
 
-                                    <br><br>
+                                    <h3>
+                                        {% trans "Sections Under You:" %}
+                                    </h3>
+                                    <h4>
+                                        <ul>
+                                            <li>Section A</li>
+                                            <li>Section B</li>
+                                        </ul>
+                                    </h4>
+                                    <h3>
+                                        {% trans "Regional Views:" %}
+                                    </h3>
+                                    <h4>
+                                        <ul>
+                                            <li>
+                                                <a href="/">
+                                                    2019-2020 Gulf Region Interactive Workplan
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </h4>
 
 
                                 </h4>
@@ -172,7 +201,7 @@
                             <br>
                             <li>
                                 2020-2021
-                                <a href="{% url 'projects:ips_program_list' 1 2021  %}">
+                                <a href="{% url 'projects:ips_program_list' 1 2021 %}">
                                     Interactive Project Summary
                                 </a>
                                 for the Gulf Region Workingplanning Meeting

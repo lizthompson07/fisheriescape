@@ -126,6 +126,10 @@ urlpatterns = [
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
 
+    path('settings/thematic-groups/', views.manage_thematic_groups, name="manage_thematic_groups"),
+    path('settings/thematic-group/<int:pk>/delete/', views.delete_thematic_group, name="delete_thematic_group"),
+
+
     path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
     path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),
     path('admin/project-program/<int:pk>/edit/<str:qry>/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),

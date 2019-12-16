@@ -251,9 +251,9 @@ def financial_summary_data(project):
     context["gc_total"] = gc_total
 
     # import color schemes from funding_source table
-    context["abase"] = models.FundingSource.objects.get(pk=1).color
-    context["bbase"] = models.FundingSource.objects.get(pk=2).color
-    context["cbase"] = models.FundingSource.objects.get(pk=3).color
+    context["abase"] = models.FundingSourceType.objects.get(pk=1).color
+    context["bbase"] = models.FundingSourceType.objects.get(pk=2).color
+    context["cbase"] = models.FundingSourceType.objects.get(pk=3).color
 
     return context
 
@@ -282,6 +282,33 @@ project_field_list = [
     'regional_dm_needs',
     # 'sectional_dm',
     'sectional_dm_needs',
+    'vehicle_needs',
+    'it_needs',
+    'chemical_needs',
+    'ship_needs',
+    'coding|Known financial coding',
+    'last_modified_by',
+    'date_last_modified',
+]
+
+gulf_field_list = [
+    'id',
+    'year',
+    'section',
+    'project_title',
+    'activity_type',
+    'thematic_group',
+    'default_funding_source',
+    'is_national',
+    'status',
+    'start_date',
+    'end_date',
+    'description',
+    'priorities',
+    'deliverables',
+    'data_collection',
+    'data_sharing',
+    'data_storage',
     'vehicle_needs',
     'it_needs',
     'chemical_needs',
@@ -464,8 +491,13 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        project = self.object
-        context["field_list"] = project_field_list
+        project = self.get_object()
+
+        # If this is a gulf region project, only show the gulf region fields
+        if project.section.division.branch.region.id == 1:
+            context["field_list"] = gulf_field_list
+        else:
+            context["field_list"] = project_field_list
         context["files"] = project.files.all()
 
         # bring in financial summary data
@@ -1589,6 +1621,43 @@ def manage_programs(request):
     context['title'] = "Manage Programs"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
+
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_thematic_group(request, pk):
+    my_obj = models.ThematicGroup.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_thematic_groups"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_thematic_groups(request):
+    qs = models.ThematicGroup.objects.all()
+    if request.method == 'POST':
+        formset = forms.ThematicGroupFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_thematic_groups"))
+    else:
+        formset = forms.ThematicGroupFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'sections',
+    ]
+    context['title'] = "Manage Thematic Groups (Gulf Region)"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
 
 
 class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
@@ -2778,6 +2847,7 @@ class IPSProjectUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
                 "fiscal_year": my_object.year.id,
                 "section": my_object.section.id,
             }))
+
 
 # SECTION NOTE #
 ################

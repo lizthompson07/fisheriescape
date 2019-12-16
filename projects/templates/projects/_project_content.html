@@ -31,11 +31,11 @@
             <tr>
                 <th>{% get_verbose_label object field %}</th>
                 <td>
-                {% if object.programs.count > 0 %}
-                    {% get_field_value object field %}
-                {% else %}
-                    <span class="red-font blink-me">{% trans "MISSING PROGRAM INFORMATION" %}</span>
-                {% endif %}
+                    {% if object.programs.count > 0 %}
+                        {% get_field_value object field %}
+                    {% else %}
+                        <span class="red-font blink-me">{% trans "MISSING PROGRAM INFORMATION" %}</span>
+                    {% endif %}
                 </td>
             </tr>
         {% else %}
@@ -44,10 +44,13 @@
     {% endfor %}
     {% verbose_td_display object "section_head_approved" %}
     {% verbose_td_display object "section_head_feedback" %}
-    {% verbose_td_display object "manager_approved" %}
-    {% verbose_td_display object "manager_feedback" %}
-    {% verbose_td_display object "rds_approved" %}
-    {% verbose_td_display object "rds_feedback" %}
+
+    {% if project.section.division.branch.region.id != 1 %}
+        {% verbose_td_display object "manager_approved" %}
+        {% verbose_td_display object "manager_feedback" %}
+        {% verbose_td_display object "rds_approved" %}
+        {% verbose_td_display object "rds_feedback" %}
+    {% endif %}
 </table>
 <hr>
 

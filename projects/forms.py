@@ -26,13 +26,23 @@ YESNO_CHOICES = (
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField(label=_("Region"))
     division = forms.ChoiceField()
-    field_order = ['year', 'project_title', 'region', 'division', 'section']
+    field_order = [
+        'year',
+        'project_title',
+        'activity_type',
+        'default_funding_source',
+        'region',
+        'division',
+        'section'
+    ]
 
     class Meta:
         model = models.Project
         fields = [
             'year',
             'project_title',
+            'activity_type',
+            'default_funding_source',
             'section',
             'last_modified_by',
         ]
@@ -113,6 +123,23 @@ class ProjectForm(forms.ModelForm):
         self.fields['section'].choices = SECTION_CHOICES
         self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
                                          _("mandatory - select multiple, if necessary"))
+
+        thematic_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.thematic_groups.all() ]
+        thematic_group_choices.insert(0, tuple((None, "---")))
+        self.fields['thematic_group'].choices = thematic_group_choices
+
+        if kwargs.get("instance").section.division.branch.region.id == 1:
+            del self.fields["programs"]
+            del self.fields["tags"]
+            del self.fields["is_competitive"]
+            del self.fields["is_approved"]
+            del self.fields["metadata_url"]
+            del self.fields["regional_dm_needs"]
+            del self.fields["sectional_dm_needs"]
+            del self.fields["feedback"]
+        else:
+            del self.fields["activity_type"]
+            del self.fields["thematic_group"]
 
 
 class ProjectSubmitForm(forms.ModelForm):
@@ -545,6 +572,32 @@ ProgramFormSet = modelformset_factory(
     form=ProgramForm,
     extra=1,
 )
+
+
+class ThematicGroupForm(forms.ModelForm):
+    class Meta:
+        model = models.ThematicGroup
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={"rows": 3}),
+            'nom': forms.Textarea(attrs={"rows": 3}),
+            'sections': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+    def __init__(self, *args, **kwargs):
+        section_choices = views.get_section_choices(all=False)
+
+        super().__init__(*args, **kwargs)
+        self.fields['sections'].choices = section_choices
+
+
+ThematicGroupFormSet = modelformset_factory(
+    model=models.ThematicGroup,
+    form=ThematicGroupForm,
+    extra=1,
+)
+
 
 
 class LevelForm(forms.ModelForm):
