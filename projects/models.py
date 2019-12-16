@@ -79,7 +79,7 @@ class ActivityType(models.Model):
             return "{}".format(self.name)
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ['id', ]
 
 
 class FundingSourceType(models.Model):
