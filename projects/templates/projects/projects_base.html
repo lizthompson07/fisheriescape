@@ -29,24 +29,27 @@
             {% trans "Projects" %}
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-{#            <a class="dropdown-item" href="{% url 'projects:manage_programs' %}">#}
-{#                {% trans "Manage Programs" %}#}
-{#            </a>#}
-            <a class="dropdown-item" href="{% url 'projects:project_list' %}">
-                {% trans "All" %}
+            {#            <a class="dropdown-item" href="{% url 'projects:manage_programs' %}">#}
+            {#                {% trans "Manage Programs" %}#}
+            {#            </a>#}
+            <a class="dropdown-item" href="{% url 'projects:project_new' %}">
+                {% trans "New" %}
             </a>
             <a class="dropdown-item" href="{% url 'projects:my_project_list' %}">
-                {% trans "My Projects" %}
+                {% trans "Your List" %}
             </a>
-            <a class="dropdown-item" href="{% url 'projects:my_section_list' %}">
-                {% trans "My Section" %}
+            {#            <a class="dropdown-item" href="{% url 'projects:my_section_list' %}">#}
+            {#                {% trans "My Section" %}#}
+            {#            </a>#}
+            {#            <a class="dropdown-item" href="{% url 'projects:my_division_list' %}">#}
+            {#                {% trans "My Division" %}#}
+            {#            </a>#}
+            <a class="dropdown-item" href="{% url 'projects:project_list' %}">
+                {% trans "Explore" %}
             </a>
-            <a class="dropdown-item" href="{% url 'projects:my_division_list' %}">
-                {% trans "My Division" %}
-            </a>
-            <a class="dropdown-item" href="{% url 'projects:my_branch_list' %}">
-                {% trans "My Branch" %}
-            </a>
+            {#            <a class="dropdown-item" href="{% url 'projects:my_branch_list' %}">#}
+            {#                {% trans "My Branch" %}#}
+            {#            </a>#}
         </div>
     </li>
 
@@ -93,6 +96,9 @@
                     </a>
                     <a class="dropdown-item" href="{% url 'projects:manage_programs' %}">
                         {% trans "Manage Programs" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:manage_thematic_groups' %}">
+                        {% trans "Manage Thematic Groups" %}
                     </a>
 
                     <a class="dropdown-item" href="{% url 'projects:admin_staff_list' %}">

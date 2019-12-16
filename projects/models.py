@@ -50,7 +50,7 @@ class BudgetCode(models.Model):
 class ThematicGroup(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
-    sections = models.ManyToManyField(shared_models.Section)
+    sections = models.ManyToManyField(shared_models.Section, related_name="thematic_groups")
 
     def __str__(self):
         # check to see if a french value is given
@@ -103,20 +103,19 @@ class FundingSourceType(models.Model):
 class FundingSource(models.Model):
     name = models.CharField(max_length=50)
     nom = models.CharField(max_length=50, blank=True, null=True)
-    funding_source_type = models.ForeignKey(FundingSourceType, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                            related_name="funding_sources")
+    funding_source_type = models.ForeignKey(FundingSourceType, on_delete=models.DO_NOTHING, related_name="funding_sources")
 
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
+            my_str = "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.name)
+            my_str = "{}".format(self.name)
+        return "{} - {}".format(str(self.funding_source_type), my_str)
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ['funding_source_type', 'name', ]
 
 
 class Program(models.Model):
@@ -275,21 +274,17 @@ class Project(models.Model):
         (True, _("National")),
         (False, _("Regional")),
     )
-    # choices for is_negotiable
-    is_negotiable_choices = (
-        (None, _("Unknown")),
-        (True, _("Negotiable")),
-        (False, _("Non-negotiable")),
-    )
 
     year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                              verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
     # basic
-    project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects",
                                 verbose_name=_("section"))
+    project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
+    activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("activity type"))
     thematic_group = models.ForeignKey(ThematicGroup, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("thematic group"))
-    funding_sources = models.ManyToManyField(FundingSource, blank=True, verbose_name=_("Science funding source(s)"), related_name="projects")
+    default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                               verbose_name=_("default funding source"))
     programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
@@ -577,7 +572,8 @@ class Staff(models.Model):
     lead = models.BooleanField(default=False, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
     funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="staff_members",
                                        verbose_name=_("funding source"), default=1)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
+                             related_name="staff_instances")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True,
                             null=True)
     level = models.ForeignKey(Level, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("level"))

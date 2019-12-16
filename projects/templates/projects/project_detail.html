@@ -125,11 +125,13 @@
 
             {% endfor %}
             {% verbose_td_display object "section_head_approved" %}
-            {% verbose_td_display object "section_head_feedback" %}
-            {% verbose_td_display object "manager_approved" %}
-            {% verbose_td_display object "manager_feedback" %}
-            {% verbose_td_display object "rds_approved" %}
-            {% verbose_td_display object "rds_feedback" %}
+            {% if project.section.division.branch.region.id != 1 %}
+                {% verbose_td_display object "section_head_feedback" %}
+                {% verbose_td_display object "manager_approved" %}
+                {% verbose_td_display object "manager_feedback" %}
+                {% verbose_td_display object "rds_approved" %}
+                {% verbose_td_display object "rds_feedback" %}
+            {% endif %}
         </table>
 
         <br>
