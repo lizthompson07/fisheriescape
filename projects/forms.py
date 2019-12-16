@@ -563,7 +563,7 @@ LevelFormSet = modelformset_factory(
 class TempForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ["project_title", "program", "programs", "tags"]
+        fields = ["project_title", "programs", "tags"]
         widgets = {
             'programs': forms.SelectMultiple(attrs=chosen_js),
             'tags': forms.SelectMultiple(attrs=chosen_js),
