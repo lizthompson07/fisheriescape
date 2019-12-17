@@ -1,0 +1,109 @@
+{% extends 'scifi/scifi_base.html' %}
+
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+
+{% block content %}
+    <style>
+        table, td, th {
+            border: black 1px solid;
+            font-size: small;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .red-font {
+            color: red;
+            font-weight: bold;
+
+        }
+
+    </style>
+
+    <script>
+        window.resizeTo(width = 1800, height = 800);
+    </script>
+    <div class="container-fluid">
+
+        <h1>
+            {% trans "Transaction CSV import form:" %}
+        </h1>
+        <ul>
+            <li>
+                {% trans "the file must be in csv format" %}
+            </li>
+            <li>
+                {% trans "each line of the csv will be imported as a NEW transaction record" %}
+            </li>
+            <li>
+                {% trans "the text of the column headers must exactly match the below format; this includes capitalization of the header text" %}
+            </li>
+            <li>
+                {% trans "the order of the columns in the file is not important" %}
+            </li>
+            <li>
+                Here is a copy of the template that can be used to populate transactions:
+                <br><br>
+                <a href="{% static 'scifi/scifi_template.csv' %}">
+                    <img src="{% static 'img/icons/csv.svg' %}" alt="" width="40px">
+                    Download here
+                </a>
+
+            </li>
+
+        </ul>
+        <table style="width: auto">
+            <thead>
+            {% for h in header_dict %}
+                <th>{{ h }}</th>
+            {% endfor %}
+            </thead>
+            <tr>
+                {% for h in header_dict %}
+                    <td>
+                        {% with header_dict|lookup:h as my_list %}
+
+                            <ul>
+                                {% for item in my_list %}
+                                    <li>
+                                        {{ item }}
+
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                        {% endwith %}
+                    </td>
+                {% endfor %}
+            </tr>
+
+
+        </table>
+
+        <br><br>
+
+        <form method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+
+                {#                <h2 class="red-font">WARNING: running this function will overwrite any existing points in this record.</h2>#}
+                <h3>Please select the file to upload:</h3>
+                {{ field }}
+            {% endfor %}
+
+            <br>
+            <br>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-success">{% trans "Submit" %}</button>
+                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+            </div>
+
+        </form>
+
+    </div>
+
+{% endblock content %}
