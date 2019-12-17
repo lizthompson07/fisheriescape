@@ -24,16 +24,20 @@
             <div class="col-7">
 
                 <div class="jumbotron">
-                    <h1 class="three-em">
-                        {% trans "Science Project Planning Application" %}
-                    </h1>
+                    <div class="row">
+                        <div class="col">
+                            <h1 class="three-em">
+                                {% trans "Science Project Planning Application" %}
+                            </h1>
+                        </div>
+                        <div class="col-2">
+                            <img src="{% static '/img/icons/scope.svg' %}" alt="" width="100px">
+                        </div>
+                    </div>
                     <hr>
                     <h3>
                         {#                        {% trans "Science Project Planning " %}#}
                     </h3>
-                    <div class="float-right">
-                        <img src="{% static '/img/icons/scope.svg' %}" alt="" width="200px">
-                    </div>
                     {% if user.is_authenticated %}
                         <br>
                     {% else %}
@@ -58,15 +62,14 @@
 
 
                         {% if user.is_authenticated %}
-                            <div align="">
-                                {% url 'projects:project_new' as new_proj_url %}
-                                {% url 'projects:my_project_list' as my_proj_url %}
-                                {% url 'projects:project_list' as all_proj_url %}
-
-                                <h3>
-                                    {% trans "Projects:" %}
-                                </h3>
-                                <h4>
+                            {% url 'projects:project_new' as new_proj_url %}
+                            {% url 'projects:my_project_list' as my_proj_url %}
+                            {% url 'projects:project_list' as all_proj_url %}
+                            <div class="row">
+                                <div class="col-2">
+                                    <h4>
+                                        {% trans "Projects:" %}
+                                    </h4>
 
                                     <ul>
                                         <li>
@@ -85,20 +88,26 @@
                                             </a>
                                         </li>
                                     </ul>
-
-                                    <h3>
-                                        {% trans "Sections Under You:" %}
-                                    </h3>
-                                    <h4>
+                                </div>
+                                {% if section_list.count %}
+                                    <div class="col">
+                                        <h4>
+                                            {% trans "Sections Under You:" %}
+                                        </h4>
                                         <ul>
-                                            <li>Section A</li>
-                                            <li>Section B</li>
+                                            {% for section in section_list %}
+                                                <li>
+                                                    <a href="#">
+                                                        {{ section }} {% if section in user.shared_models_sections.all %}(You are section head) {% endif %}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
                                         </ul>
-                                    </h4>
-                                    <h3>
-                                        {% trans "Regional Views:" %}
-                                    </h3>
-                                    <h4>
+                                    </div>
+                                    <div class="col">
+                                        <h4>
+                                            {% trans "Regional Views:" %}
+                                        </h4>
                                         <ul>
                                             <li>
                                                 <a href="/">
@@ -106,11 +115,10 @@
                                                 </a>
                                             </li>
                                         </ul>
-                                    </h4>
+                                    </div>
+                                    </div>
+                                {% endif %}
 
-
-                                </h4>
-                            </div>
                         {% else %}
                             <br>    <br>
                         {% endif %}
