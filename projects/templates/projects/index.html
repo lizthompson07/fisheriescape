@@ -66,7 +66,7 @@
                             {% url 'projects:my_project_list' as my_proj_url %}
                             {% url 'projects:project_list' as all_proj_url %}
                             <div class="row">
-                                <div class="col-2">
+                                <div class="col-3">
                                     <h4>
                                         {% trans "Projects:" %}
                                     </h4>
@@ -79,45 +79,69 @@
                                         </li>
                                         <li>
                                             <a href="{{ my_proj_url }}">
-                                                {% trans "Your List" %} ({{ user.staff_instances.count }})
+                                                {% trans "Your Projects" %} ({{ user.staff_instances.count }})
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{ all_proj_url }}">
-                                                {% trans "Explore" %}
+                                                {% trans "Explore Projects" %}
                                             </a>
                                         </li>
                                     </ul>
                                 </div>
-                                {% if section_list.count %}
-                                    <div class="col">
-                                        <h4>
-                                            {% trans "Sections Under You:" %}
-                                        </h4>
-                                        <ul>
-                                            {% for section in section_list %}
+                                <div class="col">
+                                    {% if section_list.count %}
+                                        <div class="mb-5">
+                                            <h4>
+                                                {% trans "Regional Views:" %}
+                                            </h4>
+                                            <ul>
                                                 <li>
-                                                    <a href="#">
-                                                        {{ section }} {% if section in user.shared_models_sections.all %}(You are section head) {% endif %}
+                                                    <a href="/">
+                                                        2019-2020 Gulf Region Interactive Workplan
                                                     </a>
                                                 </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                    <div class="col">
-                                        <h4>
-                                            {% trans "Regional Views:" %}
-                                        </h4>
-                                        <ul>
-                                            <li>
-                                                <a href="/">
-                                                    2019-2020 Gulf Region Interactive Workplan
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    </div>
-                                {% endif %}
+                                            </ul>
+                                        </div>
+                                        <div class="mb-5">
+
+                                            <h4>
+                                                {% trans "Your Sections:" %}
+                                            </h4>
+                                            <ul>
+                                                {% for section in user.shared_models_sections.all %}
+                                                    <li>
+                                                        <a href="{% url 'projects:section_list' section.id %}">
+                                                            {{ section }}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+
+                                        {% if section_list.count > user.shared_models_sections.count %}
+
+                                            <div class="mb-5">
+                                                <h4>
+                                                    {% trans "Other Sections Opened to You:" %}
+                                                </h4>
+                                                <ul>
+                                                    {% for section in section_list %}
+                                                        {% if section not in user.shared_models_sections.all %}
+                                                            <li>
+                                                                <a href="{% url 'projects:section_list' section.id %}">
+                                                                    {{ section.full_name }}
+                                                                </a>
+                                                            </li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+
+                                    {% endif %}
+                                </div>
+                            </div>
 
                         {% else %}
                             <br>    <br>

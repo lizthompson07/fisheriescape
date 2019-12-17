@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load custom_filters %}
 {% load i18n %}
+{% load verbose_names %}
 
 {% block content %}
     {% get_current_language as LANG %}
@@ -77,80 +78,117 @@
         </div>
         <table class="table table-hover table-sm sortable">
             <thead>
-            <th scope="col" style="text-align: center">
-                {% trans "Submitted" %}
-            </th>
-            <th scope="col" style="width: 100px">
-                {% trans "Fiscal Year" %}
-            </th>
-            <th scope="col">
-                {% trans "Region" %}
-            </th>
-            <th scope="col">
-                {% trans "Division" %}
-            </th>
-            <th scope="col">
-                {% trans "Section" %}
-            </th>
-            <th scope="col" style="width: 30%">
-                {% trans "Title" %}
-            </th>
-            <th scope="col">
-                {% trans "Is the Project Hidden?" %}
-            </th>
-            <th scope="col" style="width: 100px">
-                {% trans "Project Lead?" %}
-            </th>
-            <th scope="col">
-                {% trans "Role" %}
-            </th>
-            <th scope="col" style="width: 100px">
-                {% trans "No. weeks" %}
-            </th>
-            <th scope="col" style="text-align: center">
-                {% trans "Section Head Approved" %}
-            </th>
-            <th scope="col" style="text-align: center">
-                {% trans "Status Reports" %}
-            </th>
+            {% for field in project_field_list %}
+                <th>
+                    {% get_verbose_label project_list.first field %}
+                </th>
+            {% endfor %}
+            {##}
+            {##}
+            {#            <th scope="col" style="text-align: center">#}
+            {#                {% trans "Submitted" %}#}
+            {#            </th>#}
+            {#            <th scope="col" style="width: 100px">#}
+            {#                {% trans "Fiscal Year" %}#}
+            {#            </th>#}
+            {#            <th scope="col">#}
+            {#                {% trans "Region" %}#}
+            {#            </th>#}
+            {#            <th scope="col">#}
+            {#                {% trans "Division" %}#}
+            {#            </th>#}
+            {#            <th scope="col">#}
+            {#                {% trans "Section" %}#}
+            {#            </th>#}
+            {#            <th scope="col" style="width: 30%">#}
+            {#                {% trans "Title" %}#}
+            {#            </th>#}
+            {#            <th scope="col">#}
+            {#                {% trans "Is the Project Hidden?" %}#}
+            {#            </th>#}
+            {#            <th scope="col" style="width: 100px">#}
+            {#                {% trans "Project Lead?" %}#}
+            {#            </th>#}
+            {#            <th scope="col">#}
+            {#                {% trans "Role" %}#}
+            {#            </th>#}
+            {#            <th scope="col" style="width: 100px">#}
+            {#                {% trans "No. weeks" %}#}
+            {#            </th>#}
+            {#            <th scope="col" style="text-align: center">#}
+            {#                {% trans "Section Head Approved" %}#}
+            {#            </th>#}
+            {#            <th scope="col" style="text-align: center">#}
+            {#                {% trans "Status Reports" %}#}
+            {#            </th>#}
             </thead>
 
             <tbody>
 
-            {% for obj in object_list %}
-                <tr href="{% url 'projects:project_detail' obj.project.id %}" class="{% if not obj.project.submitted %}red-font{% endif %}">
-                    <td class="" style="text-align:center">{{ obj.project.submitted|yesno:_("yes,no") }}</td>
-                    <td>{{ obj.project.year }}</td>
-                    {% if LANG == "fr" %}
-                        <td>{{ obj.project.section.division.branch.region.nom }}</td>
-                        <td>{{ obj.project.section.division.nom }}</td>
-                        <td>{{ obj.project.section.nom }}</td>
-                    {% else %}
-                        <td>{{ obj.project.section.division.branch.region.name }}</td>
-                        <td>{{ obj.project.section.division.name }}</td>
-                        <td>{{ obj.project.section.name }}</td>
-                    {% endif %}
-                    <td>
-                        {{ obj.project.project_title }}
-                    </td>
-                    <td class="{% if obj.project.is_hidden %} highlight{% endif %}">
-                        {{ obj.project.is_hidden|yesno }}
-                    </td>
-                    <td class="">{{ obj.lead|yesno }}</td>
-                    <td>{{ obj.employee_type }}</td>
-                    <td>{{ obj.duration_weeks|nz:"----" }}</td>
+            {% for obj in project_list %}
+                <tr href="{% url 'projects:project_detail' obj.id %}" class="{% if not obj.submitted %}red-font{% endif %}">
 
+                    {% for field in project_field_list %}
+                        {% if "lead" in field %}
+                            <td>
+                                {% if user in obj.project_leads_as_users %}
+                                    {% trans "Yes" %}
+                                {% else %}
+                                    {% trans "No" %}
+                                {% endif %}
 
-                    <td class="{% if obj.project.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
-                        {{ obj.project.section_head_approved|yesno:_("yes,no") }}<br>
-                    </td>
-                    <td class="center-col">
-                        {% if obj.project.submitted %}
-                            {{ obj.project.reports.count }} (<a class="stop-pop" href="{% url 'projects:report_new' obj.project.id  %}">New</a>)
+                            </td>
+                        {% elif "status" in field %}
+                            <td class="">
+                                {% if obj.submitted %}
+                                    {{ obj.reports.count }} (
+                                    <a class="stop-pop" href="{% url 'projects:report_new' obj.id %}">New</a>)
+                                {% else %}
+                                    ----
+                                {% endif %}
+                            </td>
+                        {% elif "section|" in field %}
+                            <td class="">{{ obj.section }} ({{ obj.section.division.branch.region }})</td>
                         {% else %}
-                            ----
+                            <td>
+                                {% get_field_value obj field %}
+                            </td>
                         {% endif %}
-                    </td>
+                    {% endfor %}
+
+                    {#                    <td class="" style="text-align:center">{{ obj.project.submitted|yesno:_("yes,no") }}</td>#}
+                    {#                    <td>{{ obj.project.year }}</td>#}
+                    {#                    {% if LANG == "fr" %}#}
+                    {#                        <td>{{ obj.project.section.division.branch.region.nom }}</td>#}
+                    {#                        <td>{{ obj.project.section.division.nom }}</td>#}
+                    {#                        <td>{{ obj.project.section.nom }}</td>#}
+                    {#                    {% else %}#}
+                    {#                        <td>{{ obj.project.section.division.branch.region.name }}</td>#}
+                    {#                        <td>{{ obj.project.section.division.name }}</td>#}
+                    {#                        <td>{{ obj.project.section.name }}</td>#}
+                    {#                    {% endif %}#}
+                    {#                    <td>#}
+                    {#                        {{ obj.project.project_title }}#}
+                    {#                    </td>#}
+                    {#                    <td class="{% if obj.project.is_hidden %} highlight{% endif %}">#}
+                    {#                        {{ obj.project.is_hidden|yesno }}#}
+                    {#                    </td>#}
+                    {#                    <td class="">{{ obj.lead|yesno }}</td>#}
+                    {#                    <td>{{ obj.employee_type }}</td>#}
+                    {#                    <td>{{ obj.duration_weeks|nz:"----" }}</td>#}
+                    {##}
+                    {##}
+                    {#                    <td class="{% if obj.project.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">#}
+                    {#                        {{ obj.project.section_head_approved|yesno:_("yes,no") }}<br>#}
+                    {#                    </td>#}
+                    {#                    <td class="center-col">#}
+                    {#                        {% if obj.project.submitted %}#}
+                    {#                            {{ obj.project.reports.count }} (#}
+                    {#                            <a class="stop-pop" href="{% url 'projects:report_new' obj.project.id %}">New</a>)#}
+                    {#                        {% else %}#}
+                    {#                            ----#}
+                    {#                        {% endif %}#}
+                    {#                    </td>#}
 
                 </tr>
             {% endfor %}

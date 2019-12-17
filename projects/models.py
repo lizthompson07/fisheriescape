@@ -395,6 +395,14 @@ class Project(models.Model):
         return reverse('projects:project_detail', kwargs={'pk': self.pk})
 
     @property
+    def approved(self):
+        return self.submitted and self.section_head_approved
+
+    @property
+    def unapproved(self):
+        return self.submitted and not self.section_head_approved
+
+    @property
     def coding(self):
         if self.responsibility_center:
             rc = self.responsibility_center.code
@@ -416,6 +424,10 @@ class Project(models.Model):
     @property
     def project_leads(self):
         return listrify([staff for staff in self.staff_members.all() if staff.lead])
+
+    @property
+    def project_leads_as_users(self):
+        return [staff.user for staff in self.staff_members.all() if staff.lead and staff.user]
 
     @property
     def core_status(self):

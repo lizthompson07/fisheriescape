@@ -1,0 +1,95 @@
+{% extends "projects/projects_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% block content %}
+
+    {% get_current_language as LANG %}
+
+    <style>
+        table, td {
+            font-size: 14px;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:index' %}">
+                    {% trans "Home" %}
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ object_list.first.section }}
+            </li>
+        </ol>
+    </nav>
+
+
+    <div class="container-fluid">
+        <h1>
+            {{ object_list.first.section }}
+        </h1>
+        <div class="">
+            <form class="form" action="." method="get" id="filter-form">
+                <div class="row">
+                    {% for field in filter.form %}
+                        <div class="col-2">{% bootstrap_field field placeholder="" size="small" %}</div>
+                    {% endfor %}
+                    <div class="col"><br><input type="submit" value="Filter" class="btn btn-warning btn-sm"></div>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h5>{% trans "Submitted & Approved Projects" %} ({{ approved_projects.count }})</h5>
+                <ol>
+                    {% for object in approved_projects %}
+                        <li><a href="#">
+                            {{ object }}
+                        </a></li>
+                    {% empty %}
+                        <em>{% trans "None" %}</em>
+                    {% endfor %}
+
+                </ol>
+            </div>
+            {% if unapproved_projects.count %}
+                <div class="col">
+                    <h5 class="red-font">{% trans "Submitted & Unapproved Projects" %} ({{ unapproved_projects.count }})</h5>
+                    <ol>
+                        {% for object in unapproved_projects %}
+                            <li><a href="#">
+                                {{ object }}
+                            </a></li>
+                        {% empty %}
+                            <em>{% trans "None" %}</em>
+                        {% endfor %}
+
+                    </ol>
+                </div>
+            {% endif %}
+            {% if unsubmitted_projects.count %}
+                <div class="col">
+                    <h5 class="red-font">{% trans "Unsubmitted Projects" %} ({{ unsubmitted_projects.count }})</h5>
+                    <ol>
+                        {% for object in unsubmitted_projects %}
+                            <li><a href="#">
+                                {{ object }}
+                            </a></li>
+                        {% empty %}
+                            <em>{% trans "None" %}</em>
+                        {% endfor %}
+
+                    </ol>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+{% endblock %}
