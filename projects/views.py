@@ -383,31 +383,31 @@ class IndexTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         section_id_list = []
-        # are they section heads?
-        section_id_list.extend([section.id for section in self.request.user.shared_models_sections.all()])
+        if self.request.user.id:
+            if self.request.user.groups.filter(name="projects_admin").count() > 0:
+                section_id_list = [project.section_id for project in models.Project.objects.all()]
+                section_list = shared_models.Section.objects.filter(id__in=section_id_list)
+            else:
+                # are they section heads?
+                section_id_list.extend([section.id for section in self.request.user.shared_models_sections.all()])
 
-        # are they a division manager?
-        if self.request.user.shared_models_divisions.count() > 0:
-            for division in self.request.user.shared_models_divisions.all():
-                for section in division.sections.all():
-                    section_id_list.append(section.id)
+                # are they a division manager?
+                if self.request.user.shared_models_divisions.count() > 0:
+                    for division in self.request.user.shared_models_divisions.all():
+                        for section in division.sections.all():
+                            section_id_list.append(section.id)
 
-        # are they an RDS?
-        if self.request.user.shared_models_branches.count() > 0:
-            for branch in self.request.user.shared_models_branches.all():
-                for division in branch.divisions.all():
-                    for section in division.sections.all():
-                        section_id_list.append(section.id)
+                # are they an RDS?
+                if self.request.user.shared_models_branches.count() > 0:
+                    for branch in self.request.user.shared_models_branches.all():
+                        for division in branch.divisions.all():
+                            for section in division.sections.all():
+                                section_id_list.append(section.id)
 
-        section_id_set = set([s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
-
-        context["section_list"] = shared_models.Section.objects.filter(id__in=section_id_set)
+                section_id_set = set([s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
+                section_list = shared_models.Section.objects.filter(id__in=section_id_set)
+            context["section_list"] = section_list
         return context
-
-
-
-
-
 
 
 # PROJECTS #
@@ -446,7 +446,46 @@ class MyProjectListView(LoginRequiredMixin, ListView):
 
         context["weeks_dict"] = weeks_dict
         context["fy_list"] = fiscal_year_list
-        print(weeks_dict)
+
+        context["project_list"] = models.Project.objects.filter(
+            id__in=[s.project.id for s in self.request.user.staff_instances.all()]
+        )
+
+        context["project_field_list"] = [
+            "submitted|{}".format("Is submitted"),
+            "year",
+            "section|Section",
+            "project_title",
+            "is_hidden|is this a hidden project?",
+            "is_lead|{}?".format("Are you a project lead"),
+            "section_head_approved",
+            "status_report|{}".format("Status reports"),
+        ]
+
+        return context
+
+class SectionListView(LoginRequiredMixin, FilterView):
+    login_url = '/accounts/login_required/'
+    template_name = 'projects/section_project_list.html'
+    filterset_class = filters.SectionFilter
+
+    def get_queryset(self):
+        return models.Project.objects.filter(section_id=self.kwargs.get("section")).order_by('-year', 'section__division', 'section',
+                                                                                       'project_title')
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {"year": fiscal_year(next=True, sap_style=True) }
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object_list = context.get("object_list")
+        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
+        context['approved_projects'] = object_list.filter(section_head_approved=True, submitted=True)
+        context['unapproved_projects'] = object_list.filter(section_head_approved=False, submitted=True)
+        context['unsubmitted_projects'] = object_list.filter(submitted=False)
         return context
 
 
@@ -510,7 +549,9 @@ class MyBranchListView(LoginRequiredMixin, FilterView):
 class ProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
-    queryset = models.Project.objects.filter(is_hidden=False).order_by('-year', 'section__division', 'section', 'project_title')
+    queryset = models.Project.objects.filter(
+        is_hidden=False, submitted=True,
+    ).order_by('-year', 'section__division', 'section', 'project_title')
     filterset_class = filters.ProjectFilter
 
 
@@ -1652,7 +1693,6 @@ def manage_programs(request):
     return render(request, 'projects/manage_settings_small.html', context)
 
 
-
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def delete_thematic_group(request, pk):
@@ -1685,8 +1725,6 @@ def manage_thematic_groups(request):
     context['title'] = "Manage Thematic Groups (Gulf Region)"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
-
-
 
 
 class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
