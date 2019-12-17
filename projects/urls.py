@@ -12,6 +12,7 @@ urlpatterns = [
     ############
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
     path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
+    path('section/<int:section>/', views.SectionListView.as_view(), name="section_list"),
     path('my-division/', views.MyDivisionListView.as_view(), name="my_division_list"),
     path('my-branch/', views.MyBranchListView.as_view(), name="my_branch_list"),
     path('all/', views.ProjectListView.as_view(), name="project_list"),
