@@ -380,6 +380,35 @@ class CloserTemplateView(TemplateView):
 class IndexTemplateView(TemplateView):
     template_name = 'projects/index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        section_id_list = []
+        # are they section heads?
+        section_id_list.extend([section.id for section in self.request.user.shared_models_sections.all()])
+
+        # are they a division manager?
+        if self.request.user.shared_models_divisions.count() > 0:
+            for division in self.request.user.shared_models_divisions.all():
+                for section in division.sections.all():
+                    section_id_list.append(section.id)
+
+        # are they an RDS?
+        if self.request.user.shared_models_branches.count() > 0:
+            for branch in self.request.user.shared_models_branches.all():
+                for division in branch.divisions.all():
+                    for section in division.sections.all():
+                        section_id_list.append(section.id)
+
+        section_id_set = set([s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
+
+        context["section_list"] = shared_models.Section.objects.filter(id__in=section_id_set)
+        return context
+
+
+
+
+
+
 
 # PROJECTS #
 ############
