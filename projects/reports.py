@@ -17,6 +17,10 @@ import os
 
 
 def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
+
+    # Upson, P - used by those weird Maritimes people because they have to be different <insert eye roll>
+    mar_id = shared_model.Region.objects.get(name="Maritimes").pk
+
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
     target_file = "temp_export.xlsx"
@@ -112,7 +116,10 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
 
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
+        if regions == str(mar_id):
+            project_list = s.projects.filter(year=fiscal_year, submitted=True)
+        else:
+            project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
 
         # get a list of programs..
         program_id_list = []
@@ -436,7 +443,10 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
+        if regions == str(mar_id):
+            project_list = s.projects.filter(year=fiscal_year, submitted=True, programs__is_core=False)
+        else:
+            project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
 
         for project in project_list:
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
@@ -547,8 +557,12 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
 
     i += 1
     for division in list(set(division_list)):
-        project_list = models.Project.objects.filter(section__division=division).filter(
-            year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
+        if regions == str(mar_id):
+            project_list = models.Project.objects.filter(section__division=division).filter(
+                year=fiscal_year, submitted=True, programs__is_core=False)
+        else:
+            project_list = models.Project.objects.filter(section__division=division).filter(
+                year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
         print(project_list)
         j = 9
         # worksheet2.write(i, j, division.name, summary_right_format)
@@ -636,7 +650,10 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False))
+        if regions == str(mar_id):
+            project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False))
+        else:
+            project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False))
 
         for project in project_list:
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
