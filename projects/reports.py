@@ -111,6 +111,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
+
         project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
 
         # get a list of programs..
@@ -1093,7 +1094,12 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             header = [
                 "Project Id",
                 verbose_field_name(collaborator_list[0], 'name'),
-                verbose_field_name(collaborator_list[0], 'type'),
+
+                # Upson, P - 2019/12/18
+                # I think 'type' must have been removed from the Collaborator model at some point
+                # This line throws a "FieldDoesNotExist" error
+                # verbose_field_name(collaborator_list[0], 'type'),
+
                 verbose_field_name(collaborator_list[0], 'critical'),
                 verbose_field_name(collaborator_list[0], 'notes'),
             ]
@@ -1109,7 +1115,10 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 data_row = [
                     item.project.id,
                     item.name,
-                    item.get_type_display(),
+                    # Upson, P - 2019/12/18
+                    # I think 'type' must have been removed from the Collaborator model at some point
+                    # This line throws a "FieldDoesNotExist" error
+                    # item.get_type_display(),
                     item.critical,
                     item.notes,
                 ]
