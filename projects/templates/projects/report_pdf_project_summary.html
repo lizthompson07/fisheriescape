@@ -64,7 +64,7 @@
 
 
 {# list of projects by section #}
-<h1>{{ fy }} Submitted and Approved Projects </h1>
+<h1>{{ fy }} Submitted{% if approved %} and Approved{% endif %} Projects </h1>
 {% for division in division_list %}
     <h2>
         <u>
