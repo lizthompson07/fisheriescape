@@ -102,7 +102,7 @@
 
     <h1>{{ fy }} Financial Summary</h1>
 
-    <table>
+    <table class="table">
         <thead>
         <tr>
             <th rowspan="2" style="width: 75px">Division</th>
@@ -134,104 +134,163 @@
         <tbody>
         {% for division in division_list %}
             {% for section in division.sections.all %}
-                <tr>
-                    {% if forloop.counter == 1 %}
-                        <td rowspan="
+            <tr>
+                {% if forloop.counter == 1 %}
+                <td rowspan="
+                    {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}
+                    ">{{ division }}</td>
+                {% endif %}
+                <td>{{ section }}</td>
+{% with summary_section=financial_summary_data|lookup:"sections"|lookup:section.id %}
+                <td style="text-align: center">{% with val=summary_section|lookup:"salary_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"om_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"capital_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
 
+                <td style="text-align: center">{% with val=summary_section|lookup:"salary_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"om_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"capital_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
 
+                <td style="text-align: center">{% with val=summary_section|lookup:"salary_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"om_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"capital_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
 
-                                {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">{{ division }}</td>
-                    {% endif %}
-                    <td>{{ section }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_abase"|zero2val:na|kmark:"1,True" }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_abase"|zero2val:na|kmark:"1,True" }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_abase"|zero2val:na|kmark:"1,True" }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_bbase"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_bbase"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_bbase"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_cbase"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_cbase"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_cbase"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"salary_total"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"om_total"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"capital_total"|zero2val:na|kmark:"1,True"}}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"students"|nz:0|floatformat:0|zero2val:na }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"casuals"|nz:0|floatformat:0|zero2val:na }}</td>
-                    <td style="text-align: center">{{ financial_summary_data|lookup:"sections"|lookup:section.id|lookup:"OT"|nz:0|floatformat:1|zero2val:na }}</td>
-                </tr>
+                <td style="text-align: center">{% with val=summary_section|lookup:"salary_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"om_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"capital_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+
+                <td style="text-align: center">{% with val=summary_section|lookup:"students" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"casuals" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na}}{% endwith %}</td>
+                <td style="text-align: center">{% with val=summary_section|lookup:"OT" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:1|zero2val:na}}{% endwith %}</td>
+{% endwith %}
+            </tr>
             {% endfor %}
             {% if division.sections.count > 0 %}
                 <tr>
                     <td class="total"><em>SUB-TOTAL</em></td>
+{% with summary_division=financial_summary_data|lookup:"divisions"|lookup:division.id %}
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_abase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"salary_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_abase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"om_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_abase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"capital_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_bbase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"salary_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_bbase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"om_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_bbase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"capital_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_cbase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"salary_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_cbase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"om_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_cbase"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"capital_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"salary_total"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"salary_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"om_total"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"om_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"capital_total"|zero2val:na|kmark:"1,True"}}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"capital_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"students"|nz:0|floatformat:0|zero2val:na }}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"students" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"casuals"|nz:0|floatformat:0|zero2val:na }}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"casuals" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na}}{% endwith %}</td>
                     <td class="total"
-                        style="text-align: center">{{ financial_summary_data|lookup:"divisions"|lookup:division.id|lookup:"OT"|nz:0|floatformat:1|zero2val:na }}</td>
+                        style="text-align: center">{% with val=summary_division|lookup:"OT" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:1|zero2val:na}}{% endwith %}</td>
+{% endwith %}
                 </tr>
             {% endif %}
         {% endfor %}
         <tr>
             <td colspan="2" class="total">TOTAL</td>
+{% with summary_total=financial_summary_data|lookup:"total" %}
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_abase"|zero2val:na|kmark:"1,True"}}</td>
+                style="text-align: center">{% with val=summary_total|lookup:"salary_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_abase"|zero2val:na|kmark:"1,True"}}</td>
+                style="text-align: center">{% with val=summary_total|lookup:"om_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_abase"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_bbase"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_bbase"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_bbase"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_cbase"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_cbase"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_cbase"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"salary_total"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"om_total"|zero2val:na|kmark:"1,True"}}</td>
-            <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"capital_total"|zero2val:na|kmark:"1,True"}}</td>
+                style="text-align: center">{% with val=summary_total|lookup:"capital_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
 
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"students"|nz:0|floatformat:0|zero2val:na }}</td>
+                style="text-align: center">{% with val=summary_total|lookup:"salary_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"casuals"|nz:0|floatformat:0|zero2val:na }}</td>
+                style="text-align: center">{% with val=summary_total|lookup:"om_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
             <td class="total"
-                style="text-align: center">{{ financial_summary_data|lookup:"total"|lookup:"OT"|nz:0|floatformat:1|zero2val:na }}</td>
+                style="text-align: center">{% with val=summary_total|lookup:"capital_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"salary_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"om_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"capital_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"salary_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"om_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"capital_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True"}}{% endwith %}</td>
+
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"students" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na}}{% endwith %}</td>
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"casuals" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na}}{% endwith %}</td>
+            <td class="total"
+                style="text-align: center">{% with val=summary_total|lookup:"OT" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:1|zero2val:na}}{% endwith %}</td>
+{% endwith %}
         </tr>
         </tbody>
-
 
     </table>
 
