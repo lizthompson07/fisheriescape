@@ -141,8 +141,9 @@ class ProjectManagerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         else:
             project_id = self.kwargs.get("project")
         project = models.Project.objects.get(pk=project_id)
-        if is_section_head(self.request.user, project) or is_division_manager(self.request.user, project) or is_rds(self.request.user,
-                                                                                                                    project):
+        if is_section_head(self.request.user, project) or is_division_manager(self.request.user, project) or is_rds(
+                self.request.user,
+                project):
             return True
 
     def dispatch(self, request, *args, **kwargs):
@@ -316,7 +317,8 @@ def get_section_choices(all=False, full_name=True):
 
 def get_division_choices(all=False):
     if all:
-        division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices(all=True)])
+        division_list = set(
+            [shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices(all=True)])
     else:
         division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices()])
     q_objects = Q()  # Create an empty Q object to start with
@@ -332,7 +334,8 @@ def get_division_choices(all=False):
 
 def get_region_choices(all=False):
     if all:
-        region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices(all=True)])
+        region_list = set(
+            [shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices(all=True)])
     else:
         region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices()])
     q_objects = Q()  # Create an empty Q object to start with
@@ -400,7 +403,8 @@ class MySectionListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MySectionFilter
 
     def get_queryset(self):
-        return models.Project.objects.filter(section__head=self.request.user).order_by('-year', 'section__division', 'section',
+        return models.Project.objects.filter(section__head=self.request.user).order_by('-year', 'section__division',
+                                                                                       'section',
                                                                                        'project_title')
 
     def get_context_data(self, **kwargs):
@@ -419,7 +423,9 @@ class MyDivisionListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MySectionFilter
 
     def get_queryset(self):
-        return models.Project.objects.filter(section__division__head=self.request.user).order_by('-year', 'section__division', 'section',
+        return models.Project.objects.filter(section__division__head=self.request.user).order_by('-year',
+                                                                                                 'section__division',
+                                                                                                 'section',
                                                                                                  'project_title')
 
     def get_context_data(self, **kwargs):
@@ -438,7 +444,8 @@ class MyBranchListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.MySectionFilter
 
     def get_queryset(self):
-        return models.Project.objects.filter(section__division__branch__head=self.request.user).order_by('-year', 'section__division',
+        return models.Project.objects.filter(section__division__branch__head=self.request.user).order_by('-year',
+                                                                                                         'section__division',
                                                                                                          'section',
                                                                                                          'project_title')
 
@@ -447,14 +454,16 @@ class MyBranchListView(LoginRequiredMixin, FilterView):
         context['type'] = _("branch")
         context['fy_form'] = forms.FYForm(user=self.request.user.id)
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['has_section'] = models.Project.objects.filter(section__division__branch__head=self.request.user).count() > 0
+        context['has_section'] = models.Project.objects.filter(
+            section__division__branch__head=self.request.user).count() > 0
         return context
 
 
 class ProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
-    queryset = models.Project.objects.filter(is_hidden=False).order_by('-year', 'section__division', 'section', 'project_title')
+    queryset = models.Project.objects.filter(is_hidden=False).order_by('-year', 'section__division', 'section',
+                                                                       'project_title')
     filterset_class = filters.ProjectFilter
 
 
@@ -1219,7 +1228,8 @@ class FileCreateView(ProjectLeadRequiredMixin, CreateView):
 
     def get_initial(self):
         project = models.Project.objects.get(pk=self.kwargs['project'])
-        status_report = models.StatusReport.objects.get(pk=self.kwargs['status_report']) if self.kwargs.get('status_report') else None
+        status_report = models.StatusReport.objects.get(pk=self.kwargs['status_report']) if self.kwargs.get(
+            'status_report') else None
 
         return {
             'project': project,
@@ -1584,7 +1594,8 @@ def manage_programs(request):
 
 class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
     template_name = 'projects/admin_staff_list.html'
-    queryset = models.Staff.objects.filter(user__isnull=True).order_by('-project__year', 'project__section__division', 'project__section',
+    queryset = models.Staff.objects.filter(user__isnull=True).order_by('-project__year', 'project__section__division',
+                                                                       'project__section',
                                                                        'project__project_title')
     filterset_class = filters.StaffFilter
 
@@ -1619,7 +1630,8 @@ class AdminProjectProgramUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse("projects:admin_project_program_list") + "?" + nz(self.kwargs.get("qry"), ""))
+        return HttpResponseRedirect(
+            reverse("projects:admin_project_program_list") + "?" + nz(self.kwargs.get("qry"), ""))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2016,18 +2028,22 @@ class PDFReportTemplate(LoginRequiredMixin, PDFTemplateView):
         ## next look at the divisions arg; if not null, we don't need anything else
         elif self.kwargs["regions"] != "None":
             self.region_list = shared_models.Region.objects.filter(id__in=self.kwargs["regions"].split(","))
-            self.division_list = shared_models.Division.objects.filter(branch__region__in=self.region_list, branch__id__in=[1, 3])
+            self.division_list = shared_models.Division.objects.filter(branch__region__in=self.region_list,
+                                                                       branch__id__in=[1, 3])
             self.section_list = shared_models.Section.objects.filter(division__in=self.division_list)
 
         mar_id = shared_models.Region.objects.get(name="Maritimes").pk
 
         # there will always be a section list so let's use that to generate a project list
         if self.kwargs["regions"] == str(mar_id):
+            # exclude the TEMPORARY FOR SORTING for Mike and Shelly sections
+            self.section_list = self.section_list.exclude(pk=60).exclude(pk=59)
+            context['excluded_sections'] = [60, 59]
             self.project_list = models.Project.objects.filter(year=fy, submitted=True,
-                                                         section_id__in=self.section_list).order_by("id")
+                                                              section_id__in=self.section_list).order_by("id")
         else:
             self.project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
-                                                         section_id__in=self.section_list).order_by("id")
+                                                              section_id__in=self.section_list).order_by("id")
             context["approved"] = True
 
         context["fy"] = fy
@@ -2051,7 +2067,8 @@ class PDFProjectSummaryReport(PDFReportTemplate):
         context["object_list"] = self.project_list
         context["field_list"] = project_field_list
         context["division_list"] = [shared_models.Division.objects.get(pk=item["section__division"]) for item in
-                                    self.project_list.values("section__division").order_by("section__division").distinct()]
+                                    self.project_list.values("section__division").order_by(
+                                        "section__division").distinct()]
         # bring in financial summary data for each project:
         context["financial_summary_data"] = {}
         context["financial_summary_data"]["sections"] = {}
@@ -2076,10 +2093,13 @@ class PDFProjectSummaryReport(PDFReportTemplate):
 
         for project in self.project_list:
             context["financial_summary_data"][project.id] = financial_summary_data(project)
-            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(employee_type=4).count()
-            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(employee_type=3).count()
-            context["financial_summary_data"][project.id]["OT"] = nz(project.staff_members.values("overtime_hours").order_by(
-                "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"], 0)
+            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(
+                employee_type=4).count()
+            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(
+                employee_type=3).count()
+            context["financial_summary_data"][project.id]["OT"] = nz(
+                project.staff_members.values("overtime_hours").order_by(
+                    "overtime_hours").aggregate(dsum=Sum("overtime_hours"))["dsum"], 0)
 
             # for sections
             try:
@@ -2091,7 +2111,8 @@ class PDFProjectSummaryReport(PDFReportTemplate):
                     context["financial_summary_data"]["sections"][project.section.id][key] = 0
             finally:
                 for key in key_list:
-                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][
+                    context["financial_summary_data"]["sections"][project.section.id][key] += \
+                    context["financial_summary_data"][project.id][
                         key]
 
             # for Divisions
@@ -2121,16 +2142,19 @@ class PDFProjectSummaryReport(PDFReportTemplate):
                         context["financial_summary_data"][project.id][key]
 
         # get a list of the capital requests
-        context["capital_list"] = [capital_cost for project in self.project_list for capital_cost in project.capital_costs.all()]
+        context["capital_list"] = [capital_cost for project in self.project_list for capital_cost in
+                                   project.capital_costs.all()]
 
         # get a list of the G&Cs
         context["gc_list"] = [gc for project in self.project_list for gc in project.gc_costs.all()]
 
         # get a list of the collaborators
-        context["collaborator_list"] = [collaborator for project in self.project_list for collaborator in project.collaborators.all()]
+        context["collaborator_list"] = [collaborator for project in self.project_list for collaborator in
+                                        project.collaborators.all()]
 
         # get a list of the agreements
-        context["agreement_list"] = [agreement for project in self.project_list for agreement in project.agreements.all()]
+        context["agreement_list"] = [agreement for project in self.project_list for agreement in
+                                     project.agreements.all()]
 
         return context
 
@@ -2354,7 +2378,8 @@ class PDFOTSummaryReport(PDFReportTemplate):
                     # create a sub sub dict for the section
 
                     if self.kwargs['regions'] == str(mar_id):
-                        self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True, section=section)
+                        self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
+                                                                          section=section)
                     else:
                         self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
                                                                           section_head_approved=True, section=section)
@@ -2375,11 +2400,14 @@ class PDFOTSummaryReport(PDFReportTemplate):
                     for program in program_list:
 
                         if self.kwargs['regions'] == str(mar_id):
-                            self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True, section=section,
-                                                                         programs=program)
+                            self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
+                                                                              section=section,
+                                                                              programs=program)
                         else:
-                            self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True, section_head_approved=True, section=section,
-                                                                         programs=program)
+                            self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
+                                                                              section_head_approved=True,
+                                                                              section=section,
+                                                                              programs=program)
 
                         ot = models.Staff.objects.filter(
                             project__in=self.project_list, overtime_hours__isnull=False,
@@ -2413,7 +2441,8 @@ class PDFCostSummaryReport(PDFReportTemplate):
 
         context["object_list"] = self.project_list
         context["division_list"] = [shared_models.Division.objects.get(pk=item["section__division"]) for item in
-                                    self.project_list.values("section__division").order_by("section__division").distinct()]
+                                    self.project_list.values("section__division").order_by(
+                                        "section__division").distinct()]
         # bring in financial summary data for each project:
         context["financial_summary_data"] = {}
         context["financial_summary_data"]["sections"] = {}
@@ -2437,8 +2466,10 @@ class PDFCostSummaryReport(PDFReportTemplate):
 
         for project in self.project_list:
             context["financial_summary_data"][project.id] = financial_summary_data(project)
-            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(employee_type=4).count()
-            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(employee_type=3).count()
+            context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(
+                employee_type=4).count()
+            context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(
+                employee_type=3).count()
 
             # for sections
             try:
@@ -2450,7 +2481,8 @@ class PDFCostSummaryReport(PDFReportTemplate):
                     context["financial_summary_data"]["sections"][project.section.id][key] = 0
             finally:
                 for key in key_list:
-                    context["financial_summary_data"]["sections"][project.section.id][key] += context["financial_summary_data"][project.id][
+                    context["financial_summary_data"]["sections"][project.section.id][key] += \
+                    context["financial_summary_data"][project.id][
                         key]
 
             # for Divisions
