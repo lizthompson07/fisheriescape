@@ -10,7 +10,7 @@
 <h4>
     {% trans "Status Reports:" %}
 </h4>
-{% if not report_mode %}
+{% if can_edit or is_lead %}
     <a class="btn btn-sm btn-primary" href="#"
        onclick="return popitup('{% url 'projects:report_new' object.id %}','popoutWindow')">
         {% trans "Add Report" %}
@@ -56,7 +56,9 @@
         </tr>
         <tbody>
         {% for obj in object.reports.all %}
-            <tr {% if not report_mode %}data-toggle="tooltip" title="Edit" href="{% url 'projects:report_edit' obj.id %}" pop{% endif %}>
+            <tr {% if can_edit or is_lead %}
+                data-toggle="tooltip" title="Edit" href="{% url 'projects:report_edit' obj.id %}" pop
+            {% endif %}>
                 <td>{{ obj.report_number }}</td>
                 <td>{{ obj.created_by }}</td>
                 <td>{{ obj.status }}</td>

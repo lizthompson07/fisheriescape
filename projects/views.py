@@ -90,20 +90,39 @@ def is_rds(user, project):
 
 
 def can_modify_project(user, project_id):
-    """returns True if user has permissions to delete or modify a project"""
+    """
+    returns True if user has permissions to delete or modify a project
+
+    The answer of this question will depend on whether the project is submitted. Project leads cannot edit a submitted project
+    """
     if user.id:
         project = models.Project.objects.get(pk=project_id)
 
         # check to see if a superuser or projects_admin -- both are allow to modify projects
-        if user.is_superuser or "projects_admin" in [g.name for g in user.groups.all()]:
+        if "projects_admin" in [g.name for g in user.groups.all()]:
             return True
 
+        # check to see if they are a section head, div. manager or RDS
+        if is_section_head(user, project) or is_division_manager(user, project) or is_rds(user, project):
+            return True
+
+        # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are a project lead
-        if user in [staff.user for staff in project.staff_members.filter(lead=True)]:
+        if not project.submitted and \
+                user in [staff.user for staff in project.staff_members.filter(lead=True)]:
             return True
 
-        # check to see if they are a section head
-        if is_section_head(user, project):
+
+def is_admin_or_project_manager(user, project):
+    """returns True if user is either in 'projects_admin' group OR if they are a manager of the project (section head, div. manager, RDS)"""
+    if user.id:
+
+        # check to see if a superuser or projects_admin -- both are allow to modify projects
+        if "projects_admin" in [g.name for g in user.groups.all()]:
+            return True
+
+        # check to see if they are a section head, div. manager or RDS
+        if is_section_head(user, project) or is_division_manager(user, project) or is_rds(user, project):
             return True
 
 
@@ -131,7 +150,7 @@ class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ProjectManagerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class ManagerOrAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
@@ -141,8 +160,7 @@ class ProjectManagerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         else:
             project_id = self.kwargs.get("project")
         project = models.Project.objects.get(pk=project_id)
-        if is_section_head(self.request.user, project) or is_division_manager(self.request.user, project) or is_rds(self.request.user,
-                                                                                                                    project):
+        if is_admin_or_project_manager(self.request.user, project):
             return True
 
     def dispatch(self, request, *args, **kwargs):
@@ -152,17 +170,29 @@ class ProjectManagerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ManagerOrAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class CanModifyProjectRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return is_management_or_admin(self.request.user)
+        # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
+        try:
+            obj = self.get_object()
+        except AttributeError:
+            project_id = self.kwargs.get("project")
+        else:
+            try:
+                project_id = getattr(obj, "project").id
+            except AttributeError:
+                project_id = obj.id
+        finally:
+            return can_modify_project(self.request.user, project_id)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_section_heads_only'))
+            return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
         return super().dispatch(request, *args, **kwargs)
+
 
 
 def financial_summary_data(project):
@@ -185,21 +215,21 @@ def financial_summary_data(project):
         # exclude full time employees
         if not staff.employee_type.exclude_from_rollup:
             # if the staff member is being paid from bbase...
-            if staff.funding_source.id == 1:
+            if staff.funding_source.funding_source_type.id == 1:
                 # if salary
                 if staff.employee_type.cost_type is 1:
                     salary_abase += nz(staff.cost, 0)
                 # if o&M
                 elif staff.employee_type.cost_type is 2:
                     om_abase += nz(staff.cost, 0)
-            elif staff.funding_source.id == 2:
+            elif staff.funding_source.funding_source_type.id == 2:
                 # if salary
                 if staff.employee_type.cost_type is 1:
                     salary_bbase += nz(staff.cost, 0)
                 # if o&M
                 elif staff.employee_type.cost_type is 2:
                     om_bbase += nz(staff.cost, 0)
-            elif staff.funding_source.id == 3:
+            elif staff.funding_source.funding_source_type.id == 3:
                 # if salary
                 if staff.employee_type.cost_type is 1:
                     salary_cbase += nz(staff.cost, 0)
@@ -209,20 +239,20 @@ def financial_summary_data(project):
 
     # O&M costs
     for cost in project.om_costs.all():
-        if cost.funding_source.id == 1:
+        if cost.funding_source.funding_source_type.id == 1:
             om_abase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.id == 2:
+        elif cost.funding_source.funding_source_type.id == 2:
             om_bbase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.id == 3:
+        elif cost.funding_source.funding_source_type.id == 3:
             om_cbase += nz(cost.budget_requested, 0)
 
     # Capital costs
     for cost in project.capital_costs.all():
-        if cost.funding_source.id == 1:
+        if cost.funding_source.funding_source_type.id == 1:
             capital_abase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.id == 2:
+        elif cost.funding_source.funding_source_type.id == 2:
             capital_bbase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.id == 3:
+        elif cost.funding_source.funding_source_type.id == 3:
             capital_cbase += nz(cost.budget_requested, 0)
 
     # g&c costs
@@ -464,6 +494,7 @@ class MyProjectListView(LoginRequiredMixin, ListView):
 
         return context
 
+
 class SectionListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/section_project_list.html'
@@ -471,12 +502,12 @@ class SectionListView(LoginRequiredMixin, FilterView):
 
     def get_queryset(self):
         return models.Project.objects.filter(section_id=self.kwargs.get("section")).order_by('-year', 'section__division', 'section',
-                                                                                       'project_title')
+                                                                                             'project_title')
 
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
         if kwargs["data"] is None:
-            kwargs["data"] = {"year": fiscal_year(next=True, sap_style=True) }
+            kwargs["data"] = {"year": fiscal_year(next=True, sap_style=True)}
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -508,44 +539,6 @@ class MySectionListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class MyDivisionListView(LoginRequiredMixin, FilterView):
-    login_url = '/accounts/login_required/'
-    template_name = 'projects/my_section_list.html'
-    filterset_class = filters.MySectionFilter
-
-    def get_queryset(self):
-        return models.Project.objects.filter(section__division__head=self.request.user).order_by('-year', 'section__division', 'section',
-                                                                                                 'project_title')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['type'] = _("division")
-        context['fy_form'] = forms.FYForm(user=self.request.user.id)
-
-        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['has_section'] = models.Project.objects.filter(section__division__head=self.request.user).count() > 0
-        return context
-
-
-class MyBranchListView(LoginRequiredMixin, FilterView):
-    login_url = '/accounts/login_required/'
-    template_name = 'projects/my_section_list.html'
-    filterset_class = filters.MySectionFilter
-
-    def get_queryset(self):
-        return models.Project.objects.filter(section__division__branch__head=self.request.user).order_by('-year', 'section__division',
-                                                                                                         'section',
-                                                                                                         'project_title')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['type'] = _("branch")
-        context['fy_form'] = forms.FYForm(user=self.request.user.id)
-        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['has_section'] = models.Project.objects.filter(section__division__branch__head=self.request.user).count() > 0
-        return context
-
-
 class ProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
@@ -568,14 +561,27 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             context["field_list"] = gulf_field_list
         else:
             context["field_list"] = project_field_list
+
         context["files"] = project.files.all()
 
         # bring in financial summary data
         my_context = financial_summary_data(project)
         context = {**my_context, **context}
 
-        # if not can_modify_project(self.request.user, project):
-        #     context["report_mode"] = True
+        # Determine if the user will be able to edit the project.
+        context["can_edit"] = can_modify_project(self.request.user, project.id)
+        context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
+        return context
+
+
+class ProjectOverviewDetailView(ProjectDetailView):
+
+    def get_template_names(self):
+        return 'projects/project_overview.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
         return context
 
 
@@ -610,7 +616,7 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class ProjectUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class ProjectUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectForm
 
@@ -639,7 +645,7 @@ class ProjectUpdateView(ProjectLeadRequiredMixin, UpdateView):
         return my_dict
 
 
-class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectSubmitForm
     template_name = "projects/project_submit_form.html"
@@ -658,7 +664,13 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.object
-        context["field_list"] = project_field_list
+
+        # If this is a gulf region project, only show the gulf region fields
+        if project.section.division.branch.region.id == 1:
+            context["field_list"] = gulf_field_list
+        else:
+            context["field_list"] = project_field_list
+
         context["report_mode"] = True
 
         # bring in financial summary data
@@ -682,7 +694,7 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ProjectApprovalUpdateView(ProjectManagerRequiredMixin, UpdateView):
+class ProjectApprovalUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     model = models.Project
     template_name = "projects/project_approval_form_popout.html"
     success_url = reverse_lazy("projects:close_me")
@@ -740,20 +752,21 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        object = form.save()
-        models.Staff.objects.create(project=object, lead=True, employee_type_id=1, user_id=self.request.user.id)
+        my_object = form.save()
+        models.Staff.objects.create(project=my_object, lead=True, employee_type_id=1, user_id=self.request.user.id,
+                                    funding_source=my_object.default_funding_source)
 
         for obj in models.OMCategory.objects.all():
-            new_item = models.OMCost.objects.create(project=object, om_category=obj)
+            new_item = models.OMCost.objects.create(project=my_object, om_category=obj, funding_source=my_object.default_funding_source)
             new_item.save()
 
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.id}))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": my_object.id}))
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class ProjectDeleteView(ProjectLeadRequiredMixin, DeleteView):
+class ProjectDeleteView(CanModifyProjectRequiredMixin, DeleteView):
     model = models.Project
     success_url = reverse_lazy('projects:my_project_list')
     success_message = _('The project was successfully deleted!')
@@ -876,7 +889,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
 # STAFF #
 #########
 
-class StaffCreateView(ProjectLeadRequiredMixin, CreateView):
+class StaffCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.Staff
     template_name = 'projects/staff_form_popout.html'
     form_class = forms.StaffForm
@@ -885,6 +898,7 @@ class StaffCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(pk=self.kwargs['project'])
         return {
             'project': project,
+            'funding_source': project.default_funding_source,
         }
 
     def get_context_data(self, **kwargs):
@@ -902,7 +916,7 @@ class StaffCreateView(ProjectLeadRequiredMixin, CreateView):
             return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class StaffUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class StaffUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Staff
     template_name = 'projects/staff_form_popout.html'
     form_class = forms.StaffForm
@@ -1012,7 +1026,7 @@ class MyTempListView(LoginRequiredMixin, ListView):
 # COLLABORATOR #
 ################
 
-class CollaboratorCreateView(ProjectLeadRequiredMixin, CreateView):
+class CollaboratorCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
     form_class = forms.CollaboratorForm
@@ -1034,7 +1048,7 @@ class CollaboratorCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class CollaboratorUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class CollaboratorUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
     form_class = forms.CollaboratorForm
@@ -1057,7 +1071,7 @@ def collaborator_delete(request, pk):
 # AGREEMENTS #
 ##############
 
-class AgreementCreateView(ProjectLeadRequiredMixin, CreateView):
+class AgreementCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.CollaborativeAgreement
     template_name = 'projects/agreement_form_popout.html'
     form_class = forms.AgreementForm
@@ -1079,7 +1093,7 @@ class AgreementCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class AgreementUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class AgreementUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.CollaborativeAgreement
     template_name = 'projects/agreement_form_popout.html'
     form_class = forms.AgreementForm
@@ -1102,7 +1116,7 @@ def agreement_delete(request, pk):
 # OM COSTS #
 ############
 
-class OMCostCreateView(ProjectLeadRequiredMixin, CreateView):
+class OMCostCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.OMCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.OMCostForm
@@ -1111,6 +1125,7 @@ class OMCostCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(pk=self.kwargs['project'])
         return {
             'project': project,
+            'funding_source': project.default_funding_source,
         }
 
     def get_context_data(self, **kwargs):
@@ -1125,7 +1140,7 @@ class OMCostCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class OMCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class OMCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.OMCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.OMCostForm
@@ -1182,7 +1197,7 @@ def om_cost_populate(request, project):
 # CAPITAL COSTS #
 #################
 
-class CapitalCostCreateView(ProjectLeadRequiredMixin, CreateView):
+class CapitalCostCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.CapitalCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.CapitalCostForm
@@ -1191,6 +1206,7 @@ class CapitalCostCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(pk=self.kwargs['project'])
         return {
             'project': project,
+            'funding_source': project.default_funding_source,
         }
 
     def get_context_data(self, **kwargs):
@@ -1205,7 +1221,7 @@ class CapitalCostCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class CapitalCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class CapitalCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.CapitalCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.CapitalCostForm
@@ -1233,7 +1249,7 @@ def capital_cost_delete(request, pk):
 # GC COSTS #
 ############
 
-class GCCostCreateView(ProjectLeadRequiredMixin, CreateView):
+class GCCostCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.GCCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.GCCostForm
@@ -1256,7 +1272,7 @@ class GCCostCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class GCCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class GCCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.GCCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.GCCostForm
@@ -1281,37 +1297,10 @@ def gc_cost_delete(request, pk):
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
 
-# SHARED #
-##########
-def toggle_source(request, pk, type):
-    if type == "om":
-        my_cost = models.OMCost.objects.get(pk=pk)
-    elif type == "capital":
-        my_cost = models.CapitalCost.objects.get(pk=pk)
-    elif type == "staff":
-        my_cost = models.Staff.objects.get(pk=pk)
-    # otherwise function is being used improperly
-    if can_modify_project(request.user, my_cost.project.id):
-        if my_cost.funding_source_id is None:
-            my_cost.funding_source_id = 1
-        elif my_cost.funding_source_id == 1:
-            my_cost.funding_source_id = 2
-        elif my_cost.funding_source_id == 2:
-            my_cost.funding_source_id = 3
-        else:
-            my_cost.funding_source_id = 1
-        my_cost.save()
-
-        return HttpResponseRedirect(
-            reverse_lazy("projects:project_detail", kwargs={"pk": my_cost.project.id}) + "?#{}-{}".format(type, pk))
-    else:
-        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
-
-
 # FILES #
 #########
 
-class FileCreateView(ProjectLeadRequiredMixin, CreateView):
+class FileCreateView(CanModifyProjectRequiredMixin, CreateView):
     template_name = "projects/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1338,7 +1327,7 @@ class FileCreateView(ProjectLeadRequiredMixin, CreateView):
         }
 
 
-class FileUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class FileUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     template_name = "projects/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1360,7 +1349,7 @@ class FileDetailView(FileUpdateView):
         return context
 
 
-class FileDeleteView(ProjectLeadRequiredMixin, DeleteView):
+class FileDeleteView(CanModifyProjectRequiredMixin, DeleteView):
     template_name = "projects/file_confirm_delete.html"
     model = models.File
 
@@ -1891,7 +1880,7 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('projects:report_edit', kwargs={"pk": my_object.id}))
 
 
-class StatusReportDeleteView(ProjectLeadRequiredMixin, DeleteView):
+class StatusReportDeleteView(CanModifyProjectRequiredMixin, DeleteView):
     template_name = "projects/status_report_confirm_delete.html"
     model = models.StatusReport
 
@@ -2943,7 +2932,6 @@ class SectionNoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
 
 def get_create_section_note(request, section, fy):
-    print(123)
     my_section = shared_models.Section.objects.get(pk=section)
     my_fy = shared_models.FiscalYear.objects.get(pk=fy)
 

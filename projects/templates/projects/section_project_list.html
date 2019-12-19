@@ -11,7 +11,11 @@
 
     <style>
         table, td {
-            font-size: 14px;
+            font-size: 12px;
+        }
+
+        .project-table {
+
         }
     </style>
 
@@ -47,8 +51,41 @@
         <div class="row">
             <div class="col">
                 <h5>{% trans "Submitted & Approved Projects" %} ({{ approved_projects.count }})</h5>
-                <ol>
+                <table class="table table-sm table-hover project-table sortable">
+                    <thead>
+                    <th>
+                        {% trans "Thematic group" %}
+                    </th>
+                    <th>
+                        {% trans "Title" %}
+                    </th>
+                    <th>
+                        {% trans "Leads" %}
+                    </th>
+                    </thead>
                     {% for object in approved_projects %}
+                        <tr href="{% url 'projects:project_overview' object.id  %}">
+                            <td>
+                                {{ object.thematic_group}}
+                            </td>
+                            <td>
+                                {{ object.project_title }}
+                            </td>
+                            <td>
+                                {{ object.project_leads }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <em>{% trans "None" %}</em>
+                    {% endfor %}
+                </table>
+
+            </div>
+            {#            {% if unapproved_projects.count %}#}
+            <div class="col">
+                <h5 class="red-font">{% trans "Submitted & Unapproved Projects" %} ({{ unapproved_projects.count }})</h5>
+                <ol>
+                    {% for object in unapproved_projects %}
                         <li><a href="#">
                             {{ object }}
                         </a></li>
@@ -58,36 +95,22 @@
 
                 </ol>
             </div>
-            {% if unapproved_projects.count %}
-                <div class="col">
-                    <h5 class="red-font">{% trans "Submitted & Unapproved Projects" %} ({{ unapproved_projects.count }})</h5>
-                    <ol>
-                        {% for object in unapproved_projects %}
-                            <li><a href="#">
-                                {{ object }}
-                            </a></li>
-                        {% empty %}
-                            <em>{% trans "None" %}</em>
-                        {% endfor %}
+            {#            {% endif %}#}
+            {#            {% if unsubmitted_projects.count %}#}
+            <div class="col">
+                <h5 class="red-font">{% trans "Unsubmitted Projects" %} ({{ unsubmitted_projects.count }})</h5>
+                <ol>
+                    {% for object in unsubmitted_projects %}
+                        <li><a href="#">
+                            {{ object }}
+                        </a></li>
+                    {% empty %}
+                        <em>{% trans "None" %}</em>
+                    {% endfor %}
 
-                    </ol>
-                </div>
-            {% endif %}
-            {% if unsubmitted_projects.count %}
-                <div class="col">
-                    <h5 class="red-font">{% trans "Unsubmitted Projects" %} ({{ unsubmitted_projects.count }})</h5>
-                    <ol>
-                        {% for object in unsubmitted_projects %}
-                            <li><a href="#">
-                                {{ object }}
-                            </a></li>
-                        {% empty %}
-                            <em>{% trans "None" %}</em>
-                        {% endfor %}
-
-                    </ol>
-                </div>
-            {% endif %}
+                </ol>
+            </div>
+            {#            {% endif %}#}
 
         </div>
 
