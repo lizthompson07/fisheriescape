@@ -669,8 +669,11 @@ class OMCategory(models.Model):
         ordering = ['group', 'name']
 
     def __str__(self):
-        return "{} ({})".format(getattr(self, str(_("name"))), self.get_group_display())
+        return "{} ({})".format(self.tname, self.get_group_display())
 
+    @property
+    def tname(self):
+        return getattr(self, str(_("name")))
 
 class OMCost(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="om_costs", verbose_name=_("project"))

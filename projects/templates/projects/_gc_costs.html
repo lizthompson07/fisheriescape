@@ -12,23 +12,28 @@
 <h4>
     {% trans "Grant & Contributions:" %}
 </h4>
-{% if not object.submitted and not report_mode %}
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:gc_new' object.id %}','popoutWindow')">
-        {% trans "Add G&C" %}
-    </a>
-    <br><br>
+{% if can_edit %}
+    <div class="mb-3">
+        <a class="btn btn-sm btn-outline-primary" href="#"
+           onclick="return popitup('{% url 'projects:gc_new' object.id %}','popoutWindow')">
+            {% trans "Add G&C" %}
+        </a>
+    </div>
 {% endif %}
 
 {% if object.gc_costs.count == 0 %}
-    <em>
-        {% trans "No G&Cs" %}...
-    </em><br>
+    <div class="mb-3">
+        <em>
+            {% trans "No G&Cs" %}...
+        </em>
+    </div>
+
+
 {% else %}
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-            {% if not report_mode %}
+            {% if can_edit %}
                 <th></th>
             {% endif %}
             <th>
@@ -51,21 +56,15 @@
         </tr>
         <tbody>
         {% for obj in object.gc_costs.all %}
-            <tr  {% if not object.submitted and not report_mode %}
-                href="{% url 'projects:gc_edit' obj.id %}" pop
-                data-toggle="tooltip" title="Edit"
-            {% endif %}
-            >
-                {% if not report_mode %}
+            <tr  {% if can_edit %} href="{% url 'projects:gc_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" {% endif %}>
+                {% if can_edit %}
                     <td>
-                        {% if not object.submitted and not report_mode %}
-                            <a class="gc-delete-me" href="#" val="{{ obj.id }}">
-                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                     title="Delete">
-                            </a>
-                            <a id="gc-secrect-delete-btn-{{ obj.id }}"
-                               href="{% url 'projects:gc_delete' obj.id %}" class="hidden"></a>
-                        {% endif %}
+                        <a class="gc-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete">
+                        </a>
+                        <a id="gc-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects:gc_delete' obj.id %}" class="hidden"></a>
                     </td>
                 {% endif %}
                 <td>{{ obj.recipient_org|nz:"-----" }}</td>

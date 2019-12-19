@@ -11,10 +11,6 @@ urlpatterns = [
     # PROJECTS #
     ############
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
-    path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
-    path('section/<int:section>/', views.SectionListView.as_view(), name="section_list"),
-    path('my-division/', views.MyDivisionListView.as_view(), name="my_division_list"),
-    path('my-branch/', views.MyBranchListView.as_view(), name="my_branch_list"),
     path('all/', views.ProjectListView.as_view(), name="project_list"),
     path('new/', views.ProjectCreateView.as_view(), name="project_new"),
     path('<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
@@ -24,6 +20,14 @@ urlpatterns = [
     path('project/<int:pk>/submit/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
     path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
     path('approval/project/<int:pk>/level/<str:level>/', views.ProjectApprovalUpdateView.as_view(), name="project_approval"),
+
+    # From management views
+    ################
+    # the following 3 should be deleted once fully phased out
+    path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
+    #
+    path('section/<int:section>/', views.SectionListView.as_view(), name="section_list"),
+    path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
 
     # STAFF #
     #########
@@ -96,10 +100,6 @@ urlpatterns = [
     # MILESTONE UPDATE #
     ####################
     path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
-
-    # SHARED #
-    ##########
-    path('toggle-funding-source/<str:type>/<int:pk>/', views.toggle_source, name="toggle_source"),
 
     # SETTINGS #
     ############

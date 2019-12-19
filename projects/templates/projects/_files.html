@@ -12,22 +12,24 @@
     {% trans "Supporting Resources:" %}
 </h4>
 {% if not object %}
-    <em>
-        {% trans "Once you save this report, you will be able to add supporting resources" %}...
-    </em><br>
+    <div class="mb-3">
+        <em>
+            {% trans "Once you save this report, you will be able to add supporting resources" %}...
+        </em>
+    </div>
 {% else %}
 
-    {% if not report_mode %}
+    {% if can_edit or is_lead %}
         {% if status_report %}
             {% url 'projects:file_new' project.id status_report.id as add_url %}
         {% else %}
             {% url 'projects:file_new' project.id as add_url %}
         {% endif %}
-
-        <a class="btn btn-sm btn-primary add-btn" href="#" pop-href="{{ add_url }}">
-            {% trans "Add Resource" %}
-        </a>
-        <br><br>
+        <div class="mb-3">
+            <a class="btn btn-sm btn-outline-primary add-btn" href="#" pop-href="{{ add_url }}">
+                {% trans "Add Resource" %}
+            </a>
+        </div>
     {% endif %}
     {% if files.count == 0 %}
         <em>
@@ -57,8 +59,9 @@
             </tr>
             <tbody>
             {% for obj in files.all %}
-                <tr {% if not report_mode %}data-toggle="tooltip" title="Edit" href="{% url 'projects:file_detail' obj.id %}"
-                    pop{% endif %}>
+                <tr {% if can_edit or is_lead %}
+                    data-toggle="tooltip" title="Edit" href="{% url 'projects:file_detail' obj.id %}" pop
+                {% endif %}>
                     <td>{{ obj.name }}</td>
                     <td>{{ obj.ref }}</td>
                     <td class="center-col">
