@@ -492,8 +492,10 @@ class GCSample(models.Model):
     # bottom_type = models.CharField(max_length=100, blank=True, null=True)
     # percent_vegetation_cover = models.IntegerField(blank=True, null=True, verbose_name="vegetation cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
     eelgrass_assessed = models.NullBooleanField(verbose_name="was eelgrass assessed?")
-    eelgrass_percent_coverage = models.IntegerField(blank=True, null=True, verbose_name="eelgrass coverage (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
-    vegetation_species = models.ManyToManyField(Species, blank=True, limit_choices_to=Q(id__in=[5, 6, 46, 131, 132, 133, ])) # epi alg, ulva, green alg, brown alg, eelg, algae
+    eelgrass_percent_coverage = models.IntegerField(blank=True, null=True, verbose_name="eelgrass coverage (%)",
+                                                    validators=[MinValueValidator(0), MaxValueValidator(100)])
+    vegetation_species = models.ManyToManyField(Species, blank=True, limit_choices_to=Q(
+        id__in=[5, 6, 46, 131, 132, 133, ]))  # epi alg, ulva, green alg, brown alg, eelg, algae
     sediment = models.IntegerField(null=True, blank=True, choices=SEDIMENT_CHOICES)
 
     season = models.IntegerField(null=True, blank=True)
@@ -514,7 +516,7 @@ class GCSample(models.Model):
         return "Sample {} - {}".format(self.id, self.site)
 
     class Meta:
-        ordering = ['traps_set', 'site']
+        ordering = ['-season', 'traps_set', 'site']
 
 
 class WeatherConditions(models.Model):
@@ -570,6 +572,17 @@ class GCProbeMeasurement(models.Model):
     weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)")
 
     # notes = models.TextField(blank=True, null=True)  # this field should be delete once all data has been entered
+
+    @property
+    def tide_description(self):
+        my_str = ""
+        if self.tide_state:
+            my_str += self.get_tide_state_display()
+        if self.tide_direction:
+            if len(my_str) > 0:
+                my_str += " / "
+            my_str += self.get_tide_direction_display()
+        return my_str
 
     def __str__(self):
         return "Probe measurement {}".format(self.id)

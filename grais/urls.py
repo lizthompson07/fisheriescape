@@ -169,5 +169,9 @@ urlpatterns = [
     path('reports/opendata1/', views.export_open_data_ver1, name="od1_report"),
     path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
     path('reports/opendata1/wms/<str:year>/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
+    # GC monitoring
+    path('reports/gc/<int:year>/cpue/', views.export_gc_cpue, name="gc_cpue_report"),
+    path('reports/gc/<int:year>/envr/', views.export_gc_envr, name="gc_envr_report"),
+    path('reports/gc/site-list/', views.export_gc_sites, name="gc_site_report"),
 
 ]

@@ -29,3 +29,8 @@ class SampleFilter(django_filters.FilterSet):
             'sampler': ['exact'],
             # 'sample_date': ['exact'],
         }
+
+
+class SamplerFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search",
+                                            lookup_expr='icontains', widget=forms.TextInput())

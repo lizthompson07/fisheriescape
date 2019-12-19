@@ -1,12 +1,18 @@
 {% extends "sar_search/sar_search_base.html" %}
 {% load static %}
 {% load verbose_names %}
+{% load i18n %}
+{% load l10n %}
 {% block content %}
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}"> All Species </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:index' %}">
+            {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sar_search:species_list' %}">
+            {% trans "All Species " %}
+            </a></li>
             <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
         </ol>
     </nav>
@@ -36,10 +42,18 @@
         <br>
         <h1>{{ object }}</h1>
         <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'sar_search:species_edit' object.id %}">Edit</a>
-            <a class="btn btn-danger" href="{% url 'sar_search:species_delete' object.id %}">Delete</a>
-            <a class="btn btn-primary" href="{% url 'sar_search:record_new' object.id %}">Add New Record</a>
-            <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">Import Records from CSV</a>
+            <a class="btn btn-warning" href="{% url 'sar_search:species_edit' object.id %}">
+                {% trans "Edit" %}
+            </a>
+            <a class="btn btn-danger" href="{% url 'sar_search:species_delete' object.id %}">
+                {% trans "Delete" %}
+            </a>
+            <a class="btn btn-primary" href="{% url 'sar_search:record_new' object.id %}">
+                {% trans "Add New Record" %}
+            </a>
+            <a class="btn btn-success" href="#" pop-href="{% url 'sar_search:file_import' object.id %}">
+                {% trans "Import Records from CSV" %}
+            </a>
         </div>
 
 
@@ -85,7 +99,9 @@
         <br><br>
         <div class="row justify-content-center">
             <div class="col-9">
-                <h3>Record List</h3>
+                <h3>
+                    {% trans "Record List" %}
+                </h3>
                 {% if object.records.count > 0 %}
 
                     <table class="table table-sm table-hover sortable">
@@ -110,8 +126,7 @@
                 {% else %}
                     <div class="text-center">
                         <em>
-                            No records have been added for this species. You can add a record by clicking on the button at the top of the
-                            page.
+                            {% trans "No records have been added for this species. You can add a record by clicking on the button at the top of the page." %}
                         </em>
                     </div>
                 {% endif %}
@@ -122,173 +137,176 @@
 
 {% endblock content %}
 {% block body_js %}
-    <script>
-        function initialize() {
+    {% localize off %}
+        <script>
+            function initialize() {
 
-            window.map = new google.maps.Map(document.getElementById('map'), {
-                mapTypeId: google.maps.MapTypeId.SATELLITE,
-            });
-            var infowindow = new google.maps.InfoWindow();
-            var bounds = new google.maps.LatLngBounds();
+                window.map = new google.maps.Map(document.getElementById('map'), {
+                    mapTypeId: google.maps.MapTypeId.SATELLITE,
+                });
+                var infowindow = new google.maps.InfoWindow();
+                var bounds = new google.maps.LatLngBounds();
 
-            {% for record in object.records.all %}
-                {% if record.coords.x and record.coords.y %}
-                    {% if record.record_type == 1 %}
-                        {% for point in record.points.all %}
-                            var marker = new google.maps.Marker({
-                                position: new google.maps.LatLng({{point.latitude_n}}, {{point.longitude_w}}),
+                {% for record in object.records.all %}
+                    {% if record.coords.x and record.coords.y %}
+                        {% if record.record_type == 1 %}
+                            {% for point in record.points.all %}
+                                var marker = new google.maps.Marker({
+                                    position: new google.maps.LatLng({{point.latitude_n}}, {{point.longitude_w}}),
+                                    map: map,
+                                    //label: {text: "{{point.record.name}}", color: "#ffffff"},
+                                });
+                                bounds.extend(marker.position);
+                                google.maps.event.addListener(marker, 'click', (function (marker) {
+                                    return function () {
+                                        infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
+                                        infowindow.open(map, marker);
+                                    }
+                                })(marker));
+                            {% endfor %}
+                            map.fitBounds(bounds);
+
+                        {% elif record.record_type == 2 %}
+                            // bah!!
+                            marker = new google.maps.Marker({
+                                position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
                                 map: map,
-                                //label: {text: "{{point.record.name}}", color: "#ffffff"},
+                                label: {text: "{{record.name}}", color: "#ffffff"},
                             });
-                            bounds.extend(marker.position);
                             google.maps.event.addListener(marker, 'click', (function (marker) {
                                 return function () {
                                     infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
                                     infowindow.open(map, marker);
                                 }
                             })(marker));
-                        {% endfor %}
-                        map.fitBounds(bounds);
 
-                    {% elif record.record_type == 2 %}
-                        // bah!!
-                        marker = new google.maps.Marker({
-                            position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
-                            map: map,
-                            label: {text: "{{record.name}}", color: "#ffffff"},
-                        });
-                        google.maps.event.addListener(marker, 'click', (function (marker) {
-                            return function () {
-                                infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
-                                infowindow.open(map, marker);
-                            }
-                        })(marker));
-
-                        // extend bounds var
-                        bounds.extend(marker.position);
-                        {% for point in record.points.all %}
-                            bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
-                        {% endfor %}
-
-                        // Define the LatLng coordinates for the polygon's path.
-                        var lineCoords = [
+                            // extend bounds var
+                            bounds.extend(marker.position);
                             {% for point in record.points.all %}
-                                {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                                bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
                             {% endfor %}
-                        ];
 
-                        // Construct the stratum.
-                        var color = '#ea4544';
-                        var myLine = new google.maps.Polyline({
-                            path: lineCoords,
-                            strokeColor: 'red',
-                            strokeOpacity: 0.8,
-                            strokeWeight: 3,
-                            {#fillColor: color,#}
-                            {#fillOpacity: 0.35#}
-                        });
-                        myLine.setMap(map);
-                        {#bounds.extend(myPolygon.getBounds());#}
+                            // Define the LatLng coordinates for the polygon's path.
+                            var lineCoords = [
+                                {% for point in record.points.all %}
+                                    {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                                {% endfor %}
+                            ];
 
-                        map.fitBounds(bounds);
-                        // add a click event on the polygon
+                            // Construct the stratum.
+                            var color = '#ea4544';
+                            var myLine = new google.maps.Polyline({
+                                path: lineCoords,
+                                strokeColor: 'red',
+                                strokeOpacity: 0.8,
+                                strokeWeight: 3,
+                                {#fillColor: color,#}
+                                {#fillOpacity: 0.35#}
+                            });
+                            myLine.setMap(map);
+                            {#bounds.extend(myPolygon.getBounds());#}
 
-                    {% elif record.record_type == 3 %}
+                            map.fitBounds(bounds);
+                            // add a click event on the polygon
 
-                        marker = new google.maps.Marker({
-                            position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
-                            map: map,
-                            label: {text: "{{record.name}}", color: "#ffffff"},
-                        });
-                        google.maps.event.addListener(marker, 'click', (function (marker) {
-                            return function () {
-                                infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
-                                infowindow.open(map, marker);
-                            }
-                        })(marker));
+                        {% elif record.record_type == 3 %}
 
-                        // extend bounds var
-                        bounds.extend(marker.position);
-                        {% for point in record.points.all %}
-                            bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
-                        {% endfor %}
+                            marker = new google.maps.Marker({
+                                position: new google.maps.LatLng({{record.coords.x}}, {{record.coords.y}}),
+                                map: map,
+                                label: {text: "{{record.name}}", color: "#ffffff"},
+                            });
+                            google.maps.event.addListener(marker, 'click', (function (marker) {
+                                return function () {
+                                    infowindow.setContent('<a href="{% url 'sar_search:record_detail' record.id %}">{{record.name}}</a>');
+                                    infowindow.open(map, marker);
+                                }
+                            })(marker));
 
-                        // Define the LatLng coordinates for the polygon's path.
-                        var polygonCoords = [
+                            // extend bounds var
+                            bounds.extend(marker.position);
                             {% for point in record.points.all %}
-                                {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                                bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
                             {% endfor %}
-                        ];
 
-                        // Construct the stratum.
-                        var color = '#ea4544';
-                        var myPolygon = new google.maps.Polygon({
-                            paths: polygonCoords,
-                            strokeColor: 'white',
-                            strokeOpacity: 0.8,
-                            strokeWeight: 2,
-                            fillColor: color,
-                            fillOpacity: 0.35
-                        });
-                        myPolygon.setMap(map);
-                        {#bounds.extend(myPolygon.getBounds());#}
+                            // Define the LatLng coordinates for the polygon's path.
+                            var polygonCoords = [
+                                {% for point in record.points.all %}
+                                    {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                                {% endfor %}
+                            ];
+
+                            // Construct the stratum.
+                            var color = '#ea4544';
+                            var myPolygon = new google.maps.Polygon({
+                                paths: polygonCoords,
+                                strokeColor: 'white',
+                                strokeOpacity: 0.8,
+                                strokeWeight: 2,
+                                fillColor: color,
+                                fillOpacity: 0.35
+                            });
+                            myPolygon.setMap(map);
+                            {#bounds.extend(myPolygon.getBounds());#}
 
 
 
-                    {% endif %}
-                {% else %}
-                    {% if record.regions.count > 0 %}
-                        {% for region in record.regions.all %}
-                            {% for polygon in region.polygons.all %}
-                                {% if polygon.coords %}
+                        {% endif %}
+                    {% else %}
+                        {% if record.regions.count > 0 %}
+                            {% for region in record.regions.all %}
+                                {% for polygon in region.polygons.all %}
+                                    {% if polygon.coords %}
 
-                                    // extend bounds var
-                                    {% for point in polygon.points.all %}
-                                        bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
-                                    {% endfor %}
-
-                                    // Define the LatLng coordinates for the polygon's path.
-                                    var polygonCoords = [
+                                        // extend bounds var
                                         {% for point in polygon.points.all %}
-                                            {lat: {{point.latitude}}, lng: {{point.longitude}}},
+                                            bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
                                         {% endfor %}
-                                    ];
 
-                                    // Construct the stratum.
-                                    var color = '#ea4544';
-                                    var myPolygon = new google.maps.Polygon({
-                                        paths: polygonCoords,
-                                        strokeColor: 'white',
-                                        strokeOpacity: 0.8,
-                                        strokeWeight: 2,
-                                        fillColor: color,
-                                        fillOpacity: 0.35
-                                    });
-                                    myPolygon.setMap(map);
-                                    {#bounds.extend(myPolygon.getBounds());#}
+                                        // Define the LatLng coordinates for the polygon's path.
+                                        var polygonCoords = [
+                                            {% for point in polygon.points.all %}
+                                                {lat: {{point.latitude}}, lng: {{point.longitude}}},
+                                            {% endfor %}
+                                        ];
 
-                                {% endif %}
+                                        // Construct the stratum.
+                                        var color = '#ea4544';
+                                        var myPolygon = new google.maps.Polygon({
+                                            paths: polygonCoords,
+                                            strokeColor: 'white',
+                                            strokeOpacity: 0.8,
+                                            strokeWeight: 2,
+                                            fillColor: color,
+                                            fillOpacity: 0.35
+                                        });
+                                        myPolygon.setMap(map);
+                                        {#bounds.extend(myPolygon.getBounds());#}
+
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
-                        {% endfor %}
 
+                        {% endif %}
                     {% endif %}
-                {% endif %}
 
-            {% endfor %}
+                {% endfor %}
 
-            map.fitBounds(bounds);
+                map.fitBounds(bounds);
 
-        }
+            }
 
-        function loadScript() {
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-            document.body.appendChild(script);
+            function loadScript() {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+                document.body.appendChild(script);
 
-        }
+            }
 
-        window.onload = loadScript();
+            window.onload = loadScript();
 
-    </script>
+        </script>
+    {% endlocalize %}
+
 {% endblock %}

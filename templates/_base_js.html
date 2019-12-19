@@ -9,8 +9,9 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
+{#<script type="text/javascript" src="{% static 'widgEditor_1.0.1/scripts/widgEditor.js' %}"></script>#}
 
-<script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>
+{#<script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>#}
 
 
 <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.1"></script>
@@ -28,7 +29,7 @@
 {#    Medium-editor FROM https://github.com/yabwe/medium-editor#}
 {#<script src="{% static 'js/medium-editor-master/dist/js/medium-editor.min.js' %}"></script>#}
 {#    Medium-editor-tables FROM https://github.com/yabwe/medium-editor#}
-<script src="{% static 'js/medium-editor-tables-master/dist/js/medium-editor-tables.min.js' %}"></script>
+{#<script src="{% static 'js/medium-editor-tables-master/dist/js/medium-editor-tables.min.js' %}"></script>#}
 
 
 {# Initial JS statement#}
@@ -82,24 +83,24 @@
 
 
     // for . editable things i.e. medium-editor / medium-editor-table
-    var editor = new MediumEditor('.editable', {
-        buttonLabels: 'fontawesome',
-        extensions: {
-            table: new MediumEditorTable()
-        },
-        toolbar: {
-            buttons: [
-                'h2',
-                'bold',
-                'italic',
-                'unorderedlist',
-                'orderedlist',
-                'table'
-            ],
-            static: true,
-            sticky: true
-        }
-    });
+    //var editor = new MediumEditor('.editable', {
+     //   buttonLabels: 'fontawesome',
+      //  extensions: {
+       //     table: new MediumEditorTable()
+        //},
+    //    toolbar: {
+    //        buttons: [
+    //            'h2',
+    //            'bold',
+    //            'italic',
+    //            'unorderedlist',
+    //            'orderedlist',
+    //            'table'
+    //        ],
+    //        static: true,
+    //        sticky: true
+    //    }
+    //});
 
     // enable popovers everywhere
     $(function () {

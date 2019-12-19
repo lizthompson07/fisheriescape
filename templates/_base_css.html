@@ -32,12 +32,13 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 {#    Medium-editor https://github.com/yabwe/medium-editor#}
-<link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/medium-editor.min.css' %}">
-<link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/themes/beagle.min.css' %}">
+{#<link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/medium-editor.min.css' %}">#}
+{#<link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/themes/beagle.min.css' %}">#}
 {#    Medium-editor-tables   https://github.com/yabwe/medium-editor#}
-<link rel="stylesheet" href="{% static 'js/medium-editor-tables-master/dist/css/medium-editor-tables.min.css' %}">
+{#<link rel="stylesheet" href="{% static 'js/medium-editor-tables-master/dist/css/medium-editor-tables.min.css' %}">#}
 {#  This one is needed for the buttons in medium-editor-tables #}
-<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css"/>
+<link rel="stylesheet" href="{% static 'widgEditor_1.0.1/css/widgEditor.css' %}">
+
 <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen" type="text/css">
 
 <style>
@@ -56,13 +57,13 @@
     {#    background-color: rgba(53, 29, 230, 0.15);#}
     {#}#}
 
-    .editable {
-        background-color: #fff;
-        border: 1px solid #1999f4;
-        border-radius: 4px;
-
+    {#.editable {#}
+    {#    background-color: #fff;#}
+    {#    border: 1px solid #1999f4;#}
+    {#    border-radius: 4px;#}
+    {##}
     {#padding: 30px;#}
-    }
+    {#}#}
 
     .ms-container {
         width: 100%;

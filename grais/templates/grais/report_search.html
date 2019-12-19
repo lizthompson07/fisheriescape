@@ -114,9 +114,11 @@
             } else if (reportChoice == 2) {
                 $(".year_div").removeClass("gone");
                 alert("Please note that running this report for all years will take several minutes to complete.");
-            } else if (reportChoice == 4 || reportChoice == 5) {
+            } else if (reportChoice == 4 || reportChoice == 5 || reportChoice == 6 || reportChoice == 7) {
                 $(".year_div").removeClass("gone");
+                $("#id_year").prop('required', true);
             }
+
 
         }
 

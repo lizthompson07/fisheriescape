@@ -215,8 +215,8 @@ class Citation(models.Model):
     pub_number = models.CharField(max_length=255, blank=True, null=True, verbose_name="Publication Number")
     url_eng = models.TextField(blank=True, null=True, verbose_name="URL (English)")
     url_fre = models.TextField(blank=True, null=True, verbose_name="URL (French)")
-    abstract_eng = models.TextField(blank=True, null=True, verbose_name="Abstrast (English)")
-    abstract_fre = models.TextField(blank=True, null=True, verbose_name="Abstrast (French)")
+    abstract_eng = models.TextField(blank=True, null=True, verbose_name="Abstract (English)")
+    abstract_fre = models.TextField(blank=True, null=True, verbose_name="Abstract (French)")
     series = models.CharField(max_length=1000, blank=True, null=True)
     region = models.CharField(max_length=255, blank=True, null=True)
 
@@ -379,7 +379,15 @@ class Resource(models.Model):
         ordering = ['id', ]
 
     def __str__(self):
-        return "({}) {}".format(self.id, self.title_eng)
+        return "({}) {}".format(self.id, getattr(self, str(_("title_eng"))))
+
+    @property
+    def t_title(self):
+        return "{}".format(getattr(self, str(_("title_eng"))))
+
+    @property
+    def last_certification(self):
+        return self.certification_history.fisrt()
 
     def truncated_title(self):
         if self.title_eng:
