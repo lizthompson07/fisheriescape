@@ -67,7 +67,7 @@
     {% endblock %}
 </div>
 
-<h1>{{ fy }} – FTE Summary in Weeks (Submitted Approved)</h1>
+<h1>{{ fy }} – FTE Summary in Weeks (Submitted{% if approved %} Approved{% endif %})</h1>
 <table class="table table-hover table-sm" style="width: auto">
     <tr>
         <th style="width: 30%">
