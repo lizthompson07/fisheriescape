@@ -1,30 +1,22 @@
 import requests
 import unicodecsv as csv
-import os
-
+from django.utils.translation import gettext as _
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models import Count, TextField, Value
+from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
-from easy_pdf.views import PDFTemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
-from shapely.geometry import Polygon, box
+from shapely.geometry import box
 
-from shared_models import models as shared_models
 from . import models
 from . import forms
 from . import filters
-from . import reports
-from lib.functions.custom_functions import nz, listrify
-from django.utils.encoding import smart_str
 
 
 # open basic access up to anybody who is logged in
@@ -323,10 +315,14 @@ class RegionPolygonImportFileView(SARSearchAdminRequiredMixin, UpdateView):
 class SpeciesListView(SARSearchAccessRequiredMixin, FilterView):
     template_name = "sar_search/species_list.html"
     filterset_class = filters.SpeciesFilter
-    queryset = models.Species.objects.annotate(
-        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', output_field=TextField()))
+
+    def get_queryset(self):
+        return models.Species.objects.annotate(
+            search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', output_field=TextField())).order_by(
+            _("common_name_eng"))
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
         context['my_object'] = models.Species.objects.first()
         context["field_list"] = [
@@ -337,9 +333,8 @@ class SpeciesListView(SARSearchAccessRequiredMixin, FilterView):
             'cosewic_status',
             'nb_status',
             'ns_status',
-            'pe_status',
+            'iucn_red_list_status',
             'sara_schedule',
-            # 'province_range',
             # 'tsn',
         ]
         return context
@@ -352,31 +347,29 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
         context["field_list"] = [
-            'common_name_eng',
-            'common_name_fre',
+            'tname|{}'.format(_("Common name")),
             'scientific_name',
-            'population_eng',
-            'population_fre',
+            'tpopulation|{}'.format(_("Population")),
             'tsn',
             'taxon',
             'sara_status',
             'nb_status',
             'ns_status',
-            'pe_status',
             'iucn_red_list_status',
             'cosewic_status',
             'sara_schedule',
             'cites_appendix',
             'province_range',
             'responsible_authority',
-            'notes',
+            'tnotes|{}'.format(_("Notes")),
         ]
 
         context["record_field_list"] = [
             'name',
             'regions',
             'record_type',
-            # 'source',
+            'year',
+            'source',
             'date_last_modified',
         ]
 
@@ -459,6 +452,7 @@ class RecordDetailView(SARSearchAccessRequiredMixin, DetailView):
             'regions',
             'record_type',
             'source',
+            'year',
             'last_modified_by',
             'date_last_modified',
         ]

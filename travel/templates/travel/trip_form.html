@@ -70,9 +70,9 @@
                     {% else %}
                         {% bootstrap_field field placeholder="" %}
                     {% endif %}
-                    <em class="blue-font">
-                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})
-                    </em><br><br>
+{#                    <em class="blue-font">#}
+{#                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})#}
+{#                    </em><br><br>#}
                 </div>
             {% elif field.name == "conference" %}
                 {% if field.name in help_text_dict %}
@@ -194,28 +194,28 @@
                                     {% if field.name == "no_breakfasts" %}
                                         {{ field }}<br>(days) <br>&times;
                                         {% for field3 in form %}
-                                            {% if field3.name == "breakfast_rate" %}
+                                            {% if field3.name == "breakfasts_rate" %}
                                                 {{ field3 }}<br>(CAD/day)
                                             {% endif %}
                                         {% endfor %}
                                     {% elif field.name == "no_lunches" %}
                                         {{ field }}<br>(days) <br>&times;
                                         {% for field3 in form %}
-                                            {% if field3.name == "lunch_rate" %}
+                                            {% if field3.name == "lunches_rate" %}
                                                 {{ field3 }}<br>(CAD/day)
                                             {% endif %}
                                         {% endfor %}
                                     {% elif field.name == "no_suppers" %}
                                         {{ field }}<br>(days) <br>&times;
                                         {% for field3 in form %}
-                                            {% if field3.name == "supper_rate" %}
+                                            {% if field3.name == "suppers_rate" %}
                                                 {{ field3 }}<br>(CAD/day)
                                             {% endif %}
                                         {% endfor %}
                                     {% elif field.name == "no_incidentals" %}
                                         {{ field }}<br>(days) <br>&times;
                                         {% for field3 in form %}
-                                            {% if field3.name == "incidental_rate" %}
+                                            {% if field3.name == "incidentals_rate" %}
                                                 {{ field3 }}<br>(CAD/day)
                                             {% endif %}
                                         {% endfor %}
@@ -234,7 +234,7 @@
 
             {% buttons %}
                 {% if object %}
-                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="submit" class="btn btn-success">Update</button>
                     <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">Cancel</a>
                 {% else %}
                     <button type="submit" class="btn btn-success">Add</button>
@@ -264,15 +264,13 @@
 
         function refreshConference() {
             if ($("#id_reason").val() != "2") {
-                {#$("#id_conference").val("").prop("disabled", true);#}
-                $("#id_role").val("").prop("disabled", true);
-                $("#id_role_of_participant").val("").prop("disabled", true);
-                $(".conference_container").addClass("gone");
+//                $("#id_role").val("").prop("disabled", true);
+  //              $("#id_role_of_participant").val("").prop("disabled", true);
+    //            $(".conference_container").addClass("gone");
             } else {
-                {#$("#id_conference").prop("disabled", false);#}
-                $("#id_role").prop("disabled", false);
-                $("#id_role_of_participant").prop("disabled", false);
-                $(".conference_container").removeClass("gone");
+      //          $("#id_role").prop("disabled", false);
+        //        $("#id_role_of_participant").prop("disabled", false);
+          //      $(".conference_container").removeClass("gone");
             }
         }
 

@@ -1,5 +1,8 @@
+import csv
+import datetime
 import json
 
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -748,6 +751,141 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
             return HttpResponseRedirect(reverse_lazy('scifi:ctrans_new'))
         else:
             return HttpResponseRedirect(reverse_lazy('scifi:index'))
+
+
+# IMPORT FILE
+
+class ImportFileView(SciFiAdminRequiredMixin, CreateView):
+    model = models.TempFile
+    fields = ["temp_file", ]
+    template_name = 'scifi/file_import_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        header_dict = {
+            "FISCAL YEAR": [
+                "MANDATORY",
+                'integer field',
+                'SAP format',
+                "e.g., 2019-2019 should be entered in as '2020'",
+            ],
+            "RC": [
+                "MANDATORY",
+                "5-digit integer field",
+            ],
+            "BUSINESS LINE": [
+                "MANDATORY",
+                '3-digit integer field',
+            ],
+            "ALLOTMENT CODE": [
+                "MANDATORY",
+                'string field',
+                "e.g., 120, 120-, 485*, 36V",
+                "not case sensitive",
+            ],
+            "LINE OBJECT": ['string field', "e.g., T515, 3239", "not case sensitive", "leave blank if null"],
+            "PROJECT CODE": [
+                "MANDATORY",
+                'string field',
+                "e.g., 71026x, 71RD7",
+                "not case sensitive",
+                "leave blank if null",
+            ],
+            "TRANSACTION TYPE": [
+                'string field',
+                "must be one of the following: 'expenditure', 'allocation' or 'adjustment'",
+                "not case sensitive",
+                "if blank, will default to expenditure",
+            ],
+            "DESCRIPTION": ['text field', ],
+            "OBLIGATION COST": ["number field", ],
+            "INVOICE COST": ["number field", ],
+            "IN MRS": ['string field', "must be one of the following: 'yes', or 'no'",
+                       "not case sensitive", "If left blank, it will default to 'No'"],
+            "REFERENCE NUMBER": ['text field', ],
+            "INVOICE DATE": ['date field', "must be formated as 'MM/DD/YYYY'"]
+        }
+        context["header_dict"] = header_dict
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        # now we need to do some magic with the file...
+
+        # load the file
+        url = self.request.META.get("HTTP_ORIGIN") + my_object.temp_file.url
+        r = requests.get(url)
+        csv_reader = csv.DictReader(r.text.splitlines())
+
+        # for each make a new polygon
+        i = 1
+        for row in csv_reader:
+            print(i)
+            # try to do the import, if not throw a message back to the user.
+
+            try:
+                # TRANSACTION TYPE
+                if row.get("TRANSACTION TYPE"):
+                    if "adjust" in row.get("TRANSACTION TYPE").lower():
+                        my_type = 2
+                    elif "allot" in row.get("TRANSACTION TYPE").lower():
+                        my_type  = 1
+                    else:
+                        my_type  = 3
+                else:
+                    my_type  = 3
+
+                # IN MRS
+                if row.get("IN MRS"):
+                    if row.get("IN MRS").lower() == "yes":
+                        in_mrs = True
+                    else:
+                        in_mrs  = False
+                else:
+                    in_mrs  = False
+
+                # INVOICE DATE
+                invoice_date = datetime.datetime.strptime(row.get("INVOICE DATE"), "%m/%d/%Y") if row.get("INVOICE DATE") else None
+
+                # LINE OBJECT
+                if row.get("LINE OBJECT"):
+                    try:
+                        lo = shared_models.LineObject.objects.get(code=row.get("LINE OBJECT"))
+                    except shared_models.LineObject.DoesNotExist:
+                        lo = None
+                else:
+                    lo = None
+
+                my_t = models.Transaction.objects.create(
+                    fiscal_year=shared_models.FiscalYear.objects.get(pk=row.get("FISCAL YEAR")),
+                    responsibility_center=shared_models.ResponsibilityCenter.objects.get(code=row.get("RC")),
+                    business_line=shared_models.BusinessLine.objects.get(code=row.get("BUSINESS LINE")),
+                    allotment_code=shared_models.AllotmentCode.objects.get(code=row.get("ALLOTMENT CODE")),
+                    project=shared_models.Project.objects.get(code=row.get("PROJECT CODE")),
+
+                    # OPTIONAL FIELDS
+                    line_object=lo,
+                    transaction_type=my_type,
+                    supplier_description=row.get("DESCRIPTION"),
+                    obligation_cost=float(row.get("OBLIGATION COST")),
+                    invoice_cost=float(row.get("INVOICE COST")),
+                    in_mrs=in_mrs,
+                    reference_number=row.get("REFERENCE NUMBER"),
+                    invoice_date=invoice_date
+                )
+                my_t.created_by = self.request.user
+                my_t.save()
+
+            except Exception as e:
+                print(e)
+                messages.error(self.request, "Problem importing transaction on line {} of csv file.".format(i))
+
+            i += 1
+
+        # clear the file in my object
+        my_object.temp_file = None
+        my_object.save()
+        return HttpResponseRedirect(reverse_lazy('scifi:trans_list'))
 
 
 # REPORTS #

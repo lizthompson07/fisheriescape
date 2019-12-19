@@ -69,6 +69,9 @@ urlpatterns = [
     path('transaction/<int:pk>/toggle-mrs/<str:query>', views.toggle_mrs, name="toggle_mrs"),
     path('transaction/<int:pk>/toggle-mrs/', views.toggle_mrs, name="toggle_mrs"),
 
+    # file import
+    path('import-transactions-from-file/', views.ImportFileView.as_view(), name="import_file"),
+
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),

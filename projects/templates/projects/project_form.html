@@ -11,6 +11,10 @@
         }
     </style>
 
+
+
+
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">
@@ -279,3 +283,8 @@
 
 
 {% endblock content %}
+
+
+{% block body_js %}
+    <script type="text/javascript" src="{% static 'widgEditor_1.0.1/scripts/widgEditor.js' %}"></script>
+{% endblock %}

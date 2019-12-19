@@ -1,6 +1,9 @@
+import os
+
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -106,3 +109,39 @@ class SciFiUser(models.Model):
 
     class Meta:
         ordering = ["user", ]
+
+
+class TempFile(models.Model):
+    temp_file = models.FileField(upload_to='temp_file')
+
+
+@receiver(models.signals.post_delete, sender=TempFile)
+def auto_delete_region_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.temp_file:
+        if os.path.isfile(instance.temp_file.path):
+            os.remove(instance.temp_file.path)
+
+
+@receiver(models.signals.pre_save, sender=TempFile)
+def auto_delete_region_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = TempFile.objects.get(pk=instance.pk).temp_file
+    except TempFile.DoesNotExist:
+        return False
+
+    new_file = instance.temp_file
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

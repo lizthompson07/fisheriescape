@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-04 11:43-0400\n"
+"POT-Creation-Date: 2019-12-11 11:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,16 +39,17 @@ msgid "language preference"
 msgstr "Préférence de langue"
 
 #: .\accounts\models.py:26 .\inventory\filters.py:37 .\inventory\filters.py:48
-#: .\inventory\templates\inventory\my_resource_list.html:29
 #: .\inventory\templates\inventory\resource_list.html:76
 #: .\ios2\templates\ios2\instrument_list.html:77
 #: .\ios2\templates\ios2\mooring_list.html:77 .\projects\filters.py:18
 #: .\projects\filters.py:37 .\projects\filters.py:56 .\projects\filters.py:65
 #: .\projects\templates\projects\admin_project_program_list.html:77
 #: .\projects\templates\projects\admin_staff_list.html:75
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:77
 #: .\projects\templates\projects\my_project_list.html:93
 #: .\projects\templates\projects\my_section_list.html:103
-#: .\projects\templates\projects\project_list.html:83
+#: .\projects\templates\projects\project_list.html:83 .\travel\filters.py:102
+#: .\travel\filters.py:116 .\travel\filters.py:125
 msgid "Section"
 msgstr "Section"
 
@@ -96,10 +97,10 @@ msgstr "Nouvelle demande d'accès:"
 #: .\ios2\templates\ios2\mooring_submit_form.html:62
 #: .\projects\templates\projects\project_approval_form_popout.html:54
 #: .\projects\templates\projects\project_confirm_delete.html:40
-#: .\projects\templates\projects\project_form.html:62
 #: .\projects\templates\projects\project_form.html:66
-#: .\projects\templates\projects\project_form.html:122
+#: .\projects\templates\projects\project_form.html:70
 #: .\projects\templates\projects\project_form.html:126
+#: .\projects\templates\projects\project_form.html:130
 #: .\projects\templates\projects\project_submit_form.html:62
 #: .\publications\templates\publications\pub_confirm_delete.html:40
 #: .\publications\templates\publications\pub_form.html:38
@@ -113,13 +114,14 @@ msgstr "Nouvelle demande d'accès:"
 #: .\staff\templates\staff\staffingplan_form.html:45
 #: .\staff\templates\staff\staffingplan_form.html:60
 #: .\staff\templates\staff\staffingplan_form.html:67
+#: .\travel\templates\travel\reviewer_approval_form.html:81
 #: .\whalesdb\templates\whalesdb\create_default_no_head.html:31
 #: .\whalesdb\templates\whalesdb\create_deployment.html:49
 msgid "Cancel"
 msgstr "Annuler"
 
 #: .\accounts\templates\registration\login.html:23
-#: .\accounts\templates\registration\login.html:74 .\templates\base.html:89
+#: .\accounts\templates\registration\login.html:78 .\templates\base.html:89
 msgid "Sign In"
 msgstr "Connecter"
 
@@ -199,6 +201,7 @@ msgstr ""
 #: .\ihub\templates\ihub\organization_list.html:62
 #: .\ihub\templates\ihub\person_list.html:64
 #: .\inventory\templates\inventory\dm_section_list.html:31
+#: .\inventory\templates\inventory\my_resource_list.html:20
 #: .\inventory\templates\inventory\my_section_detail.html:76
 #: .\inventory\templates\inventory\resource_list.html:51
 #: .\ios2\templates\ios2\instrument_list.html:55
@@ -209,6 +212,7 @@ msgstr ""
 #: .\oceanography\templates\oceanography\mission_list.html:48
 #: .\projects\templates\projects\admin_project_program_list.html:64
 #: .\projects\templates\projects\admin_staff_list.html:62
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:65
 #: .\projects\templates\projects\my_project_list.html:65
 #: .\projects\templates\projects\my_section_list.html:81
 #: .\projects\templates\projects\project_list.html:60
@@ -231,9 +235,9 @@ msgstr ""
 #: .\trapnet\templates\trapnet\river_list.html:36
 #: .\trapnet\templates\trapnet\sample_list.html:45
 #: .\trapnet\templates\trapnet\species_list.html:51
-#: .\travel\templates\travel\event_approval_list.html:56
-#: .\travel\templates\travel\event_list.html:51
-#: .\travel\templates\travel\registeredevent_list.html:50
+#: .\travel\templates\travel\conference_list.html:50
+#: .\travel\templates\travel\trip_list.html:51
+#: .\travel\templates\travel\trip_review_list.html:60
 msgid "(click on a header to sort table)"
 msgstr "(cliquez sur un en-tête pour trier le tableau)"
 
@@ -242,6 +246,7 @@ msgstr "(cliquez sur un en-tête pour trier le tableau)"
 #: .\grais\templates\grais\sample_list.html:37
 #: .\herring\templates\herring\sample_filter.html:67
 #: .\ihub\templates\ihub\person_list.html:68
+#: .\inventory\templates\inventory\my_resource_list.html:23
 #: .\inventory\templates\inventory\resource_list.html:55
 #: .\projects\templates\projects\admin_project_program_list.html:68
 #: .\projects\templates\projects\admin_staff_list.html:66
@@ -381,7 +386,9 @@ msgid "Travel Management System"
 msgstr "Système de gestion de voyage"
 
 #: .\dm_apps\views.py:176
-msgid "Gulf region travel management tool."
+#, fuzzy
+#| msgid "Gulf region travel management tool."
+msgid "Regional travel management tool."
 msgstr "Outil de gestion des voyages dans la région du Golfe."
 
 #: .\dm_apps\views.py:188
@@ -468,40 +475,48 @@ msgstr ""
 msgid "Sample"
 msgstr ""
 
-#: .\ihub\filters.py:11
+#: .\ihub\filters.py:13
 msgid "Search organizations (name, province, etc...)"
 msgstr ""
 
-#: .\ihub\filters.py:32
+#: .\ihub\filters.py:35
 msgid "Any part of name, or title"
 msgstr ""
 
-#: .\ihub\forms.py:61
-msgid "Capacity Report (Excel Spreadsheet)"
-msgstr ""
-
-#: .\ihub\forms.py:62
-msgid "Organizational Report / Cue Card (PDF)"
+#: .\ihub\filters.py:56
+msgid "Name contains"
 msgstr ""
 
 #: .\ihub\forms.py:63
-msgid "iHub Summary Report (Excel Spreadsheet)"
+msgid "Capacity Report (Excel Spreadsheet)"
 msgstr ""
 
 #: .\ihub\forms.py:64
-msgid "iHub Summary Report (PDF)"
+msgid "Organizational Report / Cue Card (PDF)"
 msgstr ""
 
 #: .\ihub\forms.py:65
-msgid "Consultations Update Log (PDF)"
+msgid "iHub Summary Report (Excel Spreadsheet)"
 msgstr ""
 
-#: .\ihub\forms.py:148
+#: .\ihub\forms.py:66
+msgid "iHub Summary Report (PDF)"
+msgstr ""
+
+#: .\ihub\forms.py:67
+msgid "Engagement Update Log (PDF)"
+msgstr ""
+
+#: .\ihub\forms.py:68
+msgid "Engagement Update Log (XLSX)"
+msgstr ""
+
+#: .\ihub\forms.py:151
 msgid "DFO employee"
 msgstr "employé MPO"
 
 #: .\ihub\models.py:17 .\ihub\models.py:34 .\ihub\models.py:51
-#: .\masterlist\models.py:16 .\masterlist\models.py:247
+#: .\ihub\models.py:67 .\masterlist\models.py:16 .\masterlist\models.py:247
 #: .\shared_models\models.py:31 .\shared_models\models.py:67
 #: .\shared_models\models.py:93 .\shared_models\models.py:120
 #: .\shared_models\models.py:148 .\spot\models.py:21 .\spot\models.py:40
@@ -522,20 +537,21 @@ msgstr "nom (français)"
 
 #: .\ihub\models.py:23 .\ihub\models.py:24 .\ihub\models.py:40
 #: .\ihub\models.py:41 .\ihub\models.py:56 .\ihub\models.py:57
-#: .\ihub\models.py:143 .\masterlist\models.py:21 .\masterlist\models.py:22
+#: .\ihub\models.py:74 .\ihub\models.py:75 .\ihub\models.py:89
+#: .\ihub\models.py:174 .\masterlist\models.py:21 .\masterlist\models.py:22
 #: .\masterlist\models.py:38 .\masterlist\models.py:39
 #: .\masterlist\models.py:59 .\masterlist\models.py:252
 #: .\masterlist\models.py:253 .\masterlist\models.py:259
-#: .\projects\models.py:33 .\projects\models.py:37 .\projects\models.py:39
-#: .\projects\models.py:54 .\projects\models.py:56 .\projects\models.py:71
-#: .\projects\models.py:73 .\projects\models.py:79 .\projects\models.py:163
-#: .\projects\models.py:165 .\projects\models.py:354 .\projects\models.py:356
-#: .\projects\models.py:382 .\projects\models.py:384 .\projects\models.py:489
-#: .\projects\models.py:616 .\projects\views.py:299 .\projects\views.py:624
-#: .\projects\views.py:625 .\projects\views.py:1840 .\sar_search\models.py:19
+#: .\projects\models.py:35 .\projects\models.py:39 .\projects\models.py:41
+#: .\projects\models.py:56 .\projects\models.py:58 .\projects\models.py:73
+#: .\projects\models.py:75 .\projects\models.py:81 .\projects\models.py:166
+#: .\projects\models.py:168 .\projects\models.py:462 .\projects\models.py:464
+#: .\projects\models.py:490 .\projects\models.py:492 .\projects\models.py:599
+#: .\projects\models.py:719 .\projects\views.py:299 .\projects\views.py:624
+#: .\projects\views.py:625 .\projects\views.py:1891 .\sar_search\models.py:19
 #: .\sar_search\models.py:32 .\sar_search\models.py:45
 #: .\sar_search\models.py:56 .\sar_search\models.py:85
-#: .\sar_search\models.py:99 .\sar_search\models.py:301
+#: .\sar_search\models.py:99 .\sar_search\models.py:317
 #: .\shared_models\models.py:46 .\shared_models\models.py:47
 #: .\shared_models\models.py:82 .\shared_models\models.py:83
 #: .\shared_models\models.py:109 .\shared_models\models.py:110
@@ -558,83 +574,109 @@ msgstr "nom (français)"
 #: .\spot\models.py:671 .\spot\models.py:680 .\spot\models.py:681
 #: .\spot\models.py:687 .\spot\models.py:704 .\spot\models.py:705
 #: .\spot\models.py:711 .\spot\models.py:799 .\spot\models.py:800
-#: .\spot\models.py:806 .\staff\views.py:34 .\staff\views.py:237
-#: .\staff\views.py:238 .\tickets\models.py:59 .\tickets\models.py:60
+#: .\spot\models.py:806 .\staff\views.py:34 .\staff\views.py:222
+#: .\staff\views.py:223 .\tickets\models.py:59 .\tickets\models.py:60
 #: .\trapnet\models.py:41 .\trapnet\models.py:81 .\trapnet\models.py:92
 #: .\trapnet\models.py:103 .\trapnet\models.py:114 .\trapnet\models.py:126
 #: .\trapnet\models.py:190 .\trapnet\models.py:202 .\trapnet\models.py:214
-#: .\travel\models.py:26 .\travel\models.py:27 .\travel\models.py:42
-#: .\travel\models.py:43 .\travel\models.py:60 .\travel\models.py:61
-#: .\travel\models.py:87 .\travel\models.py:89 .\travel\models.py:107
-#: .\travel\models.py:109
+#: .\travel\filters.py:28 .\travel\models.py:32 .\travel\models.py:33
+#: .\travel\models.py:48 .\travel\models.py:49 .\travel\models.py:66
+#: .\travel\models.py:67 .\travel\models.py:93 .\travel\models.py:95
+#: .\travel\models.py:124 .\travel\models.py:125 .\travel\models.py:199
+#: .\travel\models.py:200 .\travel\models.py:555 .\travel\models.py:556
 msgid "name"
 msgstr "nom"
 
-#: .\ihub\models.py:68 .\masterlist\models.py:158
+#: .\ihub\models.py:68 .\shared_models\models.py:32
+#: .\shared_models\models.py:121 .\shared_models\models.py:149
+#: .\spot\models.py:22 .\spot\models.py:41 .\spot\models.py:68
+#: .\spot\models.py:84 .\spot\models.py:109 .\spot\models.py:145
+#: .\spot\models.py:169 .\spot\models.py:185 .\spot\models.py:532
+#: .\spot\models.py:643 .\spot\models.py:660 .\spot\models.py:676
+#: .\spot\models.py:795
+msgid "name (French)"
+msgstr "nom (français)"
+
+#: .\ihub\models.py:69 .\ihub\models.py:70 .\shared_models\models.py:34
+#: .\spot\models.py:42 .\spot\models.py:43
+msgid "abbreviation (French)"
+msgstr ""
+
+#: .\ihub\models.py:94 .\masterlist\models.py:158
 msgid "title"
 msgstr "titre"
 
-#: .\ihub\models.py:69
+#: .\ihub\models.py:95
 msgid "location"
 msgstr "location"
 
-#: .\ihub\models.py:72
+#: .\ihub\models.py:98
 msgid "initial activity date"
 msgstr "date d'activité initiale"
 
-#: .\ihub\models.py:73 .\ihub\models.py:188 .\ihub\reports.py:192
-#: .\ihub\reports.py:414 .\shares\models.py:48
+#: .\ihub\models.py:99
+msgid "anticipated end date"
+msgstr ""
+
+#: .\ihub\models.py:100 .\ihub\models.py:219 .\ihub\reports.py:198
+#: .\ihub\reports.py:424 .\shares\models.py:48
 msgid "status"
 msgstr "statut"
 
-#: .\ihub\models.py:75
+#: .\ihub\models.py:102
 msgid "DFO sectors"
 msgstr "Secteurs du MPO"
 
-#: .\ihub\models.py:77 .\ihub\reports.py:202 .\ihub\reports.py:424
+#: .\ihub\models.py:104 .\ihub\reports.py:208 .\ihub\reports.py:434
 msgid "Entry Type"
 msgstr "Type d'entrée"
 
-#: .\ihub\models.py:81
+#: .\ihub\models.py:109 .\spot\models.py:142 .\spot\models.py:206
+#, fuzzy
+#| msgid "student program"
+msgid "funding program"
+msgstr "Programme d'étudiant"
+
+#: .\ihub\models.py:110
 msgid "fiscal year/multiyear"
 msgstr ""
 
-#: .\ihub\models.py:82
+#: .\ihub\models.py:111
 #, fuzzy
 #| msgid "Funding Requested"
 msgid "is funding needed?"
 msgstr "Financement demandé"
 
-#: .\ihub\models.py:84
+#: .\ihub\models.py:113
 msgid "funding purpose"
 msgstr ""
 
-#: .\ihub\models.py:85
+#: .\ihub\models.py:114
 #, fuzzy
 #| msgid "Funding Requested"
 msgid "funding requested"
 msgstr "Financement demandé"
 
-#: .\ihub\models.py:86
+#: .\ihub\models.py:115
 msgid "funding approved"
 msgstr ""
 
-#: .\ihub\models.py:87
+#: .\ihub\models.py:116
 msgid "amount transferred"
 msgstr ""
 
-#: .\ihub\models.py:88
+#: .\ihub\models.py:117
 msgid "amount lapsed"
 msgstr ""
 
-#: .\ihub\models.py:89
+#: .\ihub\models.py:118
 msgid "does any funding need to be recovered?"
 msgstr ""
 
-#: .\ihub\models.py:92 .\masterlist\models.py:115 .\masterlist\models.py:173
+#: .\ihub\models.py:121 .\masterlist\models.py:115 .\masterlist\models.py:173
 #: .\masterlist\models.py:270 .\masterlist\models.py:303
-#: .\masterlist\models.py:331 .\projects\models.py:298
-#: .\sar_search\models.py:212 .\sar_search\models.py:297
+#: .\masterlist\models.py:331 .\projects\models.py:303
+#: .\sar_search\models.py:213 .\sar_search\models.py:313
 #: .\shared_models\models.py:37 .\shared_models\models.py:73
 #: .\shared_models\models.py:100 .\shared_models\models.py:127
 #: .\shared_models\models.py:155 .\spot\models.py:276 .\spot\models.py:391
@@ -644,14 +686,14 @@ msgstr ""
 msgid "date last modified"
 msgstr "Date de dernière modification"
 
-#: .\ihub\models.py:93 .\projects\models.py:645
+#: .\ihub\models.py:122 .\projects\models.py:748
 msgid "date created"
 msgstr "Date de création"
 
-#: .\ihub\models.py:94 .\masterlist\models.py:116 .\masterlist\models.py:174
+#: .\ihub\models.py:123 .\masterlist\models.py:116 .\masterlist\models.py:174
 #: .\masterlist\models.py:271 .\masterlist\models.py:304
-#: .\masterlist\models.py:332 .\projects\models.py:299
-#: .\sar_search\models.py:213 .\sar_search\models.py:298
+#: .\masterlist\models.py:332 .\projects\models.py:304
+#: .\sar_search\models.py:214 .\sar_search\models.py:314
 #: .\shared_models\models.py:38 .\shared_models\models.py:74
 #: .\shared_models\models.py:101 .\shared_models\models.py:128
 #: .\shared_models\models.py:156 .\spot\models.py:277 .\spot\models.py:392
@@ -661,59 +703,60 @@ msgstr "Date de création"
 msgid "last modified by"
 msgstr "Dernière modification par"
 
-#: .\ihub\models.py:95 .\projects\models.py:646
+#: .\ihub\models.py:124 .\projects\models.py:749
 msgid "created by"
 msgstr ""
 
-#: .\ihub\models.py:142 .\projects\models.py:407
+#: .\ihub\models.py:173 .\projects\models.py:515
 msgid "User"
 msgstr "Utilisateur"
 
-#: .\ihub\models.py:145 .\masterlist\models.py:266
+#: .\ihub\models.py:176 .\masterlist\models.py:266 .\travel\models.py:569
 msgid "role"
 msgstr ""
 
-#: .\ihub\models.py:186
+#: .\ihub\models.py:217
 msgid "author"
 msgstr "auteur"
 
-#: .\ihub\models.py:211
+#: .\ihub\models.py:242 .\travel\models.py:617
 msgid "caption"
 msgstr ""
 
-#: .\ihub\models.py:213
+#: .\ihub\models.py:244
 msgid "file"
 msgstr ""
 
-#: .\ihub\models.py:214
+#: .\ihub\models.py:245
 msgid "date uploaded"
 msgstr ""
 
-#: .\ihub\reports.py:87 .\ihub\reports.py:277
+#: .\ihub\reports.py:91 .\ihub\reports.py:285
 msgid "Amount outstanding"
 msgstr ""
 
-#: .\ihub\reports.py:180 .\ihub\reports.py:403
+#: .\ihub\reports.py:186 .\ihub\reports.py:413
 msgid "GRAND TOTAL:"
 msgstr ""
 
-#: .\ihub\reports.py:188 .\ihub\reports.py:410
+#: .\ihub\reports.py:194 .\ihub\reports.py:420
 #, fuzzy
 #| msgid "Funding Requested"
 msgid "Funding requested"
 msgstr "Financement demandé"
 
-#: .\ihub\reports.py:269 .\publications\templates\publications\pub_list.html:73
+#: .\ihub\reports.py:276 .\publications\templates\publications\pub_list.html:73
 msgid "DFO Contacts"
 msgstr ""
 
-#: .\ihub\reports.py:270 .\ihub\templates\ihub\_members.html:32
+#: .\ihub\reports.py:277 .\ihub\templates\ihub\_members.html:32
 #: .\masterlist\reports.py:73
-#: .\masterlist\templates\masterlist\_members.html:27 .\projects\models.py:670
+#: .\masterlist\templates\masterlist\_members.html:27 .\projects\models.py:773
 #: .\projects\templates\projects\_agreements.html:43
 #: .\projects\templates\projects\_collaborators.html:40
 #: .\projects\templates\projects\_milestone_updates.html:35
-#: .\whalesdb\forms.py:52 .\whalesdb\forms.py:130 .\whalesdb\forms.py:150
+#: .\sar_search\views.py:360 .\whalesdb\forms.py:46 .\whalesdb\forms.py:124
+#: .\whalesdb\forms.py:138
 msgid "Notes"
 msgstr "Remarques"
 
@@ -738,6 +781,7 @@ msgid "Link"
 msgstr ""
 
 #: .\ihub\templates\ihub\_file.html:24 .\spot\templates\spot\_file.html:26
+#: .\travel\templates\travel\_files.html:26
 msgid "Caption"
 msgstr ""
 
@@ -767,14 +811,16 @@ msgstr ""
 
 #: .\ihub\templates\ihub\_members.html:26 .\ihub\templates\ihub\_people.html:20
 #: .\masterlist\models.py:49 .\masterlist\templates\masterlist\_members.html:21
-#: .\masterlist\templates\masterlist\_people.html:20 .\projects\models.py:432
+#: .\masterlist\templates\masterlist\_people.html:20 .\projects\models.py:540
 #: .\projects\templates\projects\_collaborators.html:31
 #: .\projects\templates\projects\_milestones.html:34
 #: .\projects\templates\projects\_staff.html:35
 #: .\spot\templates\spot\_project_people.html:24
 #: .\spot\templates\spot\_sites.html:23
-#: .\spot\templates\spot\scratch\_people.html:20 .\whalesdb\forms.py:46
-#: .\whalesdb\views.py:112 .\whalesdb\views.py:130
+#: .\spot\templates\spot\scratch\_people.html:20
+#: .\travel\templates\travel\_trip_detail.html:115
+#: .\travel\templates\travel\conference_detail.html:114 .\travel\views.py:210
+#: .\whalesdb\forms.py:40 .\whalesdb\views.py:112 .\whalesdb\views.py:130
 msgid "Name"
 msgstr "Nom"
 
@@ -809,7 +855,7 @@ msgid "Type"
 msgstr "Type"
 
 #: .\ihub\templates\ihub\_notes.html:31
-#: .\projects\templates\projects\overtime_calculator_popout.html:61
+#: .\projects\templates\projects\overtime_calculator_popout.html:62
 msgid "Date"
 msgstr "Date"
 
@@ -824,7 +870,6 @@ msgstr "Remarque"
 #: .\ihub\templates\ihub\_notes.html:40
 #: .\ihub\templates\ihub\entry_list.html:97 .\inventory\filters.py:19
 #: .\inventory\filters.py:35
-#: .\inventory\templates\inventory\my_resource_list.html:26
 #: .\inventory\templates\inventory\resource_list.html:73
 #: .\projects\templates\projects\_milestone_updates.html:32
 #: .\projects\templates\projects\_status_reports.html:36
@@ -902,7 +947,8 @@ msgstr "Détails de l'entrée"
 #: .\projects\templates\projects\project_detail.html:73
 #: .\projects\templates\projects\status_report_form_popout.html:82
 #: .\publications\templates\publications\pub_confirm_delete.html:37
-#: .\publications\templates\publications\pub_detail.html:38
+#: .\publications\templates\publications\pub_detail.html:42
+#: .\sar_search\templates\sar_search\species_detail.html:49
 #: .\scifi\templates\scifi\allotmentcode_detail.html:28
 #: .\scifi\templates\scifi\businessline_detail.html:28
 #: .\scifi\templates\scifi\lineobject_detail.html:28
@@ -914,8 +960,8 @@ msgstr "Détails de l'entrée"
 #: .\spot\templates\spot\payment_form_popout.html:61
 #: .\spot\templates\spot\project_year_detail.html:42
 #: .\spot\templates\spot\site_form_popout.html:56
-#: .\travel\templates\travel\event_form_popout.html:32
-#: .\travel\templates\travel\event_form_popout.html:53
+#: .\travel\templates\travel\trip_form_popout.html:38
+#: .\travel\templates\travel\trip_form_popout.html:194
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -945,17 +991,24 @@ msgstr ""
 #: .\ihub\templates\ihub\person_detail.html:25
 #: .\ihub\templates\ihub\person_form.html:13
 #: .\ihub\templates\ihub\person_list.html:23
+#: .\ihub\templates\ihub\user_list.html:13
 #: .\ios2\templates\ios2\instrument_base.html:24
 #: .\masterlist\templates\masterlist\masterlist_base.html:21
+#: .\projects\templates\projects\ips_program_list.html:44
+#: .\projects\templates\projects\ips_project_form.html:11
+#: .\projects\templates\projects\ips_project_list.html:38
+#: .\projects\templates\projects\ips_project_program.html:38
 #: .\projects\templates\projects\manage_settings_small.html:27
 #: .\projects\templates\projects\projects_base.html:23
 #: .\publications\templates\publications\pub_base.html:21
 #: .\sar_search\templates\sar_search\manage_settings_small.html:49
+#: .\sar_search\templates\sar_search\species_detail.html:11
 #: .\scifi\templates\scifi\scifi_base.html:28
 #: .\shares\templates\shares\shares_base.html:21
 #: .\spot\templates\spot\manage_settings_small.html:33
 #: .\spot\templates\spot\spot_base.html:21
-#: .\travel\templates\travel\manage_settings_small.html:27
+#: .\travel\templates\travel\conference_detail.html:22
+#: .\travel\templates\travel\manage_settings_small.html:28
 #: .\travel\templates\travel\travel_base.html:21
 msgid "Home"
 msgstr "Accueil"
@@ -969,7 +1022,8 @@ msgstr "Accueil"
 #: .\ios2\templates\ios2\instrument_form.html:21
 #: .\ios2\templates\ios2\mooring_form.html:21
 #: .\masterlist\templates\masterlist\organization_detail.html:33
-#: .\projects\templates\projects\project_form.html:23
+#: .\projects\templates\projects\project_form.html:27
+#: .\sar_search\templates\sar_search\species_detail.html:46
 #: .\scifi\templates\scifi\allotmentcode_detail.html:31
 #: .\scifi\templates\scifi\businessline_detail.html:31
 #: .\scifi\templates\scifi\lineobject_detail.html:31
@@ -977,6 +1031,7 @@ msgstr "Accueil"
 #: .\scifi\templates\scifi\responsibilitycenter_detail.html:31
 #: .\scifi\templates\scifi\transaction_detail.html:29
 #: .\spot\templates\spot\organization_detail.html:33
+#: .\travel\templates\travel\conference_detail.html:38
 msgid "Edit"
 msgstr "Modifier"
 
@@ -988,11 +1043,11 @@ msgstr "Détails de l'entrée:"
 msgid "Funding Detail:"
 msgstr ""
 
-#: .\ihub\templates\ihub\entry_detail.html:117
+#: .\ihub\templates\ihub\entry_detail.html:116
 msgid "Are you sure you want to delete this note?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 
-#: .\ihub\templates\ihub\entry_detail.html:129
+#: .\ihub\templates\ihub\entry_detail.html:127
 #: .\ihub\templates\ihub\organization_detail.html:101
 msgid "Are you sure you want to delete this person from the entry?"
 msgstr ""
@@ -1012,11 +1067,15 @@ msgstr "Nouvelle entrée"
 #: .\ios2\templates\ios2\instrument_form.html:84
 #: .\ios2\templates\ios2\mooring_form.html:51
 #: .\ios2\templates\ios2\mooring_form.html:88
-#: .\projects\templates\projects\project_form.html:56
-#: .\projects\templates\projects\project_form.html:116
+#: .\projects\templates\projects\ips_project_form.html:57
+#: .\projects\templates\projects\project_form.html:60
+#: .\projects\templates\projects\project_form.html:120
 #: .\publications\templates\publications\pub_form.html:28
 #: .\publications\templates\publications\pub_form.html:56
 #: .\staff\templates\staff\staffingplan_detail.html:33
+#: .\travel\templates\travel\conference_form_popout.html:34
+#: .\travel\templates\travel\trip_form_popout.html:34
+#: .\travel\templates\travel\trip_form_popout.html:190
 msgid "Update"
 msgstr "Mettre à jour"
 
@@ -1030,8 +1089,8 @@ msgstr "Mettre à jour"
 #: .\ios2\templates\ios2\instrument_form.html:88
 #: .\ios2\templates\ios2\mooring_form.html:55
 #: .\ios2\templates\ios2\mooring_form.html:92
-#: .\projects\templates\projects\project_form.html:54
-#: .\projects\templates\projects\project_form.html:114
+#: .\projects\templates\projects\project_form.html:58
+#: .\projects\templates\projects\project_form.html:118
 #: .\publications\templates\publications\pub_form.html:32
 #: .\publications\templates\publications\pub_form.html:60
 #: .\staff\templates\staff\staffingplan_form.html:42
@@ -1045,6 +1104,7 @@ msgid "iHub Entries"
 msgstr ""
 
 #: .\ihub\templates\ihub\entry_list.html:49
+#: .\ihub\templates\ihub\user_list.html:46
 #: .\projects\templates\projects\project_list.html:49
 msgid "Filter"
 msgstr "Filter"
@@ -1052,6 +1112,7 @@ msgstr "Filter"
 #: .\ihub\templates\ihub\entry_list.html:51
 #: .\ihub\templates\ihub\organization_list.html:49
 #: .\ihub\templates\ihub\person_list.html:50
+#: .\ihub\templates\ihub\user_list.html:48
 msgid "Clear"
 msgstr "Effacer"
 
@@ -1067,10 +1128,11 @@ msgstr ""
 "                    "
 
 #: .\ihub\templates\ihub\entry_list.html:81
-#: .\inventory\templates\inventory\my_resource_list.html:23
 #: .\inventory\templates\inventory\resource_list.html:70
 #: .\projects\templates\projects\admin_project_program_list.html:80
 #: .\projects\templates\projects\admin_staff_list.html:78
+#: .\projects\templates\projects\ips_project_list.html:74
+#: .\projects\templates\projects\ips_project_program.html:72
 #: .\projects\templates\projects\my_project_list.html:96
 #: .\projects\templates\projects\my_section_list.html:109
 #: .\projects\templates\projects\project_list.html:86
@@ -1087,23 +1149,23 @@ msgstr ""
 msgid "DFO Sector"
 msgstr "Secteurs du MPO"
 
-#: .\ihub\templates\ihub\entry_person_form_popout.html:29
+#: .\ihub\templates\ihub\entry_person_form_popout.html:18
 #: .\ihub\templates\ihub\person_form_popout.html:25
 #: .\masterlist\templates\masterlist\person_form_popout.html:25
 #: .\spot\templates\spot\person_form_popout.html:29
 msgid "Editing Person:"
 msgstr ""
 
-#: .\ihub\templates\ihub\entry_person_form_popout.html:32
+#: .\ihub\templates\ihub\entry_person_form_popout.html:21
 msgid "Adding Person"
 msgstr ""
 
-#: .\ihub\templates\ihub\entry_person_form_popout.html:48
+#: .\ihub\templates\ihub\entry_person_form_popout.html:37
 #: .\projects\templates\projects\staff_form_popout.html:135
 msgid "OR"
 msgstr "OU"
 
-#: .\ihub\templates\ihub\entry_person_form_popout.html:66
+#: .\ihub\templates\ihub\entry_person_form_popout.html:55
 #: .\ihub\templates\ihub\file_form_popout.html:44
 #: .\ihub\templates\ihub\member_form_popout.html:68
 #: .\ihub\templates\ihub\note_form_popout.html:42
@@ -1120,12 +1182,7 @@ msgstr "OU"
 #: .\ios2\templates\ios2\service_form_popout.html:44
 #: .\masterlist\templates\masterlist\member_form_popout.html:87
 #: .\masterlist\templates\masterlist\person_form_popout.html:40
-#: .\projects\templates\projects\agreement_form_popout.html:45
-#: .\projects\templates\projects\collaborator_form_popout.html:45
-#: .\projects\templates\projects\cost_form_popout.html:48
-#: .\projects\templates\projects\milestone_form_popout.html:34
 #: .\projects\templates\projects\project_submit_form.html:22
-#: .\projects\templates\projects\staff_form_popout.html:159
 #: .\publications\templates\publications\lookup_new_popout.html:20
 #: .\publications\templates\publications\pub_submit_form.html:22
 #: .\sar_search\templates\sar_search\points_file_import_form.html:202
@@ -1138,16 +1195,13 @@ msgstr "OU"
 #: .\spot\templates\spot\site_form_popout.html:52
 #: .\spot\templates\spot\tracking_form_popout.html:125
 #: .\staff\templates\staff\staffingplanfunding_form.html:23
-#: .\travel\templates\travel\event_form_popout.html:28
-#: .\travel\templates\travel\event_form_popout.html:49
-#: .\travel\templates\travel\registeredevent_form_popout.html:34
 #: .\whalesdb\templates\whalesdb\code_entry.html:21
 #: .\whalesdb\templates\whalesdb\create_default_no_head.html:19
 #: .\whalesdb\templates\whalesdb\create_deployment.html:37
 msgid "Submit"
 msgstr "Soumettre"
 
-#: .\ihub\templates\ihub\entry_person_form_popout.html:69
+#: .\ihub\templates\ihub\entry_person_form_popout.html:58
 #: .\ihub\templates\ihub\file_form_popout.html:47
 #: .\ihub\templates\ihub\member_form_popout.html:76
 #: .\ihub\templates\ihub\note_form_popout.html:45
@@ -1162,6 +1216,7 @@ msgstr "Soumettre"
 #: .\projects\templates\projects\collaborator_form_popout.html:48
 #: .\projects\templates\projects\cost_form_popout.html:51
 #: .\projects\templates\projects\milestone_form_popout.html:37
+#: .\projects\templates\projects\section_note_form_popout.html:37
 #: .\projects\templates\projects\staff_form_popout.html:162
 #: .\projects\templates\projects\status_report_form_popout.html:86
 #: .\publications\templates\publications\lookup_new_popout.html:23
@@ -1173,9 +1228,9 @@ msgstr "Soumettre"
 #: .\spot\templates\spot\site_form_popout.html:60
 #: .\spot\templates\spot\tracking_form_popout.html:128
 #: .\staff\templates\staff\staffingplanfunding_form.html:26
-#: .\travel\templates\travel\event_form_popout.html:36
-#: .\travel\templates\travel\event_form_popout.html:57
-#: .\travel\templates\travel\registeredevent_form_popout.html:37
+#: .\travel\templates\travel\conference_form_popout.html:37
+#: .\travel\templates\travel\trip_form_popout.html:42
+#: .\travel\templates\travel\trip_form_popout.html:198
 #: .\whalesdb\templates\whalesdb\code_entry.html:24
 #: .\whalesdb\templates\whalesdb\create_default_no_head.html:23
 #: .\whalesdb\templates\whalesdb\create_deployment.html:41
@@ -1223,13 +1278,13 @@ msgstr "Organisations"
 #: .\projects\templates\projects\projects_base.html:59
 #: .\scifi\templates\scifi\scifi_base.html:61
 #: .\spot\templates\spot\index.html:42 .\spot\templates\spot\spot_base.html:47
-#: .\travel\templates\travel\travel_base.html:32
+#: .\travel\templates\travel\travel_base.html:71
 msgid "Reports"
 msgstr "Rapports"
 
 #: .\ihub\templates\ihub\ihub_base.html:49
 #: .\projects\templates\projects\projects_base.html:69
-#: .\travel\templates\travel\travel_base.html:41
+#: .\travel\templates\travel\travel_base.html:80
 msgid "Settings"
 msgstr "Paramètres"
 
@@ -1243,7 +1298,7 @@ msgstr ""
 
 #: .\ihub\templates\ihub\ihub_base.html:59
 #: .\projects\templates\projects\projects_base.html:86
-#: .\travel\templates\travel\travel_base.html:46
+#: .\travel\templates\travel\travel_base.html:85
 msgid "Manage Statuses"
 msgstr "Gérer les statuts"
 
@@ -1266,6 +1321,18 @@ msgstr "Ressources humaines"
 #| msgid "Transactions"
 msgid "Manage Nations"
 msgstr "Transactions"
+
+#: .\ihub\templates\ihub\ihub_base.html:74
+#, fuzzy
+#| msgid "Manage Funding Sources"
+msgid "Manage Funding Programs"
+msgstr "Gérer les source de financement"
+
+#: .\ihub\templates\ihub\ihub_base.html:77
+#, fuzzy
+#| msgid "Human Resources"
+msgid "Manage User Permissions"
+msgstr "Ressources humaines"
 
 #: .\ihub\templates\ihub\index.html:11
 msgid "Welcome to the iHub"
@@ -1342,7 +1409,7 @@ msgstr ""
 msgid "Last modified on"
 msgstr "Dernière modification"
 
-#: .\ihub\templates\ihub\member_form_popout.html:86
+#: .\ihub\templates\ihub\member_form_popout.html:86 .\travel\models.py:532
 msgid "by"
 msgstr "par"
 
@@ -1388,8 +1455,9 @@ msgid "iHub Only:"
 msgstr ""
 
 #: .\ihub\templates\ihub\organization_form.html:35
-#: .\ihub\templates\ihub\person_form.html:25 .\projects\models.py:448
+#: .\ihub\templates\ihub\person_form.html:25 .\projects\models.py:556
 #: .\projects\templates\projects\project_list.html:68
+#: .\travel\templates\travel\travel_base.html:36
 msgid "New"
 msgstr "Nouveau"
 
@@ -1498,7 +1566,47 @@ msgstr ""
 msgid "Please enter the Report Details:"
 msgstr ""
 
-#: .\ihub\views.py:96
+#: .\ihub\templates\ihub\user_form.html:27
+msgid "Change Password"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_form.html:28
+msgid "Edit User Profile"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_form.html:29
+msgid "Edit User in Site Admin Menu"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_form.html:34
+#: .\inventory\templates\inventory\temp_formset.html:33
+#: .\inventory\templates\inventory\temp_formset.html:80
+#: .\projects\templates\projects\ips_project_form.html:60
+#: .\projects\templates\projects\temp_formset.html:72
+msgid "Back"
+msgstr "Retour"
+
+#: .\ihub\templates\ihub\user_list.html:17
+#, fuzzy
+#| msgid "User"
+msgid "All Users"
+msgstr "Utilisateur"
+
+#: .\ihub\templates\ihub\user_list.html:23
+#, fuzzy
+#| msgid "User"
+msgid "User List"
+msgstr "Utilisateur"
+
+#: .\ihub\templates\ihub\user_list.html:76
+msgid "iHub Administrator"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_list.html:79
+msgid "Read / write permissions"
+msgstr ""
+
+#: .\ihub\views.py:97
 msgid ""
 "Please note that only <b>unclassified information</b> may be entered into "
 "this application."
@@ -1506,42 +1614,42 @@ msgstr ""
 "Veuillez noter que seules <b>les informations non classifiées</b> peuvent "
 "être entrées dans cette application."
 
-#: .\ihub\views.py:212
+#: .\ihub\views.py:213
 msgid "The person was deleted successfully!"
 msgstr "La personne a été supprimé avec succès!"
 
-#: .\ihub\views.py:253
+#: .\ihub\views.py:254
 msgid "Full address"
 msgstr ""
 
-#: .\ihub\views.py:325
+#: .\ihub\views.py:326
 msgid "The organization was deleted successfully!"
 msgstr "L'organisme a été supprimé avec succès!"
 
-#: .\ihub\views.py:486
+#: .\ihub\views.py:490
 msgid ""
 "The entry has been submitted and an email has been sent to the Indigenous "
 "Hub Coordinator!"
 msgstr ""
 
-#: .\ihub\views.py:499
+#: .\ihub\views.py:503
 msgid "The entry was successfully deleted!"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\ihub\views.py:547
+#: .\ihub\views.py:551
 msgid "The note has been successfully deleted from the entry."
 msgstr "La note a été supprimé avec succès."
 
-#: .\ihub\views.py:593
+#: .\ihub\views.py:597
 msgid "The person has been successfully deleted from the entry."
 msgstr ""
 
-#: .\ihub\views.py:642
+#: .\ihub\views.py:646
 msgid "The file has been successfully deleted from the entry."
 msgstr ""
 
-#: .\ihub\views.py:654
-msgid "Consultations Update Log – Government of Canada"
+#: .\ihub\views.py:658
+msgid "Engagement Update Log – Government of Canada"
 msgstr ""
 
 #: .\inventory\filters.py:11
@@ -1551,10 +1659,10 @@ msgstr ""
 #: .\inventory\filters.py:13
 #: .\inventory\templates\inventory\resource_list.html:67
 #: .\masterlist\reports.py:76 .\projects\filters.py:16 .\projects\filters.py:39
-#: .\projects\filters.py:74 .\projects\filters.py:83 .\projects\filters.py:98
-#: .\projects\filters.py:107 .\projects\forms.py:26
+#: .\projects\filters.py:74 .\projects\filters.py:83 .\projects\filters.py:107
+#: .\projects\filters.py:136 .\projects\forms.py:27
 #: .\projects\templates\projects\my_project_list.html:87
-#: .\projects\templates\projects\project_list.html:78
+#: .\projects\templates\projects\project_list.html:78 .\travel\filters.py:98
 msgid "Region"
 msgstr "Région"
 
@@ -1570,45 +1678,47 @@ msgstr ""
 msgid "Published?"
 msgstr ""
 
-#: .\inventory\forms.py:62 .\inventory\forms.py:120
+#: .\inventory\forms.py:62 .\inventory\forms.py:132
 msgid "Parent Resource Id (click on field to find a parent resource)"
 msgstr ""
 
-#: .\inventory\forms.py:196
+#: .\inventory\forms.py:208
 msgid "This is a mandatory field in the Federal Geospatial Platform (FGP)"
 msgstr ""
 
-#: .\inventory\forms.py:201
+#: .\inventory\forms.py:213
 msgid ""
 "This is an optional field in the Federal Geospatial Platform (FGP), however "
 "if present, it needs to be entered in both English and French"
 msgstr ""
 
-#: .\inventory\forms.py:207
+#: .\inventory\forms.py:219
 msgid ""
 "This is an optional internal field (DFO only) and does not get published to "
 "the Federal Geospatial Platform (FGP)"
 msgstr ""
 
-#: .\inventory\forms.py:212
+#: .\inventory\forms.py:224
 msgid "This is an optional field"
 msgstr ""
 
-#: .\inventory\models.py:403
+#: .\inventory\models.py:371
 msgid "completedness report"
 msgstr ""
 
-#: .\inventory\models.py:404
+#: .\inventory\models.py:372
 msgid "completedness rating"
 msgstr ""
 
-#: .\inventory\models.py:405
+#: .\inventory\models.py:373
 msgid "translation needed"
 msgstr ""
 
-#: .\inventory\templates\inventory\dm_section_detail.html:47
-msgid "Section:"
-msgstr "Section:"
+#: .\inventory\models.py:382 .\inventory\models.py:386
+#, fuzzy
+#| msgid "title"
+msgid "title_eng"
+msgstr "titre"
 
 #: .\inventory\templates\inventory\inventory_base.html:13
 msgid "Data Inventory"
@@ -1635,39 +1745,40 @@ msgstr "Ma section"
 msgid "Data Manager Admin"
 msgstr ""
 
-#: .\inventory\templates\inventory\my_resource_list.html:32
-msgid "Role(s)"
-msgstr "Rôles"
+#: .\inventory\templates\inventory\my_resource_list.html:26
+#, fuzzy
+#| msgid "Add Resource"
+msgid "New Resource"
+msgstr "Ajouter une ressource"
 
-#: .\inventory\templates\inventory\my_resource_list.html:35
 #: .\inventory\templates\inventory\resource_list.html:79
 msgid "Previous time certified"
 msgstr ""
 
-#: .\inventory\templates\inventory\my_resource_list.html:38
-#: .\inventory\templates\inventory\my_resource_list.html:137
 #: .\inventory\templates\inventory\resource_list.html:82
 msgid "Completedness Rating"
-msgstr ""
-
-#: .\inventory\templates\inventory\my_resource_list.html:41
-#: .\inventory\templates\inventory\my_resource_list.html:140
-#: .\inventory\templates\inventory\resource_list.html:88
-msgid "Published to Open Data?"
-msgstr ""
-
-#: .\inventory\templates\inventory\my_resource_list.html:44
-#: .\inventory\templates\inventory\my_resource_list.html:143
-#: .\inventory\templates\inventory\resource_list.html:91
-msgid "External Links"
 msgstr ""
 
 #: .\inventory\templates\inventory\resource_list.html:85
 msgid "Translation Needed"
 msgstr ""
 
-#: .\inventory\templates\inventory\temp_formset.html:29
-#: .\inventory\templates\inventory\temp_formset.html:79
+#: .\inventory\templates\inventory\resource_list.html:88
+msgid "Published to Open Data?"
+msgstr ""
+
+#: .\inventory\templates\inventory\resource_list.html:91
+msgid "External Links"
+msgstr ""
+
+#: .\inventory\templates\inventory\temp_formset.html:30
+#: .\inventory\templates\inventory\temp_formset.html:77
+#: .\projects\templates\projects\agreement_form_popout.html:45
+#: .\projects\templates\projects\collaborator_form_popout.html:45
+#: .\projects\templates\projects\cost_form_popout.html:48
+#: .\projects\templates\projects\milestone_form_popout.html:34
+#: .\projects\templates\projects\section_note_form_popout.html:34
+#: .\projects\templates\projects\staff_form_popout.html:159
 #: .\projects\templates\projects\status_report_form_popout.html:78
 #: .\projects\templates\projects\temp_formset.html:69
 #: .\staff\templates\staff\staffingplan_form.html:35
@@ -1675,11 +1786,11 @@ msgstr ""
 msgid "Save"
 msgstr "Sauvegarder"
 
-#: .\inventory\templates\inventory\temp_formset.html:32
-#: .\inventory\templates\inventory\temp_formset.html:82
-#: .\projects\templates\projects\temp_formset.html:72
-msgid "Back"
-msgstr "Retour"
+#: .\inventory\views.py:174
+msgid ""
+"As an application administrator, you have the necessary permissions to "
+"modify this record."
+msgstr ""
 
 #: .\ios2\models.py:47 .\ios2\templates\ios2\_moorings.html:42
 #: .\ios2\templates\ios2\instrument_list.html:71
@@ -1699,7 +1810,7 @@ msgstr ""
 msgid "Purchase Date"
 msgstr ""
 
-#: .\ios2\models.py:51 .\projects\models.py:208
+#: .\ios2\models.py:51 .\projects\models.py:211
 msgid "Project title"
 msgstr "titre du projet"
 
@@ -1717,7 +1828,7 @@ msgstr "Type d'entrée"
 msgid "COMM Port"
 msgstr ""
 
-#: .\ios2\models.py:58 .\publications\templates\publications\pub_detail.html:49
+#: .\ios2\models.py:58 .\publications\templates\publications\pub_detail.html:54
 #, fuzzy
 #| msgid "Section"
 msgid "Location"
@@ -1803,7 +1914,7 @@ msgstr ""
 msgid "Repair&Calib"
 msgstr ""
 
-#: .\ios2\models.py:164 .\projects\models.py:494 .\projects\models.py:522
+#: .\ios2\models.py:164 .\projects\models.py:604 .\projects\models.py:632
 msgid "category"
 msgstr "catégorie"
 
@@ -1888,7 +1999,7 @@ msgstr ""
 
 #: .\ios2\templates\ios2\_instruments.html:73
 #: .\ios2\templates\ios2\_moorings.html:69
-#: .\ios2\templates\ios2\_services.html:49
+#: .\ios2\templates\ios2\_services.html:49 .\travel\models.py:573
 msgid "Comments"
 msgstr ""
 
@@ -2320,6 +2431,7 @@ msgid "Recover time"
 msgstr ""
 
 #: .\ios2\templates\ios2\mooring_list.html:93
+#: .\projects\templates\projects\admin_project_program_list.html:86
 #: .\projects\templates\projects\my_project_list.html:81
 #: .\projects\templates\projects\my_section_list.html:94
 #: .\projects\templates\projects\project_list.html:98
@@ -2376,15 +2488,17 @@ msgstr "L'accord a été supprimé avec succès."
 msgid "Indigenous?"
 msgstr "Autochtone?"
 
-#: .\masterlist\forms.py:8 .\projects\forms.py:20 .\projects\models.py:26
-#: .\shares\forms.py:11 .\spot\forms.py:18 .\travel\forms.py:14
-#: .\travel\models.py:15
+#: .\masterlist\forms.py:8 .\projects\forms.py:21 .\projects\models.py:28
+#: .\shares\forms.py:11 .\spot\forms.py:18 .\travel\forms.py:20
+#: .\travel\models.py:21
+#: .\travel\templates\travel\reviewer_approval_form.html:68
 msgid "Yes"
 msgstr "Oui"
 
-#: .\masterlist\forms.py:9 .\projects\forms.py:21 .\projects\models.py:27
-#: .\shares\forms.py:12 .\spot\forms.py:19 .\travel\forms.py:15
-#: .\travel\models.py:16
+#: .\masterlist\forms.py:9 .\projects\forms.py:22 .\projects\models.py:29
+#: .\shares\forms.py:12 .\spot\forms.py:19 .\travel\forms.py:21
+#: .\travel\models.py:22
+#: .\travel\templates\travel\reviewer_approval_form.html:71
 msgid "No"
 msgstr "Non"
 
@@ -2474,7 +2588,7 @@ msgstr ""
 msgid "province"
 msgstr ""
 
-#: .\masterlist\models.py:85 .\travel\models.py:175
+#: .\masterlist\models.py:85 .\travel\models.py:272
 msgid "phone"
 msgstr ""
 
@@ -2487,7 +2601,7 @@ msgid "DFO contact instructions"
 msgstr ""
 
 #: .\masterlist\models.py:88 .\masterlist\models.py:169
-#: .\projects\models.py:434 .\projects\models.py:458 .\shares\models.py:20
+#: .\projects\models.py:542 .\projects\models.py:566 .\shares\models.py:20
 #: .\shares\models.py:47 .\shares\models.py:66 .\spot\models.py:188
 msgid "notes"
 msgstr "remarques"
@@ -2586,11 +2700,11 @@ msgstr ""
 msgid "audio file"
 msgstr ""
 
-#: .\masterlist\models.py:159 .\travel\models.py:171
+#: .\masterlist\models.py:159 .\travel\models.py:268
 msgid "first name"
 msgstr "prénom"
 
-#: .\masterlist\models.py:160 .\travel\models.py:172
+#: .\masterlist\models.py:160 .\travel\models.py:269
 msgid "last name"
 msgstr "nom de famille"
 
@@ -2870,11 +2984,11 @@ msgstr ""
 msgid "Are you sure you want to delete this member?"
 msgstr ""
 
-#: .\masterlist\views.py:311
+#: .\masterlist\views.py:309
 msgid "The member has been successfully deleted from the organization."
 msgstr ""
 
-#: .\masterlist\views.py:366
+#: .\masterlist\views.py:364
 msgid "The organization's consultation instructions were deleted successfully!"
 msgstr ""
 
@@ -2882,8 +2996,9 @@ msgstr ""
 #: .\projects\templates\projects\my_project_list.html:90
 #: .\projects\templates\projects\my_section_list.html:100
 #: .\projects\templates\projects\project_list.html:80
-#: .\publications\models.py:207
-#: .\publications\templates\publications\pub_detail.html:52
+#: .\publications\models.py:218
+#: .\publications\templates\publications\pub_detail.html:60
+#: .\travel\filters.py:100 .\travel\filters.py:111
 msgid "Division"
 msgstr "Division"
 
@@ -2898,7 +3013,9 @@ msgid "Tags"
 msgstr "Mots clés"
 
 #: .\projects\filters.py:34
-#: .\projects\templates\projects\my_project_list.html:38 .\travel\forms.py:228
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:74
+#: .\projects\templates\projects\my_project_list.html:38 .\travel\filters.py:97
+#: .\travel\forms.py:289
 msgid "Fiscal year"
 msgstr "Exercice fiscal"
 
@@ -2906,196 +3023,199 @@ msgstr "Exercice fiscal"
 msgid "Submitted?"
 msgstr "Soumis?"
 
-#: .\projects\forms.py:78
+#: .\projects\forms.py:80
 msgid "mandatory - select multiple, if necessary"
 msgstr ""
 
-#: .\projects\forms.py:180 .\projects\forms.py:194
+#: .\projects\forms.py:203 .\projects\forms.py:217
 msgid "DFO User"
 msgstr "Utilisateur du MPO"
 
-#: .\projects\forms.py:306
+#: .\projects\forms.py:329
 msgid "Section head comments (visible to section head only)"
 msgstr ""
 "Commentaires de chef de section (visibles uniquement par la chef de section)"
 
-#: .\projects\forms.py:307
+#: .\projects\forms.py:330
 msgid "Section review complete (visible to section head only)?"
 msgstr ""
 "Examen de la section terminé (visible par le chef de section uniquement)?"
 
-#: .\projects\forms.py:341
+#: .\projects\forms.py:364
 msgid "Feedback summary"
 msgstr "Résumé des commentaires"
 
-#: .\projects\forms.py:342
+#: .\projects\forms.py:365
 msgid "Data management summary"
 msgstr "Résumé de la gestion des données"
 
-#: .\projects\forms.py:346
+#: .\projects\forms.py:369
 msgid "Weeks Worked by Employees (PDF)"
 msgstr "Semaines travaillées par les employés (PDF)"
 
-#: .\projects\forms.py:347
+#: .\projects\forms.py:370
 msgid "Total Overtime Hours Requested (PDF)"
 msgstr "Total des heures supplémentaires demandées (PDF)"
 
-#: .\projects\forms.py:348
+#: .\projects\forms.py:371
 msgid "Cost Summary by Section (PDF)"
 msgstr "Résumé des coûts par section (PDF)"
 
-#: .\projects\forms.py:349
+#: .\projects\forms.py:372
 msgid "List of Collaborators (PDF)"
 msgstr "Liste des collaborateurs (PDF)"
 
-#: .\projects\forms.py:350
+#: .\projects\forms.py:373
 msgid "List of Collaborative Agreements (PDF)"
 msgstr "Liste des accords de collaboration (PDF)"
 
-#: .\projects\forms.py:351
+#: .\projects\forms.py:374
 msgid "Doug's Report (MS Excel)"
 msgstr "Rapport de Doug (MS Excel)"
 
-#: .\projects\forms.py:386
+#: .\projects\forms.py:409
 msgid "First name"
 msgstr "Prénom"
 
-#: .\projects\forms.py:387
+#: .\projects\forms.py:410
 msgid "Last name"
 msgstr "nom de famille"
 
-#: .\projects\forms.py:388
+#: .\projects\forms.py:411
 msgid "Email"
 msgstr "Courriel"
 
-#: .\projects\forms.py:389
+#: .\projects\forms.py:412
 msgid "Confirm email address"
 msgstr "Courriel"
 
-#: .\projects\forms.py:398
+#: .\projects\forms.py:421
 msgid "The email address provided must be a DFO email address."
 msgstr ""
 "Le courriel électronique fournie doit être une adresse électronique du MPO."
 
-#: .\projects\forms.py:414
+#: .\projects\forms.py:437
 msgid "Please make sure the two email addresses provided match."
 msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
 
-#: .\projects\models.py:86
+#: .\projects\models.py:88
 msgid "Core"
 msgstr "Base"
 
-#: .\projects\models.py:87
+#: .\projects\models.py:89
 msgid "Flex"
 msgstr "Supplémentaire"
 
-#: .\projects\models.py:96
+#: .\projects\models.py:99
 msgid "Is program core or flex?"
 msgstr "Le programme est-il de base ou supplémentaire?"
 
-#: .\projects\models.py:102 .\projects\models.py:103 .\projects\models.py:120
-#: .\projects\models.py:121 .\projects\models.py:141
+#: .\projects\models.py:105 .\projects\models.py:106 .\projects\models.py:123
+#: .\projects\models.py:124 .\projects\models.py:144
 msgid "regional_program_name_eng"
 msgstr "regional_program_name_fra"
 
-#: .\projects\models.py:109 .\projects\models.py:110 .\projects\models.py:127
-#: .\projects\models.py:128 .\projects\models.py:141
+#: .\projects\models.py:112 .\projects\models.py:113 .\projects\models.py:130
+#: .\projects\models.py:131 .\projects\models.py:144
 msgid "national_responsibility_eng"
 msgstr "national_responsibility_fra"
 
-#: .\projects\models.py:176
+#: .\projects\models.py:179 .\travel\models.py:662
 msgid "English text"
 msgstr "Texte en anglais"
 
-#: .\projects\models.py:177
+#: .\projects\models.py:180 .\travel\models.py:663
 msgid "French text"
 msgstr "Texte en français"
 
-#: .\projects\models.py:181 .\projects\models.py:182
+#: .\projects\models.py:184 .\projects\models.py:185 .\travel\models.py:667
+#: .\travel\models.py:668
 msgid "eng_text"
 msgstr "fra_text"
 
-#: .\projects\models.py:194 .\projects\models.py:200
+#: .\projects\models.py:197 .\projects\models.py:203
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: .\projects\models.py:195
+#: .\projects\models.py:198
 msgid "National"
 msgstr "National"
 
-#: .\projects\models.py:196
+#: .\projects\models.py:199
 msgid "Regional"
 msgstr "Régional"
 
-#: .\projects\models.py:201
+#: .\projects\models.py:204
 msgid "Negotiable"
 msgstr "Négociable"
 
-#: .\projects\models.py:202
+#: .\projects\models.py:205
 msgid "Non-negotiable"
 msgstr "Non négociable"
 
-#: .\projects\models.py:206 .\scifi\models.py:28 .\travel\models.py:162
+#: .\projects\models.py:209 .\scifi\models.py:28 .\travel\models.py:255
 msgid "fiscal year"
 msgstr "exercice fiscal"
 
-#: .\projects\models.py:210 .\projects\views.py:410
+#: .\projects\models.py:213 .\projects\views.py:410
 msgid "section"
 msgstr "section"
 
-#: .\projects\models.py:211
+#: .\projects\models.py:214
 msgid "old program (retired field)"
 msgstr ""
 
-#: .\projects\models.py:212
+#: .\projects\models.py:215
 msgid "Science regional program name(s)"
 msgstr "Nom du programme régional des sciences"
 
-#: .\projects\models.py:213
+#: .\projects\models.py:216
+#: .\projects\templates\projects\ips_project_list.html:77
+#: .\projects\templates\projects\ips_project_program.html:75
 msgid "Tags / keywords"
 msgstr "Mots clés"
 
-#: .\projects\models.py:216
+#: .\projects\models.py:219
 msgid "National or regional?"
 msgstr "National ou régional?"
 
-#: .\projects\models.py:219 .\spot\models.py:207
+#: .\projects\models.py:222 .\spot\models.py:207
 msgid "project status"
 msgstr "L'état du projet"
 
-#: .\projects\models.py:220
+#: .\projects\models.py:223
 msgid "Is the funding competitive?"
 msgstr "Le financement est-il concurrentiel?"
 
-#: .\projects\models.py:221
+#: .\projects\models.py:224
 msgid "Has this project already been approved"
 msgstr "Ce projet a-t-il déjà été approuvé"
 
-#: .\projects\models.py:222
+#: .\projects\models.py:225
 msgid "Start date of project"
 msgstr "Date de début du projet"
 
-#: .\projects\models.py:223
+#: .\projects\models.py:226
 msgid "End date of project"
 msgstr "Date de fin du projet"
 
-#: .\projects\models.py:226
+#: .\projects\models.py:229
 msgid "Project objective & description"
 msgstr "Objectif du projet et description"
 
-#: .\projects\models.py:230
+#: .\projects\models.py:233
 msgid "Project-specific priorities"
 msgstr "Priorités spécifiques au projet"
 
-#: .\projects\models.py:232
+#: .\projects\models.py:235
 msgid "Project deliverables"
 msgstr "Livrables du projet"
 
-#: .\projects\models.py:237
+#: .\projects\models.py:240
 msgid "What type of data will be collected"
 msgstr "Quel type de données sera collecté"
 
-#: .\projects\models.py:241
+#: .\projects\models.py:244
 msgid ""
 "Which of these data / data products will be placed on the Open Data Platform "
 "this year?"
@@ -3103,52 +3223,52 @@ msgstr ""
 "Lesquels de ces données / produits de données seront placés sur la plate-"
 "forme Open Data cette année?"
 
-#: .\projects\models.py:243
+#: .\projects\models.py:246
 msgid "Data storage / archiving Plan"
 msgstr "Plan de stockage / archivage des données"
 
-#: .\projects\models.py:245
+#: .\projects\models.py:248
 msgid "Provide link to existing metadata record, if available"
 msgstr ""
 "Fournir un lien vers l'enregistrement de métadonnées existant, si disponible"
 
-#: .\projects\models.py:250
+#: .\projects\models.py:253
 msgid "Does the program require assistance of the branch data manager"
 msgstr ""
 "Le programme nécessite-t-il l'assistance du gestionnaire de données de la "
 "succursale"
 
-#: .\projects\models.py:253
+#: .\projects\models.py:256
 msgid ""
 "Describe assistance required from the branch data manager, if applicable"
 msgstr ""
 "Décrivez l'aide requise du gestionnaire de données de la succursale, le cas "
 "échéant"
 
-#: .\projects\models.py:254
+#: .\projects\models.py:257
 msgid "Does the program require assistance of the section's data manager"
 msgstr ""
 "Le programme a-t-il besoin de l'aide du gestionnaire de données de la section"
 
-#: .\projects\models.py:257
+#: .\projects\models.py:260
 msgid ""
 "Describe assistance required from the section data manager, if applicable"
 msgstr ""
 "Décrivez l'aide requise du gestionnaire de données de la section, le cas "
 "échéant"
 
-#: .\projects\models.py:261
+#: .\projects\models.py:264
 msgid ""
 "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"
 msgstr ""
 "Décrivez le besoin de véhicule (type de véhicule, nombre de semaines, "
 "calendrier)"
 
-#: .\projects\models.py:263
+#: .\projects\models.py:266
 msgid "IT requirements (software, licenses, hardware)"
 msgstr "Configuration informatique requise (logiciels, licences, matériel)"
 
-#: .\projects\models.py:267
+#: .\projects\models.py:270
 msgid ""
 "Please provide details regarding chemical needs and the plan for storage and "
 "disposal."
@@ -3156,222 +3276,220 @@ msgstr ""
 "Décrivez le besoin de véhicule (type de véhicule, nombre de semaines, "
 "calendrier)"
 
-#: .\projects\models.py:269
+#: .\projects\models.py:272
 msgid "Ship (Coast Guard, charter vessel) Requirements"
 msgstr "Navires (garde côtière, charter)"
 
-#: .\projects\models.py:272
+#: .\projects\models.py:275
 msgid "additional notes"
 msgstr "Notes complémentaires"
 
-#: .\projects\models.py:277
+#: .\projects\models.py:280
 msgid "responsibility center (if known)"
 msgstr "centre de responsabilité (s'il est connu)"
 
-#: .\projects\models.py:279
+#: .\projects\models.py:282
 msgid "allotment code (if known)"
 msgstr "code d'allotissement (s'il est connu)"
 
-#: .\projects\models.py:280
+#: .\projects\models.py:283
 msgid "existing project codes (if known)"
 msgstr "codes de projet existants (s'ils sont connus)"
 
-#: .\projects\models.py:283
+#: .\projects\models.py:286
 msgid "Do you have any feedback you would like to submit about this process"
 msgstr "Avez-vous des commentaires à formuler sur ce processus"
 
-#: .\projects\models.py:284
+#: .\projects\models.py:287
 msgid "Submit project for review"
 msgstr "Soumettre le projet"
 
-#: .\projects\models.py:287
+#: .\projects\models.py:290
 msgid "section head approved"
 msgstr "approuvé par le chef de section"
 
-#: .\projects\models.py:288
+#: .\projects\models.py:291
 msgid "section head feedback"
 msgstr "rétroaction du chef de section"
 
-#: .\projects\models.py:290
+#: .\projects\models.py:293
 msgid "division manager approved"
 msgstr "approuvé par le chef de division"
 
-#: .\projects\models.py:291
+#: .\projects\models.py:294
 msgid "division manager feedback"
 msgstr "rétroaction du chef de division"
 
-#: .\projects\models.py:293
+#: .\projects\models.py:296
 msgid "RDS approved"
 msgstr "approuvé par le directeur régional"
 
-#: .\projects\models.py:294
+#: .\projects\models.py:297
 msgid "RDS feedback"
 msgstr "rétroaction du directeur régional"
 
-#: .\projects\models.py:296
+#: .\projects\models.py:299
+#, fuzzy
+#| msgid "additional notes"
+msgid "meeting notes"
+msgstr "Notes complémentaires"
+
+#: .\projects\models.py:301
 msgid "Should the project be hidden from other users?"
 msgstr "Le projet doit-il être caché des autres utilisateurs?"
 
-#: .\projects\models.py:343
+#: .\projects\models.py:451
 msgid "Salary"
 msgstr "Salaire"
 
-#: .\projects\models.py:344 .\projects\views.py:1027
+#: .\projects\models.py:452 .\projects\views.py:1037
 msgid "O&M"
 msgstr "F & E"
 
-#: .\projects\models.py:402 .\projects\models.py:431 .\projects\models.py:452
-#: .\projects\models.py:493 .\projects\models.py:521 .\projects\models.py:536
+#: .\projects\models.py:510 .\projects\models.py:539 .\projects\models.py:560
+#: .\projects\models.py:603 .\projects\models.py:631 .\projects\models.py:646
 msgid "project"
 msgstr "projet"
 
-#: .\projects\models.py:403
+#: .\projects\models.py:511
 msgid "employee type"
 msgstr "Type d'employé"
 
-#: .\projects\models.py:404 .\projects\models.py:455 .\projects\models.py:538
+#: .\projects\models.py:512 .\projects\models.py:563 .\projects\models.py:648
 msgid "project lead"
 msgstr "Chef de projet"
 
-#: .\projects\models.py:404
+#: .\projects\models.py:512
 msgid "yes"
 msgstr "oui"
 
-#: .\projects\models.py:404
+#: .\projects\models.py:512
 msgid "no"
 msgstr "non"
 
-#: .\projects\models.py:406 .\projects\models.py:496 .\projects\models.py:524
-#: .\travel\models.py:206
+#: .\projects\models.py:514 .\projects\models.py:606 .\projects\models.py:634
+#: .\travel\models.py:308
 msgid "funding source"
 msgstr "source de financement"
 
-#: .\projects\models.py:408
+#: .\projects\models.py:516
 msgid "Person name (leave blank if user is selected)"
 msgstr "Nom de la personne (laisser vide si l'utilisateur est sélectionné)"
 
-#: .\projects\models.py:410
+#: .\projects\models.py:518
 msgid "level"
 msgstr "niveau"
 
-#: .\projects\models.py:412
+#: .\projects\models.py:520
 msgid "student program"
 msgstr "Programme d'étudiant"
 
-#: .\projects\models.py:413
+#: .\projects\models.py:521
 msgid "duration in weeks"
 msgstr "Durée en semaines"
 
-#: .\projects\models.py:414
+#: .\projects\models.py:522
 msgid "overtime in hours"
 msgstr "Heures supplémentaires"
 
-#: .\projects\models.py:415
+#: .\projects\models.py:523
 msgid "overtime description"
 msgstr "description d'heures supplémentaires"
 
-#: .\projects\models.py:416
+#: .\projects\models.py:524
 msgid "cost"
 msgstr "coût"
 
-#: .\projects\models.py:433
+#: .\projects\models.py:541
 msgid "Critical to project delivery"
 msgstr "Critique à la livraison du projet"
 
-#: .\projects\models.py:449
+#: .\projects\models.py:557
 msgid "Existing"
 msgstr "Existant"
 
-#: .\projects\models.py:454
+#: .\projects\models.py:562
 msgid "collaborating organization"
 msgstr "organisation collaboratrice"
 
-#: .\projects\models.py:456
+#: .\projects\models.py:564
 msgid "Title of the agreement"
 msgstr "Titre de l'accord"
 
-#: .\projects\models.py:457
+#: .\projects\models.py:565
 msgid "new or existing"
 msgstr "Nouveau ou existant"
 
-#: .\projects\models.py:475
+#: .\projects\models.py:584
 msgid "Travel"
 msgstr "Voyage"
 
-#: .\projects\models.py:476
+#: .\projects\models.py:585
 msgid "Equipment Purchase"
 msgstr "Achat d'équipement"
 
-#: .\projects\models.py:477
+#: .\projects\models.py:586
 msgid "Material and Supplies"
 msgstr "Matériel et fournitures"
 
-#: .\projects\models.py:478
+#: .\projects\models.py:587
 msgid "Human Resources"
 msgstr "Ressources humaines"
 
-#: .\projects\models.py:479
+#: .\projects\models.py:588
 msgid "Contracts, Leases, Services"
 msgstr "Contrats, baux, services"
 
-#: .\projects\models.py:497 .\projects\models.py:525 .\projects\models.py:617
+#: .\projects\models.py:589 .\projects\models.py:627
+msgid "Other"
+msgstr "Autre"
+
+#: .\projects\models.py:607 .\projects\models.py:635 .\projects\models.py:720
 #: .\spot\models.py:472
 msgid "description"
 msgstr "description"
 
-#: .\projects\models.py:498 .\projects\models.py:526 .\projects\models.py:542
+#: .\projects\models.py:608 .\projects\models.py:636 .\projects\models.py:652
 msgid "budget requested"
 msgstr "Budget demandé"
 
-#: .\projects\models.py:514
+#: .\projects\models.py:624
 msgid "IM / IT - computers, hardware"
 msgstr "GI / TI - ordinateurs, matériel"
 
-#: .\projects\models.py:515
+#: .\projects\models.py:625
 msgid "Lab Equipment"
 msgstr "Équipement de laboratoire"
 
-#: .\projects\models.py:516
+#: .\projects\models.py:626
 msgid "Field Equipment"
 msgstr "Équipement de terrain"
 
-#: .\projects\models.py:517
-msgid "Other"
-msgstr "Autre"
-
-#: .\projects\models.py:537
+#: .\projects\models.py:647
 msgid "Recipient organization"
 msgstr "Organisation destinataire"
 
-#: .\projects\models.py:540
+#: .\projects\models.py:650
 msgid "Proposed title of agreement"
 msgstr "Titre de l'accord proposé"
 
-#: .\projects\models.py:541
+#: .\projects\models.py:651
 msgid "Name of G&C program"
 msgstr "Nom du programme de S & C"
 
-#: .\projects\models.py:561
-msgid "Core project"
-msgstr "projet de base"
-
-#: .\projects\models.py:562
-msgid "Status report"
-msgstr "Rapport de situation"
-
-#: .\projects\models.py:565
+#: .\projects\models.py:668
 msgid "resource name"
 msgstr "nom de la ressource"
 
-#: .\projects\models.py:566
+#: .\projects\models.py:669 .\travel\models.py:618
 msgid "file attachment"
 msgstr "pièce jointe"
 
-#: .\projects\models.py:567
+#: .\projects\models.py:670
 msgid "external URL"
 msgstr "URL externe"
 
-#: .\projects\models.py:636
+#: .\projects\models.py:739
 msgid ""
 "major accomplishments (this can be left blank if reported at the milestone "
 "level)"
@@ -3379,37 +3497,43 @@ msgstr ""
 "réalisations majeures (ceci peut être laissé en blanc si signalé au niveau "
 "de l'étape)"
 
-#: .\projects\models.py:637
+#: .\projects\models.py:740
 msgid "major issues encountered"
 msgstr "problèmes majeurs rencontrés"
 
-#: .\projects\models.py:638
+#: .\projects\models.py:741
 msgid "target completion date"
 msgstr "date d'achèvement prévue"
 
-#: .\projects\models.py:640
+#: .\projects\models.py:743
 msgid "rationale for a modified completion date"
 msgstr "justification d'une date d'achèvement modifiée"
 
-#: .\projects\models.py:641
+#: .\projects\models.py:744
 msgid "general comments"
 msgstr "observations générales"
 
-#: .\projects\models.py:642
+#: .\projects\models.py:745
 msgid "section head comment"
 msgstr "commentaire de chefde section"
 
-#: .\projects\models.py:643
+#: .\projects\models.py:746
 msgid "reviewed by section head"
 msgstr "examiné par le chef de section"
 
-#: .\projects\models.py:661
+#: .\projects\models.py:764
 msgid "Status Report #"
 msgstr "No. de rapport d'état"
 
-#: .\projects\models.py:679
+#: .\projects\models.py:782
 msgid "Update on "
 msgstr "Mis à jour sur"
+
+#: .\projects\models.py:797
+#, fuzzy
+#| msgid "section head"
+msgid "section notes"
+msgstr "chef de section"
 
 #: .\projects\templates\projects\_agreements.html:10
 msgid "Collaborative Agreements:"
@@ -3464,7 +3588,7 @@ msgstr "Catégorie"
 
 #: .\projects\templates\projects\_capital_costs.html:38
 #: .\projects\templates\projects\_milestones.html:37
-#: .\projects\templates\projects\_om_costs.html:53 .\publications\models.py:211
+#: .\projects\templates\projects\_om_costs.html:53 .\publications\models.py:222
 #: .\tickets\forms.py:89 .\whalesdb\views.py:112
 msgid "Description"
 msgstr "Description"
@@ -3511,6 +3635,7 @@ msgid "Add Resource"
 msgstr "Ajouter une ressource"
 
 #: .\projects\templates\projects\_files.html:34
+#: .\travel\templates\travel\_files.html:18
 msgid "No Files"
 msgstr "Aucun fichier"
 
@@ -3527,10 +3652,12 @@ msgid "External URL"
 msgstr "URL externe"
 
 #: .\projects\templates\projects\_files.html:50
+#: .\travel\templates\travel\_files.html:29
 msgid "File Attachment"
 msgstr "Pièce jointe"
 
 #: .\projects\templates\projects\_files.html:54
+#: .\travel\templates\travel\_files.html:32
 msgid "Date Created"
 msgstr "Date de création"
 
@@ -3539,6 +3666,7 @@ msgid "open the external URL in a new window"
 msgstr "ouvrir l'URL externe dans une nouvelle fenêtre"
 
 #: .\projects\templates\projects\_files.html:76
+#: .\travel\templates\travel\_files.html:41
 msgid "Open the file"
 msgstr "Ouvrir le fichier"
 
@@ -3673,6 +3801,11 @@ msgstr "Type de catégorie"
 msgid "UNSUBMITTED"
 msgstr "NON SOUMIS"
 
+#: .\projects\templates\projects\_project_content.html:37
+#: .\projects\templates\projects\project_detail.html:118
+msgid "MISSING PROGRAM INFORMATION"
+msgstr ""
+
 #: .\projects\templates\projects\_staff.html:13
 msgid "Project Staff:"
 msgstr "Personnel du projet:"
@@ -3699,7 +3832,7 @@ msgid "Duration (weeks)"
 msgstr "Durée en semaines"
 
 #: .\projects\templates\projects\_staff.html:50
-#: .\projects\templates\projects\overtime_calculator_popout.html:67
+#: .\projects\templates\projects\overtime_calculator_popout.html:68
 msgid "Overtime hours"
 msgstr "Heures supplémentaires"
 
@@ -3775,6 +3908,11 @@ msgstr "Exercice fiscal"
 msgid "Program List"
 msgstr "Liste de programme"
 
+#: .\projects\templates\projects\admin_project_program_list.html:89
+#: .\projects\templates\projects\my_project_list.html:47
+msgid "Approved"
+msgstr "Approuvé"
+
 #: .\projects\templates\projects\admin_staff_list.html:81
 msgid "Staff name"
 msgstr "Nom du personnel"
@@ -3782,6 +3920,18 @@ msgstr "Nom du personnel"
 #: .\projects\templates\projects\admin_staff_list.html:84
 msgid "Lead?"
 msgstr "Chargé de projet"
+
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:80
+#, fuzzy
+#| msgid "section head"
+msgid "Section head"
+msgstr "chef de section"
+
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:89
+#, fuzzy
+#| msgid "Project title"
+msgid "Projects List"
+msgstr "titre du projet"
 
 #: .\projects\templates\projects\agreement_form_popout.html:28
 #: .\projects\templates\projects\collaborator_form_popout.html:28
@@ -3882,7 +4032,8 @@ msgstr ""
 "                        </a>.\n"
 "                    "
 
-#: .\projects\templates\projects\index.html:98
+#: .\projects\templates\projects\index.html:97
+#, python-format
 msgid ""
 "\n"
 "                                %(y)s Timelines\n"
@@ -3892,80 +4043,80 @@ msgstr ""
 "                                Calendrier %(y)s \n"
 "                            "
 
-#: .\projects\templates\projects\index.html:105
+#: .\projects\templates\projects\index.html:103
 msgid "Phase"
 msgstr "Phase"
 
-#: .\projects\templates\projects\index.html:106
+#: .\projects\templates\projects\index.html:104
 msgid "Region specific date"
 msgstr "Date spécifique à la région"
 
-#: .\projects\templates\projects\index.html:109
+#: .\projects\templates\projects\index.html:107
 msgid "Gulf"
 msgstr "Golfe"
 
-#: .\projects\templates\projects\index.html:110
+#: .\projects\templates\projects\index.html:108
 msgid "Maritimes"
 msgstr "Maritimes"
 
-#: .\projects\templates\projects\index.html:114
+#: .\projects\templates\projects\index.html:112
 msgid "Official launch of project planning. Start building projects in app."
 msgstr ""
 "Lancement officiel de la planification du projet. Commencez à construire des "
 "projets dans l'application."
 
-#: .\projects\templates\projects\index.html:116
+#: .\projects\templates\projects\index.html:114
 msgid "Nov 1"
 msgstr "1 nov"
 
-#: .\projects\templates\projects\index.html:117
+#: .\projects\templates\projects\index.html:115
 msgid "Nov 4"
 msgstr "4 nov"
 
-#: .\projects\templates\projects\index.html:121
+#: .\projects\templates\projects\index.html:119
 msgid "Submission deadline for core projects."
 msgstr "Date limite de soumission des projets principaux."
 
-#: .\projects\templates\projects\index.html:123
+#: .\projects\templates\projects\index.html:121
 msgid "Dec 2"
 msgstr "21 déc"
 
-#: .\projects\templates\projects\index.html:124
+#: .\projects\templates\projects\index.html:122
 msgid "Dec 18"
 msgstr "18 déc"
 
-#: .\projects\templates\projects\index.html:128
+#: .\projects\templates\projects\index.html:126
 msgid "Review of core projects."
 msgstr "Examen des projets de base."
 
-#: .\projects\templates\projects\index.html:130
+#: .\projects\templates\projects\index.html:128
 msgid "Dec 5-6"
 msgstr "5-6 déc"
 
-#: .\projects\templates\projects\index.html:131
-#: .\projects\templates\projects\index.html:138
-#: .\projects\templates\projects\index.html:145
-#: .\projects\templates\projects\index.html:152
+#: .\projects\templates\projects\index.html:129
+#: .\projects\templates\projects\index.html:136
+#: .\projects\templates\projects\index.html:143
+#: .\projects\templates\projects\index.html:150
 msgid "TBD"
 msgstr "À déterminer"
 
-#: .\projects\templates\projects\index.html:135
+#: .\projects\templates\projects\index.html:133
 msgid "Submission deadline for flex projects."
 msgstr "Date limite de soumission des projets supplémentaires."
 
-#: .\projects\templates\projects\index.html:137
+#: .\projects\templates\projects\index.html:135
 msgid "Jan 6"
 msgstr "6 jan"
 
-#: .\projects\templates\projects\index.html:142
+#: .\projects\templates\projects\index.html:140
 msgid "Review of flex projects."
 msgstr "Examen des projets supplémentaires."
 
-#: .\projects\templates\projects\index.html:144
+#: .\projects\templates\projects\index.html:142
 msgid "Jan 16-17"
 msgstr "16-17 jan"
 
-#: .\projects\templates\projects\index.html:149
+#: .\projects\templates\projects\index.html:147
 msgid ""
 "Review final versions of program descriptions, budgets and deliverables for "
 "fiscal 2020-2021."
@@ -3973,13 +4124,106 @@ msgstr ""
 "Examiner les versions finales des descriptions de programme, des budgets et "
 "des résultats attendus pour l'exercice 2020-2021."
 
-#: .\projects\templates\projects\index.html:151
+#: .\projects\templates\projects\index.html:149
 msgid "Mar 17"
 msgstr "17 mar"
 
+#: .\projects\templates\projects\index.html:156
+#, fuzzy
+#| msgid "Reference"
+msgid "Reference Materials:"
+msgstr "Référence"
+
+#: .\projects\templates\projects\index.html:163
+msgid "Guidance for Entering New Projects (Maritimes)"
+msgstr ""
+
+#: .\projects\templates\projects\index.html:169
+msgid "Project Planning Priorities (Maritimes)"
+msgstr ""
+
+#: .\projects\templates\projects\ips_program_list.html:49
+#: .\projects\templates\projects\ips_project_form.html:16
+#: .\projects\templates\projects\ips_project_list.html:43
+#: .\projects\templates\projects\ips_project_program.html:43
+#, fuzzy
+#| msgid "Project Summary:"
+msgid "Program Summary"
+msgstr "Résumé du projet:"
+
+#: .\projects\templates\projects\ips_program_list.html:59
+#, fuzzy
+#| msgid "Cost Summary by Section (PDF)"
+msgid "Summary of Programs by Section"
+msgstr "Résumé des coûts par section (PDF)"
+
+#: .\projects\templates\projects\ips_program_list.html:62
+#, fuzzy
+#| msgid ""
+#| "The project was submitted and an email has been sent to notify the "
+#| "section head!"
+msgid "Projects submitted and approved by section heads"
+msgstr ""
+"Le projet a été soumis et un courrier électronique a été envoyé pour en "
+"informer le chef de section!"
+
+#: .\projects\templates\projects\ips_program_list.html:102
+#: .\spot\templates\spot\_projects.html:24
+#, fuzzy
+#| msgid "program"
+msgid "Program"
+msgstr "Programme"
+
+#: .\projects\templates\projects\ips_program_list.html:103
+#: .\projects\templates\projects\ips_project_list.html:75
+#: .\projects\templates\projects\ips_project_program.html:73
+msgid "Core / flex"
+msgstr ""
+
+#: .\projects\templates\projects\ips_program_list.html:104
+#, fuzzy
+#| msgid "Submitted projects"
+msgid "Number of projects"
+msgstr "Projets soumis"
+
+#: .\projects\templates\projects\ips_program_list.html:105
+#: .\projects\templates\projects\ips_project_list.html:78
+#: .\projects\templates\projects\ips_project_program.html:76
+#, fuzzy
+#| msgid "project lead"
+msgid "Project leads"
+msgstr "Chef de projet"
+
+#: .\projects\templates\projects\ips_project_list.html:73
+#: .\projects\templates\projects\ips_project_program.html:71
+#, fuzzy
+#| msgid "Project"
+msgid "Project Id"
+msgstr "Projet"
+
+#: .\projects\templates\projects\ips_project_list.html:76
+#: .\projects\templates\projects\ips_project_program.html:74
+msgid "Under which Science programs"
+msgstr ""
+
+#: .\projects\templates\projects\ips_project_list.html:79
+#: .\projects\templates\projects\ips_project_program.html:77
+#, fuzzy
+#| msgid "Total"
+msgid "Total FTE"
+msgstr "Total"
+
+#: .\projects\templates\projects\ips_project_list.html:80
+#: .\projects\templates\projects\ips_project_program.html:78
+#, fuzzy
+#| msgid "Total"
+msgid "Total OT"
+msgstr "Total"
+
 #: .\projects\templates\projects\milestone_form_popout.html:16
-#: .\travel\templates\travel\event_form_popout.html:15
-#: .\travel\templates\travel\registeredevent_form_popout.html:16
+#: .\projects\templates\projects\section_note_form_popout.html:16
+#: .\travel\templates\travel\conference_form_popout.html:16
+#: .\travel\templates\travel\trip_form_popout.html:21
 #, python-format
 msgid ""
 "\n"
@@ -3991,13 +4235,14 @@ msgstr ""
 "                "
 
 #: .\projects\templates\projects\milestone_form_popout.html:20
+#: .\projects\templates\projects\section_note_form_popout.html:20
 msgid "Adding New Milestone"
 msgstr "Ajout d'un nouveau jalon"
 
 #: .\projects\templates\projects\my_project_list.html:19
 #: .\projects\templates\projects\project_confirm_delete.html:11
 #: .\projects\templates\projects\project_detail.html:19
-#: .\projects\templates\projects\project_form.html:17
+#: .\projects\templates\projects\project_form.html:21
 #: .\projects\templates\projects\project_submit_form.html:12
 #: .\projects\templates\projects\projects_base.html:39
 #: .\publications\templates\publications\pub_confirm_delete.html:11
@@ -4036,10 +4281,6 @@ msgstr "Projets non soumis"
 msgid "Total"
 msgstr "Total"
 
-#: .\projects\templates\projects\my_project_list.html:47
-msgid "Approved"
-msgstr "Approuvé"
-
 #: .\projects\templates\projects\my_project_list.html:48
 msgid "Unapproved"
 msgstr "Non approuvé"
@@ -4050,8 +4291,8 @@ msgstr "enregistrement"
 
 #: .\projects\templates\projects\my_project_list.html:73
 #: .\projects\templates\projects\my_section_list.html:87
-#: .\projects\templates\projects\project_form.html:27
-#: .\projects\templates\projects\project_form.html:41
+#: .\projects\templates\projects\project_form.html:31
+#: .\projects\templates\projects\project_form.html:45
 #: .\publications\templates\publications\pub_list.html:60
 msgid "New Project"
 msgstr "Nouveau projet"
@@ -4090,7 +4331,7 @@ msgstr "Les projets dans votre"
 msgid "NOTE TO SECTION HEADS:"
 msgstr "NOTE AUX CHEFS DE SECTION:"
 
-#: .\projects\templates\projects\my_section_list.html:39
+#: .\projects\templates\projects\my_section_list.html:40
 #: .\projects\templates\projects\project_approval_form_popout.html:35
 msgid ""
 "Please verify that the Science Regional Program names are correct before "
@@ -4151,25 +4392,25 @@ msgstr ""
 "                "
 
 #: .\projects\templates\projects\overtime_calculator_popout OLD.html:39
-#: .\projects\templates\projects\overtime_calculator_popout.html:109
+#: .\projects\templates\projects\overtime_calculator_popout.html:110
 msgid "Extra Hours to be Worked:"
 msgstr "Heures supplémentaires à travailler"
 
 #: .\projects\templates\projects\overtime_calculator_popout OLD.html:47
-#: .\projects\templates\projects\overtime_calculator_popout.html:125
+#: .\projects\templates\projects\overtime_calculator_popout.html:126
 msgid "Calculated Overtime Hours:"
 msgstr "Heures supplémentaires calculées"
 
 #: .\projects\templates\projects\overtime_calculator_popout OLD.html:56
-#: .\projects\templates\projects\overtime_calculator_popout.html:117
+#: .\projects\templates\projects\overtime_calculator_popout.html:118
 msgid "OT Description:"
 msgstr "Description d'heures supplémentaires:"
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:28
+#: .\projects\templates\projects\overtime_calculator_popout.html:29
 msgid "Overtime Calculator"
 msgstr "Calculatrice d'heures supplémentaires"
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:36
+#: .\projects\templates\projects\overtime_calculator_popout.html:37
 #, python-format
 msgid ""
 "\n"
@@ -4182,12 +4423,12 @@ msgstr ""
 "chaque jour de l'exercice %(year)s\n"
 "                "
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:41
+#: .\projects\templates\projects\overtime_calculator_popout.html:42
 msgid "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes"
 msgstr ""
 "Utilisez <b> tab </b> et <b> shift + tab </b> pour parcourir les champs."
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:44
+#: .\projects\templates\projects\overtime_calculator_popout.html:45
 msgid ""
 "For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard "
 "working day</b>"
@@ -4195,7 +4436,7 @@ msgstr ""
 "Du lundi au vendredi, insérez les heures à travailler <b> au-delà de 7,5 "
 "heures par jour ouvrable standard </b>"
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:48
+#: .\projects\templates\projects\overtime_calculator_popout.html:49
 msgid ""
 "For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to "
 "be worked"
@@ -4203,15 +4444,15 @@ msgstr ""
 "Pour le samedi, le dimanche et les jours fériés (zone rouge), entrez toutes "
 "les heures à travailler"
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:51
+#: .\projects\templates\projects\overtime_calculator_popout.html:52
 msgid "When you are done, submit the form"
 msgstr "Lorsque vous avez terminé, envoyez le formulaire"
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:64
+#: .\projects\templates\projects\overtime_calculator_popout.html:65
 msgid "Weekday"
 msgstr "Jour de la semaine"
 
-#: .\projects\templates\projects\overtime_calculator_popout.html:92
+#: .\projects\templates\projects\overtime_calculator_popout.html:93
 msgid "hours"
 msgstr "heures"
 
@@ -4269,7 +4510,7 @@ msgid "Submit Project"
 msgstr "Soumettre le project"
 
 #: .\projects\templates\projects\project_detail.html:50
-#: .\publications\templates\publications\pub_detail.html:30
+#: .\publications\templates\publications\pub_detail.html:34
 msgid ""
 "Cannot submit/unsumbit projects that do not belong to you or your section."
 msgstr ""
@@ -4297,50 +4538,50 @@ msgid "Project Details:"
 msgstr "Détails du projet:"
 
 #: .\projects\templates\projects\project_detail.html:102
-#: .\publications\templates\publications\pub_detail.html:34
+#: .\publications\templates\publications\pub_detail.html:38
 msgid "Add/Edit Project Details"
 msgstr "Ajouter / Modifier les détails du projet"
 
-#: .\projects\templates\projects\project_detail.html:150
+#: .\projects\templates\projects\project_detail.html:164
 msgid "Are you sure you want to delete this staff member from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer ce membre du personnel du projet?"
 
-#: .\projects\templates\projects\project_detail.html:152
+#: .\projects\templates\projects\project_detail.html:166
 msgid "WARNING: YOU ARE ABOUT TO DELETE YOURSELF FROM THIS PROJECT!!!"
 msgstr "ATTENTION: VOUS ALLEZ VOUS SUPPRIMER DE CE PROJET !!!"
 
-#: .\projects\templates\projects\project_detail.html:166
+#: .\projects\templates\projects\project_detail.html:180
 msgid "Are you sure you want to delete this collaborator from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer ce collaborateur du projet?"
 
-#: .\projects\templates\projects\project_detail.html:177
+#: .\projects\templates\projects\project_detail.html:191
 msgid "Are you sure you want to delete this agreement from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
 
-#: .\projects\templates\projects\project_detail.html:188
+#: .\projects\templates\projects\project_detail.html:202
 msgid "Are you sure you want to delete this o&m request from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette demande de F & E du projet?"
 
-#: .\projects\templates\projects\project_detail.html:199
+#: .\projects\templates\projects\project_detail.html:213
 msgid "Are you sure you want to delete this capital request from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette demande de capital du projet?"
 
-#: .\projects\templates\projects\project_detail.html:210
+#: .\projects\templates\projects\project_detail.html:224
 msgid "Are you sure you want to delete this G&C request from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette demande de S & C du projet?"
 
-#: .\projects\templates\projects\project_detail.html:221
+#: .\projects\templates\projects\project_detail.html:235
 #: .\projects\templates\projects\status_report_form_popout.html:112
 msgid ""
 "Are you sure you want to delete this milestone request from the project?"
 msgstr "Êtes-vous sûr de vouloir supprimer ce jalon du projet?"
 
-#: .\projects\templates\projects\project_form.html:36
+#: .\projects\templates\projects\project_form.html:40
 msgid "Please enter the new project details..."
 msgstr "Veuillez saisir les nouveaux détails du projet ..."
 
 #: .\projects\templates\projects\project_list.html:26
-#: .\publications\templates\publications\pub_detail.html:19
+#: .\publications\templates\publications\pub_detail.html:24
 #: .\publications\templates\publications\pub_list.html:24
 msgid "All Projects"
 msgstr "Tous les projets"
@@ -4355,6 +4596,7 @@ msgid "Projects"
 msgstr "Projets"
 
 #: .\projects\templates\projects\projects_base.html:36
+#: .\travel\templates\travel\travel_base.html:39
 msgid "All"
 msgstr "Tous les projets"
 
@@ -4383,6 +4625,7 @@ msgid "Manage Tags"
 msgstr "Gérer les étiquettes"
 
 #: .\projects\templates\projects\projects_base.html:89
+#: .\travel\templates\travel\travel_base.html:88
 msgid "Manage Help Text"
 msgstr "Gérer les textes d'aides"
 
@@ -4401,6 +4644,12 @@ msgstr ""
 #: .\projects\templates\projects\projects_base.html:102
 msgid "ADMIN: Project Program List"
 msgstr ""
+
+#: .\projects\templates\projects\projects_base.html:105
+#, fuzzy
+#| msgid "Submitted projects"
+msgid "ADMIN: Submitted + Unapproved Projects"
+msgstr "Projets soumis"
 
 #: .\projects\templates\projects\report_pdf_project_summary.html:294
 #: .\staff\templates\staff\staffingplan_detail.html:76
@@ -4474,101 +4723,117 @@ msgstr ""
 "Le projet a été soumis et un courrier électronique a été envoyé pour en "
 "informer le chef de section!"
 
-#: .\projects\views.py:657 .\publications\views.py:201
+#: .\projects\views.py:657 .\publications\views.py:202
 msgid "The project was successfully deleted!"
 msgstr "Le projet a été supprimé avec succès!"
 
-#: .\projects\views.py:814
+#: .\projects\views.py:823
 msgid "The staff member has been successfully deleted from project."
 msgstr "Le membre du personnel a été supprimé du projet avec succès."
 
-#: .\projects\views.py:939
+#: .\projects\views.py:949
 msgid "The collaborator has been successfully deleted from project."
 msgstr "Le collaborateur a été supprimé du projet avec succès."
 
-#: .\projects\views.py:984
+#: .\projects\views.py:994
 msgid "The agreement has been successfully deleted."
 msgstr "L'accord a été supprimé avec succès."
 
-#: .\projects\views.py:1035 .\projects\views.py:1115 .\projects\views.py:1166
+#: .\projects\views.py:1045 .\projects\views.py:1125 .\projects\views.py:1176
 msgid "The cost has been successfully deleted."
 msgstr "Le coût a été supprimé avec succès."
 
-#: .\projects\views.py:1050
+#: .\projects\views.py:1060
 msgid "All empty O&M lines have been cleared."
 msgstr "Toutes les lignes de F et E vides ont été effacées."
 
-#: .\projects\views.py:1064
+#: .\projects\views.py:1074
 msgid "All O&M categories have been added to this project."
 msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
-#: .\projects\views.py:1295
+#: .\projects\views.py:1305
 msgid "The user was created and an email was sent"
 msgstr ""
 
-#: .\projects\views.py:1797
+#: .\projects\views.py:1848
 msgid "The milestone has been successfully deleted."
 msgstr "Le jalon a été supprimé avec succès."
 
-#: .\publications\models.py:101 .\whalesdb\forms.py:78
+#: .\publications\models.py:101 .\whalesdb\forms.py:72
 msgid "Project"
 msgstr "Projet"
 
-#: .\publications\models.py:204
+#: .\publications\models.py:197
+msgid "Polygon Name"
+msgstr ""
+
+#: .\publications\models.py:199
+msgid "Point order"
+msgstr ""
+
+#: .\publications\models.py:200 .\whalesdb\forms.py:43
+msgid "Latitude"
+msgstr ""
+
+#: .\publications\models.py:201 .\whalesdb\forms.py:44
+msgid "Longitude"
+msgstr ""
+
+#: .\publications\models.py:215
 msgid "Project Title"
 msgstr "Titre du projet"
 
-#: .\publications\models.py:209
+#: .\publications\models.py:220
 msgid "Date last modified"
 msgstr "Date de la dernière modification"
 
-#: .\publications\models.py:212
+#: .\publications\models.py:223
 msgid "Method"
 msgstr ""
 
-#: .\publications\models.py:218
+#: .\publications\models.py:229
 msgid "Theme(s)"
 msgstr ""
 
-#: .\publications\models.py:219
+#: .\publications\models.py:230
 msgid "Human Component(s)"
 msgstr ""
 
-#: .\publications\models.py:220
+#: .\publications\models.py:231
 msgid "Ecosystem Component(s)"
 msgstr ""
 
-#: .\publications\models.py:221
+#: .\publications\models.py:232
 msgid "Pillar(s) of Sustainability"
 msgstr ""
 
-#: .\publications\models.py:222
+#: .\publications\models.py:233
 msgid "Program Linkage(s)"
 msgstr ""
 
-#: .\publications\models.py:223
+#: .\publications\models.py:234
 msgid "Geographic Scope(s)"
 msgstr ""
 
-#: .\publications\models.py:224
+#: .\publications\models.py:235
 msgid "Contact(s) (Internal)"
 msgstr ""
 
-#: .\publications\models.py:225
+#: .\publications\models.py:236
 #, fuzzy
 #| msgid "Organizations"
 msgid "Organization(s)"
 msgstr "Organisations"
 
-#: .\publications\models.py:226
+#: .\publications\models.py:237
 msgid "Spatial Scale(s)"
 msgstr ""
 
-#: .\publications\models.py:228
+#: .\publications\models.py:239
 msgid "Coordinate(s)"
 msgstr ""
 
-#: .\publications\models.py:230
+#: .\publications\models.py:241
 #, fuzzy
 #| msgid "Division"
 msgid "Division(s)"
@@ -4580,19 +4845,19 @@ msgstr "Division"
 msgid "Project Publications Inventory"
 msgstr "Planification de projets (Science)"
 
-#: .\publications\templates\publications\pub_detail.html:37
+#: .\publications\templates\publications\pub_detail.html:41
 #, fuzzy
 #| msgid "Delete Project"
 msgid "Delete this project"
 msgstr "Supprimer le projet"
 
-#: .\publications\templates\publications\pub_detail.html:47
+#: .\publications\templates\publications\pub_detail.html:52
 #: .\publications\templates\publications\pub_list.html:70
 #: .\spot\templates\spot\_project_years.html:21
 msgid "Year"
 msgstr ""
 
-#: .\publications\templates\publications\pub_detail.html:137
+#: .\publications\templates\publications\pub_detail.html:153
 #, fuzzy
 #| msgid "Are you sure you want to delete this note?"
 msgid "Are you sure you want to delete the list item?"
@@ -4604,7 +4869,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 msgid "New Publication"
 msgstr "Nouvelle organisation"
 
-#: .\publications\views.py:96
+#: .\publications\views.py:97
 msgid "The "
 msgstr ""
 
@@ -4617,24 +4882,18 @@ msgstr "nom anglais"
 #: .\sar_search\models.py:16 .\sar_search\models.py:27
 #: .\sar_search\models.py:40 .\sar_search\models.py:53
 #: .\sar_search\models.py:80 .\sar_search\models.py:94
-#, fuzzy
-#| msgid "english name"
 msgid "french name"
 msgstr "nom anglais"
 
 #: .\sar_search\models.py:28 .\sar_search\models.py:41
 #: .\sar_search\models.py:81
-#, fuzzy
-#| msgid "description"
 msgid "english description"
-msgstr "description"
+msgstr "description anglaise"
 
 #: .\sar_search\models.py:29 .\sar_search\models.py:42
 #: .\sar_search\models.py:82
-#, fuzzy
-#| msgid "description"
 msgid "french description"
-msgstr "description"
+msgstr "description française"
 
 #: .\sar_search\models.py:186
 #, fuzzy
@@ -4649,26 +4908,16 @@ msgid "SARA status"
 msgstr "statut"
 
 #: .\sar_search\models.py:190
-#, fuzzy
-#| msgid "status"
 msgid "NS status"
-msgstr "statut"
+msgstr "statut N-E"
 
 #: .\sar_search\models.py:192
-#, fuzzy
-#| msgid "status"
 msgid "NB status"
-msgstr "statut"
-
-#: .\sar_search\models.py:194
-#, fuzzy
-#| msgid "status"
-msgid "PEI status"
-msgstr "statut"
+msgstr "statut N-B"
 
 #: .\sar_search\models.py:197
 msgid "IUCN Red Flag status"
-msgstr ""
+msgstr "Statut de drapeau rouge de l'UICN"
 
 #: .\sar_search\models.py:200
 msgid "SARA schedule"
@@ -4680,41 +4929,48 @@ msgstr ""
 
 #: .\sar_search\models.py:205
 msgid "responsible authority"
-msgstr ""
+msgstr "autorité responsable"
 
-#: .\sar_search\models.py:224 .\sar_search\models.py:227
-#: .\sar_search\models.py:234 .\sar_search\models.py:237
+#: .\sar_search\models.py:208
+msgid "notes (English)"
+msgstr "notes (anglais)"
+
+#: .\sar_search\models.py:209
+msgid "notes (French)"
+msgstr "notes (français)"
+
+#: .\sar_search\models.py:225 .\sar_search\models.py:228
+#: .\sar_search\models.py:235 .\sar_search\models.py:238
+#: .\sar_search\models.py:250
 msgid "population_eng"
 msgstr "population_fre"
 
-#: .\sar_search\models.py:226 .\sar_search\models.py:230
-#: .\sar_search\models.py:236 .\sar_search\models.py:240 .\trapnet\models.py:59
+#: .\sar_search\models.py:227 .\sar_search\models.py:231
+#: .\sar_search\models.py:237 .\sar_search\models.py:241
+#: .\sar_search\models.py:245 .\sar_search\models.py:259 .\trapnet\models.py:59
 msgid "common_name_eng"
 msgstr "common_name_fre"
 
-#: .\sar_search\models.py:290
-#, fuzzy
-#| msgid "first name"
+#: .\sar_search\models.py:255
+#| msgid "notes"
+msgid "notes_eng"
+msgstr "notes_fra"
+
+#: .\sar_search\models.py:306
 msgid "record name"
-msgstr "prénom"
+msgstr "nom d'enregistrement"
 
-#: .\sar_search\models.py:292
-#, fuzzy
-#| msgid "last name"
+#: .\sar_search\models.py:308
 msgid "record type"
-msgstr "nom de famille"
+msgstr "type d'enregistrement"
 
-#: .\sar_search\models.py:293
-#, fuzzy
-#| msgid "funding source"
+#: .\sar_search\models.py:309
 msgid "source"
-msgstr "source de financement"
+msgstr "source"
 
-#: .\sar_search\models.py:361 .\spot\models.py:692 .\trapnet\models.py:13
-#, fuzzy
-#| msgid "last name"
+#: .\sar_search\models.py:377 .\spot\models.py:692 .\trapnet\models.py:13
 msgid "site name"
-msgstr "nom de famille"
+msgstr "nom de site"
 
 #: .\sar_search\templates\sar_search\points_file_import_form.html:24
 msgid "Point list import form:"
@@ -4738,6 +4994,36 @@ msgstr ""
 #: .\sar_search\templates\sar_search\rp_points_file_import_form.html:24
 msgid "polygon import form:"
 msgstr ""
+
+#: .\sar_search\templates\sar_search\species_detail.html:14
+msgid "All Species "
+msgstr "Toutes les espèces"
+
+#: .\sar_search\templates\sar_search\species_detail.html:52
+msgid "Add New Record"
+msgstr "Ajouter un enregistrement"
+
+#: .\sar_search\templates\sar_search\species_detail.html:55
+msgid "Import Records from CSV"
+msgstr "Importer des enregistrements de CSV"
+
+#: .\sar_search\templates\sar_search\species_detail.html:103
+msgid "Record List"
+msgstr "Liste des enregistrements"
+
+#: .\sar_search\templates\sar_search\species_detail.html:129
+msgid ""
+"No records have been added for this species. You can add a record by "
+"clicking on the button at the top of the page."
+msgstr ""
+
+#: .\sar_search\views.py:346
+msgid "Common name"
+msgstr "Nom commun"
+
+#: .\sar_search\views.py:348
+msgid "Population"
+msgstr "Population"
 
 #: .\scifi\models.py:45
 msgid "consignee suffix"
@@ -4763,21 +5049,8 @@ msgstr ""
 msgid "United States"
 msgstr ""
 
-#: .\shared_models\models.py:32 .\shared_models\models.py:121
-#: .\shared_models\models.py:149 .\spot\models.py:22 .\spot\models.py:41
-#: .\spot\models.py:68 .\spot\models.py:84 .\spot\models.py:109
-#: .\spot\models.py:145 .\spot\models.py:169 .\spot\models.py:185
-#: .\spot\models.py:532 .\spot\models.py:643 .\spot\models.py:660
-#: .\spot\models.py:676 .\spot\models.py:795
-msgid "name (French)"
-msgstr "nom (français)"
-
 #: .\shared_models\models.py:33
 msgid "abbreviation (English)"
-msgstr ""
-
-#: .\shared_models\models.py:34 .\spot\models.py:42 .\spot\models.py:43
-msgid "abbreviation (French)"
 msgstr ""
 
 #: .\shared_models\models.py:35
@@ -4790,7 +5063,7 @@ msgstr ""
 msgid "abbrev_eng"
 msgstr "name_fre"
 
-#: .\shared_models\models.py:70 .\travel\models.py:234
+#: .\shared_models\models.py:70
 msgid "RDG"
 msgstr ""
 
@@ -4901,12 +5174,6 @@ msgstr ""
 #: .\spot\models.py:139
 msgid "Marine"
 msgstr ""
-
-#: .\spot\models.py:142 .\spot\models.py:206
-#, fuzzy
-#| msgid "student program"
-msgid "funding program"
-msgstr "Programme d'étudiant"
 
 #: .\spot\models.py:147
 #, fuzzy
@@ -5746,12 +6013,6 @@ msgstr ""
 msgid "Start year"
 msgstr "Date de début"
 
-#: .\spot\templates\spot\_projects.html:24
-#, fuzzy
-#| msgid "program"
-msgid "Program"
-msgstr "Programme"
-
 #: .\spot\templates\spot\_sites.html:8
 #, fuzzy
 #| msgid "Notes:"
@@ -6053,20 +6314,20 @@ msgstr "Commentaires / Bugs"
 msgid "Logout"
 msgstr "Déconnecter"
 
-#: .\templates\index.html:49 .\templates\index_OLD.html:32
+#: .\templates\index.html:56 .\templates\index_OLD.html:32
 #: .\templates\index_OLD.html:41
 msgid "DM Apps"
 msgstr "Applications GD"
 
-#: .\templates\index.html:58
+#: .\templates\index.html:65
 msgid "Data Management Apps"
 msgstr "Applications de gestion de données"
 
-#: .\templates\index.html:61
+#: .\templates\index.html:68
 msgid "By DFO Science"
 msgstr "par MPO Science"
 
-#: .\templates\index.html:71
+#: .\templates\index.html:78
 #, python-format
 msgid ""
 "\n"
@@ -6079,7 +6340,7 @@ msgstr ""
 "application ci-dessous.\n"
 "                    "
 
-#: .\templates\index.html:75
+#: .\templates\index.html:82
 #, python-format
 msgid ""
 "\n"
@@ -6097,32 +6358,32 @@ msgstr ""
 "                        <a href=\"%(sign_up_url)s\">ici.</a>\n"
 "                    "
 
-#: .\templates\index.html:87 .\templates\index.html:141
+#: .\templates\index.html:94 .\templates\index.html:148
 #: .\templates\index_OLD.html:74 .\templates\index_OLD.html:138
 msgid "Select"
 msgstr "Sélectionner"
 
-#: .\templates\index.html:101 .\templates\index.html:155
+#: .\templates\index.html:108 .\templates\index.html:162
 #: .\templates\index_OLD.html:105 .\templates\index_OLD.html:169
 msgid "access to this app requires special permissions"
 msgstr "l'accès à cette application nécessite des autorisations spéciales"
 
-#: .\templates\index.html:102 .\templates\index.html:156
+#: .\templates\index.html:109 .\templates\index.html:163
 #: .\templates\index_OLD.html:106 .\templates\index_OLD.html:170
 msgid "access to this app requires you to be logged in"
 msgstr "l'accès à cette application nécessite que vous soyez connecté"
 
-#: .\templates\index.html:103 .\templates\index.html:157
+#: .\templates\index.html:110 .\templates\index.html:164
 #: .\templates\index_OLD.html:107 .\templates\index_OLD.html:171
 msgid "this app is opened to all users"
 msgstr "cette application est ouverte à tous les utilisateurs"
 
-#: .\templates\index.html:123 .\templates\index.html:177
+#: .\templates\index.html:130 .\templates\index.html:184
 #: .\templates\index_OLD.html:91 .\templates\index_OLD.html:155
 msgid "beta"
 msgstr "bêta"
 
-#: .\templates\index.html:127 .\templates\index.html:181
+#: .\templates\index.html:134 .\templates\index.html:188
 msgid "dev"
 msgstr ""
 
@@ -6229,338 +6490,538 @@ msgstr ""
 msgid "scale ID number"
 msgstr ""
 
-#: .\travel\forms.py:47
+#: .\travel\forms.py:36
+msgid "Please provide your comments here..."
+msgstr ""
+
+#: .\travel\forms.py:65
 msgid ""
 "Other attendees covered under BTA (i.e., they will not need to have a travel "
 "plan)"
 msgstr ""
 
-#: .\travel\forms.py:48
-msgid "ADM (only if necessary)"
+#: .\travel\forms.py:66
+msgid "ADM (only if necessary, e.g., events, int'l travel, etc. )"
 msgstr ""
 
-#: .\travel\forms.py:230
+#: .\travel\forms.py:291
 msgid "DFO traveller (leave blank for all)"
 msgstr ""
 
-#: .\travel\models.py:21 .\travel\models.py:37 .\travel\models.py:53
+#: .\travel\models.py:27 .\travel\models.py:43 .\travel\models.py:59
+#: .\travel\models.py:549
 msgid "name (eng)"
 msgstr "nom (fra)"
 
-#: .\travel\models.py:22 .\travel\models.py:38 .\travel\models.py:54
+#: .\travel\models.py:28 .\travel\models.py:44 .\travel\models.py:60
+#: .\travel\models.py:550
 msgid "name (fre)"
 msgstr ""
 
-#: .\travel\models.py:55
+#: .\travel\models.py:61
 msgid "description (eng)"
 msgstr "description (ang)"
 
-#: .\travel\models.py:56
+#: .\travel\models.py:62
 msgid "description (fre)"
 msgstr "description (fre)"
 
-#: .\travel\models.py:101
+#: .\travel\models.py:108
+msgid "does attendance to this require ADM approval?"
+msgstr ""
+
+#: .\travel\models.py:109
+msgid "location (city, province, country)"
+msgstr ""
+
+#: .\travel\models.py:110
+msgid "Which region is taking the lead?"
+msgstr ""
+
+#: .\travel\models.py:113
+msgid ""
+"Is there an event template being completed for this conference or meeting?"
+msgstr ""
+
+#: .\travel\models.py:114
 #, fuzzy
 #| msgid "Delete"
 msgid "event number"
 msgstr "Supprimer"
 
-#: .\travel\models.py:102
+#: .\travel\models.py:115
 msgid "start date of event"
 msgstr ""
 
-#: .\travel\models.py:103
+#: .\travel\models.py:116
 msgid "end date of event"
 msgstr ""
 
-#: .\travel\models.py:165
+#: .\travel\models.py:117
+#, fuzzy
+#| msgid "external URL"
+msgid "meeting URL"
+msgstr "URL externe"
+
+#: .\travel\models.py:118
+msgid "abstract submission deadline"
+msgstr ""
+
+#: .\travel\models.py:119
+msgid "registration deadline"
+msgstr ""
+
+#: .\travel\models.py:120
+#, fuzzy
+#| msgid "general comments"
+msgid "general notes"
+msgstr "observations générales"
+
+#: .\travel\models.py:129
+msgid "to"
+msgstr ""
+
+#: .\travel\models.py:162 .\travel\models.py:168
+msgid "no DM Apps user connected"
+msgstr ""
+
+#: .\travel\models.py:258
 msgid ""
 "Is this a group trip (i.e., is this a request for multiple individuals)?"
 msgstr ""
 
-#: .\travel\models.py:168
+#: .\travel\models.py:259
+msgid "purpose of travel"
+msgstr ""
+
+#: .\travel\models.py:260
+msgid "reason for travel"
+msgstr ""
+
+#: .\travel\models.py:262
+msgid "conference / meeting"
+msgstr ""
+
+#: .\travel\models.py:266
 msgid "user"
 msgstr ""
 
-#: .\travel\models.py:169
+#: .\travel\models.py:267
 msgid "DFO section"
 msgstr ""
 
-#: .\travel\models.py:173
+#: .\travel\models.py:270
 msgid "address"
 msgstr ""
 
-#: .\travel\models.py:176
+#: .\travel\models.py:273
 msgid "email"
 msgstr "courriel"
 
-#: .\travel\models.py:178
-msgid "company name (leave blank if DFO)"
+#: .\travel\models.py:274
+msgid "Is the traveller a public servant?"
 msgstr ""
 
-#: .\travel\models.py:179
+#: .\travel\models.py:276
+msgid "Is the traveller a research scientist (RES)?"
+msgstr ""
+
+#: .\travel\models.py:277
+#, fuzzy
+#| msgid "first name"
+msgid "company name"
+msgstr "prénom"
+
+#: .\travel\models.py:278
 #, fuzzy
 #| msgid "DFO sectors"
 msgid "DFO region"
 msgstr "Secteurs du MPO"
 
-#: .\travel\models.py:181
+#: .\travel\models.py:280
 msgid "trip title"
 msgstr ""
 
-#: .\travel\models.py:182
-msgid "departure location"
+#: .\travel\models.py:281
+msgid "departure location (city, province, country)"
 msgstr ""
 
-#: .\travel\models.py:183
-msgid "destination location"
+#: .\travel\models.py:283
+msgid "destination location (city, province, country)"
 msgstr ""
 
-#: .\travel\models.py:184
+#: .\travel\models.py:285
 msgid "start date of travel"
 msgstr ""
 
-#: .\travel\models.py:185
+#: .\travel\models.py:286
 msgid "end date of travel"
 msgstr ""
 
-#: .\travel\models.py:186
-msgid "reason for travel"
+#: .\travel\models.py:296
+#, fuzzy
+#| msgid "(Add a member)"
+msgid "role of traveller"
+msgstr "(Ajouter un membre)"
+
+#: .\travel\models.py:299
+#, fuzzy
+#| msgid "description"
+msgid "role description"
+msgstr "description"
+
+#: .\travel\models.py:300
+msgid "objective of the trip"
 msgstr ""
 
-#: .\travel\models.py:187
-msgid "purpose of travel"
+#: .\travel\models.py:301
+msgid "benefit to DFO"
 msgstr ""
 
-#: .\travel\models.py:188
-msgid "is this a registered event"
-msgstr ""
-
-#: .\travel\models.py:190
-msgid "registered event"
-msgstr ""
-
-#: .\travel\models.py:191
-msgid "role of participant"
-msgstr ""
-
-#: .\travel\models.py:195
-msgid ""
-"role of participant (More expansive than just saying he/she “present a "
-"paper” for example.  This should describe how does his/her role at the event "
-"relate to his/her role at DFO)"
-msgstr ""
-
-#: .\travel\models.py:198
-msgid ""
-"objective of the event (Brief description of what the event is about.  Not "
-"objective of the Participants in going to the event.)"
-msgstr ""
-
-#: .\travel\models.py:200
-msgid ""
-"benefit to DFO (What does DFO get out of this? Saves money, better programs, "
-"etc…)"
-msgstr ""
-
-#: .\travel\models.py:202
+#: .\travel\models.py:303
 msgid "rationale for individual attending multiple conferences"
 msgstr ""
 
-#: .\travel\models.py:204
-msgid "rationale for multiple attendees at this event"
-msgstr ""
-
-#: .\travel\models.py:205
-msgid "Justification for late submissions"
-msgstr ""
-
-#: .\travel\models.py:207
-msgid "optional notes (will not be included in travel plan)"
-msgstr ""
-
-#: .\travel\models.py:210
-msgid "air fare costs"
-msgstr ""
-
-#: .\travel\models.py:211
-msgid "rail costs"
-msgstr ""
-
-#: .\travel\models.py:212
-msgid "rental motor vehicles costs"
-msgstr ""
-
-#: .\travel\models.py:213
-msgid "personal motor vehicles costs"
-msgstr ""
-
-#: .\travel\models.py:214
-msgid "taxi costs"
-msgstr ""
-
-#: .\travel\models.py:215
-msgid "other transport costs"
-msgstr ""
-
-#: .\travel\models.py:216
-msgid "accommodation costs"
-msgstr ""
-
-#: .\travel\models.py:217
-msgid "meal costs"
-msgstr ""
-
-#: .\travel\models.py:218
-msgid "incidental costs"
-msgstr ""
-
-#: .\travel\models.py:219
-msgid "registration"
-msgstr ""
-
-#: .\travel\models.py:220
-msgid "other costs"
-msgstr ""
-
-#: .\travel\models.py:221
-msgid "total trip cost"
-msgstr ""
-
-#: .\travel\models.py:223
+#: .\travel\models.py:304
 msgid "Other attendees covered under BTA"
 msgstr ""
 
-#: .\travel\models.py:225
+#: .\travel\models.py:306
+msgid "rationale for multiple attendees at this event"
+msgstr ""
+
+#: .\travel\models.py:307
+msgid "Justification for late submissions"
+msgstr ""
+
+#: .\travel\models.py:309
+#, fuzzy
+#| msgid "additional notes"
+msgid "optional notes"
+msgstr "Notes complémentaires"
+
+#: .\travel\models.py:312
+msgid "air fare"
+msgstr ""
+
+#: .\travel\models.py:313
+msgid "rail"
+msgstr ""
+
+#: .\travel\models.py:314
+msgid "rental motor vehicles"
+msgstr ""
+
+#: .\travel\models.py:315
+msgid "personal motor vehicles"
+msgstr ""
+
+#: .\travel\models.py:316
+msgid "taxi"
+msgstr ""
+
+#: .\travel\models.py:317
+msgid "other transport"
+msgstr ""
+
+#: .\travel\models.py:318
+msgid "accommodation"
+msgstr ""
+
+#: .\travel\models.py:320
+msgid "number of breakfasts"
+msgstr ""
+
+#: .\travel\models.py:321
+msgid "breakfast rate (CAD/day)"
+msgstr ""
+
+#: .\travel\models.py:322
+msgid "breakfasts"
+msgstr ""
+
+#: .\travel\models.py:323
+msgid "number of lunches"
+msgstr ""
+
+#: .\travel\models.py:324
+msgid "lunch rate (CAD/day)"
+msgstr ""
+
+#: .\travel\models.py:325
+msgid "lunches"
+msgstr ""
+
+#: .\travel\models.py:326
+msgid "number of suppers"
+msgstr ""
+
+#: .\travel\models.py:327
+msgid "supper rate (CAD/day)"
+msgstr ""
+
+#: .\travel\models.py:328
+msgid "suppers"
+msgstr ""
+
+#: .\travel\models.py:329
+msgid "number of incidentals"
+msgstr ""
+
+#: .\travel\models.py:330
+msgid "incidental rate (CAD/day)"
+msgstr ""
+
+#: .\travel\models.py:331
+msgid "incidentals"
+msgstr ""
+
+#: .\travel\models.py:332
+msgid "registration"
+msgstr ""
+
+#: .\travel\models.py:333
+#, fuzzy
+#| msgid "Other"
+msgid "other"
+msgstr "Autre"
+
+#: .\travel\models.py:334
+#, fuzzy
+#| msgid "Total Cost"
+msgid "total trip cost (DFO)"
+msgstr "Coût total"
+
+#: .\travel\models.py:335
+msgid "Estimated non-DFO costs (CAD)"
+msgstr ""
+
+#: .\travel\models.py:336
+msgid "Full name(s) of organization paying non-DFO costs"
+msgstr ""
+
+#: .\travel\models.py:339
 #, fuzzy
 #| msgid "date last modified"
 msgid "date sumbitted"
 msgstr "Date de dernière modification"
 
-#: .\travel\models.py:228
-msgid "recommender 1"
+#: .\travel\models.py:341
+#, fuzzy
+#| msgid "status"
+msgid "trip status"
+msgstr "statut"
+
+#: .\travel\models.py:460
+#, fuzzy
+#| msgid "Cost Category"
+msgid "Cost category"
+msgstr "Catégorie de coût"
+
+#: .\travel\models.py:460
+#, fuzzy
+#| msgid "Amount"
+msgid "Amount (CAD)"
+msgstr "Montant"
+
+#: .\travel\models.py:474
+#: .\travel\templates\travel\_child_cost_breakdown.html:47
+msgid "TOTAL"
 msgstr ""
 
-#: .\travel\models.py:230
-msgid "recommender 2"
+#: .\travel\models.py:567
+msgid "process order"
 msgstr ""
 
-#: .\travel\models.py:232
-msgid "recommender 3"
-msgstr ""
+#: .\travel\models.py:568
+#, fuzzy
+#| msgid "DM Apps"
+msgid "DM Apps user"
+msgstr "Applications GD"
 
-#: .\travel\models.py:236 .\travel\views.py:151 .\travel\views.py:181
-msgid "ADM"
-msgstr ""
-
-#: .\travel\models.py:239
-msgid "recommender 1 approval status"
-msgstr ""
-
-#: .\travel\models.py:243
-msgid "recommender 2 approval status"
-msgstr ""
-
-#: .\travel\models.py:246
-msgid "recommender 3 approval status"
-msgstr ""
-
-#: .\travel\models.py:249
+#: .\travel\models.py:571
 #, fuzzy
 #| msgid "project status"
-msgid "ADM approval status"
+msgid "review status"
 msgstr "L'état du projet"
 
-#: .\travel\models.py:253
-msgid "expenditure initiation (RDG) approval status"
-msgstr ""
-
-#: .\travel\models.py:255
-msgid "recommender 1 approval date"
-msgstr ""
-
-#: .\travel\models.py:256
-msgid "recommender 2 approval date"
-msgstr ""
-
-#: .\travel\models.py:257
-msgid "recommender 3 approval date"
-msgstr ""
-
-#: .\travel\models.py:258
+#: .\travel\models.py:572
 #, fuzzy
-#| msgid "RDS approved"
-msgid "ADM approval date"
-msgstr "approuvé par le directeur régional"
+#| msgid "status"
+msgid "status date"
+msgstr "statut"
 
-#: .\travel\models.py:259
-msgid "expenditure initiation approval date"
-msgstr ""
-
-#: .\travel\models.py:260
-#, fuzzy
-#| msgid "Editing:"
-msgid "Waiting on"
-msgstr "Modification:"
-
-#: .\travel\models.py:263
-msgid "Trip approval status"
-msgstr ""
-
-#: .\travel\models.py:372
+#: .\travel\models.py:598
 msgid "on"
 msgstr ""
 
-#: .\travel\templates\travel\event_detail.html:37
-msgid "Only application administrators can modify a submitted trip"
-msgstr ""
+#: .\travel\templates\travel\_files.html:6
+#, fuzzy
+#| msgid "File Attachment"
+msgid "File Attachments"
+msgstr "Pièce jointe"
 
-#: .\travel\templates\travel\event_detail.html:47
-msgid "Submitted trips cannot be deleted."
-msgstr ""
-
-#: .\travel\templates\travel\event_detail.html:62
-msgid "Only application administrators can un-submit a trip"
-msgstr ""
-
-#: .\travel\templates\travel\event_form.html:57
-msgid ""
-"(One this form is submitted, you will be able to add group travellers to the "
-"trip. You will be automatically added as a traveller.)"
-msgstr ""
-
-#: .\travel\templates\travel\event_form_popout.html:19
+#: .\travel\templates\travel\_files.html:10
 #, fuzzy
 #| msgid "(Add a member)"
-msgid "Add a Traveller"
+msgid "Add a File"
 msgstr "(Ajouter un membre)"
 
-#: .\travel\templates\travel\index.html:26
+#: .\travel\templates\travel\_trip_detail.html:53
+msgid "Total travellers (excluding BTA)"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:70
+#: .\travel\templates\travel\conference_detail.html:58
+#, fuzzy
+#| msgid "Funding Details:"
+msgid "Conference/Meeting Detail:"
+msgstr "Détails de financement:"
+
+#: .\travel\templates\travel\_trip_detail.html:73
+msgid ""
+"It was indicated above that this trip is a conference/meeting however no "
+"conference or meeting was selected."
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:84
+msgid "Unsure"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:92
+#, fuzzy
+#| msgid "Entry Type"
+msgid "Connected trips"
+msgstr "Type d'entrée"
+
+#: .\travel\templates\travel\_trip_detail.html:101
+#: .\travel\templates\travel\_user_trip_list.html:8
+msgid "CURRENT TRIP"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:110
+msgid "Total list of travellers (all trips and BTA included)"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:116
+#: .\travel\templates\travel\conference_detail.html:115
+msgid "Attendence to Conferences and International Trips"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:127
+#: .\travel\templates\travel\conference_detail.html:126
+msgid "(BTA)"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:138
+#: .\travel\templates\travel\_trip_detail.html:158
+#: .\travel\templates\travel\_trip_detail.html:239
+#: .\travel\templates\travel\conference_detail.html:137
+#: .\travel\templates\travel\conference_detail.html:157
+msgid "show"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:172
+#: .\travel\templates\travel\conference_detail.html:171
+msgid "TOTAL NUMBER OF TRAVELLERS"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:184
+msgid "Total cost (from all connected trips, excluding BTA travel)"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:200
+msgid "Group Travellers Associated with Trip"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:222
+msgid "Cost breakdown"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:245
+msgid "Clone"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:254
+msgid "TOTAL COST:"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:264
+msgid "Reviewers, Recommenders and Approvers"
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:270
+msgid "You cannot reset the reviewers while a trip is submitted."
+msgstr ""
+
+#: .\travel\templates\travel\_trip_detail.html:313
+#, fuzzy
+#| msgid "No milestones have been added to this project"
+msgid ""
+"No reviewers, recommenders or approvers have been added to this project."
+msgstr "Aucun jalon n'a été ajouté à ce projet."
+
+#: .\travel\templates\travel\_trip_detail.html:325
+msgid ""
+"Are you sure you want to reset the reviewers? This will undo any changes "
+"that you have made to the reviewer list and process order."
+msgstr ""
+
+#: .\travel\templates\travel\conference_detail.html:25
+#: .\travel\templates\travel\travel_base.html:66
+msgid "Conferences & Meetings"
+msgstr ""
+
+#: .\travel\templates\travel\conference_detail.html:74
+#, fuzzy
+#| msgid "Capital Requests:"
+msgid "Connected Travel Requests:"
+msgstr "Demandes de capital:"
+
+#: .\travel\templates\travel\conference_detail.html:85
+msgid "There are no trips connected to this event."
+msgstr ""
+
+#: .\travel\templates\travel\conference_detail.html:110
+msgid "List of travellers (across all trips and including BTA)"
+msgstr ""
+
+#: .\travel\templates\travel\conference_form_popout.html:20
+msgid "Add a New Conference or Meeting"
+msgstr ""
+
+#: .\travel\templates\travel\index.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
-#| "                        Welcome! Please <a href=\"%(sign_in_url)s\">sign "
-#| "in</a> or select an application below. If you do not have an\n"
-#| "                        account, you can register for one\n"
-#| "                        <a href=\"%(sign_up_url)s\">here.</a>\n"
+#| "                        displaying all %(count)s records\n"
 #| "                    "
 msgid ""
 "\n"
 "                        <a href=\"%(event_new_url)s\">New</a> trip.\n"
-"                        <br><br>\n"
-"                        <a href=\"%(event_list_url)s\">List</a> all trips.\n"
-"                        <br><br>\n"
 "                    "
 msgstr ""
 "\n"
-"                        Bienvenue!! Veuillez vous <a href=\"%(sign_in_url)s"
-"\">connecter</a> ou sélectionner une application ci-dessous. Si vous n'avez "
-"pas de\n"
-"                        compte, vous pouvez en créer un\n"
-"                        <a href=\"%(sign_up_url)s\">ici.</a>\n"
+"                        afficher tous les %(count)s enregistrements\n"
 "                    "
 
-#: .\travel\templates\travel\index.html:34
+#: .\travel\templates\travel\index.html:33
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                                %(y)s Timelines\n"
+#| "                            "
+msgid ""
+"\n"
+"                                View <a href=\"%(your_url)s%(user_id)s"
+"\">your</a> trips\n"
+"                            "
+msgstr ""
+"\n"
+"                                Calendrier %(y)s \n"
+"                            "
+
+#: .\travel\templates\travel\index.html:41
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -6569,16 +7030,33 @@ msgstr ""
 #| "                        "
 msgid ""
 "\n"
-"                            Trips awaiting your <a href="
-"\"%(event_approval_list_url)s\">approval</a> (%(number_waiting)s).\n"
-"                        "
+"                        <a href=\"%(event_list_url)s\">List</a> all trips.\n"
+"                    "
 msgstr ""
 "\n"
 "                            Si vous n'avez pas de compte, vous pouvez en "
 "créer<a href=\"%(sign_up_url)s\">ici</a>.\n"
 "                        "
 
-#: .\travel\templates\travel\index.html:42
+#: .\travel\templates\travel\index.html:51
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                            If you do not have an account, you can create "
+#| "one <a href=\"%(sign_up_url)s\">here</a>.\n"
+#| "                        "
+msgid ""
+"\n"
+"                                Trips awaiting your <a href="
+"\"%(event_approval_list_url)s\">review</a>\n"
+"                            "
+msgstr ""
+"\n"
+"                            Si vous n'avez pas de compte, vous pouvez en "
+"créer<a href=\"%(sign_up_url)s\">ici</a>.\n"
+"                        "
+
+#: .\travel\templates\travel\index.html:57
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -6588,8 +7066,8 @@ msgstr ""
 #| "                        "
 msgid ""
 "\n"
-"                                Click <a href=\"%(admin_approval_list_url)s"
-"\">here</a> to access the admin approval menu.\n"
+"                                Trips <a href=\"%(event_assigned_list_url)s"
+"\">assigned</a> to you\n"
 "                            "
 msgstr ""
 "\n"
@@ -6598,651 +7076,762 @@ msgstr ""
 "                            application.\n"
 "                        "
 
-#: .\travel\templates\travel\registeredevent_form_popout.html:20
-msgid "Add a New Registered Event"
+#: .\travel\templates\travel\index.html:64
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                            If you do not have an account, you can create "
+#| "one <a href=\"%(sign_up_url)s\">here</a>.\n"
+#| "                        "
+msgid ""
+"\n"
+"                                Trips awaiting admin <a href="
+"\"%(admin_approval_list_url)s\">approval</a>\n"
+"                            "
 msgstr ""
+"\n"
+"                            Si vous n'avez pas de compte, vous pouvez en "
+"créer<a href=\"%(sign_up_url)s\">ici</a>.\n"
+"                        "
+
+#: .\travel\templates\travel\reviewer_approval_form.html:49
+msgid "Save comments without approving"
+msgstr ""
+
+#: .\travel\templates\travel\reviewer_approval_form.html:74
+msgid "Request Changes"
+msgstr ""
+
+#: .\travel\templates\travel\reviewer_approval_form.html:77
+msgid "Make Changes Yourself"
+msgstr ""
+
+#: .\travel\templates\travel\reviewer_formset.html:36
+#, fuzzy
+#| msgid "Human Resources"
+msgid "Managing Reviewers:"
+msgstr "Ressources humaines"
 
 #: .\travel\templates\travel\travel_base.html:9
 msgid "Travel Plans"
 msgstr ""
 
-#: .\travel\templates\travel\travel_base.html:29
+#: .\travel\templates\travel\travel_base.html:31
 msgid "Trips"
 msgstr ""
 
-#: .\travel\templates\travel\travel_base.html:49
-msgid "Registered Events"
+#: .\travel\templates\travel\travel_base.html:43
+msgid "Your Trips"
 msgstr ""
 
-#: .\travel\templates\travel\travel_base.html:52
+#: .\travel\templates\travel\travel_base.html:48
+#, fuzzy
+#| msgid "Submit project for review"
+msgid "Awaiting your Review"
+msgstr "Soumettre le projet"
+
+#: .\travel\templates\travel\travel_base.html:51
+msgid "Assigned to You"
+msgstr ""
+
+#: .\travel\templates\travel\travel_base.html:57
 #, fuzzy
 #| msgid "RDS Approval"
-msgid "Admin Approval"
+msgid "Awaiting your Admin Approval"
 msgstr "Approbation du directeur"
 
-#: .\travel\views.py:144
-msgid "cost summary"
+#: .\travel\templates\travel\trip_detail.html:51
+msgid "Only application administrators and owners can un-submit a trip"
 msgstr ""
 
-#: .\travel\views.py:145
-msgid "purpose"
+#: .\travel\templates\travel\trip_detail.html:63
+msgid "Only application administrators can modify a submitted trip"
 msgstr ""
 
-#: .\travel\views.py:148 .\travel\views.py:178
-msgid "Recommender 1"
+#: .\travel\templates\travel\trip_detail.html:75
+msgid "Submitted trips cannot be deleted."
 msgstr ""
 
-#: .\travel\views.py:149 .\travel\views.py:179
-msgid "Recommender 2"
+#: .\travel\templates\travel\trip_form.html:108
+msgid ""
+"(One this form is submitted, you will be able to add group travellers to the "
+"trip. You will be automatically added as a traveller.)"
 msgstr ""
 
-#: .\travel\views.py:150 .\travel\views.py:180
-msgid "Recommender 3"
+#: .\travel\templates\travel\trip_form.html:155
+#: .\travel\templates\travel\trip_form_popout.html:109
+msgid "Breakdown of Trip Costs"
 msgstr ""
 
-#: .\travel\views.py:152 .\travel\views.py:182
-msgid "Expenditure Initiation (RDG)"
+#: .\travel\templates\travel\trip_form.html:157
+msgid ""
+"\n"
+"                        Per diem rates for breakfast, lunch, supper and "
+"incidentals should follow the\n"
+"                        <a href=\"https://www.njc-cnm.gc.ca/\">National "
+"Joint Council</a> Travel Directive. For travel within Canada and\n"
+"                        USA, please refer to <a href=\"https://www.njc-cnm."
+"gc.ca/directive/d10/v238/s659/en\">Appendix C</a>\n"
+"                        and for all other travel please refer to\n"
+"                        <a href=\"https://www.njc-cnm.gc.ca/directive/app_d."
+"php?lang=en\">Appendix D</a>\n"
+"                    "
 msgstr ""
 
-#: .\travel\views.py:176 .\travel\views.py:226 .\travel\views.py:254
-#: .\travel\views.py:287
+#: .\travel\templates\travel\trip_form.html:166
+#: .\travel\templates\travel\trip_form_popout.html:120
+msgid ""
+"Please note that all expenses for this trip should be entered in Canadian "
+"dollars."
+msgstr ""
+
+#: .\travel\templates\travel\trip_form.html:176
+#: .\travel\templates\travel\trip_form_popout.html:130
+msgid "Breakfasts"
+msgstr ""
+
+#: .\travel\templates\travel\trip_form.html:178
+#: .\travel\templates\travel\trip_form_popout.html:132
+msgid "Lunches"
+msgstr ""
+
+#: .\travel\templates\travel\trip_form.html:180
+#: .\travel\templates\travel\trip_form_popout.html:134
+msgid "Suppers"
+msgstr ""
+
+#: .\travel\templates\travel\trip_form.html:182
+#: .\travel\templates\travel\trip_form_popout.html:136
+msgid "Incidentals"
+msgstr ""
+
+#: .\travel\templates\travel\trip_form_popout.html:25
+#, fuzzy
+#| msgid "(Add a member)"
+msgid "Add a Traveller"
+msgstr "(Ajouter un membre)"
+
+#: .\travel\templates\travel\trip_form_popout.html:111
+msgid ""
+"\n"
+"                    Per diem rates for breakfast, lunch, supper and "
+"incidentals should follow the\n"
+"                    <a href=\"https://www.njc-cnm.gc.ca/\">National Joint "
+"Council</a> Travel Directive. For travel within Canada and\n"
+"                    USA, please refer to <a href=\"https://www.njc-cnm.gc.ca/"
+"directive/d10/v238/s659/en\">Appendix C</a>\n"
+"                    and for all other travel please refer to\n"
+"                    <a href=\"https://www.njc-cnm.gc.ca/directive/app_d.php?"
+"lang=en\">Appendix D</a>\n"
+"                "
+msgstr ""
+
+#: .\travel\templates\travel\trip_review_list.html:35
+msgid "Trips Awaiting Your Review"
+msgstr ""
+
+#: .\travel\templates\travel\trip_review_list.html:37
+#, fuzzy
+#| msgid "RDS Approval"
+msgid "Admin Trip Approval List"
+msgstr "Approbation du directeur"
+
+#: .\travel\templates\travel\trip_review_list.html:39
+msgid "Trips Assigned to You for Review"
+msgstr ""
+
+#: .\travel\templates\travel\trip_review_list.html:44
+msgid "view all trips assigned to me"
+msgstr ""
+
+#: .\travel\templates\travel\trip_review_list.html:48
+msgid "view trips awaiting my approval"
+msgstr ""
+
+#: .\travel\views.py:102 .\travel\views.py:159 .\travel\views.py:277
+#, fuzzy
+#| msgid "status"
+msgid "Trip status"
+msgstr "statut"
+
+#: .\travel\views.py:149
 #, fuzzy
 #| msgid "Total Cost"
-msgid "Total trip cost"
+msgid "DFO trip costs"
 msgstr "Coût total"
 
-#: .\travel\views.py:255 .\travel\views.py:288
-msgid "Recommender 1<br>(status)"
+#: .\travel\views.py:181 .\travel\views.py:255 .\travel\views.py:285
+#: .\travel\views.py:318
+#, fuzzy
+#| msgid "Total Cost"
+msgid "Total trip cost (DFO)"
+msgstr "Coût total"
+
+#: .\travel\views.py:454
+msgid "Success! An email has been sent to the trip owner."
 msgstr ""
 
-#: .\travel\views.py:256 .\travel\views.py:289
-msgid "Recommender 2<br>(status)"
-msgstr ""
+#: .\travel\views.py:763
+#, fuzzy
+#| msgid "The agreement has been successfully deleted."
+msgid "The reviewer list has been successfully updated"
+msgstr "L'accord a été supprimé avec succès."
 
-#: .\travel\views.py:257 .\travel\views.py:290
-msgid "Recommender 3<br>(status)"
-msgstr ""
+#: .\travel\views.py:800
+#, fuzzy
+#| msgid "RDS approved"
+msgid "ADM approval required?"
+msgstr "approuvé par le directeur régional"
 
-#: .\travel\views.py:258 .\travel\views.py:291
-msgid "ADM<br>(status)"
-msgstr ""
-
-#: .\travel\views.py:259 .\travel\views.py:292
-msgid "RDG<br>(status)"
-msgstr ""
-
-#: .\travel\views.py:722
+#: .\travel\views.py:860
 msgid "The event has been added to the database!"
 msgstr ""
 
-#: .\whalesdb\forms.py:17 .\whalesdb\forms.py:23
+#: .\whalesdb\forms.py:17
 msgid "Make & Model"
 msgstr ""
 
 #: .\whalesdb\forms.py:18
-msgid "Max Channels"
-msgstr ""
-
-#: .\whalesdb\forms.py:19
-msgid "Max Sample Rate"
-msgstr ""
-
-#: .\whalesdb\forms.py:24
 msgid "Bottom frequency"
 msgstr ""
 
-#: .\whalesdb\forms.py:25
+#: .\whalesdb\forms.py:19
 msgid "Top frequency"
 msgstr ""
 
-#: .\whalesdb\forms.py:29 .\whalesdb\forms.py:89
+#: .\whalesdb\forms.py:23 .\whalesdb\forms.py:83
 msgid "Channel number"
 msgstr ""
 
-#: .\whalesdb\forms.py:30
+#: .\whalesdb\forms.py:24
 msgid "ADC Bits"
 msgstr ""
 
-#: .\whalesdb\forms.py:31 .\whalesdb\forms.py:91
+#: .\whalesdb\forms.py:25 .\whalesdb\forms.py:85
 msgid "Voltage Range Minimum"
 msgstr ""
 
-#: .\whalesdb\forms.py:32 .\whalesdb\forms.py:92
+#: .\whalesdb\forms.py:26 .\whalesdb\forms.py:86
 msgid "Voltage Range Maximum"
 msgstr ""
 
-#: .\whalesdb\forms.py:33
+#: .\whalesdb\forms.py:27
 msgid "Gain in dB."
 msgstr ""
 
-#: .\whalesdb\forms.py:37
+#: .\whalesdb\forms.py:31
 #, fuzzy
 #| msgid "Equipment Purchase"
 msgid "Equipment Parameters"
 msgstr "Achat d'équipement"
 
-#: .\whalesdb\forms.py:41
+#: .\whalesdb\forms.py:35
 msgid "Schedule Name"
 msgstr ""
 
-#: .\whalesdb\forms.py:42
+#: .\whalesdb\forms.py:36
 msgid "Period"
 msgstr ""
 
-#: .\whalesdb\forms.py:47
+#: .\whalesdb\forms.py:41
 msgid "Code"
 msgstr ""
 
-#: .\whalesdb\forms.py:48
+#: .\whalesdb\forms.py:42
 #, fuzzy
 #| msgid "Division"
 msgid "Revision"
 msgstr "Division"
 
-#: .\whalesdb\forms.py:49
-msgid "Latitude"
-msgstr ""
-
-#: .\whalesdb\forms.py:50
-msgid "Longitude"
-msgstr ""
-
-#: .\whalesdb\forms.py:51
+#: .\whalesdb\forms.py:45
 msgid "Depth (meters)"
 msgstr ""
 
-#: .\whalesdb\forms.py:64
+#: .\whalesdb\forms.py:58
 #, fuzzy
 #| msgid "First Name"
 msgid "Cruise Name"
 msgstr "Prénom"
 
-#: .\whalesdb\forms.py:65
+#: .\whalesdb\forms.py:59
 msgid "Principal Investigator Name"
 msgstr ""
 
-#: .\whalesdb\forms.py:66
+#: .\whalesdb\forms.py:60
 #, fuzzy
 #| msgid "Last Name"
 msgid "Institute Name"
 msgstr "Nom de famille"
 
-#: .\whalesdb\forms.py:67
+#: .\whalesdb\forms.py:61
 msgid "Geographic Location"
 msgstr ""
 
-#: .\whalesdb\forms.py:68
+#: .\whalesdb\forms.py:62
 #, fuzzy
 #| msgid "Start Date"
 msgid "Start Date"
 msgstr "Date de début"
 
-#: .\whalesdb\forms.py:69
+#: .\whalesdb\forms.py:63
 msgid "End Date"
 msgstr "Date de fin"
 
-#: .\whalesdb\forms.py:70
+#: .\whalesdb\forms.py:64
 msgid "Cruise Notes"
 msgstr ""
 
-#: .\whalesdb\forms.py:74
+#: .\whalesdb\forms.py:68
 #, fuzzy
 #| msgid "DFO employee"
 msgid "Deployment Year"
 msgstr "employé MPO"
 
-#: .\whalesdb\forms.py:75
+#: .\whalesdb\forms.py:69
 msgid "Deployment Month"
 msgstr ""
 
-#: .\whalesdb\forms.py:76
+#: .\whalesdb\forms.py:70
 #, fuzzy
 #| msgid "Section"
 msgid "Station"
 msgstr "Section"
 
-#: .\whalesdb\forms.py:77
+#: .\whalesdb\forms.py:71
 #, fuzzy
 #| msgid "DFO employee"
 msgid "Deployment Name"
 msgstr "employé MPO"
 
-#: .\whalesdb\forms.py:79
+#: .\whalesdb\forms.py:73
 #, fuzzy
 #| msgid "Funding Details:"
 msgid "Mooring Setup"
 msgstr "Détails de financement:"
 
-#: .\whalesdb\forms.py:83
+#: .\whalesdb\forms.py:77
 #, fuzzy
 #| msgid "Lab Equipment"
 msgid "Equipment"
 msgstr "Équipement de laboratoire"
 
-#: .\whalesdb\forms.py:84 .\whalesdb\forms.py:216
+#: .\whalesdb\forms.py:78 .\whalesdb\forms.py:204
 #: .\whalesdb\templates\whalesdb\create_deployment.html:9
 #, fuzzy
 #| msgid "DFO employee"
 msgid "Deployment"
 msgstr "employé MPO"
 
-#: .\whalesdb\forms.py:85
+#: .\whalesdb\forms.py:79
 msgid "Recording Event"
 msgstr ""
 
-#: .\whalesdb\forms.py:90
+#: .\whalesdb\forms.py:84
 msgid "ADC Bits represented in this channel"
 msgstr ""
 
-#: .\whalesdb\forms.py:93
+#: .\whalesdb\forms.py:87
 msgid "How much a channel is amplified in dB."
 msgstr ""
 
-#: .\whalesdb\forms.py:97
+#: .\whalesdb\forms.py:91
 #, fuzzy
 #| msgid "Equipment Purchase"
 msgid "Equipment Attached To"
 msgstr "Achat d'équipement"
 
-#: .\whalesdb\forms.py:98
+#: .\whalesdb\forms.py:92
 msgid "Hydrophone"
 msgstr ""
 
-#: .\whalesdb\forms.py:102 .\whalesdb\forms.py:324 .\whalesdb\forms.py:360
+#: .\whalesdb\forms.py:96 .\whalesdb\forms.py:314 .\whalesdb\forms.py:346
+#: .\whalesdb\forms.py:383
 #, fuzzy
 #| msgid "Equipment Purchase"
 msgid "Equipment category"
 msgstr "Achat d'équipement"
 
-#: .\whalesdb\forms.py:103 .\whalesdb\forms.py:325 .\whalesdb\forms.py:361
+#: .\whalesdb\forms.py:97 .\whalesdb\forms.py:315 .\whalesdb\forms.py:347
+#: .\whalesdb\forms.py:384
 #, fuzzy
 #| msgid "Equipment Purchase"
 msgid "Equipment make"
 msgstr "Achat d'équipement"
 
-#: .\whalesdb\forms.py:104 .\whalesdb\forms.py:326 .\whalesdb\forms.py:362
+#: .\whalesdb\forms.py:98 .\whalesdb\forms.py:316 .\whalesdb\forms.py:348
+#: .\whalesdb\forms.py:385
 #, fuzzy
 #| msgid "Equipment Purchase"
 msgid "Equipment model"
 msgstr "Achat d'équipement"
 
-#: .\whalesdb\forms.py:105 .\whalesdb\forms.py:327 .\whalesdb\forms.py:363
+#: .\whalesdb\forms.py:99 .\whalesdb\forms.py:317 .\whalesdb\forms.py:349
+#: .\whalesdb\forms.py:386
 msgid "The depth in metres this piece of equipment is rated for"
 msgstr ""
 
-#: .\whalesdb\forms.py:106 .\whalesdb\forms.py:328 .\whalesdb\forms.py:364
+#: .\whalesdb\forms.py:100 .\whalesdb\forms.py:318 .\whalesdb\forms.py:350
+#: .\whalesdb\forms.py:387
 msgid "Short description of the piece of equipment"
 msgstr ""
 
-#: .\whalesdb\forms.py:110
+#: .\whalesdb\forms.py:104
 msgid "Code ID"
 msgstr ""
 
-#: .\whalesdb\forms.py:111
+#: .\whalesdb\forms.py:105
 msgid "Code Value"
 msgstr ""
 
-#: .\whalesdb\forms.py:115
+#: .\whalesdb\forms.py:109
 msgid "The parameter type attached to a piece of equipment"
 msgstr ""
 
-#: .\whalesdb\forms.py:119
+#: .\whalesdb\forms.py:113
 msgid ""
 "Bottom frequency in the functional flat range of the hydrophone in Hz (+-3 "
 "dB unless stated in notes)"
 msgstr ""
 
-#: .\whalesdb\forms.py:121
+#: .\whalesdb\forms.py:115
 msgid ""
 "Top frequency in the functional flat range of the hydrophone in Hz (+-3 dB "
 "unless stated in notes)"
 msgstr ""
 
-#: .\whalesdb\forms.py:126
+#: .\whalesdb\forms.py:120
 msgid "Make and Model"
 msgstr ""
 
-#: .\whalesdb\forms.py:127
+#: .\whalesdb\forms.py:121
 msgid "Serial Number"
 msgstr ""
 
-#: .\whalesdb\forms.py:128
+#: .\whalesdb\forms.py:122
 msgid "Asset ID"
 msgstr ""
 
-#: .\whalesdb\forms.py:129
+#: .\whalesdb\forms.py:123
 #, fuzzy
 #| msgid "Equipment Purchase"
 msgid "Date Purchased"
 msgstr "Achat d'équipement"
 
-#: .\whalesdb\forms.py:134
-msgid "Maximum number of channels a piece of equipment can handle."
-msgstr ""
-
-#: .\whalesdb\forms.py:135
-msgid "How fast data can be recorded in KHz"
-msgstr ""
-
-#: .\whalesdb\forms.py:139
+#: .\whalesdb\forms.py:128
 msgid "Equipment Type Code ID"
 msgstr ""
 
-#: .\whalesdb\forms.py:140
+#: .\whalesdb\forms.py:129
 msgid "Equipment Type Code Name"
 msgstr ""
 
-#: .\whalesdb\forms.py:144
+#: .\whalesdb\forms.py:133
 #, fuzzy
 #| msgid "Funding Details:"
 msgid "Mooring Setup Name"
 msgstr "Détails de financement:"
 
-#: .\whalesdb\forms.py:145
+#: .\whalesdb\forms.py:134
 msgid "Max Depth"
 msgstr ""
 
-#: .\whalesdb\forms.py:146
-msgid "Number of Hydrophones"
-msgstr ""
-
-#: .\whalesdb\forms.py:147
+#: .\whalesdb\forms.py:135
 msgid "Setup Image Location"
 msgstr ""
 
-#: .\whalesdb\forms.py:148
+#: .\whalesdb\forms.py:136
 #, fuzzy
 #| msgid "Field Equipment"
 msgid "Additional Equipment"
 msgstr "Équipement de terrain"
 
-#: .\whalesdb\forms.py:149
+#: .\whalesdb\forms.py:137
 #, fuzzy
 #| msgid "description"
 msgid "General Description"
 msgstr "description"
 
-#: .\whalesdb\forms.py:154
+#: .\whalesdb\forms.py:142
 msgid "Parameter ID"
 msgstr ""
 
-#: .\whalesdb\forms.py:155
+#: .\whalesdb\forms.py:143
 #, fuzzy
 #| msgid "Last Name"
 msgid "Parameter Name"
 msgstr "Nom de famille"
 
-#: .\whalesdb\forms.py:159
+#: .\whalesdb\forms.py:147
 #, fuzzy
 #| msgid "Project Lead"
 msgid "Project Name"
 msgstr "Chef de projet"
 
-#: .\whalesdb\forms.py:160
+#: .\whalesdb\forms.py:148
 #, fuzzy
 #| msgid "description"
 msgid "Project Description"
 msgstr "description"
 
-#: .\whalesdb\forms.py:161
+#: .\whalesdb\forms.py:149
 #, fuzzy
 #| msgid "Project Lead"
 msgid "Project URL"
 msgstr "Chef de projet"
 
-#: .\whalesdb\forms.py:165
+#: .\whalesdb\forms.py:153
 msgid "Recording schedule associated with this recording event"
 msgstr ""
 
-#: .\whalesdb\forms.py:166
+#: .\whalesdb\forms.py:154
 msgid "Team member who programmed the recording setup"
 msgstr ""
 
-#: .\whalesdb\forms.py:167
+#: .\whalesdb\forms.py:155
 msgid "Recording date of the system check (Time in UTC)"
 msgstr ""
 
-#: .\whalesdb\forms.py:168
+#: .\whalesdb\forms.py:156
 msgid "Team member who prefored the System Check"
 msgstr ""
 
-#: .\whalesdb\forms.py:169
+#: .\whalesdb\forms.py:157
 msgid "Date of first recording when the equipment is turned on for deployment."
 msgstr ""
 
-#: .\whalesdb\forms.py:170
+#: .\whalesdb\forms.py:158
 #, fuzzy
 #| msgid "Date last modified:"
 msgid "Date of last recording"
 msgstr "Date de la dernière modification:"
 
-#: .\whalesdb\forms.py:171
+#: .\whalesdb\forms.py:159
 msgid "Total memory used for number of recorded files"
 msgstr ""
 
-#: .\whalesdb\forms.py:172
+#: .\whalesdb\forms.py:160
 msgid "High Frequency Memory usage in Gigabytes (GB)"
 msgstr ""
 
-#: .\whalesdb\forms.py:173
+#: .\whalesdb\forms.py:161
 msgid "Low Frequency Memory usage in Gigabytes (GB)"
 msgstr ""
 
-#: .\whalesdb\forms.py:174
+#: .\whalesdb\forms.py:162
 msgid "Date the data has been downloaded from equipment"
 msgstr ""
 
-#: .\whalesdb\forms.py:175
+#: .\whalesdb\forms.py:163
 msgid "URL of the location the data storage"
 msgstr ""
 
-#: .\whalesdb\forms.py:176 .\whalesdb\forms.py:179
+#: .\whalesdb\forms.py:164 .\whalesdb\forms.py:167
 msgid "Team member who backed up the data"
 msgstr ""
 
-#: .\whalesdb\forms.py:177
+#: .\whalesdb\forms.py:165
 msgid "Date data was backed up"
 msgstr ""
 
-#: .\whalesdb\forms.py:178
+#: .\whalesdb\forms.py:166
 msgid "URL of the data backup location"
 msgstr ""
 
-#: .\whalesdb\forms.py:180
+#: .\whalesdb\forms.py:168
 msgid "The number of channels used to record data, one recording per channel"
 msgstr ""
 
-#: .\whalesdb\forms.py:181
+#: .\whalesdb\forms.py:169
 msgid "Comments on the recording and data"
 msgstr ""
 
-#: .\whalesdb\forms.py:182
+#: .\whalesdb\forms.py:170
 msgid ""
 "Time zone data files use. Should be UTC, but occasionally for legacy data  "
 "will be in some local format."
 msgstr ""
 
-#: .\whalesdb\forms.py:184
+#: .\whalesdb\forms.py:172
 msgid "First in water recording"
 msgstr ""
 
-#: .\whalesdb\forms.py:185
+#: .\whalesdb\forms.py:173
 msgid "Last in water recording"
 msgstr ""
 
-#: .\whalesdb\forms.py:189
+#: .\whalesdb\forms.py:177
 msgid ""
 "A human readable name for this duty cycle if it is to be used as a preset "
 "configuration"
 msgstr ""
 
-#: .\whalesdb\forms.py:190
+#: .\whalesdb\forms.py:178
 msgid "Unit of time before the recording schedul repeats (seconds)"
 msgstr ""
 
-#: .\whalesdb\forms.py:194
+#: .\whalesdb\forms.py:182
 msgid "Channel Number this stage is being recorded on"
 msgstr ""
 
-#: .\whalesdb\forms.py:195
+#: .\whalesdb\forms.py:183
 msgid "The recording schedule this stage belongs to"
 msgstr ""
 
-#: .\whalesdb\forms.py:196
+#: .\whalesdb\forms.py:184
 msgid "(A)ctive or (S)leep"
 msgstr ""
 
-#: .\whalesdb\forms.py:197
+#: .\whalesdb\forms.py:185
 msgid "The number of seconds this stage is active fore"
 msgstr ""
 
-#: .\whalesdb\forms.py:198
+#: .\whalesdb\forms.py:186
 msgid "Sampling rate in Hertz (Hz)"
 msgstr ""
 
-#: .\whalesdb\forms.py:199
+#: .\whalesdb\forms.py:187
 msgid "Decibles (dB)"
 msgstr ""
 
-#: .\whalesdb\forms.py:203
+#: .\whalesdb\forms.py:191
 msgid "Time Zone ID"
 msgstr ""
 
-#: .\whalesdb\forms.py:204
+#: .\whalesdb\forms.py:192
 msgid "Time Zone Abbreviation"
 msgstr ""
 
-#: .\whalesdb\forms.py:205
+#: .\whalesdb\forms.py:193
 msgid "Time Zone Name"
 msgstr ""
 
-#: .\whalesdb\forms.py:206
+#: .\whalesdb\forms.py:194
 msgid "Time Zone Offset"
 msgstr ""
 
-#: .\whalesdb\forms.py:210
+#: .\whalesdb\forms.py:198
 msgid "Station Event Code ID"
 msgstr ""
 
-#: .\whalesdb\forms.py:211
+#: .\whalesdb\forms.py:199
 msgid "Station Event Code Name"
 msgstr ""
 
-#: .\whalesdb\forms.py:212
+#: .\whalesdb\forms.py:200
 #, fuzzy
 #| msgid "overtime description"
 msgid "Station Event Code Description"
 msgstr "description d'heures supplémentaires"
 
-#: .\whalesdb\forms.py:217
+#: .\whalesdb\forms.py:205
 #, fuzzy
 #| msgid "Entry Type"
 msgid "Event Type"
 msgstr "Type d'entrée"
 
-#: .\whalesdb\forms.py:218
+#: .\whalesdb\forms.py:206
 #, fuzzy
 #| msgid "End Date"
 msgid "Event Date"
 msgstr "Date de fin"
 
-#: .\whalesdb\forms.py:219
+#: .\whalesdb\forms.py:207
 msgid "Cruise"
 msgstr ""
 
-#: .\whalesdb\forms.py:220
+#: .\whalesdb\forms.py:208
 msgid "Latitude, by ship instruments"
 msgstr ""
 
-#: .\whalesdb\forms.py:221
+#: .\whalesdb\forms.py:209
 msgid "Longitude, by ship instruments"
 msgstr ""
 
-#: .\whalesdb\forms.py:222
+#: .\whalesdb\forms.py:210
 msgid "Depth, by ship instruments"
 msgstr ""
 
-#: .\whalesdb\forms.py:223
+#: .\whalesdb\forms.py:211
 msgid "Latitude, MCAL"
 msgstr ""
 
-#: .\whalesdb\forms.py:224
+#: .\whalesdb\forms.py:212
 msgid "Longitude, MCAL"
 msgstr ""
 
-#: .\whalesdb\forms.py:225
+#: .\whalesdb\forms.py:213
 msgid "Depth, MCAL"
 msgstr ""
 
-#: .\whalesdb\forms.py:226
+#: .\whalesdb\forms.py:214
 msgid "Team"
 msgstr ""
 
-#: .\whalesdb\forms.py:227
+#: .\whalesdb\forms.py:215
 #, fuzzy
 #| msgid "Entry Detail"
 msgid "Instrument Conditions"
 msgstr "Détails de l'entrée"
 
-#: .\whalesdb\forms.py:228
+#: .\whalesdb\forms.py:216
 #, fuzzy
 #| msgid "partner organization"
 msgid "Weather Conditions"
 msgstr "Organisation partenaire"
 
-#: .\whalesdb\forms.py:229
+#: .\whalesdb\forms.py:217
 #, fuzzy
 #| msgid "Section"
 msgid "Event Log Location"
 msgstr "Section"
 
-#: .\whalesdb\forms.py:230
+#: .\whalesdb\forms.py:218
 #, fuzzy
 #| msgid "Notes"
 msgid "Event Notes"
 msgstr "Remarques"
 
-#: .\whalesdb\forms.py:234
+#: .\whalesdb\forms.py:222
 #, fuzzy
 #| msgid "Last Name"
 msgid "Station Name"
 msgstr "Nom de famille"
 
-#: .\whalesdb\forms.py:235
+#: .\whalesdb\forms.py:223
 msgid "Code or abbreviation used for a station"
 msgstr ""
 
-#: .\whalesdb\forms.py:236
+#: .\whalesdb\forms.py:224
 #, fuzzy
 #| msgid "section (Division)"
 msgid "Station Revision"
 msgstr "section (Division)"
 
-#: .\whalesdb\forms.py:237
+#: .\whalesdb\forms.py:225
 msgid "Planned Latitude"
 msgstr ""
 
-#: .\whalesdb\forms.py:238
+#: .\whalesdb\forms.py:226
 msgid "Planned Longitude"
 msgstr ""
 
-#: .\whalesdb\forms.py:239
+#: .\whalesdb\forms.py:227
 msgid "Planned Depth"
 msgstr ""
 
-#: .\whalesdb\forms.py:240
+#: .\whalesdb\forms.py:228
 msgid "Station Notes"
 msgstr ""
 
-#: .\whalesdb\forms.py:244
+#: .\whalesdb\forms.py:232
 msgid "Short Name of the team member"
 msgstr ""
 
-#: .\whalesdb\forms.py:245
+#: .\whalesdb\forms.py:233
 msgid "Last Name of the team member"
 msgstr ""
 
-#: .\whalesdb\forms.py:246
+#: .\whalesdb\forms.py:234
 msgid "First Name of the team Member"
 msgstr ""
 
@@ -7320,6 +7909,58 @@ msgstr "Organisation"
 msgid "Offset from GMT"
 msgstr ""
 
+#~ msgid "Section:"
+#~ msgstr "Section:"
+
+#~ msgid "Role(s)"
+#~ msgstr "Rôles"
+
+#~ msgid "Core project"
+#~ msgstr "projet de base"
+
+#~ msgid "Status report"
+#~ msgstr "Rapport de situation"
+
+#, fuzzy
+#~| msgid "status"
+#~ msgid "PEI status"
+#~ msgstr "statut"
+
+#, fuzzy
+#~| msgid "project status"
+#~ msgid "ADM approval status"
+#~ msgstr "L'état du projet"
+
+#, fuzzy
+#~| msgid "Editing:"
+#~ msgid "Waiting on"
+#~ msgstr "Modification:"
+
+#, fuzzy
+#~| msgid ""
+#~| "\n"
+#~| "                        Welcome! Please <a href=\"%(sign_in_url)s\">sign "
+#~| "in</a> or select an application below. If you do not have an\n"
+#~| "                        account, you can register for one\n"
+#~| "                        <a href=\"%(sign_up_url)s\">here.</a>\n"
+#~| "                    "
+#~ msgid ""
+#~ "\n"
+#~ "                        <a href=\"%(event_new_url)s\">New</a> trip.\n"
+#~ "                        <br><br>\n"
+#~ "                        <a href=\"%(event_list_url)s\">List</a> all "
+#~ "trips.\n"
+#~ "                        <br><br>\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Bienvenue!! Veuillez vous <a href="
+#~ "\"%(sign_in_url)s\">connecter</a> ou sélectionner une application ci-"
+#~ "dessous. Si vous n'avez pas de\n"
+#~ "                        compte, vous pouvez en créer un\n"
+#~ "                        <a href=\"%(sign_up_url)s\">ici.</a>\n"
+#~ "                    "
+
 #, fuzzy
 #~| msgid "Time in weeks"
 #~ msgid "Timelines"
@@ -7344,16 +7985,8 @@ msgstr ""
 #~ msgid "type"
 #~ msgstr "type"
 
-#, fuzzy
-#~| msgid "(Add a member)"
-#~ msgid "Add File"
-#~ msgstr "(Ajouter un membre)"
-
 #~ msgid "Project Code"
 #~ msgstr "Code de projet"
-
-#~ msgid "Project Summary:"
-#~ msgstr "Résumé du projet:"
 
 #~ msgid ""
 #~ "\n"
@@ -7506,9 +8139,6 @@ msgstr ""
 
 #~ msgid "No O&M Requests"
 #~ msgstr "Aucune de F et E"
-
-#~ msgid "Capital Requests:"
-#~ msgstr "Demandes de capital:"
 
 #~ msgid "No Capital Requests"
 #~ msgstr "Aucune demande de capital"

@@ -2,7 +2,7 @@ import os
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -10,6 +10,8 @@ from textile import textile
 from lib.functions.custom_functions import fiscal_year, listrify
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
+
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 
 from dm_apps import custom_widgets
@@ -93,8 +95,14 @@ class Program2(models.Model):
     funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
     regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (English)")
     regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (French)")
+    short_name = models.CharField(max_length=255, blank=True, null=True)
     is_core = models.BooleanField(verbose_name=_("Is program core or flex?"), choices=is_core_choices)
     examples = models.CharField(max_length=255, blank=True, null=True)
+
+    @property
+    def regions(self):
+        projects = self.projects.filter(section__isnull=False)
+        return listrify(list(set([str(p.section.division.branch.region) for p in projects])))
 
     @property
     def tname(self):
@@ -293,6 +301,8 @@ class Project(models.Model):
     rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
     rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
 
+    meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("meeting notes"))
+
     is_hidden = models.NullBooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -333,6 +343,109 @@ class Project(models.Model):
     @property
     def project_leads(self):
         return listrify([staff for staff in self.staff_members.all() if staff.lead])
+
+    @property
+    def core_status(self):
+        return "/".join(list(set(([program.get_is_core_display() for program in self.programs.all()]))))
+
+    @property
+    def total_fte(self):
+        return sum(
+            [nz(staff.duration_weeks, 0) for staff in self.staff_members.all()]
+        )
+
+    @property
+    def total_ot(self):
+        return sum(
+            [nz(staff.overtime_hours, 0) for staff in self.staff_members.all()]
+        )
+
+    @property
+    def a_salary(self):
+        funding_source_id = 1
+        staff_salary = self.staff_members.filter(
+            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
+        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+        return nz(staff_salary, 0)
+
+    @property
+    def a_om(self):
+        funding_source_id = 1
+        staff_om = self.staff_members.filter(
+            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
+        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+        other_om = self.om_costs.filter(funding_source_id=funding_source_id
+                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+        return nz(staff_om, 0) + nz(other_om, 0)
+
+    @property
+    def a_capital(self):
+        funding_source_id = 1
+        capital = self.capital_costs.filter(funding_source=funding_source_id
+                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+        return nz(capital, 0)
+
+    @property
+    def b_salary(self):
+        funding_source_id = 2
+        staff_salary = self.staff_members.filter(
+            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
+        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+        return nz(staff_salary, 0)
+
+    @property
+    def b_om(self):
+        funding_source_id = 2
+        staff_om = self.staff_members.filter(
+            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
+        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+        other_om = self.om_costs.filter(funding_source_id=funding_source_id
+                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+        return nz(staff_om, 0) + nz(other_om, 0)
+
+    @property
+    def b_capital(self):
+        funding_source_id = 2
+        capital = self.capital_costs.filter(funding_source=funding_source_id
+                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+        return nz(capital, 0)
+
+    @property
+    def c_salary(self):
+        funding_source_id = 3
+        staff_salary = self.staff_members.filter(
+            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
+        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+        return nz(staff_salary, 0)
+
+    @property
+    def c_om(self):
+        funding_source_id = 3
+        staff_om = self.staff_members.filter(
+            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
+        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+        other_om = self.om_costs.filter(funding_source_id=funding_source_id
+                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+        return nz(staff_om, 0) + nz(other_om, 0)
+
+    @property
+    def c_capital(self):
+        funding_source_id = 3
+        capital = self.capital_costs.filter(funding_source=funding_source_id
+                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+        return nz(capital, 0)
+
+    @property
+    def total_salary(self):
+        return self.a_salary + self.b_salary + self.c_salary
+
+    @property
+    def total_om(self):
+        return self.a_om + self.b_om + self.c_om
+
+    @property
+    def total_capital(self):
+        return self.a_capital + self.b_capital + self.c_capital
 
 
 class EmployeeType(models.Model):
@@ -471,12 +584,14 @@ class OMCategory(models.Model):
     MAT = 3
     HR = 4
     OTH = 5
+    OTH2 = 6
     GROUP_CHOICES = (
         (TRAV, _("Travel")),
         (EQUIP, _("Equipment Purchase")),
         (MAT, _("Material and Supplies")),
         (HR, _("Human Resources")),
         (OTH, _("Contracts, Leases, Services")),
+        (OTH2, _("Other")),
     )
     name = models.CharField(max_length=255, blank=True, null=True)
     nom = models.CharField(max_length=255, blank=True, null=True)
@@ -554,13 +669,6 @@ def file_directory_path(instance, filename):
 
 
 class File(models.Model):
-    # choices for reference
-    # CORE = 1
-    # STATUS_REPORT = 2
-    # CHOICES_FOR_REFERENCE = (
-    #     (CORE, _("Core project")),
-    #     (STATUS_REPORT, _("Status report")),
-    # )
     project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("resource name"))
     file = models.FileField(upload_to=file_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
@@ -679,3 +787,27 @@ class MilestoneUpdate(models.Model):
             _("Update on "),
             self.milestone,
         )
+
+
+class SectionNote(models.Model):
+    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE)
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="section_notes", on_delete=models.CASCADE)
+    pressures = models.TextField(blank=True, null=True)
+    general_notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{} {} {}".format(
+            self.fiscal_year,
+            str(self.section).title(),
+            _("section notes").title(),
+        )
+
+    @property
+    def pressures_html(self):
+        if self.pressures:
+            return textile(self.pressures)
+
+    @property
+    def general_notes_html(self):
+        if self.general_notes:
+            return textile(self.general_notes)

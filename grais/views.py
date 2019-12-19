@@ -981,6 +981,7 @@ class SiteDeleteView(GraisAdminRequiredMixin, DeleteView):
 class GCSampleListView(GraisAccessRequiredMixin, FilterView):
     filterset_class = filters.GCSampleFilter
     template_name = "grais/gcsample_list.html"
+    model = models.GCSample
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1328,9 +1329,15 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
         elif report == 3:
             return HttpResponseRedirect(reverse("grais:od1_dictionary"))
         elif report == 4:
-            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang":1}))
+            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang": 1}))
         elif report == 5:
-            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang":2}))
+            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang": 2}))
+        elif report == 6:
+            return HttpResponseRedirect(reverse("grais:gc_cpue_report", kwargs={"year": year}))
+        elif report == 7:
+            return HttpResponseRedirect(reverse("grais:gc_envr_report", kwargs={"year": year}))
+        elif report == 8:
+            return HttpResponseRedirect(reverse("grais:gc_site_report"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -1355,6 +1362,40 @@ def export_open_data_ver1_dictionary(request):
     response = reports.generate_open_data_ver_1_data_dictionary()
     return response
 
+
 def export_open_data_ver1_wms(request, year, lang):
     response = reports.generate_open_data_ver_1_wms_report(year, lang)
     return response
+
+
+def export_gc_cpue(request, year):
+    file_url = reports.generate_gc_cpue_report(year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="{} green crab CPUE data.xlsx"'.format(year)
+            return response
+    raise Http404
+
+
+def export_gc_envr(request, year):
+    file_url = reports.generate_gc_envr_report(year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="{} green crab environmental data.xlsx"'.format(year)
+            return response
+    raise Http404
+
+
+def export_gc_sites(request):
+    file_url = reports.generate_gc_sites_report()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
+            return response
+    raise Http404

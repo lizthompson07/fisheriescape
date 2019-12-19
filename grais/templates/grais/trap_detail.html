@@ -40,13 +40,14 @@
 
         <br><br>
         <div class="row">
-            <div class="col-3">
+            <div class="col-4">
                 {# Detail about the sample #}
+                <table class="table table-sm table-bordered">
 
                 {% for field in field_list %}
-                    {% verbose_field_display object field %}
+                    {% verbose_td_display object field %}
                 {% endfor %}
-
+                </table>
             </div>
             <div class="col">
                 {% include "grais/_trap_species.html" %}

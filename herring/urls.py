@@ -10,7 +10,7 @@ urlpatterns = [
 
     # SAMPLER #
     ###########
-    path('sampler/new/', views.SamplerPopoutCreateView.as_view(), name ="sampler_new_pop"),
+    path('sampler/new/pop/', views.SamplerPopoutCreateView.as_view(), name ="sampler_new_pop"),
     path('sample/sampler/<int:sampler>/close/', views.SamplerCloseTemplateView.as_view(), name ="close_sampler" ),
 
 
@@ -71,5 +71,14 @@ urlpatterns = [
     # ADMIN #
     #########
     path('check-usage/', views.CheckUsageListView.as_view(), name="check_usage"),
+
+
+    # SAMPLER #
+    ###########
+    path('samplers/', views.SamplerListView.as_view(), name="sampler_list"),
+    path('sampler/new/', views.SamplerCreateView.as_view(), name="sampler_new"),
+    path('sampler/<int:pk>/view/', views.SamplerDetailView.as_view(), name="sampler_detail"),
+    path('sampler/<int:pk>/edit/', views.SamplerUpdateView.as_view(), name="sampler_edit"),
+    path('sampler/<int:pk>/delete/', views.SamplerDeleteView.as_view(), name="sampler_delete"),
 
 ]

@@ -19,7 +19,7 @@
         font-size: small;
         border: 1px solid black;
         text-align: left;
-        border-collapse: collapse;
+    {#border-collapse: collapse;#}
     }
 
     td, th {
@@ -67,24 +67,24 @@
     {% endblock %}
 </div>
 
-<h1>{{ fy }} – FTE Summary in Weeks (Submitted Approved)</h1>
+<h1>{{ fy }} – FTE Summary in Weeks (Submitted{% if approved %} Approved{% endif %})</h1>
 <table class="table table-hover table-sm" style="width: auto">
-    <thead>
-    <th style="width: 30%">
-        Employee Name
-    </th>
-    <th style="width: 30%">
-        Number of Weeks
-    </th>
-    </thead>
+    <tr>
+        <th style="width: 30%">
+            Employee Name
+        </th>
+        <th style="width: 10%">
+            Number of Weeks
+        </th>
+    </tr>
 
     <tbody>
     {% for obj in my_dict %}
         {% with forloop.counter0 as i %}
             {% with my_dict|lookup:i as user %}
                 <tr>
-                    <td>{{ user.user.last_name }}, {{ user.user.first_name }}</td>
-                    <td>{{ user.hours|floatformat:0 }}</td>
+                    <td style="width: 30%">{{ user.user.last_name }}, {{ user.user.first_name }}</td>
+                    <td style="width: 10%">{{ user.hours|floatformat:0 }}</td>
                 </tr>
             {% endwith %}
         {% endwith %}

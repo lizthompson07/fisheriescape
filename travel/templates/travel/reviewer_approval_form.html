@@ -3,9 +3,11 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load custom_filters %}
+{% load i18n %}
 {% block header %}
 {% endblock %}
 {% block content %}
+
 
     <style>
         .label {
@@ -35,7 +37,7 @@
     <div class="container">
 
         {% if admin %}
-            <h1>Do you wish to approve on behalf of the {{trip.current_reviewer.user}} ({{ trip.current_reviewer.role }})?</h1>
+            <h1>Do you wish to approve on behalf of the {{ trip.current_reviewer.user }} ({{ trip.current_reviewer.role }})?</h1>
         {% else %}
             <h1>Do you wish to approve the following trip?</h1>
         {% endif %}
@@ -43,6 +45,9 @@
         <br>
         <form method="post" class="form">
             {% csrf_token %}
+            <div class="float-right">
+                <a class="" href="#" id="save">({% trans "Save comments without approving" %})</a>
+            </div>
             {% for field in form %}
                 {% bootstrap_field field placeholder="" %}
             {% endfor %}
@@ -58,21 +63,22 @@
                 </a>
             </div>
             <div class="">
+
                 <a class="btn btn-lg btn-success" id="yes" href="#">
-                    Yes
+                    {% trans "Yes" %}
                 </a>
                 <a class="btn btn-lg btn-danger" id="no" href="#">
-                    No
+                    {% trans "No" %}
                 </a>
                 <a class="btn btn-lg" id="request_changes" href="#" style="background-color: orange">
-                    Request Changes
+                    {% trans "Request Changes" %}
                 </a>
                 <a class="btn btn-lg btn-primary" href="{% url 'travel:trip_detail' trip.id %}">
-                    Make Changes Yourself
+                    {% trans "Make Changes Yourself" %}
                 </a>
 
                 <a class="btn btn-lg btn-secondary" href="{% url 'travel:trip_review_list' %}">
-                    Cancel
+                    {% trans "Cancel" %}
                 </a>
                 <input type="submit" class="hidden">
             </div>
@@ -97,6 +103,10 @@
         });
         $("#no").click(function () {
             $("#id_is_approved").val(false);
+            $("form").submit();
+        });
+        $("#save").click(function () {
+            $("#id_stay_on_page").val(1);
             $("form").submit();
         });
         $("#request_changes").click(function () {

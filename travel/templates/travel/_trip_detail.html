@@ -210,11 +210,11 @@
         <tr>
             {% for field in child_field_list %}
                 {% if "cost_breakdown" in field or "purpose_long" in field %}
-                    <th style="width: ">{% get_verbose_label trip field %}</th>
+                    <th>{% get_verbose_label trip field %}</th>
                 {% elif "role_of" in field %}
-                    <th style="width: ">{% get_verbose_label trip field %}</th>
+                    <th>{% get_verbose_label trip field %}</th>
                 {% elif "_date" in field %}
-                    <th style="width: 80px">{% get_verbose_label trip field %}</th>
+                    <th>{% get_verbose_label trip field %}</th>
                 {% else %}
                     <th scope="col">{% get_verbose_label trip field %}</th>
                 {% endif %}
@@ -233,7 +233,7 @@
 
                 {% endfor %}
                 <td>
-                    <button class="badge" data-toggle="popover" id="cost-breakdown-btn"
+                    <button class="badge cost-breakdown-btn" data-toggle="popover"
                             title="{{ child.first_name }}'s Costs Breakdown"
                             data-content="{% include "travel/_child_cost_breakdown.html" %}">
                         {% trans "show" %}
@@ -301,7 +301,7 @@
                             {% get_field_value obj field %}
                         </td>
                     {% else %}
-                        <td>{% get_field_value obj field %}</td>
+                        <td>{% get_field_value obj field safe=True %}</td>
                     {% endif %}
                 {% endfor %}
             </tr>
@@ -326,9 +326,9 @@
         if (input) {
             window.location.href = $(this).attr("href")
         }
-    })
-    $("#cost-breakdown-btn").click(function (e) {
-        console.log(123)
+    });
+    $(".cost-breakdown-btn").click(function (e) {
+        console.log(123);
         e.stopPropagation();
     })
 </script>
