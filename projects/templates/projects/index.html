@@ -93,14 +93,23 @@
                                     {% if section_list.count %}
                                         <div class="mb-5">
                                             <h4>
-                                                {% trans "Regional Views:" %}
+                                                {% blocktrans with section_list.first.division.branch.region as region %}
+                                                    {{ region }} Regional Views:
+                                                {% endblocktrans %}
                                             </h4>
                                             <ul>
-                                                <li>
-                                                    <a href="/">
-                                                        2019-2020 Gulf Region Interactive Workplan
-                                                    </a>
-                                                </li>
+                                                {% if section_list.first.division.branch.region.id == 1 %}
+                                                    <li>
+                                                        <a href="{% url 'projects:ips_program_list' 1 2021  %}">
+                                                            2019-2020 Gulf Region Interactive Workplan
+                                                        </a>
+                                                    </li>
+                                                {% else %}
+                                                    <em>
+                                                        {% trans "There nothing to display here for your region." %}
+                                                    </em>
+
+                                                {% endif %}
                                             </ul>
                                         </div>
                                         <div class="mb-5">
@@ -229,15 +238,6 @@
                                 <a class="" href="{% static 'projects/Project Planning Priorities_Nov2019.pdf' %}">
                                     {% trans "Project Planning Priorities (Maritimes)" %}
                                 </a>
-                            </li>
-                            <br>
-                            <li>
-                                2020-2021
-                                <a href="{% url 'projects:ips_program_list' 1 2021 %}">
-                                    Interactive Project Summary
-                                </a>
-                                for the Gulf Region Workingplanning Meeting
-
                             </li>
 
                         </ul>

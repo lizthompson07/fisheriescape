@@ -25,87 +25,59 @@
     <div class="container">
 
         <h1>{{ object }} -
-            {% if object.submitted %}
-                {% trans "SUBMITTED" %}
-            {% else %}
+            {% if not object.submitted %}
                 <span class="red-font">
                 {% trans "UNSUBMITTED" %}
                 </span>
             {% endif %}
         </h1>
 
-        <div class="btn-group">
-            {% if not report_mode %}
-                {% if object.submitted %}
-                    <a class="btn btn-secondary btn-sm" href="{% url 'projects:project_submit' object.id %}">
-                        {% trans "Unsubmit Project" %}
-                    </a>
-                {% else %}
-                    <a class="btn btn-success btn-sm" href="{% url 'projects:project_submit' object.id %}">
-                        {% trans "Submit Project" %}
-                    </a>
-                {% endif %}
-            {% else %}
-                <span data-toggle="tooltip"
-                      title="{% trans "Cannot submit/unsumbit projects that do not belong to you or your section." %}">
+        <a class="btn btn-outline-dark btn-sm float-right" href="{% url 'projects:project_print' object.id %}">
+            {% trans "Export PDF" %} &nbsp;
+            <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+        </a>
 
-                {% if object.submitted %}
-                    <a class="btn btn-secondary btn-sm disabled" href="{% url 'projects:project_submit' object.id %}">
-                        {% trans "Unsubmit Project" %}
-                    </a>
-                {% else %}
-                    <a class="btn btn-success btn-sm disabled" href="{% url 'projects:project_submit' object.id %}">
-                        {% trans "Submit Project" %}
-                    </a>
-                {% endif %}
-                </span>
+        <div class="btn-group mb-5">
 
-            {% endif %}
-
-
-
-            {% if not report_mode %}
-                <a class="btn btn-danger btn-sm" href="{% url 'projects:project_delete' object.id %}">
-                    {% trans "Delete" %}
-                </a>
-            {% else %}
-                <span data-toggle="tooltip" title="{% trans "Cannot delete projects that do not belong to you or your section." %}">
-                    <a class="btn btn-danger btn-sm disabled" href="#">{% trans "Delete" %}</a>
-                </span>
-            {% endif %}
-
-            <a class="btn btn-dark btn-sm" href="{% url 'projects:project_print' object.id %}">
-                {% trans "Export PDF" %}
+            <a class="btn btn-dark btn-sm {% if not can_edit %}disabled{% endif %}" href="{% url 'projects:project_submit' object.id %}">
+                {% if object.submitted %}{% trans "Unsubmit" %}{% else %}{% trans "Submit" %}{% endif %}
             </a>
 
+            <a class="btn btn-danger btn-sm {% if object.submitted %}disabled{% endif %}"
+               href="{% url 'projects:project_delete' object.id %}">
+                {% trans "Delete" %}
+            </a>
 
             <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-warning" data-toggle="tooltip"
                title="{% trans "Use this project as a template for a new project" %}">
-                {% trans "Clone Project" %}
+                {% trans "Clone" %}
             </a>
+
             {% if object.submitted %}
-                <a href="#" pop-href="{% url 'projects:report_new' object.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip"
-                   title="{% trans "Create a new status report for this project" %}">
-                    {% trans "New Status Report" %}
-                </a>
+                {% if can_edit or is_lead %}
+                    <a href="#" pop-href="{% url 'projects:report_new' object.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip"
+                       title="{% trans "Create a new status report for this project" %}">
+                        {% trans "New Status Report" %}
+                    </a>
+                {% endif %}
             {% endif %}
+
         </div>
 
-        <br><br><br>
 
         <h4>
             {% trans "Project Details:" %}
         </h4>
-
-        {% if not object.submitted and not report_mode %}
-            <a class="btn btn-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
-                {% trans "Add/Edit Project Details" %}
-            </a>
-            <br><br>
+        {% if can_edit %}
+            <div class="mb-3">
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
+                    {% trans "Add/Edit Project Details" %}
+                </a>
+            </div>
         {% endif %}
 
 
-        <table class="table table-sm table-bordered" style="">
+        <table class="table table-sm table-bordered table-striped" style="">
             {# cheating here to adjust header width #}
             {% for field in field_list %}
                 {% if field == "programs" %}
@@ -136,7 +108,6 @@
 
         <br>
 
-
         {% include "projects/_staff.html" %}
         {% include "projects/_om_costs.html" %}
         {% include "projects/_capital_costs.html" %}
@@ -152,7 +123,6 @@
         {% include "projects/_financial.html" %}
 
     </div>
-
 
 
     <script type="application/javascript">
