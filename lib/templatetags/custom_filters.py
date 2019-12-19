@@ -129,7 +129,7 @@ def lookup(my_dict, key):
     """lookup the value of a dictionary. value is a dictionary object and arg is the key"""
     try:
         return my_dict[key]
-    except (KeyError, TypeError):
+    except (KeyError, TypeError, IndexError):
         return ""
 
 

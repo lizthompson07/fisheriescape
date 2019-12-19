@@ -14,9 +14,13 @@ from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
 import os
-
+from shared_models import models as shared_models
 
 def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
+
+    # Upson, P - used by those weird Maritimes people because they have to be different <insert eye roll>
+    mar_id = shared_models.Region.objects.get(name="Maritimes").pk
+
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
     target_file = "temp_export.xlsx"
@@ -77,31 +81,31 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
         "SCIENCE BRANCH WORKPLANNING - SUMMARY OF PROGRAMS BY SECTION (Projects Submitted and Approved by Section Heads)", ],
                          bold_format_lg)
     worksheet1.write_row(1, 0, [timezone.now().strftime('%Y-%m-%d'), ], bold_format)
-    worksheet1.merge_range('j3:l3'.upper(), 'A-Base', header_format_centered)
-    worksheet1.merge_range('m3:o3'.upper(), 'B-Base', header_format_centered)
-    worksheet1.merge_range('p3:r3'.upper(), 'C-Base', header_format_centered)
-    worksheet1.merge_range('s3:u3'.upper(), 'Total', header_format_centered)
+    # worksheet1.merge_range('j3:l3'.upper(), 'A-Base', header_format_centered)
+    # worksheet1.merge_range('m3:o3'.upper(), 'B-Base', header_format_centered)
+    # worksheet1.merge_range('p3:r3'.upper(), 'C-Base', header_format_centered)
+    # worksheet1.merge_range('s3:u3'.upper(), 'Total', header_format_centered)
 
     header = [
         "Division",
         "Section",
         "Program",
         "Core / flex",
-        "Number of projects",
+        "Tagged projects",
         "Project leads",
         "Contains projects with more than one program?",
         'Total FTE\n(weeks)',
         'Total OT\n(hours)',
     ]
-    financial_headers = [
-        'Salary\n(in excess of FTE)',
-        'O & M\n(including staff)',
-        'Capital',
-    ]
-    header.extend(financial_headers)
-    header.extend(financial_headers)
-    header.extend(financial_headers)
-    header.extend(financial_headers)
+    # financial_headers = [
+    #     'Salary\n(in excess of FTE)',
+    #     'O & M\n(including staff)',
+    #     'Capital',
+    # ]
+    # header.extend(financial_headers)
+    # header.extend(financial_headers)
+    # header.extend(financial_headers)
+    # header.extend(financial_headers)
 
     # create the col_max column to store the length of each header
     # should be a maximum column width to 100
@@ -111,17 +115,21 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
+
+        if regions == str(mar_id):
+            project_list = s.projects.filter(year=fiscal_year, submitted=True)
+        else:
+            project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
 
         # get a list of programs..
         program_id_list = []
         for p in project_list:
             if p.programs.count() > 0:
                 program_id_list.extend([program.id for program in p.programs.all()])
-        program_list = models.Program2.objects.filter(id__in=program_id_list)
+        program_list = models.Program2.objects.filter(id__in=program_id_list).order_by("-is_core")
         for program in program_list:
 
-            project_count = project_list.filter(programs=program).count()
+            project_count = listrify([p.id for p in project_list.filter(programs=program)])
             leads = listrify(
                 list(set([str(staff.user) for staff in
                           models.Staff.objects.filter(project__in=project_list.filter(programs=program), lead=True) if
@@ -139,7 +147,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
             data_row = [
                 s.division.name,
                 s.name,
-                "{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng),
+                program.short_name,
                 program.get_is_core_display(),
                 project_count,
                 leads,
@@ -147,39 +155,39 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                 zero2val(total_fte, None),
                 zero2val(total_ot, None),
             ]
-            total_salary = 0
-            total_om = 0
-            total_capital = 0
-            for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
-                staff_salary = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
-                    employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
-                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-                staff_om = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
-                    employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
-                ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-
-                other_om = models.OMCost.objects.filter(
-                    project__in=project_list.filter(programs=program), funding_source=source
-                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-
-                capital = models.CapitalCost.objects.filter(
-                    project__in=project_list.filter(programs=program), funding_source=source
-                ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-
-                total_salary += nz(staff_salary, 0)
-                total_om += nz(staff_om, 0) + nz(other_om, 0)
-                total_capital += nz(capital, 0)
-
-                data_row.extend([
-                    zero2val(nz(staff_salary, 0), '--'),
-                    zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
-                    zero2val(nz(capital, 0), '--'),
-                ])
-            data_row.extend([
-                zero2val(total_salary, '--'),
-                zero2val(total_om, '--'),
-                zero2val(total_capital, '--'),
-            ])
+            # total_salary = 0
+            # total_om = 0
+            # total_capital = 0
+            # for source in models.FundingSource.objects.filter(id__in=[1, 2, 3]):
+            #     staff_salary = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
+            #         employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source=source
+            #     ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+            #     staff_om = models.Staff.objects.filter(project__in=project_list.filter(programs=program)).filter(
+            #         employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source=source
+            #     ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
+            #
+            #     other_om = models.OMCost.objects.filter(
+            #         project__in=project_list.filter(programs=program), funding_source=source
+            #     ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+            #
+            #     capital = models.CapitalCost.objects.filter(
+            #         project__in=project_list.filter(programs=program), funding_source=source
+            #     ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
+            #
+            #     total_salary += nz(staff_salary, 0)
+            #     total_om += nz(staff_om, 0) + nz(other_om, 0)
+            #     total_capital += nz(capital, 0)
+            #
+            #     data_row.extend([
+            #         zero2val(nz(staff_salary, 0), '--'),
+            #         zero2val(nz(staff_om, 0) + nz(other_om, 0), '--'),
+            #         zero2val(nz(capital, 0), '--'),
+            #     ])
+            # data_row.extend([
+            #     zero2val(total_salary, '--'),
+            #     zero2val(total_om, '--'),
+            #     zero2val(total_capital, '--'),
+            # ])
 
             j = 0
 
@@ -242,14 +250,13 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True)
-
-        for project in project_list:
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True).order_by("id")
+        for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
             leads = listrify(
                 list(set([str(staff.user) for staff in
                           models.Staff.objects.filter(project=project, lead=True) if staff.user])))
-            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+            programs = listrify(["{}".format(program.short_name) for program in
                                  project.programs.all()])
             tags = listrify([str(tag) for tag in project.tags.all()])
             total_fte = models.Staff.objects.filter(
@@ -435,15 +442,18 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
+        if regions == str(mar_id):
+            project_list = s.projects.filter(year=fiscal_year, submitted=True, programs__is_core=False).order_by("id")
+        else:
+            project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False).order_by("id")
 
-        for project in project_list:
+        for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
 
             leads = listrify(
                 list(set([str(staff.user) for staff in
                           models.Staff.objects.filter(project=project, lead=True) if staff.user])))
-            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+            programs = listrify(["{}".format(program.short_name) for program in
                                  project.programs.all()])
             tags = listrify([str(tag) for tag in project.tags.all()])
             total_fte = models.Staff.objects.filter(
@@ -546,9 +556,12 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
 
     i += 1
     for division in list(set(division_list)):
-        project_list = models.Project.objects.filter(section__division=division).filter(
-            year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
-        print(project_list)
+
+        if regions == str(mar_id):
+            project_list = models.Project.objects.filter(section__division=division).filter(year=fiscal_year, submitted=True, programs__is_core=False)
+        else:
+            project_list = models.Project.objects.filter(section__division=division).filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
+
         j = 9
         # worksheet2.write(i, j, division.name, summary_right_format)
         worksheet3.merge_range(i, j - 2, i, j, division.name, summary_right_format)
@@ -635,15 +648,19 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False))
 
-        for project in project_list:
+        if regions == str(mar_id):
+            project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False)).order_by("id")
+        else:
+            project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False)).order_by("id")
+
+        for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
 
             leads = listrify(
                 list(set([str(staff.user) for staff in
                           models.Staff.objects.filter(project=project, lead=True) if staff.user])))
-            programs = listrify(["{} - {}".format(program.national_responsibility_eng, program.regional_program_name_eng) for program in
+            programs = listrify(["{}".format(program.short_name) for program in
                                  project.programs.all()])
             tags = listrify([str(tag) for tag in project.tags.all()])
             total_fte = models.Staff.objects.filter(
@@ -761,12 +778,12 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
     worksheet1 = workbook.add_worksheet(name="Project List")
-    worksheet2 = workbook.add_worksheet(name="FTE List")
-    worksheet3 = workbook.add_worksheet(name="Collaborators")
-    worksheet4 = workbook.add_worksheet(name="Collaborative Agreements")
-    worksheet5 = workbook.add_worksheet(name="O & M")
-    worksheet6 = workbook.add_worksheet(name="Capital")
-    worksheet7 = workbook.add_worksheet(name="Gs & Cs")
+    # worksheet2 = workbook.add_worksheet(name="FTE List")
+    # worksheet3 = workbook.add_worksheet(name="Collaborators")
+    # worksheet4 = workbook.add_worksheet(name="Collaborative Agreements")
+    # worksheet5 = workbook.add_worksheet(name="O & M")
+    # worksheet6 = workbook.add_worksheet(name="Capital")
+    # worksheet7 = workbook.add_worksheet(name="Gs & Cs")
 
     # create formatting
     header_format = workbook.add_format(
@@ -790,25 +807,12 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
         section_list = []
 
         # If there is no user, it means that this report is being called throught the report_search view (as opposed to my_section view)
+
     if not user:
         project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list)
-        staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1, project__section__in=section_list)
-        collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year, project__section__in=section_list)
-        agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year, project__section__in=section_list)
-        om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0, project__section__in=section_list)
-        capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year, project__section__in=section_list)
-        gc_list = models.GCCost.objects.filter(project__year=fiscal_year, project__section__in=section_list)
+
     else:
         project_list = models.Project.objects.filter(year=fiscal_year).filter(section__head_id=user)
-        staff_list = models.Staff.objects.filter(project__year=fiscal_year).filter(employee_type=1).filter(
-            project__section__head__id=user)
-        collaborator_list = models.Collaborator.objects.filter(project__year=fiscal_year).filter(project__section__head__id=user)
-        agreement_list = models.CollaborativeAgreement.objects.filter(project__year=fiscal_year).filter(
-            project__section__head__id=user)
-        om_list = models.OMCost.objects.filter(project__year=fiscal_year).filter(budget_requested__gt=0).filter(
-            project__section__head__id=user)
-        capital_list = models.CapitalCost.objects.filter(project__year=fiscal_year).filter(project__section__head__id=user)
-        gc_list = models.GCCost.objects.filter(project__year=fiscal_year).filter(project__section__head__id=user)
 
     # spreadsheet: Project List #
     #############################
@@ -1003,316 +1007,6 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
 
         for j in range(0, len(col_max)):
             worksheet1.set_column(j, j, width=col_max[j] * 1.1)
-
-    # spreadsheet: FTE List #
-    #########################
-    if len(staff_list) == 0:
-        worksheet2.write_row(0, 0, ["There are no staff to report", ], bold_format)
-    else:
-        # create a queryset, showing all users and their total hours for FTE
-
-        staff_dict = {}
-        for s in staff_list:
-            # get the staff members name
-            if s.user:
-                staff_name = "{}, {}".format(s.user.first_name, s.user.last_name)
-            else:
-                staff_name = s.name
-
-            try:
-                staff_dict[staff_name]
-            except KeyError:
-                staff_dict[staff_name] = {}
-                staff_dict[staff_name]['submitted_approved'] = 0
-                staff_dict[staff_name]['submitted_unapproved'] = 0
-                staff_dict[staff_name]['unsubmitted'] = 0
-                staff_dict[staff_name]['total'] = 0
-
-            if s.project.submitted:
-                if s.project.section_head_approved:
-                    staff_dict[staff_name]['submitted_approved'] += nz(s.duration_weeks, 0)
-                else:
-                    staff_dict[staff_name]['submitted_unapproved'] += nz(s.duration_weeks, 0)
-            else:
-                staff_dict[staff_name]['unsubmitted'] += nz(s.duration_weeks, 0)
-            staff_dict[staff_name]['total'] += nz(s.duration_weeks, 0)
-
-        header1 = [
-            'FTE Summary in weeks for {}'.format(shared_models.FiscalYear.objects.get(pk=fiscal_year)),
-        ]
-        worksheet2.write_row(0, 0, header1, bold_format)
-
-        header = [
-            'Employee Name',
-            'Submitted - Approved',
-            'Submitted - Unapproved',
-            'Not Submitted',
-            'Total',
-        ]
-
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-
-        worksheet2.write_row(1, 0, header, header_format)
-
-        i = 2
-        for s in staff_dict:
-            data_row = [
-                s,
-                staff_dict[s]["submitted_approved"],
-                staff_dict[s]["submitted_unapproved"],
-                staff_dict[s]["unsubmitted"],
-                staff_dict[s]["total"],
-            ]
-
-            # adjust the width of the columns based on the max string length in each col
-            j = 0
-            for d in data_row:
-                # if new value > stored value... replace stored value
-                if len(str(d)) > col_max[j]:
-                    if len(str(d)) < 100:
-                        col_max[j] = len(str(d))
-                    else:
-                        col_max[j] = 100
-                j += 1
-
-            worksheet2.write_row(i, 0, data_row, normal_format)
-            i += 1
-
-        for j in range(0, len(col_max)):
-            worksheet2.set_column(j, j, width=col_max[j] * 1.1)
-
-        # TODO: insert conditional formatting regarding the number of hours
-
-        # spreadsheet: collaborator List #
-        ##################################
-        if len(collaborator_list) == 0:
-            worksheet3.write_row(0, 0, ["There are no collaborators to report", ], bold_format)
-        else:
-            header = [
-                "Project Id",
-                verbose_field_name(collaborator_list[0], 'name'),
-                verbose_field_name(collaborator_list[0], 'type'),
-                verbose_field_name(collaborator_list[0], 'critical'),
-                verbose_field_name(collaborator_list[0], 'notes'),
-            ]
-
-            # create the col_max column to store the length of each header
-            # should be a maximum column width to 100
-            col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-
-            worksheet3.write_row(0, 0, header, header_format)
-
-            i = 1
-            for item in collaborator_list:
-                data_row = [
-                    item.project.id,
-                    item.name,
-                    item.get_type_display(),
-                    item.critical,
-                    item.notes,
-                ]
-
-                # adjust the width of the columns based on the max string length in each col
-                j = 0
-                for d in data_row:
-                    # if new value > stored value... replace stored value
-                    if len(str(d)) > col_max[j]:
-                        if len(str(d)) < 100:
-                            col_max[j] = len(str(d))
-                        else:
-                            col_max[j] = 100
-                    j += 1
-
-                worksheet3.write_row(i, 0, data_row, normal_format)
-                i += 1
-
-            for j in range(0, len(col_max)):
-                worksheet3.set_column(j, j, width=col_max[j] * 1.1)
-
-    # spreadsheet: agreement List #
-    ##################################
-    if len(agreement_list) == 0:
-        worksheet4.write_row(0, 0, ["There are no agreements to report", ], bold_format)
-    else:
-        header = [
-            "Project Id",
-            verbose_field_name(agreement_list[0], 'partner_organization'),
-            verbose_field_name(agreement_list[0], 'agreement_title'),
-            verbose_field_name(agreement_list[0], 'new_or_existing'),
-            verbose_field_name(agreement_list[0], 'notes'),
-        ]
-
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-
-        worksheet4.write_row(0, 0, header, header_format)
-
-        i = 1
-        for item in agreement_list:
-            data_row = [
-                item.project.id,
-                item.partner_organization,
-                item.agreement_title,
-                item.get_new_or_existing_display(),
-                item.notes,
-            ]
-
-            # adjust the width of the columns based on the max string length in each col
-            j = 0
-            for d in data_row:
-                # if new value > stored value... replace stored value
-                if len(str(d)) > col_max[j]:
-                    if len(str(d)) < 100:
-                        col_max[j] = len(str(d))
-                    else:
-                        col_max[j] = 100
-                j += 1
-
-            worksheet4.write_row(i, 0, data_row, normal_format)
-            i += 1
-
-        for j in range(0, len(col_max)):
-            worksheet4.set_column(j, j, width=col_max[j] * 1.1)
-
-    # spreadsheet: OM List #
-    ########################
-    if len(om_list) == 0:
-        worksheet5.write_row(0, 0, ["There are no o & m  expenditures to report", ], bold_format)
-    else:
-        header = [
-            "Project Id",
-            verbose_field_name(om_list[0], 'om_category'),
-            verbose_field_name(om_list[0], 'description'),
-            verbose_field_name(om_list[0], 'budget_requested'),
-        ]
-
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-
-        worksheet5.write_row(0, 0, header, header_format)
-
-        i = 1
-        for item in om_list:
-            data_row = [
-                item.project.id,
-                str(item.om_category),
-                item.description,
-                item.budget_requested,
-            ]
-
-            # adjust the width of the columns based on the max string length in each col
-            j = 0
-            for d in data_row:
-                # if new value > stored value... replace stored value
-                if len(str(d)) > col_max[j]:
-                    if len(str(d)) < 100:
-                        col_max[j] = len(str(d))
-                    else:
-                        col_max[j] = 100
-                j += 1
-
-            worksheet5.write_row(i, 0, data_row, normal_format)
-            i += 1
-
-        for j in range(0, len(col_max)):
-            worksheet5.set_column(j, j, width=col_max[j] * 1.1)
-
-    # spreadsheet: Capital List #
-    #############################
-    if len(capital_list) == 0:
-        worksheet6.write_row(0, 0, ["There are no capital expenditures to report", ], bold_format)
-    else:
-
-        header = [
-            "Project Id",
-            verbose_field_name(capital_list[0], 'category'),
-            verbose_field_name(capital_list[0], 'description'),
-            verbose_field_name(capital_list[0], 'budget_requested'),
-        ]
-
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-
-        worksheet6.write_row(0, 0, header, header_format)
-
-        i = 1
-        for item in capital_list:
-            data_row = [
-                item.project.id,
-                item.get_category_display(),
-                item.description,
-                item.budget_requested,
-            ]
-
-            # adjust the width of the columns based on the max string length in each col
-            j = 0
-            for d in data_row:
-                # if new value > stored value... replace stored value
-                if len(str(d)) > col_max[j]:
-                    if len(str(d)) < 100:
-                        col_max[j] = len(str(d))
-                    else:
-                        col_max[j] = 100
-                j += 1
-
-            worksheet6.write_row(i, 0, data_row, normal_format)
-            i += 1
-
-        for j in range(0, len(col_max)):
-            worksheet6.set_column(j, j, width=col_max[j] * 1.1)
-
-    # spreadsheet: GC List #
-    ########################
-    if len(gc_list) == 0:
-        worksheet7.write_row(0, 0, ["There are no Gs & Cs to report", ], bold_format)
-    else:
-        header = [
-            "Project Id",
-            verbose_field_name(gc_list[0], 'recipient_org'),
-            verbose_field_name(gc_list[0], 'project_lead'),
-            verbose_field_name(gc_list[0], 'proposed_title'),
-            verbose_field_name(gc_list[0], 'gc_program'),
-            verbose_field_name(gc_list[0], 'budget_requested'),
-        ]
-
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-
-        worksheet7.write_row(0, 0, header, header_format)
-
-        i = 1
-        for item in gc_list:
-            data_row = [
-                item.project.id,
-                item.recipient_org,
-                item.project_lead,
-                item.proposed_title,
-                item.gc_program,
-                item.budget_requested,
-            ]
-
-            # adjust the width of the columns based on the max string length in each col
-            j = 0
-            for d in data_row:
-                # if new value > stored value... replace stored value
-                if len(str(d)) > col_max[j]:
-                    if len(str(d)) < 100:
-                        col_max[j] = len(str(d))
-                    else:
-                        col_max[j] = 100
-                j += 1
-
-            worksheet7.write_row(i, 0, data_row, normal_format)
-            i += 1
-
-        for j in range(0, len(col_max)):
-            worksheet7.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
     return target_url

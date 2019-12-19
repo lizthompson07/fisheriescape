@@ -706,6 +706,15 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
                 "entry_types": nz(entry_types, "None"),
                 "report_title": nz(report_title, "None"),
             }))
+        elif report == 6:
+            return HttpResponseRedirect(reverse("ihub:consultation_log_xlsx", kwargs=
+            {
+                "fy": nz(fy, "None"),
+                "orgs": nz(orgs, "None"),
+                "statuses": nz(statuses, "None"),
+                "entry_types": nz(entry_types, "None"),
+                "report_title": nz(report_title, "None"),
+            }))
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -731,6 +740,18 @@ def summary_export_spreadsheet(request, fy, orgs, sectors):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="iHub Summary Report ({}).xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def consultation_log_export_spreadsheet(request, fy, orgs, statuses, entry_types, report_title):
+    file_url = reports.generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, report_title)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="Engagement Update Log ({}).xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
 

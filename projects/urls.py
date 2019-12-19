@@ -134,6 +134,8 @@ urlpatterns = [
     path('admin/staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
     path('admin/staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
 
+    path('admin/submitted-unapproved-list/', views.SubmittedUnapprovedProjectsListView.as_view(), name="admin_submitted_unapproved"),
+
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
@@ -170,4 +172,16 @@ urlpatterns = [
          views.PDFDataReport.as_view(), name="pdf_data"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
+    # EXTRAS #
+    ##########
+    path('regional-meeting/region/<int:region>/programs-by-section/<int:fiscal_year>/', views.IPSProgramList.as_view(), name="ips_program_list"),
+    path('regional-meeting/<int:fiscal_year>/section/<int:section>/program/<int:program>/projects/',
+         views.IPSProjectList.as_view(), name="ips_project_list"),
+    path('regional-meeting/<int:fiscal_year>/section/<int:section>/projects/',
+         views.IPSProjectList.as_view(), name="ips_project_list"),
+    path('regional-meeting/project/<int:pk>/program/<int:program>/', views.IPSProjectUpdateView.as_view(), name="ips_project_edit"),
+    path('regional-meeting/project/<int:pk>/', views.IPSProjectUpdateView.as_view(), name="ips_project_edit"),
+
+    path('section-note/<int:pk>/fiscal-year/<int:fy>/', views.SectionNoteUpdateView.as_view(), name="section_note_edit"),
+    path('get-section-note/<int:section>/<int:fy>/', views.get_create_section_note, name="get_create_section_note"),
 ]

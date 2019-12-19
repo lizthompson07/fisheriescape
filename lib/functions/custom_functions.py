@@ -39,14 +39,14 @@ def fiscal_year(next=False, date=timezone.now(), sap_style=False):
                 return "{}-{}".format(date.year - 1, date.year)
 
 
-def listrify(iterable, separator=","):
+def listrify(iterable, separator=", "):
     """
     Function takes in an iterable and returns a tidy list in string format. if the iterable is empty, a null string is returned
     """
     if len(iterable) == 0:
         return None
     else:
-        return str([str(i) for i in iterable]).replace("[", "").replace("]", "").replace("'", "").replace('"', "").replace(",", separator)
+        return str([str(i) for i in iterable]).replace("[", "").replace("]", "").replace("'", "").replace('"', "").replace(", ", separator)
 
 
 def truncate(my_str, max_length):

@@ -71,6 +71,9 @@ urlpatterns = [
     path(
         'reports/consultation-log/fy/<str:fy>/orgs/<str:orgs>/statuses/<str:statuses>/entry-types/<str:entry_types>/report-title/<str:report_title>/',
         views.ConsultationLogPDFTemplateView.as_view(), name="consultation_log"),
+    path(
+        'reports/consultation-log/fy/<str:fy>/orgs/<str:orgs>/statuses/<str:statuses>/entry-types/<str:entry_types>/report-title/<str:report_title>/xlsx/',
+        views.consultation_log_export_spreadsheet, name="consultation_log_xlsx"),
 
     # SETTINGS #
     ############

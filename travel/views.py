@@ -86,8 +86,12 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of trips where review is pending
-        context["admin_number_waiting"] = models.Reviewer.objects.filter(status_id=1, role_id__in=[5,
-                                                                                                   6]).count()  # number of trips where admin review is pending
+        context["admin_number_waiting"] = models.Reviewer.objects.filter(
+            status_id=1,
+            role_id__in=[5,6],
+        ).filter(
+            ~Q(trip__status_id=16)
+        ).count()  # number of trips where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
@@ -106,7 +110,6 @@ trip_field_list = [
     'is_public_servant',
     'company_name',
     'region',
-    'trip_title',
     'departure_location',
     'destination',
     'start_date',
@@ -155,7 +158,6 @@ trip_group_field_list = [
     'status_string|{}'.format(_("Trip status")),
     'user',
     'section',
-    'trip_title',
     'destination',
     'start_date',
     'end_date',
@@ -199,7 +201,7 @@ reviewer_field_list = [
     'role',
     'status',
     'status_date',
-    'comments',
+    'comments_html|Comments',
 ]
 
 conf_field_list = [
@@ -210,7 +212,11 @@ conf_field_list = [
     'number',
     'start_date',
     'end_date',
+    'meeting_url',
+    'abstract_deadline',
+    'registration_deadline',
     'is_adm_approval_required',
+    'notes',
     'total_cost|{}'.format("Total cost (from all connected trips, excluding BTA travel)"),
 ]
 
@@ -240,7 +246,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'section',
             'first_name',
             'last_name',
-            'trip_title',
+            'conference.tname',
             'destination',
             'start_date',
             'end_date',
@@ -270,7 +276,7 @@ class TripReviewListView(TravelAccessRequiredMixin, ListView):
             'is_group_trip',
             'first_name',
             'last_name',
-            'trip_title',
+            'conference',
             'destination',
             'start_date',
             'end_date',
@@ -303,7 +309,7 @@ class TripAdminApprovalListView(TravelAdminRequiredMixin, ListView):
             'is_group_trip',
             'first_name',
             'last_name',
-            'trip_title',
+            'conference',
             'destination',
             'start_date',
             'end_date',
@@ -325,9 +331,9 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         my_object = self.get_object()
         context["field_list"] = trip_field_list if not my_object.is_group_trip else trip_group_field_list
         my_trip_child_field_list = deepcopy(trip_child_field_list)
-        if not my_object.reason_id == 2:
-            my_trip_child_field_list.remove("role")
-            my_trip_child_field_list.remove("role_of_participant")
+        # if not my_object.reason_id == 2:
+        #     my_trip_child_field_list.remove("role")
+        #     my_trip_child_field_list.remove("role_of_participant")
         context["child_field_list"] = my_trip_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
@@ -335,7 +341,11 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
 
-        is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
+        if context["is_admin"]:
+            is_current_reviewer = True
+        else:
+            is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
+
         context["is_current_reviewer"] = is_current_reviewer
         if my_object.submitted and not is_current_reviewer:
             context["report_mode"] = True
@@ -421,32 +431,34 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         my_reviewer = form.save(commit=False)
 
         is_approved = form.cleaned_data.get("is_approved")
+        stay_on_page = form.cleaned_data.get("stay_on_page")
         changes_requested = form.cleaned_data.get("changes_requested")
-
+        print("stay on page", stay_on_page)
         # first scenario: changes were requested for the trip
         # in this case, the reviewer status does not change but the trip status will
-        if changes_requested:
-            my_reviewer.trip.status_id = 16
-            my_reviewer.trip.submitted = None
-            my_reviewer.trip.save()
-            # send an email to the trip owner
-            my_email = emails.ChangesRequestedEmail(my_reviewer.trip)
-            # send the email object
-            if settings.PRODUCTION_SERVER:
-                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                          recipient_list=my_email.to_list, fail_silently=False, )
-            else:
-                print(my_email)
-            messages.success(self.request, _("Success! An email has been sent to the trip owner."))
+        if not stay_on_page:
+            if changes_requested:
+                my_reviewer.trip.status_id = 16
+                my_reviewer.trip.submitted = None
+                my_reviewer.trip.save()
+                # send an email to the trip owner
+                my_email = emails.ChangesRequestedEmail(my_reviewer.trip)
+                # send the email object
+                if settings.PRODUCTION_SERVER:
+                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                              recipient_list=my_email.to_list, fail_silently=False, )
+                else:
+                    print(my_email)
+                messages.success(self.request, _("Success! An email has been sent to the trip owner."))
 
-        # if it was approved, then we change the reviewer status to 'approved'
-        elif is_approved:
-            my_reviewer.status_id = 2
-            my_reviewer.status_date = timezone.now()
-        # if it was approved, then we change the reviewer status to 'approved'
-        else:
-            my_reviewer.status_id = 3
-            my_reviewer.status_date = timezone.now()
+            # if it was approved, then we change the reviewer status to 'approved'
+            elif is_approved:
+                my_reviewer.status_id = 2
+                my_reviewer.status_date = timezone.now()
+            # if it was approved, then we change the reviewer status to 'approved'
+            else:
+                my_reviewer.status_id = 3
+                my_reviewer.status_date = timezone.now()
 
         # now we save the reviewer for real
         my_reviewer.save()
@@ -454,7 +466,10 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         # update any statuses if necessary
         utils.approval_seeker(my_reviewer.trip)
 
-        return HttpResponseRedirect(reverse("travel:index"))
+        if stay_on_page:
+            return HttpResponseRedirect(reverse("travel:review_approve", kwargs={"pk": my_reviewer.id}))
+        else:
+            return HttpResponseRedirect(reverse("travel:index"))
 
 
 # class TripAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -639,7 +654,7 @@ class TripCloneUpdateView(TripUpdateView):
     def get_initial(self):
         my_object = models.Trip.objects.get(pk=self.kwargs["pk"])
         init = super().get_initial()
-        init["trip_title"] = "DUPLICATE OF: {}".format(my_object.trip_title)
+        # init["trip_title"] = "DUPLICATE OF: {}".format(my_object.trip_title)
         init["year"] = fiscal_year(sap_style=True, next=True)
         # init["created_by"] = self.request.user
         return init

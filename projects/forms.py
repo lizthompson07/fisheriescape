@@ -13,7 +13,8 @@ from shared_models import models as shared_models
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
-class_editable = {"class": "editable"}
+# class_editable = {"class": "editable"}
+class_editable = {"class": "widgEditor"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -72,11 +73,8 @@ class ProjectForm(forms.ModelForm):
             'impacts_if_not_approved',
             'regional_dm',
             'sectional_dm',
+            'meeting_notes',
         ]
-        labels = {
-            "programs": "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
-                                         _("mandatory - select multiple, if necessary"))
-        }
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
             "description": forms.Textarea(attrs=class_editable),
@@ -113,6 +111,8 @@ class ProjectForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = SECTION_CHOICES
+        self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
+                                         _("mandatory - select multiple, if necessary"))
 
 
 class ProjectSubmitForm(forms.ModelForm):
@@ -125,6 +125,27 @@ class ProjectSubmitForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'submitted': forms.HiddenInput(),
+        }
+
+
+class IPSProjectMeetingForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'meeting_notes',
+        ]
+        widgets = {
+            # 'last_modified_by': forms.HiddenInput(),
+            # 'submitted': forms.HiddenInput(),
+        }
+
+
+class SectionNoteForm(forms.ModelForm):
+    class Meta:
+        model = models.SectionNote
+        fields = ["pressures", "general_notes", ]
+        widgets = {
+            # 'submitted': forms.HiddenInput(),
         }
 
 
@@ -203,7 +224,7 @@ class AdminStaffForm(forms.ModelForm):
 class AdminProjectProgramForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ["programs", ]
+        fields = ["project_title", "programs", "section_head_approved", "section_head_feedback", "meeting_notes"]
 
         widgets = {
             'programs': forms.SelectMultiple(attrs=chosen_js),
@@ -515,6 +536,7 @@ class ProgramForm(forms.ModelForm):
             'regional_program_name_eng': forms.Textarea(attrs={"rows": 3}),
             'regional_program_name_fra': forms.Textarea(attrs={"rows": 3}),
             'examples': forms.Textarea(attrs={"rows": 3}),
+            'short_name': forms.Textarea(attrs={"rows": 3}),
         }
 
 

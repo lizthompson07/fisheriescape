@@ -71,7 +71,8 @@
                         <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">Transaction (Ctrl+A)</a>
+                        <a href="{% url 'scifi:trans_new' %}" id="new-trans" class="btn btn-sm btn-primary">New Transaction (Ctrl+A)</a>
+                        <a href="{% url 'scifi:import_file' %}" class="btn btn-sm btn-success">Import from CSV</a>
                     </div>
                 </div>
                 <table class="table table-sm table-hover table-bordered sortable">

@@ -85,7 +85,7 @@
                     <li>
                         open the file system table file: <code> sudo nano /etc/fstab</code>
                     </li>
-                    <li>add in a new line to the fstab for mount the new share:
+                    <li>add in a new line to the fstab for mount the new share:<br>
                         <code>
                             # share folder: my_new_share <br>
                             //169.254.1.1/my_new_share /mnt/glfsciherring/my_new_share cifs
@@ -93,7 +93,7 @@
                         </code>
                     </li>
                     <li>
-                        Save & close the fstab and try mounting all drives: <code>sudo mount -a</code>. If you get now errors, you should be
+                        Save & close the fstab and try mounting all drives: <code>sudo mount -a</code>. If you get no errors, you should be
                         good!
                     </li>
                     <li>
@@ -130,7 +130,7 @@
             <br><br>
             <br><br>
             <figure class="figure">
-                <figcaption class="figure-caption">Figure: Graphical representation of the SMB file share services set up within the NAS network. The list of shares is not complete.</figcaption>
+                <figcaption class="figure-caption">Figure: Generic representation of the SMB file share services configuration set up within the NAS network. </figcaption>
                 <hr>
                 <img class="figure-img img-fluid rounded" src="{% static 'img/shares/services.jpg' %}" alt="">
             </figure>

@@ -25,6 +25,7 @@ YES_NO_CHOICES = (
 class ReviewerApprovalForm(forms.ModelForm):
     is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = models.Reviewer
@@ -32,8 +33,12 @@ class ReviewerApprovalForm(forms.ModelForm):
             "comments",
         ]
         labels = {
-            "comments": _("Please provide your comments here")
+            "comments": _("Please provide your comments here...")
         }
+        widgets = {
+            "comments": forms.Textarea(attrs=attr_row3)
+        }
+
 
 
 class TripApprovalForm(forms.Form):
@@ -99,16 +104,16 @@ class TripForm(forms.ModelForm):
             'other_transport': forms.NumberInput(attrs=attr_cost_hide_me),
             'accommodations': forms.NumberInput(attrs=attr_cost_hide_me),
             'breakfasts': forms.NumberInput(attrs=attr_cost_hide_me),
-            'breakfast_rate': forms.NumberInput(attrs=attr_cost_hide_me),
+            'breakfasts_rate': forms.NumberInput(attrs=attr_cost_hide_me),
             'no_breakfasts': forms.NumberInput(attrs=attr_cost_hide_me),
             'lunches': forms.NumberInput(attrs=attr_cost_hide_me),
-            'lunch_rate': forms.NumberInput(attrs=attr_cost_hide_me),
+            'lunches_rate': forms.NumberInput(attrs=attr_cost_hide_me),
             'no_lunches': forms.NumberInput(attrs=attr_cost_hide_me),
             'suppers': forms.NumberInput(attrs=attr_cost_hide_me),
-            'supper_rate': forms.NumberInput(attrs=attr_cost_hide_me),
+            'suppers_rate': forms.NumberInput(attrs=attr_cost_hide_me),
             'no_suppers': forms.NumberInput(attrs=attr_cost_hide_me),
             'incidentals': forms.NumberInput(attrs=attr_cost_hide_me),
-            'incidental_rate': forms.NumberInput(attrs=attr_cost_hide_me),
+            'incidentals_rate': forms.NumberInput(attrs=attr_cost_hide_me),
             'no_incidentals': forms.NumberInput(attrs=attr_cost_hide_me),
             'registration': forms.NumberInput(attrs=attr_cost_hide_me),
             'other': forms.NumberInput(attrs=attr_cost_hide_me),
@@ -204,13 +209,13 @@ class ChildTripForm(forms.ModelForm):
             'accommodations',
 
             'no_breakfasts',
-            'breakfast_rate',
+            'breakfasts_rate',
             'no_lunches',
-            'lunch_rate',
+            'lunches_rate',
             'no_suppers',
-            'supper_rate',
+            'suppers_rate',
             'no_incidentals',
-            'incidental_rate',
+            'incidentals_rate',
 
             'registration',
             'other',
@@ -232,13 +237,13 @@ class ChildTripForm(forms.ModelForm):
             'accommodations': forms.NumberInput(attrs=attr_cost),
 
             'no_breakfasts': forms.NumberInput(attrs=attr_cost),
-            'breakfast_rate': forms.NumberInput(attrs=attr_cost),
+            'breakfasts_rate': forms.NumberInput(attrs=attr_cost),
             'no_lunches': forms.NumberInput(attrs=attr_cost),
-            'lunch_rate': forms.NumberInput(attrs=attr_cost),
+            'lunches_rate': forms.NumberInput(attrs=attr_cost),
             'no_suppers': forms.NumberInput(attrs=attr_cost),
-            'supper_rate': forms.NumberInput(attrs=attr_cost),
+            'suppers_rate': forms.NumberInput(attrs=attr_cost),
             'no_incidentals': forms.NumberInput(attrs=attr_cost),
-            'incidental_rate': forms.NumberInput(attrs=attr_cost),
+            'incidentals_rate': forms.NumberInput(attrs=attr_cost),
 
             'registration': forms.NumberInput(attrs=attr_cost),
             'other': forms.NumberInput(attrs=attr_cost),
@@ -256,9 +261,9 @@ class ChildTripForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-        if parent_trip.reason_id != 2:
-            del self.fields['role']
-            del self.fields['role_of_participant']
+        # if parent_trip.reason_id != 2:
+        #     del self.fields['role']
+        #     del self.fields['role_of_participant']
 
 
 class ConferenceForm(forms.ModelForm):
@@ -268,6 +273,8 @@ class ConferenceForm(forms.ModelForm):
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
+            'registration_deadline': forms.DateInput(attrs=attr_fp_date),
+            'abstract_deadline': forms.DateInput(attrs=attr_fp_date),
         }
 
 
@@ -310,6 +317,7 @@ StatusFormSet = modelformset_factory(
 
 
 class ReviewerForm(forms.ModelForm):
+
     class Meta:
         model = models.Reviewer
         fields = [
@@ -381,7 +389,6 @@ class FileForm(forms.ModelForm):
         widgets = {
             'trip': forms.HiddenInput(),
         }
-
 
 
 class HelpTextForm(forms.ModelForm):

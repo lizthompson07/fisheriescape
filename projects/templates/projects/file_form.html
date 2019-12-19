@@ -25,7 +25,7 @@
             <br><br>
             <div class="btn-group">
                 {% if editable %}
-                    <input type="submit" class="btn btn-primary" value="Submit">
+                    <input type="submit" class="btn btn-primary" value="Save">
                 {% else %}
                     <a href="{% url "projects:file_edit" object.id %}" class="btn btn-warning">Edit</a>
                     <a href="{% url "projects:file_delete" object.id %}" class="btn btn-danger">Delete</a>
