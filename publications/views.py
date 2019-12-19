@@ -1,11 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.conf import settings
 
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
-from django.views.generic import TemplateView, CreateView, DetailView, ListView, UpdateView, DeleteView
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.views.generic import TemplateView, CreateView, DetailView, UpdateView, DeleteView
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 
 from django.db.models import Q
@@ -227,6 +227,7 @@ class ProjectDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         project = self.object
 
+        context['google_api_key'] = settings.GOOGLE_API_KEY
         context["has_admin"] = "publications_admin" in [v for k,v in self.request.user.groups.all().values_list()]
         context["coordinates"] = models.GeoCoordinate.objects.filter(project__id=project.id)
         context["divisions"] = shared_models.Division.objects.filter(project__id=project.id)
