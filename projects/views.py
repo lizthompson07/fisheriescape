@@ -2011,8 +2011,8 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("projects:report_search"))
 
 
-def mast(request, fiscal_year, regions=None, divisions=None, sections=None, user=None):
-    # sections arg witer_spreadsheell be coming in as None from the my_section view
+def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None, user=None):
+    # sections arg will be coming in as None from the my_section view
     if regions is None:
         regions = "None"
     if divisions is None:
