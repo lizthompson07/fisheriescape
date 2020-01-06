@@ -14,9 +14,6 @@
                         {% trans "Submitted & Approved" %} ({{ approved_projects.count }})
                     </a>
                 </h5>
-                {#                <div class="neighbours">#}
-                {#                    <button class="toggle-btn" data-toggle="collapse" data-target="#project-list-1"></button>#}
-                {#                </div>#}
             </div>
             <div class="collapse" id="project-list-1">
                 <table class="table table-sm table-hover project-table sortable">
@@ -49,7 +46,7 @@
                                 {{ object.project_title }}
                             </td>
                             <td>
-                                {{ object.activity_type}}
+                                {{ object.activity_type }}
                             </td>
                             <td>
                                 {{ object.project_leads }}
@@ -79,12 +76,8 @@
                     </span>
                     </a>
                 </h5>
-                {#                <div class="neighbours">#}
-                {#                    <button class="toggle-btn" data-toggle="collapse" data-target="#project-list-2"></button>#}
-                {#                </div>#}
             </div>
             <div class="collapse" id="project-list-2">
-
 
                 <table class="table table-sm table-hover project-table sortable">
                     <thead>
@@ -108,6 +101,9 @@
                             </td>
                             <td>
                                 {{ object.project_leads }}
+                            </td>
+                            <td>
+                                <a href="under-dev" class="btn btn-sm btn-success">approve</a>
                             </td>
                         </tr>
                     {% empty %}
@@ -147,6 +143,7 @@
                     <th>
                         {% trans "Leads" %}
                     </th>
+
                     </thead>
                     {% for object in unsubmitted_projects %}
                         <tr href="{% url 'projects:project_overview' object.id %}">
@@ -158,6 +155,10 @@
                             </td>
                             <td>
                                 {{ object.project_leads }}
+                            </td>
+                            <td>
+                                <a href="under-dev" class="btn btn-sm btn-warning">submit</a>
+                                <a href="under-dev" class="btn btn-sm btn-danger">delete</a>
                             </td>
                         </tr>
                     {% empty %}
