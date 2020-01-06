@@ -249,7 +249,6 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-
 class TicketDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Ticket
     success_url = reverse_lazy('tickets:list')
