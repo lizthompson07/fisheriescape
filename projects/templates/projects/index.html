@@ -120,7 +120,7 @@
                                             <ul>
                                                 {% for section in user.shared_models_sections.all %}
                                                     <li>
-                                                        <a href="{% url 'projects:section_list' section.id %}">
+                                                        <a href="{% url 'projects:section_project_list' section.id %}">
                                                             {{ section }}
                                                         </a>
                                                     </li>
@@ -138,7 +138,7 @@
                                                     {% for section in section_list %}
                                                         {% if section not in user.shared_models_sections.all %}
                                                             <li>
-                                                                <a href="{% url 'projects:section_list' section.id %}">
+                                                                <a href="{% url 'projects:section_project_list' section.id %}">
                                                                     {{ section.full_name }}
                                                                 </a>
                                                             </li>

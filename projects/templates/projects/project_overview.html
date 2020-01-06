@@ -4,6 +4,7 @@
 {% load i18n %}
 
 {% block content %}
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -12,56 +13,25 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'projects:ips_program_list' object.section.division.branch.region.id object.year.id %}">
-                    {% trans "Program Summary" %}
-                </a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="
-                {% if program %}
-{% url 'projects:ips_project_list' object.year.id object.section.id program.id %}
-{% else %}
-{% url 'projects:ips_project_list' object.year.id object.section.id %}
-{% endif %}
-">
-                    Projects from {{ object.section }} Section
-                    {% if program %}
-                        under {{ program.short_name }}
-                    {% endif %}
+                <a href="{% url 'projects:section_project_list' object.section.id %}">
+                    {{ object.section }}
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                {{ object }}
+                {{ object.project_title }}
             </li>
         </ol>
     </nav>
 
+
     <div class="container">
 
-        <h4>
-            Meeting Notes for this Project
-        </h4>
-        <br><br>
+        <div class="mb-3">
+            <h4>
+                {% trans "PROJECT OVERVIEW" %}
+            </h4>
+        </div>
 
-
-        <form method="post" class="form">
-            {% csrf_token %}
-
-
-            {% for field in form %}
-                {% bootstrap_field field placeholder="" show_label=False %}
-            {% endfor %}
-
-            <div class="btn-group">
-                <button type="submit" class="btn btn-success">
-                    {% trans "Update" %}
-                </button>
-                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">
-                    {% trans "Back" %}
-                </a>
-            </div>
-        </form>
-        <br><br>
         <div class="">
             {% include "projects/project_report.html" %}
         </div>

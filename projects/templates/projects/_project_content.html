@@ -6,23 +6,27 @@
 
 {% bootstrap_css %}
 
-<h1>{{ object }} ({{ object.id }})
-    {#    ({{ object.id }})#}
-    {% if not object_list %}
-        -
-        {% if object.submitted %}
-            {% trans "SUBMITTED" %}
-        {% else %}
-            <span class="red-font">
-                {% trans "UNSUBMITTED" %}
-                </span>
-        {% endif %}
-    {% endif %}
-
-</h1>
+<div class="mb-3">
+    <h1>
+        {{ object }} ({{ object.id }})
+    </h1>
+</div>
 
 <hr>
-<br>
+
+<h4>
+    {% trans "Project Details:" %}
+</h4>
+{% if can_edit %}
+    <div class="mb-3">
+        <a class="btn btn-sm btn-outline-primary" href="#" pop-href="{% url 'projects:project_edit' object.id %}">
+            {% trans "Edit Project Details" %}
+        </a>
+    </div>
+
+{% endif %}
+
+
 <table class="table table-sm table-striped" style="width: auto">
     {# cheating here to adjust header width #}
 
