@@ -194,7 +194,6 @@ class CanModifyProjectRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-
 def financial_summary_data(project):
     salary_abase = 0
     om_abase = 0
@@ -514,9 +513,34 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         object_list = context.get("object_list")
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['approved_projects'] = object_list.filter(section_head_approved=True, submitted=True)
         context['unapproved_projects'] = object_list.filter(section_head_approved=False, submitted=True)
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
+
+        approved_projects = object_list.filter(section_head_approved=True, submitted=True)
+        context['approved_projects'] = approved_projects
+
+        # need to create a dict for displaying projects by funding source.
+        fs_dict = {}
+        funding_sources = set([project.default_funding_source for project in approved_projects])
+        for fs in funding_sources:
+            fs_dict[fs] = approved_projects.filter(default_funding_source=fs)
+        context['fs_dict'] = fs_dict
+
+        # need to create a dict for displaying projects by thematic group.
+        tg_dict = {}
+        thematic_groups = set([project.thematic_group for project in approved_projects])
+        for tg in thematic_groups:
+            tg_dict[tg] = approved_projects.filter(thematic_group=tg)
+        context['tg_dict'] = tg_dict
+
+        # need to create a dict for displaying projects by activity type.
+        at_dict = {}
+        activity_types = set([project.activity_type for project in approved_projects])
+        for at in activity_types:
+            at_dict[at] = approved_projects.filter(activity_type=at)
+        context['at_dict'] = at_dict
+
+
         return context
 
 
@@ -619,6 +643,7 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
 class ProjectUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectForm
+    template_name = 'projects/project_form_popout.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -633,16 +658,20 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, UpdateView):
         try:
             my_dict["start_date"] = "{}-{:02d}-{:02d}".format(self.object.start_date.year, self.object.start_date.month,
                                                               self.object.start_date.day)
-        except:
+        except Exception as e:
             print("no start date...")
 
         try:
             my_dict["end_date"] = "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
                                                             self.object.end_date.day)
-        except:
+        except Exception as e:
             print("no end date...")
 
         return my_dict
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
 class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):

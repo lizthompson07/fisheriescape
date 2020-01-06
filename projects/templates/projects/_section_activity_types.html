@@ -1,0 +1,73 @@
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="projects">
+    <div class="mb-3">
+        <h2>{% trans "By Activty Type" %}</h2>
+        <h6>({% trans "Submitted & Approved Projects" %})</h6>
+    </div>
+
+    {% for item in at_dict %}
+        {% with at_dict|lookup:item as qs %}
+            <div class="mb-3">
+                <h5>
+                    <a href="#at-project-list-{{ item.id }}" data-toggle="collapse">
+                        {{ item|nz:"Not specified" }} ({{ qs.count }})
+                    </a>
+                </h5>
+            </div>
+            <div class="collapse" id="at-project-list-{{ item.id }}">
+                <table class="table table-sm table-hover project-table sortable">
+                    <thead>
+
+                    <th>
+                        {% trans "Thematic group" %}
+                    </th>
+                    <th>
+                        {% trans "Funding sources" %}
+                    </th>
+                    <th>
+                        {% trans "Title" %}
+                    </th>
+                    <th>
+                        {% trans "Activity Type" %}
+                    </th>
+                    <th>
+                        {% trans "Leads" %}
+                    </th>
+
+                    </thead>
+                    {% for object in qs %}
+                        <tr href="{% url 'projects:project_overview' object.id %}">
+                            <td>
+                                {{ object.thematic_group }}
+                            </td>
+                            <td>
+                                {{ object.funding_sources }}
+                            </td>
+                            <td>
+                                {{ object.project_title }}
+                            </td>
+                            <td>
+                                {{ object.activity_type }}
+                            </td>
+                            <td>
+                                {{ object.project_leads }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <td>
+                            <em>{% trans "None" %}</em>
+                        </td>
+                    {% endfor %}
+                </table>
+            </div>
+
+
+
+        {% endwith %}
+
+    {% endfor %}
+
+
+</div>

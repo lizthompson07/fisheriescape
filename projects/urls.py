@@ -26,7 +26,7 @@ urlpatterns = [
     # the following 3 should be deleted once fully phased out
     path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
     #
-    path('section/<int:section>/', views.SectionListView.as_view(), name="section_list"),
+    path('section/<int:section>/', views.SectionListView.as_view(), name="section_project_list"),
     path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
 
     # STAFF #

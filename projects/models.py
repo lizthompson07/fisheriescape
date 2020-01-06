@@ -281,10 +281,10 @@ class Project(models.Model):
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects",
                                 verbose_name=_("section"))
     project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
-    activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("activity type"))
+    activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
     thematic_group = models.ForeignKey(ThematicGroup, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("thematic group"))
-    default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                               verbose_name=_("default funding source"))
+    default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True,
+                                               verbose_name=_("primary funding source"))
     programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
@@ -391,9 +391,6 @@ class Project(models.Model):
         self.date_last_modified = timezone.now()
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse('projects:project_detail', kwargs={'pk': self.pk})
-
     @property
     def approved(self):
         return self.submitted and self.section_head_approved
@@ -421,6 +418,27 @@ class Project(models.Model):
             pc = "xxxxx"
         return "{}-{}-{}".format(rc, ac, pc)
 
+    def get_funding_sources(self):
+        # look through all expenses and compile a unique list of funding sources
+        my_list = []
+        for item in self.staff_members.all():
+            if item.funding_source:
+                my_list.append(item.funding_source)
+
+        for item in self.om_costs.all():
+            if item.funding_source:
+                my_list.append(item.funding_source)
+
+        for item in self.capital_costs.all():
+            if item.funding_source:
+                my_list.append(item.funding_source)
+
+        return set(my_list)
+    
+    @property
+    def funding_sources(self):
+        return listrify(self.get_funding_sources())
+    
     @property
     def project_leads(self):
         return listrify([staff for staff in self.staff_members.all() if staff.lead])
