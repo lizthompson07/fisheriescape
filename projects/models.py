@@ -101,8 +101,8 @@ class FundingSourceType(models.Model):
 
 
 class FundingSource(models.Model):
-    name = models.CharField(max_length=50)
-    nom = models.CharField(max_length=50, blank=True, null=True)
+    name = models.CharField(max_length=500)
+    nom = models.CharField(max_length=500, blank=True, null=True)
     funding_source_type = models.ForeignKey(FundingSourceType, on_delete=models.DO_NOTHING, related_name="funding_sources")
 
     def __str__(self):
