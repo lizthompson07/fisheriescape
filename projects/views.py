@@ -195,6 +195,13 @@ class CanModifyProjectRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 def financial_summary_data(project):
+
+    # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
+
+
+
+
+
     salary_abase = 0
     om_abase = 0
     capital_abase = 0
@@ -441,40 +448,41 @@ class IndexTemplateView(TemplateView):
 
 # PROJECTS #
 ############
-class MyProjectListView(LoginRequiredMixin, ListView):
+class MyProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/my_project_list.html'
+    filterset_class = filters.MyProjectFilter
 
     def get_queryset(self):
-        return models.Staff.objects.filter(user=self.request.user).order_by("-project__year", "project__project_title")
+        return models.Project.objects.filter(staff_members__user=self.request.user).order_by("-year", "project_title")
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {"year": fiscal_year(next=True, sap_style=True)}
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        projects = models.Staff.objects.filter(user=self.request.user)
 
-        # need to produce a dictionary with number of hours committed by fiscal year
-        fiscal_year_list = set([p.project.year for p in projects.order_by("project__year_id")])
+        object_list = context.get("object_list")
+        fy = object_list.first().year if object_list.count() > 0 else None
 
-        weeks_dict = {}
-        for fy in fiscal_year_list:
-            weeks_dict[fy.id] = {}
-            weeks_dict[fy.id]['submitted_approved'] = 0
-            weeks_dict[fy.id]['submitted_unapproved'] = 0
-            weeks_dict[fy.id]['unsubmitted'] = 0
-            weeks_dict[fy.id]['total'] = 0
+        staff_instances = self.request.user.staff_instances.filter(project__year=fy)
+        context['fte_approved_projects'] = staff_instances.filter(
+            project__section_head_approved=True, project__submitted=True
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
-        for obj in projects.order_by("project__year_id"):
-            if obj.project.submitted:
-                if obj.project.section_head_approved:
-                    weeks_dict[obj.project.year_id]["submitted_approved"] += nz(obj.duration_weeks, 0)
-                else:
-                    weeks_dict[obj.project.year_id]["submitted_unapproved"] += nz(obj.duration_weeks, 0)
-            else:
-                weeks_dict[obj.project.year_id]["unsubmitted"] += nz(obj.duration_weeks, 0)
-            weeks_dict[obj.project.year_id]["total"] += nz(obj.duration_weeks, 0)
+        context['fte_unapproved_projects'] = staff_instances.filter(
+            project__section_head_approved=False, project__submitted=True
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+        context['fte_unsubmitted_projects'] = staff_instances.filter(
+            project__submitted=False
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+        context['fy'] = fy
 
-        context["weeks_dict"] = weeks_dict
-        context["fy_list"] = fiscal_year_list
+
+
 
         context["project_list"] = models.Project.objects.filter(
             id__in=[s.project.id for s in self.request.user.staff_instances.all()]
@@ -512,6 +520,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         object_list = context.get("object_list")
+        fy = object_list.first().year if object_list.count() > 0 else None
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
         context['unapproved_projects'] = object_list.filter(section_head_approved=False, submitted=True)
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
@@ -540,6 +549,22 @@ class SectionListView(LoginRequiredMixin, FilterView):
             at_dict[at] = approved_projects.filter(activity_type=at)
         context['at_dict'] = at_dict
 
+        # need to create a staff list dictionary
+        user_dict = {}
+
+        user_list = list(set([staff.user for project in object_list for staff in project.staff_members.all() if staff.user]))
+        user_sort_order = [str(user) if user else "AAA" for user in user_list]
+        for user in [x for _, x in sorted(zip(user_sort_order, user_list))]:
+            user_dict[user] = {}
+            user_dict[user]["qs"] = user.staff_instances.filter(
+                project__year=fy
+            ).order_by("project__submitted", "project__approved", "lead", "project__project_title")
+            user_dict[user]["fte"] = user.staff_instances.filter(
+                project__submitted=True, project__year=fy
+            ).order_by("project__submitted").aggregate(
+                dsum=Sum("duration_weeks"))["dsum"]
+
+        context['user_dict'] = user_dict
 
         return context
 

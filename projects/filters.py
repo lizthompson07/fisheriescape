@@ -192,3 +192,20 @@ class SectionFilter(django_filters.FilterSet):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         self.filters['year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices,
                                                            label=_("Please select a fiscal year:"))
+
+
+
+
+class MyProjectFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Project
+        fields = {
+            'year': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        self.filters['year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices,
+                                                           label=_("Please select a fiscal year:"))
