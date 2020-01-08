@@ -263,7 +263,7 @@ class Trip(models.Model):
 
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trips",
-                             verbose_name=_("user"))
+                             verbose_name=_("DM Apps user"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"))
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
