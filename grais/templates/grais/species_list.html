@@ -48,6 +48,8 @@
                                 {% else %}
                                     {% trans "no" %}
                                 {% endif %}
+                            {% elif "scientific" in field %}
+                                <em>{% get_field_value object field %}</em>
                             {% else %}
                                 {% get_field_value object field %}
                             {% endif %}

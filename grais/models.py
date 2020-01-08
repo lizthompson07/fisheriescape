@@ -96,7 +96,7 @@ class Species(models.Model):
             else:
                 my_str = "{}".format(self.common_name)
 
-            return mark_safe(my_str + " (<em>" + self.scientific_name + "</em>)")
+            return mark_safe(my_str + " (<em>" + self.scientific_name + "</em>)") if self.scientific_name else my_str
         else:
             return mark_safe("<em>" + self.scientific_name + "</em>")
 
