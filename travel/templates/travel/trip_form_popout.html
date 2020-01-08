@@ -46,62 +46,71 @@
 
             {% bootstrap_form_errors form %}
             {% for field in form %}
-                {% if "cost" in field.field.widget.attrs|lookup:"class" %}
-                    {# DO NOTHING   #}
-                {% elif field.name == "address" %}
-
-                    {% if field.name in help_text_dict %}
-                        {% bootstrap_label field.label %}
-                        {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                                 data-trigger="hover"
-                                 title="{{ field.label }}"
-                                 data-content="{{ help_text }}">
-                            {% bootstrap_field field placeholder="" show_label=False size="small" %}
-                        {% endwith %}
-                    {% else %}
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    {% endif %}
-
-                    <span style="font-size: small">Predefined addresses:</span><br>
-                    <a href="#" class="btn btn-sm btn-outline-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
-                    <a href="#" class="btn btn-sm btn-outline-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
-                    <a href="#" class="btn btn-sm btn-outline-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
-                    <br>
-                    <br>
-                {% elif field.name == "role_of_participant" or field.name == "role" %}
-                    <div class="conference_container">
-                        {% if field.name in help_text_dict %}
-                            {% bootstrap_label field.label %}
-                            {% with help_text_dict|lookup:field.name as help_text %}
-                                <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                                     data-trigger="hover"
-                                     title="{{ field.label }}"
-                                     data-content="{{ help_text }}">
-                                {% bootstrap_field field placeholder="" show_label=False size="small" %}
-                            {% endwith %}
-                        {% else %}
-                            {% bootstrap_field field placeholder="" size="small" %}
-                        {% endif %}
-                    </div>
-                {% else %}
-                    {% if field.name in help_text_dict %}
-                        {% bootstrap_label field.label %}
-                        {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                                 data-trigger="hover"
-                                 title="{{ field.label }}"
-                                 data-content="{{ help_text }}">
-                            {% bootstrap_field field placeholder="" show_label=False size="small" %}
-                        {% endwith %}
-                    {% else %}
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    {% endif %}
+                {% if "user-info" in field.field.widget.attrs.class %}
+                    <div class="user-info">
                 {% endif %}
+
+            {% if "cost" in field.field.widget.attrs|lookup:"class" %}
+                {# DO NOTHING   #}
+            {% elif field.name == "address" %}
+
+                {% if field.name in help_text_dict %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                             data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False size="small" %}
+                    {% endwith %}
+                {% else %}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                {% endif %}
+
+                <span style="font-size: small">Predefined addresses:</span><br>
+                <a href="#" class="btn btn-sm btn-outline-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
+                <a href="#" class="btn btn-sm btn-outline-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
+                <a href="#" class="btn btn-sm btn-outline-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
+                <br>
+                <br>
+            {% elif field.name == "role_of_participant" or field.name == "role" %}
+                <div class="conference_container">
+                    {% if field.name in help_text_dict %}
+                        {% bootstrap_label field.label %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 data-trigger="hover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {% bootstrap_field field placeholder="" show_label=False size="small" %}
+                        {% endwith %}
+                    {% else %}
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    {% endif %}
+                </div>
+            {% else %}
+                {% if field.name in help_text_dict %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                             data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False size="small" %}
+                    {% endwith %}
+                {% else %}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                {% endif %}
+
+                {% if "user-info" in field.field.widget.attrs.class %}
+                    </div>
+                {% endif %}
+
+            {% endif %}
             {% endfor %}
 
             <br>
-            {# TRIP COSTST #}
+            {# TRIP COSTS #}
         </div>
         <div class="hide-me container-fluid">
             <div class="mt-3 center-col">
@@ -222,12 +231,23 @@
         var sectionObj = {{ section_json|safe|nz:"{}" }};
         var myId = "";
 
+
         function refreshUserInfo() {
             myId = $("#id_user").val();
-            $("#id_first_name").val(userObj[myId]["first_name"]);
-            $("#id_last_name").val(userObj[myId]["last_name"]);
-            $("#id_email").val(userObj[myId]["email"]);
+            if (myId == "") {
+                $("#id_first_name").val("");
+                $("#id_last_name").val("");
+                $("#id_email").val("");
+                $(".user-info").removeClass("gone");
+            } else {
+                $(".user-info").addClass("gone");
+                $("#id_first_name").val(userObj[myId]["first_name"]);
+                $("#id_last_name").val(userObj[myId]["last_name"]);
+                $("#id_email").val(userObj[myId]["email"]);
+
+            }
         }
+
 
         $("#id_user").change(function () {
             refreshUserInfo();
