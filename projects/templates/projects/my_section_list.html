@@ -173,8 +173,8 @@
 
 
                         {% if type == "section" %}
-                            <td class="{% if obj.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
-                                {{ obj.section_head_approved|yesno:_("yes,no") }}
+                            <td class="{% if obj.approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.approved|yesno:_("yes,no") }}
                                 <br>
                                 <a href="#" style="font-size: small" class="approve"
                                    my_url="{% url 'projects:project_approval' obj.id type %}">
@@ -183,8 +183,8 @@
                             </td>
                             <td>{{ obj.section_head_feedback|nz:"n/a" }}</td>
                         {% elif type == "division" %}
-                            <td class="{% if obj.section_head_approved %}good{% else %}bad{% endif %}" style="text-align:center">
-                                {{ obj.section_head_approved|yesno:_("yes,no") }}
+                            <td class="{% if obj.approved %}good{% else %}bad{% endif %}" style="text-align:center">
+                                {{ obj.approved|yesno:_("yes,no") }}
                             </td>
 
                             <td class="{% if obj.manager_approved %}good{% else %}bad{% endif %}" style="text-align:center">

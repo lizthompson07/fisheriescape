@@ -47,10 +47,10 @@ class BudgetCode(models.Model):
         ordering = ['code', ]
 
 
-class ThematicGroup(models.Model):
+class FunctionalGroup(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
-    sections = models.ManyToManyField(shared_models.Section, related_name="thematic_groups")
+    sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups")
 
     def __str__(self):
         # check to see if a french value is given
@@ -118,23 +118,6 @@ class FundingSource(models.Model):
         ordering = ['funding_source_type', 'name', ]
 
 
-class Program(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
 class Tag(models.Model):
     name = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255, blank=True, null=True, unique=True)
@@ -153,7 +136,7 @@ class Tag(models.Model):
 
 
 # This model will eventually be renamed once we get rid on the original Program table
-class Program2(models.Model):
+class Program(models.Model):
     is_core_choices = (
         # (None, _("Unknown")),
         (True, _("Core")),
@@ -282,18 +265,21 @@ class Project(models.Model):
                                 verbose_name=_("section"))
     project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
-    thematic_group = models.ForeignKey(ThematicGroup, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("thematic group"))
+    functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Functional group"))
     default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True,
                                                verbose_name=_("primary funding source"))
-    programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
+    programs = models.ManyToManyField(Program, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
     # details
     is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"), limit_choices_to={"used_for": 1})
+
+    # DELETE FOLLOWING TWO FIELDS
     is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding competitive?"))
     is_approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
+
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
 
@@ -323,15 +309,8 @@ class Project(models.Model):
     ########
 
     # DELETE ME!! #
-    regional_dm = models.NullBooleanField(
-        verbose_name=_("Does the program require assistance of the branch data manager"))
-    # DELETE ME!! #
-    # HTML field
     regional_dm_needs = models.TextField(blank=True, null=True,
                                          verbose_name=_("Describe assistance required from the branch data manager, if applicable"))
-    # DELETE ME!! #
-    sectional_dm = models.NullBooleanField(verbose_name=_("Does the program require assistance of the section's data manager"))
-    # HTML field
     # DELETE ME!! #
     sectional_dm_needs = models.TextField(blank=True, null=True,
                                           verbose_name=_("Describe assistance required from the section data manager, if applicable"))
@@ -362,17 +341,19 @@ class Project(models.Model):
 
     feedback = models.TextField(blank=True, null=True,
                                 verbose_name=_("Do you have any feedback you would like to submit about this process"))
-    submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
 
     # admin
-    section_head_approved = models.BooleanField(default=False, verbose_name=_("section head approved"))
-    section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
+    submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
+    # approved = models.BooleanField(default=False, verbose_name=_("approved"))
+    approved = models.BooleanField(default=False, verbose_name=_("approved"))
+    # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
 
-    manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
-    manager_feedback = models.TextField(blank=True, null=True, verbose_name=_("division manager feedback"))
 
-    rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
-    rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
+    # manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
+    # manager_feedback = models.TextField(blank=True, null=True, verbose_name=_("division manager feedback"))
+
+    # rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
+    # rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
 
     meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("meeting notes"))
 
@@ -391,13 +372,13 @@ class Project(models.Model):
         self.date_last_modified = timezone.now()
         super().save(*args, **kwargs)
 
-    @property
-    def approved(self):
-        return self.submitted and self.section_head_approved
+    # @property
+    # def approved(self):
+    #     return self.submitted and self.approved
 
     @property
     def unapproved(self):
-        return self.submitted and not self.section_head_approved
+        return self.submitted and not self.approved
 
     @property
     def coding(self):

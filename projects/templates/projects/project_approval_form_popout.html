@@ -65,7 +65,7 @@
             var myAction = $(this).attr("id");
 
             {% if view.kwargs.level == "section" %}
-                var approvalField = $("#id_section_head_approved");
+                var approvalField = $("#id_approved");
             {% elif view.kwargs.level == "division" %}
                 var approvalField = $("#id_manager_approved");
             {% elif view.kwargs.level == "branch" %}
