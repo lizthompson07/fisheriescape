@@ -40,6 +40,21 @@ class ReviewerApprovalForm(forms.ModelForm):
         }
 
 
+class ReviewerSkipForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Reviewer
+        fields = [
+            "comments",
+        ]
+        labels = {
+            "comments": _("If so, please provide the rationale here...")
+        }
+        widgets = {
+            "comments": forms.Textarea(attrs=attr_row3)
+        }
+
+
 
 class TripApprovalForm(forms.Form):
     is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)

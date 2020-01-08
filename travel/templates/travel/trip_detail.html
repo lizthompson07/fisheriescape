@@ -43,6 +43,14 @@
             </h3>
         {% endif %}
 
+        <div class="float-right">
+            {% if object.current_reviewer.user == user %}
+                <a href="{% url 'travel:review_approve' object.current_reviewer.id %}" class="btn btn-lg btn-outline-primary">
+                    {% trans "Back to Approver Panel" %}
+                </a>
+
+            {% endif %}
+        </div>
 
         <div class="neighbours">
             <div class="btn-group">
