@@ -7,7 +7,6 @@ from . import emails
 
 
 def get_reviewers(trip):
-
     # assuming there is a section, assign amelie and section management
     if trip.section:
         # if in gulf region, add Amelie as a reviewer
@@ -32,28 +31,29 @@ def get_reviewers(trip):
             print("not adding RDS")
 
     # should the ADMs office be invovled?
-    if trip.conference.is_adm_approval_required:
-        # add the ADMs office staff
-        # try:
-        #     models.Reviewer.objects.create(trip=trip, user_id=749, role_id=3, )  # Kim Cotton
-        # except IntegrityError:
-        #     print("not adding NCR reviewer")
-        # try:
-        #     models.Reviewer.objects.create(trip=trip, user_id=736, role_id=4, )  # Andy White
-        # except IntegrityError:
-        #     print("not adding NCR recommender")
-        # try:
-        #     models.Reviewer.objects.create(trip=trip, user_id=758, role_id=4, )  # Stephen Virc
-        # except IntegrityError:
-        #     print("not adding NCR recommender")
-        # try:
-        #     models.Reviewer.objects.create(trip=trip, user_id=740, role_id=4, )  # Wayne Moore
-        # except IntegrityError:
-        #     print("not adding NCR recommender")
-        try:
-            models.Reviewer.objects.create(trip=trip, user_id=626, role_id=5, )  # Arran McPherson
-        except IntegrityError:
-            print("not adding NCR ADM")
+    if trip.conference:
+        if trip.conference.is_adm_approval_required:
+            # add the ADMs office staff
+            # try:
+            #     models.Reviewer.objects.create(trip=trip, user_id=749, role_id=3, )  # Kim Cotton
+            # except IntegrityError:
+            #     print("not adding NCR reviewer")
+            # try:
+            #     models.Reviewer.objects.create(trip=trip, user_id=736, role_id=4, )  # Andy White
+            # except IntegrityError:
+            #     print("not adding NCR recommender")
+            # try:
+            #     models.Reviewer.objects.create(trip=trip, user_id=758, role_id=4, )  # Stephen Virc
+            # except IntegrityError:
+            #     print("not adding NCR recommender")
+            # try:
+            #     models.Reviewer.objects.create(trip=trip, user_id=740, role_id=4, )  # Wayne Moore
+            # except IntegrityError:
+            #     print("not adding NCR recommender")
+            try:
+                models.Reviewer.objects.create(trip=trip, user_id=626, role_id=5, )  # Arran McPherson
+            except IntegrityError:
+                print("not adding NCR ADM")
 
     # finally, we always need to add the RDG
     try:
@@ -86,7 +86,7 @@ def end_review_process(trip):
 def set_trip_status(trip):
     """
     IF POSSIBLE, THIS SHOULD ONLY BE CALLED BY THE approval_seeker() function.
-    This will look at the reviewers and decide on  what the project status should be. Will return False is trip is denied
+    This will look at the reviewers and decide on  what the project status should be. Will return False if trip is denied or if trip is not submitted
     """
 
     # first order of business, if the trip is status "changes requested' do not continue
@@ -126,9 +126,9 @@ def set_trip_status(trip):
             # don't stick around any longer. save the trip and leave exit the function
             return False
 
-        # The trip should be approved if everyone has approved it.
-        # The total number of reviewers should equal the number of reviewer who approved.
-        elif trip.reviewers.all().count() == trip.reviewers.filter(status_id=2).count():
+        # The trip should be approved if everyone has approved it. HOWEVER, some reviewers might have been skipped
+        # The total number of reviewers should equal the number of reviewer who approved [id=2] and / or were skipped [id=21].
+        elif trip.reviewers.all().count() == trip.reviewers.filter(status_id__in=[2, 21]).count():
             trip.status_id = 11
             trip.save()
             # send an email to the trip owner
@@ -195,10 +195,10 @@ def approval_seeker(trip):
 
             # now, depending on the role of this reviewer, perhaps we want to send an email.
             # if they are a recommender, rev...
-            if next_reviewer.role_id in [1, 2, 3, 4, ]: # essentially, just not the RDG or ADM
+            if next_reviewer.role_id in [1, 2, 3, 4, ]:  # essentially, just not the RDG or ADM
                 my_email = emails.ReviewAwaitingEmail(trip, next_reviewer)
 
-            elif next_reviewer.role_id in [5,6]: # if we are going for RDG signature...
+            elif next_reviewer.role_id in [5, 6]:  # if we are going for RDG signature...
                 my_email = emails.AdminApprovalAwaitingEmail(trip)
 
             if my_email:
@@ -211,5 +211,3 @@ def approval_seeker(trip):
 
             # Then, lets set the trip status again to account for the fact that something happened
             set_trip_status(trip)
-
-
