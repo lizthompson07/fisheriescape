@@ -111,14 +111,14 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True)
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, approved=True)
 
         # get a list of programs..
         program_id_list = []
         for p in project_list:
             if p.programs.count() > 0:
                 program_id_list.extend([program.id for program in p.programs.all()])
-        program_list = models.Program2.objects.filter(id__in=program_id_list).order_by("-is_core")
+        program_list = models.Program.objects.filter(id__in=program_id_list).order_by("-is_core")
         for program in program_list:
 
             project_count = listrify([p.id for p in project_list.filter(programs=program)])
@@ -242,7 +242,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True).order_by("id")
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, approved=True, programs__is_core=True).order_by("id")
         for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
             leads = listrify(
@@ -349,7 +349,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i += 1
     for division in list(set(division_list)):
         projects = models.Project.objects.filter(section__division=division).filter(
-            year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=True)
+            year=fiscal_year, submitted=True, approved=True, programs__is_core=True)
 
         j = 9
         # worksheet2.write(i, j, division.name, summary_right_format)
@@ -434,7 +434,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False).order_by("id")
+        project_list = s.projects.filter(year=fiscal_year, submitted=True, approved=True, programs__is_core=False).order_by("id")
 
         for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
@@ -546,7 +546,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i += 1
     for division in list(set(division_list)):
         project_list = models.Project.objects.filter(section__division=division).filter(
-            year=fiscal_year, submitted=True, section_head_approved=True, programs__is_core=False)
+            year=fiscal_year, submitted=True, approved=True, programs__is_core=False)
         j = 9
         # worksheet2.write(i, j, division.name, summary_right_format)
         worksheet3.merge_range(i, j - 2, i, j, division.name, summary_right_format)
@@ -633,7 +633,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
     i = 4
     for s in section_list.order_by("division", "name"):
         # get a list of projects..
-        project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(section_head_approved=False)).order_by("id")
+        project_list = s.projects.filter(year=fiscal_year).filter(Q(submitted=False) | Q(approved=False)).order_by("id")
 
         for project in set(project_list):
             core_flex = "/".join(list(set(([program.get_is_core_display() for program in project.programs.all()]))))
@@ -659,7 +659,7 @@ def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):
                 project.project_title,
                 leads,
                 yesno(project.submitted),
-                yesno(project.section_head_approved),
+                yesno(project.approved),
                 project.section_head_feedback,
                 zero2val(total_fte, None),
                 zero2val(total_ot, None),
@@ -825,7 +825,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             "Coding",
             verbose_field_name(project_list.first(), 'status'),
             "Project lead",
-            verbose_field_name(project_list.first(), 'is_approved'),
+            verbose_field_name(project_list.first(), 'approved'),
             verbose_field_name(project_list.first(), 'start_date'),
             verbose_field_name(project_list.first(), 'end_date'),
             verbose_field_name(project_list.first(), 'description'),
@@ -850,7 +850,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             'Total Capital',
             'Total G&Cs',
             verbose_field_name(project_list.first(), 'submitted'),
-            verbose_field_name(project_list.first(), 'section_head_approved'),
+            verbose_field_name(project_list.first(), 'approved'),
 
         ]
 
@@ -955,7 +955,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 p.coding,
                 status,
                 lead,
-                yesno(p.is_approved),
+                yesno(p.approved),
                 start,
                 end,
                 html2text.html2text(nz(p.description, "")),
@@ -980,7 +980,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 capital_total,
                 gc_total,
                 yesno(p.submitted),
-                yesno(p.section_head_approved),
+                yesno(p.approved),
             ]
 
             # adjust the width of the columns based on the max string length in each col
@@ -1027,7 +1027,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
     #             staff_dict[staff_name]['total'] = 0
     #
     #         if s.project.submitted:
-    #             if s.project.section_head_approved:
+    #             if s.project.approved:
     #                 staff_dict[staff_name]['submitted_approved'] += nz(s.duration_weeks, 0)
     #             else:
     #                 staff_dict[staff_name]['submitted_unapproved'] += nz(s.duration_weeks, 0)
@@ -1334,7 +1334,7 @@ def generate_program_list():
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
 
     # get the program list
-    program_list = models.Program2.objects.all()
+    program_list = models.Program.objects.all()
 
     field_list = [
         'national_responsibility_eng',

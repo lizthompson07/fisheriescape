@@ -71,18 +71,9 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = models.Project
         exclude = [
-            'submitted',
             'date_last_modified',
-            'section_head_feedback',
-            'section_head_approved',
-            'manager_feedback',
-            'manager_approved',
-            'rds_feedback',
-            'rds_approved',
-            'program',
-            'impacts_if_not_approved',
-            'regional_dm',
-            'sectional_dm',
+            'submitted',
+            'approved',
             'meeting_notes',
         ]
         widgets = {
@@ -124,22 +115,19 @@ class ProjectForm(forms.ModelForm):
         self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
                                          _("mandatory - select multiple, if necessary"))
 
-        thematic_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.thematic_groups.all() ]
-        thematic_group_choices.insert(0, tuple((None, "---")))
-        self.fields['thematic_group'].choices = thematic_group_choices
+        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups.all() ]
+        functional_group_choices.insert(0, tuple((None, "---")))
+        self.fields['functional_group'].choices = functional_group_choices
 
         if kwargs.get("instance").section.division.branch.region.id == 1:
             del self.fields["programs"]
-            del self.fields["tags"]
             del self.fields["is_competitive"]
             del self.fields["is_approved"]
             del self.fields["metadata_url"]
             del self.fields["regional_dm_needs"]
             del self.fields["sectional_dm_needs"]
             del self.fields["feedback"]
-        else:
-            del self.fields["activity_type"]
-            del self.fields["thematic_group"]
+
 
 
 class ProjectSubmitForm(forms.ModelForm):
@@ -181,40 +169,12 @@ class SectionApprovalForm(forms.ModelForm):
         model = models.Project
         fields = [
             'last_modified_by',
-            'section_head_feedback',
-            'section_head_approved',
+            # 'section_head_feedback',
+            'approved',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'section_head_approved': forms.HiddenInput(),
-        }
-
-
-class DivisionApprovalForm(forms.ModelForm):
-    class Meta:
-        model = models.Project
-        fields = [
-            'last_modified_by',
-            'manager_feedback',
-            'manager_approved',
-        ]
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-            'manager_approved': forms.HiddenInput(),
-        }
-
-
-class BranchApprovalForm(forms.ModelForm):
-    class Meta:
-        model = models.Project
-        fields = [
-            'last_modified_by',
-            'rds_feedback',
-            'rds_approved',
-        ]
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-            'rds_approved': forms.HiddenInput(),
+            'approved': forms.HiddenInput(),
         }
 
 
@@ -251,7 +211,7 @@ class AdminStaffForm(forms.ModelForm):
 class AdminProjectProgramForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ["project_title", "programs", "section_head_approved", "section_head_feedback", "meeting_notes"]
+        fields = ["project_title", "programs", "approved", "meeting_notes"]
 
         widgets = {
             'programs': forms.SelectMultiple(attrs=chosen_js),
@@ -553,7 +513,7 @@ HelpTextFormSet = modelformset_factory(
 
 class ProgramForm(forms.ModelForm):
     class Meta:
-        model = models.Program2
+        model = models.Program
         fields = "__all__"
         widgets = {
             'national_responsibility_eng': forms.Textarea(attrs={"rows": 3}),
@@ -568,15 +528,15 @@ class ProgramForm(forms.ModelForm):
 
 
 ProgramFormSet = modelformset_factory(
-    model=models.Program2,
+    model=models.Program,
     form=ProgramForm,
     extra=1,
 )
 
 
-class ThematicGroupForm(forms.ModelForm):
+class FunctionalGroupForm(forms.ModelForm):
     class Meta:
-        model = models.ThematicGroup
+        model = models.FunctionalGroup
         fields = "__all__"
         widgets = {
             'name': forms.Textarea(attrs={"rows": 3}),
@@ -592,9 +552,9 @@ class ThematicGroupForm(forms.ModelForm):
         self.fields['sections'].choices = section_choices
 
 
-ThematicGroupFormSet = modelformset_factory(
-    model=models.ThematicGroup,
-    form=ThematicGroupForm,
+FunctionalGroupFormSet = modelformset_factory(
+    model=models.FunctionalGroup,
+    form=FundingSourceForm,
     extra=1,
 )
 

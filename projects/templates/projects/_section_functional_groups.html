@@ -7,8 +7,8 @@
         <h6>({% trans "Submitted & Approved Projects" %})</h6>
     </div>
 
-    {% for item in tg_dict %}
-        {% with tg_dict|lookup:item as qs %}
+    {% for item in fg_dict %}
+        {% with fg_dict|lookup:item as qs %}
             <div class="mb-3">
                 <h5>
                     <a href="#tg-project-list-{{ item.id }}" data-toggle="collapse">

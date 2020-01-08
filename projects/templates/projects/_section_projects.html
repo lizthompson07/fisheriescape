@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load verbose_names %}
 
 <div class="projects">
     <div class="mb-3">
@@ -18,44 +18,20 @@
             <div class="collapse" id="project-list-1">
                 <table class="table table-sm table-hover project-table sortable">
                     <thead>
-                    <th>
-                        {% trans "Thematic group" %}
-                    </th>
-                    <th>
-                        {% trans "Funding sources" %}
-                    </th>
-                    <th>
-                        {% trans "Title" %}
-                    </th>
-                    <th>
-                        {% trans "Activity Type" %}
-                    </th>
-                    <th>
-                        {% trans "Leads" %}
-                    </th>
+                    {% for field in field_list %}
+                        <th>{% get_verbose_label object_list.first field %}</th>
+                    {% endfor %}
                     </thead>
                     {% for object in approved_projects %}
                         <tr href="{% url 'projects:project_overview' object.id %}">
-                            <td>
-                                {{ object.thematic_group }}
-                            </td>
-                            <td>
-                                {{ object.funding_sources }}
-                            </td>
-                            <td>
-                                {{ object.project_title }}
-                            </td>
-                            <td>
-                                {{ object.activity_type }}
-                            </td>
-                            <td>
-                                {{ object.project_leads }}
-                            </td>
+                            {% for field in field_list %}
+                                <td>{% get_field_value object field %}</td>
+                            {% endfor %}
                         </tr>
                     {% empty %}
-                        <td>
-                            <em>{% trans "None" %}</em>
-                        </td>
+                        <tr>
+                            <td><em>{% trans "None" %}</em></td>
+                        </tr>
                     {% endfor %}
                 </table>
             </div>
@@ -78,40 +54,28 @@
                 </h5>
             </div>
             <div class="collapse" id="project-list-2">
-
                 <table class="table table-sm table-hover project-table sortable">
                     <thead>
-                    <th>
-                        {% trans "Thematic group" %}
-                    </th>
-                    <th>
-                        {% trans "Title" %}
-                    </th>
-                    <th>
-                        {% trans "Leads" %}
-                    </th>
+                    {% for field in field_list %}
+                        <th>{% get_verbose_label object_list.first field %}</th>
+                    {% endfor %}
                     </thead>
                     {% for object in unapproved_projects %}
                         <tr href="{% url 'projects:project_overview' object.id %}">
+                            {% for field in field_list %}
+                                <td>{% get_field_value object field %}</td>
+                            {% endfor %}
                             <td>
-                                {{ object.thematic_group }}
-                            </td>
-                            <td>
-                                {{ object.project_title }}
-                            </td>
-                            <td>
-                                {{ object.project_leads }}
-                            </td>
-                            <td>
-                                <a href="under-dev" class="btn btn-sm btn-success">approve</a>
+                                <a href="under-dev" class="btn btn-sm btn-success">{% trans "approve" %}</a>
                             </td>
                         </tr>
                     {% empty %}
-                        <td>
-                            <em>{% trans "None" %}</em>
-                        </td>
+                        <tr>
+                            <td><em>{% trans "None" %}</em></td>
+                        </tr>
                     {% endfor %}
                 </table>
+
             </div>
         </div>
     </div>
@@ -130,41 +94,26 @@
 
             </div>
             <div class="collapse" id="project-list-3">
-
-
                 <table class="table table-sm table-hover project-table sortable">
                     <thead>
-                    <th>
-                        {% trans "Thematic group" %}
-                    </th>
-                    <th>
-                        {% trans "Title" %}
-                    </th>
-                    <th>
-                        {% trans "Leads" %}
-                    </th>
-
+                    {% for field in field_list %}
+                        <th>{% get_verbose_label object_list.first field %}</th>
+                    {% endfor %}
                     </thead>
                     {% for object in unsubmitted_projects %}
                         <tr href="{% url 'projects:project_overview' object.id %}">
+                            {% for field in field_list %}
+                                <td>{% get_field_value object field %}</td>
+                            {% endfor %}
                             <td>
-                                {{ object.thematic_group }}
-                            </td>
-                            <td>
-                                {{ object.project_title }}
-                            </td>
-                            <td>
-                                {{ object.project_leads }}
-                            </td>
-                            <td>
-                                <a href="under-dev" class="btn btn-sm btn-warning">submit</a>
-                                <a href="under-dev" class="btn btn-sm btn-danger">delete</a>
+                                <a href="under-dev" class="btn btn-sm btn-warning">{% trans "submit" %}</a>
+                                <a href="under-dev" class="btn btn-sm btn-danger">{% trans "delete" %}</a>
                             </td>
                         </tr>
                     {% empty %}
-                        <td>
-                            <em>{% trans "None" %}</em>
-                        </td>
+                        <tr>
+                            <td><em>{% trans "None" %}</em></td>
+                        </tr>
                     {% endfor %}
                 </table>
             </div>

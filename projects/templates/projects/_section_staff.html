@@ -44,12 +44,12 @@
 
                             </thead>
                             {% for staff in qs.all %}
-                                <tr class="{% if not staff.project.submitted %}red-font{% elif not staff.project.section_head_approved %}purple-font{% endif %}">
+                                <tr class="{% if not staff.project.submitted %}red-font{% elif not staff.project.approved %}purple-font{% endif %}">
                                     <td>
                                         {{ staff.project.submitted|yesno }}
                                     </td>
                                     <td>
-                                        {{ staff.project.section_head_approved|yesno }}
+                                        {{ staff.project.approved|yesno }}
                                     </td>
                                     <td>
                                         {{ staff.project.section }}
