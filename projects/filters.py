@@ -17,7 +17,7 @@ class ProjectFilter(django_filters.FilterSet):
     division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label=_("Division"))
     section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label=_("Section"))
     programs = django_filters.ModelChoiceFilter(field_name='programs', lookup_expr='exact', label=_("Programs"),
-                                                queryset=models.Program2.objects.all())
+                                                queryset=models.Program.objects.all())
     tags = django_filters.ModelChoiceFilter(field_name='tags', lookup_expr='exact', label=_("Tags"), queryset=models.Tag.objects.all())
     submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact')
 
@@ -108,7 +108,7 @@ class AdminProjectProgramFilter(django_filters.FilterSet):
                                                                                         label=_("Region"),
                                                                                         lookup_expr='exact', choices=region_choices)
         self.filters['submitted'].label = "Submitted?"
-        self.filters['section_head_approved'].label = "Approved by section head?"
+        self.filters['approved'].label = "Approved by section head?"
 
     class Meta:
         model = models.Project
@@ -117,7 +117,7 @@ class AdminProjectProgramFilter(django_filters.FilterSet):
             'section__division__branch__region': ['exact'],
             'project_title': ['icontains'],
             'submitted': ['exact'],
-            'section_head_approved': ['exact'],
+            'approved': ['exact'],
         }
 
 
@@ -150,7 +150,7 @@ class MySectionFilter(django_filters.FilterSet):
     staff = django_filters.ChoiceFilter(field_name='staff_members__user', lookup_expr='exact', label="Staff member")
     submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', label="Submitted?")
 
-    # approved = django_filters.ChoiceFilter(field_name='section_head_approved', lookup_expr='exact', label="Approved by me?")
+    # approved = django_filters.ChoiceFilter(field_name='approved', lookup_expr='exact', label="Approved by me?")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -165,10 +165,10 @@ class MySectionFilter(django_filters.FilterSet):
         self.filters['submitted'] = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', choices=yes_no_choices)
 
         if "my-section" in str(kwargs["request"]):
-            self.filters['approved'] = django_filters.ChoiceFilter(field_name='section_head_approved', lookup_expr='exact',
+            self.filters['approved'] = django_filters.ChoiceFilter(field_name='approved', lookup_expr='exact',
                                                                    label="Approved by me?", choices=yes_no_choices)
         elif "my-division" in str(kwargs["request"]):
-            self.filters['sh_approved'] = django_filters.ChoiceFilter(field_name='section_head_approved', lookup_expr='exact',
+            self.filters['sh_approved'] = django_filters.ChoiceFilter(field_name='approved', lookup_expr='exact',
                                                                       label="Approved by section head?", choices=yes_no_choices)
             self.filters['approved'] = django_filters.ChoiceFilter(field_name='manager_approved', lookup_expr='exact',
                                                                    label="Approved by me?", choices=yes_no_choices)

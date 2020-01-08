@@ -23,7 +23,7 @@ YES_NO_CHOICES = (
 
 
 class ReviewerApprovalForm(forms.ModelForm):
-    is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
@@ -42,7 +42,7 @@ class ReviewerApprovalForm(forms.ModelForm):
 
 
 class TripApprovalForm(forms.Form):
-    is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
 
 class TripForm(forms.ModelForm):

@@ -195,12 +195,47 @@ class CanModifyProjectRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 def financial_summary_data(project):
-
-    # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
-
-
-
-
+    #
+    # # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
+    # my_dict = {}
+    #
+    # # import color schemes from funding_source table
+    # my_dict["colors"] = {}
+    # my_dict["colors"]["abase"] = models.FundingSourceType.objects.get(pk=1).color
+    # my_dict["colors"]["bbase"] = models.FundingSourceType.objects.get(pk=2).color
+    # my_dict["colors"]["cbase"] = models.FundingSourceType.objects.get(pk=3).color
+    #
+    # for fs in project.get_funding_sources():
+    #     my_dict[fs] = {}
+    #     my_dict[fs]["salary"] = 0
+    #     my_dict[fs]["om"] = 0
+    #     my_dict[fs]["capital"] = 0
+    #     my_dict[fs]["total"] = 0
+    #
+    #     # first calc for staff
+    #     for staff in project.staff_members.filter(funding_source=fs):
+    #         # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+    #         if not staff.employee_type.exclude_from_rollup:
+    #                 # if salary
+    #                 if staff.employee_type.cost_type is 1:
+    #                     salary_abase += nz(staff.cost, 0)
+    #                 # if o&M
+    #                 elif staff.employee_type.cost_type is 2:
+    #                     om_abase += nz(staff.cost, 0)
+    #             elif staff.funding_source.funding_source_type.id == 2:
+    #                 # if salary
+    #                 if staff.employee_type.cost_type is 1:
+    #                     salary_bbase += nz(staff.cost, 0)
+    #                 # if o&M
+    #                 elif staff.employee_type.cost_type is 2:
+    #                     om_bbase += nz(staff.cost, 0)
+    #             elif staff.funding_source.funding_source_type.id == 3:
+    #                 # if salary
+    #                 if staff.employee_type.cost_type is 1:
+    #                     salary_cbase += nz(staff.cost, 0)
+    #                 # if o&M
+    #                 elif staff.employee_type.cost_type is 2:
+    #                     om_cbase += nz(staff.cost, 0)
 
     salary_abase = 0
     om_abase = 0
@@ -297,14 +332,17 @@ def financial_summary_data(project):
 project_field_list = [
     'id',
     'year',
-    'project_title',
     'section',
-    'programs',
+    'project_title',
+    'activity_type',
+    'functional_group',
+    'default_funding_source',
+    # 'programs',
     'tags',
     'is_national',
     'status',
-    'is_competitive',
-    'is_approved',
+        'is_competitive',
+        'is_approved',
     'start_date',
     'end_date',
     'description',
@@ -313,11 +351,9 @@ project_field_list = [
     'data_collection',
     'data_sharing',
     'data_storage',
-    'metadata_url',
-    # 'regional_dm',
-    'regional_dm_needs',
-    # 'sectional_dm',
-    'sectional_dm_needs',
+        'metadata_url',
+        'regional_dm_needs',
+        'sectional_dm_needs',
     'vehicle_needs',
     'it_needs',
     'chemical_needs',
@@ -327,32 +363,12 @@ project_field_list = [
     'date_last_modified',
 ]
 
-gulf_field_list = [
-    'id',
-    'year',
-    'section',
-    'project_title',
-    'activity_type',
-    'thematic_group',
-    'default_funding_source',
-    'is_national',
-    'status',
-    'start_date',
-    'end_date',
-    'description',
-    'priorities',
-    'deliverables',
-    'data_collection',
-    'data_sharing',
-    'data_storage',
-    'vehicle_needs',
-    'it_needs',
-    'chemical_needs',
-    'ship_needs',
-    'coding|Known financial coding',
-    'last_modified_by',
-    'date_last_modified',
-]
+gulf_field_list = deepcopy(project_field_list)
+gulf_field_list.remove("is_competitive")
+gulf_field_list.remove("is_approved")
+gulf_field_list.remove("metadata_url")
+gulf_field_list.remove("regional_dm_needs")
+gulf_field_list.remove("sectional_dm_needs")
 
 
 def get_section_choices(all=False, full_name=True):
@@ -470,11 +486,11 @@ class MyProjectListView(LoginRequiredMixin, FilterView):
 
         staff_instances = self.request.user.staff_instances.filter(project__year=fy)
         context['fte_approved_projects'] = staff_instances.filter(
-            project__section_head_approved=True, project__submitted=True
+            project__approved=True, project__submitted=True
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
         context['fte_unapproved_projects'] = staff_instances.filter(
-            project__section_head_approved=False, project__submitted=True
+            project__approved=False, project__submitted=True
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
         context['fte_unsubmitted_projects'] = staff_instances.filter(
             project__submitted=False
@@ -489,13 +505,13 @@ class MyProjectListView(LoginRequiredMixin, FilterView):
         )
 
         context["project_field_list"] = [
-            "submitted|{}".format("Is submitted"),
             "year",
+            "submitted|{}".format("Submitted"),
+            "approved",
             "section|Section",
             "project_title",
             "is_hidden|is this a hidden project?",
             "is_lead|{}?".format("Are you a project lead"),
-            "section_head_approved",
             "status_report|{}".format("Status reports"),
         ]
 
@@ -519,13 +535,20 @@ class SectionListView(LoginRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        context["field_list"] = [
+            "project_title",
+            "activity_type",
+            "project_leads|{}".format("Leads"),
+        ]
+
         object_list = context.get("object_list")
         fy = object_list.first().year if object_list.count() > 0 else None
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['unapproved_projects'] = object_list.filter(section_head_approved=False, submitted=True)
+        context['unapproved_projects'] = object_list.filter(approved=False, submitted=True)
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
 
-        approved_projects = object_list.filter(section_head_approved=True, submitted=True)
+        approved_projects = object_list.filter(approved=True, submitted=True)
         context['approved_projects'] = approved_projects
 
         # need to create a dict for displaying projects by funding source.
@@ -536,11 +559,11 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context['fs_dict'] = fs_dict
 
         # need to create a dict for displaying projects by thematic group.
-        tg_dict = {}
-        thematic_groups = set([project.thematic_group for project in approved_projects])
-        for tg in thematic_groups:
-            tg_dict[tg] = approved_projects.filter(thematic_group=tg)
-        context['tg_dict'] = tg_dict
+        fg_dict = {}
+        functional_groups = set([project.functional_group for project in approved_projects])
+        for fg in functional_groups:
+            fg_dict[fg] = approved_projects.filter(functional_group=fg)
+        context['fg_dict'] = fg_dict
 
         # need to create a dict for displaying projects by activity type.
         at_dict = {}
@@ -861,12 +884,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
         new_tags = form.cleaned_data.get("tags")
         new_obj.pk = None
         new_obj.submitted = False
-        new_obj.section_head_approved = False
-        new_obj.section_head_feedback = None
-        new_obj.manager_approved = False
-        new_obj.manager_feedback = None
-        new_obj.rds_approved = False
-        new_obj.rds_feedback = None
+        new_obj.approved = False
         new_obj.date_last_modified = timezone.now()
         new_obj.last_modified_by = self.request.user
         new_obj.save()
@@ -1701,7 +1719,7 @@ def manage_levels(request):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def delete_program(request, pk):
-    my_obj = models.Program2.objects.get(pk=pk)
+    my_obj = models.Program.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("projects:manage_programs"))
 
@@ -1709,7 +1727,7 @@ def delete_program(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def manage_programs(request):
-    qs = models.Program2.objects.all().order_by("regional_program_name_eng")
+    qs = models.Program.objects.all().order_by("regional_program_name_eng")
     if request.method == 'POST':
         formset = forms.ProgramFormSet(request.POST, )
         if formset.is_valid():
@@ -1817,7 +1835,7 @@ class AdminProjectProgramUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
 class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterView):
     template_name = 'projects/admin_submitted_unapproved_list.html'
-    queryset = models.Project.objects.filter(submitted=True, section_head_approved=False).order_by('-year', 'id')
+    queryset = models.Project.objects.filter(submitted=True, approved=False).order_by('-year', 'id')
     filterset_class = filters.AdminSubmittedUnapprovedFilter
 
     def get_context_data(self, **kwargs):
@@ -1836,14 +1854,14 @@ class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterVie
 
         section_year_program_dict = {}
         for fy in shared_models.FiscalYear.objects.all():
-            if fy.projects.filter(submitted=True, section_head_approved=True).count() > 0:
+            if fy.projects.filter(submitted=True, approved=True).count() > 0:
                 section_year_program_dict[fy.id] = {}
                 for s in shared_models.Section.objects.all():
-                    if s.projects.filter(submitted=True, section_head_approved=True).count() > 0:
+                    if s.projects.filter(submitted=True, approved=True).count() > 0:
                         section_year_program_dict[fy.id][s.id] = {}
                         project_list = context.get("filter").qs.filter(year=fy, section=s)
                         # section_year_program_dict[fy.id][s.id]["programs"] = \
-                        #     models.Program2.objects.filter(projects__in=project_list).distinct()
+                        #     models.Program.objects.filter(projects__in=project_list).distinct()
 
                         # determine if there are submitted project with no programs
                         # section_year_program_dict[fy.id][s.id]["program_errors"] = project_list.filter(programs__isnull=True)
@@ -2244,7 +2262,7 @@ class PDFProjectSummaryReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id")
 
         context["fy"] = fy
@@ -2362,7 +2380,7 @@ class PDFProjectPrintoutReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id")
 
         # project_list = [project for project in project_list if project.section in section_list]
@@ -2446,7 +2464,7 @@ class PDFCollaboratorReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id")
 
         collaborator_list = models.Collaborator.objects.filter(project__in=project_list)
@@ -2485,7 +2503,7 @@ class PDFAgreementsReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id")
         collaborator_list = models.CollaborativeAgreement.objects.filter(project__in=project_list)
 
@@ -2524,7 +2542,7 @@ class PDFFeedbackReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id").filter(~Q(feedback=""))
         context["fy"] = fy
         context["object_list"] = project_list
@@ -2560,7 +2578,7 @@ class PDFDataReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id")
         context["fy"] = fy
         context["object_list"] = project_list
@@ -2606,7 +2624,7 @@ class PDFFTESummaryReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id")
 
         staff_list = models.Staff.objects.filter(
@@ -2668,7 +2686,7 @@ class PDFOTSummaryReport(LoginRequiredMixin, PDFTemplateView):
             # region_list = []
 
         # there will always be a section list so let's use that to generate a project list
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id")
         context["fy"] = fy
 
@@ -2690,7 +2708,7 @@ class PDFOTSummaryReport(LoginRequiredMixin, PDFTemplateView):
                 # exclude any sections that are not in the section list
                 if section in section_list:
                     # create a sub sub dict for the section
-                    project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section=section)
+                    project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True, section=section)
 
                     ot = models.Staff.objects.filter(
                         project__in=project_list, overtime_hours__isnull=False,
@@ -2701,12 +2719,12 @@ class PDFOTSummaryReport(LoginRequiredMixin, PDFTemplateView):
                     my_dict["total"] += nz(ot, 0)
 
                     # now get the progam list for all the section
-                    program_list = models.Program2.objects.filter(projects__in=project_list).distinct()
+                    program_list = models.Program.objects.filter(projects__in=project_list).distinct()
                     my_dict[division]["nrows"] += program_list.count()
                     my_dict[division][section]["programs"] = {}
                     my_dict[division][section]["programs"]["list"] = program_list
                     for program in program_list:
-                        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True, section=section,
+                        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True, section=section,
                                                                      programs=program)
 
                         ot = models.Staff.objects.filter(
@@ -2720,7 +2738,7 @@ class PDFOTSummaryReport(LoginRequiredMixin, PDFTemplateView):
 
                         my_dict["programs"][program] += nz(ot, 0)
 
-        program_list = models.Program2.objects.filter(id__in=[program.id for program in my_dict["programs"]]).distinct()
+        program_list = models.Program.objects.filter(id__in=[program.id for program in my_dict["programs"]]).distinct()
         my_dict["programs"]["list"] = program_list
 
         context["ot_summary_data"] = my_dict
@@ -2754,7 +2772,7 @@ class PDFCostSummaryReport(LoginRequiredMixin, PDFTemplateView):
         else:
             section_list = []
 
-        project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
+        project_list = models.Project.objects.filter(year=fy, submitted=True, approved=True,
                                                      section_id__in=section_list).order_by("id")
 
         context["fy"] = fy
@@ -2849,7 +2867,7 @@ class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
             section__division__branch__region=my_region,
             year=fy,
             submitted=True,
-            section_head_approved=True,
+            approved=True,
         )
         division_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by()
         section_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by()
@@ -2862,8 +2880,8 @@ class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
                     my_dict[d][s] = {}
 
                     # get a list of projects..  then programs
-                    project_list = s.projects.filter(year=fy, submitted=True, section_head_approved=True)
-                    program_list = models.Program2.objects.filter(projects__in=project_list).distinct().order_by("-is_core", )
+                    project_list = s.projects.filter(year=fy, submitted=True, approved=True)
+                    program_list = models.Program.objects.filter(projects__in=project_list).distinct().order_by("-is_core", )
                     my_dict[d][s]["projects"] = project_list
                     my_dict[d][s]["programs"] = {}
 
@@ -2892,7 +2910,7 @@ class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
         section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
-        program = models.Program2.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
+        program = models.Program.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
         context['fy'] = fy
         context['section'] = section
         context['program'] = program
@@ -2901,7 +2919,7 @@ class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             section=section,
             year=fy,
             submitted=True,
-            section_head_approved=True,
+            approved=True,
         ).order_by("id")
 
         if self.kwargs.get("program"):
@@ -2936,7 +2954,7 @@ class IPSProjectUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
         project = self.get_object()
         context["field_list"] = project_field_list
         context["report_mode"] = True
-        context["program"] = models.Program2.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
+        context["program"] = models.Program.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
 
         # bring in financial summary data
         my_context = financial_summary_data(project)
@@ -2972,7 +2990,7 @@ class SectionNoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
         # project = self.get_object()
         # context["field_list"] = project_field_list
         # context["report_mode"] = True
-        # context["program"] = models.Program2.objects.get(id=self.kwargs.get("program"))
+        # context["program"] = models.Program.objects.get(id=self.kwargs.get("program"))
         #
         # bring in financial summary data
         # my_context = financial_summary_data(project)
