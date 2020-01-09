@@ -341,8 +341,8 @@ project_field_list = [
     'tags',
     'is_national',
     'status',
-        'is_competitive',
-        'is_approved',
+    'is_competitive',
+    'is_approved',
     'start_date',
     'end_date',
     'description',
@@ -351,9 +351,9 @@ project_field_list = [
     'data_collection',
     'data_sharing',
     'data_storage',
-        'metadata_url',
-        'regional_dm_needs',
-        'sectional_dm_needs',
+    'metadata_url',
+    'regional_dm_needs',
+    'sectional_dm_needs',
     'vehicle_needs',
     'it_needs',
     'chemical_needs',
@@ -497,9 +497,6 @@ class MyProjectListView(LoginRequiredMixin, FilterView):
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
         context['fy'] = fy
 
-
-
-
         context["project_list"] = models.Project.objects.filter(
             id__in=[s.project.id for s in self.request.user.staff_instances.all()]
         )
@@ -582,10 +579,22 @@ class SectionListView(LoginRequiredMixin, FilterView):
             user_dict[user]["qs"] = user.staff_instances.filter(
                 project__year=fy
             ).order_by("project__submitted", "project__approved", "lead", "project__project_title")
-            user_dict[user]["fte"] = user.staff_instances.filter(
-                project__submitted=True, project__year=fy
-            ).order_by("project__submitted").aggregate(
-                dsum=Sum("duration_weeks"))["dsum"]
+
+            user_dict[user]["fte_approved"] = user.staff_instances.filter(
+                project__approved=True, project__submitted=True, project__year=fy
+            ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
+            user_dict[user]["fte_unapproved"] = user.staff_instances.filter(
+                project__approved=False, project__submitted=True, project__year=fy
+            ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
+            user_dict[user]["fte_unsubmitted"] = user.staff_instances.filter(
+                project__submitted=False, project__year=fy
+            ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
+            user_dict[user]["fte_total"] = user.staff_instances.filter(
+                project__year=fy
+            ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
         context['user_dict'] = user_dict
 
@@ -1748,6 +1757,7 @@ def manage_programs(request):
         'short_name',
         'is_core',
         'examples',
+        'theme',
     ]
     context['title'] = "Manage Programs"
     context['formset'] = formset
@@ -1781,9 +1791,43 @@ def manage_functional_groups(request):
     context["field_list"] = [
         'name',
         'nom',
+        'program',
         'sections',
     ]
     context['title'] = "Manage Functional Groups"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_theme(request, pk):
+    my_obj = models.Theme.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_themes(request):
+    qs = models.Theme.objects.all()
+    if request.method == 'POST':
+        formset = forms.ThemeFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_themes"))
+    else:
+        formset = forms.ThemeFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage Themes"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
 

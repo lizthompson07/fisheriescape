@@ -2,18 +2,14 @@
 {% load humanize %}
 {% load custom_filters %}
 {% load i18n %}
-<style>
-    table, td {
-        font-size: small;
-    }
-</style>
 
-
+<div class="mb-2 neighbours">
 <h4>
-    {% trans "Grant & Contributions:" %}
+    {% trans "Grant & Contributions" %}
 </h4>
+</div>
 {% if can_edit %}
-    <div class="mb-3">
+    <div class="mb-3 neighbours">
         <a class="btn btn-sm btn-outline-primary" href="#"
            onclick="return popitup('{% url 'projects:gc_new' object.id %}','popoutWindow')">
             {% trans "Add G&C" %}
@@ -79,4 +75,3 @@
         </tbody>
     </table>
 {% endif %}
-<br>

@@ -3,20 +3,14 @@
 {% load humanize %}
 {% load i18n %}
 {% get_current_language as LANG %}
-
-<style>
-    table, td {
-        font-size: small;
-    }
-</style>
-
-<h4>
-    {% trans "O&M Costs:" %}
-</h4>
+<div class="neighbours mb-2">
+    <h4>
+        {% trans "O&M Costs" %}
+    </h4>
+</div>
 {% if can_edit %}
-    <div class="btn-group mb-3">
-        <a class="btn btn-sm btn-outline-primary" href="#"
-           onclick="return popitup('{% url 'projects:om_new' object.id %}','popoutWindow')">
+    <div class="btn-group mb-3 neighbours">
+        <a class="btn btn-sm btn-outline-primary" href="#" pop-href="{% url 'projects:om_new' object.id %}">
             {% trans "Add O&M" %}
         </a>
         <a class="btn btn-sm btn-outline-success" href="{% url 'projects:om_populate' object.id %}">
