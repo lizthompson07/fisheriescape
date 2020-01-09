@@ -10,7 +10,7 @@
             background-color: pink;
         {% endif %}
         {% if object.flagged_4_publication %}
-            background-color: #c6eebf;
+            background-color: #e1ffd6;
         {% endif %}
         }
 
@@ -126,13 +126,13 @@
                     </div>
                     <div class="modal-footer">
                         {% if verified %}
-                            <a class="btn btn-lg btn-warning closeBtn"
+                            <a class="btn btn-lg btn-warning" onclick="$('#hnap').modal('hide')"
                                href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
-                            <a class="btn btn-lg btn-primary closeBtn"
+                            <a class="btn btn-lg btn-primary " onclick="$('#hnap').modal('hide')"
                                href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
                             <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole Thing</button>
                         {% else %}
-                            <a class="btn btn-lg btn-warning closeBtn"
+                            <a class="btn btn-lg btn-warning" onclick="$('#hnap').modal('hide')"
                                href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
                             <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind</button>
                         {% endif %}
