@@ -70,7 +70,7 @@
         </h4>
         {% if can_edit %}
             <div class="mb-3">
-                <a class="btn btn-outline-primary btn-sm" href="{% url 'projects:project_edit' object.id %}">
+                <a class="btn btn-outline-primary btn-sm" href="#" pop-href="{% url 'projects:project_edit' object.id %}">
                     {% trans "Add/Edit Project Details" %}
                 </a>
             </div>

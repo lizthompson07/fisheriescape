@@ -1756,25 +1756,25 @@ def manage_programs(request):
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_thematic_group(request, pk):
-    my_obj = models.ThematicGroup.objects.get(pk=pk)
+def delete_functional_group(request, pk):
+    my_obj = models.FunctionalGroup.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_thematic_groups"))
+    return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
 
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_thematic_groups(request):
-    qs = models.ThematicGroup.objects.all()
+def manage_functional_groups(request):
+    qs = models.FunctionalGroup.objects.all()
     if request.method == 'POST':
-        formset = forms.ThematicGroupFormSet(request.POST, )
+        formset = forms.FunctionalGroupFormSet(request.POST, )
         if formset.is_valid():
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_thematic_groups"))
+            return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
     else:
-        formset = forms.ThematicGroupFormSet(
+        formset = forms.FunctionalGroupFormSet(
             queryset=qs)
     context = {}
     context["my_object"] = qs.first()
@@ -1783,7 +1783,7 @@ def manage_thematic_groups(request):
         'nom',
         'sections',
     ]
-    context['title'] = "Manage Thematic Groups (Gulf Region)"
+    context['title'] = "Manage Functional Groups"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
 
