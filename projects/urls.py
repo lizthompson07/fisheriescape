@@ -127,8 +127,8 @@ urlpatterns = [
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
 
-    path('settings/thematic-groups/', views.manage_thematic_groups, name="manage_thematic_groups"),
-    path('settings/thematic-group/<int:pk>/delete/', views.delete_thematic_group, name="delete_thematic_group"),
+    path('settings/functional-groups/', views.manage_functional_groups, name="manage_functional_groups"),
+    path('settings/functional-group/<int:pk>/delete/', views.delete_functional_group, name="delete_functional_group"),
 
 
     path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
