@@ -316,8 +316,7 @@ class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
                           recipient_list=email.to_list, fail_silently=False, )
             else:
                 print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
-                                                                      email.message))
+                print(email)
             messages.success(self.request,
                              'The data resource has been flagged for publication and the regional data manager has been notified!')
         else:
