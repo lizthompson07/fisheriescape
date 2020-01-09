@@ -113,9 +113,9 @@ class ProjectForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = SECTION_CHOICES
         self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
-                                         _("mandatory - select multiple, if necessary"))
+                                                         _("mandatory - select multiple, if necessary"))
 
-        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups.all() ]
+        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups.all()]
         functional_group_choices.insert(0, tuple((None, "---")))
         self.fields['functional_group'].choices = functional_group_choices
 
@@ -127,7 +127,6 @@ class ProjectForm(forms.ModelForm):
             del self.fields["regional_dm_needs"]
             del self.fields["sectional_dm_needs"]
             del self.fields["feedback"]
-
 
 
 class ProjectSubmitForm(forms.ModelForm):
@@ -542,8 +541,8 @@ class FunctionalGroupForm(forms.ModelForm):
             'name': forms.Textarea(attrs={"rows": 3}),
             'nom': forms.Textarea(attrs={"rows": 3}),
             'sections': forms.SelectMultiple(attrs=chosen_js),
+            'program': forms.Select(attrs=chosen_js),
         }
-
 
     def __init__(self, *args, **kwargs):
         section_choices = views.get_section_choices(all=False)
@@ -554,10 +553,26 @@ class FunctionalGroupForm(forms.ModelForm):
 
 FunctionalGroupFormSet = modelformset_factory(
     model=models.FunctionalGroup,
-    form=FundingSourceForm,
+    form=FunctionalGroupForm,
     extra=1,
 )
 
+
+class ThemeForm(forms.ModelForm):
+    class Meta:
+        model = models.Theme
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={"rows": 3}),
+            'nom': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+ThemeFormSet = modelformset_factory(
+    model=models.Theme,
+    form=ThemeForm,
+    extra=1,
+)
 
 
 class LevelForm(forms.ModelForm):

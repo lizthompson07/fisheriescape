@@ -47,9 +47,95 @@ class BudgetCode(models.Model):
         ordering = ['code', ]
 
 
+class Theme(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class Program(models.Model):
+    is_core_choices = (
+        # (None, _("Unknown")),
+        (True, _("Core")),
+        (False, _("Flex")),
+    )
+
+    national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (English)")
+    national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (French)")
+    program_inventory = models.CharField(max_length=255, blank=True, null=True, verbose_name="program inventory")
+    funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
+    regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (English)")
+    regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (French)")
+    short_name = models.CharField(max_length=255, blank=True, null=True)
+    is_core = models.BooleanField(verbose_name=_("Is program core or flex?"), choices=is_core_choices)
+    examples = models.CharField(max_length=255, blank=True, null=True)
+    theme = models.ForeignKey(Theme, on_delete=models.DO_NOTHING, related_name="programs", blank=True, null=True)
+
+    @property
+    def regions(self):
+        projects = self.projects.filter(section__isnull=False)
+        return listrify(list(set([str(p.section.division.branch.region) for p in projects])))
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("regional_program_name_eng"))):
+            regional_program_name = "{}".format(getattr(self, str(_("regional_program_name_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            regional_program_name = "{}".format(self.regional_program_name_eng)
+
+        # check to see if a french value is given
+        if getattr(self, str(_("national_responsibility_eng"))):
+            national_responsibility = "{}".format(getattr(self, str(_("national_responsibility_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            national_responsibility = "{}".format(self.national_responsibility_eng)
+
+        return "{} - {}".format(regional_program_name, national_responsibility)
+
+    def __str__(self):
+
+        # check to see if a french value is given
+        if getattr(self, str(_("regional_program_name_eng"))):
+            regional_program_name = "{}".format(getattr(self, str(_("regional_program_name_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            regional_program_name = "{}".format(self.regional_program_name_eng)
+
+        # check to see if a french value is given
+        if getattr(self, str(_("national_responsibility_eng"))):
+            national_responsibility = "{}".format(getattr(self, str(_("national_responsibility_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            national_responsibility = "{}".format(self.national_responsibility_eng)
+
+        my_str = "{} - {} ({})".format(national_responsibility, regional_program_name, self.get_is_core_display())
+
+        if self.examples:
+            return "{} (e.g., {})".format(my_str, self.examples)
+        else:
+            return "{}".format(my_str)
+
+    class Meta:
+        ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
+
+
 class FunctionalGroup(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
+    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="functional_groups", blank=True, null=True)
     sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups")
 
     def __str__(self):
@@ -135,74 +221,6 @@ class Tag(models.Model):
         ordering = [_('name'), ]
 
 
-# This model will eventually be renamed once we get rid on the original Program table
-class Program(models.Model):
-    is_core_choices = (
-        # (None, _("Unknown")),
-        (True, _("Core")),
-        (False, _("Flex")),
-    )
-
-    national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (English)")
-    national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (French)")
-    program_inventory = models.CharField(max_length=255, blank=True, null=True, verbose_name="program inventory")
-    funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
-    regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (English)")
-    regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (French)")
-    short_name = models.CharField(max_length=255, blank=True, null=True)
-    is_core = models.BooleanField(verbose_name=_("Is program core or flex?"), choices=is_core_choices)
-    examples = models.CharField(max_length=255, blank=True, null=True)
-
-    @property
-    def regions(self):
-        projects = self.projects.filter(section__isnull=False)
-        return listrify(list(set([str(p.section.division.branch.region) for p in projects])))
-
-    @property
-    def tname(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("regional_program_name_eng"))):
-            regional_program_name = "{}".format(getattr(self, str(_("regional_program_name_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            regional_program_name = "{}".format(self.regional_program_name_eng)
-
-        # check to see if a french value is given
-        if getattr(self, str(_("national_responsibility_eng"))):
-            national_responsibility = "{}".format(getattr(self, str(_("national_responsibility_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            national_responsibility = "{}".format(self.national_responsibility_eng)
-
-        return "{} - {}".format(regional_program_name, national_responsibility)
-
-    def __str__(self):
-
-        # check to see if a french value is given
-        if getattr(self, str(_("regional_program_name_eng"))):
-            regional_program_name = "{}".format(getattr(self, str(_("regional_program_name_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            regional_program_name = "{}".format(self.regional_program_name_eng)
-
-        # check to see if a french value is given
-        if getattr(self, str(_("national_responsibility_eng"))):
-            national_responsibility = "{}".format(getattr(self, str(_("national_responsibility_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            national_responsibility = "{}".format(self.national_responsibility_eng)
-
-        my_str = "{} - {} ({})".format(national_responsibility, regional_program_name, self.get_is_core_display())
-
-        if self.examples:
-            return "{} (e.g., {})".format(my_str, self.examples)
-        else:
-            return "{}".format(my_str)
-
-    class Meta:
-        ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
-
-
 class Status(models.Model):
     # choices for used_for
     PROJECT = 1
@@ -265,7 +283,8 @@ class Project(models.Model):
                                 verbose_name=_("section"))
     project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
-    functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Functional group"))
+    functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Functional group"))
     default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True,
                                                verbose_name=_("primary funding source"))
     programs = models.ManyToManyField(Program, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
@@ -348,7 +367,6 @@ class Project(models.Model):
     approved = models.BooleanField(default=False, verbose_name=_("approved"))
     # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
 
-
     # manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
     # manager_feedback = models.TextField(blank=True, null=True, verbose_name=_("division manager feedback"))
 
@@ -415,11 +433,11 @@ class Project(models.Model):
                 my_list.append(item.funding_source)
 
         return set(my_list)
-    
+
     @property
     def funding_sources(self):
         return listrify(self.get_funding_sources())
-    
+
     @property
     def project_leads(self):
         return listrify([staff for staff in self.staff_members.all() if staff.lead])
@@ -673,6 +691,7 @@ class OMCategory(models.Model):
     @property
     def tname(self):
         return getattr(self, str(_("name")))
+
 
 class OMCost(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="om_costs", verbose_name=_("project"))

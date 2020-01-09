@@ -1,16 +1,13 @@
 {% load static %}
 {% load i18n %}
-<style>
-    table, td {
-        font-size: small;
-    }
-</style>
 
+<div class="mb-2 neighbours">
 <h4>
-    {% trans "External Collaborators:" %}
+    {% trans "External Collaborators" %}
 </h4>
+</div>
 {% if can_edit %}
-    <div class="mb-3">
+    <div class="mb-3 neighbours">
         <a class="btn btn-sm btn-outline-primary" href="#"
            onclick="return popitup('{% url 'projects:collab_new' object.id %}','popoutWindow')">
             {% trans "Add Collaborator" %}
@@ -69,4 +66,3 @@
         </tbody>
     </table>
 {% endif %}
-<br>

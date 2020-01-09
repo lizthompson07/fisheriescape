@@ -30,11 +30,21 @@
             <h4>
                 {% trans "PROJECT OVERVIEW" %}
             </h4>
+
+            <h1>
+                {{ object }} ({{ object.id }})
+            </h1>
         </div>
 
-        <div class="">
-            {% include "projects/project_report.html" %}
-        </div>
+        <hr>
+
+    </div>
+
+
+
+    <div class="">
+        {% include "projects/_project_content.html" %}
+    </div>
 
     </div>
 

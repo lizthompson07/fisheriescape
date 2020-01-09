@@ -130,6 +130,8 @@ urlpatterns = [
     path('settings/functional-groups/', views.manage_functional_groups, name="manage_functional_groups"),
     path('settings/functional-group/<int:pk>/delete/', views.delete_functional_group, name="delete_functional_group"),
 
+    path('settings/themes/', views.manage_themes, name="manage_themes"),
+    path('settings/theme/<int:pk>/delete/', views.delete_theme, name="delete_theme"),
 
     path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
     path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),

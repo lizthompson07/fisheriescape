@@ -1,26 +1,26 @@
 {% load static %}
 {% load custom_filters %}
 {% load i18n %}
-<style>
-    table, td {
-        font-size: small;
-    }
-</style>
 
-<h4>
-    {% trans "Status Reports:" %}
-</h4>
+<div class="mb-2 neighbours">
+    <h4>
+        {% trans "Status Reports:" %}
+    </h4>
+</div>
 {% if can_edit or is_lead %}
-    <a class="btn btn-sm btn-primary" href="#"
-       onclick="return popitup('{% url 'projects:report_new' object.id %}','popoutWindow')">
-        {% trans "Add Report" %}
-    </a>
-    <br><br>
+    <div class="mb-3 neighbours">
+        <a class="btn btn-sm btn-primary" href="#" pop-href="{% url 'projects:report_new' object.id %}">
+            {% trans "Add Report" %}
+        </a>
+    </div>
+
 {% endif %}
 {% if object.reports.count == 0 %}
-    <em>
-        {% trans "No Reports" %}...
-    </em><br>
+    <div class="mb-3">
+        <em>
+            {% trans "No Reports" %}...
+        </em>
+    </div>
 {% else %}
 
     <table class="table table-hover table-sm" style="width: auto">
@@ -69,7 +69,8 @@
                 <td>{{ obj.files.count }}</td>
                 <td>{{ obj.section_head_reviewed|yesno }}</td>
                 <td class="center-col">
-                    <a href="{% url 'projects:report_print' obj.id %}" data-toggle="tooltip" title="{% trans "Open the the report as a PDF" %}" class="stop-blank">
+                    <a href="{% url 'projects:report_print' obj.id %}" data-toggle="tooltip"
+                       title="{% trans "Open the the report as a PDF" %}" class="stop-blank">
                         <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
                     </a>
                 </td>
@@ -79,7 +80,6 @@
         </tbody>
     </table>
 {% endif %}
-<br>
 <script type="application/javascript">
     $("#file_link").click(function (e) {
         e.stopImmediatePropagation();
