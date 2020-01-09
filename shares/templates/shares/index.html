@@ -40,7 +40,13 @@
                 </h3>
                 <ul>
                     <li>
-                        Add new user to this database. Also, add them to the shares they will want to access.
+                        Add a
+                        <a href="{% url 'shares:user_new'  %}">new user</a>
+                        to this database. <b>New users should be added to glfscidm002 server!!</b> (regardless of which share they want to access)
+                    </li>
+                    <li>
+                        In this app, add the new user to the shares they want to access. <br>
+                        <a href="{% url 'shares:share_list'  %}">Shares </a> > [share of interest] > Edit > add the user.
                     </li>
                     <li>
                         Create user on glfscidm002 using shell script:
