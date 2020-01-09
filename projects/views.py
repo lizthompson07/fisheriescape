@@ -210,9 +210,9 @@ def financial_summary_data(project):
         for staff in project.staff_members.filter(funding_source=fs):
             # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
             if not staff.employee_type.exclude_from_rollup:
-                if staff.employee_type.cost_type is 1:
+                if staff.employee_type.cost_type == 1:
                     my_dict[fs]["salary"] += nz(staff.cost, 0)
-                elif staff.employee_type.cost_type is 2:
+                elif staff.employee_type.cost_type == 2:
                     my_dict[fs]["om"] += nz(staff.cost, 0)
 
         # O&M costs
@@ -230,12 +230,61 @@ def financial_summary_data(project):
     my_dict["total"]["capital"] = 0
     my_dict["total"]["total"] = 0
     for fs in project.get_funding_sources():
-        my_dict[fs]["total"] = my_dict[fs]["capital"] + my_dict[fs]["salary"] + my_dict[fs]["om"]
+        my_dict[fs]["total"] = float(my_dict[fs]["capital"]) + float(my_dict[fs]["salary"]) + float(my_dict[fs]["om"])
         my_dict["total"]["salary"] += my_dict[fs]["salary"]
         my_dict["total"]["om"] += my_dict[fs]["om"]
         my_dict["total"]["capital"] += my_dict[fs]["capital"]
         my_dict["total"]["total"] += my_dict[fs]["total"]
 
+    return my_dict
+
+
+def section_financial_summary(section, fy=None):
+    project_list = section.projects.all()
+    if fy:
+        project_list.filter(year=fy)
+
+    my_dict = {}
+
+    # first, get the list of funding sources
+    funding_sources = []
+    for project in project_list:
+        funding_sources.extend(project.get_funding_sources())
+    funding_sources = list(set(funding_sources))
+    funding_sources_order = ["{} {}".format(fs.funding_source_type, fs.tname) for fs in funding_sources]
+    for fs in [x for _, x in sorted(zip(funding_sources_order, funding_sources))]:
+        my_dict[fs] = {}
+        my_dict[fs]["salary"] = 0
+        my_dict[fs]["om"] = 0
+        my_dict[fs]["capital"] = 0
+        my_dict[fs]["total"] = 0
+        for project in project_list.all():
+            # first calc for staff
+            for staff in project.staff_members.filter(funding_source=fs):
+                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                if not staff.employee_type.exclude_from_rollup:
+                    if staff.employee_type.cost_type == 1:
+                        my_dict[fs]["salary"] += nz(staff.cost, 0)
+                    elif staff.employee_type.cost_type == 2:
+                        my_dict[fs]["om"] += nz(staff.cost, 0)
+            # O&M costs
+            for cost in project.om_costs.filter(funding_source=fs):
+                my_dict[fs]["om"] += nz(cost.budget_requested, 0)
+            # Capital costs
+            for cost in project.capital_costs.filter(funding_source=fs):
+                my_dict[fs]["capital"] += nz(cost.budget_requested, 0)
+
+    my_dict["total"] = {}
+    my_dict["total"]["salary"] = 0
+    my_dict["total"]["om"] = 0
+    my_dict["total"]["capital"] = 0
+    my_dict["total"]["total"] = 0
+    for fs in funding_sources:
+        my_dict[fs]["total"] = float(my_dict[fs]["capital"]) + float(my_dict[fs]["salary"]) + float(my_dict[fs]["om"])
+        my_dict["total"]["salary"] += my_dict[fs]["salary"]
+        my_dict["total"]["om"] += my_dict[fs]["om"]
+        my_dict["total"]["capital"] += my_dict[fs]["capital"]
+        my_dict["total"]["total"] += my_dict[fs]["total"]
 
     return my_dict
 
@@ -508,6 +557,10 @@ class SectionListView(LoginRequiredMixin, FilterView):
             ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
         context['user_dict'] = user_dict
+
+        # financials
+        context['financials_dict'] = section_financial_summary(object_list.first().section, object_list.first().year)
+
 
         return context
 
