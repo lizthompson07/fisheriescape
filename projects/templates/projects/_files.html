@@ -2,15 +2,11 @@
 {% load i18n %}
 {% load custom_filters %}
 
-<style>
-    table, td {
-        font-size: small;
-    }
-</style>
-
-<h4>
-    {% trans "Supporting Resources:" %}
-</h4>
+<div class="mb-2 neighbours">
+    <h4>
+        {% trans "Supporting Resources" %}
+    </h4>
+</div>
 {% if not object %}
     <div class="mb-3">
         <em>
@@ -25,16 +21,18 @@
         {% else %}
             {% url 'projects:file_new' project.id as add_url %}
         {% endif %}
-        <div class="mb-3">
+        <div class="mb-3 neighbours">
             <a class="btn btn-sm btn-outline-primary add-btn" href="#" pop-href="{{ add_url }}">
                 {% trans "Add Resource" %}
             </a>
         </div>
     {% endif %}
     {% if files.count == 0 %}
-        <em>
-            {% trans "No Files" %}...
-        </em><br>
+        <div class="mb-3">
+            <em>
+                {% trans "No Files" %}...
+            </em>
+        </div>
     {% else %}
 
         <table class="table table-hover table-sm" style="width: auto">
@@ -92,5 +90,4 @@
             </tbody>
         </table>
     {% endif %}
-    <br>
 {% endif %}
