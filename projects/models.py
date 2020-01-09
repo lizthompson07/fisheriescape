@@ -191,14 +191,18 @@ class FundingSource(models.Model):
     nom = models.CharField(max_length=500, blank=True, null=True)
     funding_source_type = models.ForeignKey(FundingSourceType, on_delete=models.DO_NOTHING, related_name="funding_sources")
 
-    def __str__(self):
+    @property
+    def tname(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
             my_str = "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
             my_str = "{}".format(self.name)
-        return "{} - {}".format(str(self.funding_source_type), my_str)
+        return my_str
+
+    def __str__(self):
+        return "{} - {}".format(self.funding_source_type, self.tname)
 
     class Meta:
         ordering = ['funding_source_type', 'name', ]

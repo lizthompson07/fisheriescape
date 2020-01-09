@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+from collections import OrderedDict
 from copy import deepcopy
 
 import pandas as pd
@@ -195,138 +196,48 @@ class CanModifyProjectRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 def financial_summary_data(project):
-    #
-    # # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
-    # my_dict = {}
-    #
-    # # import color schemes from funding_source table
-    # my_dict["colors"] = {}
-    # my_dict["colors"]["abase"] = models.FundingSourceType.objects.get(pk=1).color
-    # my_dict["colors"]["bbase"] = models.FundingSourceType.objects.get(pk=2).color
-    # my_dict["colors"]["cbase"] = models.FundingSourceType.objects.get(pk=3).color
-    #
-    # for fs in project.get_funding_sources():
-    #     my_dict[fs] = {}
-    #     my_dict[fs]["salary"] = 0
-    #     my_dict[fs]["om"] = 0
-    #     my_dict[fs]["capital"] = 0
-    #     my_dict[fs]["total"] = 0
-    #
-    #     # first calc for staff
-    #     for staff in project.staff_members.filter(funding_source=fs):
-    #         # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
-    #         if not staff.employee_type.exclude_from_rollup:
-    #                 # if salary
-    #                 if staff.employee_type.cost_type is 1:
-    #                     salary_abase += nz(staff.cost, 0)
-    #                 # if o&M
-    #                 elif staff.employee_type.cost_type is 2:
-    #                     om_abase += nz(staff.cost, 0)
-    #             elif staff.funding_source.funding_source_type.id == 2:
-    #                 # if salary
-    #                 if staff.employee_type.cost_type is 1:
-    #                     salary_bbase += nz(staff.cost, 0)
-    #                 # if o&M
-    #                 elif staff.employee_type.cost_type is 2:
-    #                     om_bbase += nz(staff.cost, 0)
-    #             elif staff.funding_source.funding_source_type.id == 3:
-    #                 # if salary
-    #                 if staff.employee_type.cost_type is 1:
-    #                     salary_cbase += nz(staff.cost, 0)
-    #                 # if o&M
-    #                 elif staff.employee_type.cost_type is 2:
-    #                     om_cbase += nz(staff.cost, 0)
+    # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
+    my_dict = OrderedDict()
 
-    salary_abase = 0
-    om_abase = 0
-    capital_abase = 0
+    for fs in project.get_funding_sources():
+        my_dict[fs] = {}
+        my_dict[fs]["salary"] = 0
+        my_dict[fs]["om"] = 0
+        my_dict[fs]["capital"] = 0
+        my_dict[fs]["total"] = 0
 
-    salary_bbase = 0
-    om_bbase = 0
-    capital_bbase = 0
-
-    salary_cbase = 0
-    om_cbase = 0
-    capital_cbase = 0
-
-    gc_total = 0
-
-    # first calc for staff
-    for staff in project.staff_members.all():
-        # exclude full time employees
-        if not staff.employee_type.exclude_from_rollup:
-            # if the staff member is being paid from bbase...
-            if staff.funding_source.funding_source_type.id == 1:
-                # if salary
+        # first calc for staff
+        for staff in project.staff_members.filter(funding_source=fs):
+            # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+            if not staff.employee_type.exclude_from_rollup:
                 if staff.employee_type.cost_type is 1:
-                    salary_abase += nz(staff.cost, 0)
-                # if o&M
+                    my_dict[fs]["salary"] += nz(staff.cost, 0)
                 elif staff.employee_type.cost_type is 2:
-                    om_abase += nz(staff.cost, 0)
-            elif staff.funding_source.funding_source_type.id == 2:
-                # if salary
-                if staff.employee_type.cost_type is 1:
-                    salary_bbase += nz(staff.cost, 0)
-                # if o&M
-                elif staff.employee_type.cost_type is 2:
-                    om_bbase += nz(staff.cost, 0)
-            elif staff.funding_source.funding_source_type.id == 3:
-                # if salary
-                if staff.employee_type.cost_type is 1:
-                    salary_cbase += nz(staff.cost, 0)
-                # if o&M
-                elif staff.employee_type.cost_type is 2:
-                    om_cbase += nz(staff.cost, 0)
+                    my_dict[fs]["om"] += nz(staff.cost, 0)
 
-    # O&M costs
-    for cost in project.om_costs.all():
-        if cost.funding_source.funding_source_type.id == 1:
-            om_abase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.funding_source_type.id == 2:
-            om_bbase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.funding_source_type.id == 3:
-            om_cbase += nz(cost.budget_requested, 0)
+        # O&M costs
+        for cost in project.om_costs.filter(funding_source=fs):
+            my_dict[fs]["om"] += nz(cost.budget_requested, 0)
 
-    # Capital costs
-    for cost in project.capital_costs.all():
-        if cost.funding_source.funding_source_type.id == 1:
-            capital_abase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.funding_source_type.id == 2:
-            capital_bbase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.funding_source_type.id == 3:
-            capital_cbase += nz(cost.budget_requested, 0)
+        # Capital costs
+        for cost in project.capital_costs.filter(funding_source=fs):
+            my_dict[fs]["capital"] += nz(cost.budget_requested, 0)
 
-    # g&c costs
-    for cost in project.gc_costs.all():
-        gc_total += nz(cost.budget_requested, 0)
+    # do the totals. I am doing this loop as separate so that the total entry comes at the end of all the funding sources
+    my_dict["total"] = {}
+    my_dict["total"]["salary"] = 0
+    my_dict["total"]["om"] = 0
+    my_dict["total"]["capital"] = 0
+    my_dict["total"]["total"] = 0
+    for fs in project.get_funding_sources():
+        my_dict[fs]["total"] = my_dict[fs]["capital"] + my_dict[fs]["salary"] + my_dict[fs]["om"]
+        my_dict["total"]["salary"] += my_dict[fs]["salary"]
+        my_dict["total"]["om"] += my_dict[fs]["om"]
+        my_dict["total"]["capital"] += my_dict[fs]["capital"]
+        my_dict["total"]["total"] += my_dict[fs]["total"]
 
-    context = {}
-    # abase
-    context["salary_abase"] = salary_abase
-    context["om_abase"] = om_abase
-    context["capital_abase"] = capital_abase
 
-    # bbase
-    context["salary_bbase"] = salary_bbase
-    context["om_bbase"] = om_bbase
-    context["capital_bbase"] = capital_bbase
-
-    # cbase
-    context["salary_cbase"] = salary_cbase
-    context["om_cbase"] = om_cbase
-    context["capital_cbase"] = capital_cbase
-
-    context["salary_total"] = salary_abase + salary_bbase + salary_cbase
-    context["om_total"] = om_abase + om_bbase + om_cbase
-    context["capital_total"] = capital_abase + capital_bbase + capital_cbase
-    context["gc_total"] = gc_total
-
-    # import color schemes from funding_source table
-    context["abase"] = models.FundingSourceType.objects.get(pk=1).color
-    context["bbase"] = models.FundingSourceType.objects.get(pk=2).color
-    context["cbase"] = models.FundingSourceType.objects.get(pk=3).color
-
-    return context
+    return my_dict
 
 
 project_field_list = [
@@ -644,10 +555,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             context["field_list"] = project_field_list
 
         context["files"] = project.files.all()
-
-        # bring in financial summary data
-        my_context = financial_summary_data(project)
-        context = {**my_context, **context}
+        context["financial_summary_dict"] = financial_summary_data(project)
 
         # Determine if the user will be able to edit the project.
         context["can_edit"] = can_modify_project(self.request.user, project.id)
@@ -787,12 +695,7 @@ class ProjectApprovalUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
     def get_form_class(self):
         level = self.kwargs["level"]
-        if level == "section":
-            return forms.SectionApprovalForm
-        elif level == "division":
-            return forms.DivisionApprovalForm
-        elif level == "branch":
-            return forms.BranchApprovalForm
+        return forms.SectionApprovalForm
 
     def get_initial(self):
         return {
@@ -1018,7 +921,7 @@ def staff_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The staff member has been successfully deleted from project."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1144,7 +1047,7 @@ def collaborator_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The collaborator has been successfully deleted from project."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1189,7 +1092,7 @@ def agreement_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The agreement has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1241,7 +1144,7 @@ def om_cost_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The cost has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1256,7 +1159,7 @@ def om_cost_clear(request, project):
                     cost.delete()
 
         messages.success(request, _("All empty O&M lines have been cleared."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1270,7 +1173,7 @@ def om_cost_populate(request, project):
                 new_item.save()
 
         messages.success(request, _("All O&M categories have been added to this project."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1322,7 +1225,7 @@ def capital_cost_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The cost has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1373,7 +1276,7 @@ def gc_cost_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The cost has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1989,6 +1892,8 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
         context['status_report'] = self.get_object()
         context['project'] = project
         context['files'] = self.get_object().files.all()
+        context["can_edit"] = can_modify_project(self.request.user, project.id)
+        context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
         return context
 
     def form_valid(self, form):

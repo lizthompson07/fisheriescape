@@ -9,7 +9,7 @@
 </div>
 {% if can_edit or is_lead %}
     <div class="mb-3 neighbours">
-        <a class="btn btn-sm btn-primary" href="#" pop-href="{% url 'projects:report_new' object.id %}">
+        <a class="btn btn-sm btn-outline-primary" href="#" pop-href="{% url 'projects:report_new' object.id %}">
             {% trans "Add Report" %}
         </a>
     </div>
