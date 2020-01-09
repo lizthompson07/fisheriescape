@@ -10,8 +10,7 @@
 </div>
 {% if can_edit %}
     <div class="neighbours mb-3">
-        <a class="btn btn-sm btn-outline-primary" href="#"
-           onclick="return popitup('{% url 'projects:staff_new' object.id %}','popoutWindow')">
+        <a class="btn btn-sm btn-outline-primary" href="#" pop-href='{% url 'projects:staff_new' object.id %}'>
             {% trans "Add Staff" %}
         </a>
     </div>
@@ -96,7 +95,7 @@
                 <td class="center-col">{{ obj.employee_type.get_cost_type_display }}</td>
 
                 <td style="background-color: {{ obj.funding_source.funding_source_type.color }}" class="center-col">
-                    {{ obj.funding_source }}
+                    {{ obj.funding_source.tname }}
                 </td>
 
                 <td class="center-col"

@@ -31,9 +31,6 @@
             <th>
                 {% trans "Name" %}
             </th>
-            <th>
-                {% trans "Type" %}
-            </th>
             <th class="center-col">
                 {% trans "Critical to project?" %}
             </th>
@@ -58,7 +55,6 @@
                     </td>
                 {% endif %}
                 <td>{{ obj.name }}</td>
-                <td>{{ obj.get_type_display }}</td>
                 <td class="center-col">{{ obj.critical|yesno }}</td>
                 <td>{{ obj.notes }}</td>
             </tr>
