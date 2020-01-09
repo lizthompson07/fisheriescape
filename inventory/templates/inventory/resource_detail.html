@@ -9,6 +9,9 @@
         {% if object.flagged_4_deletion %}
             background-color: pink;
         {% endif %}
+        {% if object.flagged_4_publication %}
+            background-color: #c6eebf;
+        {% endif %}
         }
 
         #floating-panel {
@@ -44,62 +47,64 @@
         <div class="text-center">
             <h2>{{ object.title_eng }}</h2>
         </div>
-<div id="floating-panel">
-        {% with "btn btn-sm btn-outline-dark" as my_btn %}
+        <div id="floating-panel">
+            {% with "btn btn-sm btn-outline-dark" as my_btn %}
 
-            <a class="{{ my_btn }}" href="{% url 'inventory:resource_edit' object.id %}">
-                Modify Record
-            </a>
-            <a class="{{ my_btn }}" href="{% url 'inventory:resource_full_detail' object.id %}">
-                Review Full Record
-            </a>
-            <a class="{{ my_btn }}" href="{% url 'inventory:resource_certify' object.id %}" data-toggle="tooltip"
-               title="Click here to add a certification event to this record.">
-                Certify This Record
-            </a>
-
-            {% if object.flagged_4_deletion %}
-
-                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
-                   title="Unflag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
-                    Unflag for Deletion
+                <a class="{{ my_btn }}" href="{% url 'inventory:resource_edit' object.id %}">
+                    Modify Record
                 </a>
-            {% else %}
-                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
-                   title="Flag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
-                    Flag for Deletion
+                <a class="{{ my_btn }}" href="{% url 'inventory:resource_full_detail' object.id %}">
+                    Review Full Record
                 </a>
-            {% endif %}
+                <a class="{{ my_btn }}" href="{% url 'inventory:resource_certify' object.id %}" data-toggle="tooltip"
+                   title="Click here to add a certification event to this record.">
+                    Certify This Record
+                </a>
 
-            {#            {% if object.flagged_4_publication %}#}
-            {#                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"#}
-            {#                   title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">#}
-            {#                    Unflag for Open Data Publication#}
-            {#                </a>#}
-            {#            {% else %}#}
-            {#                <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"#}
-            {#                   title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">#}
-            {#                    Flag for Open Data Publication#}
-            {#                </a>#}
-            {#            {% endif %}#}
+                {% if object.flagged_4_deletion %}
 
-            <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
-                View Completedness Report
-            </a>
-            <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap">
-                Export as XML (HNAP)
-            </a>
-            {% for group in user.groups.all %}
-                {% if group.id == 13 %}
-                    <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">
-                        Delete
+                    <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
+                       title="Unflag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
+                        Unflag for Deletion
+                    </a>
+                {% else %}
+                    <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
+                       title="Flag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
+                        Flag for Deletion
                     </a>
                 {% endif %}
 
-            {% endfor %}
-        {% endwith %}
 
-    </div>
+                <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
+                    View Completedness Report
+                </a>
+                <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap">
+                    Export as XML (HNAP)
+                </a>
+
+                {% if object.flagged_4_publication %}
+                    <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
+                       title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
+                        Unflag for Publication
+                    </a>
+                {% else %}
+                    <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
+                       title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
+                        Flag for {% if object.fgp_publication_date %}Re-publication{% else %}Publication{% endif %}
+                    </a>
+                {% endif %}
+
+                {% for group in user.groups.all %}
+                    {% if group.id == 13 %}
+                        <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">
+                            Delete
+                        </a>
+                    {% endif %}
+
+                {% endfor %}
+            {% endwith %}
+
+        </div>
         {#<!-- HNAP MODAL -->#}
         <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
              aria-hidden="true">
