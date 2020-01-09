@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.template import loader
 from . import models
 
@@ -33,6 +34,9 @@ class CertificationRequestEmail:
         rendered = t.render(context)
         return rendered
 
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
 
 class SectionReportEmail:
 
@@ -61,6 +65,9 @@ class SectionReportEmail:
         rendered = t.render(context)
         return rendered
 
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
 
 class FlagForDeletionEmail:
 
@@ -68,7 +75,7 @@ class FlagForDeletionEmail:
         self.subject = 'A data resource has been flagged for deletion'
         self.message = self.load_html_template(object, user)
         self.from_email = from_email
-        self.to_list = [admin_email, ]
+        self.to_list = [user.email for user in User.objects.filter(groups__name="inventory_dm")]
 
     def load_html_template(self, object, user):
         t = loader.get_template('inventory/email_flagged_for_deletion.html')
@@ -79,6 +86,9 @@ class FlagForDeletionEmail:
         rendered = t.render(context)
         return rendered
 
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
 
 class FlagForPublicationEmail:
 
@@ -86,7 +96,7 @@ class FlagForPublicationEmail:
         self.subject = 'A data resource has been flagged for publication'
         self.message = self.load_html_template(object, user)
         self.from_email = from_email
-        self.to_list = [admin_email, ]
+        self.to_list = [user.email for user in User.objects.filter(groups__name="inventory_dm")]
 
     def load_html_template(self, object, user):
         t = loader.get_template('inventory/email_flagged_for_publication.html')
@@ -96,6 +106,9 @@ class FlagForPublicationEmail:
         }
         rendered = t.render(context)
         return rendered
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
 
 class AddedAsCustodianEmail:
@@ -115,6 +128,9 @@ class AddedAsCustodianEmail:
         rendered = t.render(context)
         return rendered
 
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
 
 class RemovedAsCustodianEmail:
 
@@ -132,3 +148,6 @@ class RemovedAsCustodianEmail:
         }
         rendered = t.render(context)
         return rendered
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
