@@ -14,6 +14,7 @@ from django.core.mail import send_mail
 from django.db.models import Sum, Q, Count, Value
 from django.shortcuts import render
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
@@ -408,6 +409,10 @@ class IndexTemplateView(TemplateView):
                 section_id_set = set([s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
                 section_list = shared_models.Section.objects.filter(id__in=section_id_set)
             context["section_list"] = section_list
+
+        messages.warning(self.request,
+                      mark_safe(_("<b class='red-font blink-me'>PLEASE NOTE: This database is currently being updated. Please refrain from entering new data until this message is no longer present from the home page.</b>")))
+
         return context
 
 
