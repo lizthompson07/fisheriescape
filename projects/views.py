@@ -1080,7 +1080,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # this is a temp view DJF created to walkover the `program` field to the new `programs` field
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def temp_formset(request):
+def temp_formset(request, region, fy, section_str=None):
     context = {}
     # if the formset is being submitted
     if request.method == 'POST':
@@ -1096,17 +1096,27 @@ def temp_formset(request):
     # otherwise the formset is just being displayed
     else:
         # prep the formset...for display
+        qs = models.Project.objects.filter(
+                year=fy,
+                section__division__branch__region__id=region,
+                functional_group__isnull=True
+            ).order_by("functional_group")
+
+        if section_str:
+            qs = qs.filter(section__name__icontains=section_str)
+
         formset = forms.TempFormSet(
-            queryset=models.Project.objects.filter(submitted=True, year=2020, section__division__branch__region__id=1,
-                                                   programs__isnull=True).order_by("program")
+            queryset= qs
         )
     context['formset'] = formset
     context['my_object'] = models.Project.objects.first()
     context['field_list'] = [
-        'project_title',
-        'program',
-        'programs',
-        'tags',
+        "project_title",
+        "section",
+        "funding_sources",
+        "activity_type",
+        "default_funding_source",
+        "functional_group",
     ]
     return render(request, 'projects/temp_formset.html', context)
 
