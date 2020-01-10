@@ -1,0 +1,81 @@
+{% extends "projects/projects_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% block content %}
+
+    {% get_current_language as LANG %}
+
+    <style>
+        table, td {
+            font-size: 12px;
+        }
+
+        .project-table {
+
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:index' %}">
+                    {% trans "Home" %}
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ object_list.first.section }}
+            </li>
+        </ol>
+    </nav>
+
+
+    <div class="container-fluid">
+        <div class="mb-3">
+            <h1>
+                {{ object_list.first.section }}
+            </h1>
+        </div>
+        <div class="mb-3">
+            <form class="form" action="." method="get" id="filter-form">
+                <div class="row">
+                    {% for field in filter.form %}
+                        <div class="col-2">{% bootstrap_field field placeholder="" size="small" %}</div>
+                    {% endfor %}
+                    <div class="col"><br><input type="submit" value="Filter" class="btn btn-warning btn-sm"></div>
+                </div>
+            </form>
+        </div>
+        <div class="mb-5">
+            {% include "projects/_section_financials.html" %}
+        </div>
+        <div class="mb-5">
+            {% include "projects/_section_projects.html" %}
+        </div>
+        <div class="mb-5">
+            {% include "projects/_section_funding_sources.html" %}
+        </div>
+        <div class="mb-5">
+            {% include "projects/_section_functional_groups.html" %}
+        </div>
+        <div class="mb-5">
+            {% include "projects/_section_activity_types.html" %}
+        </div>
+        <div class="mb-5">
+            {% include "projects/_section_staff.html" %}
+        </div>
+
+
+    </div>
+{% endblock %}
+
+{% block body_js %}
+
+    <script type="application/javascript">
+
+    </script>
+{% endblock %}

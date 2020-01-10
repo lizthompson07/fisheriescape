@@ -1,0 +1,51 @@
+{% extends "projects/projects_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:index' %}">
+                    {% trans "Home" %}
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:section_project_list' object.section.id %}">
+                    {{ object.section }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ object.project_title }}
+            </li>
+        </ol>
+    </nav>
+
+
+    <div class="container">
+
+        <div class="mb-3">
+            <h4>
+                {% trans "PROJECT OVERVIEW" %}
+            </h4>
+
+            <h1>
+                {{ object }} ({{ object.id }})
+            </h1>
+        </div>
+
+        <hr>
+
+    </div>
+
+
+
+    <div class="container">
+        {% include "projects/_project_content.html" %}
+    </div>
+
+    </div>
+
+{% endblock content %}
