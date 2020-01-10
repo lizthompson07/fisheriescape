@@ -313,8 +313,8 @@ class IndexView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         messages.info(request,
                       mark_safe(_("Please note that this site is only intended for the storage of <b>unclassified information</b>.")))
-        messages.warning(request,
-                      mark_safe(_("<b>On Friday January 10, 2020 at 12pm AST, the site will be down for a few hours for scheduled maintenance. Sorry for any inconvenience.</b>")))
+        # messages.warning(request,
+        #               mark_safe(_("<b>On Friday January 10, 2020 at 12pm AST, the site will be down for a few hours for scheduled maintenance. Sorry for any inconvenience.</b>")))
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
