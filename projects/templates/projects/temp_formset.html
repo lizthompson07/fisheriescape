@@ -41,6 +41,8 @@
 
                         <td style="width: 20%">{{ form.instance.project_title }}</td>
                         <td style="width: 15%">{{ form.instance.section }}</td>
+                        <td>{{ form.instance.project_leads }}</td>
+                        <td>{% get_field_value form.instance "programs" %}
                         <td>{{ form.instance.funding_sources }}</td>
                         {% for field in form %}
                             <td>
