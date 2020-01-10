@@ -17,11 +17,15 @@
             border: 1px solid blue;
         }
 
+        .main-item {
+            font-size: larger;
+        }
+
     </style>
     <br>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-7">
+            <div class="col">
 
                 <div class="jumbotron">
                     <div class="row">
@@ -35,9 +39,6 @@
                         </div>
                     </div>
                     <hr>
-                    <h3>
-                        {#                        {% trans "Science Project Planning " %}#}
-                    </h3>
                     {% if user.is_authenticated %}
                         <br>
                     {% else %}
@@ -68,21 +69,21 @@
                             <div class="row">
                                 <div class="col-3">
                                     <h4>
-                                        {% trans "Projects:" %}
+                                        {% trans "Projects" %}
                                     </h4>
 
                                     <ul>
-                                        <li>
+                                        <li class="main-item">
                                             <a href="{{ new_proj_url }}">
                                                 {% trans "New" %}
                                             </a>
                                         </li>
-                                        <li>
+                                        <li class="main-item">
                                             <a href="{{ my_proj_url }}">
                                                 {% trans "Your Projects" %} ({{ user.staff_instances.count }})
                                             </a>
                                         </li>
-                                        <li>
+                                        <li class="main-item">
                                             <a href="{{ all_proj_url }}">
                                                 {% trans "Explore Projects" %}
                                             </a>
@@ -91,16 +92,14 @@
                                 </div>
                                 <div class="col">
                                     {% if section_list.count %}
-                                        <div class="mb-5">
+                                        <div class="mb-4">
                                             <h4>
-                                                {% blocktrans with section_list.first.division.branch.region as region %}
-                                                    {{ region }} Regional Views:
-                                                {% endblocktrans %}
+                                                {% trans "Regional Views" %}
                                             </h4>
                                             <ul>
                                                 {% if section_list.first.division.branch.region.id == 1 %}
                                                     <li>
-                                                        <a href="{% url 'projects:ips_program_list' 1 2021  %}">
+                                                        <a href="{% url 'projects:ips_program_list' 1 2021 %}">
                                                             2019-2020 Gulf Region Interactive Workplan
                                                         </a>
                                                     </li>
@@ -112,10 +111,10 @@
                                                 {% endif %}
                                             </ul>
                                         </div>
-                                        <div class="mb-5">
+                                        <div class="mb-4">
 
                                             <h4>
-                                                {% trans "Your Sections:" %}
+                                                {% trans "Your Sections" %}
                                             </h4>
                                             <ul>
                                                 {% for section in user.shared_models_sections.all %}
@@ -130,9 +129,9 @@
 
                                         {% if section_list.count > user.shared_models_sections.count %}
 
-                                            <div class="mb-5">
+                                            <div class="mb-4">
                                                 <h4>
-                                                    {% trans "Other Sections Opened to You:" %}
+                                                    {% trans "Other Sections Opened to You" %}
                                                 </h4>
                                                 <ul>
                                                     {% for section in section_list %}

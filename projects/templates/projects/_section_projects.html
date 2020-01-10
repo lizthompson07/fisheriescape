@@ -27,6 +27,12 @@
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
+                            <td>
+                                <a href="#" pop-href="{% url 'projects:project_approve' object.id %}"
+                                   class="stop-pop btn btn-sm btn-danger">
+                                    {% trans "unapprove" %}
+                                </a>
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>
@@ -66,7 +72,15 @@
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
                             <td>
-                                <a href="under-dev" class="btn btn-sm btn-success">{% trans "approve" %}</a>
+                                <a href="#" pop-href="{% url 'projects:project_submit' object.id 1 %}"
+                                   class="stop-pop btn btn-sm btn-warning">
+                                    {% trans "un-submit" %}
+                                </a>
+
+                                <a href="#" pop-href="{% url 'projects:project_approve' object.id %}"
+                                   class="stop-pop btn btn-sm btn-success">
+                                    {% trans "approve" %}
+                                </a>
                             </td>
                         </tr>
                     {% empty %}
@@ -106,8 +120,14 @@
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
                             <td>
-                                <a href="under-dev" class="btn btn-sm btn-warning">{% trans "submit" %}</a>
-                                <a href="under-dev" class="btn btn-sm btn-danger">{% trans "delete" %}</a>
+                                <a href="#" pop-href="{% url 'projects:project_submit' object.id 1 %}"
+                                   class="stop-pop btn btn-sm btn-warning">
+                                    {% trans "submit" %}
+                                </a>
+                                <a href="#" pop-href="{% url 'projects:project_delete' object.id 1 %}"
+                                   class="stop-pop btn btn-sm btn-danger">
+                                    {% trans "delete" %}
+                                </a>
                             </td>
                         </tr>
                     {% empty %}
