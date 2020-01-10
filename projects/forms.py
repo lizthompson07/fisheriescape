@@ -143,6 +143,18 @@ class ProjectSubmitForm(forms.ModelForm):
         }
 
 
+class ProjectNotesForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            'last_modified_by',
+            'meeting_notes',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
 class IPSProjectMeetingForm(forms.ModelForm):
     class Meta:
         model = models.Project
