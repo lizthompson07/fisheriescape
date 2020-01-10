@@ -46,7 +46,7 @@
             </li>
 
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Program Summary" %}
+                {% trans "Functional Group Summary" %}
             </li>
         </ol>
     </nav>
@@ -56,10 +56,14 @@
         <div class="row">
             <div class="col-8">
                 <h1>
-                    {{ fy }} {% trans "Summary of Programs by Section" %} ({{ region }})
+                    {{ fy }} {% trans "Summary of Functional Groups by Section" %} ({{ region }})
                 </h1>
                 <h3>
-                    {% trans "Projects submitted and approved by section heads" %}
+                    {% if region.id == 1 %}
+                        {% trans "Projects submitted and approved by section heads" %}
+                    {% else %}
+                        {% trans "Projects submitted by section heads" %}
+                    {% endif %}
                 </h3>
             </div>
             <div class="col">
@@ -99,10 +103,10 @@
         <div class="">
             <table class="table table-hover table-sm">
                 <thead>
-                <th>{% trans "Program" %}</th>
-                <th class="center-col">{% trans "Core / flex" %}</th>
+                <th>{% trans "Functional Group" %}</th>
                 <th class="center-col">{% trans "Number of projects" %}</th>
                 <th>{% trans "Project leads" %}</th>
+                <th>{% trans "Notes" %}</th>
                 </thead>
                 <tbody>
 
@@ -114,59 +118,31 @@
                         <tr>
                             <td colspan="4"></td>
                         </tr>
-                        <tr  href="{% url 'projects:ips_project_list' fy.id s.id %}" style="border: 20px" class="section">
+                        <tr href="{% url 'projects:iw_project_list' fy.id s.id %}" style="border: 20px" class="section">
                             <td colspan="6" class="section">
                                 {% with my_dict|lookup:d|lookup:s|lookup:"projects" as projects %}
                                     SECTION: {{ s }} ({{ projects.count }} project{{ projects.count|pluralize }})
                                 {% endwith %}
-                                &nbsp;
-                                <a href="#" pop-href="{% url 'projects:get_create_section_note' s.id fy.id %}"
-                                   class="stop-pop badge badge-secondary">Add/Edit Notes</a>
-
                             </td>
                         </tr>
-                        {% for p in my_dict|lookup:d|lookup:s|lookup:"programs" %}
-                            <tr href="{% url 'projects:ips_project_list' fy.id s.id p.id %}">
-                                <td colspan="1" class="program">{{ p.short_name }}</td>
-                                <td colspan="1" class="center-col {% if p.is_core %}green-font{% else %}orange-font{% endif %}">
-                                    {{ p.is_core|yesno:"core,flex" }}
-                                </td>
-                                <td colspan="1" class="center-col">{{ my_dict|lookup:d|lookup:s|lookup:"programs"|lookup:p|lookup:"project_count" }}</td>
-                                <td colspan="1" class="program">{{ my_dict|lookup:d|lookup:s|lookup:"programs"|lookup:p|lookup:"leads" }}</td>
+                        {% for group in my_dict|lookup:d|lookup:s|lookup:"groups" %}
+                            {% if group %}
+                                {% url 'projects:iw_project_list' fy.id s.id group.id as my_url %}
+                            {% else %}
+                                {% url 'projects:iw_project_list' fy.id s.id as my_url %}
+                            {% endif %}
+                            <tr href="{{ my_url }}">
+                            {% trans "<em class='red-font'>No functional group assigned</em>" as no_group %}
+                            <td colspan="1" class="program">{{ group|nz:no_group }}</td>
+                            <td colspan="1"
+                                class="center-col">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"project_count" }}</td>
+                            <td colspan="1"
+                                class="program">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"leads" }}</td>
+                            <td colspan="1"
+                                class="program">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"leads" }}</td>
                             </tr>
                         {% endfor %}
 
-                        {#  PRESSURES and NOTES #}
-                        {% for section_note in s.notes.all %}
-                            {% if section_note.fiscal_year == fy and section_note.pressures %}
-                                <tr>
-                                    <td colspan="4" class="pressures">
-                                        <div class="row">
-                                            <div class="col-1">
-                                                PRESSURES:
-                                            </div>
-                                            <div class="col">
-                                                {{ section_note.pressures_html|safe }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            {% if section_note.fiscal_year == fy and section_note.general_notes %}
-                                <tr>
-                                    <td colspan="4" class="general-notes">
-                                        <div class="row">
-                                            <div class="col-1">
-                                                GENERAL NOTES:
-                                            </div>
-                                            <div class="col">
-                                                {{ section_note.general_notes_html|safe }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
 
                     {% endfor %}
                     <tr>
@@ -177,7 +153,7 @@
             </table>
         </div>
 
-
+        {{ my_dict }}
     </div>
 
 {% endblock content %}
