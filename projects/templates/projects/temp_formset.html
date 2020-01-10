@@ -36,7 +36,6 @@
                 </thead>
                 <tbody>
                 {% for form in formset %}
-                    {% bootstrap_form_errors form %}
                     <tr>
 
                         <td style="width: 20%">{{ form.instance.project_title }}</td>
