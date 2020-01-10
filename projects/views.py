@@ -1113,6 +1113,8 @@ def temp_formset(request, region, fy, section_str=None):
     context['field_list'] = [
         "project_title",
         "section",
+        "leads",
+        "programs",
         "funding_sources",
         "activity_type",
         "default_funding_source",
