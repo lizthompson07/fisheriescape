@@ -1092,7 +1092,7 @@ def temp_formset(request, region, fy, section_str=None):
             # pass the specimen through the make_flags helper function to assign any QC flags
 
             # redirect back to the observation_formset with the blind intention of getting another observation
-            return HttpResponseRedirect(reverse("projects:formset"))
+            return HttpResponseRedirect(reverse("projects:formset", kwargs={"region": region, "fy": fy, "section_str":section_str}))
     # otherwise the formset is just being displayed
     else:
         # prep the formset...for display
