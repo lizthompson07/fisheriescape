@@ -604,11 +604,25 @@ LevelFormSet = modelformset_factory(
 class TempForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ["project_title", "programs", "tags"]
+        fields = [
+            # "project_title",
+            # "section",
+            # "funding_sources",
+            "activity_type",
+            "default_funding_source",
+            "functional_group",
+        ]
         widgets = {
-            'programs': forms.SelectMultiple(attrs=chosen_js),
-            'tags': forms.SelectMultiple(attrs=chosen_js),
+            # 'activity_type': forms.SelectMultiple(attrs=chosen_js),
+            # 'activity_type': forms.SelectMultiple(attrs=chosen_js),
+            # 'tags': forms.SelectMultiple(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups.all()]
+        functional_group_choices.insert(0, tuple((None, "---")))
+        self.fields['functional_group'].choices = functional_group_choices
 
 
 TempFormSet = modelformset_factory(

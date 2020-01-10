@@ -41,7 +41,8 @@ urlpatterns = [
     path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
 
     #  this was used to walk over program to programs
-    path('project-formset/', views.temp_formset, name="formset"),
+    path('project-formset/region/<int:region>/fy/<int:fy>/', views.temp_formset, name="formset"),
+    path('project-formset/region/<int:region>/fy/<int:fy>/section/<str:section_str>/', views.temp_formset, name="formset"),
     path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
 
     # USER #

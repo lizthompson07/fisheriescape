@@ -106,7 +106,6 @@
                 <th>{% trans "Functional Group" %}</th>
                 <th class="center-col">{% trans "Number of projects" %}</th>
                 <th>{% trans "Project leads" %}</th>
-                <th>{% trans "Notes" %}</th>
                 </thead>
                 <tbody>
 
@@ -136,8 +135,6 @@
                             <td colspan="1" class="program">{{ group|nz:no_group }}</td>
                             <td colspan="1"
                                 class="center-col">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"project_count" }}</td>
-                            <td colspan="1"
-                                class="program">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"leads" }}</td>
                             <td colspan="1"
                                 class="program">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"leads" }}</td>
                             </tr>

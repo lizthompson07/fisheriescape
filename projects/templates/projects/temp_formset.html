@@ -24,15 +24,13 @@
             {% csrf_token %}
 
             {{ formset.management_form }}
-            {% bootstrap_formset_errors formset %}
+{#            {% bootstrap_formset_errors formset %}#}
 
-            <table>
+            <table class="table-sm table-bordered table sortable" style="font-size: small">
                 <thead>
                 <tr>
                     {% for field in field_list %}
-                        {% if not field == "observation_type" %}
-                            <th scope="col">{% get_verbose_label my_object field %}</th>
-                        {% endif %}
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
                     {% endfor %}
                 </tr>
                 </thead>
@@ -40,19 +38,14 @@
                 {% for form in formset %}
                     {% bootstrap_form_errors form %}
                     <tr>
+
+                        <td style="width: 20%">{{ form.instance.project_title }}</td>
+                        <td style="width: 15%">{{ form.instance.section }}</td>
+                        <td>{{ form.instance.funding_sources }}</td>
                         {% for field in form %}
-                            {% if not field.name == "observation_type" %}
-                                <td>
-                                    {% bootstrap_field field size='small' show_label=False placeholder="" %}
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                        {% for field in form %}
-                            {% if field.name == "observation_type" %}
-                                <td>
-                                    {% bootstrap_field field size='small' show_label=False placeholder="" %}
-                                </td>
-                            {% endif %}
+                            <td>
+                                {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                            </td>
                         {% endfor %}
                         {% if form.instance.id %}
                         {% else %}
