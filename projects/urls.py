@@ -17,9 +17,11 @@ urlpatterns = [
     path('project/<int:pk>/print/', views.ProjectPrintDetailView.as_view(), name="project_print"),
     path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
+    path('project/<int:pk>/delete/popout/<int:pop>/', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('project/<int:pk>/submit/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
+    path('project/<int:pk>/submit/popout/<int:pop>/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
     path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
-    path('approval/project/<int:pk>/level/<str:level>/', views.ProjectApprovalUpdateView.as_view(), name="project_approval"),
+    path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
 
     # From management views
     ################

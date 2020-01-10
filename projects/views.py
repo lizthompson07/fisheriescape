@@ -497,6 +497,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
             "project_title",
             "activity_type",
             "project_leads|{}".format("Leads"),
+            "meeting_notes",
         ]
 
         object_list = context.get("object_list")
@@ -560,7 +561,6 @@ class SectionListView(LoginRequiredMixin, FilterView):
 
         # financials
         context['financials_dict'] = section_financial_summary(object_list.first().section, object_list.first().year)
-
 
         return context
 
@@ -697,6 +697,12 @@ class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     form_class = forms.ProjectSubmitForm
     template_name = "projects/project_submit_form.html"
 
+    def get_template_names(self):
+        if self.kwargs.get("pop"):
+            return "projects/project_action_form_popout.html"
+        else:
+            return "projects/project_submit_form.html"
+
     def get_initial(self):
         if self.object.submitted:
             submit = False
@@ -710,7 +716,13 @@ class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        project = self.object
+        project = self.get_object()
+
+        if self.kwargs.get("pop"):
+            action = _("Un-submit") if self.object.submitted else _("Submit")
+            context["action"] = action
+            btn_color = "danger" if self.object.submitted else "success"
+            context["btn_color"] = btn_color
 
         # If this is a gulf region project, only show the gulf region fields
         if project.section.division.branch.region.id == 1:
@@ -728,27 +740,31 @@ class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        # create a new email object
-        email = emails.ProjectSubmissionEmail(self.object)
-        # send the email object
-        if settings.PRODUCTION_SERVER:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
+
+        # if this is a popout, it is a manager or admin doing the submission and no email is needed
+        if self.kwargs.get("pop"):
+            return HttpResponseRedirect(reverse('projects:close_me'))
         else:
-            print(email)
-        messages.success(self.request,
-                         _("The project was submitted and an email has been sent to notify the section head!"))
-        return super().form_valid(form)
+            # Send out an email only when a project is submitted
+            if my_object.submitted:
+                # create a new email object
+                email = emails.ProjectSubmissionEmail(self.object)
+                # send the email object
+                if settings.PRODUCTION_SERVER:
+                    send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
+                              recipient_list=email.to_list, fail_silently=False, )
+                else:
+                    print(email)
+            messages.success(self.request,
+                             _("The project was submitted and an email has been sent to notify the section head!"))
+            return super().form_valid(form)
 
 
 class ProjectApprovalUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     model = models.Project
-    template_name = "projects/project_approval_form_popout.html"
+    template_name = "projects/project_action_form_popout.html"
     success_url = reverse_lazy("projects:close_me")
-
-    def get_form_class(self):
-        level = self.kwargs["level"]
-        return forms.SectionApprovalForm
+    form_class = forms.ProjectApprovalForm
 
     def get_initial(self):
         return {
@@ -757,7 +773,20 @@ class ProjectApprovalUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        action = _("Un-approve") if self.object.approved else _("Approve")
+        context["action"] = action
+        btn_color = "danger" if self.object.submitted else "success"
+        context["btn_color"] = btn_color
         return context
+
+    def form_valid(self, form):
+        my_object = form.save(commit=False)
+        if my_object.approved:
+            my_object.approved = False
+        else:
+            my_object.approved = True
+        my_object.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
 
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):
@@ -810,12 +839,32 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
 class ProjectDeleteView(CanModifyProjectRequiredMixin, DeleteView):
     model = models.Project
-    success_url = reverse_lazy('projects:my_project_list')
     success_message = _('The project was successfully deleted!')
+
+    def get_template_names(self):
+        if self.kwargs.get("pop"):
+            return "projects/project_action_form_popout.html"
+        else:
+            return "projects/project_confirm_delete.html"
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        if self.kwargs.get("pop"):
+            return reverse('projects:close_me')
+        else:
+            return reverse_lazy('projects:my_project_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs.get("pop"):
+            context["delete_message"] = _("Are you certain you want to delete this project? <br><br> This action is permanent.")
+            context["action"] = _("Delete")
+            context["btn_color"] = "danger"
+        return context
+
 
 
 class ProjectCloneUpdateView(ProjectUpdateView):

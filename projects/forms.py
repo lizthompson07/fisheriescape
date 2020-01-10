@@ -134,6 +134,7 @@ class ProjectSubmitForm(forms.ModelForm):
         model = models.Project
         fields = [
             'last_modified_by',
+            'meeting_notes',
             'submitted',
         ]
         widgets = {
@@ -163,12 +164,12 @@ class SectionNoteForm(forms.ModelForm):
         }
 
 
-class SectionApprovalForm(forms.ModelForm):
+class ProjectApprovalForm(forms.ModelForm):
     class Meta:
         model = models.Project
         fields = [
             'last_modified_by',
-            # 'section_head_feedback',
+            'meeting_notes',
             'approved',
         ]
         widgets = {
