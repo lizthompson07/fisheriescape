@@ -97,18 +97,16 @@
                                                 {% trans "Regional Views" %}
                                             </h4>
                                             <ul>
-                                                {% if section_list.first.division.branch.region.id == 1 %}
-                                                    <li>
-                                                        <a href="{% url 'projects:ips_program_list' 1 2021 %}">
-                                                            2019-2020 Gulf Region Interactive Workplan
-                                                        </a>
-                                                    </li>
-                                                {% else %}
-                                                    <em>
-                                                        {% trans "There nothing to display here for your region." %}
-                                                    </em>
-
-                                                {% endif %}
+                                                <li>
+                                                    <a href="{% url 'projects:iw_group_list' 1 2021 %}">
+                                                        2020-2021 Gulf Region Interactive Workplan
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{% url 'projects:iw_group_list' 2 2021 %}">
+                                                        2020-2021 Maritimes Region Interactive Workplan
+                                                    </a>
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="mb-4">

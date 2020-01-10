@@ -20,6 +20,7 @@ urlpatterns = [
     path('project/<int:pk>/delete/popout/<int:pop>/', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('project/<int:pk>/submit/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
     path('project/<int:pk>/submit/popout/<int:pop>/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
+    path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),
     path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
     path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
 
@@ -30,6 +31,7 @@ urlpatterns = [
     #
     path('section/<int:section>/', views.SectionListView.as_view(), name="section_project_list"),
     path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
+    path('project/<int:pk>/overview/popout/<int:pop>/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
 
     # STAFF #
     #########
@@ -181,15 +183,18 @@ urlpatterns = [
          views.PDFDataReport.as_view(), name="pdf_data"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
-    # EXTRAS #
-    ##########
-    path('regional-meeting/region/<int:region>/programs-by-section/<int:fiscal_year>/', views.IPSProgramList.as_view(), name="ips_program_list"),
-    path('regional-meeting/<int:fiscal_year>/section/<int:section>/program/<int:program>/projects/',
-         views.IPSProjectList.as_view(), name="ips_project_list"),
+
+    # INTERACTIVE WORKPLANS #
+    #########################
+    path('interactive-workplan/region/<int:region>/groups-by-section/<int:fiscal_year>/', views.IWGroupList.as_view(), name="iw_group_list"),
+
+
+    path('regional-meeting/<int:fiscal_year>/section/<int:section>/group/<int:group>/projects/',
+         views.IWProjectList.as_view(), name="iw_project_list"),
     path('regional-meeting/<int:fiscal_year>/section/<int:section>/projects/',
-         views.IPSProjectList.as_view(), name="ips_project_list"),
-    path('regional-meeting/project/<int:pk>/program/<int:program>/', views.IPSProjectUpdateView.as_view(), name="ips_project_edit"),
-    path('regional-meeting/project/<int:pk>/', views.IPSProjectUpdateView.as_view(), name="ips_project_edit"),
+         views.IWProjectList.as_view(), name="iw_project_list"),
+    # path('regional-meeting/project/<int:pk>/functiona-group/<int:group>/', views.IWProjectUpdateView.as_view(), name="ips_project_edit"),
+    # path('regional-meeting/project/<int:pk>/', views.IPSProjectUpdateView.as_view(), name="ips_project_edit"),
 
     path('section-note/<int:pk>/fiscal-year/<int:fy>/', views.SectionNoteUpdateView.as_view(), name="section_note_edit"),
     path('get-section-note/<int:section>/<int:fy>/', views.get_create_section_note, name="get_create_section_note"),
