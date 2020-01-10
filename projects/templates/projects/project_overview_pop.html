@@ -1,0 +1,39 @@
+{% extends "pop_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% block body %}
+
+    <div class="container">
+
+        <div class="mb-3">
+            <h4>
+                {% trans "PROJECT OVERVIEW" %}
+            </h4>
+
+            <h1>
+                {{ object }} ({{ object.id }})
+            </h1>
+        </div>
+        <hr>
+    </div>
+
+
+
+    <div class="container">
+        {% include "projects/_project_content.html" %}
+    </div>
+
+{% endblock %}
+
+{% block body_js %}
+    <script>
+        window.resizeTo(width = 1500, height = 800);
+        window.onunload = refreshParent;
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+    </script>
+{% endblock %}
+

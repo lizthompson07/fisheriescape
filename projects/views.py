@@ -155,14 +155,7 @@ class ManagerOrAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        # we need to get the pk for the project. this might be under 1 or 2 kwargs: pk or project
-        if self.kwargs.get("pk"):
-            project_id = self.kwargs.get("pk")
-        else:
-            project_id = self.kwargs.get("project")
-        project = models.Project.objects.get(pk=project_id)
-        if is_admin_or_project_manager(self.request.user, project):
-            return True
+        return is_management_or_admin(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -239,11 +232,7 @@ def financial_summary_data(project):
     return my_dict
 
 
-def section_financial_summary(section, fy=None):
-    project_list = section.projects.all()
-    if fy:
-        project_list.filter(year=fy)
-
+def multiple_projects_financial_summary(project_list):
     my_dict = {}
 
     # first, get the list of funding sources
@@ -516,7 +505,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
             fs_dict[fs] = approved_projects.filter(default_funding_source=fs)
         context['fs_dict'] = fs_dict
 
-        # need to create a dict for displaying projects by thematic group.
+        # need to create a dict for displaying projects by functional group.
         fg_dict = {}
         functional_groups = set([project.functional_group for project in approved_projects])
         for fg in functional_groups:
@@ -560,7 +549,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context['user_dict'] = user_dict
 
         # financials
-        context['financials_dict'] = section_financial_summary(object_list.first().section, object_list.first().year)
+        context['financials_dict'] = multiple_projects_financial_summary(object_list)
 
         return context
 
@@ -619,11 +608,13 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
 class ProjectOverviewDetailView(ProjectDetailView):
 
     def get_template_names(self):
-        return 'projects/project_overview.html'
+        if self.kwargs.get("pop"):
+            return 'projects/project_overview_pop.html'
+        else:
+            return 'projects/project_overview.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         return context
 
 
@@ -695,7 +686,6 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectSubmitForm
-    template_name = "projects/project_submit_form.html"
 
     def get_template_names(self):
         if self.kwargs.get("pop"):
@@ -719,7 +709,7 @@ class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
         project = self.get_object()
 
         if self.kwargs.get("pop"):
-            action = _("Un-submit") if self.object.submitted else _("Submit")
+            action = _("Un-submit Project") if self.object.submitted else _("Submit Project")
             context["action"] = action
             btn_color = "danger" if self.object.submitted else "success"
             context["btn_color"] = btn_color
@@ -758,6 +748,25 @@ class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
             messages.success(self.request,
                              _("The project was submitted and an email has been sent to notify the section head!"))
             return super().form_valid(form)
+
+
+class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    model = models.Project
+    form_class = forms.ProjectNotesForm
+    template_name = "projects/project_action_form_popout.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        action = _("Save")
+        context["action"] = action
+        btn_color = "primary"
+        context["btn_color"] = btn_color
+
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
 
 
 class ProjectApprovalUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
@@ -864,7 +873,6 @@ class ProjectDeleteView(CanModifyProjectRequiredMixin, DeleteView):
             context["action"] = _("Delete")
             context["btn_color"] = "danger"
         return context
-
 
 
 class ProjectCloneUpdateView(ProjectUpdateView):
@@ -2903,8 +2911,8 @@ class PDFCostSummaryReport(LoginRequiredMixin, PDFTemplateView):
 
 # EXTRAS #
 ##########
-class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
-    template_name = 'projects/ips_program_list.html'
+class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
+    template_name = 'projects/iw_group_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2918,8 +2926,11 @@ class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
             section__division__branch__region=my_region,
             year=fy,
             submitted=True,
-            approved=True,
         )
+        # If GULF region, we will further refine the list of projects
+        if my_region.id == 1:
+            project_list = models.Project.objects.filter(approved=True)
+
         division_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by()
         section_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by()
 
@@ -2930,67 +2941,76 @@ class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
                 if s.division == d:
                     my_dict[d][s] = {}
 
-                    # get a list of projects..  then programs
-                    project_list = s.projects.filter(year=fy, submitted=True, approved=True)
-                    program_list = models.Program.objects.filter(projects__in=project_list).distinct().order_by("-is_core", )
-                    my_dict[d][s]["projects"] = project_list
-                    my_dict[d][s]["programs"] = {}
+                    # for each section, get a list of projects..  then programs
+                    project_list = s.projects.filter(year=fy, submitted=True)
+                    if my_region.id == 1:
+                        project_list = project_list.filter(approved=True)
 
-                    for p in program_list:
-                        my_dict[d][s]["programs"][p] = {}
+                    group_list = set([project.functional_group for project in project_list])
+
+                    my_dict[d][s]["projects"] = project_list
+                    my_dict[d][s]["groups"] = {}
+                    for group in group_list:
+                        my_dict[d][s]["groups"][group] = {}
 
                         # get a list of project counts
-                        project_count = project_list.filter(programs=p).count()
-                        my_dict[d][s]["programs"][p]["project_count"] = project_count
+                        project_count = project_list.filter(functional_group=group).count()
+                        my_dict[d][s]["groups"][group]["project_count"] = project_count
 
                         # get a list of project leads
                         leads = listrify(
                             list(set([str(staff.user) for staff in
-                                      models.Staff.objects.filter(project__in=project_list.filter(programs=p), lead=True) if
+                                      models.Staff.objects.filter(project__in=project_list.filter(functional_group=group), lead=True) if
                                       staff.user])))
-                        my_dict[d][s]["programs"][p]["leads"] = leads
+                        my_dict[d][s]["groups"][group]["leads"] = leads
         context['my_dict'] = my_dict
         return context
 
 
-class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
-    template_name = 'projects/ips_project_list.html'
+class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
+    template_name = 'projects/iw_project_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
         section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
-        program = models.Program.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
+        functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get("group") else None
         context['fy'] = fy
         context['section'] = section
-        context['program'] = program
+        context['functional_group'] = functional_group
 
         project_list = models.Project.objects.filter(
-            section=section,
             year=fy,
+            section=section,
             submitted=True,
-            approved=True,
         ).order_by("id")
 
-        if self.kwargs.get("program"):
-            project_list = project_list.filter(programs=program)
+        # If from gulf region, filter out any un approved projects
+        if section.division.branch.region.id == 1:
+            project_list = project_list.filter(
+                approved=True,
+            )
+
+        # If a function group is provided keep only those projects
+        if self.kwargs.get("group"):
+            project_list = project_list.filter(functional_group=functional_group, )
 
         context['project_list'] = project_list
+        context["field_list"] = [
+            "id|{}".format(_("Project Id")),
+            "project_title",
+            "functional_group",
+            "activity_type",
+            "default_funding_source",
+            "tags",
+            "project_leads|{}".format(_("Project leads")),
+            "total_fte|{}".format(_("Total FTE")),
+            "total_ot|{}".format(_("Total OT")),
+            "meeting_notes",
+        ]
 
-        # import color schemes from funding_source table
-        context["abase"] = models.FundingSource.objects.get(pk=1).color
-        context["bbase"] = models.FundingSource.objects.get(pk=2).color
-        context["cbase"] = models.FundingSource.objects.get(pk=3).color
-
-        # calculate totals
-        for x in ['a', 'b', 'c', 'total']:
-            context[x + "_salary"] = sum([getattr(p, x + "_salary") for p in project_list])
-            context[x + "_om"] = sum([getattr(p, x + "_om") for p in project_list])
-            context[x + "_capital"] = sum([getattr(p, x + "_capital") for p in project_list])
-
-        context["total_ot"] = sum([p.total_ot for p in project_list])
-        context["total_fte"] = sum([p.total_fte for p in project_list])
+        context["financials_dict"] = multiple_projects_financial_summary(project_list)
 
         return context
 
