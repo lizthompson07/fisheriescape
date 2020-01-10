@@ -9,7 +9,7 @@ class SendInstructionsEmail:
         self.subject = 'Your NAS user account has been created'
         self.message = self.load_html_template(object)
         self.from_email = from_email
-        self.to_list = [admin_email, object.user.email]
+        self.to_list = [object.user.email]
 
     def load_html_template(self, object):
         t = loader.get_template('shares/email_instructions.html')

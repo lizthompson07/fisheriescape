@@ -430,7 +430,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
     def form_valid(self, form):
         my_reviewer = form.save(commit=False)
 
-        is_approved = form.cleaned_data.get("is_approved")
+        approved = form.cleaned_data.get("approved")
         stay_on_page = form.cleaned_data.get("stay_on_page")
         changes_requested = form.cleaned_data.get("changes_requested")
         print("stay on page", stay_on_page)
@@ -452,7 +452,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                 messages.success(self.request, _("Success! An email has been sent to the trip owner."))
 
             # if it was approved, then we change the reviewer status to 'approved'
-            elif is_approved:
+            elif approved:
                 my_reviewer.status_id = 2
                 my_reviewer.status_date = timezone.now()
             # if it was approved, then we change the reviewer status to 'approved'
