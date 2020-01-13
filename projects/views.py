@@ -152,6 +152,19 @@ class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_projects_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_section_heads_only'))
+        return super().dispatch(request, *args, **kwargs)
+
+
 class ManagerOrAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
@@ -1092,21 +1105,21 @@ def temp_formset(request, region, fy, section_str=None):
             # pass the specimen through the make_flags helper function to assign any QC flags
 
             # redirect back to the observation_formset with the blind intention of getting another observation
-            return HttpResponseRedirect(reverse("projects:formset", kwargs={"region": region, "fy": fy, "section_str":section_str}))
+            return HttpResponseRedirect(reverse("projects:formset", kwargs={"region": region, "fy": fy, "section_str": section_str}))
     # otherwise the formset is just being displayed
     else:
         # prep the formset...for display
         qs = models.Project.objects.filter(
-                year=fy,
-                section__division__branch__region__id=region,
-                functional_group__isnull=True
-            ).order_by("functional_group")
+            year=fy,
+            section__division__branch__region__id=region,
+            functional_group__isnull=True
+        ).order_by("functional_group")
 
         if section_str:
             qs = qs.filter(section__name__icontains=section_str)
 
         formset = forms.TempFormSet(
-            queryset= qs
+            queryset=qs
         )
     context['formset'] = formset
     context['my_object'] = models.Project.objects.first()
@@ -3029,4 +3042,60 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         context["financials_dict"] = multiple_projects_financial_summary(project_list)
 
+        return context
+
+
+# FUNCTIONAL GROUPS #
+#####################
+
+class FunctionalGroupListView(AdminRequiredMixin, ListView):
+    model = models.FunctionalGroup
+    template_name = 'projects/functionalgroup_list.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["field_list"] = [
+            'name',
+            'nom',
+            'program',
+            'sections',
+        ]
+        return context
+
+class FunctionalGroupUpdateView(AdminRequiredMixin, UpdateView):
+    model = models.FunctionalGroup
+    form_class = forms.FunctionalGroupForm
+    success_url = reverse_lazy('projects:group_list')
+    template_name = 'projects/functionalgroup_form.html'
+
+
+class FunctionalGroupCreateView(AdminRequiredMixin, CreateView):
+    model = models.FunctionalGroup
+    form_class = forms.FunctionalGroupForm
+    success_url = reverse_lazy('projects:group_list')
+    template_name = 'projects/functionalgroup_form.html'
+
+
+class FunctionalGroupDeleteView(AdminRequiredMixin, DeleteView):
+    model = models.FunctionalGroup
+    success_url = reverse_lazy('projects:group_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'projects/functionalgroup_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class FunctionalGroupDetailView(AdminRequiredMixin, DetailView):
+    model = models.FunctionalGroup
+    template_name = 'projects/functionalgroup_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'code',
+            'name',
+            'allotment_category',
+        ]
         return context
