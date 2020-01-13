@@ -23,7 +23,7 @@
                     {% endfor %}
                     </thead>
                     {% for object in approved_projects %}
-                        <tr newtab href="{% url 'projects:project_overview' object.id %}">
+                        <tr href="{% url 'projects:project_overview' object.id %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
@@ -67,7 +67,7 @@
                     {% endfor %}
                     </thead>
                     {% for object in unapproved_projects %}
-                        <tr newtab href="{% url 'projects:project_overview' object.id %}">
+                        <tr href="{% url 'projects:project_overview' object.id %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
@@ -115,7 +115,7 @@
                     {% endfor %}
                     </thead>
                     {% for object in unsubmitted_projects %}
-                        <tr newtab href="{% url 'projects:project_overview' object.id %}">
+                        <tr href="{% url 'projects:project_overview' object.id %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
