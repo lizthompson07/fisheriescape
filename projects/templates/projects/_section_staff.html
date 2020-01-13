@@ -56,7 +56,7 @@
 
                                         </thead>
                                         {% for staff in qs.all %}
-                                            <tr newtab href="{% url 'projects:project_overview' staff.project.id %}"
+                                            <tr href="{% url 'projects:project_overview' staff.project.id %}"
                                                 class="{% if not staff.project.submitted %}red-font{% elif not staff.project.approved %}purple-font{% endif %}">
                                                 <td>
                                                     {{ staff.project.submitted|yesno }}
