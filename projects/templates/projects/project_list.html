@@ -77,61 +77,30 @@
         </div>
         <table class="table table-hover table-sm sortable">
             <thead>
-            <th scope="col" style="width: 120px;">
-                {% trans "Fiscal Year" %}
-            </th>
-            <th scope="col">
-                {% trans "Region" %}
-            <th scope="col">
-                {% trans "Division" %}
-            </th>
-            <th scope="col">
-                {% trans "Section" %}
-            </th>
-            <th scope="col" style="width: 35%">
-                {% trans "Title" %}
-            </th>
-            <th scope="col">
-                {% trans "Project Lead" %}
-            </th>
-            <th scope="col" style="width: 15%">
-                {% trans "Science Regional Program Name(s)" %}
-            </th>
-            <th scope="col" style="text-align:center; width: 8%">
-                {% trans "Tags" %}
-            </th>
-            <th scope="col">
-                {% trans "Submitted" %}
-            </th>
+            {% for field in field_list %}
+                {% if field == 'tags' %}
+                    <th style="width: 10%;">{% get_verbose_label object_list.first field %}</th>
+                {% else %}
+                    <th>{% get_verbose_label object_list.first field %}</th>
+                {% endif %}
+            {% endfor %}
+
             </thead>
             <tbody>
 
             {% for obj in filter_list %}
                 <tr href="{% url 'projects:project_detail' obj.id %}">
-                    <td>{{ obj.year }}</td>
+                    {% for field in field_list %}
+                        {% if field == 'region' %}
+                            <td>{{ obj.section.division.branch.region.tname }}</td>
+                        {% elif field == 'division' %}
+                            <td>{{ obj.section.division.tname }}</td>
+                        {% else %}
+                            <td>{% get_field_value obj field %}</td>
+                        {% endif %}
+                    {% endfor %}
 
-                    {% if LANG == "fr" %}
-                        <td>{{ obj.section.division.branch.region.nom }}</td>
-                        <td>{{ obj.section.division.nom }}</td>
-                        <td>{{ obj.section.nom }}</td>
-                    {% else %}
-                        <td>{{ obj.section.division.branch.region.name }}</td>
-                        <td>{{ obj.section.division.name }}</td>
-                        <td>{{ obj.section.name }}</td>
-                    {% endif %}
-                    <td>
-                        {{ obj.project_title }}
-                    </td>
-                    <td>
-                        {{ obj.project_leads }}
-                    </td>
-                    <td class="{% if obj.programs.count == 0 %}bad{% endif %}">
-                        {% get_field_value obj "programs" %}
-                    </td>
-                    <td>
-                        {% get_field_value obj "tags" %}
-                    </td>
-                    <td>{{ obj.submitted|yesno:_("yes,no") }}</td>
+
                 </tr>
             {% endfor %}
             </tbody>
