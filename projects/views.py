@@ -507,7 +507,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
             "default_funding_source",
             "activity_type",
             "project_leads|{}".format("Leads"),
-            "meeting_notes",
+            "status_report_count|{}".format(_("Status reports")),
         ]
 
         object_list = context.get("object_list")
@@ -516,7 +516,12 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context['unapproved_projects'] = object_list.filter(approved=False, submitted=True)
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
 
-        approved_projects = object_list.filter(approved=True, submitted=True)
+        # in FY 2021, MAR Region is looking at only submitted projects (don't care about approved status for now)
+        if object_list.first().section.division.branch.region.id == 1:
+            approved_projects = object_list.filter(approved=True, submitted=True)
+        else:
+            approved_projects = object_list.filter(submitted=True)
+
         context['approved_projects'] = approved_projects
 
         # need to create a dict for displaying projects by funding source.
@@ -572,6 +577,14 @@ class SectionListView(LoginRequiredMixin, FilterView):
         # financials
         context['financials_dict'] = multiple_projects_financial_summary(object_list)
 
+        # status reports (unreviewed)
+        context['unreviewed_status_reports'] = models.StatusReport.objects.filter(project__in=object_list, section_head_reviewed=False)
+        context["status_report_field_list"] = [
+            'date_created',
+            'created_by',
+            'status',
+            'section_head_reviewed',
+        ]
         return context
 
 
