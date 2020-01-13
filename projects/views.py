@@ -602,6 +602,21 @@ class ProjectListView(LoginRequiredMixin, FilterView):
     ).order_by('-year', 'section__division', 'section', 'project_title')
     filterset_class = filters.ProjectFilter
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["field_list"] = [
+            "year",
+            "region",
+            "division",
+            "section",
+            "project_title",
+            "default_funding_source",
+            "project_leads|{}".format("Project Leads"),
+            "tags",
+        ]
+        return  context
+
 
 class ProjectDetailView(LoginRequiredMixin, DetailView):
     model = models.Project
@@ -790,7 +805,7 @@ class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class ProjectApprovalUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+class ProjectApprovalUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Project
     template_name = "projects/project_action_form_popout.html"
     success_url = reverse_lazy("projects:close_me")
@@ -897,6 +912,8 @@ class ProjectDeleteView(CanModifyProjectRequiredMixin, DeleteView):
 
 
 class ProjectCloneUpdateView(ProjectUpdateView):
+    template_name = 'projects/project_form.html'
+
     def test_func(self):
         if self.request.user.id:
             return True
@@ -923,8 +940,8 @@ class ProjectCloneUpdateView(ProjectUpdateView):
     def form_valid(self, form):
         new_obj = form.save(commit=False)
         old_obj = models.Project.objects.get(pk=new_obj.pk)
-        new_programs = form.cleaned_data.get("programs")
         new_tags = form.cleaned_data.get("tags")
+        new_project_codes = form.cleaned_data.get("existing_project_codes")
         new_obj.pk = None
         new_obj.submitted = False
         new_obj.approved = False
@@ -933,11 +950,12 @@ class ProjectCloneUpdateView(ProjectUpdateView):
         new_obj.save()
 
         # now that the new object has an id, we can add the many 2 many links
-        for p in new_programs:
-            new_obj.programs.add(p.id)
 
         for t in new_tags:
             new_obj.tags.add(t.id)
+
+        for code in new_project_codes:
+            new_obj.existing_project_codes.add(code.id)
 
         # Now we need to replicate all the related records:
         # 1) staff
