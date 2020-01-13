@@ -28,9 +28,6 @@
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
-                            <td>
-                                <a href="under-dev" class="btn btn-sm btn-success">{% trans "approve" %}</a>
-                            </td>
                         </tr>
                     {% empty %}
                         <tr>
