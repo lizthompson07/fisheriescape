@@ -578,11 +578,12 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context['financials_dict'] = multiple_projects_financial_summary(object_list)
 
         # status reports (unreviewed)
-        context['unreviewed_status_reports'] = models.StatusReport.objects.filter(project__in=object_list, section_head_reviewed=False)
+        context['status_reports'] = models.StatusReport.objects.filter(project__in=object_list)
         context["status_report_field_list"] = [
             'date_created',
             'created_by',
             'status',
+            'section_head_comment',
             'section_head_reviewed',
         ]
         return context
@@ -2016,6 +2017,8 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
         context['project'] = project
         context['status_report'] = True
         context['files'] = project.files.all()
+        context["can_edit"] = can_modify_project(self.request.user, project.id)
+        context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
         return context
 
     def form_valid(self, form):
