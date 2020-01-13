@@ -2962,7 +2962,7 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
         )
         # If GULF region, we will further refine the list of projects
         if my_region.id == 1:
-            project_list = models.Project.objects.filter(approved=True)
+            project_list = project_list.filter(approved=True)
 
         division_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by()
         section_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by()
