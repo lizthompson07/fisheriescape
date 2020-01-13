@@ -32,8 +32,8 @@
                     {% for field in field_list %}
                         {% if field == "programs" %}
                             <th style="width: 20%;">{% get_verbose_label my_object field %}</th>
-                        {% elif field == "section" %}
-                            <th style="width: 10%;">{% get_verbose_label my_object field %}</th>
+{#                        {% elif field == "section" %}#}
+{#                            <th style="width: 10%;">{% get_verbose_label my_object field %}</th>#}
 
                         {% else %}
                             <th scope="col">{% get_verbose_label my_object field %}</th>
