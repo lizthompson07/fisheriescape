@@ -410,8 +410,8 @@ class IndexTemplateView(TemplateView):
                 section_list = shared_models.Section.objects.filter(id__in=section_id_set)
             context["section_list"] = section_list
 
-        messages.warning(self.request,
-                      mark_safe(_("<b class='red-font blink-me'>PLEASE NOTE: This database is currently being updated. Please refrain from entering new data until this message is no longer present from the home page.</b>")))
+        # messages.warning(self.request,
+        #               mark_safe(_("<b class='red-font blink-me'>PLEASE NOTE: This database is currently being updated. Please refrain from entering new data until this message is no longer present from the home page.</b>")))
 
         return context
 
