@@ -5,6 +5,11 @@
 {% load i18n %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+
+{% block title %}
+Section: {{object_list.first.section}}
+{% endblock %}
+
 {% block content %}
 
     {% get_current_language as LANG %}
