@@ -425,15 +425,15 @@ class Project(models.Model):
         # look through all expenses and compile a unique list of funding sources
         my_list = []
         for item in self.staff_members.all():
-            if item.funding_source:
+            if item.funding_source and item.cost and item.cost > 0:
                 my_list.append(item.funding_source)
 
         for item in self.om_costs.all():
-            if item.funding_source:
+            if item.funding_source and item.cost and item.cost > 0:
                 my_list.append(item.funding_source)
 
         for item in self.capital_costs.all():
-            if item.funding_source:
+            if item.funding_source and item.cost and item.cost > 0:
                 my_list.append(item.funding_source)
 
         return set(my_list)
