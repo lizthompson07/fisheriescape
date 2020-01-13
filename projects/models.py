@@ -394,9 +394,9 @@ class Project(models.Model):
         self.date_last_modified = timezone.now()
         super().save(*args, **kwargs)
 
-    # @property
-    # def approved(self):
-    #     return self.submitted and self.approved
+    @property
+    def status_report_count(self):
+        return self.reports.count()
 
     @property
     def unapproved(self):

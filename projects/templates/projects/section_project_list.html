@@ -7,7 +7,7 @@
 {% load verbose_names %}
 
 {% block title %}
-Section: {{object_list.first.section}}
+    Section: {{ object_list.first.section }}
 {% endblock %}
 
 {% block content %}
@@ -58,6 +58,12 @@ Section: {{object_list.first.section}}
         <div class="mb-5">
             {% include "projects/_section_financials.html" %}
         </div>
+        {% if unreviewed_status_reports.count %}
+            <div class="mb-5">
+                {% include "projects/_section_status_reports.html" %}
+            </div>
+        {% endif %}
+
         <div class="mb-5">
             {% include "projects/_section_projects.html" %}
         </div>
