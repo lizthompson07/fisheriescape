@@ -11,15 +11,12 @@ chosen_js = {"class": "chosen-select-contains"}
 
 
 class ProjectFilter(django_filters.FilterSet):
-    project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
     fiscal_year = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact')
+    project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
+    tags = django_filters.ModelChoiceFilter(field_name='tags__name', lookup_expr='icontains', label=_("Tags / Keywords"), queryset=models.Tag.objects.all())
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label=_("Division"))
     section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label=_("Section"))
-    programs = django_filters.ModelChoiceFilter(field_name='programs', lookup_expr='exact', label=_("Programs"),
-                                                queryset=models.Program.objects.all())
-    tags = django_filters.ModelChoiceFilter(field_name='tags', lookup_expr='exact', label=_("Tags"), queryset=models.Tag.objects.all())
-    submitted = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,8 +29,6 @@ class ProjectFilter(django_filters.FilterSet):
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices,
                                                                   label=_("Fiscal year"))
-        self.filters['submitted'] = django_filters.ChoiceFilter(field_name='submitted', lookup_expr='exact', choices=yes_no_choices,
-                                                                label=_("Submitted?"))
         self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
                                                               lookup_expr='exact', choices=section_choices)
         self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"),

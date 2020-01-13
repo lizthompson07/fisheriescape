@@ -75,6 +75,7 @@ class ProjectForm(forms.ModelForm):
             'submitted',
             'approved',
             'meeting_notes',
+            'programs',
         ]
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
@@ -101,6 +102,7 @@ class ProjectForm(forms.ModelForm):
             "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
 
             "tags": forms.SelectMultiple(attrs=chosen_js),
+            "default_funding_source": forms.Select(attrs=chosen_js),
             "programs": forms.SelectMultiple(attrs=chosen_js),
 
             "is_hidden": forms.Select(choices=YESNO_CHOICES),
@@ -112,15 +114,15 @@ class ProjectForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = SECTION_CHOICES
-        self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
-                                                         _("mandatory - select multiple, if necessary"))
+        # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
+        #                                                  _("mandatory - select multiple, if necessary"))
 
         functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups.all()]
         functional_group_choices.insert(0, tuple((None, "---")))
         self.fields['functional_group'].choices = functional_group_choices
 
         if kwargs.get("instance").section.division.branch.region.id == 1:
-            del self.fields["programs"]
+            # del self.fields["programs"]
             del self.fields["is_competitive"]
             del self.fields["is_approved"]
             del self.fields["metadata_url"]
