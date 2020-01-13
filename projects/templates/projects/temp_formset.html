@@ -24,13 +24,18 @@
             {% csrf_token %}
 
             {{ formset.management_form }}
-{#            {% bootstrap_formset_errors formset %}#}
+            {#            {% bootstrap_formset_errors formset %}#}
 
             <table class="table-sm table-bordered table sortable" style="font-size: small">
                 <thead>
                 <tr>
                     {% for field in field_list %}
-                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% if field == "programs" %}
+                            <th style="width: 20%;">{% get_verbose_label my_object field %}</th>
+
+                        {% else %}
+                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% endif %}
                     {% endfor %}
                 </tr>
                 </thead>
