@@ -58,7 +58,8 @@
         <div class="mb-5">
             {% include "projects/_section_financials.html" %}
         </div>
-        {% if unreviewed_status_reports.count %}
+
+        {% if status_reports.count %}
             <div class="mb-5">
                 {% include "projects/_section_status_reports.html" %}
             </div>

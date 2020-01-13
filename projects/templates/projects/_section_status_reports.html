@@ -4,55 +4,30 @@
 <div class="projects">
 
     <div class="mb-3">
-        <h2>{% trans "Unreviewed Status Reports" %}</h2>
+        <h2>{% trans "Status Reports" %}</h2>
 
     </div>
 
-
-    <table class="table table-bordered table-sm" style="width: auto">
-        <tr>
+    <table class="table table-hover table-sm sortable" style="width: auto">
+        <thead>
             {% for field in status_report_field_list %}
-
-
-            <th>
-                {% get_verbose_label unreviewed_status_reports.first field %}
-            </th>
+                <th>
+                    {% get_verbose_label status_reports.first field %}
+                </th>
             {% endfor %}
-{#            <th style="width: 150px;">#}
-{#                {% trans "Type" %}#}
-{#            </th>#}
-{#            <th style="width: 150px;">#}
-{#                {% trans "Funding source" %}#}
-{#            </th>#}
-{#            <th style="width: 150px;">#}
-{#                {% trans "Salary (excluding FTE)" %}#}
-{#            </th>#}
-{#            <th style="width: 150px;">#}
-{#                {% trans "O & M" %}#}
-{#            </th>#}
-{#            <th style="width: 150px;">#}
-{#                {% trans "Captial" %}#}
-{#            </th>#}
-{#            <th style="width: 150px;">#}
-{#                {% trans "Total" %}#}
-{#            </th>#}
-        </tr>
+        </thead>
         <tbody>
         {% with "---" as na %}
-            {% for fs in financials_dict %}
-                {% with financials_dict|lookup:fs  as fs_dict %}
-                    <tr style="background-color: {{ fs.funding_source_type.color }}">
-                        <td>{{ fs.funding_source_type|nz:_("Total") }}</td>
-                        <td>{{ fs.tname|nz:"---" }}</td>
-                        <td>{{ fs_dict|lookup:"salary"|kmark:"2,False" }}</td>
-                        <td>{{ fs_dict|lookup:"om"|kmark:"2,False" }}</td>
-                        <td>{{ fs_dict|lookup:"capital"|kmark:"2,False" }}</td>
-                        <td>{{ fs_dict|lookup:"total"|kmark:"2,False" }}</td>
-                    </tr>
-                {% endwith %}
+            {% for report in status_reports.all %}
+                <tr pop href="{% url 'projects:report_edit' report.id %}" class="{% if not report.section_head_reviewed %}highlight{% endif %}">
+                    {% for field in status_report_field_list %}
+                        <td>
+                            {% get_field_value report field %}
+                        </td>
+                    {% endfor %}
+                </tr>
             {% endfor %}
         {% endwith %}
-
         </tbody>
     </table>
 
