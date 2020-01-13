@@ -106,6 +106,15 @@ urlpatterns = [
     ####################
     path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
 
+    # FUNCTIONAL GROUP #
+    ####################
+    path('functional-groups/', views.FunctionalGroupListView.as_view(), name="group_list"),
+    path('functional-group/new/', views.FunctionalGroupCreateView.as_view(), name="group_new"),
+    path('functional-group/<int:pk>/edit/', views.FunctionalGroupUpdateView.as_view(), name="group_edit"),
+    path('functional-group/<int:pk>/delete/', views.FunctionalGroupDeleteView.as_view(), name="group_delete"),
+    path('functional-group/<int:pk>/view/', views.FunctionalGroupDetailView.as_view(), name="group_detail"),
+
+
     # SETTINGS #
     ############
     path('settings/funding-source/', views.manage_funding_sources, name="manage_funding_sources"),
