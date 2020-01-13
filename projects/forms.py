@@ -614,6 +614,7 @@ class TempForm(forms.ModelForm):
         ]
         widgets = {
             'default_funding_source': forms.Select(attrs=chosen_js),
+            'functional_group': forms.Select(attrs=chosen_js),
             # 'activity_type': forms.SelectMultiple(attrs=chosen_js),
             # 'tags': forms.SelectMultiple(attrs=chosen_js),
         }
