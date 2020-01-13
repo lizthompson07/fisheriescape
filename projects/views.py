@@ -300,6 +300,7 @@ project_field_list = [
     'activity_type',
     'functional_group',
     'default_funding_source',
+    'funding_sources|{}'.format(_("Complete list of funding sources")),
     # 'programs',
     'tags',
     'is_national',
