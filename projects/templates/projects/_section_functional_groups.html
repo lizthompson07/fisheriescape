@@ -25,7 +25,7 @@
                     {% endfor %}
                     </thead>
                     {% for object in qs %}
-                        <tr href="{% url 'projects:project_overview' object.id %}">
+                        <tr newtab href="{% url 'projects:project_overview' object.id %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
