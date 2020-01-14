@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load custom_filters %}
 {% load i18n %}
+{% load verbose_names %}
 
 {% block content %}
     {% get_current_language as LANG %}
@@ -35,6 +36,14 @@
             background-color: #c2ffc8;
             font-style: italic;
         }
+
+        .my-summary-table {
+            font-size: small;
+            padding-top: 0;
+            margin-top: 0;
+
+        }
+
     </style>
 
     {% if view.kwargs.type == "theme" %}
@@ -112,11 +121,11 @@
         </div>
 
         <br>
-        <div class="">
+        <div class="mb-4">
             <table class="table table-hover table-sm">
                 <thead>
-                <th>{% trans "Functional Group" %}</th>
-                <th class="center-col">{% trans "Number of projects" %}</th>
+                <th style="width: 20%">{% trans "Functional Group" %}</th>
+                <th class="center-col" style="width: 10%">{% trans "Number of projects" %}</th>
                 <th>{% trans "Project leads" %}</th>
                 </thead>
                 <tbody>
@@ -170,6 +179,56 @@
             </table>
         </div>
 
-    </div>
+        {% if projects_without_groups.count or projects_without_programs.count or projects_without_themes.count %}
 
+            <div class="mb-4">
+                <h4 class="red-font blink-me">
+                    {% trans "THE FOLLOWING PROJECTS HAVE NO HOME IN THE ABOVE WORKPLAN" %}
+                </h4>
+                <table class="table table-sm table-bordered my-summary-table">
+                    <thead class="my-summary-table">
+                    <th class="my-summary-table">Project</th>
+                    <th class="my-summary-table">Functional Group</th>
+                    {% if type == 'theme' %}
+                        <th class="my-summary-table">Program</th>
+                        <th class="my-summary-table">Theme</th>
+                    {% endif %}
+                    </thead>
+                    <tbody class="my-summary-table">
+                    {% for p in projects_without_groups %}
+                        <tr class="my-summary-table">
+                            <td class="my-summary-table">
+                                <a href="{% url 'projects:project_overview' p.id 1 %}">{{ p }}</a>
+                            </td>
+                            {% if type == 'theme' %}
+                                <th class="my-summary-table">???</th>
+                                <th class="my-summary-table">???</th>
+                            {% endif %}
+                            <td class="my-summary-table">???</td>
+                        </tr>
+                    {% endfor %}
+                    {% for p in projects_without_programs %}
+                        <tr>
+                            <td><a href="{% url 'projects:project_overview' p.id 1 %}">{{ p }}</a></td>
+                            <td>{{ p.functional_group }}</td>
+                            <td>???</td>
+                            <td>???</td>
+                        </tr>
+                    {% endfor %}
+                    {% for p in projects_without_themes %}
+                        <tr>
+                            <td><a href="{% url 'projects:project_overview' p.id 1 %}">{{ p }}</a></td>
+                            <td>{{ p.functional_group }}</td>
+                            <td>{{ p.functional_group.program }}</td>
+                            <td>???</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+
+                </table>
+
+            </div>
+        {% endif %}
+
+    </div>
 {% endblock content %}
