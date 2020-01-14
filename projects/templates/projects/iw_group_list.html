@@ -179,7 +179,7 @@
             </table>
         </div>
 
-        {% if projects_without_groups.count or projects_without_programs.count or projects_without_themes.count %}
+        {% if projects_without_groups.count or  projects_without_themes.count %}
 
             <div class="mb-4">
                 <h4 class="red-font blink-me">
@@ -190,7 +190,6 @@
                     <th class="my-summary-table">Project</th>
                     <th class="my-summary-table">Functional Group</th>
                     {% if type == 'theme' %}
-                        <th class="my-summary-table">Program</th>
                         <th class="my-summary-table">Theme</th>
                     {% endif %}
                     </thead>
@@ -202,24 +201,14 @@
                             </td>
                             {% if type == 'theme' %}
                                 <th class="my-summary-table">???</th>
-                                <th class="my-summary-table">???</th>
                             {% endif %}
                             <td class="my-summary-table">???</td>
-                        </tr>
-                    {% endfor %}
-                    {% for p in projects_without_programs %}
-                        <tr>
-                            <td><a href="{% url 'projects:project_overview' p.id 1 %}">{{ p }}</a></td>
-                            <td>{{ p.functional_group }}</td>
-                            <td>???</td>
-                            <td>???</td>
                         </tr>
                     {% endfor %}
                     {% for p in projects_without_themes %}
                         <tr>
                             <td><a href="{% url 'projects:project_overview' p.id 1 %}">{{ p }}</a></td>
                             <td>{{ p.functional_group }}</td>
-                            <td>{{ p.functional_group.program }}</td>
                             <td>???</td>
                         </tr>
                     {% endfor %}
