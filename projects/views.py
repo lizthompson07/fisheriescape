@@ -513,6 +513,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
         ]
 
         object_list = context.get("object_list")
+        section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
         fy = object_list.first().year if object_list.count() > 0 else None
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
         context['unapproved_projects'] = object_list.filter(approved=False, submitted=True)
@@ -537,7 +538,9 @@ class SectionListView(LoginRequiredMixin, FilterView):
         fg_dict = {}
         functional_groups = set([project.functional_group for project in approved_projects])
         for fg in functional_groups:
-            fg_dict[fg] = approved_projects.filter(functional_group=fg)
+            fg_dict[fg] = {}
+            fg_dict[fg]["projects"] = approved_projects.filter(functional_group=fg)
+            fg_dict[fg]["note"] = models.Note.objects.get_or_create(section=section, functional_group=fg)[0]
         context['fg_dict'] = fg_dict
 
         # need to create a dict for displaying projects by activity type.
@@ -3219,3 +3222,30 @@ class FunctionalGroupDetailView(AdminRequiredMixin, DetailView):
             'allotment_category',
         ]
         return context
+
+
+
+# SECTION NOTE #
+################
+
+class NoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    model = models.Note
+    template_name = 'projects/note_form_popout.html'
+    form_class = forms.NoteForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # project = self.get_object()
+        # context["field_list"] = project_field_list
+        # context["report_mode"] = True
+        # context["program"] = models.Program2.objects.get(id=self.kwargs.get("program"))
+        #
+        # bring in financial summary data
+        # my_context = financial_summary_data(project)
+        # context = {**my_context, **context}
+
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))

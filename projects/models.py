@@ -889,6 +889,9 @@ class Note(models.Model):
     summary = models.TextField(blank=True, null=True, verbose_name=_("summary of activity"))
     pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
 
+    class Meta:
+        unique_together = ["section", "functional_group"]
+
     @property
     def pressures_html(self):
         if self.pressures:

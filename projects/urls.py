@@ -204,4 +204,6 @@ urlpatterns = [
     path('regional-meeting/<int:fiscal_year>/region/<int:region>/section/<int:section>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
 
+    path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),
+
 ]
