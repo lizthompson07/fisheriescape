@@ -114,7 +114,6 @@ urlpatterns = [
     path('functional-group/<int:pk>/delete/', views.FunctionalGroupDeleteView.as_view(), name="group_delete"),
     path('functional-group/<int:pk>/view/', views.FunctionalGroupDetailView.as_view(), name="group_detail"),
 
-
     # SETTINGS #
     ############
     path('settings/funding-source/', views.manage_funding_sources, name="manage_funding_sources"),
@@ -193,15 +192,16 @@ urlpatterns = [
          views.PDFDataReport.as_view(), name="pdf_data"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
-
     # INTERACTIVE WORKPLANS #
     #########################
-    path('interactive-workplan/region/<int:region>/groups-by-section/<int:fiscal_year>/', views.IWGroupList.as_view(), name="iw_group_list"),
+    path('interactive-workplan/region/<int:region>/year/<int:fiscal_year>/type/<str:type>/', views.IWGroupList.as_view(),
+         name="iw_group_list"),
 
-
-    path('regional-meeting/<int:fiscal_year>/section/<int:section>/group/<int:group>/projects/',
+    # by section / program by fgroup
+    path('regional-meeting/<int:fiscal_year>/region/<int:region>/section/<int:section>/group/<int:group>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
-    path('regional-meeting/<int:fiscal_year>/section/<int:section>/projects/',
+    # by section / program
+    path('regional-meeting/<int:fiscal_year>/region/<int:region>/section/<int:section>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
 
 ]

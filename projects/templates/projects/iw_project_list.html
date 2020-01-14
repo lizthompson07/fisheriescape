@@ -31,6 +31,14 @@
 
     </style>
 
+    {% if view.kwargs.type == "theme" %}
+        {% trans "Theme" as big_unit %}
+        {% trans "Program" as small_unit %}
+    {% else %}
+        {% trans "Division" as big_unit %}
+        {% trans "Section" as small_unit %}
+    {% endif %}
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -39,8 +47,8 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'projects:iw_group_list' section.division.branch.region.id fy.id %}">
-                    {% trans "Functional Group Summary" %}
+                <a href="{% url 'projects:iw_group_list' region.id fy.id view.kwargs.type %}">
+                    {% trans "Functional Group Summary" %} ({{ big_unit }}/{{ small_unit }})
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
@@ -56,17 +64,13 @@
         {{ get_current_language }}
         <div class="">
             <h1>
-                Projects from {{ section }} Section
+                Projects from {{ section }} {{ small_unit }}
                 {% if functional_group %}
                     under {{ functional_group }}
                 {% endif %}
             </h1>
             <h3>
-                {% if section.division.branch.region.id == 1 %}
-                    (Submitted and approved by {{ section.head }})
-                {% else %}
-                    (Submitted by {{ section.head }})
-                {% endif %}
+                (Submitted {% if region.id == 1 %}and approved{% endif %}{% if not type == 'theme' %}by {{ section.head }}{% endif %})
             </h3>
         </div>
 
