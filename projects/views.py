@@ -2970,9 +2970,9 @@ class PDFCostSummaryReport(LoginRequiredMixin, PDFTemplateView):
                     context["financial_summary_data"]["total"][key] += \
                         context["financial_summary_data"][project.id][key]
 
-        context["abase"] = models.FundingSource.objects.get(pk=1).color
-        context["bbase"] = models.FundingSource.objects.get(pk=2).color
-        context["cbase"] = models.FundingSource.objects.get(pk=3).color
+        context["abase"] = models.FundingSourceType.objects.get(pk=1).color
+        context["bbase"] = models.FundingSourceType.objects.get(pk=2).color
+        context["cbase"] = models.FundingSourceType.objects.get(pk=3).color
         return context
 
 
