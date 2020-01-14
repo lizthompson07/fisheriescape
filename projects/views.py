@@ -505,6 +505,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context["field_list"] = [
             "project_title",
             "functional_group",
+            "status",
             "default_funding_source",
             "activity_type",
             "project_leads|{}".format("Leads"),
