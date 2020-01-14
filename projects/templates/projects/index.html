@@ -98,13 +98,18 @@
                                             </h4>
                                             <ul>
                                                 <li>
-                                                    <a href="{% url 'projects:iw_group_list' 1 2021 %}">
+                                                    <a href="{% url 'projects:iw_group_list' 1 2021 'division' %}">
                                                         2020-2021 Gulf Region Interactive Workplan
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a href="{% url 'projects:iw_group_list' 2 2021 %}">
-                                                        2020-2021 Maritimes Region Interactive Workplan
+                                                    <a href="{% url 'projects:iw_group_list' 2 2021 'division'  %}">
+                                                        2020-2021 Maritimes Region Interactive Workplan (by Division / Section)
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{% url 'projects:iw_group_list' 2 2021 'theme' %}">
+                                                        2020-2021 Maritimes Region Interactive Workplan (by Theme / Program)
                                                     </a>
                                                 </li>
                                             </ul>

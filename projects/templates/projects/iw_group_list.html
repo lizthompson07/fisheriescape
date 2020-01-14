@@ -37,6 +37,14 @@
         }
     </style>
 
+    {% if view.kwargs.type == "theme" %}
+        {% trans "Theme" as big_unit %}
+        {% trans "Program" as small_unit %}
+    {% else %}
+        {% trans "Division" as big_unit %}
+        {% trans "Section" as small_unit %}
+    {% endif %}
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -46,17 +54,21 @@
             </li>
 
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Functional Group Summary" %}
+                {% trans "Functional Group Summary" %} ({{ big_unit }}/{{ small_unit }})
             </li>
         </ol>
     </nav>
 
+
+
     <div class="container-fluid">
         {{ get_current_language }}
         <div class="row">
-            <div class="col-8">
+            <div class="col">
                 <h1>
-                    {{ fy }} {% trans "Summary of Functional Groups by Section" %} ({{ region }})
+
+
+                    {{ fy }} {% trans "Summary of Functional Groups by " %} {{ big_unit }}/{{ small_unit }} ({{ region }})
                 </h1>
                 <h3>
                     {% if region.id == 1 %}
@@ -66,37 +78,37 @@
                     {% endif %}
                 </h3>
             </div>
-            <div class="col">
-                <h4>Meeting Resources:</h4>
-                {% with "None" as n %}
-
-                    <ul>
-                        <li>
-                            <a href="{% url 'projects:pdf_fte_summary' fy.id 1 n n %}" target="_blank">Weeks worked by employees</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'projects:pdf_ot' fy.id 1 n n %}" target="_blank">Total OT hours requested</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'projects:pdf_costs' fy.id 1 n n %}" target="_blank">Financial summary</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'projects:pdf_collab' fy.id 1 n n %}" target="_blank">Collaborators</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'projects:pdf_agreements' fy.id 1 n n %}" target="_blank">Collaborative agreements</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'projects:doug_report' fy.id 1 n n %}">
-                                Summary spreadsheet
-                            </a>
-                            &nbsp; <img src="{% static 'img/icons/excel.svg' %}" width="20px">
-                        </li>
-
-                    </ul>
-                {% endwith %}
-
-            </div>
+            {#            <div class="col">#}
+            {#                <h4>{% trans "Meeting Resources" %}:</h4>#}
+            {#                {% with "None" as n %}#}
+            {##}
+            {#                    <ul>#}
+            {#                        <li>#}
+            {#                            <a href="{% url 'projects:pdf_fte_summary' fy.id 1 n n %}" target="_blank">Weeks worked by employees</a>#}
+            {#                        </li>#}
+            {#                        <li>#}
+            {#                            <a href="{% url 'projects:pdf_ot' fy.id 1 n n %}" target="_blank">Total OT hours requested</a>#}
+            {#                        </li>#}
+            {#                        <li>#}
+            {#                            <a href="{% url 'projects:pdf_costs' fy.id 1 n n %}" target="_blank">Financial summary</a>#}
+            {#                        </li>#}
+            {#                        <li>#}
+            {#                            <a href="{% url 'projects:pdf_collab' fy.id 1 n n %}" target="_blank">Collaborators</a>#}
+            {#                        </li>#}
+            {#                        <li>#}
+            {#                            <a href="{% url 'projects:pdf_agreements' fy.id 1 n n %}" target="_blank">Collaborative agreements</a>#}
+            {#                        </li>#}
+            {#                        <li>#}
+            {#                            <a href="{% url 'projects:doug_report' fy.id 1 n n %}">#}
+            {#                                Summary spreadsheet#}
+            {#                            </a>#}
+            {#                            &nbsp; <img src="{% static 'img/icons/excel.svg' %}" width="20px">#}
+            {#                        </li>#}
+            {##}
+            {#                    </ul>#}
+            {#                {% endwith %}#}
+            {##}
+            {#            </div>#}
         </div>
 
         <br>
@@ -111,32 +123,40 @@
 
                 {% for d in my_dict %}
                     <tr>
-                        <td colspan="4" class="division">DIVISION: {{ d }}</td>
+                        <td colspan="4" class="division">
+                            {{ big_unit|upper }}: {{ d }}
+                        </td>
                     </tr>
                     {% for s in my_dict|lookup:d %}
                         <tr>
                             <td colspan="4"></td>
                         </tr>
-                        <tr href="{% url 'projects:iw_project_list' fy.id s.id %}" style="border: 20px" class="section">
+
+                        {% url 'projects:iw_project_list' fy.id region.id s.id view.kwargs.type as url_a %}
+
+                        <tr href="{{ url_a }}" style="border: 20px" class="section">
                             <td colspan="6" class="section">
                                 {% with my_dict|lookup:d|lookup:s|lookup:"projects" as projects %}
-                                    SECTION: {{ s }} ({{ projects.count }} project{{ projects.count|pluralize }})
+                                    {{ small_unit|upper }}: {{ s }} ({{ projects.count }} project{{ projects.count|pluralize }})
                                 {% endwith %}
                             </td>
                         </tr>
                         {% for group in my_dict|lookup:d|lookup:s|lookup:"groups" %}
+
                             {% if group %}
-                                {% url 'projects:iw_project_list' fy.id s.id group.id as my_url %}
+                                {% url 'projects:iw_project_list' fy.id region.id s.id group.id view.kwargs.type as url_b %}
                             {% else %}
-                                {% url 'projects:iw_project_list' fy.id s.id as my_url %}
+                                {% url 'projects:iw_project_list' fy.id region.id s.id view.kwargs.type as url_b %}
                             {% endif %}
-                            <tr href="{{ my_url }}">
-                            {% trans "<em class='red-font'>No functional group assigned</em>" as no_group %}
-                            <td colspan="1" class="program">{{ group|nz:no_group }}</td>
-                            <td colspan="1"
-                                class="center-col">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"project_count" }}</td>
-                            <td colspan="1"
-                                class="program">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"leads" }}</td>
+
+
+                            <tr href="{{ url_b }}">
+                                {% trans "<em class='red-font'>No functional group assigned</em>" as no_group %}
+                                <td colspan="1" class="program">{{ group|nz:no_group }}</td>
+                                <td colspan="1"
+                                    class="center-col">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"project_count" }}</td>
+                                <td colspan="1"
+                                    class="program">{{ my_dict|lookup:d|lookup:s|lookup:"groups"|lookup:group|lookup:"leads" }}</td>
                             </tr>
                         {% endfor %}
 
