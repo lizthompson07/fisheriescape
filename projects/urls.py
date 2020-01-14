@@ -119,6 +119,9 @@ urlpatterns = [
     path('settings/funding-source/', views.manage_funding_sources, name="manage_funding_sources"),
     path('settings/funding-source/<int:pk>/delete/', views.delete_funding_source, name="delete_funding_source"),
 
+    path('settings/activity-types/', views.manage_activity_types, name="manage_activity_types"),
+    path('settings/activity-type/<int:pk>/delete/', views.delete_activity_type, name="delete_activity_type"),
+
     path('settings/om-categories/', views.manage_om_cats, name="manage_om_cats"),
     path('settings/om-category/<int:pk>/delete/', views.delete_om_cat, name="delete_om_cat"),
 
@@ -139,9 +142,6 @@ urlpatterns = [
 
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
-
-    path('settings/functional-groups/', views.manage_functional_groups, name="manage_functional_groups"),
-    path('settings/functional-group/<int:pk>/delete/', views.delete_functional_group, name="delete_functional_group"),
 
     path('settings/themes/', views.manage_themes, name="manage_themes"),
     path('settings/theme/<int:pk>/delete/', views.delete_theme, name="delete_theme"),

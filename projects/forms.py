@@ -566,9 +566,15 @@ class FunctionalGroupForm(forms.ModelForm):
         self.fields['sections'].choices = section_choices
 
 
-FunctionalGroupFormSet = modelformset_factory(
-    model=models.FunctionalGroup,
-    form=FunctionalGroupForm,
+class ActivityTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.ActivityType
+        fields = "__all__"
+
+
+ActivityTypeFormSet = modelformset_factory(
+    model=models.ActivityType,
+    form=ActivityTypeForm,
     extra=1,
 )
 
@@ -577,10 +583,6 @@ class ThemeForm(forms.ModelForm):
     class Meta:
         model = models.Theme
         fields = "__all__"
-        widgets = {
-            'name': forms.Textarea(attrs={"rows": 3}),
-            'nom': forms.Textarea(attrs={"rows": 3}),
-        }
 
 
 ThemeFormSet = modelformset_factory(

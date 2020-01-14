@@ -1845,35 +1845,33 @@ def manage_programs(request):
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_functional_group(request, pk):
-    my_obj = models.FunctionalGroup.objects.get(pk=pk)
+def delete_activity_type(request, pk):
+    my_obj = models.ActivityType.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
+    return HttpResponseRedirect(reverse("projects:manage_activity_types"))
 
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_functional_groups(request):
-    qs = models.FunctionalGroup.objects.all()
+def manage_activity_types(request):
+    qs = models.ActivityType.objects.all()
     if request.method == 'POST':
-        formset = forms.FunctionalGroupFormSet(request.POST, )
+        formset = forms.ActivityTypeFormSet(request.POST, )
         if formset.is_valid():
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
+            return HttpResponseRedirect(reverse("projects:manage_activity_types"))
     else:
-        formset = forms.FunctionalGroupFormSet(
+        formset = forms.ActivityTypeFormSet(
             queryset=qs)
     context = {}
     context["my_object"] = qs.first()
     context["field_list"] = [
         'name',
         'nom',
-        'program',
-        'sections',
     ]
-    context['title'] = "Manage Functional Groups"
+    context['title'] = "Manage Activity Types"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
 
