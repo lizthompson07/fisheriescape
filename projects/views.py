@@ -629,7 +629,7 @@ class ProjectListView(LoginRequiredMixin, FilterView):
             "project_leads|{}".format("Project Leads"),
             "tags",
         ]
-        return  context
+        return context
 
 
 class ProjectDetailView(LoginRequiredMixin, DetailView):
@@ -3045,13 +3045,35 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
                             # get a list of project leads
                             leads = listrify(
                                 list(set([str(staff.user) for staff in
-                                          models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group), lead=True) if
+                                          models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
+                                                                      lead=True) if
                                           staff.user])))
                             my_dict[big_item][small_item]["groups"][group]["leads"] = leads
         context['my_dict'] = my_dict
-        context['projects_without_themes'] = project_list.filter(functional_group__program__theme__isnull=True)
-        context['projects_without_programs'] = project_list.filter(functional_group__program__isnull=True)
 
+        # projects missing a functional group
+        context['projects_without_groups'] = project_list.filter(functional_group__isnull=True)
+
+        # Only do the following two assessments if we are going by program/theme
+        if self.kwargs.get("type") == "theme":
+            # projects with a functional group but that are missing a program
+            context['projects_without_programs'] = project_list.filter(
+                functional_group__isnull=False,
+                functional_group__program__isnull=True).order_by("functional_group")
+            # projects with a program but that are missing a theme
+            context['projects_without_themes'] = project_list.filter(
+                functional_group__program__isnull=False,
+                functional_group__program__theme__isnull=True).order_by("functional_group__program")
+
+
+        context["field_list"] = [
+            "id|{}".format(_("Project Id")),
+            "project_title",
+            "functional_group",
+            "activity_type",
+            "project_leads|{}".format(_("Project leads")),
+        ]
+        context["random_project"] = models.Project.objects.first()
         return context
 
 
@@ -3077,7 +3099,7 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         context['functional_group'] = functional_group
 
         # assemble project_list
-        project_list = models.Project.objects.filter(year=fy,submitted=True,).order_by("id")
+        project_list = models.Project.objects.filter(year=fy, submitted=True, ).order_by("id")
         # If from gulf region, filter out any un approved projects
         if region.id == 1:
             project_list = project_list.filter(
@@ -3128,6 +3150,7 @@ class FunctionalGroupListView(AdminRequiredMixin, ListView):
             'sections',
         ]
         return context
+
 
 class FunctionalGroupUpdateView(AdminRequiredMixin, UpdateView):
     model = models.FunctionalGroup
