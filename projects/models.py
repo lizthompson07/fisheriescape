@@ -882,18 +882,12 @@ class MilestoneUpdate(models.Model):
         )
 
 
-class SectionNote(models.Model):
-    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE)
-    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="section_notes", on_delete=models.CASCADE)
-    pressures = models.TextField(blank=True, null=True)
-    general_notes = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return "{} {} {}".format(
-            self.fiscal_year,
-            str(self.section).title(),
-            _("section notes").title(),
-        )
+class Note(models.Model):
+    # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    summary = models.TextField(blank=True, null=True, verbose_name=_("summary of activity"))
+    pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
 
     @property
     def pressures_html(self):
@@ -901,6 +895,6 @@ class SectionNote(models.Model):
             return textile(self.pressures)
 
     @property
-    def general_notes_html(self):
-        if self.general_notes:
-            return textile(self.general_notes)
+    def summary_html(self):
+        if self.summary:
+            return textile(self.summary)

@@ -169,10 +169,10 @@ class IPSProjectMeetingForm(forms.ModelForm):
         }
 
 
-class SectionNoteForm(forms.ModelForm):
+class NoteForm(forms.ModelForm):
     class Meta:
-        model = models.SectionNote
-        fields = ["pressures", "general_notes", ]
+        model = models.Note
+        fields = ["pressures", "summary", ]
         widgets = {
             # 'submitted': forms.HiddenInput(),
         }
