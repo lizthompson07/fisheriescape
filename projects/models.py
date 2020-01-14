@@ -121,12 +121,12 @@ class Program(models.Model):
         else:
             national_responsibility = "{}".format(self.national_responsibility_eng)
 
-        my_str = "{} - {} ({})".format(national_responsibility, regional_program_name, self.get_is_core_display())
+        my_str = "{} - {}".format(national_responsibility, regional_program_name)
 
-        if self.examples:
-            return "{} (e.g., {})".format(my_str, self.examples)
-        else:
-            return "{}".format(my_str)
+        # if self.examples:
+        #     return "{} (e.g., {})".format(my_str, self.examples)
+        # else:
+        return "{}".format(my_str)
 
     class Meta:
         ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]

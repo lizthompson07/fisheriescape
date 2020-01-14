@@ -2998,39 +2998,60 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
         if my_region.id == 1:
             project_list = project_list.filter(approved=True)
 
-        division_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by()
-        section_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by()
+        # This view is being retrofitted to be able to show projects by Theme/Program (instead of only by division/section)
+        if self.kwargs.get("type") == "theme":
+            big_list = models.Theme.objects.filter(programs__projects__in=project_list).distinct().order_by()
+            small_list = models.Program.objects.filter(projects__in=project_list).distinct().order_by()
+        else:
+            big_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by("name")
+            small_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by("division", "name")
 
         my_dict = {}
-        for d in division_list.order_by("name"):
-            my_dict[d] = {}
-            for s in section_list.order_by("division", "name"):
-                if s.division == d:
-                    my_dict[d][s] = {}
+        for big_item in big_list:
+            my_dict[big_item] = {}
+            for small_item in small_list:
+                # only create an entry for the small item if there are projects within...
+                add_this_small_item = True
+                if self.kwargs.get("type") == "theme":
+                    if project_list.filter(functional_group__program=small_item).count() == 0:
+                        add_this_small_item = False
+                else:
+                    if project_list.filter(section=small_item).count() == 0:
+                        add_this_small_item = False
 
-                    # for each section, get a list of projects..  then programs
-                    project_list = s.projects.filter(year=fy, submitted=True)
-                    if my_region.id == 1:
-                        project_list = project_list.filter(approved=True)
+                if add_this_small_item:
+                    big_item_name = "theme" if self.kwargs.get("type") == "theme" else "division"
 
-                    group_list = set([project.functional_group for project in project_list])
+                    if getattr(small_item, big_item_name) == big_item:
+                        my_dict[big_item][small_item] = {}
 
-                    my_dict[d][s]["projects"] = project_list
-                    my_dict[d][s]["groups"] = {}
-                    for group in group_list:
-                        my_dict[d][s]["groups"][group] = {}
+                        # for each section, get a list of projects..  then programs
+                        if self.kwargs.get("type") == "theme":
+                            temp_project_list = project_list.filter(functional_group__program=small_item)
+                        else:
+                            temp_project_list = project_list.filter(section=small_item)
 
-                        # get a list of project counts
-                        project_count = project_list.filter(functional_group=group).count()
-                        my_dict[d][s]["groups"][group]["project_count"] = project_count
+                        group_list = set([project.functional_group for project in temp_project_list])
 
-                        # get a list of project leads
-                        leads = listrify(
-                            list(set([str(staff.user) for staff in
-                                      models.Staff.objects.filter(project__in=project_list.filter(functional_group=group), lead=True) if
-                                      staff.user])))
-                        my_dict[d][s]["groups"][group]["leads"] = leads
+                        my_dict[big_item][small_item]["projects"] = temp_project_list
+                        my_dict[big_item][small_item]["groups"] = {}
+                        for group in group_list:
+                            my_dict[big_item][small_item]["groups"][group] = {}
+
+                            # get a list of project counts
+                            project_count = temp_project_list.filter(functional_group=group).count()
+                            my_dict[big_item][small_item]["groups"][group]["project_count"] = project_count
+
+                            # get a list of project leads
+                            leads = listrify(
+                                list(set([str(staff.user) for staff in
+                                          models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group), lead=True) if
+                                          staff.user])))
+                            my_dict[big_item][small_item]["groups"][group]["leads"] = leads
         context['my_dict'] = my_dict
+        context['projects_without_themes'] = project_list.filter(functional_group__program__theme__isnull=True)
+        context['projects_without_programs'] = project_list.filter(functional_group__program__isnull=True)
+
         return context
 
 
@@ -3041,27 +3062,36 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
-        section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
+
+        region = shared_models.Region.objects.get(id=self.kwargs.get("region"))
+        # This view is being retrofitted to be able to show projects by Program (instead of only by section)
+        if self.kwargs.get("type") == "theme":
+            section = models.Program.objects.get(id=self.kwargs.get("section"))
+        else:
+            section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
+
         functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get("group") else None
         context['fy'] = fy
+        context['region'] = region
         context['section'] = section
         context['functional_group'] = functional_group
 
-        project_list = models.Project.objects.filter(
-            year=fy,
-            section=section,
-            submitted=True,
-        ).order_by("id")
-
+        # assemble project_list
+        project_list = models.Project.objects.filter(year=fy,submitted=True,).order_by("id")
         # If from gulf region, filter out any un approved projects
-        if section.division.branch.region.id == 1:
+        if region.id == 1:
             project_list = project_list.filter(
                 approved=True,
             )
 
+        if self.kwargs.get("type") == "theme":
+            project_list = project_list.filter(functional_group__program=section, section__division__branch__region=region)
+        else:
+            project_list = project_list.filter(section=section)
+
         # If a function group is provided keep only those projects
-        if self.kwargs.get("group"):
-            project_list = project_list.filter(functional_group=functional_group, )
+        if functional_group:
+            project_list = project_list.filter(functional_group=functional_group)
 
         context['project_list'] = project_list
         context["field_list"] = [
