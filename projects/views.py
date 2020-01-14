@@ -2999,8 +2999,8 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
 
         # This view is being retrofitted to be able to show projects by Theme/Program (instead of only by division/section)
         if self.kwargs.get("type") == "theme":
-            big_list = models.Theme.objects.filter(programs__projects__in=project_list).distinct().order_by()
-            small_list = models.Program.objects.filter(projects__in=project_list).distinct().order_by()
+            big_list = models.Theme.objects.filter(functional_groups__projects__in=project_list).distinct().order_by()
+            small_list = None
         else:
             big_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by("name")
             small_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by("division", "name")
@@ -3008,46 +3008,70 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
         my_dict = {}
         for big_item in big_list:
             my_dict[big_item] = {}
-            for small_item in small_list:
-                # only create an entry for the small item if there are projects within...
-                add_this_small_item = True
-                if self.kwargs.get("type") == "theme":
-                    if project_list.filter(functional_group__program=small_item).count() == 0:
-                        add_this_small_item = False
-                else:
-                    if project_list.filter(section=small_item).count() == 0:
-                        add_this_small_item = False
 
-                if add_this_small_item:
-                    big_item_name = "theme" if self.kwargs.get("type") == "theme" else "division"
+            if self.kwargs.get("type") == "theme":
 
-                    if getattr(small_item, big_item_name) == big_item:
-                        my_dict[big_item][small_item] = {}
+                my_dict[big_item]['all'] = {}
+                temp_project_list = project_list.filter(functional_group__theme=big_item)
+                group_list = set([project.functional_group for project in temp_project_list])
 
-                        # for each section, get a list of projects..  then programs
-                        if self.kwargs.get("type") == "theme":
-                            temp_project_list = project_list.filter(functional_group__program=small_item)
-                        else:
-                            temp_project_list = project_list.filter(section=small_item)
+                my_dict[big_item]['all']["projects"] = temp_project_list
+                my_dict[big_item]['all']["groups"] = {}
+                for group in group_list:
+                    my_dict[big_item]['all']["groups"][group] = {}
 
-                        group_list = set([project.functional_group for project in temp_project_list])
+                    # get a list of project counts
+                    project_count = temp_project_list.filter(functional_group=group).count()
+                    my_dict[big_item]['all']["groups"][group]["project_count"] = project_count
 
-                        my_dict[big_item][small_item]["projects"] = temp_project_list
-                        my_dict[big_item][small_item]["groups"] = {}
-                        for group in group_list:
-                            my_dict[big_item][small_item]["groups"][group] = {}
+                    # get a list of project leads
+                    leads = listrify(
+                        list(set([str(staff.user) for staff in
+                                  models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
+                                                              lead=True) if
+                                  staff.user])))
+                    my_dict[big_item]['all']["groups"][group]["leads"] = leads
+            else:
+                for small_item in small_list:
+                    # only create an entry for the small item if there are projects within...
+                    add_this_small_item = True
+                    if self.kwargs.get("type") == "theme":
+                        if project_list.filter(functional_group__program=small_item).count() == 0:
+                            add_this_small_item = False
+                    else:
+                        if project_list.filter(section=small_item).count() == 0:
+                            add_this_small_item = False
 
-                            # get a list of project counts
-                            project_count = temp_project_list.filter(functional_group=group).count()
-                            my_dict[big_item][small_item]["groups"][group]["project_count"] = project_count
+                    if add_this_small_item:
+                        big_item_name = "theme" if self.kwargs.get("type") == "theme" else "division"
 
-                            # get a list of project leads
-                            leads = listrify(
-                                list(set([str(staff.user) for staff in
-                                          models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
-                                                                      lead=True) if
-                                          staff.user])))
-                            my_dict[big_item][small_item]["groups"][group]["leads"] = leads
+                        if getattr(small_item, big_item_name) == big_item:
+                            my_dict[big_item][small_item] = {}
+
+                            # for each section, get a list of projects..  then programs
+                            if self.kwargs.get("type") == "theme":
+                                temp_project_list = project_list.filter(functional_group__program=small_item)
+                            else:
+                                temp_project_list = project_list.filter(section=small_item)
+
+                            group_list = set([project.functional_group for project in temp_project_list])
+
+                            my_dict[big_item][small_item]["projects"] = temp_project_list
+                            my_dict[big_item][small_item]["groups"] = {}
+                            for group in group_list:
+                                my_dict[big_item][small_item]["groups"][group] = {}
+
+                                # get a list of project counts
+                                project_count = temp_project_list.filter(functional_group=group).count()
+                                my_dict[big_item][small_item]["groups"][group]["project_count"] = project_count
+
+                                # get a list of project leads
+                                leads = listrify(
+                                    list(set([str(staff.user) for staff in
+                                              models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
+                                                                          lead=True) if
+                                              staff.user])))
+                                my_dict[big_item][small_item]["groups"][group]["leads"] = leads
         context['my_dict'] = my_dict
 
         # projects missing a functional group
@@ -3055,14 +3079,10 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
 
         # Only do the following two assessments if we are going by program/theme
         if self.kwargs.get("type") == "theme":
-            # projects with a functional group but that are missing a program
-            context['projects_without_programs'] = project_list.filter(
-                functional_group__isnull=False,
-                functional_group__program__isnull=True).order_by("functional_group")
             # projects with a program but that are missing a theme
             context['projects_without_themes'] = project_list.filter(
-                functional_group__program__isnull=False,
-                functional_group__program__theme__isnull=True).order_by("functional_group__program")
+                functional_group__isnull=False,
+                functional_group__theme__isnull=True).order_by("functional_group")
 
 
         context["field_list"] = [
@@ -3155,8 +3175,7 @@ class FunctionalGroupListView(AdminRequiredMixin, FilterView):
         context["field_list"] = [
             'name',
             'nom',
-            'program',
-            'program.theme|Theme',
+            'theme',
             'sections',
         ]
         return context

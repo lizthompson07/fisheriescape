@@ -210,8 +210,7 @@ class FunctionalGroupFilter(django_filters.FilterSet):
         model = models.FunctionalGroup
         fields = {
             'name': ['exact'],
-            'program': ['exact'],
-            'program__theme': ['exact'],
+            'theme': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
