@@ -172,7 +172,10 @@ class IPSProjectMeetingForm(forms.ModelForm):
 class NoteForm(forms.ModelForm):
     class Meta:
         model = models.Note
-        fields = ["pressures", "summary", ]
+        fields = [
+            "summary",
+            "pressures",
+        ]
         widgets = {
             # 'submitted': forms.HiddenInput(),
         }
