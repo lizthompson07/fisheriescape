@@ -11,7 +11,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db.models import Sum, Q, Count, Value
+from django.db.models import Sum, Q, Count, Value, TextField
+from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -3137,9 +3138,19 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 # FUNCTIONAL GROUPS #
 #####################
 
-class FunctionalGroupListView(AdminRequiredMixin, ListView):
-    model = models.FunctionalGroup
+class FunctionalGroupListView(AdminRequiredMixin, FilterView):
+
     template_name = 'projects/functionalgroup_list.html'
+    filterset_class = filters.FunctionalGroupFilter
+
+    def get_queryset(self):
+        return models.FunctionalGroup.objects.annotate(
+            search_term=Concat('name',
+                               Value(" "),
+                               'nom',
+                               Value(" "),
+                               # 'program__name',
+                               output_field=TextField()))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -3147,6 +3158,7 @@ class FunctionalGroupListView(AdminRequiredMixin, ListView):
             'name',
             'nom',
             'program',
+            'program.theme|Theme',
             'sections',
         ]
         return context

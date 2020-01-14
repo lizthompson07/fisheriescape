@@ -136,7 +136,7 @@ class FunctionalGroup(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="functional_groups", blank=True, null=True)
-    sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups")
+    sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups", blank=True)
 
     def __str__(self):
         # check to see if a french value is given

@@ -35,6 +35,7 @@
             {% buttons %}
                 {% if object %}
                     <button type="submit" class="btn btn-success">Submit</button>
+                    <a class="btn btn-danger" href="{% url 'projects:group_delete' object.id %}">Delete</a>
                 {% else %}
                     <button type="submit" class="btn btn-success">Add</button>
                 {% endif %}
