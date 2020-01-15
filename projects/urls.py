@@ -114,11 +114,13 @@ urlpatterns = [
     path('functional-group/<int:pk>/delete/', views.FunctionalGroupDeleteView.as_view(), name="group_delete"),
     path('functional-group/<int:pk>/view/', views.FunctionalGroupDetailView.as_view(), name="group_detail"),
 
-
     # SETTINGS #
     ############
     path('settings/funding-source/', views.manage_funding_sources, name="manage_funding_sources"),
     path('settings/funding-source/<int:pk>/delete/', views.delete_funding_source, name="delete_funding_source"),
+
+    path('settings/activity-types/', views.manage_activity_types, name="manage_activity_types"),
+    path('settings/activity-type/<int:pk>/delete/', views.delete_activity_type, name="delete_activity_type"),
 
     path('settings/om-categories/', views.manage_om_cats, name="manage_om_cats"),
     path('settings/om-category/<int:pk>/delete/', views.delete_om_cat, name="delete_om_cat"),
@@ -140,9 +142,6 @@ urlpatterns = [
 
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
-
-    path('settings/functional-groups/', views.manage_functional_groups, name="manage_functional_groups"),
-    path('settings/functional-group/<int:pk>/delete/', views.delete_functional_group, name="delete_functional_group"),
 
     path('settings/themes/', views.manage_themes, name="manage_themes"),
     path('settings/theme/<int:pk>/delete/', views.delete_theme, name="delete_theme"),
@@ -193,15 +192,18 @@ urlpatterns = [
          views.PDFDataReport.as_view(), name="pdf_data"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
-
     # INTERACTIVE WORKPLANS #
     #########################
-    path('interactive-workplan/region/<int:region>/groups-by-section/<int:fiscal_year>/', views.IWGroupList.as_view(), name="iw_group_list"),
+    path('interactive-workplan/region/<int:region>/year/<int:fiscal_year>/type/<str:type>/', views.IWGroupList.as_view(),
+         name="iw_group_list"),
 
+    # by section / program by fgroup
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/section/<int:section>/group/<int:group>/projects/type/<str:type>/',
+         views.IWProjectList.as_view(), name="iw_project_list"),
+    # by section / program
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/section/<int:section>/projects/type/<str:type>/',
+         views.IWProjectList.as_view(), name="iw_project_list"),
 
-    path('regional-meeting/<int:fiscal_year>/section/<int:section>/group/<int:group>/projects/',
-         views.IWProjectList.as_view(), name="iw_project_list"),
-    path('regional-meeting/<int:fiscal_year>/section/<int:section>/projects/',
-         views.IWProjectList.as_view(), name="iw_project_list"),
+    path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),
 
 ]

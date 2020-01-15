@@ -67,7 +67,7 @@
                             {% url 'projects:my_project_list' as my_proj_url %}
                             {% url 'projects:project_list' as all_proj_url %}
                             <div class="row">
-                                <div class="col-3">
+                                <div class="col-4">
                                     <h4>
                                         {% trans "Projects" %}
                                     </h4>
@@ -98,13 +98,21 @@
                                             </h4>
                                             <ul>
                                                 <li>
-                                                    <a href="{% url 'projects:iw_group_list' 1 2021 %}">
-                                                        2020-2021 Gulf Region Interactive Workplan
+                                                    2020-2021 Gulf Region Interactive Workplan <br>
+                                                    <a href="{% url 'projects:iw_group_list' 1 2021 'division' %}">
+                                                        ({% trans "by Section" %})
+                                                    </a>
+                                                    <a href="{% url 'projects:iw_group_list' 1 2021 'theme' %}">
+                                                        ({% trans "by Theme" %})
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a href="{% url 'projects:iw_group_list' 2 2021 %}">
-                                                        2020-2021 Maritimes Region Interactive Workplan
+                                                    2020-2021 Maritimes Region Interactive Workplan <br>
+                                                    <a href="{% url 'projects:iw_group_list' 2 2021 'division' %}">
+                                                        ({% trans "by Section" %})
+                                                    </a>
+                                                    <a href="{% url 'projects:iw_group_list' 2 2021 'theme' %}">
+                                                        ({% trans "by Theme" %})
                                                     </a>
                                                 </li>
                                             </ul>
@@ -157,7 +165,7 @@
 
 
             </div>
-            <div class="col-5">
+            <div class="col-4">
                 <div class="card" style="width: 100%; background: #ffd738;">
                     <div class="card-body">
                         <h4 class="card-title">
