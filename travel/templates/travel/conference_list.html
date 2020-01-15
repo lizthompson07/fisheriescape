@@ -11,6 +11,10 @@
             margin-right: 5em;
         }
 
+        table {
+            font-size: small;
+        }
+
     </style>
 
     <nav aria-label="breadcrumb">
@@ -26,13 +30,10 @@
 
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
-
                 {% for field in filter.form %}
-                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
                     <div class="col">
                         {% bootstrap_field field placeholder="" size="small" %}
                     </div>
-
                 {% endfor %}
                 <div class="col">
                     <br>
@@ -64,7 +65,13 @@
                     <thead>
                     <tr>
                         {% for field in field_list %}
-                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                            {% if field == "fiscal_year" %}
+                                <th style="width: 8%">{% get_verbose_label my_object field %}</th>
+                            {% elif "dates" in field %}
+                                <th style="width: 10%">{% get_verbose_label my_object field %}</th>
+                            {% else %}
+                                <th scope="col">{% get_verbose_label my_object field %}</th>
+                            {% endif %}
                         {% endfor %}
                         <th># Non-BTA Travellers</th>
                         <th># BTA Travellers</th>
@@ -76,7 +83,7 @@
                         {% url 'travel:conf_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
                             {% for field in field_list %}
-                                <td>{% get_field_value object field %}</td>
+                                <td>{% get_field_value object field safe=True %}</td>
                             {% endfor %}
                             <td>{{ object.traveller_list|length }}</td>
                             <td>{{ object.bta_traveller_list|length }}</td>
