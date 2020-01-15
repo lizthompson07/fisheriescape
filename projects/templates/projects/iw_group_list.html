@@ -48,7 +48,6 @@
 
     {% if view.kwargs.type == "theme" %}
         {% trans "Theme" as big_unit %}
-        {% trans "Program" as small_unit %}
     {% else %}
         {% trans "Division" as big_unit %}
         {% trans "Section" as small_unit %}
@@ -63,7 +62,7 @@
             </li>
 
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Functional Group Summary" %} ({{ big_unit }}/{{ small_unit }})
+                {% trans "Functional Group Summary" %} ({{ big_unit }}{% if small_unit %}/{{ small_unit }}{% endif %})
             </li>
         </ol>
     </nav>
@@ -75,9 +74,8 @@
         <div class="row">
             <div class="col">
                 <h1>
-
-
-                    {{ fy }} {% trans "Summary of Functional Groups by " %} {{ big_unit }}/{{ small_unit }} ({{ region }})
+                    {{ fy }} {% trans "Summary of Functional Groups by " %}
+                    {{ big_unit }}{% if small_unit %}/{{ small_unit }}{% endif %} ({{ region }})
                 </h1>
                 <h3>
                     {% if region.id == 1 %}
@@ -153,7 +151,11 @@
                         {% for group in my_dict|lookup:d|lookup:s|lookup:"groups" %}
 
                             {% if group %}
-                                {% url 'projects:iw_project_list' fy.id region.id s.id group.id view.kwargs.type as url_b %}
+                                {% if s == "all" %}
+                                    {% url 'projects:iw_project_list' fy.id region.id 0 group.id view.kwargs.type as url_b %}
+                                {% else %}
+                                    {% url 'projects:iw_project_list' fy.id region.id s.id group.id view.kwargs.type as url_b %}
+                                {% endif %}
                             {% else %}
                                 {% url 'projects:iw_project_list' fy.id region.id s.id view.kwargs.type as url_b %}
                             {% endif %}

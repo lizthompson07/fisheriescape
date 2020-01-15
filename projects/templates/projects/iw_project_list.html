@@ -33,7 +33,6 @@
 
     {% if view.kwargs.type == "theme" %}
         {% trans "Theme" as big_unit %}
-        {% trans "Program" as small_unit %}
     {% else %}
         {% trans "Division" as big_unit %}
         {% trans "Section" as small_unit %}
@@ -48,7 +47,8 @@
             </li>
             <li class="breadcrumb-item">
                 <a href="{% url 'projects:iw_group_list' region.id fy.id view.kwargs.type %}">
-                    {% trans "Functional Group Summary" %} ({{ big_unit }}/{{ small_unit }})
+                    {% trans "Functional Group Summary" %}
+                    ({{ big_unit }}{% if small_unit %}/{{ small_unit }}{% endif %})
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
@@ -63,62 +63,48 @@
     <div class="container-fluid">
         {{ get_current_language }}
         <div class="">
-            <h1>
-                Projects from {{ section }} {{ small_unit }}
-                {% if functional_group %}
+            <h2>
+                {% if type == 'theme' %}
+                    Projects from {{ functional_group.theme }}
                     under {{ functional_group }}
+                {% else %}
+                    Projects from {{ section }} section
+                    {% if functional_group %}
+                        under {{ functional_group }}
+                    {% endif %}
                 {% endif %}
-            </h1>
+            </h2>
             <h3>
-                (Submitted {% if region.id == 1 %}and approved{% endif %}{% if not type == 'theme' %}by {{ section.head }}{% endif %})
+                (Submitted {% if region.id == 1 %} and approved {% endif %}{% if not type == 'theme' %} by {{ section.head }}{% endif %})
             </h3>
         </div>
 
         <br>
-        <div class="">
-            <table class="table table-hover table-bordered table-sm sortable">
-                <thead>
-                <tr>
-                    {% for field in field_list %}
-                        {% if field == "meeting_notes" %}
-                            <th style="width: 15%">
-                                {% get_verbose_label project_list.first field %}
-                            </th>
-                        {% else %}
-                            <th>
-                                {% get_verbose_label project_list.first field %}
-                            </th>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-                </thead>
 
-                <tbody>
+        {% if note %}
+            <div class="float-right">
+                <a href="#" pop-href="{% url 'projects:note_edit' note.id %}" class="btn btn-sm btn-outline-dark">
+                    <img src="{% static 'admin/img/icon-changelink.svg' %}" alt="">
+                </a>
+            </div>
 
-                {% for p in project_list %}
-                    <tr pop href="{% url 'projects:project_overview' p.id 1 %}">
-                        {% for field in field_list %}
-                            <td rowspan="">
-                                {% get_field_value p field %}
-                            </td>
-                        {% endfor %}
-                        <td style="width: 10%;">
-                            <a href="#" pop-href="{% url 'projects:project_notes' p.id %}"
-                               class="stop-pop btn btn-sm btn-primary">
-                                {% trans "Edit Notes" %}
-                            </a>
-                        </td>
-                    </tr>
-
-                {% endfor %}
-
-                </tbody>
-            </table>
-        </div>
-        <br>
-        <div class="">
             <div class="mb-3">
-                <h2>{% trans "Financial Summary" %}</h2>
+                <div class="mb-3">
+                    <h4>{% get_verbose_label note "summary" %}</h4>
+                    <p>{% get_field_value note "summary_html" nullmark="<em>n/a</em>" safe=True %}</p>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="mb-3">
+                    <h4>{% get_verbose_label note "pressures" %}</h4>
+                    <p>{% get_field_value note "pressures_html" nullmark="<em>n/a</em>" safe=True %} </p>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <div class="mb-3">
+                <h4>{% trans "Financial summary" %}</h4>
             </div>
 
             <table class="table table-bordered table-sm" style="width: auto">
@@ -162,6 +148,54 @@
             </table>
 
         </div>
+
+        <div class="mb-3">
+            <div class="mb-3">
+                <h4>{% trans "Projects" %}</h4>
+            </div>
+
+            <table class="table table-hover table-bordered table-sm sortable">
+                <thead>
+                <tr>
+                    {% for field in field_list %}
+                        {% if field == "meeting_notes" %}
+                            <th style="width: 15%">
+                                {% get_verbose_label project_list.first field %}
+                            </th>
+                        {% else %}
+                            <th>
+                                {% get_verbose_label project_list.first field %}
+                            </th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+
+                <tbody>
+
+                {% for p in project_list %}
+                    <tr pop href="{% url 'projects:project_overview' p.id 1 %}">
+                        {% for field in field_list %}
+                            <td rowspan="">
+                                {% get_field_value p field %}
+                            </td>
+                        {% endfor %}
+                        <td style="width: 10%;">
+                            <a href="#" pop-href="{% url 'projects:project_notes' p.id %}"
+                               class="stop-pop btn btn-sm btn-outline-dark">
+                                <img src="{% static 'admin/img/icon-changelink.svg' %}" alt=""> &nbsp;
+                                {% trans "notes" %}
+                            </a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+        <br>
+
     </div>
 
 {% endblock content %}
