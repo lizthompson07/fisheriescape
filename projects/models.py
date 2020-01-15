@@ -121,12 +121,12 @@ class Program(models.Model):
         else:
             national_responsibility = "{}".format(self.national_responsibility_eng)
 
-        my_str = "{} - {} ({})".format(national_responsibility, regional_program_name, self.get_is_core_display())
+        my_str = "{} - {}".format(national_responsibility, regional_program_name)
 
-        if self.examples:
-            return "{} (e.g., {})".format(my_str, self.examples)
-        else:
-            return "{}".format(my_str)
+        # if self.examples:
+        #     return "{} (e.g., {})".format(my_str, self.examples)
+        # else:
+        return "{}".format(my_str)
 
     class Meta:
         ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
@@ -135,8 +135,8 @@ class Program(models.Model):
 class FunctionalGroup(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
-    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, related_name="functional_groups", blank=True, null=True)
-    sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups")
+    sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups", blank=True)
+    theme = models.ForeignKey(Theme, on_delete=models.DO_NOTHING, related_name="functional_groups", blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -882,18 +882,15 @@ class MilestoneUpdate(models.Model):
         )
 
 
-class SectionNote(models.Model):
-    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE)
-    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="section_notes", on_delete=models.CASCADE)
-    pressures = models.TextField(blank=True, null=True)
-    general_notes = models.TextField(blank=True, null=True)
+class Note(models.Model):
+    # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    summary = models.TextField(blank=True, null=True, verbose_name=_("executive summary"))
+    pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
 
-    def __str__(self):
-        return "{} {} {}".format(
-            self.fiscal_year,
-            str(self.section).title(),
-            _("section notes").title(),
-        )
+    class Meta:
+        unique_together = ["section", "functional_group"]
 
     @property
     def pressures_html(self):
@@ -901,6 +898,6 @@ class SectionNote(models.Model):
             return textile(self.pressures)
 
     @property
-    def general_notes_html(self):
-        if self.general_notes:
-            return textile(self.general_notes)
+    def summary_html(self):
+        if self.summary:
+            return textile(self.summary)
