@@ -11,7 +11,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db.models import Sum, Q, Count, Value
+from django.db.models import Sum, Q, Count, Value, TextField
+from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -602,6 +603,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context["field_list"] = [
             "project_title",
             "functional_group",
+            "status",
             "default_funding_source",
             "activity_type",
             "project_leads|{}".format("Leads"),
@@ -609,6 +611,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
         ]
 
         object_list = context.get("object_list")
+        section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
         fy = object_list.first().year if object_list.count() > 0 else None
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
         context['unapproved_projects'] = object_list.filter(approved=False, submitted=True)
@@ -633,7 +636,9 @@ class SectionListView(LoginRequiredMixin, FilterView):
         fg_dict = {}
         functional_groups = set([project.functional_group for project in approved_projects])
         for fg in functional_groups:
-            fg_dict[fg] = approved_projects.filter(functional_group=fg)
+            fg_dict[fg] = {}
+            fg_dict[fg]["projects"] = approved_projects.filter(functional_group=fg)
+            fg_dict[fg]["note"] = models.Note.objects.get_or_create(section=section, functional_group=fg)[0]
         context['fg_dict'] = fg_dict
 
         # need to create a dict for displaying projects by activity type.
@@ -1949,35 +1954,33 @@ def manage_programs(request):
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_functional_group(request, pk):
-    my_obj = models.FunctionalGroup.objects.get(pk=pk)
+def delete_activity_type(request, pk):
+    my_obj = models.ActivityType.objects.get(pk=pk)
     my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
+    return HttpResponseRedirect(reverse("projects:manage_activity_types"))
 
 
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_functional_groups(request):
-    qs = models.FunctionalGroup.objects.all()
+def manage_activity_types(request):
+    qs = models.ActivityType.objects.all()
     if request.method == 'POST':
-        formset = forms.FunctionalGroupFormSet(request.POST, )
+        formset = forms.ActivityTypeFormSet(request.POST, )
         if formset.is_valid():
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
+            return HttpResponseRedirect(reverse("projects:manage_activity_types"))
     else:
-        formset = forms.FunctionalGroupFormSet(
+        formset = forms.ActivityTypeFormSet(
             queryset=qs)
     context = {}
     context["my_object"] = qs.first()
     context["field_list"] = [
         'name',
         'nom',
-        'program',
-        'sections',
     ]
-    context['title'] = "Manage Functional Groups"
+    context['title'] = "Manage Activity Types"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
 
@@ -3000,40 +3003,101 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
         if my_region.id == 1:
             project_list = project_list.filter(approved=True)
 
-        division_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by()
-        section_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by()
+        # This view is being retrofitted to be able to show projects by Theme/Program (instead of only by division/section)
+        if self.kwargs.get("type") == "theme":
+            big_list = models.Theme.objects.filter(functional_groups__projects__in=project_list).distinct().order_by()
+            small_list = None
+        else:
+            big_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by("name")
+            small_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by("division", "name")
 
         my_dict = {}
-        for d in division_list.order_by("name"):
-            my_dict[d] = {}
-            for s in section_list.order_by("division", "name"):
-                if s.division == d:
-                    my_dict[d][s] = {}
+        for big_item in big_list:
+            my_dict[big_item] = {}
 
-                    # for each section, get a list of projects..  then programs
-                    project_list = s.projects.filter(year=fy, submitted=True)
-                    if my_region.id == 1:
-                        project_list = project_list.filter(approved=True)
+            if self.kwargs.get("type") == "theme":
 
-                    group_list = set([project.functional_group for project in project_list])
+                my_dict[big_item]['all'] = {}
+                temp_project_list = project_list.filter(functional_group__theme=big_item)
+                group_list = set([project.functional_group for project in temp_project_list])
 
-                    my_dict[d][s]["projects"] = project_list
-                    my_dict[d][s]["groups"] = {}
-                    for group in group_list:
-                        my_dict[d][s]["groups"][group] = {}
+                my_dict[big_item]['all']["projects"] = temp_project_list
+                my_dict[big_item]['all']["groups"] = {}
+                for group in group_list:
+                    my_dict[big_item]['all']["groups"][group] = {}
 
-                        # get a list of project counts
-                        project_count = project_list.filter(functional_group=group).count()
-                        my_dict[d][s]["groups"][group]["project_count"] = project_count
+                    # get a list of project counts
+                    project_count = temp_project_list.filter(functional_group=group).count()
+                    my_dict[big_item]['all']["groups"][group]["project_count"] = project_count
 
-                        # get a list of project leads
-                        leads = listrify(
-                            list(set([str(staff.user) for staff in
-                                      models.Staff.objects.filter(
-                                          project__in=project_list.filter(functional_group=group), lead=True) if
-                                      staff.user])))
-                        my_dict[d][s]["groups"][group]["leads"] = leads
+                    # get a list of project leads
+                    leads = listrify(
+                        list(set([str(staff.user) for staff in
+                                  models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
+                                                              lead=True) if
+                                  staff.user])))
+                    my_dict[big_item]['all']["groups"][group]["leads"] = leads
+            else:
+                for small_item in small_list:
+                    # only create an entry for the small item if there are projects within...
+                    add_this_small_item = True
+                    if self.kwargs.get("type") == "theme":
+                        if project_list.filter(functional_group__program=small_item).count() == 0:
+                            add_this_small_item = False
+                    else:
+                        if project_list.filter(section=small_item).count() == 0:
+                            add_this_small_item = False
+
+                    if add_this_small_item:
+                        big_item_name = "theme" if self.kwargs.get("type") == "theme" else "division"
+
+                        if getattr(small_item, big_item_name) == big_item:
+                            my_dict[big_item][small_item] = {}
+
+                            # for each section, get a list of projects..  then programs
+                            if self.kwargs.get("type") == "theme":
+                                temp_project_list = project_list.filter(functional_group__program=small_item)
+                            else:
+                                temp_project_list = project_list.filter(section=small_item)
+
+                            group_list = set([project.functional_group for project in temp_project_list])
+
+                            my_dict[big_item][small_item]["projects"] = temp_project_list
+                            my_dict[big_item][small_item]["groups"] = {}
+                            for group in group_list:
+                                my_dict[big_item][small_item]["groups"][group] = {}
+
+                                # get a list of project counts
+                                project_count = temp_project_list.filter(functional_group=group).count()
+                                my_dict[big_item][small_item]["groups"][group]["project_count"] = project_count
+
+                                # get a list of project leads
+                                leads = listrify(
+                                    list(set([str(staff.user) for staff in
+                                              models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
+                                                                          lead=True) if
+                                              staff.user])))
+                                my_dict[big_item][small_item]["groups"][group]["leads"] = leads
         context['my_dict'] = my_dict
+
+        # projects missing a functional group
+        context['projects_without_groups'] = project_list.filter(functional_group__isnull=True)
+
+        # Only do the following two assessments if we are going by program/theme
+        if self.kwargs.get("type") == "theme":
+            # projects with a program but that are missing a theme
+            context['projects_without_themes'] = project_list.filter(
+                functional_group__isnull=False,
+                functional_group__theme__isnull=True).order_by("functional_group")
+
+        context["field_list"] = [
+            "id|{}".format(_("Project Id")),
+            "project_title",
+            "functional_group",
+            "activity_type",
+            "project_leads|{}".format(_("Project leads")),
+        ]
+        context["random_project"] = models.Project.objects.first()
         return context
 
 
@@ -3044,34 +3108,43 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
-        section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
-        functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get(
-            "group") else None
+
+        region = shared_models.Region.objects.get(id=self.kwargs.get("region"))
+        # This view is being retrofitted to be able to show projects by Program (instead of only by section)
+        if self.kwargs.get("type") == "theme":
+            section = None
+        else:
+            section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
+
+        functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get("group") else None
         context['fy'] = fy
+        context['region'] = region
         context['section'] = section
         context['functional_group'] = functional_group
 
-        project_list = models.Project.objects.filter(
-            year=fy,
-            section=section,
-            submitted=True,
-        ).order_by("id")
-
+        # assemble project_list
+        project_list = models.Project.objects.filter(year=fy, submitted=True, ).order_by("id")
         # If from gulf region, filter out any un approved projects
-        if section.division.branch.region.id == 1:
+        if region.id == 1:
             project_list = project_list.filter(
                 approved=True,
             )
 
+        if self.kwargs.get("type") == "theme":
+            project_list = project_list.filter(section__division__branch__region=region)
+        else:
+            project_list = project_list.filter(section=section)
+
         # If a function group is provided keep only those projects
-        if self.kwargs.get("group"):
-            project_list = project_list.filter(functional_group=functional_group, )
+        if functional_group:
+            project_list = project_list.filter(functional_group=functional_group)
 
         context['project_list'] = project_list
         context["field_list"] = [
             "id|{}".format(_("Project Id")),
             "project_title",
             "functional_group",
+            "status",
             "activity_type",
             "default_funding_source",
             "tags",
@@ -3083,22 +3156,41 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         context["financials_dict"] = multiple_projects_financial_summary(project_list)
 
+        # grab a note if available
+        if self.kwargs.get("type") == "theme":
+            context["note"] = models.Note.objects.get_or_create(section=None, functional_group=functional_group)[0]
+            # anyone looking can edit
+            context["can_edit"] = True
+        else:
+            context["note"] = models.Note.objects.get_or_create(section=section, functional_group=functional_group)[0]
+            if self.request.user in [section.head, section.division.head] or in_projects_admin_group(self.request.user):
+                context["can_edit"] = True
+
         return context
 
 
 # FUNCTIONAL GROUPS #
 #####################
 
-class FunctionalGroupListView(AdminRequiredMixin, ListView):
-    model = models.FunctionalGroup
+class FunctionalGroupListView(AdminRequiredMixin, FilterView):
     template_name = 'projects/functionalgroup_list.html'
+    filterset_class = filters.FunctionalGroupFilter
+
+    def get_queryset(self):
+        return models.FunctionalGroup.objects.annotate(
+            search_term=Concat('name',
+                               Value(" "),
+                               'nom',
+                               Value(" "),
+                               # 'program__name',
+                               output_field=TextField()))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["field_list"] = [
             'name',
             'nom',
-            'program',
+            'theme',
             'sections',
         ]
         return context
@@ -3141,3 +3233,29 @@ class FunctionalGroupDetailView(AdminRequiredMixin, DetailView):
             'allotment_category',
         ]
         return context
+
+
+# SECTION NOTE #
+################
+
+class NoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    model = models.Note
+    template_name = 'projects/note_form_popout.html'
+    form_class = forms.NoteForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # project = self.get_object()
+        # context["field_list"] = project_field_list
+        # context["report_mode"] = True
+        # context["program"] = models.Program2.objects.get(id=self.kwargs.get("program"))
+        #
+        # bring in financial summary data
+        # my_context = financial_summary_data(project)
+        # context = {**my_context, **context}
+
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))

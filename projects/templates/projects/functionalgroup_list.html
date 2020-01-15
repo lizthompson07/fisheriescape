@@ -2,6 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load i18n %}
 
 {% block content %}
 
@@ -15,7 +16,36 @@
     <div class="container">
 
         <h1 class="big-header">Functional Groups </h1>
-        <a href="{% url 'projects:group_new' %}" class="btn btn-success">New</a><br>
+
+        <form class="form" action="." method="get" id="filter-form">
+            <div class="row">
+
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'projects:group_new' %}" class="btn btn-sm btn-primary">
+                    {% trans "New" %}
+                </a>
+            </div>
+        </div>
 
         <div class="row">
             <div class="col">
@@ -36,13 +66,13 @@
                                     {% if field == "sections" %}
                                         <ul>
 
-                                        {% for section in object.sections.all %}
-                                            <li>{{ section }} ({{ section.division.branch.region }})</li>
-                                        {% endfor %}
+                                            {% for section in object.sections.all %}
+                                                <li>{{ section }} ({{ section.division.branch.region }})</li>
+                                            {% endfor %}
                                         </ul>
 
                                     {% else %}
-                                 {% get_field_value object field %}
+                                        {% get_field_value object field %}
                                     {% endif %}
 
                                 </td>
