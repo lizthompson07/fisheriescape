@@ -3156,7 +3156,9 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         # grab a note if available
         if self.kwargs.get("type") == "theme":
-            pass
+            context["note"] = models.Note.objects.get_or_create(section=None, functional_group=functional_group)[0]
+            # anyone looking can edit
+            context["can_edit"] = True
         else:
             context["note"] = models.Note.objects.get_or_create(section=section, functional_group=functional_group)[0]
             if self.request.user in [section.head, section.division.head] or in_projects_admin_group(self.request.user):
