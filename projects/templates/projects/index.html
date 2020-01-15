@@ -103,13 +103,12 @@
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a href="{% url 'projects:iw_group_list' 2 2021 'division'  %}">
-                                                        2020-2021 Maritimes Region Interactive Workplan (by Division / Section)
+                                                    2020-2021 Maritimes Region Interactive Workplan <br>
+                                                    <a href="{% url 'projects:iw_group_list' 2 2021 'division' %}">
+                                                        ({% trans "by Section" %})
                                                     </a>
-                                                </li>
-                                                <li>
                                                     <a href="{% url 'projects:iw_group_list' 2 2021 'theme' %}">
-                                                        2020-2021 Maritimes Region Interactive Workplan (by Theme / Program)
+                                                        ({% trans "by Theme" %})
                                                     </a>
                                                 </li>
                                             </ul>

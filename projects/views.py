@@ -3088,7 +3088,6 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
                 functional_group__isnull=False,
                 functional_group__theme__isnull=True).order_by("functional_group")
 
-
         context["field_list"] = [
             "id|{}".format(_("Project Id")),
             "project_title",
@@ -3111,7 +3110,7 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         region = shared_models.Region.objects.get(id=self.kwargs.get("region"))
         # This view is being retrofitted to be able to show projects by Program (instead of only by section)
         if self.kwargs.get("type") == "theme":
-            section = models.Program.objects.get(id=self.kwargs.get("section"))
+            section = None
         else:
             section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
 
@@ -3130,7 +3129,7 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             )
 
         if self.kwargs.get("type") == "theme":
-            project_list = project_list.filter(functional_group__program=section, section__division__branch__region=region)
+            project_list = project_list.filter(section__division__branch__region=region)
         else:
             project_list = project_list.filter(section=section)
 
@@ -3143,6 +3142,7 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             "id|{}".format(_("Project Id")),
             "project_title",
             "functional_group",
+            "status",
             "activity_type",
             "default_funding_source",
             "tags",
@@ -3154,6 +3154,14 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         context["financials_dict"] = multiple_projects_financial_summary(project_list)
 
+        # grab a note if available
+        if self.kwargs.get("type") == "theme":
+            pass
+        else:
+            context["note"] = models.Note.objects.get_or_create(section=section, functional_group=functional_group)[0]
+            if self.request.user in [section.head, section.division.head] or in_projects_admin_group(self.request.user):
+                context["can_edit"] = True
+
         return context
 
 
@@ -3161,7 +3169,6 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 #####################
 
 class FunctionalGroupListView(AdminRequiredMixin, FilterView):
-
     template_name = 'projects/functionalgroup_list.html'
     filterset_class = filters.FunctionalGroupFilter
 
@@ -3222,7 +3229,6 @@ class FunctionalGroupDetailView(AdminRequiredMixin, DetailView):
             'allotment_category',
         ]
         return context
-
 
 
 # SECTION NOTE #
