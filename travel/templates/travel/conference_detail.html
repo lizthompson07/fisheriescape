@@ -115,7 +115,7 @@
                         <th colspan="2" class="plainjane center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
                     </tr>
                     <tr class="plainjane">
-                        <th class="plainjane center-col">{{ conference.conf_fiscal_year }}</th>
+                        <th class="plainjane center-col">{{ conference.fiscal_year }}</th>
                         <th class="plainjane center-col">Total</th>
                     </tr>
                     {% for traveller in conference.total_traveller_list %}
@@ -132,7 +132,7 @@
                                             &nbsp;
                                             {% with d.fy_list as my_list %}
                                                 <button class="badge" data-toggle="popover"
-                                                        title="{{ traveller.first_name }}'s Total Trips for {{ conference.conf_fiscal_year }}"
+                                                        title="{{ traveller.first_name }}'s Total Trips for {{ conference.fiscal_year }}"
                                                         data-content="{% include "travel/_user_trip_list.html" %}">
                                                     {% trans "show" %}
                                                 </button>

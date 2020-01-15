@@ -118,6 +118,8 @@ class Conference(models.Model):
     abstract_deadline = models.DateTimeField(verbose_name=_("abstract submission deadline"), blank=True, null=True)
     registration_deadline = models.DateTimeField(verbose_name=_("registration deadline"), blank=True, null=True)
     notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
+                                    blank=True, null=True, related_name="conferences")
 
     def __str__(self):
         # check to see if a french value is given
@@ -171,6 +173,22 @@ class Conference(models.Model):
         return set(my_list)
 
     @property
+    def number_of_days(self):
+        if self.end_date:
+            return (self.end_date - self.start_date).days
+
+    @property
+    def dates(self):
+        my_str = "{}".format(
+            self.start_date.strftime("%Y-%m-%d"),
+        )
+        if self.end_date:
+            my_str += "<br>{}".format(
+                self.end_date.strftime("%Y-%m-%d"),
+            )
+        return my_str
+
+    @property
     def total_traveller_list(self):
         travellers = self.bta_traveller_list
         travellers.extend(self.traveller_list)
@@ -203,9 +221,9 @@ class Conference(models.Model):
             my_str = "{}".format(self.name)
         return my_str
 
-    @property
-    def conf_fiscal_year(self):
-        return shared_models.FiscalYear.objects.get(pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
+    def save(self, *args, **kwargs):
+        self.fiscal_year = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
+        super().save(*args, **kwargs)
 
     @property
     def get_summary_dict(self):
@@ -219,7 +237,7 @@ class Conference(models.Model):
         # my_trip_list = self.children_trips.all() if self.is_group_trip else Trip.objects.filter(pk=self.id)
 
         # get the fiscal year of the conference
-        fy = self.conf_fiscal_year
+        fy = self.fiscal_year
 
         for traveller in self.total_traveller_list:
             total_list = []
@@ -434,9 +452,9 @@ class Trip(models.Model):
                 if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
                     my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
                         self._meta.get_field(cost).verbose_name,
-                        nz(getattr(self, cost),0),
-                        nz(getattr(self, "no_" + cost),0),
-                        nz(getattr(self, cost + "_rate"),0),
+                        nz(getattr(self, cost), 0),
+                        nz(getattr(self, "no_" + cost), 0),
+                        nz(getattr(self, cost + "_rate"), 0),
                     )
                 else:
                     my_str += "{}: ${:,.2f}; ".format(self._meta.get_field(cost).verbose_name, getattr(self, cost))
@@ -478,7 +496,7 @@ class Trip(models.Model):
                 my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{} ({} &times; {})</td></tr>".format(
                     get_verbose_label(self, cost),
                     nz(currency(getattr(self, cost)), "---"),
-                    nz(getattr(self, "no_"+cost), "---"),
+                    nz(getattr(self, "no_" + cost), "---"),
                     nz(currency(getattr(self, cost + "_rate")), "---"),
                 )
             else:
