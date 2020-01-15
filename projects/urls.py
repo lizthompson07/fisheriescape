@@ -198,10 +198,10 @@ urlpatterns = [
          name="iw_group_list"),
 
     # by section / program by fgroup
-    path('regional-meeting/<int:fiscal_year>/region/<int:region>/section/<int:section>/group/<int:group>/projects/type/<str:type>/',
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/section/<int:section>/group/<int:group>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
     # by section / program
-    path('regional-meeting/<int:fiscal_year>/region/<int:region>/section/<int:section>/projects/type/<str:type>/',
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/section/<int:section>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
 
     path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),

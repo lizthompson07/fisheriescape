@@ -886,7 +886,7 @@ class Note(models.Model):
     # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
-    summary = models.TextField(blank=True, null=True, verbose_name=_("summary of activity"))
+    summary = models.TextField(blank=True, null=True, verbose_name=_("executive summary"))
     pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
 
     class Meta:
