@@ -13,7 +13,7 @@
 <div class="projects">
     <div class="mb-3">
         <h2>{% trans "By Functional Groups" %}</h2>
-        <h6>({% trans "Submitted & Approved Projects" %})</h6>
+        <h6>({% trans "Submitted" %}{% if region.id == 2 %}{% trans "& Approved Projects" %}{% endif %}) </h6>
     </div>
 
     {% for item in fg_dict %}
@@ -43,7 +43,7 @@
                                 </table>
                             </div>
                             <div class="col">
-                                <a href="#" pop-href="{% url 'projects:note_edit' note.id  %}" class="btn btn-sm btn-success">
+                                <a href="#" pop-href="{% url 'projects:note_edit' note.id %}" class="btn btn-sm btn-success">
                                     Edit
                                 </a>
 
