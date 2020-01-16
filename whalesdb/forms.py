@@ -84,7 +84,6 @@ def get_descriptions(for_model):
             'eqa_adc_bits': _("ADC Bits represented in this channel"),
             'ecp_voltage_range_min': _("Voltage Range Minimum"),
             'ecp_voltage_range_max': _("Voltage Range Maximum"),
-            'ecp_gain': _("How much a channel is amplified in dB."),
         }
     elif for_model is models.EhaHydrophoneAttachment:
         labels = {
@@ -127,6 +126,14 @@ def get_descriptions(for_model):
         labels = {
             'eqt_id': _("Equipment Type Code ID"),
             'eqt_name': _("Equipment Type Code Name"),
+        }
+    elif for_model is models.EtrTechnicalRepairEvent:
+        labels = {
+            'eqp_id': _("Equipment involved"),
+            'etr_date': _("Date the issue or repair occurred"),
+            'etr_issue_desc': _("Issue that occurred"),
+            'etr_repair_desc': _("Repair or fix that took place"),
+            'etr_repaired_by': _("Person or institute that preformed the repair"),
         }
     elif for_model is models.MorMooringSetup:
         labels = {
@@ -171,6 +178,10 @@ def get_descriptions(for_model):
                      "local format."),
             'rec_first_in_water': _("First in water recording"),
             'rec_last_in_water': _("Last in water recording"),
+            'rec_lf_channel_gain': _("Low Frequency Gain in decibles (dB)"),
+            'rec_lf_channel_volts': _("Low Frequency Voltage"),
+            'rec_hf_channel_gain': _("High Frequency Gain in decibles (dB)"),
+            'rec_hf_channel_volts': _("High Frequency Voltage"),
         }
     elif for_model is models.RscRecordingSchedule:
         labels = {
@@ -184,7 +195,6 @@ def get_descriptions(for_model):
             'rst_active': _("(A)ctive or (S)leep"),
             'rst_duration': _("The number of seconds this stage is active fore"),
             'rst_rate': _("Sampling rate in Hertz (Hz)"),
-            'rst_gain': _("Decibles (dB)"),
         }
     elif for_model is models.RttTimezoneCode:
         labels = {
