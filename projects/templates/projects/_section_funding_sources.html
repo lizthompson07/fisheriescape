@@ -4,7 +4,7 @@
 <div class="projects">
     <div class="mb-3">
         <h2>{% trans "By Primary Funding Source" %}</h2>
-        <h6>({% trans "Submitted & Approved Projects" %})</h6>
+        <h6>({% trans "Submitted" %}{% if region.id == 2 %}{% trans "& Approved Projects" %}{% endif %}) </h6>
     </div>
 
     {% for item in fs_dict %}
