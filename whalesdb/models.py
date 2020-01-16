@@ -57,7 +57,6 @@ class EcpChannelProperty(models.Model):
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', models.DO_NOTHING, db_column='eqa_adc_bits')
     ecp_voltage_range_min = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     ecp_voltage_range_max = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
-    ecp_gain = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         unique_together = (('ecp_channel_no', 'emm'),)
@@ -134,6 +133,15 @@ class EqtEquipmentTypeCode(models.Model):
         return "{}".format(self.eqt_name)
 
 
+class EtrTechnicalRepairEvent(models.Model):
+    etr_id = models.AutoField(primary_key=True)
+    eqp_id = models.ForeignKey('EqpEquipment', models.DO_NOTHING)
+    etr_date = models.DateField()
+    etr_issue_desc = models.CharField(max_length=4000, blank=True, null=True)
+    etr_repair_desc = models.CharField(max_length=4000, blank=True, null=True)
+    etr_repaired_by = models.CharField(max_length=50, blank=True, null=True)
+
+
 class MorMooringSetup(models.Model):
     mor_id = models.AutoField(primary_key=True)
     mor_name = models.CharField(unique=True, max_length=50)
@@ -191,6 +199,10 @@ class RecRecordingEvent(models.Model):
     rtt = models.ForeignKey('RttTimezoneCode', models.DO_NOTHING, blank=True, null=True)
     rec_first_in_water = models.DateField(blank=True, null=True)
     rec_last_in_water = models.DateField(blank=True, null=True)
+    rec_lf_channel_gain = models.BigIntegerField(blank=True, null=True)
+    rec_lf_channel_volts = models.BigIntegerField(blank=True, null=True)
+    rec_hf_channel_gain = models.BigIntegerField(blank=True, null=True)
+    rec_hf_channel_volts = models.BigIntegerField(blank=True, null=True)
 
 
 class RscRecordingSchedule(models.Model):
@@ -206,7 +218,6 @@ class RstRecordingStage(models.Model):
     rst_active = models.CharField(max_length=1)
     rst_duration = models.BigIntegerField()
     rst_rate = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
-    rst_gain = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
 
 
 class RttTimezoneCode(models.Model):

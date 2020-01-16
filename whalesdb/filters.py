@@ -50,6 +50,13 @@ class EdhFilter(GenericFilterSet):
         fields = ['eda', 'eqp',]
 
 
+class EmmFilter(GenericFilterSet):
+
+    class Meta:
+        model = models.EmmMakeModel
+        fields = ['emm_make', 'emm_model', 'emm_depth_rating']
+
+
 class EqhFilter(GenericFilterSet):
 
     class Meta:
@@ -64,11 +71,11 @@ class EqpFilter(GenericFilterSet):
         fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqp_asset_id', 'eqp_notes']
 
 
-class EmmFilter(GenericFilterSet):
+class EtrTechnicalRepairEvent(GenericFilterSet):
 
     class Meta:
-        model = models.EmmMakeModel
-        fields = ['emm_make', 'emm_model', 'emm_depth_rating']
+        model = models.EtrTechnicalRepairEvent
+        fields = ['eqp_id', 'etr_date', ]
 
 
 class MorFilter(GenericFilterSet):
@@ -94,7 +101,8 @@ class RecFilter(GenericFilterSet):
                   'rec_date_last_recording', 'rec_total_memory_used', 'rec_hf_mem', 'rec_lf_mem',
                   'rec_date_data_download', 'rec_data_store_url', 'tea_id_downloaded_by', 'rec_date_data_backed_up',
                   'rec_data_backup_url', 'tea_id_backed_up_by', 'rec_channel_count', 'rec_notes', 'rtt',
-                  'rec_first_in_water', 'rec_last_in_water', ]
+                  'rec_first_in_water', 'rec_last_in_water', 'rec_lf_channel_gain', 'rec_lf_channel_volts',
+                  'rec_hf_channel_gain', 'rec_hf_channel_volts']
 
 
 class RscFilter(GenericFilterSet):
@@ -108,7 +116,7 @@ class RstFilter(GenericFilterSet):
 
     class Meta:
         model = models.RstRecordingStage
-        fields = ['rst_channel_no', 'rsc', 'rst_active', 'rst_duration', 'rst_rate', 'rst_gain']
+        fields = ['rst_channel_no', 'rsc', 'rst_active', 'rst_duration', 'rst_rate']
 
 
 class SteFilter(GenericFilterSet):
