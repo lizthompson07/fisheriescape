@@ -2514,7 +2514,7 @@ class PDFReportTemplate(LoginRequiredMixin, PDFTemplateView):
         self.project_list = models.Project.objects.filter(year=fy, submitted=True, section_id__in=self.section_list)
 
         if context["approved"]:
-            self.project_list = self.project_list.filter(section_head_approved=True).order_by("id")
+            self.project_list = self.project_list.filter(approved=True).order_by("id")
 
         self.project_list = self.project_list.order_by("id")
 
