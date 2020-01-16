@@ -618,6 +618,9 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
 
         # in FY 2021, MAR Region is looking at only submitted projects (don't care about approved status for now)
+        # This should be delete once the process in both regions is the same
+        really_approved_projects = object_list.filter(approved=True, submitted=True)
+        context['really_approved_projects'] = really_approved_projects
         if object_list.first().section.division.branch.region.id == 1:
             approved_projects = object_list.filter(approved=True, submitted=True)
         else:

@@ -11,7 +11,8 @@
             <div class="mb-3">
                 <h5>
                     <a href="#project-list-1" data-toggle="collapse">
-                        {% trans "Submitted & Approved" %} ({{ approved_projects.count }})
+
+                        {% trans "Submitted & Approved" %} ({{ really_approved_projects.count }})
                     </a>
                 </h5>
             </div>
@@ -22,7 +23,7 @@
                         <th>{% get_verbose_label object_list.first field %}</th>
                     {% endfor %}
                     </thead>
-                    {% for object in approved_projects %}
+                    {% for object in really_approved_projects %}
                         <tr href="{% url 'projects:project_overview' object.id %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
