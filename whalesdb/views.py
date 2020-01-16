@@ -198,6 +198,14 @@ def get_smart_object(obj_name):
             'filter_class': filters.EqpFilter,
             'title': "Equipment",
         }
+    elif obj_name == 'etr':
+        obj_def = {
+            'model': models.EtrTechnicalRepairEvent,
+            'form_class': forms.EtrForm,
+
+            'filter_class': filters.EtrTechnicalRepairEvent,
+            'title': "Technical Issue and Repair Event",
+        }
     elif obj_name == 'mor':
         obj_def = {
             'model': models.MorMooringSetup,
@@ -388,6 +396,12 @@ class IndexView(TemplateView):
                     {
                         'obj_name': "edh",
                         'title': "Hydrophone Attachments",
+                        'url': "whalesdb:list_obj",
+                        'icon': "img/whales/microphone_attach.svg",
+                    },
+                    {
+                        'obj_name': "etr",
+                        'title': "Technical Issues and Repair Events",
                         'url': "whalesdb:list_obj",
                         'icon': "img/whales/microphone_attach.svg",
                     },

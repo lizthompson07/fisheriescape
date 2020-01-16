@@ -420,6 +420,20 @@ class EqtForm(forms.ModelForm):
         }
 
 
+class EtrForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EtrTechnicalRepairEvent
+        labels = get_descriptions(model)
+        fields = labels.keys()
+
+        widgets = {
+            'etr_date': forms.DateInput(attrs={"type": "date"}),
+            'etr_issue_desc': forms.Textarea(attrs={"rows": 4}),
+            'etr_repair_desc': forms.Textarea(attrs={"rows": 4}),
+        }
+
+
 class MorForm(forms.ModelForm):
 
     class Meta:
