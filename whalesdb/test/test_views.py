@@ -41,12 +41,16 @@ class TestIndexView(TestCommon):
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
 
-    # Users should be able to view the whales index page corresponding to the whalesdb/index.html template, in French
+    # The index view should return a context to be used on the index.html template
+    # this should consist of a "Sections" dictionary containing sub-sections
     @tag('index_view', 'context')
     def test_index_view_context(self):
         activate('en')
 
         response = self.client.get(self.test_url)
 
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        # expect to see section in the context
+        self.assertIn("section", response.context)
+
+        # expect to see 'entry' object under section
+        self.assertIn('entry', response.context['section'])
