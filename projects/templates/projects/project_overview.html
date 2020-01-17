@@ -4,7 +4,7 @@
 {% load i18n %}
 
 {% block title %}
-{{object.project_title}}
+    {{ object.project_title }}
 {% endblock %}
 
 {% block content %}
@@ -42,14 +42,43 @@
 
         <hr>
 
+        {% if can_edit %}
+
+
+            <div class="btn-group mb-5">
+                <a class="btn btn-dark btn-sm {% if not can_edit and not is_lead %}disabled{% endif %}"
+                   href="{% url 'projects:project_submit' object.id %}">
+                    {% if object.submitted %}{% trans "Unsubmit" %}{% else %}{% trans "Submit" %}{% endif %}
+                </a>
+
+                <a class="btn btn-danger btn-sm {% if object.submitted %}disabled{% endif %}"
+                   href="{% url 'projects:project_delete' object.id %}">
+                    {% trans "Delete" %}
+                </a>
+
+                <a href="{% url 'projects:project_clone' object.id %}" class="btn btn-sm btn-warning" data-toggle="tooltip"
+                   title="{% trans "Use this project as a template for a new project" %}">
+                    {% trans "Clone" %}
+                </a>
+
+                {% if object.submitted %}
+                    {% if can_edit or is_lead %}
+                        <a href="#" pop-href="{% url 'projects:report_new' object.id %}" class="btn btn-sm btn-primary"
+                           data-toggle="tooltip"
+                           title="{% trans "Create a new status report for this project" %}">
+                            {% trans "New Status Report" %}
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+        {% endif %}
+
     </div>
-
-
 
     <div class="container">
         {% include "projects/_project_content.html" %}
     </div>
 
-    </div>
 
 {% endblock content %}

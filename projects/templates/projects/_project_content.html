@@ -35,42 +35,7 @@
     <br>
 {% endif %}
 
-{% if object_list %}
-    {% with financial_summary_data|lookup:object.id|lookup:"salary_abase" as salary_abase %}
-        {% with financial_summary_data|lookup:object.id|lookup:"salary_bbase" as salary_bbase %}
-            {% with financial_summary_data|lookup:object.id|lookup:"salary_cbase" as salary_cbase %}
-                {% with financial_summary_data|lookup:object.id|lookup:"salary_total" as salary_total %}
-                    {% with financial_summary_data|lookup:object.id|lookup:"om_abase" as om_abase %}
-                        {% with financial_summary_data|lookup:object.id|lookup:"om_bbase" as om_bbase %}
-                            {% with financial_summary_data|lookup:object.id|lookup:"om_cbase" as om_cbase %}
-                                {% with financial_summary_data|lookup:object.id|lookup:"om_total" as om_total %}
-                                    {% with financial_summary_data|lookup:object.id|lookup:"capital_abase" as capital_abase %}
-                                        {% with financial_summary_data|lookup:object.id|lookup:"capital_bbase" as capital_bbase %}
-                                            {% with financial_summary_data|lookup:object.id|lookup:"capital_cbase" as capital_cbase %}
-                                                {% with financial_summary_data|lookup:object.id|lookup:"capital_total" as capital_total %}
-                                                    {% with financial_summary_data|lookup:object.id|lookup:"abase" as abase %}
-                                                        {% with financial_summary_data|lookup:object.id|lookup:"bbase" as bbase %}
-                                                            {% with financial_summary_data|lookup:object.id|lookup:"cbase" as cbase %}
-                                                                {% include "projects/_financial.html" %}
-                                                            {% endwith %}
-                                                        {% endwith %}
-                                                    {% endwith %}
-                                                {% endwith %}
-                                            {% endwith %}
-                                        {% endwith %}
-                                    {% endwith %}
-                                {% endwith %}
-                            {% endwith %}
-                        {% endwith %}
-                    {% endwith %}
-                {% endwith %}
-            {% endwith %}
-        {% endwith %}
-    {% endwith %}
-
-{% else %}
-    {% include "projects/_financial.html" %}
-{% endif %}
+{% include "projects/_financial.html" %}
 
 <script type="application/javascript">
 
