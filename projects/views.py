@@ -605,12 +605,14 @@ class SectionListView(LoginRequiredMixin, FilterView):
             "functional_group",
             "status",
             "default_funding_source",
+            'funding_sources|{}'.format(_("Complete list of funding sources")),
             "activity_type",
             "project_leads|{}".format("Leads"),
             "status_report_count|{}".format(_("Status reports")),
         ]
 
         object_list = context.get("object_list")
+        context['region'] = object_list.first().section.division.branch.region
         section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
         fy = object_list.first().year if object_list.count() > 0 else None
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
