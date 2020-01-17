@@ -92,6 +92,15 @@ def is_rds(user, project):
         pass
 
 
+def is_project_lead(user, project_id):
+    """
+    returns True if user is among the project's project leads
+    """
+    if user.id:
+        project = models.Project.objects.get(pk=project_id)
+        return user in project.project_leads_as_users
+
+
 def can_modify_project(user, project_id):
     """
     returns True if user has permissions to delete or modify a project
@@ -111,8 +120,7 @@ def can_modify_project(user, project_id):
 
         # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are a project lead
-        if not project.submitted and \
-                user in [staff.user for staff in project.staff_members.filter(lead=True)]:
+        if not project.submitted and is_project_lead(user, project.id):
             return True
 
 
@@ -144,7 +152,7 @@ class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             except AttributeError:
                 project_id = obj.id
         finally:
-            return can_modify_project(self.request.user, project_id)
+            return can_modify_project(self.request.user, project_id) or is_project_lead(self.request.user, project_id)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -844,7 +852,7 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
-class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
+class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectSubmitForm
 
