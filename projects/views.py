@@ -908,7 +908,7 @@ class ProjectSubmitUpdateView(CanModifyProjectRequiredMixin, UpdateView):
                     print(email)
             messages.success(self.request,
                              _("The project was submitted and an email has been sent to notify the section head!"))
-            return super().form_valid(form)
+            return HttpResponseRedirect(reverse('projects:project_detail', kwargs={"pk": my_object.id}))
 
 
 class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
@@ -2588,8 +2588,8 @@ class PDFProjectSummaryReport(PDFReportTemplate):
             finally:
                 for key in key_list:
                     context["financial_summary_data"]["sections"][project.section.id][key] += \
-                    context["financial_summary_data"][project.id][
-                        key]
+                        context["financial_summary_data"][project.id][
+                            key]
 
             # for Divisions
             try:
@@ -2951,8 +2951,8 @@ class PDFCostSummaryReport(PDFReportTemplate):
             finally:
                 for key in key_list:
                     context["financial_summary_data"]["sections"][project.section.id][key] += \
-                    context["financial_summary_data"][project.id][
-                        key]
+                        context["financial_summary_data"][project.id][
+                            key]
 
             # for Divisions
             try:
