@@ -60,7 +60,7 @@
                 {% endif %}
                 <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin and not is_owner %}disabled{% endif %}"
                    href="{% url 'travel:trip_submit' object.id %}">
-                {% if object.submitted %}Un-submit {% else %} Submit {% endif %}
+                {% if object.submitted %}Un-submit {% else %} {% if object.status.id == 16 %} Re-submit {% else %} Submit {% endif %} {% endif %}
             </a>
                 {% if object.submitted and not is_admin and not is_owner %}
                     </span>
