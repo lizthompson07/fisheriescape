@@ -416,6 +416,7 @@ project_field_list = [
     'it_needs',
     'chemical_needs',
     'ship_needs',
+    'additional_notes',
     'coding|Known financial coding',
     'last_modified_by',
     'date_last_modified',

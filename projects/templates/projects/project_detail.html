@@ -46,7 +46,7 @@
 
         <div class="btn-group mb-5">
 
-            <a class="btn btn-dark btn-sm {% if not can_edit %}disabled{% endif %}" href="{% url 'projects:project_submit' object.id %}">
+            <a class="btn btn-dark btn-sm {% if not can_edit and not is_lead %}disabled{% endif %}" href="{% url 'projects:project_submit' object.id %}">
                 {% if object.submitted %}{% trans "Unsubmit" %}{% else %}{% trans "Submit" %}{% endif %}
             </a>
 
