@@ -615,7 +615,8 @@ class Reviewer(models.Model):
             return textile.textile(self.comments)
 
     def save(self, *args, **kwargs):
-        self.status_date = timezone.now()
+        if not self.status:
+            self.status_date = timezone.now()
         return super().save(*args, **kwargs)
 
     @property
