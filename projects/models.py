@@ -377,7 +377,7 @@ class Project(models.Model):
     # rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
     # rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
 
-    meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("notes / comments"))
+    meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("management notes"))
 
     is_hidden = models.NullBooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
 
