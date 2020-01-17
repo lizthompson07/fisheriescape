@@ -80,7 +80,7 @@ def end_review_process(trip):
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip.reviewers.all():
         reviewer.status_id = 4
-        reviewer.status_date = timezone.now()
+        reviewer.status_date = None
         reviewer.comments = None
         reviewer.save()
 
