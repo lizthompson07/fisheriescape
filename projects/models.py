@@ -47,7 +47,7 @@ class BudgetCode(models.Model):
         ordering = ['code', ]
 
 
-class Program(models.Model):
+class Theme(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
 
@@ -64,25 +64,7 @@ class Program(models.Model):
         ordering = ['name', ]
 
 
-class Tag(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    nom = models.CharField(max_length=255, blank=True, null=True, unique=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = [_('name'), ]
-
-
-# This model will eventually be renamed once we get rid on the original Program table
-class Program2(models.Model):
+class Program(models.Model):
     is_core_choices = (
         # (None, _("Unknown")),
         (True, _("Core")),
@@ -98,6 +80,7 @@ class Program2(models.Model):
     short_name = models.CharField(max_length=255, blank=True, null=True)
     is_core = models.BooleanField(verbose_name=_("Is program core or flex?"), choices=is_core_choices)
     examples = models.CharField(max_length=255, blank=True, null=True)
+    theme = models.ForeignKey(Theme, on_delete=models.DO_NOTHING, related_name="programs", blank=True, null=True)
 
     @property
     def regions(self):
@@ -138,15 +121,108 @@ class Program2(models.Model):
         else:
             national_responsibility = "{}".format(self.national_responsibility_eng)
 
-        my_str = "{} - {} ({})".format(national_responsibility, regional_program_name, self.get_is_core_display())
+        my_str = "{} - {}".format(national_responsibility, regional_program_name)
 
-        if self.examples:
-            return "{} (e.g., {})".format(my_str, self.examples)
-        else:
-            return "{}".format(my_str)
+        # if self.examples:
+        #     return "{} (e.g., {})".format(my_str, self.examples)
+        # else:
+        return "{}".format(my_str)
 
     class Meta:
         ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
+
+
+class FunctionalGroup(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups", blank=True)
+    theme = models.ForeignKey(Theme, on_delete=models.DO_NOTHING, related_name="functional_groups", blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class ActivityType(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['id', ]
+
+
+class FundingSourceType(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    color = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
+
+class FundingSource(models.Model):
+    name = models.CharField(max_length=500)
+    nom = models.CharField(max_length=500, blank=True, null=True)
+    funding_source_type = models.ForeignKey(FundingSourceType, on_delete=models.DO_NOTHING, related_name="funding_sources")
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str = "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = "{}".format(self.name)
+        return my_str
+
+    def __str__(self):
+        return "{} - {}".format(self.funding_source_type, self.tname)
+
+    class Meta:
+        ordering = ['funding_source_type', 'name', ]
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    nom = models.CharField(max_length=255, blank=True, null=True, unique=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = [_('name'), ]
 
 
 class Status(models.Model):
@@ -203,30 +279,30 @@ class Project(models.Model):
         (True, _("National")),
         (False, _("Regional")),
     )
-    # choices for is_negotiable
-    is_negotiable_choices = (
-        (None, _("Unknown")),
-        (True, _("Negotiable")),
-        (False, _("Non-negotiable")),
-    )
 
     year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                              verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
     # basic
-    project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects",
                                 verbose_name=_("section"))
-    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("old program (retired field)"))
-    programs = models.ManyToManyField(Program2, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
-    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
+    project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
+    activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
+    functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
+                                         verbose_name=_("Functional group"))
+    default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True,
+                                               verbose_name=_("primary funding source"))
+    programs = models.ManyToManyField(Program, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords (used for searching)"), related_name="projects")
 
     # details
     is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
-    # is_negotiable = models.NullBooleanField(verbose_name=_("Negotiable or non-negotiable?"), choices=is_negotiable_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"), limit_choices_to={"used_for": 1})
+
+    # DELETE FOLLOWING TWO FIELDS
     is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding competitive?"))
     is_approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
+
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
 
@@ -237,7 +313,7 @@ class Project(models.Model):
     # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_("Project-specific priorities"))
     # HTML field
-    deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables"))
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables / activities"))
 
     # data
     #######
@@ -254,21 +330,20 @@ class Project(models.Model):
 
     # needs
     ########
-    regional_dm = models.NullBooleanField(
-        verbose_name=_("Does the program require assistance of the branch data manager"))
-    # HTML field
+
+    # DELETE ME!! #
     regional_dm_needs = models.TextField(blank=True, null=True,
                                          verbose_name=_("Describe assistance required from the branch data manager, if applicable"))
-    sectional_dm = models.NullBooleanField(verbose_name=_("Does the program require assistance of the section's data manager"))
-    # HTML field
+    # DELETE ME!! #
     sectional_dm_needs = models.TextField(blank=True, null=True,
                                           verbose_name=_("Describe assistance required from the section data manager, if applicable"))
+
     # HTML field
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_(
                                          "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
     # HTML field
-    it_needs = models.TextField(blank=True, null=True, verbose_name=_("IT requirements (software, licenses, hardware)"))
+    it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     # HTML field
     chemical_needs = models.TextField(blank=True, null=True,
                                       verbose_name=_(
@@ -289,19 +364,20 @@ class Project(models.Model):
 
     feedback = models.TextField(blank=True, null=True,
                                 verbose_name=_("Do you have any feedback you would like to submit about this process"))
-    submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
 
     # admin
-    section_head_approved = models.BooleanField(default=False, verbose_name=_("section head approved"))
-    section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
+    submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
+    # approved = models.BooleanField(default=False, verbose_name=_("approved"))
+    approved = models.BooleanField(default=False, verbose_name=_("approved"))
+    # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
 
-    manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
-    manager_feedback = models.TextField(blank=True, null=True, verbose_name=_("division manager feedback"))
+    # manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
+    # manager_feedback = models.TextField(blank=True, null=True, verbose_name=_("division manager feedback"))
 
-    rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
-    rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
+    # rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
+    # rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
 
-    meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("meeting notes"))
+    meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     is_hidden = models.NullBooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
 
@@ -318,8 +394,13 @@ class Project(models.Model):
         self.date_last_modified = timezone.now()
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse('projects:project_detail', kwargs={'pk': self.pk})
+    @property
+    def status_report_count(self):
+        return self.reports.count()
+
+    @property
+    def unapproved(self):
+        return self.submitted and not self.approved
 
     @property
     def coding(self):
@@ -340,9 +421,34 @@ class Project(models.Model):
             pc = "xxxxx"
         return "{}-{}-{}".format(rc, ac, pc)
 
+    def get_funding_sources(self):
+        # look through all expenses and compile a unique list of funding sources
+        my_list = []
+        for item in self.staff_members.all():
+            if item.funding_source and item.cost and item.cost > 0:
+                my_list.append(item.funding_source)
+
+        for item in self.om_costs.all():
+            if item.funding_source and item.budget_requested and item.budget_requested > 0:
+                my_list.append(item.funding_source)
+
+        for item in self.capital_costs.all():
+            if item.funding_source and item.budget_requested and item.budget_requested > 0:
+                my_list.append(item.funding_source)
+
+        return set(my_list)
+
+    @property
+    def funding_sources(self):
+        return listrify(self.get_funding_sources())
+
     @property
     def project_leads(self):
         return listrify([staff for staff in self.staff_members.all() if staff.lead])
+
+    @property
+    def project_leads_as_users(self):
+        return [staff.user for staff in self.staff_members.all() if staff.lead and staff.user]
 
     @property
     def core_status(self):
@@ -485,24 +591,6 @@ class Level(models.Model):
         ordering = ['name', ]
 
 
-class FundingSource(models.Model):
-    name = models.CharField(max_length=50)
-    nom = models.CharField(max_length=50, blank=True, null=True)
-    color = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
 class Staff(models.Model):
     # STUDENT_PROGRAM_CHOICES
     FSWEP = 1
@@ -517,7 +605,8 @@ class Staff(models.Model):
     lead = models.BooleanField(default=False, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
     funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="staff_members",
                                        verbose_name=_("funding source"), default=1)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
+                             related_name="staff_instances")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True,
                             null=True)
     level = models.ForeignKey(Level, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("level"))
@@ -601,7 +690,11 @@ class OMCategory(models.Model):
         ordering = ['group', 'name']
 
     def __str__(self):
-        return "{} ({})".format(getattr(self, str(_("name"))), self.get_group_display())
+        return "{} ({})".format(self.tname, self.get_group_display())
+
+    @property
+    def tname(self):
+        return getattr(self, str(_("name")))
 
 
 class OMCost(models.Model):
@@ -789,18 +882,15 @@ class MilestoneUpdate(models.Model):
         )
 
 
-class SectionNote(models.Model):
-    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE)
-    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="section_notes", on_delete=models.CASCADE)
-    pressures = models.TextField(blank=True, null=True)
-    general_notes = models.TextField(blank=True, null=True)
+class Note(models.Model):
+    # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    summary = models.TextField(blank=True, null=True, verbose_name=_("executive summary"))
+    pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
 
-    def __str__(self):
-        return "{} {} {}".format(
-            self.fiscal_year,
-            str(self.section).title(),
-            _("section notes").title(),
-        )
+    class Meta:
+        unique_together = ["section", "functional_group"]
 
     @property
     def pressures_html(self):
@@ -808,6 +898,6 @@ class SectionNote(models.Model):
             return textile(self.pressures)
 
     @property
-    def general_notes_html(self):
-        if self.general_notes:
-            return textile(self.general_notes)
+    def summary_html(self):
+        if self.summary:
+            return textile(self.summary)

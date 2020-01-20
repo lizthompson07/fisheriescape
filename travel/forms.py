@@ -10,6 +10,8 @@ chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 attr_fp_date_hide_me = {"class": "fp-date hide-me", "placeholder": "Click to select a date.."}
 attr_hide_me = {"class": "hide-me"}
+attr_hide_me_user_info = {"class": "hide-me user-info"}
+attr_user_info = {"class": "user-info"}
 attr_cost_hide_me = {"class": "hide-me cost"}
 attr_cost = {"class": "cost"}
 attr_row3_hide_me = {"class": "hide-me", "rows": 3}
@@ -23,7 +25,7 @@ YES_NO_CHOICES = (
 
 
 class ReviewerApprovalForm(forms.ModelForm):
-    is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
@@ -40,9 +42,22 @@ class ReviewerApprovalForm(forms.ModelForm):
         }
 
 
+class ReviewerSkipForm(forms.ModelForm):
+    class Meta:
+        model = models.Reviewer
+        fields = [
+            "comments",
+        ]
+        labels = {
+            "comments": _("If so, please provide the rationale here...")
+        }
+        widgets = {
+            "comments": forms.Textarea(attrs=attr_row3)
+        }
+
 
 class TripApprovalForm(forms.Form):
-    is_approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
 
 class TripForm(forms.ModelForm):
@@ -67,6 +82,7 @@ class TripForm(forms.ModelForm):
         }
         widgets = {
             'bta_attendees': forms.SelectMultiple(attrs=chosen_js),
+            'conference': forms.Select(attrs=chosen_js),
             'user': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
             'is_group_trip': forms.Select(choices=YES_NO_CHOICES),
@@ -83,11 +99,11 @@ class TripForm(forms.ModelForm):
             # non-group trip fields
             'start_date': forms.DateInput(attrs=attr_fp_date_hide_me),
             'end_date': forms.DateInput(attrs=attr_fp_date_hide_me),
-            'first_name': forms.TextInput(attrs=attr_hide_me),
-            'last_name': forms.TextInput(attrs=attr_hide_me),
+            'first_name': forms.TextInput(attrs=attr_hide_me_user_info),
+            'last_name': forms.TextInput(attrs=attr_hide_me_user_info),
+            'email': forms.EmailInput(attrs=attr_hide_me_user_info),
             'address': forms.TextInput(attrs=attr_hide_me),
             'phone': forms.TextInput(attrs=attr_hide_me),
-            'email': forms.EmailInput(attrs=attr_hide_me),
             'is_public_servant': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
             'is_research_scientist': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
             'company_name': forms.TextInput(attrs=attr_hide_me),
@@ -247,6 +263,9 @@ class ChildTripForm(forms.ModelForm):
 
             'registration': forms.NumberInput(attrs=attr_cost),
             'other': forms.NumberInput(attrs=attr_cost),
+            'first_name': forms.TextInput(attrs=attr_user_info),
+            'last_name': forms.TextInput(attrs=attr_user_info),
+            'email': forms.EmailInput(attrs=attr_user_info),
         }
 
     def __init__(self, *args, **kwargs):
@@ -317,7 +336,6 @@ StatusFormSet = modelformset_factory(
 
 
 class ReviewerForm(forms.ModelForm):
-
     class Meta:
         model = models.Reviewer
         fields = [
