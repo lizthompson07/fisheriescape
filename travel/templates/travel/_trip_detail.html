@@ -113,10 +113,11 @@
                     <table class="plainjane" style="width: 75%;">
                         <tr class="plainjane">
                             <th rowspan="2" class="plainjane">{% trans "Name" %}</th>
-                            <th colspan="2" class="plainjane center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
+                            <th colspan="2"
+                                class="plainjane center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
                         </tr>
                         <tr class="plainjane">
-                            <th class="plainjane center-col">{{ trip.conference.conf_fiscal_year }}</th>
+                            <th class="plainjane center-col">{{ trip.conference.fiscal_year }}</th>
                             <th class="plainjane center-col">Total</th>
                         </tr>
                         {% for traveller in trip.conference.total_traveller_list %}
@@ -133,7 +134,7 @@
                                                 &nbsp;
                                                 {% with d.fy_list as my_list %}
                                                     <button class="badge" data-toggle="popover"
-                                                            title="{{ traveller.first_name }}'s Total Trips for {{ trip.conference.conf_fiscal_year }}"
+                                                            title="{{ traveller.first_name }}'s Total Trips for {{ trip.conference.fiscal_year }}"
                                                             data-content="{% include "travel/_user_trip_list.html" %}">
                                                         {% trans "show" %}
                                                     </button>
@@ -176,7 +177,6 @@
 
                 </td>
             </tr>
-
 
 
             <tr>
@@ -304,6 +304,22 @@
                         <td>{% get_field_value obj field safe=True %}</td>
                     {% endif %}
                 {% endfor %}
+                {# Only recommenders and reviewers should be allowed to be skipped. And the ability to skip is only given to system admins #}
+                {% if obj.status_id == 1 and is_admin %}
+                    {% if obj.role.id == 1 or obj.role.id == 2 %}
+                        <td>
+                            <a href="#" pop-href="{% url 'travel:reviewer_skip' obj.id %}" class="btn btn-sm btn-danger">
+                                {% trans "Skip" %}
+                            </a>
+                        </td>
+
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+
+                {% else %}
+                    <td></td>
+                {% endif %}
             </tr>
         {% endfor %}
         </tbody>

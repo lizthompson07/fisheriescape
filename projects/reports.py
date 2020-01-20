@@ -826,7 +826,10 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             verbose_field_name(project_list.first(), 'project_title'),
             "Section",
             "Division",
-            verbose_field_name(project_list.first(), 'programs'),
+            verbose_field_name(project_list.first(), 'activity_type'),
+            verbose_field_name(project_list.first(), 'default_funding_source'),
+            verbose_field_name(project_list.first(), 'functional_group'),
+            "Theme",
             verbose_field_name(project_list.first(), 'tags'),
             "Coding",
             verbose_field_name(project_list.first(), 'status'),
@@ -841,9 +844,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             verbose_field_name(project_list.first(), 'data_sharing'),
             verbose_field_name(project_list.first(), 'data_storage'),
             verbose_field_name(project_list.first(), 'metadata_url'),
-            verbose_field_name(project_list.first(), 'regional_dm'),
             verbose_field_name(project_list.first(), 'regional_dm_needs'),
-            verbose_field_name(project_list.first(), 'sectional_dm'),
             verbose_field_name(project_list.first(), 'sectional_dm_needs'),
             verbose_field_name(project_list.first(), 'vehicle_needs'),
             verbose_field_name(project_list.first(), 'it_needs'),
@@ -856,7 +857,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             'Total Capital',
             'Total G&Cs',
             verbose_field_name(project_list.first(), 'submitted'),
-            verbose_field_name(project_list.first(), 'section_head_approved'),
+            verbose_field_name(project_list.first(), 'approved'),
 
         ]
 
@@ -954,9 +955,12 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             data_row = [
                 p.id,
                 p.project_title,
-                division,
                 section,
-                programs,
+                division,
+                str(p.activity_type),
+                str(p.default_funding_source),
+                str(p.functional_group),
+                str(p.functional_group.theme) if p.functional_group else "",
                 tags,
                 p.coding,
                 status,
@@ -971,9 +975,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 html2text.html2text(nz(p.data_sharing, "")),
                 html2text.html2text(nz(p.data_storage, "")),
                 p.metadata_url,
-                p.regional_dm,
                 html2text.html2text(nz(p.regional_dm_needs, "")),
-                p.sectional_dm,
                 html2text.html2text(nz(p.sectional_dm_needs, "")),
                 html2text.html2text(nz(p.vehicle_needs, "")),
                 html2text.html2text(nz(p.it_needs, "")),
@@ -986,7 +988,7 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 capital_total,
                 gc_total,
                 yesno(p.submitted),
-                yesno(p.section_head_approved),
+                yesno(p.approved),
             ]
 
             # adjust the width of the columns based on the max string length in each col

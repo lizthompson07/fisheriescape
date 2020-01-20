@@ -11,18 +11,27 @@ urlpatterns = [
     # PROJECTS #
     ############
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
-    path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
-    path('my-division/', views.MyDivisionListView.as_view(), name="my_division_list"),
-    path('my-branch/', views.MyBranchListView.as_view(), name="my_branch_list"),
     path('all/', views.ProjectListView.as_view(), name="project_list"),
     path('new/', views.ProjectCreateView.as_view(), name="project_new"),
     path('<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
     path('project/<int:pk>/print/', views.ProjectPrintDetailView.as_view(), name="project_print"),
     path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
+    path('project/<int:pk>/delete/popout/<int:pop>/', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('project/<int:pk>/submit/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
+    path('project/<int:pk>/submit/popout/<int:pop>/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
+    path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),
     path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
-    path('approval/project/<int:pk>/level/<str:level>/', views.ProjectApprovalUpdateView.as_view(), name="project_approval"),
+    path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
+
+    # From management views
+    ################
+    # the following 3 should be deleted once fully phased out
+    path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
+    #
+    path('section/<int:section>/', views.SectionListView.as_view(), name="section_project_list"),
+    path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
+    path('project/<int:pk>/overview/popout/<int:pop>/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
 
     # STAFF #
     #########
@@ -32,7 +41,8 @@ urlpatterns = [
     path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
 
     #  this was used to walk over program to programs
-    path('project-formset/', views.temp_formset, name="formset"),
+    path('project-formset/region/<int:region>/fy/<int:fy>/', views.temp_formset, name="formset"),
+    path('project-formset/region/<int:region>/fy/<int:fy>/section/<str:section_str>/', views.temp_formset, name="formset"),
     path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
 
     # USER #
@@ -96,14 +106,21 @@ urlpatterns = [
     ####################
     path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
 
-    # SHARED #
-    ##########
-    path('toggle-funding-source/<str:type>/<int:pk>/', views.toggle_source, name="toggle_source"),
+    # FUNCTIONAL GROUP #
+    ####################
+    path('functional-groups/', views.FunctionalGroupListView.as_view(), name="group_list"),
+    path('functional-group/new/', views.FunctionalGroupCreateView.as_view(), name="group_new"),
+    path('functional-group/<int:pk>/edit/', views.FunctionalGroupUpdateView.as_view(), name="group_edit"),
+    path('functional-group/<int:pk>/delete/', views.FunctionalGroupDeleteView.as_view(), name="group_delete"),
+    path('functional-group/<int:pk>/view/', views.FunctionalGroupDetailView.as_view(), name="group_detail"),
 
     # SETTINGS #
     ############
     path('settings/funding-source/', views.manage_funding_sources, name="manage_funding_sources"),
     path('settings/funding-source/<int:pk>/delete/', views.delete_funding_source, name="delete_funding_source"),
+
+    path('settings/activity-types/', views.manage_activity_types, name="manage_activity_types"),
+    path('settings/activity-type/<int:pk>/delete/', views.delete_activity_type, name="delete_activity_type"),
 
     path('settings/om-categories/', views.manage_om_cats, name="manage_om_cats"),
     path('settings/om-category/<int:pk>/delete/', views.delete_om_cat, name="delete_om_cat"),
@@ -125,6 +142,9 @@ urlpatterns = [
 
     path('settings/programs/', views.manage_programs, name="manage_programs"),
     path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
+
+    path('settings/themes/', views.manage_themes, name="manage_themes"),
+    path('settings/theme/<int:pk>/delete/', views.delete_theme, name="delete_theme"),
 
     path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
     path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),
@@ -172,16 +192,18 @@ urlpatterns = [
          views.PDFDataReport.as_view(), name="pdf_data"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
-    # EXTRAS #
-    ##########
-    path('regional-meeting/region/<int:region>/programs-by-section/<int:fiscal_year>/', views.IPSProgramList.as_view(), name="ips_program_list"),
-    path('regional-meeting/<int:fiscal_year>/section/<int:section>/program/<int:program>/projects/',
-         views.IPSProjectList.as_view(), name="ips_project_list"),
-    path('regional-meeting/<int:fiscal_year>/section/<int:section>/projects/',
-         views.IPSProjectList.as_view(), name="ips_project_list"),
-    path('regional-meeting/project/<int:pk>/program/<int:program>/', views.IPSProjectUpdateView.as_view(), name="ips_project_edit"),
-    path('regional-meeting/project/<int:pk>/', views.IPSProjectUpdateView.as_view(), name="ips_project_edit"),
+    # INTERACTIVE WORKPLANS #
+    #########################
+    path('interactive-workplan/region/<int:region>/year/<int:fiscal_year>/type/<str:type>/', views.IWGroupList.as_view(),
+         name="iw_group_list"),
 
-    path('section-note/<int:pk>/fiscal-year/<int:fy>/', views.SectionNoteUpdateView.as_view(), name="section_note_edit"),
-    path('get-section-note/<int:section>/<int:fy>/', views.get_create_section_note, name="get_create_section_note"),
+    # by section / program by fgroup
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/section/<int:section>/group/<int:group>/projects/type/<str:type>/',
+         views.IWProjectList.as_view(), name="iw_project_list"),
+    # by section / program
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/section/<int:section>/projects/type/<str:type>/',
+         views.IWProjectList.as_view(), name="iw_project_list"),
+
+    path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),
+
 ]

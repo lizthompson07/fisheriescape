@@ -17,23 +17,25 @@
             border: 1px solid blue;
         }
 
+
     </style>
     <br>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-7">
+            <div class="col">
 
                 <div class="jumbotron">
-                    <h1 class="three-em">
-                        {% trans "Science Project Planning Application" %}
-                    </h1>
-                    <hr>
-                    <h3>
-                        {#                        {% trans "Science Project Planning " %}#}
-                    </h3>
-                    <div class="float-right">
-                        <img src="{% static '/img/icons/scope.svg' %}" alt="" width="200px">
+                    <div class="row">
+                        <div class="col">
+                            <h1 class="three-em">
+                                {% trans "Science Project Planning Application" %}
+                            </h1>
+                        </div>
+                        <div class="col-2">
+                            <img src="{% static '/img/icons/scope.svg' %}" alt="" width="100px">
+                        </div>
                     </div>
+                    <hr>
                     {% if user.is_authenticated %}
                         <br>
                     {% else %}
@@ -58,30 +60,100 @@
 
 
                         {% if user.is_authenticated %}
-                            <div align="">
-                                {% url 'projects:project_new' as new_proj_url %}
-                                {% url 'projects:my_project_list' as my_proj_url %}
-                                {% url 'projects:project_list' as all_proj_url %}
+                            {% url 'projects:project_new' as new_proj_url %}
+                            {% url 'projects:my_project_list' as my_proj_url %}
+                            {% url 'projects:project_list' as all_proj_url %}
+                            <div class="row">
+                                <div class="col-4">
+{#                                    <h4>#}
+{#                                        {% trans "Projects" %}#}
+{#                                    </h4>#}
 
+{#                                    <ul>#}
+                                        <h2 class="main-item">
+                                            <a href="{{ new_proj_url }}">
+                                                {% trans "New" %}
+                                            </a>
+                                        </h2>
+                                        <h2 class="main-item">
+                                            <a href="{{ my_proj_url }}">
+                                                {% trans "Your Projects" %} ({{ user.staff_instances.count }})
+                                            </a>
+                                        </h2>
+                                        <h2 class="main-item">
+                                            <a href="{{ all_proj_url }}">
+                                                {% trans "Explore Projects" %}
+                                            </a>
+                                        </h2>
+{#                                    </ul>#}
+                                </div>
+                                <div class="col">
+                                    <div class="mb-4">
+                                        <h4>
+                                            {% trans "Regional Views" %}
+                                        </h4>
+                                        <ul>
+                                            <li>
+                                                2020-2021 Gulf Region Interactive Workplan <br>
+                                                <a href="{% url 'projects:iw_group_list' 1 2021 'division' %}">
+                                                    ({% trans "by Section" %})
+                                                </a>
+                                                <a href="{% url 'projects:iw_group_list' 1 2021 'theme' %}">
+                                                    ({% trans "by Theme" %})
+                                                </a>
+                                            </li>
+                                            <li>
+                                                2020-2021 Maritimes Region Interactive Workplan <br>
+                                                <a href="{% url 'projects:iw_group_list' 2 2021 'division' %}">
+                                                    ({% trans "by Section" %})
+                                                </a>
+                                                <a href="{% url 'projects:iw_group_list' 2 2021 'theme' %}">
+                                                    ({% trans "by Theme" %})
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    {% if section_list.count %}
 
-                                <h4>
-                                    {% blocktrans %}
-                                        Click
-                                        <a href="{{ new_proj_url }}">HERE</a> to create a new project.
-                                        <br><br>
-                                        To view or edit an existing project, go to <a href="{{ my_proj_url }}">Your
-                                        Projects</a>.
-                                        <br><br>
-                                        For a list of all project in the branch, go to <a href="{{ all_proj_url }}">All
-                                        Projects</a>.
+                                        <div class="mb-4">
+                                            <h4>
+                                                {% trans "Your Sections" %}
+                                            </h4>
+                                            <ul>
+                                                {% for section in user.shared_models_sections.all %}
+                                                    <li>
+                                                        <a href="{% url 'projects:section_project_list' section.id %}">
+                                                            {{ section }}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
 
-                                    {% endblocktrans %}
+                                        {% if section_list.count > user.shared_models_sections.count %}
 
-                                    <br><br>
+                                            <div class="mb-4">
+                                                <h4>
+                                                    {% trans "Other Sections Opened to You" %}
+                                                </h4>
+                                                <ul>
+                                                    {% for section in section_list %}
+                                                        {% if section not in user.shared_models_sections.all %}
+                                                            <li>
+                                                                <a href="{% url 'projects:section_project_list' section.id %}">
+                                                                    {{ section.full_name }}
+                                                                </a>
+                                                            </li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
 
-
-                                </h4>
+                                    {% endif %}
+                                </div>
                             </div>
+
                         {% else %}
                             <br>    <br>
                         {% endif %}
@@ -90,7 +162,7 @@
 
 
             </div>
-            <div class="col-5">
+            <div class="col-4">
                 <div class="card" style="width: 100%; background: #ffd738;">
                     <div class="card-body">
                         <h4 class="card-title">
@@ -168,15 +240,6 @@
                                 <a class="" href="{% static 'projects/Project Planning Priorities_Nov2019.pdf' %}">
                                     {% trans "Project Planning Priorities (Maritimes)" %}
                                 </a>
-                            </li>
-                            <br>
-                            <li>
-                                2020-2021
-                                <a href="{% url 'projects:ips_program_list' 1 2021  %}">
-                                    Interactive Project Summary
-                                </a>
-                                for the Gulf Region Workingplanning Meeting
-
                             </li>
 
                         </ul>

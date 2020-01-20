@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import auth
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
 YES_NO_CHOICES = (
@@ -73,8 +75,8 @@ class Species(models.Model):
         (MOB, "mobile"),
     )
 
-    common_name = models.CharField(max_length=255, blank=True, null=True)
-    common_name_fra = models.CharField(max_length=255, blank=True, null=True)
+    common_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("common name (English)"))
+    common_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("common name (French)"))
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name="abbreviation", unique=True)
     epibiont_type = models.CharField(max_length=10, blank=True, null=True, choices=EPIBIONT_TYPE_CHOICES)
@@ -87,7 +89,18 @@ class Species(models.Model):
     green_crab_monitoring = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.common_name
+        if self.common_name or self.common_name_fra:
+            if getattr(self, str(_("common_name"))):
+                my_str = "{}".format(getattr(self, str(_("common_name"))))
+            # if there is no translated term, just pull from the english field
+            else:
+                my_str = "{}".format(self.common_name)
+
+            return mark_safe(my_str + " (<em>" + self.scientific_name + "</em>)") if self.scientific_name else my_str
+        else:
+            return mark_safe("<em>" + self.scientific_name + "</em>")
+
+
 
     class Meta:
         ordering = ['common_name']

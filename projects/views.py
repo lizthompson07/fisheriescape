@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+from collections import OrderedDict
 from copy import deepcopy
 
 import pandas as pd
@@ -10,9 +11,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db.models import Sum, Q, Count, Value
+from django.db.models import Sum, Q, Count, Value, TextField
+from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django_filters.views import FilterView
@@ -89,25 +92,102 @@ def is_rds(user, project):
         pass
 
 
+def is_project_lead(user, project_id):
+    """
+    returns True if user is among the project's project leads
+    """
+    if user.id:
+        project = models.Project.objects.get(pk=project_id)
+        return user in project.project_leads_as_users
+
+
 def can_modify_project(user, project_id):
-    """returns True if user has permissions to delete or modify a project"""
+    """
+    returns True if user has permissions to delete or modify a project
+
+    The answer of this question will depend on whether the project is submitted. Project leads cannot edit a submitted project
+    """
     if user.id:
         project = models.Project.objects.get(pk=project_id)
 
         # check to see if a superuser or projects_admin -- both are allow to modify projects
-        if user.is_superuser or "projects_admin" in [g.name for g in user.groups.all()]:
+        if "projects_admin" in [g.name for g in user.groups.all()]:
             return True
 
+        # check to see if they are a section head, div. manager or RDS
+        if is_section_head(user, project) or is_division_manager(user, project) or is_rds(user, project):
+            return True
+
+        # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are a project lead
-        if user in [staff.user for staff in project.staff_members.filter(lead=True)]:
+        if not project.submitted and is_project_lead(user, project.id):
             return True
 
-        # check to see if they are a section head
-        if is_section_head(user, project):
+
+def is_admin_or_project_manager(user, project):
+    """returns True if user is either in 'projects_admin' group OR if they are a manager of the project (section head, div. manager, RDS)"""
+    if user.id:
+
+        # check to see if a superuser or projects_admin -- both are allow to modify projects
+        if "projects_admin" in [g.name for g in user.groups.all()]:
+            return True
+
+        # check to see if they are a section head, div. manager or RDS
+        if is_section_head(user, project) or is_division_manager(user, project) or is_rds(user, project):
             return True
 
 
 class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
+        try:
+            obj = self.get_object()
+        except AttributeError:
+            project_id = self.kwargs.get("project")
+        else:
+            try:
+                project_id = getattr(obj, "project").id
+            except AttributeError:
+                project_id = obj.id
+        finally:
+            return can_modify_project(self.request.user, project_id) or is_project_lead(self.request.user, project_id)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_projects_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_section_heads_only'))
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ManagerOrAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return is_management_or_admin(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_section_heads_only'))
+        return super().dispatch(request, *args, **kwargs)
+
+
+class CanModifyProjectRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
@@ -131,42 +211,97 @@ class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ProjectManagerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
-
-    def test_func(self):
-        # we need to get the pk for the project. this might be under 1 or 2 kwargs: pk or project
-        if self.kwargs.get("pk"):
-            project_id = self.kwargs.get("pk")
-        else:
-            project_id = self.kwargs.get("project")
-        project = models.Project.objects.get(pk=project_id)
-        if is_section_head(self.request.user, project) or is_division_manager(self.request.user, project) or is_rds(
-                self.request.user,
-                project):
-            return True
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_section_heads_only'))
-        return super().dispatch(request, *args, **kwargs)
-
-
-class ManagerOrAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
-
-    def test_func(self):
-        return is_management_or_admin(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_section_heads_only'))
-        return super().dispatch(request, *args, **kwargs)
-
-
 def financial_summary_data(project):
+    # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
+    my_dict = OrderedDict()
+
+    for fs in project.get_funding_sources():
+        my_dict[fs] = {}
+        my_dict[fs]["salary"] = 0
+        my_dict[fs]["om"] = 0
+        my_dict[fs]["capital"] = 0
+        my_dict[fs]["total"] = 0
+
+        # first calc for staff
+        for staff in project.staff_members.filter(funding_source=fs):
+            # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+            if not staff.employee_type.exclude_from_rollup:
+                if staff.employee_type.cost_type == 1:
+                    my_dict[fs]["salary"] += nz(staff.cost, 0)
+                elif staff.employee_type.cost_type == 2:
+                    my_dict[fs]["om"] += nz(staff.cost, 0)
+
+        # O&M costs
+        for cost in project.om_costs.filter(funding_source=fs):
+            my_dict[fs]["om"] += nz(cost.budget_requested, 0)
+
+        # Capital costs
+        for cost in project.capital_costs.filter(funding_source=fs):
+            my_dict[fs]["capital"] += nz(cost.budget_requested, 0)
+
+    # do the totals. I am doing this loop as separate so that the total entry comes at the end of all the funding sources
+    my_dict["total"] = {}
+    my_dict["total"]["salary"] = 0
+    my_dict["total"]["om"] = 0
+    my_dict["total"]["capital"] = 0
+    my_dict["total"]["total"] = 0
+    for fs in project.get_funding_sources():
+        my_dict[fs]["total"] = float(my_dict[fs]["capital"]) + float(my_dict[fs]["salary"]) + float(my_dict[fs]["om"])
+        my_dict["total"]["salary"] += my_dict[fs]["salary"]
+        my_dict["total"]["om"] += my_dict[fs]["om"]
+        my_dict["total"]["capital"] += my_dict[fs]["capital"]
+        my_dict["total"]["total"] += my_dict[fs]["total"]
+
+    return my_dict
+
+
+def multiple_projects_financial_summary(project_list):
+    my_dict = {}
+
+    # first, get the list of funding sources
+    funding_sources = []
+    for project in project_list:
+        funding_sources.extend(project.get_funding_sources())
+    funding_sources = list(set(funding_sources))
+    funding_sources_order = ["{} {}".format(fs.funding_source_type, fs.tname) for fs in funding_sources]
+    for fs in [x for _, x in sorted(zip(funding_sources_order, funding_sources))]:
+        my_dict[fs] = {}
+        my_dict[fs]["salary"] = 0
+        my_dict[fs]["om"] = 0
+        my_dict[fs]["capital"] = 0
+        my_dict[fs]["total"] = 0
+        for project in project_list.all():
+            # first calc for staff
+            for staff in project.staff_members.filter(funding_source=fs):
+                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                if not staff.employee_type.exclude_from_rollup:
+                    if staff.employee_type.cost_type == 1:
+                        my_dict[fs]["salary"] += nz(staff.cost, 0)
+                    elif staff.employee_type.cost_type == 2:
+                        my_dict[fs]["om"] += nz(staff.cost, 0)
+            # O&M costs
+            for cost in project.om_costs.filter(funding_source=fs):
+                my_dict[fs]["om"] += nz(cost.budget_requested, 0)
+            # Capital costs
+            for cost in project.capital_costs.filter(funding_source=fs):
+                my_dict[fs]["capital"] += nz(cost.budget_requested, 0)
+
+    my_dict["total"] = {}
+    my_dict["total"]["salary"] = 0
+    my_dict["total"]["om"] = 0
+    my_dict["total"]["capital"] = 0
+    my_dict["total"]["total"] = 0
+    for fs in funding_sources:
+        my_dict[fs]["total"] = float(my_dict[fs]["capital"]) + float(my_dict[fs]["salary"]) + float(my_dict[fs]["om"])
+        my_dict["total"]["salary"] += my_dict[fs]["salary"]
+        my_dict["total"]["om"] += my_dict[fs]["om"]
+        my_dict["total"]["capital"] += my_dict[fs]["capital"]
+        my_dict["total"]["total"] += my_dict[fs]["total"]
+
+    return my_dict
+
+
+def pdf_financial_summary_data(project):
     salary_abase = 0
     om_abase = 0
     capital_abase = 0
@@ -252,9 +387,9 @@ def financial_summary_data(project):
     context["gc_total"] = gc_total
 
     # import color schemes from funding_source table
-    context["abase"] = models.FundingSource.objects.get(pk=1).color
-    context["bbase"] = models.FundingSource.objects.get(pk=2).color
-    context["cbase"] = models.FundingSource.objects.get(pk=3).color
+    context["abase"] = models.FundingSourceType.objects.get(pk=1).color
+    context["bbase"] = models.FundingSourceType.objects.get(pk=2).color
+    context["cbase"] = models.FundingSourceType.objects.get(pk=3).color
 
     return context
 
@@ -262,9 +397,13 @@ def financial_summary_data(project):
 project_field_list = [
     'id',
     'year',
-    'project_title',
     'section',
-    'programs',
+    'project_title',
+    'activity_type',
+    'functional_group',
+    'default_funding_source',
+    'funding_sources|{}'.format(_("Complete list of funding sources")),
+    # 'programs',
     'tags',
     'is_national',
     'status',
@@ -279,18 +418,24 @@ project_field_list = [
     'data_sharing',
     'data_storage',
     'metadata_url',
-    # 'regional_dm',
     'regional_dm_needs',
-    # 'sectional_dm',
     'sectional_dm_needs',
     'vehicle_needs',
     'it_needs',
     'chemical_needs',
     'ship_needs',
+    'additional_notes',
     'coding|Known financial coding',
     'last_modified_by',
     'date_last_modified',
 ]
+
+gulf_field_list = deepcopy(project_field_list)
+gulf_field_list.remove("is_competitive")
+gulf_field_list.remove("is_approved")
+gulf_field_list.remove("metadata_url")
+gulf_field_list.remove("regional_dm_needs")
+gulf_field_list.remove("sectional_dm_needs")
 
 
 def get_section_choices(all=False, full_name=True):
@@ -356,44 +501,209 @@ class CloserTemplateView(TemplateView):
 class IndexTemplateView(TemplateView):
     template_name = 'projects/index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        section_id_list = []
+        if self.request.user.id:
+            if self.request.user.groups.filter(name="projects_admin").count() > 0:
+                section_id_list = [project.section_id for project in models.Project.objects.all()]
+                section_list = shared_models.Section.objects.filter(id__in=section_id_list)
+            else:
+                # are they section heads?
+                section_id_list.extend([section.id for section in self.request.user.shared_models_sections.all()])
+
+                # are they a division manager?
+                if self.request.user.shared_models_divisions.count() > 0:
+                    for division in self.request.user.shared_models_divisions.all():
+                        for section in division.sections.all():
+                            section_id_list.append(section.id)
+
+                # are they an RDS?
+                if self.request.user.shared_models_branches.count() > 0:
+                    for branch in self.request.user.shared_models_branches.all():
+                        for division in branch.divisions.all():
+                            for section in division.sections.all():
+                                section_id_list.append(section.id)
+
+                section_id_set = set(
+                    [s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
+                section_list = shared_models.Section.objects.filter(id__in=section_id_set)
+            context["section_list"] = section_list
+
+        # messages.warning(self.request,
+        #               mark_safe(_("<b class='red-font blink-me'>PLEASE NOTE: This database is currently being updated. Please refrain from entering new data until this message is no longer present from the home page.</b>")))
+
+        return context
+
 
 # PROJECTS #
 ############
-class MyProjectListView(LoginRequiredMixin, ListView):
+class MyProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/my_project_list.html'
+    filterset_class = filters.MyProjectFilter
 
     def get_queryset(self):
-        return models.Staff.objects.filter(user=self.request.user).order_by("-project__year", "project__project_title")
+        return models.Project.objects.filter(staff_members__user=self.request.user).order_by("-year", "project_title")
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {"year": fiscal_year(next=True, sap_style=True)}
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        projects = models.Staff.objects.filter(user=self.request.user)
 
-        # need to produce a dictionary with number of hours committed by fiscal year
-        fiscal_year_list = set([p.project.year for p in projects.order_by("project__year_id")])
+        object_list = context.get("object_list")
+        fy = object_list.first().year if object_list.count() > 0 else None
 
-        weeks_dict = {}
-        for fy in fiscal_year_list:
-            weeks_dict[fy.id] = {}
-            weeks_dict[fy.id]['submitted_approved'] = 0
-            weeks_dict[fy.id]['submitted_unapproved'] = 0
-            weeks_dict[fy.id]['unsubmitted'] = 0
-            weeks_dict[fy.id]['total'] = 0
+        staff_instances = self.request.user.staff_instances.filter(project__year=fy)
+        context['fte_approved_projects'] = staff_instances.filter(
+            project__approved=True, project__submitted=True
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
-        for obj in projects.order_by("project__year_id"):
-            if obj.project.submitted:
-                if obj.project.section_head_approved:
-                    weeks_dict[obj.project.year_id]["submitted_approved"] += nz(obj.duration_weeks, 0)
-                else:
-                    weeks_dict[obj.project.year_id]["submitted_unapproved"] += nz(obj.duration_weeks, 0)
-            else:
-                weeks_dict[obj.project.year_id]["unsubmitted"] += nz(obj.duration_weeks, 0)
-            weeks_dict[obj.project.year_id]["total"] += nz(obj.duration_weeks, 0)
+        context['fte_unapproved_projects'] = staff_instances.filter(
+            project__approved=False, project__submitted=True
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+        context['fte_unsubmitted_projects'] = staff_instances.filter(
+            project__submitted=False
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+        context['fy'] = fy
 
-        context["weeks_dict"] = weeks_dict
-        context["fy_list"] = fiscal_year_list
-        print(weeks_dict)
+        context["project_list"] = models.Project.objects.filter(
+            id__in=[s.project.id for s in self.request.user.staff_instances.all()]
+        )
+
+        context["project_field_list"] = [
+            "year",
+            "submitted|{}".format("Submitted"),
+            "approved",
+            "section|Section",
+            "project_title",
+            "is_hidden|is this a hidden project?",
+            "is_lead|{}?".format("Are you a project lead"),
+            "status_report|{}".format("Status reports"),
+        ]
+
+        return context
+
+
+class SectionListView(LoginRequiredMixin, FilterView):
+    login_url = '/accounts/login_required/'
+    template_name = 'projects/section_project_list.html'
+    filterset_class = filters.SectionFilter
+
+    def get_queryset(self):
+        return models.Project.objects.filter(section_id=self.kwargs.get("section")).order_by('-year',
+                                                                                             'section__division',
+                                                                                             'section',
+                                                                                             'project_title')
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {"year": fiscal_year(next=True, sap_style=True)}
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["field_list"] = [
+            "project_title",
+            "functional_group",
+            "status",
+            "default_funding_source",
+            'funding_sources|{}'.format(_("Complete list of funding sources")),
+            "activity_type",
+            "project_leads|{}".format("Leads"),
+            "status_report_count|{}".format(_("Status reports")),
+        ]
+
+        object_list = context.get("object_list")
+        context['region'] = object_list.first().section.division.branch.region
+        section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
+        fy = object_list.first().year if object_list.count() > 0 else None
+        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
+        context['unapproved_projects'] = object_list.filter(approved=False, submitted=True)
+        context['unsubmitted_projects'] = object_list.filter(submitted=False)
+
+        # in FY 2021, MAR Region is looking at only submitted projects (don't care about approved status for now)
+        # This should be delete once the process in both regions is the same
+        really_approved_projects = object_list.filter(approved=True, submitted=True)
+        context['really_approved_projects'] = really_approved_projects
+        if object_list.first().section.division.branch.region.id == 1:
+            approved_projects = object_list.filter(approved=True, submitted=True)
+        else:
+            approved_projects = object_list.filter(submitted=True)
+
+        context['approved_projects'] = approved_projects
+
+        # need to create a dict for displaying projects by funding source.
+        fs_dict = {}
+        funding_sources = set([project.default_funding_source for project in approved_projects])
+        for fs in funding_sources:
+            fs_dict[fs] = approved_projects.filter(default_funding_source=fs)
+        context['fs_dict'] = fs_dict
+
+        # need to create a dict for displaying projects by functional group.
+        fg_dict = {}
+        functional_groups = set([project.functional_group for project in approved_projects])
+        for fg in functional_groups:
+            fg_dict[fg] = {}
+            fg_dict[fg]["projects"] = approved_projects.filter(functional_group=fg)
+            fg_dict[fg]["note"] = models.Note.objects.get_or_create(section=section, functional_group=fg)[0]
+        context['fg_dict'] = fg_dict
+
+        # need to create a dict for displaying projects by activity type.
+        at_dict = {}
+        activity_types = set([project.activity_type for project in approved_projects])
+        for at in activity_types:
+            at_dict[at] = approved_projects.filter(activity_type=at)
+        context['at_dict'] = at_dict
+
+        # need to create a staff list dictionary
+        user_dict = {}
+
+        user_list = list(
+            set([staff.user for project in object_list for staff in project.staff_members.all() if staff.user]))
+        user_sort_order = [str(user) if user else "AAA" for user in user_list]
+        for user in [x for _, x in sorted(zip(user_sort_order, user_list))]:
+            user_dict[user] = {}
+            user_dict[user]["qs"] = user.staff_instances.filter(
+                project__year=fy
+            ).order_by("project__submitted", "project__approved", "lead", "project__project_title")
+
+            user_dict[user]["fte_approved"] = user.staff_instances.filter(
+                project__approved=True, project__submitted=True, project__year=fy
+            ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
+            user_dict[user]["fte_unapproved"] = user.staff_instances.filter(
+                project__approved=False, project__submitted=True, project__year=fy
+            ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
+            user_dict[user]["fte_unsubmitted"] = user.staff_instances.filter(
+                project__submitted=False, project__year=fy
+            ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
+            user_dict[user]["fte_total"] = user.staff_instances.filter(
+                project__year=fy
+            ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
+        context['user_dict'] = user_dict
+
+        # financials
+        context['financials_dict'] = multiple_projects_financial_summary(object_list)
+
+        # status reports (unreviewed)
+        context['status_reports'] = models.StatusReport.objects.filter(project__in=object_list)
+        context["status_report_field_list"] = [
+            'date_created',
+            'created_by',
+            'status',
+            'section_head_comment',
+            'section_head_reviewed',
+        ]
         return context
 
 
@@ -417,54 +727,28 @@ class MySectionListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class MyDivisionListView(LoginRequiredMixin, FilterView):
-    login_url = '/accounts/login_required/'
-    template_name = 'projects/my_section_list.html'
-    filterset_class = filters.MySectionFilter
-
-    def get_queryset(self):
-        return models.Project.objects.filter(section__division__head=self.request.user).order_by('-year',
-                                                                                                 'section__division',
-                                                                                                 'section',
-                                                                                                 'project_title')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['type'] = _("division")
-        context['fy_form'] = forms.FYForm(user=self.request.user.id)
-
-        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['has_section'] = models.Project.objects.filter(section__division__head=self.request.user).count() > 0
-        return context
-
-
-class MyBranchListView(LoginRequiredMixin, FilterView):
-    login_url = '/accounts/login_required/'
-    template_name = 'projects/my_section_list.html'
-    filterset_class = filters.MySectionFilter
-
-    def get_queryset(self):
-        return models.Project.objects.filter(section__division__branch__head=self.request.user).order_by('-year',
-                                                                                                         'section__division',
-                                                                                                         'section',
-                                                                                                         'project_title')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['type'] = _("branch")
-        context['fy_form'] = forms.FYForm(user=self.request.user.id)
-        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['has_section'] = models.Project.objects.filter(
-            section__division__branch__head=self.request.user).count() > 0
-        return context
-
-
 class ProjectListView(LoginRequiredMixin, FilterView):
     login_url = '/accounts/login_required/'
     template_name = 'projects/project_list.html'
-    queryset = models.Project.objects.filter(is_hidden=False).order_by('-year', 'section__division', 'section',
-                                                                       'project_title')
+    queryset = models.Project.objects.filter(
+        is_hidden=False, submitted=True,
+    ).order_by('-year', 'section__division', 'section', 'project_title')
     filterset_class = filters.ProjectFilter
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["field_list"] = [
+            "year",
+            "region",
+            "division",
+            "section",
+            "project_title",
+            "default_funding_source",
+            "project_leads|{}".format("Project Leads"),
+            "tags",
+        ]
+        return context
 
 
 class ProjectDetailView(LoginRequiredMixin, DetailView):
@@ -473,16 +757,33 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        project = self.object
-        context["field_list"] = project_field_list
+        project = self.get_object()
+
+        # If this is a gulf region project, only show the gulf region fields
+        if project.section.division.branch.region.id == 1:
+            context["field_list"] = gulf_field_list
+        else:
+            context["field_list"] = project_field_list
+
         context["files"] = project.files.all()
+        context["financial_summary_dict"] = financial_summary_data(project)
 
-        # bring in financial summary data
-        my_context = financial_summary_data(project)
-        context = {**my_context, **context}
+        # Determine if the user will be able to edit the project.
+        context["can_edit"] = can_modify_project(self.request.user, project.id)
+        context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
+        return context
 
-        # if not can_modify_project(self.request.user, project):
-        #     context["report_mode"] = True
+
+class ProjectOverviewDetailView(ProjectDetailView):
+
+    def get_template_names(self):
+        if self.kwargs.get("pop"):
+            return 'projects/project_overview_pop.html'
+        else:
+            return 'projects/project_overview.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 
@@ -517,9 +818,10 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class ProjectUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class ProjectUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectForm
+    template_name = 'projects/project_form_popout.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -534,22 +836,31 @@ class ProjectUpdateView(ProjectLeadRequiredMixin, UpdateView):
         try:
             my_dict["start_date"] = "{}-{:02d}-{:02d}".format(self.object.start_date.year, self.object.start_date.month,
                                                               self.object.start_date.day)
-        except:
+        except Exception as e:
             print("no start date...")
 
         try:
             my_dict["end_date"] = "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
                                                             self.object.end_date.day)
-        except:
+        except Exception as e:
             print("no end date...")
 
         return my_dict
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
 class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectSubmitForm
-    template_name = "projects/project_submit_form.html"
+
+    def get_template_names(self):
+        if self.kwargs.get("pop"):
+            return "projects/project_action_form_popout.html"
+        else:
+            return "projects/project_submit_form.html"
 
     def get_initial(self):
         if self.object.submitted:
@@ -564,8 +875,20 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        project = self.object
-        context["field_list"] = project_field_list
+        project = self.get_object()
+
+        if self.kwargs.get("pop"):
+            action = _("Un-submit Project") if self.object.submitted else _("Submit Project")
+            context["action"] = action
+            btn_color = "danger" if self.object.submitted else "success"
+            context["btn_color"] = btn_color
+
+        # If this is a gulf region project, only show the gulf region fields
+        if project.section.division.branch.region.id == 1:
+            context["field_list"] = gulf_field_list
+        else:
+            context["field_list"] = project_field_list
+
         context["report_mode"] = True
 
         # bring in financial summary data
@@ -576,32 +899,51 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        # create a new email object
-        email = emails.ProjectSubmissionEmail(self.object)
-        # send the email object
-        if settings.PRODUCTION_SERVER:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
+
+        # if this is a popout, it is a manager or admin doing the submission and no email is needed
+        if self.kwargs.get("pop"):
+            return HttpResponseRedirect(reverse('projects:close_me'))
         else:
-            print(email)
-        messages.success(self.request,
-                         _("The project was submitted and an email has been sent to notify the section head!"))
-        return super().form_valid(form)
+            # Send out an email only when a project is submitted
+            if my_object.submitted:
+                # create a new email object
+                email = emails.ProjectSubmissionEmail(self.object)
+                # send the email object
+                if settings.PRODUCTION_SERVER:
+                    send_mail(message='', subject=email.subject, html_message=email.message,
+                              from_email=email.from_email,
+                              recipient_list=email.to_list, fail_silently=False, )
+                else:
+                    print(email)
+            messages.success(self.request,
+                             _("The project was submitted and an email has been sent to notify the section head!"))
+            return HttpResponseRedirect(reverse('projects:project_detail', kwargs={"pk": my_object.id}))
 
 
-class ProjectApprovalUpdateView(ProjectManagerRequiredMixin, UpdateView):
+class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     model = models.Project
-    template_name = "projects/project_approval_form_popout.html"
-    success_url = reverse_lazy("projects:close_me")
+    form_class = forms.ProjectNotesForm
+    template_name = "projects/project_action_form_popout.html"
 
-    def get_form_class(self):
-        level = self.kwargs["level"]
-        if level == "section":
-            return forms.SectionApprovalForm
-        elif level == "division":
-            return forms.DivisionApprovalForm
-        elif level == "branch":
-            return forms.BranchApprovalForm
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        action = _("Save")
+        context["action"] = action
+        btn_color = "primary"
+        context["btn_color"] = btn_color
+
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
+
+
+class ProjectApprovalUpdateView(CanModifyProjectRequiredMixin, UpdateView):
+    model = models.Project
+    template_name = "projects/project_action_form_popout.html"
+    success_url = reverse_lazy("projects:close_me")
+    form_class = forms.ProjectApprovalForm
 
     def get_initial(self):
         return {
@@ -610,7 +952,20 @@ class ProjectApprovalUpdateView(ProjectManagerRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        action = _("Un-approve") if self.object.approved else _("Approve")
+        context["action"] = action
+        btn_color = "danger" if self.object.submitted else "success"
+        context["btn_color"] = btn_color
         return context
+
+    def form_valid(self, form):
+        my_object = form.save(commit=False)
+        if my_object.approved:
+            my_object.approved = False
+        else:
+            my_object.approved = True
+        my_object.save()
+        return HttpResponseRedirect(reverse('projects:close_me'))
 
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):
@@ -647,30 +1002,54 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        object = form.save()
-        models.Staff.objects.create(project=object, lead=True, employee_type_id=1, user_id=self.request.user.id)
+        my_object = form.save()
+        models.Staff.objects.create(project=my_object, lead=True, employee_type_id=1, user_id=self.request.user.id,
+                                    funding_source=my_object.default_funding_source)
 
         for obj in models.OMCategory.objects.all():
-            new_item = models.OMCost.objects.create(project=object, om_category=obj)
+            new_item = models.OMCost.objects.create(project=my_object, om_category=obj,
+                                                    funding_source=my_object.default_funding_source)
             new_item.save()
 
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.id}))
+        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": my_object.id}))
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
 
-class ProjectDeleteView(ProjectLeadRequiredMixin, DeleteView):
+class ProjectDeleteView(CanModifyProjectRequiredMixin, DeleteView):
     model = models.Project
-    success_url = reverse_lazy('projects:my_project_list')
     success_message = _('The project was successfully deleted!')
+
+    def get_template_names(self):
+        if self.kwargs.get("pop"):
+            return "projects/project_action_form_popout.html"
+        else:
+            return "projects/project_confirm_delete.html"
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+    def get_success_url(self):
+        if self.kwargs.get("pop"):
+            return reverse('projects:close_me')
+        else:
+            return reverse_lazy('projects:my_project_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs.get("pop"):
+            context["delete_message"] = _(
+                "Are you certain you want to delete this project? <br><br> This action is permanent.")
+            context["action"] = _("Delete")
+            context["btn_color"] = "danger"
+        return context
+
 
 class ProjectCloneUpdateView(ProjectUpdateView):
+    template_name = 'projects/project_form.html'
+
     def test_func(self):
         if self.request.user.id:
             return True
@@ -697,26 +1076,22 @@ class ProjectCloneUpdateView(ProjectUpdateView):
     def form_valid(self, form):
         new_obj = form.save(commit=False)
         old_obj = models.Project.objects.get(pk=new_obj.pk)
-        new_programs = form.cleaned_data.get("programs")
         new_tags = form.cleaned_data.get("tags")
+        new_project_codes = form.cleaned_data.get("existing_project_codes")
         new_obj.pk = None
         new_obj.submitted = False
-        new_obj.section_head_approved = False
-        new_obj.section_head_feedback = None
-        new_obj.manager_approved = False
-        new_obj.manager_feedback = None
-        new_obj.rds_approved = False
-        new_obj.rds_feedback = None
+        new_obj.approved = False
         new_obj.date_last_modified = timezone.now()
         new_obj.last_modified_by = self.request.user
         new_obj.save()
 
         # now that the new object has an id, we can add the many 2 many links
-        for p in new_programs:
-            new_obj.programs.add(p.id)
 
         for t in new_tags:
             new_obj.tags.add(t.id)
+
+        for code in new_project_codes:
+            new_obj.existing_project_codes.add(code.id)
 
         # Now we need to replicate all the related records:
         # 1) staff
@@ -783,7 +1158,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
 # STAFF #
 #########
 
-class StaffCreateView(ProjectLeadRequiredMixin, CreateView):
+class StaffCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.Staff
     template_name = 'projects/staff_form_popout.html'
     form_class = forms.StaffForm
@@ -792,6 +1167,7 @@ class StaffCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(pk=self.kwargs['project'])
         return {
             'project': project,
+            'funding_source': project.default_funding_source,
         }
 
     def get_context_data(self, **kwargs):
@@ -809,7 +1185,7 @@ class StaffCreateView(ProjectLeadRequiredMixin, CreateView):
             return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class StaffUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class StaffUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Staff
     template_name = 'projects/staff_form_popout.html'
     form_class = forms.StaffForm
@@ -830,7 +1206,7 @@ def staff_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The staff member has been successfully deleted from project."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -874,7 +1250,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # this is a temp view DJF created to walkover the `program` field to the new `programs` field
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def temp_formset(request):
+def temp_formset(request, region, fy, section_str=None):
     context = {}
     # if the formset is being submitted
     if request.method == 'POST':
@@ -886,21 +1262,34 @@ def temp_formset(request):
             # pass the specimen through the make_flags helper function to assign any QC flags
 
             # redirect back to the observation_formset with the blind intention of getting another observation
-            return HttpResponseRedirect(reverse("projects:formset"))
+            return HttpResponseRedirect(
+                reverse("projects:formset", kwargs={"region": region, "fy": fy, "section_str": section_str}))
     # otherwise the formset is just being displayed
     else:
         # prep the formset...for display
+        qs = models.Project.objects.filter(
+            year=fy,
+            section__division__branch__region__id=region,
+            functional_group__isnull=True
+        ).order_by("functional_group")
+
+        if section_str:
+            qs = qs.filter(section__name__icontains=section_str)
+
         formset = forms.TempFormSet(
-            queryset=models.Project.objects.filter(submitted=True, year=2020, section__division__branch__region__id=1,
-                                                   programs__isnull=True).order_by("program")
+            queryset=qs
         )
     context['formset'] = formset
     context['my_object'] = models.Project.objects.first()
     context['field_list'] = [
-        'project_title',
-        'program',
-        'programs',
-        'tags',
+        "project_title",
+        "section",
+        "leads",
+        "programs",
+        "funding_sources",
+        "activity_type",
+        "default_funding_source",
+        "functional_group",
     ]
     return render(request, 'projects/temp_formset.html', context)
 
@@ -919,7 +1308,7 @@ class MyTempListView(LoginRequiredMixin, ListView):
 # COLLABORATOR #
 ################
 
-class CollaboratorCreateView(ProjectLeadRequiredMixin, CreateView):
+class CollaboratorCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
     form_class = forms.CollaboratorForm
@@ -941,7 +1330,7 @@ class CollaboratorCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class CollaboratorUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class CollaboratorUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Collaborator
     template_name = 'projects/collaborator_form_popout.html'
     form_class = forms.CollaboratorForm
@@ -956,7 +1345,7 @@ def collaborator_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The collaborator has been successfully deleted from project."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -964,7 +1353,7 @@ def collaborator_delete(request, pk):
 # AGREEMENTS #
 ##############
 
-class AgreementCreateView(ProjectLeadRequiredMixin, CreateView):
+class AgreementCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.CollaborativeAgreement
     template_name = 'projects/agreement_form_popout.html'
     form_class = forms.AgreementForm
@@ -986,7 +1375,7 @@ class AgreementCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class AgreementUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class AgreementUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.CollaborativeAgreement
     template_name = 'projects/agreement_form_popout.html'
     form_class = forms.AgreementForm
@@ -1001,7 +1390,7 @@ def agreement_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The agreement has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1009,7 +1398,7 @@ def agreement_delete(request, pk):
 # OM COSTS #
 ############
 
-class OMCostCreateView(ProjectLeadRequiredMixin, CreateView):
+class OMCostCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.OMCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.OMCostForm
@@ -1018,6 +1407,7 @@ class OMCostCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(pk=self.kwargs['project'])
         return {
             'project': project,
+            'funding_source': project.default_funding_source,
         }
 
     def get_context_data(self, **kwargs):
@@ -1032,7 +1422,7 @@ class OMCostCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class OMCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class OMCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.OMCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.OMCostForm
@@ -1052,7 +1442,7 @@ def om_cost_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The cost has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1067,7 +1457,7 @@ def om_cost_clear(request, project):
                     cost.delete()
 
         messages.success(request, _("All empty O&M lines have been cleared."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1081,7 +1471,7 @@ def om_cost_populate(request, project):
                 new_item.save()
 
         messages.success(request, _("All O&M categories have been added to this project."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1089,7 +1479,7 @@ def om_cost_populate(request, project):
 # CAPITAL COSTS #
 #################
 
-class CapitalCostCreateView(ProjectLeadRequiredMixin, CreateView):
+class CapitalCostCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.CapitalCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.CapitalCostForm
@@ -1098,6 +1488,7 @@ class CapitalCostCreateView(ProjectLeadRequiredMixin, CreateView):
         project = models.Project.objects.get(pk=self.kwargs['project'])
         return {
             'project': project,
+            'funding_source': project.default_funding_source,
         }
 
     def get_context_data(self, **kwargs):
@@ -1112,7 +1503,7 @@ class CapitalCostCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class CapitalCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class CapitalCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.CapitalCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.CapitalCostForm
@@ -1132,7 +1523,7 @@ def capital_cost_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The cost has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1140,7 +1531,7 @@ def capital_cost_delete(request, pk):
 # GC COSTS #
 ############
 
-class GCCostCreateView(ProjectLeadRequiredMixin, CreateView):
+class GCCostCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.GCCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.GCCostForm
@@ -1163,7 +1554,7 @@ class GCCostCreateView(ProjectLeadRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class GCCostUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class GCCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.GCCost
     template_name = 'projects/cost_form_popout.html'
     form_class = forms.GCCostForm
@@ -1183,34 +1574,7 @@ def gc_cost_delete(request, pk):
     if can_modify_project(request.user, object.project.id):
         object.delete()
         messages.success(request, _("The cost has been successfully deleted."))
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": object.project.id}))
-    else:
-        return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
-
-
-# SHARED #
-##########
-def toggle_source(request, pk, type):
-    if type == "om":
-        my_cost = models.OMCost.objects.get(pk=pk)
-    elif type == "capital":
-        my_cost = models.CapitalCost.objects.get(pk=pk)
-    elif type == "staff":
-        my_cost = models.Staff.objects.get(pk=pk)
-    # otherwise function is being used improperly
-    if can_modify_project(request.user, my_cost.project.id):
-        if my_cost.funding_source_id is None:
-            my_cost.funding_source_id = 1
-        elif my_cost.funding_source_id == 1:
-            my_cost.funding_source_id = 2
-        elif my_cost.funding_source_id == 2:
-            my_cost.funding_source_id = 3
-        else:
-            my_cost.funding_source_id = 1
-        my_cost.save()
-
-        return HttpResponseRedirect(
-            reverse_lazy("projects:project_detail", kwargs={"pk": my_cost.project.id}) + "?#{}-{}".format(type, pk))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse('accounts:denied_project_leads_only'))
 
@@ -1218,7 +1582,7 @@ def toggle_source(request, pk, type):
 # FILES #
 #########
 
-class FileCreateView(ProjectLeadRequiredMixin, CreateView):
+class FileCreateView(CanModifyProjectRequiredMixin, CreateView):
     template_name = "projects/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1246,7 +1610,7 @@ class FileCreateView(ProjectLeadRequiredMixin, CreateView):
         }
 
 
-class FileUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class FileUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     template_name = "projects/file_form.html"
     model = models.File
     form_class = forms.FileForm
@@ -1268,7 +1632,7 @@ class FileDetailView(FileUpdateView):
         return context
 
 
-class FileDeleteView(ProjectLeadRequiredMixin, DeleteView):
+class FileDeleteView(CanModifyProjectRequiredMixin, DeleteView):
     template_name = "projects/file_confirm_delete.html"
     model = models.File
 
@@ -1566,7 +1930,7 @@ def manage_levels(request):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def delete_program(request, pk):
-    my_obj = models.Program2.objects.get(pk=pk)
+    my_obj = models.Program.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("projects:manage_programs"))
 
@@ -1574,7 +1938,7 @@ def delete_program(request, pk):
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def manage_programs(request):
-    qs = models.Program2.objects.all().order_by("regional_program_name_eng")
+    qs = models.Program.objects.all().order_by("regional_program_name_eng")
     if request.method == 'POST':
         formset = forms.ProgramFormSet(request.POST, )
         if formset.is_valid():
@@ -1595,8 +1959,75 @@ def manage_programs(request):
         'short_name',
         'is_core',
         'examples',
+        'theme',
     ]
     context['title'] = "Manage Programs"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_activity_type(request, pk):
+    my_obj = models.ActivityType.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_activity_types"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_activity_types(request):
+    qs = models.ActivityType.objects.all()
+    if request.method == 'POST':
+        formset = forms.ActivityTypeFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_activity_types"))
+    else:
+        formset = forms.ActivityTypeFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage Activity Types"
+    context['formset'] = formset
+    return render(request, 'projects/manage_settings_small.html', context)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def delete_theme(request, pk):
+    my_obj = models.Theme.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def manage_themes(request):
+    qs = models.Theme.objects.all()
+    if request.method == 'POST':
+        formset = forms.ThemeFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("projects:manage_themes"))
+    else:
+        formset = forms.ThemeFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage Themes"
     context['formset'] = formset
     return render(request, 'projects/manage_settings_small.html', context)
 
@@ -1650,14 +2081,15 @@ class AdminProjectProgramUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
 class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterView):
     template_name = 'projects/admin_submitted_unapproved_list.html'
-    queryset = models.Project.objects.filter(submitted=True, section_head_approved=False).order_by('-year', 'id')
+    queryset = models.Project.objects.filter(submitted=True, approved=False).order_by('-year', 'id')
     filterset_class = filters.AdminSubmittedUnapprovedFilter
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_qs = context.get("filter").qs
         # models.Project.objects.values("section").
-        my_qs = my_qs.values("year_id", "section_id").order_by("year_id", "section_id").distinct().annotate(dcount=Count("id"))
+        my_qs = my_qs.values("year_id", "section_id").order_by("year_id", "section_id").distinct().annotate(
+            dcount=Count("id"))
 
         section_dict = {}
         for s in shared_models.Section.objects.all():
@@ -1669,18 +2101,19 @@ class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterVie
 
         section_year_program_dict = {}
         for fy in shared_models.FiscalYear.objects.all():
-            if fy.projects.filter(submitted=True, section_head_approved=True).count() > 0:
+            if fy.projects.filter(submitted=True, approved=True).count() > 0:
                 section_year_program_dict[fy.id] = {}
                 for s in shared_models.Section.objects.all():
-                    if s.projects.filter(submitted=True, section_head_approved=True).count() > 0:
+                    if s.projects.filter(submitted=True, approved=True).count() > 0:
                         section_year_program_dict[fy.id][s.id] = {}
                         project_list = context.get("filter").qs.filter(year=fy, section=s)
                         # section_year_program_dict[fy.id][s.id]["programs"] = \
-                        #     models.Program2.objects.filter(projects__in=project_list).distinct()
+                        #     models.Program.objects.filter(projects__in=project_list).distinct()
 
                         # determine if there are submitted project with no programs
                         # section_year_program_dict[fy.id][s.id]["program_errors"] = project_list.filter(programs__isnull=True)
-                        section_year_program_dict[fy.id][s.id]["project_list"] = project_list.order_by("programs__is_core").distinct()
+                        section_year_program_dict[fy.id][s.id]["project_list"] = project_list.order_by(
+                            "programs__is_core").distinct()
 
         context["my_qs"] = my_qs
         context["section_dict"] = section_dict
@@ -1710,6 +2143,8 @@ class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
         context['project'] = project
         context['status_report'] = True
         context['files'] = project.files.all()
+        context["can_edit"] = can_modify_project(self.request.user, project.id)
+        context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
         return context
 
     def form_valid(self, form):
@@ -1760,6 +2195,8 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
         context['status_report'] = self.get_object()
         context['project'] = project
         context['files'] = self.get_object().files.all()
+        context["can_edit"] = can_modify_project(self.request.user, project.id)
+        context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
         return context
 
     def form_valid(self, form):
@@ -1767,7 +2204,7 @@ class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('projects:report_edit', kwargs={"pk": my_object.id}))
 
 
-class StatusReportDeleteView(ProjectLeadRequiredMixin, DeleteView):
+class StatusReportDeleteView(CanModifyProjectRequiredMixin, DeleteView):
     template_name = "projects/status_report_confirm_delete.html"
     model = models.StatusReport
 
@@ -2061,8 +2498,13 @@ class PDFReportTemplate(LoginRequiredMixin, PDFTemplateView):
     project_list = []
 
     def get_context_data(self, **kwargs):
-        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+
         context = super().get_context_data(**kwargs)
+
+        mar_id = shared_models.Region.objects.get(name="Maritimes").pk
+        context["fy"] = fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        context["approved"] = not (self.kwargs["regions"] == str(mar_id))
+
         # need to assemble a section list
         ## first look at the sections arg; if not null, we don't need anything else
         if self.kwargs["sections"] != "None":
@@ -2082,21 +2524,14 @@ class PDFReportTemplate(LoginRequiredMixin, PDFTemplateView):
                                                                        branch__id__in=[1, 3])
             self.section_list = shared_models.Section.objects.filter(division__in=self.division_list)
 
-        mar_id = shared_models.Region.objects.get(name="Maritimes").pk
-
         # there will always be a section list so let's use that to generate a project list
-        if self.kwargs["regions"] == str(mar_id):
-            # exclude the TEMPORARY FOR SORTING for Mike and Shelly sections
-            self.section_list = self.section_list.exclude(pk=60).exclude(pk=59)
-            context['excluded_sections'] = [60, 59]
-            self.project_list = models.Project.objects.filter(year=fy, submitted=True,
-                                                              section_id__in=self.section_list).order_by("id")
-        else:
-            self.project_list = models.Project.objects.filter(year=fy, submitted=True, section_head_approved=True,
-                                                              section_id__in=self.section_list).order_by("id")
-            context["approved"] = True
+        self.project_list = models.Project.objects.filter(year=fy, submitted=True, section_id__in=self.section_list)
 
-        context["fy"] = fy
+        if context["approved"]:
+            self.project_list = self.project_list.filter(approved=True).order_by("id")
+
+        self.project_list = self.project_list.order_by("id")
+
         return context
 
 
@@ -2142,7 +2577,7 @@ class PDFProjectSummaryReport(PDFReportTemplate):
         ]
 
         for project in self.project_list:
-            context["financial_summary_data"][project.id] = financial_summary_data(project)
+            context["financial_summary_data"][project.id] = pdf_financial_summary_data(project)
             context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(
                 employee_type=4).count()
             context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(
@@ -2162,8 +2597,8 @@ class PDFProjectSummaryReport(PDFReportTemplate):
             finally:
                 for key in key_list:
                     context["financial_summary_data"]["sections"][project.section.id][key] += \
-                    context["financial_summary_data"][project.id][
-                        key]
+                        context["financial_summary_data"][project.id][
+                            key]
 
             # for Divisions
             try:
@@ -2244,7 +2679,7 @@ class PDFProjectPrintoutReport(PDFReportTemplate):
         ]
 
         for project in self.project_list:
-            context["financial_summary_data"][project.id] = financial_summary_data(project)
+            context["financial_summary_data"][project.id] = pdf_financial_summary_data(project)
 
         return context
 
@@ -2427,12 +2862,10 @@ class PDFOTSummaryReport(PDFReportTemplate):
                 if section in self.section_list:
                     # create a sub sub dict for the section
 
-                    if self.kwargs['regions'] == str(mar_id):
-                        self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
-                                                                          section=section)
-                    else:
-                        self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
-                                                                          section_head_approved=True, section=section)
+                    self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
+                                                                      section=section)
+                    if context['approved']:
+                        self.project_list = self.project_list.filter(section_head_approved=True)
 
                     ot = models.Staff.objects.filter(
                         project__in=self.project_list, overtime_hours__isnull=False,
@@ -2449,15 +2882,10 @@ class PDFOTSummaryReport(PDFReportTemplate):
                     my_dict[division][section]["programs"]["list"] = program_list
                     for program in program_list:
 
-                        if self.kwargs['regions'] == str(mar_id):
-                            self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
-                                                                              section=section,
-                                                                              programs=program)
-                        else:
-                            self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
-                                                                              section_head_approved=True,
-                                                                              section=section,
-                                                                              programs=program)
+                        self.project_list = models.Project.objects.filter(year=context['fy'], submitted=True,
+                                                                          section=section, programs=program)
+                        if context['approved']:
+                            self.project_list = self.project_list.filter(section_head_approved=True)
 
                         ot = models.Staff.objects.filter(
                             project__in=self.project_list, overtime_hours__isnull=False,
@@ -2515,7 +2943,7 @@ class PDFCostSummaryReport(PDFReportTemplate):
         ]
 
         for project in self.project_list:
-            context["financial_summary_data"][project.id] = financial_summary_data(project)
+            context["financial_summary_data"][project.id] = pdf_financial_summary_data(project)
             context["financial_summary_data"][project.id]["students"] = project.staff_members.filter(
                 employee_type=4).count()
             context["financial_summary_data"][project.id]["casuals"] = project.staff_members.filter(
@@ -2532,8 +2960,8 @@ class PDFCostSummaryReport(PDFReportTemplate):
             finally:
                 for key in key_list:
                     context["financial_summary_data"]["sections"][project.section.id][key] += \
-                    context["financial_summary_data"][project.id][
-                        key]
+                        context["financial_summary_data"][project.id][
+                            key]
 
             # for Divisions
             try:
@@ -2561,16 +2989,16 @@ class PDFCostSummaryReport(PDFReportTemplate):
                     context["financial_summary_data"]["total"][key] += \
                         context["financial_summary_data"][project.id][key]
 
-        context["abase"] = models.FundingSource.objects.get(pk=1).color
-        context["bbase"] = models.FundingSource.objects.get(pk=2).color
-        context["cbase"] = models.FundingSource.objects.get(pk=3).color
+        context["abase"] = models.FundingSourceType.objects.get(pk=1).color
+        context["bbase"] = models.FundingSourceType.objects.get(pk=2).color
+        context["cbase"] = models.FundingSourceType.objects.get(pk=3).color
         return context
 
 
 # EXTRAS #
 ##########
-class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
-    template_name = 'projects/ips_program_list.html'
+class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
+    template_name = 'projects/iw_group_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2584,122 +3012,250 @@ class IPSProgramList(ManagerOrAdminRequiredMixin, TemplateView):
             section__division__branch__region=my_region,
             year=fy,
             submitted=True,
-            section_head_approved=True,
         )
-        division_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by()
-        section_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by()
+        # If GULF region, we will further refine the list of projects
+        if my_region.id == 1:
+            project_list = project_list.filter(approved=True)
+
+        # This view is being retrofitted to be able to show projects by Theme/Program (instead of only by division/section)
+        if self.kwargs.get("type") == "theme":
+            big_list = models.Theme.objects.filter(functional_groups__projects__in=project_list).distinct().order_by()
+            small_list = None
+        else:
+            big_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by("name")
+            small_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by("division", "name")
 
         my_dict = {}
-        for d in division_list.order_by("name"):
-            my_dict[d] = {}
-            for s in section_list.order_by("division", "name"):
-                if s.division == d:
-                    my_dict[d][s] = {}
+        for big_item in big_list:
+            my_dict[big_item] = {}
 
-                    # get a list of projects..  then programs
-                    project_list = s.projects.filter(year=fy, submitted=True, section_head_approved=True)
-                    program_list = models.Program2.objects.filter(projects__in=project_list).distinct().order_by("-is_core", )
-                    my_dict[d][s]["projects"] = project_list
-                    my_dict[d][s]["programs"] = {}
+            if self.kwargs.get("type") == "theme":
 
-                    for p in program_list:
-                        my_dict[d][s]["programs"][p] = {}
+                my_dict[big_item]['all'] = {}
+                temp_project_list = project_list.filter(functional_group__theme=big_item)
+                group_list = set([project.functional_group for project in temp_project_list])
 
-                        # get a list of project counts
-                        project_count = project_list.filter(programs=p).count()
-                        my_dict[d][s]["programs"][p]["project_count"] = project_count
+                my_dict[big_item]['all']["projects"] = temp_project_list
+                my_dict[big_item]['all']["groups"] = {}
+                for group in group_list:
+                    my_dict[big_item]['all']["groups"][group] = {}
 
-                        # get a list of project leads
-                        leads = listrify(
-                            list(set([str(staff.user) for staff in
-                                      models.Staff.objects.filter(project__in=project_list.filter(programs=p), lead=True) if
-                                      staff.user])))
-                        my_dict[d][s]["programs"][p]["leads"] = leads
+                    # get a list of project counts
+                    project_count = temp_project_list.filter(functional_group=group).count()
+                    my_dict[big_item]['all']["groups"][group]["project_count"] = project_count
+
+                    # get a list of project leads
+                    leads = listrify(
+                        list(set([str(staff.user) for staff in
+                                  models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
+                                                              lead=True) if
+                                  staff.user])))
+                    my_dict[big_item]['all']["groups"][group]["leads"] = leads
+            else:
+                for small_item in small_list:
+                    # only create an entry for the small item if there are projects within...
+                    add_this_small_item = True
+                    if self.kwargs.get("type") == "theme":
+                        if project_list.filter(functional_group__program=small_item).count() == 0:
+                            add_this_small_item = False
+                    else:
+                        if project_list.filter(section=small_item).count() == 0:
+                            add_this_small_item = False
+
+                    if add_this_small_item:
+                        big_item_name = "theme" if self.kwargs.get("type") == "theme" else "division"
+
+                        if getattr(small_item, big_item_name) == big_item:
+                            my_dict[big_item][small_item] = {}
+
+                            # for each section, get a list of projects..  then programs
+                            if self.kwargs.get("type") == "theme":
+                                temp_project_list = project_list.filter(functional_group__program=small_item)
+                            else:
+                                temp_project_list = project_list.filter(section=small_item)
+
+                            group_list = set([project.functional_group for project in temp_project_list])
+
+                            my_dict[big_item][small_item]["projects"] = temp_project_list
+                            my_dict[big_item][small_item]["groups"] = {}
+                            for group in group_list:
+                                my_dict[big_item][small_item]["groups"][group] = {}
+
+                                # get a list of project counts
+                                project_count = temp_project_list.filter(functional_group=group).count()
+                                my_dict[big_item][small_item]["groups"][group]["project_count"] = project_count
+
+                                # get a list of project leads
+                                leads = listrify(
+                                    list(set([str(staff.user) for staff in
+                                              models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
+                                                                          lead=True) if
+                                              staff.user])))
+                                my_dict[big_item][small_item]["groups"][group]["leads"] = leads
         context['my_dict'] = my_dict
+
+        # projects missing a functional group
+        context['projects_without_groups'] = project_list.filter(functional_group__isnull=True)
+
+        # Only do the following two assessments if we are going by program/theme
+        if self.kwargs.get("type") == "theme":
+            # projects with a program but that are missing a theme
+            context['projects_without_themes'] = project_list.filter(
+                functional_group__isnull=False,
+                functional_group__theme__isnull=True).order_by("functional_group")
+
+        context["field_list"] = [
+            "id|{}".format(_("Project Id")),
+            "project_title",
+            "functional_group",
+            "activity_type",
+            "project_leads|{}".format(_("Project leads")),
+        ]
+        context["random_project"] = models.Project.objects.first()
         return context
 
 
-class IPSProjectList(ManagerOrAdminRequiredMixin, TemplateView):
-    template_name = 'projects/ips_project_list.html'
+class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
+    template_name = 'projects/iw_project_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
-        section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
-        program = models.Program2.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
+
+        region = shared_models.Region.objects.get(id=self.kwargs.get("region"))
+        # This view is being retrofitted to be able to show projects by Program (instead of only by section)
+        if self.kwargs.get("type") == "theme":
+            section = None
+        else:
+            section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
+
+        functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get("group") else None
         context['fy'] = fy
+        context['region'] = region
         context['section'] = section
-        context['program'] = program
+        context['functional_group'] = functional_group
 
-        project_list = models.Project.objects.filter(
-            section=section,
-            year=fy,
-            submitted=True,
-            section_head_approved=True,
-        ).order_by("id")
+        # assemble project_list
+        project_list = models.Project.objects.filter(year=fy, submitted=True, ).order_by("id")
+        # If from gulf region, filter out any un approved projects
+        if region.id == 1:
+            project_list = project_list.filter(
+                approved=True,
+            )
 
-        if self.kwargs.get("program"):
-            project_list = project_list.filter(programs=program)
+        if self.kwargs.get("type") == "theme":
+            project_list = project_list.filter(section__division__branch__region=region)
+        else:
+            project_list = project_list.filter(section=section)
+
+        # If a function group is provided keep only those projects
+        if functional_group:
+            project_list = project_list.filter(functional_group=functional_group)
 
         context['project_list'] = project_list
+        context["field_list"] = [
+            "id|{}".format(_("Project Id")),
+            "project_title",
+            "functional_group",
+            "status",
+            "activity_type",
+            "default_funding_source",
+            "tags",
+            "project_leads|{}".format(_("Project leads")),
+            "total_fte|{}".format(_("Total FTE")),
+            "total_ot|{}".format(_("Total OT")),
+            "meeting_notes",
+        ]
 
-        # import color schemes from funding_source table
-        context["abase"] = models.FundingSource.objects.get(pk=1).color
-        context["bbase"] = models.FundingSource.objects.get(pk=2).color
-        context["cbase"] = models.FundingSource.objects.get(pk=3).color
+        context["financials_dict"] = multiple_projects_financial_summary(project_list)
 
-        # calculate totals
-        for x in ['a', 'b', 'c', 'total']:
-            context[x + "_salary"] = sum([getattr(p, x + "_salary") for p in project_list])
-            context[x + "_om"] = sum([getattr(p, x + "_om") for p in project_list])
-            context[x + "_capital"] = sum([getattr(p, x + "_capital") for p in project_list])
-
-        context["total_ot"] = sum([p.total_ot for p in project_list])
-        context["total_fte"] = sum([p.total_fte for p in project_list])
+        # grab a note if available
+        if self.kwargs.get("type") == "theme":
+            context["note"] = models.Note.objects.get_or_create(section=None, functional_group=functional_group)[0]
+            # anyone looking can edit
+            context["can_edit"] = True
+        else:
+            context["note"] = models.Note.objects.get_or_create(section=section, functional_group=functional_group)[0]
+            if self.request.user in [section.head, section.division.head] or in_projects_admin_group(self.request.user):
+                context["can_edit"] = True
 
         return context
 
 
-class IPSProjectUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
-    model = models.Project
-    template_name = 'projects/ips_project_form.html'
-    form_class = forms.IPSProjectMeetingForm
+# FUNCTIONAL GROUPS #
+#####################
+
+class FunctionalGroupListView(AdminRequiredMixin, FilterView):
+    template_name = 'projects/functionalgroup_list.html'
+    filterset_class = filters.FunctionalGroupFilter
+
+    def get_queryset(self):
+        return models.FunctionalGroup.objects.annotate(
+            search_term=Concat('name',
+                               Value(" "),
+                               'nom',
+                               Value(" "),
+                               # 'program__name',
+                               output_field=TextField()))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["field_list"] = [
+            'name',
+            'nom',
+            'theme',
+            'sections',
+        ]
+        return context
+
+
+class FunctionalGroupUpdateView(AdminRequiredMixin, UpdateView):
+    model = models.FunctionalGroup
+    form_class = forms.FunctionalGroupForm
+    success_url = reverse_lazy('projects:group_list')
+    template_name = 'projects/functionalgroup_form.html'
+
+
+class FunctionalGroupCreateView(AdminRequiredMixin, CreateView):
+    model = models.FunctionalGroup
+    form_class = forms.FunctionalGroupForm
+    success_url = reverse_lazy('projects:group_list')
+    template_name = 'projects/functionalgroup_form.html'
+
+
+class FunctionalGroupDeleteView(AdminRequiredMixin, DeleteView):
+    model = models.FunctionalGroup
+    success_url = reverse_lazy('projects:group_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'projects/functionalgroup_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class FunctionalGroupDetailView(AdminRequiredMixin, DetailView):
+    model = models.FunctionalGroup
+    template_name = 'projects/functionalgroup_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        project = self.get_object()
-        context["field_list"] = project_field_list
-        context["report_mode"] = True
-        context["program"] = models.Program2.objects.get(id=self.kwargs.get("program")) if self.kwargs.get("program") else None
-
-        # bring in financial summary data
-        my_context = financial_summary_data(project)
-        context = {**my_context, **context}
-
+        context["field_list"] = [
+            'code',
+            'name',
+            'allotment_category',
+        ]
         return context
 
-    def form_valid(self, form):
-        my_object = form.save()
-        if self.kwargs.get("program"):
-            return HttpResponseRedirect(reverse("projects:ips_project_list", kwargs={
-                "fiscal_year": my_object.year.id,
-                "section": my_object.section.id,
-                "program": self.kwargs.get("program"),
-            }))
-        else:
-            return HttpResponseRedirect(reverse("projects:ips_project_list", kwargs={
-                "fiscal_year": my_object.year.id,
-                "section": my_object.section.id,
-            }))
 
 # SECTION NOTE #
 ################
 
-class SectionNoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
-    model = models.SectionNote
-    template_name = 'projects/section_note_form_popout.html'
-    form_class = forms.SectionNoteForm
+class NoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
+    model = models.Note
+    template_name = 'projects/note_form_popout.html'
+    form_class = forms.NoteForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2717,14 +3273,3 @@ class SectionNoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     def form_valid(self, form):
         my_object = form.save()
         return HttpResponseRedirect(reverse("shared_models:close_me"))
-
-
-def get_create_section_note(request, section, fy):
-    print(123)
-    my_section = shared_models.Section.objects.get(pk=section)
-    my_fy = shared_models.FiscalYear.objects.get(pk=fy)
-
-    my_section_note, created = models.SectionNote.objects.get_or_create(
-        section=my_section, fiscal_year=my_fy
-    )
-    return HttpResponseRedirect(reverse("projects:section_note_edit", kwargs={"pk": my_section_note.id, "fy": my_fy.id}))
