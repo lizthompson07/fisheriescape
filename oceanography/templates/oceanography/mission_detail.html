@@ -33,29 +33,44 @@
 
             {% endif %}
 
-            <a href="{% url "oceanography:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
-            <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle
-                CSV</a>
-            <a href="{% url "oceanography:file_create" object.id %}" class="btn btn-info">Add a File</a>
+            {#            <a href="{% url "oceanography:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>#}
+            {#            <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle#}
+            {#                CSV</a>#}
             <a href="{% url "oceanography:mission_list" %}" class="btn btn-dark">Back</a>
         </div>
         <br><br>
 
         <div class="row">
             <div class="col">
-                <table class="table table-striped table-sm">
-                    {% for field in field_list %}
-                        {% if not filed == "vessel" %}
-                            {% verbose_td_display object field %}
-                        {% else %}
-                    <tr><td>field.name</td><td></td></tr>
-                        {% endif %}
-                    {% endfor %}
-                </table>
-            </div>
+                <div class="mb-4">
+                    <h3>Mission Detail</h3>
 
-            <div class="col">
-                <b>Files:</b>
+                    <table class="table table-striped table-sm">
+                        {% for field in field_list %}
+                            {% if not filed == "vessel" %}
+                                {% verbose_td_display object field %}
+                            {% else %}
+                                <tr>
+                                    <td>field.name</td>
+                                    <td></td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                </div>
+
+                {#            </div>#}
+
+                {#            <div class="col">#}
+                <div class="mb-2">
+                    <div class="neighbours">
+                        <h3>Associated Files</h3>
+                    </div>
+                    <div class="neighbours">
+                        <a href="{% url "oceanography:file_create" object.id %}" class="btn btn-info">Add a File</a>
+                    </div>
+                </div>
+
                 <ul>
                     {% for file in object.files.all %}
                         <li>
@@ -68,64 +83,64 @@
                     {% endfor %}
                 </ul>
                 <br>
-                <b>Map of Bottles:</b>
-
-                <div id="map"></div>
-                <div id="lineMap"></div>
+                {#                <b>Map of Bottles:</b>#}
+                {##}
+                {#                <div id="map"></div>#}
+                {#                <div id="lineMap"></div>#}
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>
-    <script>
-
-        function initialize() {
-            var locations = [
-                {% for bottle in object.bottles.all %}
-                    {% if bottle.lat_DDdd and bottle.long_DDdd %}
-                        ['<a href="{% url 'oceanography:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>', {{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/icons/milk_bottle.png" %}'],
-                    {% endif %}
-                {% endfor %}
-            ];
-
-            var mapElement = document.getElementById('map');
-            var map = new google.maps.Map(mapElement, {mapTypeId: google.maps.MapTypeId.SATELITTE});
-            var iw = new google.maps.InfoWindow();
-            var bounds = new google.maps.LatLngBounds();
-
-            var oms = new OverlappingMarkerSpiderfier(map, {
-                markersWontMove: true,
-                markersWontHide: true,
-                basicFormatEvents: true
-            });
-
-            for (var i = 0; i < locations.length; i++) {
-                (function () {  // make a closure over the marker and marker data
-                    var markerData = locations[i];  // e.g. { lat: 50.123, lng: 0.123, text: 'XYZ' }
-                    var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(markerData[1], markerData[2]),
-                        icon: markerData[3]
-                    });  // markerData works here as a LatLngLiteral
-                    google.maps.event.addListener(marker, 'spider_click', function (e) {  // 'spider_click', not plain 'click'
-                        iw.setContent(markerData[0]);
-                        iw.open(map, marker);
-                    });
-                    oms.addMarker(marker);  // adds the marker to the spiderfier _and_ the map
-                    bounds.extend(marker.position);
-                })();
-
-            }
-            map.fitBounds(bounds);
-        }
-
-        function loadScript() {
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-            document.body.appendChild(script);
-        }
-
-        window.onload = loadScript();
-
-    </script>
+    {#    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>#}
+    {#    <script>#}
+    {##}
+    {#        function initialize() {#}
+    {#            var locations = [#}
+    {#                {% for bottle in object.bottles.all %}#}
+    {#                    {% if bottle.lat_DDdd and bottle.long_DDdd %}#}
+    {#                        ['<a href="{% url 'oceanography:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>', {{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/icons/milk_bottle.png" %}'],#}
+    {#                    {% endif %}#}
+    {#                {% endfor %}#}
+    {#            ];#}
+    {##}
+    {#            var mapElement = document.getElementById('map');#}
+    {#            var map = new google.maps.Map(mapElement, {mapTypeId: google.maps.MapTypeId.SATELITTE});#}
+    {#            var iw = new google.maps.InfoWindow();#}
+    {#            var bounds = new google.maps.LatLngBounds();#}
+    {##}
+    {#            var oms = new OverlappingMarkerSpiderfier(map, {#}
+    {#                markersWontMove: true,#}
+    {#                markersWontHide: true,#}
+    {#                basicFormatEvents: true#}
+    {#            });#}
+    {##}
+    {#            for (var i = 0; i < locations.length; i++) {#}
+    {#                (function () {  // make a closure over the marker and marker data#}
+    {#                    var markerData = locations[i];  // e.g. { lat: 50.123, lng: 0.123, text: 'XYZ' }#}
+    {#                    var marker = new google.maps.Marker({#}
+    {#                        position: new google.maps.LatLng(markerData[1], markerData[2]),#}
+    {#                        icon: markerData[3]#}
+    {#                    });  // markerData works here as a LatLngLiteral#}
+    {#                    google.maps.event.addListener(marker, 'spider_click', function (e) {  // 'spider_click', not plain 'click'#}
+    {#                        iw.setContent(markerData[0]);#}
+    {#                        iw.open(map, marker);#}
+    {#                    });#}
+    {#                    oms.addMarker(marker);  // adds the marker to the spiderfier _and_ the map#}
+    {#                    bounds.extend(marker.position);#}
+    {#                })();#}
+    {##}
+    {#            }#}
+    {#            map.fitBounds(bounds);#}
+    {#        }#}
+    {##}
+    {#        function loadScript() {#}
+    {#            var script = document.createElement('script');#}
+    {#            script.type = 'text/javascript';#}
+    {#            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";#}
+    {#            document.body.appendChild(script);#}
+    {#        }#}
+    {##}
+    {#        window.onload = loadScript();#}
+    {##}
+    {#    </script>#}
 
 {% endblock content %}
