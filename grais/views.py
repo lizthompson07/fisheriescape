@@ -358,13 +358,31 @@ class SpeciesListView(GraisAccessRequiredMixin, FilterView):
     queryset = models.Species.objects.annotate(
         search_term=Concat('id', 'common_name', 'scientific_name', 'abbrev', output_field=TextField()))
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'common_name',
+            'common_name_fra',
+            'scientific_name',
+            'abbrev',
+            'tsn|ITIS TSN',
+            'aphia_id',
+            'color_morph',
+            'invasive',
+            'Has occurred in db?',
+        ]
+        return context
+
+
+
 
 class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
     model = models.Species
     fields = "__all__"
 
     def get_context_data(self, **kwargs):
-        context = super(SpeciesDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'id',
             'common_name',

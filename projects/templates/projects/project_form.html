@@ -17,11 +17,16 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">
-                {% trans "My Projects" %}
-            </a></li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:my_project_list' %}">
+                    {% trans "My Projects" %}
+                </a>
+            </li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'projects:project_detail' object.id %}">{{ object }}</a>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'projects:project_detail' object.id %}">
+                        {{ object }}
+                    </a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">
                     {% trans "Edit" %}
@@ -79,7 +84,8 @@
                     {% if field.name in help_text_dict %}
                         {% bootstrap_label field.label %}
                         {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 data-trigger="hover"
                                  title="{{ field.label }}"
                                  data-content="{{ help_text }}">
                             {{ field }}<br>
@@ -98,7 +104,8 @@
                     {% if field.name in help_text_dict %}
                         {% bootstrap_label field.label %}
                         {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 data-trigger="hover"
                                  title="{{ field.label }}"
                                  data-content="{{ help_text }}">
                             {% bootstrap_field field placeholder="" show_label=False %}
@@ -112,7 +119,7 @@
 
 
             {% buttons %}
-                 <div class="btn-group">
+                <div class="btn-group">
                     <button type="submit" class="btn btn-primary">
                         {% if cloned or not object.id %}
                             {% trans "Add" %}
