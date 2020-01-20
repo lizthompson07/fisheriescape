@@ -304,6 +304,20 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+
+    try:
+        app_dict["vault"] = {
+            "title": _("Cetacean media vault"),
+            "description": _("Media vault for marine megafauna / application."),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('vault:index'),
+            "icon_path": 'img/icons/vault.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
     return OrderedDict(app_dict)
 
 
