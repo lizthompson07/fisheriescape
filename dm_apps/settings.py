@@ -30,6 +30,7 @@ else:
 
 PRODUCTION_SERVER = local_conf.PRODUCTION_SERVER
 USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
+USING_LOCAL_DB = local_conf.USING_LOCAL_DB
 try:
     DEBUG_ON = local_conf.DEBUG
 except AttributeError:
