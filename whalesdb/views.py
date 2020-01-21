@@ -278,6 +278,21 @@ class IndexView(TemplateView):
         context = super().get_context_data()
         context['section'] = [
             {
+                'title': 'Entry Forms',
+                'forms': [
+                    {
+                        'title': _("Station List"),
+                        'url': "whalesdb:list_stn",
+                        'icon': "img/whales/station.svg",
+                    },
+                    {
+                        'title': _("Project List"),
+                        'url': "whalesdb:list_prj",
+                        'icon': "img/whales/station.svg",
+                    },
+                ]
+            },
+            {
                 'title': 'Deployment',
                 'forms': [
                     {
@@ -438,6 +453,56 @@ class CloserTemplateView(TemplateView):
 
 class CloserNoRefreshTemplateView(TemplateView):
     template_name = 'whalesdb/close_me_no_refresh.html'
+
+
+class CreateCommon(LoginRequiredMixin, CreateView):
+    login_url = '/accounts/login_required/'
+
+
+class CreatePrj(CreateCommon):
+    model = models.PrjProject
+    form_class = forms.PrjForm
+
+    template_name = 'whalesdb/_stn_form.html'
+
+
+class CreateStn(CreateCommon):
+    model = models.StnStation
+    form_class = forms.StnForm
+
+    template_name = 'whalesdb/_stn_form.html'
+
+
+class DetailsPrj(DetailView):
+    model = models.PrjProject
+
+
+class DetailsStn(DetailView):
+    model = models.StnStation
+
+
+class ListCommon(FilterView):
+    template_name = 'whalesdb/whale_filter.html'
+    fields = []
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+
+        context['fields'] = self.fields
+
+        return context
+
+
+class ListPrj(ListCommon):
+    model = models.PrjProject
+    filterset_class = filters.PrjFilter
+    fields = ['prj_name', 'prj_description']
+
+
+class ListStn(ListCommon):
+    model = models.StnStation
+    filterset_class = filters.StnFilter
+    fields = ['stn_name', 'stn_code', 'stn_revision']
 
 
 class UpdateTemplate(UpdateView):
