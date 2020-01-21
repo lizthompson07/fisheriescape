@@ -5,4 +5,5 @@ def my_envr(request):
     return {
         'PRODUCTION_SERVER': settings.PRODUCTION_SERVER,
         'USING_PRODUCTION_DB': settings.USING_PRODUCTION_DB,
+        'USING_LOCAL_DB': settings.USING_LOCAL_DB,
     }
