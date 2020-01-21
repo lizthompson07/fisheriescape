@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-
 from django.utils.translation import gettext_lazy as _
+from decouple import config
 
 # Custom variables
 WEB_APP_NAME = "DMApps"
@@ -23,6 +23,7 @@ try:
     from . import my_conf as local_conf
 except ModuleNotFoundError and ImportError:
     from . import default_conf as local_conf
+
     print("my_conf.py' not found. using default configuration file 'default_conf.py' instead.")
 else:
     print("using custom configuration file: 'my_conf.py'.")
@@ -36,10 +37,8 @@ except AttributeError:
 
 # check to see if there is a file containing the google api key
 # if there is not, set this to a null string and maps will open in dev mode
-try:
-    from . import google_api_key
-    GOOGLE_API_KEY = google_api_key.GOOGLE_API_KEY
-except ModuleNotFoundError and ImportError:
+GOOGLE_API_KEY = config("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
     GOOGLE_API_KEY = ""
     print("no google api key file found.")
 
@@ -53,7 +52,7 @@ MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'dekdlvbhtlbo_wg_x32ovt9umh3ysbfa$+f@h7i8oe-45$c)pl'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -70,22 +69,22 @@ LOGIN_URL = 'accounts/login/'
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'bootstrap4',
-    'el_pagination',
-    'easy_pdf',
-    'tracking',
-    'accounts',
-    'lib',
-    'shared_models',
-    'tickets',
-] + local_conf.MY_INSTALLED_APPS
+                     'django.contrib.admin',
+                     'django.contrib.auth',
+                     'django.contrib.contenttypes',
+                     'django.contrib.sessions',
+                     'django.contrib.messages',
+                     'django.contrib.staticfiles',
+                     'django.contrib.humanize',
+                     'bootstrap4',
+                     'el_pagination',
+                     'easy_pdf',
+                     'tracking',
+                     'accounts',
+                     'lib',
+                     'shared_models',
+                     'tickets',
+                 ] + local_conf.MY_INSTALLED_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -193,7 +192,6 @@ else:
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
-
 
 # Setting for django-tracking2
 TRACK_PAGEVIEWS = True
