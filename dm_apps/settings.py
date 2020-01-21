@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 from django.utils.translation import gettext_lazy as _
-from decouple import config
+from decouple import config, UndefinedValueError
 
 # Custom variables
 WEB_APP_NAME = "DMApps"
@@ -36,9 +36,16 @@ try:
 except AttributeError:
     DEBUG_ON = False
 
+DEV_DB_NAME = local_conf.DEV_DB_NAME
+DEV_DB_HOST = local_conf.DEV_DB_HOST
+
 # check to see if there is a file containing the google api key
 # if there is not, set this to a null string and maps will open in dev mode
-GOOGLE_API_KEY = config("GOOGLE_API_KEY")
+try:
+    GOOGLE_API_KEY = config("GOOGLE_API_KEY")
+except UndefinedValueError:
+    GOOGLE_API_KEY = ""
+
 if not GOOGLE_API_KEY:
     GOOGLE_API_KEY = ""
     print("no google api key file found.")
@@ -53,7 +60,10 @@ MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+try:
+    SECRET_KEY = config('SECRET_KEY')
+except UndefinedValueError:
+    SECRET_KEY = "fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 

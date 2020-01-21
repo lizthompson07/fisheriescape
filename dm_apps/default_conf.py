@@ -1,6 +1,6 @@
 # INSTRUCTIONS:  #
 ##################
-
+# please refer to the README and the project wiki for the most up-to-update information.
 # Duplicate this file and rename it to my_conf.py
 # The 'my_conf.py' file is in the .gitignore
 # create a file called prod.cnf in the root project dir to specify connection to production db server
@@ -11,12 +11,18 @@ import os
 from decouple import config
 from .utils import is_connection_available
 
-# DO NOT CHANGE THESE VARIABLES
+# DO NOT INTERACT WITH THESE VARIABLES HERE
+########################################################################
 FORCE_DEV_DB = False
+DEV_DB_NAME = None
+DEV_DB_HOST = None
 USING_LOCAL_DB = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+########################################################################
 
-# uncomment this line if you want to connect to the production database instead of the default dev database (assuming prod.cnf is present)
+
+
+# If the line below is uncommented, you will connect to the dev database even if production database strings are present
 FORCE_DEV_DB = True
 
 # check to see if the which databases are available:
@@ -33,9 +39,13 @@ elif IS_DEV_DB_AVAILABLE:
         print("production connection string is present however running dev mode since FORCE_DEV_MODE setting is set to True")
     # this variable is used in base.html to indicate which database you are connected to
     USING_PRODUCTION_DB = False
+    # if we have a connection to dev, get the names of db and host to pass in as context processors
+    DEV_DB_NAME = config('DEV_DB_NAME')
+    DEV_DB_HOST = config('DEV_DB_HOST')
 else:
     USING_PRODUCTION_DB = False
     USING_LOCAL_DB = True
+
 
 # Specific which mode you are running in. If this file is on the production server, this setting should be True
 # if this setting = False, static and mediafiles will be served by the development server.
