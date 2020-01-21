@@ -8,25 +8,24 @@
 # It is recommended to leave this file unmodified unless you are making improvements
 
 import os
+from decouple import config
 
 # DO NOT CHANGE THESE VARIABLES
 FORCE_DEV_DB = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# This is the name of the production database connection file; if missing, we will use dev.cnf with is included in the repo
-MY_CNF = os.path.join(BASE_DIR, 'prod.cnf')
 
 # uncomment this line if you want to connect to the production database instead of the default dev database (assuming prod.cnf is present)
 FORCE_DEV_DB = True
 
 # checking to see if the which database to connect to:
 # if prod.cnf exists and we are not forcing dev mode...
-if os.path.isfile(MY_CNF) and not FORCE_DEV_DB:
+if config("PROD_DB_NAME") and not FORCE_DEV_DB:
     USING_PRODUCTION_DB = True
 # otherwise we are in dev mode
 else:
-    if os.path.isfile(MY_CNF):
+    # There are 3 scenarios: 1) there is no PROD_DB_NAME in the .env file; 2) FORCE_DEV_DB is set to True; or 3) both
+    if config("PROD_DB_NAME"):
         print("production connection string is present however running dev mode since FORCE_DEV_MODE setting is set to True")
-    MY_CNF = os.path.join(BASE_DIR, 'dev.cnf')
     # this variable is used in base.html to indicate which database you are connected to
     USING_PRODUCTION_DB = False
 
@@ -71,15 +70,37 @@ MY_INSTALLED_APPS = [app for app in APP_DICT]
 SHOW_TICKETS_APP = True
 
 # Specify your database connection details
-DATABASES = {
-    'default': {
+DB_CONNECTION_PREFIX = "PROD" if USING_PRODUCTION_DB else "DEV"
+
+# if any of the connections are missing, use a sqllite backend
+if not config(DB_CONNECTION_PREFIX + '_DB_HOST') and \
+        config(DB_CONNECTION_PREFIX + '_DB_PORT') and \
+        config(DB_CONNECTION_PREFIX + '_DB_NAME') and \
+        config(DB_CONNECTION_PREFIX + '_DB_USER') and \
+        config(DB_CONNECTION_PREFIX + '_DB_PASSWORD'):
+    print("database connection information missing. using local db")
+    my_default_db = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+else:
+    print(123)
+    my_default_db = {
         'ENGINE': 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
         'OPTIONS': {
-            'read_default_file': MY_CNF,
+            'host': config(DB_CONNECTION_PREFIX + '_DB_HOST'),
+            'port': config(DB_CONNECTION_PREFIX + '_DB_PORT', cast=int),
+            'database': config(DB_CONNECTION_PREFIX + '_DB_NAME'),
+            'user': config(DB_CONNECTION_PREFIX + '_DB_USER'),
+            'password': config(DB_CONNECTION_PREFIX + '_DB_PASSWORD'),
+
             'init_command': 'SET default_storage_engine=INNODB',
-        },
-    },
+            # 'default-character-set': "utf8",
+        }}
+
+DATABASES = {
+    'default': my_default_db,
     # 'whalesdb': {
     #     'ENGINE': 'django.db.backends.oracle',
     #     'NAME': 'DTRAN',
