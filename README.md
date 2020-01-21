@@ -25,7 +25,7 @@
     1. You may need to install the [Oracle Instant client](https://www.oracle.com/technetwork/database/database-technologies/instant-client/overview/index.html)
     
 ### Running the django development server
-1. If you are  and run the development server: `python manage.py runserver`
+1. If you are using a local Sqlite dataabase, be sure to run migrations before you get started: `python manage.py migrate`.
 1. Change directory to the root `dm_apps` folder (if not already there) and run the development server: `python manage.py runserver`
 
 ### Notes
