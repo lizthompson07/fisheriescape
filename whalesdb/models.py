@@ -6,6 +6,7 @@
 #   * Remove `managed = True` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class CrsCruise(models.Model):
@@ -257,13 +258,13 @@ class SteStationEvent(models.Model):
 
 class StnStation(models.Model):
     stn_id = models.AutoField(primary_key=True)
-    stn_name = models.CharField(max_length=100)
-    stn_code = models.CharField(max_length=3)
-    stn_revision = models.BigIntegerField()
-    stn_planned_lat = models.DecimalField(max_digits=9, decimal_places=6)
-    stn_planned_lon = models.DecimalField(max_digits=9, decimal_places=6)
-    stn_planned_depth = models.DecimalField(max_digits=10, decimal_places=6)
-    stn_notes = models.CharField(max_length=4000, blank=True, null=True)
+    stn_name = models.CharField(max_length=100, verbose_name=_("Name"), help_text=_("Station Name"))
+    stn_code = models.CharField(max_length=3, unique=True, verbose_name=_("Code"), help_text=_("3 character code for a station"))
+    stn_revision = models.BigIntegerField(verbose_name=_("Revision"), help_text=_("If details of a station are modified it gets a new revision number"))
+    stn_planned_lat = models.DecimalField(max_digits=9, decimal_places=6, verbose_name=_("Latitude"), help_text=_("Planned Latitude of a station"))
+    stn_planned_lon = models.DecimalField(max_digits=9, decimal_places=6, verbose_name=_("Longitude"), help_text=_("Planned Longitude of a station"))
+    stn_planned_depth = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Depth"), help_text=_("Planned Depth for a station"))
+    stn_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Notes"), help_text=_("Additional Notes for a station"))
 
     def __str__(self):
         current = "Past"

@@ -2,7 +2,7 @@ from django.test import TestCase, tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
 
-from whalesdb import views
+from whalesdb import views, models
 
 
 class TestCommon(TestCase):
@@ -52,5 +52,128 @@ class TestIndexView(TestCommon):
         # expect to see section in the context
         self.assertIn("section", response.context)
 
-        # expect to see 'entry' object under section
-        self.assertIn('entry', response.context['section'])
+        # expect to see an 'entry form' section as the first element of section
+        entry_forms = response.context['section'][0]
+
+        self.assertEquals('Entry Forms', entry_forms['title'])
+
+        # Expected there to be a station list object
+        stn_list = entry_forms['forms'][0]
+        self.assertEquals('Station List', stn_list['title'])
+
+
+class TestListStation(TestCommon):
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_stn')
+        self.test_expected_template = 'whalesdb/station_list.html'
+
+    # Users doesn't have to be logged in to view a list of stations
+    @tag('list_stn', 'response', 'access')
+    def test_list_stn_en(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        # user not logged in, should get 302 redirect to login page.
+        self.assertEquals(200, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
+
+    # Users doesn't have to be logged in to view a list of stations
+    @tag('list_stn', 'response', 'access')
+    def test_list_stn_fr(self):
+        activate('fr')
+
+        response = self.client.get(self.test_url)
+
+        self.assertEquals(200, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
+
+    # Station List should return a list of fields to display
+    @tag('list_stn', 'response', 'context')
+    def test_list_stn_context_fields(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        self.assertIn("fields", response.context)
+
+
+class TestCreateStation(TestCommon):
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:create_stn')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_stn_form.html'
+
+    # Users must be logged in to create new stations
+    @tag('create_stn', 'response', 'access')
+    def test_create_stn_en(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        # user not logged in, should get 302 redirect to login page.
+        self.assertEquals(302, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
+
+    # Users must be logged in to create new stations
+    @tag('create_stn', 'response', 'access')
+    def test_create_stn_fr(self):
+        activate('fr')
+
+        response = self.client.get(self.test_url)
+
+        # user not logged in, should get 302 redirect to login page.
+        self.assertEquals(302, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
+
+
+class TestDetailsStation(TestCommon):
+
+    station_dic = None
+
+    def createStn(self):
+        if self.station_dic:
+            return self.station_dic
+
+        self.station_dic = {}
+
+        stn_1 = models.StnStation(stn_name='Station 1', stn_code='ST1', stn_revision=1, stn_planned_lat=52,
+                                  stn_planned_lon=25, stn_planned_depth=1)
+        stn_1.save()
+
+        self.station_dic['stn_1'] = stn_1
+
+        return self.station_dic
+
+    def setUp(self):
+        super().setUp()
+
+        stn_dic = self.createStn()
+
+        self.test_url = reverse_lazy('whalesdb:details_stn', args=(stn_dic['stn_1'].pk,))
+        self.test_expected_template = 'whalesdb/station_details.html'
+
+    # Station Details are visible to all
+    @tag('details_stn', 'response', 'access')
+    def test_details_stn_en(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        self.assertEquals(200, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
+
+    # Station Details are visible to all
+    @tag('details_stn', 'response', 'access')
+    def test_details_stn_fr(self):
+        activate('fr')
+
+        response = self.client.get(self.test_url)
+
+        self.assertEquals(200, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
