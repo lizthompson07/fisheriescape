@@ -307,8 +307,8 @@ def get_app_dict(request):
 
     try:
         app_dict["vault"] = {
-            "title": _("Cetacean media vault"),
-            "description": _("Media vault for marine megafauna / application."),
+            "title": _("Megafauna media vault"),
+            "description": _("Media vault for marine megafauna."),
             "status": "production",
             "access": "permission-required",
             "url": reverse('vault:index'),
