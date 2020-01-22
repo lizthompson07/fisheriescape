@@ -238,7 +238,24 @@
 
                             </div>
                         </div>
-
+                    {% elif field.name == 'fgp_url' %}
+                        <div class="row">
+                            <div class="col-8">
+                                {% bootstrap_field field placeholder="" %}
+                                <div class="mb-3">
+                                    <a href="#id_fgp_url" id="fgp-guess">(guess at FGP url)</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif field.name == 'public_url' %}
+                        <div class="row">
+                            <div class="col-8">
+                                {% bootstrap_field field placeholder="" %}
+                                <div class="mb-3">
+                                    <a href="#id_public_url" id="opendata-guess">(guess at Open Data url)</a>
+                                </div>
+                            </div>
+                        </div>
                     {% else %}
                         <div class="row">
                             <div class="col-8">
@@ -352,6 +369,13 @@
 
         });
 
+
+        $("#fgp-guess").click(function () {
+            $("#id_fgp_url").val("https://gcgeo.gc.ca/geonetwork/metadata/eng/" + "{{ object.uuid }}");
+        });
+        $("#opendata-guess").click(function () {
+            $("#id_public_url").val("https://open.canada.ca/data/dataset/" + "{{ object.uuid }}");
+        });
 
     </script>
 {% endblock content %}
