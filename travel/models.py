@@ -183,7 +183,7 @@ class Conference(models.Model):
             self.start_date.strftime("%Y-%m-%d"),
         )
         if self.end_date:
-            my_str += "<br>{}".format(
+            my_str += " &rarr; {}".format(
                 self.end_date.strftime("%Y-%m-%d"),
             )
         return my_str
