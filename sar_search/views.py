@@ -322,7 +322,6 @@ class SpeciesListView(SARSearchAccessRequiredMixin, FilterView):
             _("common_name_eng"))
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
         context['my_object'] = models.Species.objects.first()
         context["field_list"] = [
@@ -370,7 +369,6 @@ class SpeciesDetailView(SARSearchAccessRequiredMixin, DetailView):
             'record_type',
             'year',
             'source',
-            'date_last_modified',
         ]
 
         return context
@@ -453,6 +451,7 @@ class RecordDetailView(SARSearchAccessRequiredMixin, DetailView):
             'record_type',
             'source',
             'year',
+            'notes',
             'last_modified_by',
             'date_last_modified',
         ]
