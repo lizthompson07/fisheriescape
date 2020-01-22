@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from shared_models import models as shared_models
-from shapely.geometry import Polygon, Point
+from shapely.geometry import Polygon, Point, LineString
 
 
 class Taxon(models.Model):
@@ -89,7 +89,7 @@ class SpeciesStatus(models.Model):
 
 
 class Region(models.Model):
-    code = models.CharField(max_length=5, blank=True, null=True)
+    # code = models.CharField(max_length=5, blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("english name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='regions', blank=True, null=True)
@@ -139,7 +139,16 @@ def auto_delete_region_file_on_change(sender, instance, **kwargs):
 
 
 class RegionPolygon(models.Model):
+    POINT = 1
+    LINE = 2
+    POLYGON = 3
+    RANGE_TYPE_CHOICES = (
+        (POINT, "points"),
+        (LINE, "line"),
+        (POLYGON, "polygon"),
+    )
     region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name="polygons")
+    type = models.IntegerField(verbose_name=_("record type"), choices=RANGE_TYPE_CHOICES, default=3)
     old_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -149,10 +158,14 @@ class RegionPolygon(models.Model):
         point_list = [(point.latitude, point.longitude) for point in self.points.all()]
         if len(point_list) > 0:
             try:
-                return Polygon(point_list)
+                if self.type == 3:
+                    return Polygon(point_list)
+                if self.type == 2:
+                    return LineString(point_list)
             except (ValueError, TypeError):
-                print("problem creating polygon id {}".format(self.pk))
-                print(point_list)
+                pass
+                # print("problem creating polygon id {}".format(self.pk))
+                # print(point_list)
 
     def coords(self):
         my_polygon = self.get_polygon()
