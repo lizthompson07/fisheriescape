@@ -88,6 +88,10 @@ class Region(models.Model):
     class Meta:
         ordering = ['name', ]
 
+    @property
+    def tname(self):
+        return str(self)
+
 
 class Branch(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
@@ -106,14 +110,19 @@ class Branch(models.Model):
 
     def __str__(self):
         # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{} ({})".format(getattr(self, str(_("name"))), self.region)
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{} ({})".format(self.name, self.region)
+        return "{} ({})".format(self.tname, self.region)
 
     class Meta:
         ordering = ['name', ]
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
 
 class Division(models.Model):
@@ -133,14 +142,18 @@ class Division(models.Model):
 
     def __str__(self):
         # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{} ({})".format(getattr(self, str(_("name"))), self.branch.region)
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{} ({})".format(self.name, self.branch.region)
+        return "{} ({})".format(self.tname, self.branch.region)
 
     class Meta:
         ordering = ['name', ]
+
+    @property
+    def tname(self):
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
 
 # CONNECTED APPS: tickets, travel, projects, inventory
@@ -168,12 +181,16 @@ class Section(models.Model):
             return "{}".format(self.name)
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ['division__branch__region','division__branch','division','name', ]
 
     @property
     def full_name(self):
-        my_str = "{} - {} - {} - {}".format(self.division.branch.region.name, self.division.branch.name, self.division.name, self.name)
+        my_str = "{} - {} - {} - {}".format(self.division.branch.region.tname, self.division.branch.tname, self.division.tname, self.tname)
         return my_str
+
+    @property
+    def tname(self):
+        return str(self)
 
     @property
     def shortish_name(self):

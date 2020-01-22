@@ -260,7 +260,7 @@
                 <tr>
                     {% if object.rdg.status_id == 2 %}
                         <th class="right wide-cell" style="width: 500px;"></th>
-                        <td class="left wide-cell" style="width: 500px; font-size: 18px" >Approved on {{ object.rdg.status_date }}</td>
+                        <td class="left wide-cell" style="width: 500px; font-size: 18px">Approved on {{ object.rdg.status_date }}</td>
                         <th class="right wide-cell" style="width: 100px;"></th>
                         <td class="left wide-cell" style="width: 200px;"></td>
                     {% else %}
@@ -275,17 +275,19 @@
         <td>
             <table style="width: 50%;">
                 {% for r in object.recommenders %}
-                    <tr>
-                        <th class="right wide-cell">Recommended by:</th>
-                        <td rowspan="1" class="left wide-cell">
-                            {{ r.user }}
-                            {% if r.status_id == 2 %}
-                                (digitally signed on {{ r.status_date }})
-                            {% else %}
-                                (NOT RECOMMENDED)
-                            {% endif %}
-                        </td>
-                    </tr>
+                    {% if not r.status_id == 21 %}
+                        <tr>
+                            <th class="right wide-cell">Recommended by:</th>
+                            <td rowspan="1" class="left wide-cell">
+                                {{ r.user }}
+                                {% if r.status_id == 2 %}
+                                    (digitally signed on {{ r.status_date }})
+                                {% else %}
+                                    (NOT RECOMMENDED)
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
                 {% if object.adm.status_id == 2 %}
                     <tr>

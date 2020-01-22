@@ -430,7 +430,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
     def form_valid(self, form):
         my_reviewer = form.save(commit=False)
 
-        is_approved = form.cleaned_data.get("is_approved")
+        approved = form.cleaned_data.get("approved")
         stay_on_page = form.cleaned_data.get("stay_on_page")
         changes_requested = form.cleaned_data.get("changes_requested")
         print("stay on page", stay_on_page)
@@ -452,7 +452,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                 messages.success(self.request, _("Success! An email has been sent to the trip owner."))
 
             # if it was approved, then we change the reviewer status to 'approved'
-            elif is_approved:
+            elif approved:
                 my_reviewer.status_id = 2
                 my_reviewer.status_date = timezone.now()
             # if it was approved, then we change the reviewer status to 'approved'
@@ -472,37 +472,38 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
             return HttpResponseRedirect(reverse("travel:index"))
 
 
-# class TripAdminApproveUpdateView(TravelAdminRequiredMixin, UpdateView):
-#     model = models.Trip
-#     form_class = forms.AdminTripForm
-#     template_name = 'travel/trip_approval_form.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         my_object = self.get_object()
-#         context["admin"] = True
-#         context["object"] = my_object
-#         context["trip"] = my_object.trip
-#
-#         return context
-#
-#     def form_valid(self, form):
-#         my_event = form.save(commit=False)
-#
-#         # if approval status is not pending, we add a date stamp
-#         if my_event.adm_approval_status_id != 1:
-#             my_event.adm_approval_date = timezone.now()
-#
-#         if my_event.rdg_approval_status_id != 1:
-#             my_event.rdg_approval_date = timezone.now()
-#
-#         # if denied by adm, rdg will be canceled
-#         if my_event.adm_approval_status_id == 3:
-#             my_event.rdg_approval_status_id = 5
-#
-#         # Now do a full save
-#         my_event.save()
-#         return HttpResponseRedirect(reverse("travel:admin_approval_list"))
+
+class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.Reviewer
+    form_class = forms.ReviewerSkipForm
+    template_name = 'travel/reviewer_skip_form.html'
+
+    def test_func(self):
+        my_trip = self.get_object().trip
+        my_user = self.request.user
+        print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip))
+        if in_travel_admin_group(my_user) or is_approver(my_user, my_trip):
+            return True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = self.get_object()
+        return context
+
+    def form_valid(self, form):
+        # if the form is submitted, that means the admin user has decided to go ahead with the manual skip
+        my_reviewer = form.save(commit=False)
+        my_reviewer.status_id = 21
+        my_reviewer.status_date = timezone.now()
+        my_reviewer.comments = "This step was manually overridden by {} with the following rationale: \n\n {}".format(self.request.user, my_reviewer.comments)
+
+        # now we save the reviewer for real
+        my_reviewer.save()
+
+        # update any statuses if necessary
+        utils.approval_seeker(my_reviewer.trip)
+
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
 class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
@@ -787,14 +788,21 @@ class ConferenceListView(TravelAccessRequiredMixin, FilterView):
     filterset_class = filters.ConferenceFilter
     template_name = 'travel/conference_list.html'
 
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {"fiscal_year": fiscal_year(next=False, sap_style=True)}
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Conference.objects.first()
         context["field_list"] = [
+            'fiscal_year',
             'tname|{}'.format("Name"),
-            'location',
-            'start_date',
-            'end_date',
+            'location|{}'.format(_("location")),
+            'dates|{}'.format(_("dates")),
+            'number_of_days|{}'.format(_("length (days)")),
             'is_adm_approval_required|{}'.format(_("ADM approval required?")),
         ]
         context["is_admin"] = in_travel_admin_group(self.request.user)

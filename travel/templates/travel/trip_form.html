@@ -40,19 +40,21 @@
             {% endif %}
         </h1>
 
-        <br>
-
-        <form method="post" class="form">
-            {% csrf_token %}
+    </div>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="container">
             {% bootstrap_form_errors form %}
-
-
 
 
 
             {% for field in form %}
                 {% if "hide-me" in field.field.widget.attrs.class %}
-                    <div class="hide-me">
+                    {% if "user-info" in field.field.widget.attrs.class %}
+                        <div class="hide-me user-info">
+                    {% else %}
+                        <div class="hide-me">
+                    {% endif %}
                 {% endif %}
 
             {% if field.name == "role_of_participant" or field.name == "role" %}
@@ -70,9 +72,9 @@
                     {% else %}
                         {% bootstrap_field field placeholder="" %}
                     {% endif %}
-{#                    <em class="blue-font">#}
-{#                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})#}
-{#                    </em><br><br>#}
+                    {#                    <em class="blue-font">#}
+                    {#                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})#}
+                    {#                    </em><br><br>#}
                 </div>
             {% elif field.name == "conference" %}
                 {% if field.name in help_text_dict %}
@@ -149,23 +151,25 @@
             {% endif %}
             {% endfor %}
             <br>
-
+            </div>
             {# TRIP COSTS #}
-            <div class="hide-me">
-                <h4>{% trans "Breakdown of Trip Costs" %}</h4>
-                <p>
-                    {% blocktrans %}
-                        Per diem rates for breakfast, lunch, supper and incidentals should follow the
-                        <a href="https://www.njc-cnm.gc.ca/">National Joint Council</a> Travel Directive. For travel within Canada and
-                        USA, please refer to <a href="https://www.njc-cnm.gc.ca/directive/d10/v238/s659/en">Appendix C</a>
-                        and for all other travel please refer to
-                        <a href="https://www.njc-cnm.gc.ca/directive/app_d.php?lang=en">Appendix D</a>
-                    {% endblocktrans %}
-                    <br><br>
-                    <em class="red-font">
-                        {% trans "Please note that all expenses for this trip should be entered in Canadian dollars." %}
-                    </em>
-                </p>
+            <div class="hide-me container-fluid">
+                <div class="mt-3 center-col">
+                    <h2>{% trans "Breakdown of Trip Costs" %}</h2>
+                    <p>
+                        {% blocktrans %}
+                            Per diem rates for breakfast, lunch, supper and incidentals should follow the
+                            <a href="https://www.njc-cnm.gc.ca/">National Joint Council</a> Travel Directive.
+                            <br>
+                            For travel within Canada and
+                            USA, please refer to <a href="https://www.njc-cnm.gc.ca/directive/d10/v238/s659/en">Appendix C</a>
+                            and for all other travel please refer to
+                            <a href="https://www.njc-cnm.gc.ca/directive/app_d.php?lang=en">Appendix D</a>.
+                            <br>
+                            <span class="red-font">Please note that all expenses for this trip should be entered in Canadian dollars.</span>
+                        {% endblocktrans %}
+                    </p>
+                </div>
                 <table class="table table-bordered" style="font-size: small ">
 
                     <tr>
@@ -231,19 +235,19 @@
                 </table>
 
             </div>
+            <div class="container center-col">
+                {% buttons %}
+                    {% if object %}
+                        <button type="submit" class="btn btn-success">Update</button>
+                        <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">Cancel</a>
+                    {% else %}
+                        <button type="submit" class="btn btn-success">Add</button>
+                        <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">Cancel</a>
+                    {% endif %}
+                {% endbuttons %}
+            </div>
+    </form>
 
-            {% buttons %}
-                {% if object %}
-                    <button type="submit" class="btn btn-success">Update</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">Cancel</a>
-                {% else %}
-                    <button type="submit" class="btn btn-success">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">Cancel</a>
-                {% endif %}
-            {% endbuttons %}
-        </form>
-
-    </div>
 {% endblock content %}
 
 {% block body_js %}
@@ -256,21 +260,30 @@
 
         function refreshUserInfo() {
             myId = $("#id_user").val();
-            $("#id_first_name").val(userObj[myId]["first_name"]);
-            $("#id_last_name").val(userObj[myId]["last_name"]);
-            $("#id_email").val(userObj[myId]["email"]);
+            if (myId == "") {
+                $("#id_first_name").val("");
+                $("#id_last_name").val("");
+                $("#id_email").val("");
+                $(".user-info").removeClass("gone");
+            } else {
+                $(".user-info").addClass("gone");
+                $("#id_first_name").val(userObj[myId]["first_name"]);
+                $("#id_last_name").val(userObj[myId]["last_name"]);
+                $("#id_email").val(userObj[myId]["email"]);
+
+            }
         }
 
 
         function refreshConference() {
             if ($("#id_reason").val() != "2") {
 //                $("#id_role").val("").prop("disabled", true);
-  //              $("#id_role_of_participant").val("").prop("disabled", true);
-    //            $(".conference_container").addClass("gone");
+                //              $("#id_role_of_participant").val("").prop("disabled", true);
+                //            $(".conference_container").addClass("gone");
             } else {
-      //          $("#id_role").prop("disabled", false);
-        //        $("#id_role_of_participant").prop("disabled", false);
-          //      $(".conference_container").removeClass("gone");
+                //          $("#id_role").prop("disabled", false);
+                //        $("#id_role_of_participant").prop("disabled", false);
+                //      $(".conference_container").removeClass("gone");
             }
         }
 
@@ -283,6 +296,7 @@
                 $(".hide-me").addClass("gone");
                 $(".show-me").removeClass("gone");
             }
+            refreshUserInfo();
         }
 
         $("#id_user").change(function () {

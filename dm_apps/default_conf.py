@@ -1,6 +1,6 @@
 # INSTRUCTIONS:  #
 ##################
-
+# please refer to the README and the project wiki for the most up-to-update information.
 # Duplicate this file and rename it to my_conf.py
 # The 'my_conf.py' file is in the .gitignore
 # create a file called prod.cnf in the root project dir to specify connection to production db server
@@ -8,27 +8,44 @@
 # It is recommended to leave this file unmodified unless you are making improvements
 
 import os
+from decouple import config
+from .utils import is_connection_available
 
-# DO NOT CHANGE THESE VARIABLES
+# DO NOT INTERACT WITH THESE VARIABLES HERE
+########################################################################
 FORCE_DEV_DB = False
+DEV_DB_NAME = None
+DEV_DB_HOST = None
+USING_LOCAL_DB = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# This is the name of the production database connection file; if missing, we will use dev.cnf with is included in the repo
-MY_CNF = os.path.join(BASE_DIR, 'prod.cnf')
+########################################################################
 
-# uncomment this line if you want to connect to the production database instead of the default dev database (assuming prod.cnf is present)
+
+
+# If the line below is uncommented, you will connect to the dev database even if production database strings are present
 FORCE_DEV_DB = True
 
-# checking to see if the which database to connect to:
-# if prod.cnf exists and we are not forcing dev mode...
-if os.path.isfile(MY_CNF) and not FORCE_DEV_DB:
+# check to see if the which databases are available:
+IS_PROD_DB_AVAILABLE = is_connection_available("PROD")
+IS_DEV_DB_AVAILABLE = is_connection_available("DEV")
+
+# if a database is listed and we are not forcing dev mode...
+if IS_PROD_DB_AVAILABLE and not FORCE_DEV_DB:
     USING_PRODUCTION_DB = True
-# otherwise we are in dev mode
-else:
-    if os.path.isfile(MY_CNF):
+# otherwise, check to see if we can connect to a dev db
+elif IS_DEV_DB_AVAILABLE:
+    # There are 3 scenarios: 1) there is no PROD_DB_NAME in the .env file; 2) FORCE_DEV_DB is set to True; or 3) both
+    if IS_PROD_DB_AVAILABLE:
         print("production connection string is present however running dev mode since FORCE_DEV_MODE setting is set to True")
-    MY_CNF = os.path.join(BASE_DIR, 'dev.cnf')
     # this variable is used in base.html to indicate which database you are connected to
     USING_PRODUCTION_DB = False
+    # if we have a connection to dev, get the names of db and host to pass in as context processors
+    DEV_DB_NAME = config('DEV_DB_NAME')
+    DEV_DB_HOST = config('DEV_DB_HOST')
+else:
+    USING_PRODUCTION_DB = False
+    USING_LOCAL_DB = True
+
 
 # Specific which mode you are running in. If this file is on the production server, this setting should be True
 # if this setting = False, static and mediafiles will be served by the development server.
@@ -71,21 +88,26 @@ MY_INSTALLED_APPS = [app for app in APP_DICT]
 SHOW_TICKETS_APP = True
 
 # Specify your database connection details
-DATABASES = {
-    'default': {
+if USING_LOCAL_DB:
+    print("Database connection information missing from environmental variables. Using local Sqlite db")
+    my_default_db = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+else:
+    DB_CONNECTION_PREFIX = "PROD" if USING_PRODUCTION_DB else "DEV"
+    my_default_db = {
         'ENGINE': 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
         'OPTIONS': {
-            'read_default_file': MY_CNF,
+            'host': config(DB_CONNECTION_PREFIX + '_DB_HOST'),
+            'port': config(DB_CONNECTION_PREFIX + '_DB_PORT', cast=int),
+            'database': config(DB_CONNECTION_PREFIX + '_DB_NAME'),
+            'user': config(DB_CONNECTION_PREFIX + '_DB_USER'),
+            'password': config(DB_CONNECTION_PREFIX + '_DB_PASSWORD'),
             'init_command': 'SET default_storage_engine=INNODB',
-        },
-    },
-    # 'whalesdb': {
-    #     'ENGINE': 'django.db.backends.oracle',
-    #     'NAME': 'DTRAN',
-    #     'USER': 'whale_amd',
-    #     'PASSWORD': 'BigSpla3h#',
-    #     'HOST': 'VSNSBIOD78.ENT.DFO-MPO.CA',
-    #     'PORT': '1521'
-    # },
+        }}
+
+DATABASES = {
+    'default': my_default_db,
 }
