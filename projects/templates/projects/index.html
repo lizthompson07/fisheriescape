@@ -17,9 +17,6 @@
             border: 1px solid blue;
         }
 
-        .main-item {
-            font-size: larger;
-        }
 
     </style>
     <br>
@@ -67,50 +64,58 @@
                             {% url 'projects:my_project_list' as my_proj_url %}
                             {% url 'projects:project_list' as all_proj_url %}
                             <div class="row">
-                                <div class="col-3">
-                                    <h4>
-                                        {% trans "Projects" %}
-                                    </h4>
+                                <div class="col-4">
+{#                                    <h4>#}
+{#                                        {% trans "Projects" %}#}
+{#                                    </h4>#}
 
-                                    <ul>
-                                        <li class="main-item">
+{#                                    <ul>#}
+                                        <h2 class="main-item">
                                             <a href="{{ new_proj_url }}">
                                                 {% trans "New" %}
                                             </a>
-                                        </li>
-                                        <li class="main-item">
+                                        </h2>
+                                        <h2 class="main-item">
                                             <a href="{{ my_proj_url }}">
                                                 {% trans "Your Projects" %} ({{ user.staff_instances.count }})
                                             </a>
-                                        </li>
-                                        <li class="main-item">
+                                        </h2>
+                                        <h2 class="main-item">
                                             <a href="{{ all_proj_url }}">
                                                 {% trans "Explore Projects" %}
                                             </a>
-                                        </li>
-                                    </ul>
+                                        </h2>
+{#                                    </ul>#}
                                 </div>
                                 <div class="col">
+                                    <div class="mb-4">
+                                        <h4>
+                                            {% trans "Regional Views" %}
+                                        </h4>
+                                        <ul>
+                                            <li>
+                                                2020-2021 Gulf Region Interactive Workplan <br>
+                                                <a href="{% url 'projects:iw_group_list' 1 2021 'division' %}">
+                                                    ({% trans "by Section" %})
+                                                </a>
+                                                <a href="{% url 'projects:iw_group_list' 1 2021 'theme' %}">
+                                                    ({% trans "by Theme" %})
+                                                </a>
+                                            </li>
+                                            <li>
+                                                2020-2021 Maritimes Region Interactive Workplan <br>
+                                                <a href="{% url 'projects:iw_group_list' 2 2021 'division' %}">
+                                                    ({% trans "by Section" %})
+                                                </a>
+                                                <a href="{% url 'projects:iw_group_list' 2 2021 'theme' %}">
+                                                    ({% trans "by Theme" %})
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                     {% if section_list.count %}
-                                        <div class="mb-4">
-                                            <h4>
-                                                {% trans "Regional Views" %}
-                                            </h4>
-                                            <ul>
-                                                <li>
-                                                    <a href="{% url 'projects:iw_group_list' 1 2021 %}">
-                                                        2020-2021 Gulf Region Interactive Workplan
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="{% url 'projects:iw_group_list' 2 2021 %}">
-                                                        2020-2021 Maritimes Region Interactive Workplan
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="mb-4">
 
+                                        <div class="mb-4">
                                             <h4>
                                                 {% trans "Your Sections" %}
                                             </h4>
@@ -157,7 +162,7 @@
 
 
             </div>
-            <div class="col-5">
+            <div class="col-4">
                 <div class="card" style="width: 100%; background: #ffd738;">
                     <div class="card-body">
                         <h4 class="card-title">

@@ -1,9 +1,32 @@
-{% extends "pop_base.html" %}
+{% extends "projects/projects_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
 
-{% block body %}
+{% block title %}
+    {{ object.project_title }}
+{% endblock %}
+
+{% block content %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:index' %}">
+                    {% trans "Home" %}
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:section_project_list' object.section.id %}">
+                    {{ object.section }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ object.project_title }}
+            </li>
+        </ol>
+    </nav>
+
 
     <div class="container">
 
@@ -16,6 +39,7 @@
                 {{ object }} ({{ object.id }})
             </h1>
         </div>
+
         <hr>
 
         {% if can_edit %}
@@ -40,32 +64,27 @@
                     {% trans "Clone" %}
                 </a>
 
-                {#                <a class="btn btn-danger btn-sm {% if object.submitted %}disabled{% endif %}"#}
-                {#                   href="#" pop-href="{% url 'projects:project_delete' object.id 1 %}">#}
-                {#                    {% trans "Delete" %}#}
-                {#                </a>#}
+{#                <a class="btn btn-danger btn-sm {% if object.submitted %}disabled{% endif %}"#}
+{#                   href="#" pop-href="{% url 'projects:project_delete' object.id 1 %}">#}
+{#                    {% trans "Delete" %}#}
+{#                </a>#}
 
                 {% if object.submitted %}
-                    <a href="#" pop-href="{% url 'projects:report_new' object.id %}" class="btn btn-sm btn-primary"
-                       data-toggle="tooltip"
-                       title="{% trans "Create a new status report for this project" %}">
-                        {% trans "New Status Report" %}
-                    </a>
+                        <a href="#" pop-href="{% url 'projects:report_new' object.id %}" class="btn btn-sm btn-primary"
+                           data-toggle="tooltip"
+                           title="{% trans "Create a new status report for this project" %}">
+                            {% trans "New Status Report" %}
+                        </a>
                 {% endif %}
 
             </div>
         {% endif %}
+
     </div>
 
     <div class="container">
         {% include "projects/_project_content.html" %}
     </div>
 
-{% endblock %}
 
-{% block body_js %}
-    <script>
-        window.resizeTo(width = 1500, height = 800);
-    </script>
-{% endblock %}
-
+{% endblock content %}
