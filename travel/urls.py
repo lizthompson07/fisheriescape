@@ -6,8 +6,8 @@ app_name = 'travel'
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
-    # TRIPS #
-    ##########
+    # TRIP REQUEST #
+    ################
     path('trips/', views.TripListView.as_view(), name="trip_list"),
     path('trip/new/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),

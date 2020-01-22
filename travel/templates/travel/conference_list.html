@@ -60,22 +60,39 @@
                     {% endif %}
                 </div>
 
+                <div class="row">
+                    <div class="col">
+                        {% trans "(click on a header to sort table)" %}
+                    </div>
+                    <div class="col" style="text-align: center">
+                        {% blocktrans with filter.qs.count as count %}
+                            <em>displaying {{ count }} records</em>
+                        {% endblocktrans %}
+                    </div>
+                    <div class="col" style="text-align: right; padding-bottom: 10px">
+                        <a href="{% url 'travel:conf_new' %}" class="btn btn-sm btn-primary">{% trans 'New Trip' %}</a>
+                    </div>
+                </div>
 
                 <table class="table table-sm table-hover sortable">
                     <thead>
                     <tr>
                         {% for field in field_list %}
                             {% if field == "fiscal_year" %}
-                                <th style="width: 8%">{% get_verbose_label my_object field %}</th>
+                                <th style="width: 6%">{% get_verbose_label my_object field %}</th>
                             {% elif "dates" in field %}
-                                <th style="width: 10%">{% get_verbose_label my_object field %}</th>
+                                <th style="width: 12%">{% get_verbose_label my_object field %}</th>
+                            {% elif "number" in field or "adm" in field %}
+                                <th class="center-col">{% get_verbose_label my_object field %}</th>
                             {% else %}
                                 <th scope="col">{% get_verbose_label my_object field %}</th>
                             {% endif %}
                         {% endfor %}
-                        <th># Non-BTA Travellers</th>
-                        <th># BTA Travellers</th>
-                        <th># Total Travellers</th>
+                        <th class="center-col">
+                            {% trans "Non-BTA Travellers" %}
+                        </th>
+                        <th class="center-col">{% trans "BTA Travellers" %}</th>
+                        <th class="center-col">{% trans "Total Travellers" %}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -83,11 +100,15 @@
                         {% url 'travel:conf_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
                             {% for field in field_list %}
-                                <td>{% get_field_value object field safe=True %}</td>
+                                {% if "number" in field or "adm" in field %}
+                                    <td class="center-col">{% get_field_value object field safe=True %}</td>
+                                {% else %}
+                                    <td>{% get_field_value object field safe=True %}</td>
+                                {% endif %}
                             {% endfor %}
-                            <td>{{ object.traveller_list|length }}</td>
-                            <td>{{ object.bta_traveller_list|length }}</td>
-                            <td>{{ object.total_traveller_list|length }}</td>
+                            <td class="center-col">{{ object.traveller_list|length }}</td>
+                            <td class="center-col">{{ object.bta_traveller_list|length }}</td>
+                            <td class="center-col">{{ object.total_traveller_list|length }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -95,7 +116,6 @@
             </div>
         </div>
     </div>
-
 
 
 {% endblock content %}
