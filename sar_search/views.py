@@ -577,7 +577,7 @@ def manage_taxa(request):
             return HttpResponseRedirect(reverse("sar_search:manage_taxa"))
     else:
         formset = forms.TaxonFormSet(queryset=qs)
-    context = {}
+    context = dict()
     context['title'] = "Manage Taxa"
     context['formset'] = formset
     context["my_object"] = qs.first()
