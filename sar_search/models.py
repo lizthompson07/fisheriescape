@@ -307,8 +307,9 @@ class Record(models.Model):
     regions = models.ManyToManyField(Region, blank=True, related_name="records")
     record_type = models.IntegerField(verbose_name=_("record type"), choices=RANGE_TYPE_CHOICES)
     source = models.CharField(max_length=1000, verbose_name=_("source"))
-    year = models.IntegerField(verbose_name=_("source year"), blank=True, null=True)
+    year = models.CharField(max_length=1000, verbose_name=_("source year"), blank=True, null=True)
     # temp_file = models.FileField(upload_to='temp_file', null=True)
+    notes = models.TextField(null=True, blank=True, verbose_name=_("notes"))
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
