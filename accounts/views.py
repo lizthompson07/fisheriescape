@@ -46,7 +46,7 @@ def access_denied_custodian(request):
 
 
 def access_denied_project_leads_only(request):
-    denied_message = _("Sorry, only project leads, section heads and site administrators have access to this page.")
+    denied_message = _("Sorry, you do not have the necessary permissions to access to this page.")
     messages.error(request, denied_message)
     # send user back to the page that they came from
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
