@@ -99,18 +99,16 @@
                 {% if polygon.coords %}
 
 
-                    {% if object.polygon.type == 2 %}
-
+                    {% if object.type == 2 %}
                         // extend bounds var
-                        bounds.extend(marker.position);
-                        {% for point in record.points.all %}
-                            bounds.extend(new google.maps.LatLng({{point.latitude_n}}, {{ point.longitude_w }}));
+                        {% for point in polygon.points.all %}
+                            bounds.extend(new google.maps.LatLng({{point.latitude}}, {{ point.longitude }}));
                         {% endfor %}
 
                         // Define the LatLng coordinates for the polygon's path.
                         var lineCoords = [
-                            {% for point in record.points.all %}
-                                {lat: {{point.latitude_n}}, lng: {{point.longitude_w}}},
+                            {% for point in polygon.points.all %}
+                                {lat: {{point.latitude}}, lng: {{point.longitude}}},
                             {% endfor %}
                         ];
 
