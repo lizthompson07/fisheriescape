@@ -134,9 +134,15 @@ class ConferenceFilter(django_filters.FilterSet):
     class Meta:
         model = models.Conference
         fields = {
+            'fiscal_year': ['exact'],
             'name': ['icontains'],
-            'number': ['icontains'],
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.conferences.count() > 0]
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
+                                                                  label=_("Fiscal year"))
 
 
 class TripApprovalFilter(django_filters.FilterSet):

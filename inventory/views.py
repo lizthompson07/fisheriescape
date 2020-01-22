@@ -1446,6 +1446,17 @@ class DataResourceDeleteView(CustodianRequiredMixin, DeleteView):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
 
+@login_required(login_url='/accounts/login_required/')
+def data_resource_clone(request, pk):
+    my_object = models.DataResource.objects.get(pk=pk)
+    if is_custodian_or_admin(request.user, my_object.resource.id):
+        my_object.id = None
+        my_object.save()
+    else:
+        messages.error(request, _("Sorry, you do not have permissions to do this."))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 # WEB SERVICES #
 ################
 
@@ -1501,6 +1512,18 @@ class WebServiceDeleteView(CustodianRequiredMixin, DeleteView):
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
+
+
+@login_required(login_url='/accounts/login_required/')
+def web_service_clone(request, pk):
+    my_object = models.WebService.objects.get(pk=pk)
+    if is_custodian_or_admin(request.user, my_object.resource.id):
+        my_object.id = None
+        my_object.save()
+    else:
+        messages.error(request, _("Sorry, you do not have permissions to do this."))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 
 # REPORTS #
