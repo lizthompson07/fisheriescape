@@ -116,6 +116,7 @@ urlpatterns = [
     path('resource/<int:resource>/data-resource/new/', views.DataResourceCreateView.as_view(), name='data_resource_create'),
     path('data-resource/<int:pk>/edit/', views.DataResourceUpdateView.as_view(), name='data_resource_edit'),
     path('data-resource/<int:pk>/delete/', views.DataResourceDeleteView.as_view(), name='data_resource_delete'),
+    path('data-resource/<int:pk>/clone/', views.data_resource_clone, name='data_resource_clone'),
 
     # WEB SERVICES #
     #################
@@ -123,6 +124,7 @@ urlpatterns = [
          name='web_service_create'),
     path('web-service/<int:pk>/edit/', views.WebServiceUpdateView.as_view(), name='web_service_edit'),
     path('web-service/<int:pk>/delete/', views.WebServiceDeleteView.as_view(), name='web_service_delete'),
+    path('web-service/<int:pk>/clone/', views.web_service_clone, name='web_service_clone'),
 
     # Reports #
     ###########

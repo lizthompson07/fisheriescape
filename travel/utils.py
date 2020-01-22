@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import IntegrityError
+from django.utils import timezone
 
 from . import models
 from . import emails
@@ -70,11 +71,12 @@ def start_review_process(trip):
     for reviewer in trip.reviewers.all():
         # set everyone to being queued
         reviewer.status_id = 20
+        reviewer.status_date = None
         reviewer.save()
 
 
 def end_review_process(trip):
-    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
+    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip.reviewers.all():
         reviewer.status_id = 4
@@ -191,6 +193,7 @@ def approval_seeker(trip):
         # if there is a next reviewer, set their status to pending
         if next_reviewer:
             next_reviewer.status_id = 1
+            next_reviewer.status_date = timezone.now()
             next_reviewer.save()
 
             # now, depending on the role of this reviewer, perhaps we want to send an email.

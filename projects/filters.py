@@ -13,7 +13,8 @@ chosen_js = {"class": "chosen-select-contains"}
 class ProjectFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact')
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
-    tags = django_filters.ModelChoiceFilter(field_name='tags__name', lookup_expr='icontains', label=_("Tags / Keywords"), queryset=models.Tag.objects.all())
+    tags = django_filters.ModelChoiceFilter(field_name='tags__name', lookup_expr='icontains', label=_("Tags / Keywords"),
+                                            queryset=models.Tag.objects.all())
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label=_("Division"))
     section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label=_("Section"))
@@ -189,8 +190,6 @@ class SectionFilter(django_filters.FilterSet):
                                                            label=_("Please select a fiscal year:"))
 
 
-
-
 class MyProjectFilter(django_filters.FilterSet):
     class Meta:
         model = models.Project
@@ -204,3 +203,18 @@ class MyProjectFilter(django_filters.FilterSet):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         self.filters['year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices,
                                                            label=_("Please select a fiscal year:"))
+
+
+class FunctionalGroupFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.FunctionalGroup
+        fields = {
+            'name': ['exact'],
+            'theme': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        self.filters['name'] = django_filters.CharFilter(field_name='search_term', label=_("Name"), lookup_expr='icontains',
+                                            widget=forms.TextInput())
