@@ -14,7 +14,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
             <li class="breadcrumb-item"><a href="{% url 'grais:species_list' %}"> All Species </a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object.scientific_name }}</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
 
@@ -22,7 +22,7 @@
     <div class="container">
 
         <br>
-        <h1>{{ object }} (<em>{{ object.scientific_name }}</em>)</h1>
+        <h1>{{ object }}</h1>
         <p>
             {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
             <a class="btn btn-warning" href="{% url 'grais:species_edit' object.id %}">Edit</a>

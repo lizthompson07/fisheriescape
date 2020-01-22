@@ -71,6 +71,7 @@ my_dev.cnf
 prod.cnf
 my_dev.cnf
 my_stable_reqs.txt
+.env
 
 # Google API key #
 ##################
