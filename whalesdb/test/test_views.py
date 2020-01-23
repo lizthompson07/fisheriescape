@@ -5,7 +5,7 @@ from django.utils.translation import activate
 from whalesdb import views, models
 
 
-class TestCommon(TestCase):
+class CommonTest(TestCase):
     test_url = None
     test_expected_template = None
     login_url_base = '/accounts/login_required/?next='
@@ -13,7 +13,7 @@ class TestCommon(TestCase):
     login_url_fr = login_url_base + "/fr/"
 
 
-class TestIndexView(TestCommon):
+class TestIndexView(CommonTest):
 
     def setUp(self):
         super().setUp()
@@ -62,27 +62,24 @@ class TestIndexView(TestCommon):
         self.assertEquals('Station List', stn_list['title'])
 
 
-class TestListStation(TestCommon):
+class ListTest(CommonTest):
+
     def setUp(self):
         super().setUp()
 
-        self.test_url = reverse_lazy('whalesdb:list_stn')
-        self.test_expected_template = 'whalesdb/station_list.html'
+        self.test_expected_template = 'whalesdb/whale_filter.html'
 
-    # Users doesn't have to be logged in to view a list of stations
-    @tag('list_stn', 'response', 'access')
-    def test_list_stn_en(self):
+    # Users doesn't have to be logged in to view a list
+    def test_list_en(self):
         activate('en')
 
         response = self.client.get(self.test_url)
 
-        # user not logged in, should get 302 redirect to login page.
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
 
-    # Users doesn't have to be logged in to view a list of stations
-    @tag('list_stn', 'response', 'access')
-    def test_list_stn_fr(self):
+    # Users doesn't have to be logged in to view a list
+    def test_list_fr(self):
         activate('fr')
 
         response = self.client.get(self.test_url)
@@ -90,17 +87,35 @@ class TestListStation(TestCommon):
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
 
-    # Station List should return a list of fields to display
-    @tag('list_stn', 'response', 'context')
-    def test_list_stn_context_fields(self):
+    # List context should return:
+    #   - a list of fields to display
+    #   - a title to display in the html template
+    def test_list_context_fields(self):
         activate('en')
 
         response = self.client.get(self.test_url)
 
         self.assertIn("fields", response.context)
+        self.assertIn("title", response.context)
 
 
-class TestCreateStation(TestCommon):
+class TestListStation(ListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_stn')
+
+
+class TestListProject(ListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_prj')
+
+
+class TestCreateStation(CommonTest):
     def setUp(self):
         super().setUp()
 
@@ -132,7 +147,7 @@ class TestCreateStation(TestCommon):
         self.assertTemplateUsed(self.test_expected_template)
 
 
-class TestDetailsStation(TestCommon):
+class TestDetailsStation(CommonTest):
 
     station_dic = None
 

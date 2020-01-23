@@ -6,13 +6,13 @@
 {% bootstrap_css %}
 
 {% block title %}
-    {% trans lookup.label|add:" Code List" %}
+    {% trans title %}
 {% endblock title %}
 
 {% block body %}
 
 <div class="container mt-1" >
-    <h2>{% trans 'Stations' %}</h2>
+    <h2>{% trans title %}</h2>
     <div>
         <form class="form" action="." method="get" id="filter-form" style="width: 90%; font-size: small">
             <div class="row">
