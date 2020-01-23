@@ -484,11 +484,13 @@ class DetailsStn(DetailView):
 class ListCommon(FilterView):
     template_name = 'whalesdb/whale_filter.html'
     fields = []
+    title = None
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
         context['fields'] = self.fields
+        context['title'] = self.title
 
         return context
 
@@ -496,6 +498,7 @@ class ListCommon(FilterView):
 class ListPrj(ListCommon):
     model = models.PrjProject
     filterset_class = filters.PrjFilter
+    title = _("Project List")
     fields = ['prj_name', 'prj_description']
 
 
@@ -503,6 +506,7 @@ class ListStn(ListCommon):
     model = models.StnStation
     filterset_class = filters.StnFilter
     fields = ['stn_name', 'stn_code', 'stn_revision']
+    title = _("Station List")
 
 
 class UpdateTemplate(UpdateView):
