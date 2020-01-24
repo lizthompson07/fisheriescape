@@ -21,7 +21,7 @@
     {{ trip.current_reviewer.comments }}
     <br><br>
     Please address these changes and then re-submit your project to continue with the approval process.
-    You can click <a href="http://dmapps{% url 'travel:trip_detail' trip.id %}">HERE</a> to access the trip. Here are the trip details:
+    You can click <a href="http://dmapps{% url 'travel:request_detail' trip.id %}">HERE</a> to access the trip. Here are the trip details:
 </p>
 
 <table>
@@ -42,7 +42,7 @@
     {{ trip.current_reviewer.comments }}
     <br><br>
     Veuillez adresser ces modifications, puis soumettez à nouveau votre projet pour poursuivre le processus d'approbation.
-    Vous pouvez cliquer <a href="http://dmapps{% url 'travel:trip_detail' trip.id %}">ICI</a> pour accéder la voyage.
+    Vous pouvez cliquer <a href="http://dmapps{% url 'travel:request_detail' trip.id %}">ICI</a> pour accéder la voyage.
     Voici les détails du voyage:
 </p>
 

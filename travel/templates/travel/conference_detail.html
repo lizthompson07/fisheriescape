@@ -76,7 +76,7 @@
                 <ul>
                     {% for trip in object.trips.all %}
                         <li>
-                            <a href="{% url 'travel:trip_detail' trip.id %}">{{ trip }}</a> by {{ trip.user }}
+                            <a href="{% url 'travel:request_detail' trip.id %}">{{ trip }}</a> by {{ trip.user }}
                             (STATUS: <span style="background-color: {{ trip.status.color }}">{{ trip.status }}</span>)
 
                         </li>

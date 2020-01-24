@@ -20,8 +20,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' object.id %}">{{ object }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trips</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">
                 {% if object.submitted %}
                     Un-submit Request
@@ -56,7 +56,7 @@
 
                 <input type="submit" class="btn btn-lg btn-warning" value="Yes">
 
-                <a class="btn btn-lg btn-secondary" href="{% url 'travel:trip_detail' object.id %}">
+                <a class="btn btn-lg btn-secondary" href="{% url 'travel:request_detail' object.id %}">
                     Cancel
                 </a>
             </div>

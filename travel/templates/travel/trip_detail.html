@@ -25,7 +25,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trips</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -59,7 +59,7 @@
                     <span data-toggle="tooltip" title="{% trans "Only application administrators and owners can un-submit a trip" %}">
                 {% endif %}
                 <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin and not is_owner %}disabled{% endif %}"
-                   href="{% url 'travel:trip_submit' object.id %}">
+                   href="{% url 'travel:request_submit' object.id %}">
                 {% if object.submitted %}Un-submit {% else %} {% if object.status.id == 16 %} Re-submit {% else %} Submit {% endif %} {% endif %}
             </a>
                 {% if object.submitted and not is_admin and not is_owner %}
@@ -71,7 +71,7 @@
                     <span data-toggle="tooltip" title="{% trans "Only application administrators can modify a submitted trip" %}">
                 {% endif %}
                 <a class="btn btn-warning {% if object.submitted and not is_admin and not is_current_reviewer %}disabled{% endif %}"
-                   href="{% url 'travel:trip_edit' object.id %}">
+                   href="{% url 'travel:request_edit' object.id %}">
                 Edit
             </a>
                 {% if object.submitted %}
@@ -82,7 +82,7 @@
                 {% if object.submitted %}
                     <span data-toggle="tooltip" title="{% trans "Submitted trips cannot be deleted." %}">
                 {% endif %}
-                <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:trip_delete' object.id %}">
+                <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:request_delete' object.id %}">
                 Delete
             </a>
                 {% if object.submitted %}
@@ -97,7 +97,7 @@
         </div>
         <div class="neighbours">
             <div class="float-right btn-group">
-                <a class="btn btn-outline-dark " href="{% url 'travel:trip_print' trip.id %}">
+                <a class="btn btn-outline-dark " href="{% url 'travel:request_print' trip.id %}">
                     Travel Plan&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
                 </a>
                 <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts' trip.id %}">

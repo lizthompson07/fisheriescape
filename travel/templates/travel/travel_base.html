@@ -32,22 +32,22 @@
 {#        </a>#}
 {#        <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
 {##}
-{#            <a class="dropdown-item" href="{% url 'travel:trip_new' %}">#}
+{#            <a class="dropdown-item" href="{% url 'travel:request_new' %}">#}
 {#                {% trans "New" %}#}
 {#            </a>#}
-{#            <a class="dropdown-item" href="{% url 'travel:trip_list' %}">#}
+{#            <a class="dropdown-item" href="{% url 'travel:request_list' %}">#}
 {#                {% trans "All" %}#}
 {#            </a>#}
 {#            {% if user.user_trips.count > 0 %}#}
-{#                <a class="dropdown-item" href="{% url 'travel:trip_list' %}?user={{ user.id }}">#}
+{#                <a class="dropdown-item" href="{% url 'travel:request_list' %}?user={{ user.id }}">#}
 {#                    {% trans "Your Trips" %}#}
 {#                </a>#}
 {#            {% endif %}#}
 {#            {% if user.reviewers.count > 0 %}#}
-{#                <a class="dropdown-item" href="{% url 'travel:trip_review_list' "awaiting" %}">#}
+{#                <a class="dropdown-item" href="{% url 'travel:request_review_list' "awaiting" %}">#}
 {#                    {% trans "Awaiting your Review" %}#}
 {#                </a>#}
-{#                <a class="dropdown-item" href="{% url 'travel:trip_review_list' %}">#}
+{#                <a class="dropdown-item" href="{% url 'travel:request_review_list' %}">#}
 {#                    {% trans "Assigned to You" %}#}
 {#                </a>#}
 {#            {% endif %}#}

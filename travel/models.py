@@ -269,7 +269,7 @@ class Conference(models.Model):
         return my_dict
 
 
-class Trip(models.Model):
+class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trips")
     is_group_trip = models.BooleanField(default=False,
@@ -357,10 +357,10 @@ class Trip(models.Model):
     submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
-    parent_trip = models.ForeignKey("Trip", on_delete=models.CASCADE, related_name="children_trips", blank=True, null=True)
+    parent_trip = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
 
     @property
-    def trip_title(self):
+    def request_title(self):
         group_status = " - {}".format(gettext("Group Request")) if self.is_group_trip else ""
 
         my_str = "{} {}{}".format(
@@ -375,14 +375,14 @@ class Trip(models.Model):
         return my_str
 
     def __str__(self):
-        return "{}".format(self.trip_title)
+        return "{}".format(self.request_title)
 
     class Meta:
         ordering = ["-start_date", "last_name"]
         unique_together = [("user", "parent_trip"), ]
 
     def get_absolute_url(self):
-        return reverse('travel:trip_detail', kwargs={'pk': self.id})
+        return reverse('travel:request_detail', kwargs={'pk': self.id})
 
     @property
     def meals(self):
@@ -509,9 +509,9 @@ class Trip(models.Model):
         return mark_safe(my_str)
 
     @property
-    def total_trip_cost(self):
+    def total_request_cost(self):
         if self.is_group_trip:
-            object_list = self.children_trips.all()
+            object_list = self.children_requests.all()
             return object_list.values("total_cost").order_by("total_cost").aggregate(dsum=Sum("total_cost"))['dsum']
         else:
             return self.total_cost
@@ -596,7 +596,7 @@ class ReviewerRole(models.Model):
 
 
 class Reviewer(models.Model):
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="reviewers")
+    trip = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
@@ -647,7 +647,7 @@ def file_directory_path(instance, filename):
 
 
 class File(models.Model):
-    trip = models.ForeignKey(Trip, related_name="files", on_delete=models.CASCADE)
+    trip = models.ForeignKey(TripRequest, related_name="files", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("file attachment"))
     date_created = models.DateTimeField(default=timezone.now)

@@ -25,8 +25,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' trip.id %}">{{ trip }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trip Requests</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' trip.id %}">{{ trip }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Manage Reviewers</li>
         </ol>
     </nav>
@@ -52,7 +52,7 @@
             {% bootstrap_formset_errors formset %}
             <div class="btn-group">
                 <button class="btn btn-primary submit">Save</button>
-                <a class="btn btn-secondary" href="{% url 'travel:trip_detail' trip.id %}">Back</a>
+                <a class="btn btn-secondary" href="{% url 'travel:request_detail' trip.id %}">Back</a>
             </div>
             <br><br>
             <table class="table" style="width: auto">
@@ -96,7 +96,7 @@
 
             <div class="btn-group">
                 <button class="btn btn-primary submit">Save</button>
-                <a class="btn btn-secondary" href="{% url 'travel:trip_detail' trip.id %}">Back</a>
+                <a class="btn btn-secondary" href="{% url 'travel:request_detail' trip.id %}">Back</a>
             </div>
 
         </form>

@@ -27,7 +27,7 @@
                 </li>
 
             {% else %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:trip_review_list' 'awaiting' %}">Trips Awaiting Your Review</a>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_review_list' 'awaiting' %}">Trips Awaiting Your Review</a>
                 </li>
             {% endif %}
             <li class="breadcrumb-item active" aria-current="page">{{ trip }} Reviewer Approval</li>
@@ -55,7 +55,7 @@
 
 
             <div class="float-right">
-                <a class="btn btn-outline-dark " href="{% url 'travel:trip_print' trip.id %}" target="_blank">
+                <a class="btn btn-outline-dark " href="{% url 'travel:request_print' trip.id %}" target="_blank">
                     Print Travel Plan&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
                 </a>
                 <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts' trip.id %}" target="_blank">
@@ -73,11 +73,11 @@
                 <a class="btn btn-lg" id="request_changes" href="#" style="background-color: orange">
                     {% trans "Request Changes" %}
                 </a>
-                <a class="btn btn-lg btn-primary" href="{% url 'travel:trip_detail' trip.id %}">
+                <a class="btn btn-lg btn-primary" href="{% url 'travel:request_detail' trip.id %}">
                     {% trans "Make Changes Yourself" %}
                 </a>
 
-                <a class="btn btn-lg btn-secondary" href="{% url 'travel:trip_review_list' %}">
+                <a class="btn btn-lg btn-secondary" href="{% url 'travel:request_review_list' %}">
                     {% trans "Cancel" %}
                 </a>
                 <input type="submit" class="hidden">

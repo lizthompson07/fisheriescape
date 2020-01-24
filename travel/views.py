@@ -63,7 +63,7 @@ class AdminOrApproverRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
         my_user = self.request.user
         if in_travel_admin_group(my_user) or is_approver(my_user, my_trip):
             return True
@@ -99,7 +99,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
 trip_field_list = [
     'fiscal_year',
-    'status_string|{}'.format(_("Trip status")),
+    'status_string|{}'.format(_("Request status")),
     'user',
     'section',
     'first_name',
@@ -155,7 +155,7 @@ trip_field_list = [
 
 trip_group_field_list = [
     'fiscal_year',
-    'status_string|{}'.format(_("Trip status")),
+    'status_string|{}'.format(_("Request status")),
     'user',
     'section',
     'destination',
@@ -229,16 +229,16 @@ def get_help_text_dict():
     return my_dict
 
 
-# TRIP #
-#########
-class TripListView(TravelAccessRequiredMixin, FilterView):
-    queryset = models.Trip.objects.filter(parent_trip__isnull=True)
-    filterset_class = filters.TripFilter
-    template_name = 'travel/trip_list.html'
+# TRIP REQUEST #
+################
+class TripRequestListView(TravelAccessRequiredMixin, FilterView):
+    queryset = models.TripRequest.objects.filter(parent_trip__isnull=True)
+    filterset_class = filters.TripRequestFilter
+    template_name = 'travel/trip_request_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Trip.objects.first()
+        context["my_object"] = models.TripRequest.objects.first()
         context["field_list"] = [
             'fiscal_year',
             'is_group_trip',
@@ -250,29 +250,29 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'destination',
             'start_date',
             'end_date',
-            'total_trip_cost|{}'.format(_("Total trip cost (DFO)")),
+            'total_request_cost|{}'.format(_("Total request cost (DFO)")),
 
         ]
         return context
 
 
-class TripReviewListView(TravelAccessRequiredMixin, ListView):
-    model = models.Trip
+class TripRequestReviewListView(TravelAccessRequiredMixin, ListView):
+    model = models.TripRequest
     template_name = 'travel/trip_review_list.html'
 
     def get_queryset(self):
         if self.kwargs.get("which_ones") == "awaiting":
-            qs = models.Trip.objects.filter(pk__in=[reviewer.trip.id for reviewer in self.request.user.reviewers.filter(status_id=1)])
+            qs = models.TripRequest.objects.filter(pk__in=[reviewer.trip.id for reviewer in self.request.user.reviewers.filter(status_id=1)])
         else:
-            qs = models.Trip.objects.filter(pk__in=[reviewer.trip.id for reviewer in self.request.user.reviewers.all()])
+            qs = models.TripRequest.objects.filter(pk__in=[reviewer.trip.id for reviewer in self.request.user.reviewers.all()])
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Trip.objects.first()
+        context["my_object"] = models.TripRequest.objects.first()
         context["awaiting"] = True if self.kwargs.get("which_ones") else False
         context["field_list"] = [
-            'status_string|{}'.format(_("Trip status")),
+            'status_string|{}'.format(_("Request status")),
             'is_group_trip',
             'first_name',
             'last_name',
@@ -366,9 +366,9 @@ class TripUpdateView(TravelAccessRequiredMixin, UpdateView):
         my_object = form.save()
         if not my_object.parent_trip:
             if form.cleaned_data.get("stay_on_page"):
-                return HttpResponseRedirect(reverse_lazy("travel:trip_edit", kwargs={"pk": my_object.id}))
+                return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id}))
             else:
-                return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": my_object.id}))
+                return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id}))
         else:
             return HttpResponseRedirect(reverse("shared_models:close_me"))
 
@@ -553,7 +553,7 @@ class TripSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         # No matter what business what done, we will call this function to sort through reviewer and trip statuses
         utils.approval_seeker(my_trip)
         my_trip.save()
-        return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip.id}))
 
 
 class TripCreateView(TravelAccessRequiredMixin, CreateView):
@@ -589,9 +589,9 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
 
         if not my_object.parent_trip:
             if form.cleaned_data.get("stay_on_page"):
-                return HttpResponseRedirect(reverse_lazy("travel:trip_edit", kwargs={"pk": my_object.id}))
+                return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id}))
             else:
-                return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": my_object.id}))
+                return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id}))
         else:
             return HttpResponseRedirect(reverse("shared_models:close_me"))
 
@@ -639,7 +639,7 @@ class TripDeleteView(TravelAccessRequiredMixin, DeleteView):
         if self.kwargs.get('pop'):
             success_url = reverse('shared_models:close_me')
         else:
-            success_url = reverse_lazy('travel:trip_list')
+            success_url = reverse_lazy('travel:request_list')
         return success_url
 
     def delete(self, request, *args, **kwargs):
@@ -682,7 +682,7 @@ class TripCloneUpdateView(TripUpdateView):
             child_trip.parent_trip = new_obj
             child_trip.save()
 
-        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": new_obj.id}))
+        return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": new_obj.id}))
 
 
 class ChildTripCloneUpdateView(TripCreateView):
@@ -724,7 +724,7 @@ def reset_reviewers(request, pk):
     my_obj.reviewers.all().delete()
     # next, re-add the defaults...
     utils.get_reviewers(my_obj)
-    return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.id}))
+    return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.id}))
 
 
 # REVIEWER #
@@ -735,7 +735,7 @@ def delete_reviewer(request, pk):
     my_obj = models.Reviewer.objects.get(pk=pk)
     if my_obj.trip.submitted:
         messages.error(request, "Cannot modify reviewers while project is submitted")
-        return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.trip.id}))
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip.id}))
     else:
         my_obj.delete()
         my_obj.trip.save()
@@ -748,7 +748,7 @@ def manage_reviewers(request, trip):
     my_trip = models.Trip.objects.get(pk=trip)
     if my_trip.submitted:
         messages.error(request, "Cannot modify reviewers while project is submitted")
-        return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip.id}))
     else:
         qs = models.Reviewer.objects.filter(trip=my_trip)
         if request.method == 'POST':
@@ -927,7 +927,7 @@ def export_cfts_list(request, fy):
     raise Http404
 
 
-def export_trip_cfts(request, pk):
+def export_request_cfts(request, pk):
     file_url = reports.generate_cfts_spreadsheet(trip=pk)
 
     if os.path.exists(file_url):
