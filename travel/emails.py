@@ -90,7 +90,7 @@ class ReviewAwaitingEmail:
 
 class ChangesRequestedEmail:
     def __init__(self, trip_request_object):
-        self.subject = 'Changes to your trip request are required - des modifications à votre voyage sont nécessaires'
+        self.subject = 'Changes to your trip request are required - des modifications à votre demande de voyage sont nécessaires'
         self.message = self.load_html_template(trip_request_object)
         self.from_email = from_email
         self.to_list = [trip_request_object.user.email, ]
