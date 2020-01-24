@@ -25,7 +25,7 @@
 
 {#  BASIC DETAIL #}
 <h3>
-    Trip Request Detail:
+    {% trans "Request Detail" %}
 </h3>
 
 <table class="table table-sm table-striped" style="width: 100%">
@@ -64,12 +64,12 @@
 </table>
 <br><br>
 
-{#  CONFERENCE DETAIL  #}
-{% if triprequest.conference %}
+{#  TRIP DETAIL  #}
+{% if triprequest.trip %}
     <h3>
-        {% trans "Conference/Meeting Detail:" %}
+        {% trans "Trip Detail" %}
     </h3>
-    {% if not triprequest.conference %}
+    {% if not triprequest.trip %}
         <em class="red-font blink-me">{% trans "It was indicated above that this trip request is a conference/meeting however no conference or meeting was selected." %}</em>
     {% else %}
         <div class="float-right">
@@ -82,9 +82,9 @@
             {% for field in conf_field_list %}
                 {% if "has_event_template" in field %}
                     {% trans "Unsure" as not_sure %}
-                    {% verbose_td_display triprequest.conference field format="currency" th_width="30%" nullmark=not_sure date_format="%B %d, %Y" %}
+                    {% verbose_td_display triprequest.trip field format="currency" th_width="30%" nullmark=not_sure date_format="%B %d, %Y" %}
                 {% else %}
-                    {% verbose_td_display triprequest.conference field format="currency" th_width="30%" date_format="%B %d, %Y" %}
+                    {% verbose_td_display triprequest.trip field format="currency" th_width="30%" date_format="%B %d, %Y" %}
                 {% endif %}
 
             {% endfor %}
@@ -92,7 +92,7 @@
                 <th>{% trans "Connected requests" %}</th>
                 <td>
                     <ul>
-                        {% for obj in triprequest.conference.trip_requests.all %}
+                        {% for obj in triprequest.trip.trip_requests.all %}
                             {% url 'travel:request_detail' obj.id as my_url %}
                             <li>
                                 <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a> by {{ obj.user }}
@@ -117,15 +117,15 @@
                                 class="plainjane center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
                         </tr>
                         <tr class="plainjane">
-                            <th class="plainjane center-col">{{ triprequest.conference.fiscal_year }}</th>
+                            <th class="plainjane center-col">{{ triprequest.trip.fiscal_year }}</th>
                             <th class="plainjane center-col">Total</th>
                         </tr>
-                        {% for traveller in triprequest.conference.total_traveller_list %}
-                            {% with triprequest.conference.get_summary_dict|lookup:traveller as d %}
+                        {% for traveller in triprequest.trip.total_traveller_list %}
+                            {% with triprequest.trip.get_summary_dict|lookup:traveller as d %}
                                 <tr class="plainjane">
                                     <td class="plainjane">
                                         {{ traveller }}
-                                        {% if traveller in triprequest.conference.bta_traveller_list %}{% trans "(BTA)" %}{% endif %}
+                                        {% if traveller in triprequest.trip.bta_traveller_list %}{% trans "(BTA)" %}{% endif %}
                                     </td>
                                     <td class="plainjane center-col">
                                         {% if traveller.id %}
@@ -134,7 +134,7 @@
                                                 &nbsp;
                                                 {% with d.fy_list as my_list %}
                                                     <button class="badge" data-toggle="popover"
-                                                            title="{{ traveller.first_name }}'s Total Requests for {{ triprequest.conference.fiscal_year }}"
+                                                            title="{{ traveller.first_name }}'s Total Requests for {{ triprequest.trip.fiscal_year }}"
                                                             data-content="{% include "travel/_user_trip_request_list.html" %}">
                                                         {% trans "show" %}
                                                     </button>
@@ -171,7 +171,7 @@
                         {% endfor %}
                         <tr>
                             <th colspan="3">{% trans "TOTAL NUMBER OF TRAVELLERS" %}
-                                = {{ triprequest.conference.total_traveller_list|length }}</th>
+                                = {{ triprequest.trip.total_traveller_list|length }}</th>
                         </tr>
                     </table>
 
@@ -184,7 +184,7 @@
                     {% trans "Total cost (from all connected trips, excluding BTA travel)" %}
                 </th>
                 <td>
-                    {{ triprequest.conference.total_cost|currency:"True" }}
+                    {{ triprequest.trip.total_cost|currency:"True" }}
                 </td>
             </tr>
         </table>

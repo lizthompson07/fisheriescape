@@ -69,7 +69,7 @@ class TripRequestFilter(django_filters.FilterSet):
         model = models.TripRequest
         fields = {
             'fiscal_year': ['exact'],
-            'conference': ['exact'],
+            'trip': ['exact'],
             'status': ['exact'],
             'user': ['exact'],
         }
@@ -122,7 +122,7 @@ class TripRequestFilter(django_filters.FilterSet):
             print('no data in filter')
 
 
-class ConferenceFilter(django_filters.FilterSet):
+class TripFilter(django_filters.FilterSet):
     class Meta:
         model = models.Conference
         fields = {
@@ -132,7 +132,7 @@ class ConferenceFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.conferences.count() > 0]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.trips.count() > 0]
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
                                                                   label=_("Fiscal year"))
 

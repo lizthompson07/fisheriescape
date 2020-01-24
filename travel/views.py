@@ -114,15 +114,10 @@ request_field_list = [
     'destination',
     'start_date',
     'end_date',
-    # 'is_adm_approval_required',
     'purpose',
     'reason',
-    # 'is_conference',
-    'conference',
-    # 'has_event_template',
-    # 'event_lead',
+    'trip',
 
-    # purpose
     'role',
     'role_of_participant',
     'objective_of_event',
@@ -132,25 +127,9 @@ request_field_list = [
     'late_justification',
     'bta_attendees',
     'notes',
-
-    # costs
-    # 'air',
-    # 'rail',
-    # 'rental_motor_vehicle',
-    # 'personal_motor_vehicle',
-    # 'taxi',
-    # 'other_transport',
-    # 'accommodations',
-    # 'meals',
-    # 'incidentals',
-    # 'registration',
-    # 'other',
     'cost_table|{}'.format(_("DFO costs")),
-    # 'total_cost',
     'non_dfo_costs',
     'non_dfo_org',
-    # 'cost_breakdown|{}'.format(_("cost summary")),
-    # 'purpose_long|{}'.format(_("purpose")),
 ]
 
 request_group_field_list = [
@@ -161,13 +140,9 @@ request_group_field_list = [
     'destination',
     'start_date',
     'end_date',
-    # 'is_adm_approval_required',
     'purpose',
     'reason',
-    # 'is_conference',
-    'conference',
-    # 'has_event_template',
-    # 'event_lead',
+    'trip',
 
     'objective_of_event',
     'benefit_to_dfo',
@@ -246,7 +221,7 @@ class TripRequestListView(TravelAccessRequiredMixin, FilterView):
             'section',
             'first_name',
             'last_name',
-            'conference.tname',
+            'trip.tname',
             'destination',
             'start_date',
             'end_date',
@@ -276,7 +251,7 @@ class TripRequestReviewListView(TravelAccessRequiredMixin, ListView):
             'is_group_request',
             'first_name',
             'last_name',
-            'conference',
+            'trip',
             'destination',
             'start_date',
             'end_date',
@@ -304,7 +279,7 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
             'is_group_request',
             'first_name',
             'last_name',
-            'conference',
+            'trip',
             'destination',
             'start_date',
             'end_date',
@@ -767,13 +742,13 @@ def manage_reviewers(request, trip_request):
         return render(request, 'travel/reviewer_formset.html', context)
 
 
-# CONFERENCE #
-##############
+# TRIP #
+########
 
-class ConferenceListView(TravelAccessRequiredMixin, FilterView):
+class TripListView(TravelAccessRequiredMixin, FilterView):
     model = models.Conference
-    filterset_class = filters.ConferenceFilter
-    template_name = 'travel/conference_list.html'
+    filterset_class = filters.TripFilter
+    template_name = 'travel/trip_list.html'
 
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
@@ -796,7 +771,7 @@ class ConferenceListView(TravelAccessRequiredMixin, FilterView):
         return context
 
 
-class ConferenceDetailView(TravelAccessRequiredMixin, DetailView):
+class TripDetailView(TravelAccessRequiredMixin, DetailView):
     model = models.Conference
 
     def get_context_data(self, **kwargs):
@@ -805,9 +780,9 @@ class ConferenceDetailView(TravelAccessRequiredMixin, DetailView):
         return context
 
 
-class ConferenceUpdateView(TravelAdminRequiredMixin, UpdateView):
+class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.Conference
-    form_class = forms.ConferenceForm
+    form_class = forms.TripForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -816,15 +791,15 @@ class ConferenceUpdateView(TravelAdminRequiredMixin, UpdateView):
         return context
 
 
-class ConferenceCreateView(TravelAccessRequiredMixin, CreateView):
+class TripCreateView(TravelAccessRequiredMixin, CreateView):
     model = models.Conference
-    form_class = forms.ConferenceForm
+    form_class = forms.TripForm
 
     def get_template_names(self):
         if self.kwargs.get("pop"):
-            return 'travel/conference_form_popout.html'
+            return 'travel/trip_form_popout.html'
         else:
-            return 'travel/conference_form.html'
+            return 'travel/trip_form.html'
 
     def get_success_url(self):
         if self.kwargs.get("pop"):
@@ -854,9 +829,9 @@ class ConferenceCreateView(TravelAccessRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ConferenceDeleteView(TravelAdminRequiredMixin, DeleteView):
+class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
     model = models.Conference
-    success_url = reverse_lazy('travel:conf_list')
+    success_url = reverse_lazy('travel:trip_list')
     success_message = 'The event was deleted successfully!'
 
     def delete(self, request, *args, **kwargs):
