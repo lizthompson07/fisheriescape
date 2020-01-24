@@ -63,7 +63,7 @@ class EmmMakeModel(models.Model):
 
 class EcpChannelProperty(models.Model):
     ecp_id = models.AutoField(primary_key=True)
-    emm = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"))
+    emm_id = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"))
     ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', on_delete=models.DO_NOTHING, db_column='eqa_adc_bits',
                                      verbose_name=_("ADC Bits"))
@@ -73,7 +73,7 @@ class EcpChannelProperty(models.Model):
                                                 verbose_name=_("Minimum voltage"))
 
     class Meta:
-        unique_together = (('ecp_channel_no', 'emm'),)
+        unique_together = (('ecp_channel_no', 'emm_id'),)
 
     def __str__(self):
         return "{}: {}".format(_("Channel"), self.ecp_channel_no)
@@ -139,7 +139,7 @@ class EqpEquipment(models.Model):
     eqp_serial = models.CharField(max_length=50, verbose_name=_("Serial Number"))
     eqp_asset_id = models.CharField(blank=True, null=True, unique=True, max_length=50, verbose_name=_("Asset ID"))
     eqp_date_purchase = models.DateField(blank=True, null=True, verbose_name=_("Date Purchased"))
-    eqp_notes = models.CharField(max_length=4000, verbose_name=_("Notes"))
+    eqp_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Notes"))
     eqp_retired = models.BooleanField(default=False, verbose_name=_("Retired?"))
     eqo_owned_by = models.ForeignKey("EqoOwner", on_delete=models.DO_NOTHING, verbose_name=_("Owner"))
 
@@ -148,7 +148,7 @@ class EqpEquipment(models.Model):
 
 
 class EqrRecorderProperties(models.Model):
-    emm = models.ForeignKey('EmmMakeModel', primary_key=True, on_delete=models.CASCADE,
+    emm = models.OneToOneField('EmmMakeModel', primary_key=True, on_delete=models.CASCADE,
                             verbose_name=_("Make and Model"))
     ert_id = models.ForeignKey('ErtRecorderType', on_delete=models.DO_NOTHING, verbose_name=_("Recorder Type"))
     eqr_internal_hydro = models.BooleanField(default=False, verbose_name=_("Has Internal Hydrophone"))
@@ -253,12 +253,15 @@ class SteStationEvent(models.Model):
 class StnStation(models.Model):
     stn_id = models.AutoField(primary_key=True)
     stn_name = models.CharField(max_length=100, verbose_name=_("Name"))
-    stn_code = models.CharField(max_length=3, unique=True, verbose_name=_("Code"))
+    stn_code = models.CharField(max_length=3, verbose_name=_("Code"))
     stn_revision = models.BigIntegerField(verbose_name=_("Revision"))
     stn_planned_lat = models.DecimalField(max_digits=9, decimal_places=6, verbose_name=_("Latitude"))
     stn_planned_lon = models.DecimalField(max_digits=9, decimal_places=6, verbose_name=_("Longitude"))
     stn_planned_depth = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Depth"))
     stn_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Notes"))
+
+    class Meta:
+        unique_together = (('stn_code', 'stn_revision'),)
 
     def __str__(self):
         current = "Past"
