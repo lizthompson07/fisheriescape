@@ -19,14 +19,16 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Conferences & Meetings</li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% trans "Trips" %}</li>
         </ol>
     </nav>
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Conferences and Meetings </h1>
+        <h1 class="big-header">{% trans "Trips" %}</h1>
 
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
@@ -45,21 +47,6 @@
         <br>
         <div class="row">
             <div class="col-12">
-
-                <div class="row">
-                    <div class="col">
-                        {% trans "(click on a header to sort table)" %}
-                    </div>
-                    <div class="col" style="text-align: center">
-                        <em>displaying all {{ filter.qs.count }} records</em>
-                    </div>
-                    {% if is_admin %}
-                        <div class="col" style="text-align: right; padding-bottom: 10px">
-                            <a href="{% url 'travel:conf_new' %}" class="btn btn-sm btn-primary">New Conference</a>
-                        </div>
-                    {% endif %}
-                </div>
-
                 <div class="row">
                     <div class="col">
                         {% trans "(click on a header to sort table)" %}
@@ -70,7 +57,7 @@
                         {% endblocktrans %}
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'travel:conf_new' %}" class="btn btn-sm btn-primary">{% trans 'New Trip' %}</a>
+                        <a href="{% url 'travel:trip_new' %}" class="btn btn-sm btn-primary">{% trans 'New Trip' %}</a>
                     </div>
                 </div>
 
@@ -95,9 +82,10 @@
                         <th class="center-col">{% trans "Total Travellers" %}</th>
                     </tr>
                     </thead>
+                    </thead>
                     <tbody>
                     {% for object in filter.qs %}
-                        {% url 'travel:conf_detail' object.id as my_url %}
+                        {% url 'travel:trip_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
                             {% for field in field_list %}
                                 {% if "number" in field or "adm" in field %}

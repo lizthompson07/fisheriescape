@@ -119,7 +119,7 @@ class Conference(models.Model):
     registration_deadline = models.DateTimeField(verbose_name=_("registration deadline"), blank=True, null=True)
     notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
-                                    blank=True, null=True, related_name="conferences")
+                                    blank=True, null=True, related_name="trips")
 
     def __str__(self):
         # check to see if a french value is given
@@ -132,10 +132,10 @@ class Conference(models.Model):
                                           self.end_date.strftime("%d-%b-%Y"))
 
     class Meta:
-        ordering = ['number', ]
+        ordering = ['start_date', ]
 
     def get_absolute_url(self):
-        return reverse('travel:conf_detail', kwargs={'pk': self.id})
+        return reverse('travel:trip_detail', kwargs={'pk': self.id})
 
     @property
     def bta_traveller_list(self):
@@ -166,9 +166,9 @@ class Conference(models.Model):
 
         # group travellers
         my_list.extend(
-            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__conference=self).filter(~Q(status_id=10)) if trip_request.user])
+            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)) if trip_request.user])
         my_list.extend(["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-                        TripRequest.objects.filter(parent_request__conference=self).filter(~Q(status_id=10)) if not trip_request.user])
+                        TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)) if not trip_request.user])
 
         return set(my_list)
 
@@ -207,7 +207,7 @@ class Conference(models.Model):
         my_list = [trip_request.total_request_cost for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
-            [trip_request.total_request_cost for trip_request in TripRequest.objects.filter(parent_request__conference=self).filter(~Q(status_id=10))])
+            [trip_request.total_request_cost for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10))])
 
         return sum(my_list)
 
@@ -228,15 +228,15 @@ class Conference(models.Model):
     @property
     def get_summary_dict(self):
         """
-        This method is used to return a dictionary of users attending a conference/meeting, as well as the number of
-        conferences or international meetings they have attended.
+        This method is used to return a dictionary of users attending a trip, as well as the number of
+        trips or international meetings they have attended.
         """
         my_dict = {}
 
         # get a trip list that will be used to get a list of users (sigh...)
         # my_trip_list = self.children_requests.all() if self.is_group_request else Trip.objects.filter(pk=self.id)
 
-        # get the fiscal year of the conference
+        # get the fiscal year of the trip
         fy = self.fiscal_year
 
         for traveller in self.total_traveller_list:
@@ -248,12 +248,12 @@ class Conference(models.Model):
 
                 # there are two things we have to do to get this list...
                 # 1) get all non group travel
-                qs = traveller.user_trip_requests.filter(conference__is_adm_approval_required=True).filter(is_group_request=False)
+                qs = traveller.user_trip_requests.filter(trip__is_adm_approval_required=True).filter(is_group_request=False)
                 total_list.extend([trip for trip in qs])
                 fy_list.extend([trip for trip in qs.filter(fiscal_year=fy)])
 
                 # 2) get all group travel - the trick part is that we have to grab the parent trip
-                qs = traveller.user_trip_requests.filter(parent_request__conference__is_adm_approval_required=True)
+                qs = traveller.user_trip_requests.filter(parent_request__trip__is_adm_approval_required=True)
                 total_list.extend([trip_request.parent_request for trip_request in qs])
                 fy_list.extend([trip_request.parent_request for trip_request in qs.filter(fiscal_year=fy)])
 
@@ -276,8 +276,8 @@ class TripRequest(models.Model):
                                         verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
-    conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   verbose_name=_("conference / meeting"), related_name="trip_requests")
+    trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                   verbose_name=_("trip"), related_name="trip_requests")
 
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trip_requests",
@@ -307,7 +307,7 @@ class TripRequest(models.Model):
     # these two fields should be deleted eventually if the event planning peice happens through this app...
     # has_event_template = models.NullBooleanField(default=False,
     #                                              verbose_name=_(
-    #                                                  "Is there an event template being completed for this conference or meeting?"))
+    #                                                  "Is there an event template being completed for this trip or meeting?"))
     # event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
     #                                related_name="trip_events", blank=True, null=True)
     ################
@@ -368,8 +368,8 @@ class TripRequest(models.Model):
             self.last_name,
             group_status,
         )
-        if self.conference:
-            my_str += " - {}".format(self.conference.tname)
+        if self.trip:
+            my_str += " - {}".format(self.trip.tname)
         if self.destination:
             my_str += " - {}".format(self.destination)
         return my_str
@@ -402,13 +402,13 @@ class TripRequest(models.Model):
         if self.start_date:
             self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
 
-        # if the start and end dates are null, but there is a conference, use those.. to populate
-        if self.conference and not self.start_date:
-            print("adding start date from conference")
-            self.start_date = self.conference.start_date
-        if self.conference and not self.end_date:
-            print("adding end date from conference")
-            self.end_date = self.conference.end_date
+        # if the start and end dates are null, but there is a trip, use those.. to populate
+        if self.trip and not self.start_date:
+            # print("adding start date from trip")
+            self.start_date = self.trip.start_date
+        if self.trip and not self.end_date:
+            # print("adding end date from trip")
+            self.end_date = self.trip.end_date
 
         # ensure the process order makes sense
         count = 1

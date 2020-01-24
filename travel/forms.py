@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User as AuthUser
 from shared_models import models as shared_models
@@ -82,7 +83,7 @@ class TripRequestForm(forms.ModelForm):
         }
         widgets = {
             'bta_attendees': forms.SelectMultiple(attrs=chosen_js),
-            'conference': forms.Select(attrs=chosen_js),
+            'trip': forms.Select(attrs=chosen_js),
             'user': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
             'is_group_request': forms.Select(choices=YES_NO_CHOICES),
@@ -164,14 +165,13 @@ class TripRequestForm(forms.ModelForm):
                                                                                                            "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
+        trip_choices = [(t.id, str(t)) for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
+        trip_choices.insert(0, tuple((None, "---")))
+
         super().__init__(*args, **kwargs)
+        self.fields['trip'].choices = trip_choices
         self.fields['user'].choices = user_choices
         self.fields['bta_attendees'].choices = user_choices
-        # self.fields['recommender_1'].choices = recommender_chocies
-        # self.fields['recommender_2'].choices = recommender_chocies
-        # self.fields['recommender_3'].choices = recommender_chocies
-        # self.fields['adm'].choices = recommender_chocies
-        # self.fields['rdg'].choices = recommender_chocies
         self.fields['section'].choices = section_choices
 
 
@@ -285,7 +285,7 @@ class ChildTripRequestForm(forms.ModelForm):
         #     del self.fields['role_of_participant']
 
 
-class ConferenceForm(forms.ModelForm):
+class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
         fields = "__all__"

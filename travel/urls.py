@@ -38,14 +38,14 @@ urlpatterns = [
     path('reviewer/<int:pk>/delete/', views.delete_reviewer, name="delete_reviewer"),
 
 
-    # CONFERENCE #
-    ####################
-    path('conferences/', views.ConferenceListView.as_view(), name="conf_list"),
-    path('conference/new/', views.ConferenceCreateView.as_view(), name="conf_new"),
-    path('conference/new/pop/<int:pop>/', views.ConferenceCreateView.as_view(), name="conf_new"),
-    path('conference/<int:pk>/view/', views.ConferenceDetailView.as_view(), name="conf_detail"),
-    path('conference/<int:pk>/edit/', views.ConferenceUpdateView.as_view(), name="conf_edit"),
-    path('conference/<int:pk>/delete/', views.ConferenceDeleteView.as_view(), name="conf_delete"),
+    # TRIP #
+    ########
+    path('trips/', views.TripListView.as_view(), name="trip_list"),
+    path('trip/new/', views.TripCreateView.as_view(), name="trip_new"),
+    path('trip/new/pop/<int:pop>/', views.TripCreateView.as_view(), name="trip_new"),
+    path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
+    path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
 
     # FILES #
     #########

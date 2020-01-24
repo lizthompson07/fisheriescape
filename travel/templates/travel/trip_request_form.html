@@ -76,7 +76,7 @@
                     {#                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})#}
                     {#                    </em><br><br>#}
                 </div>
-            {% elif field.name == "conference" %}
+            {% elif field.name == "trip" %}
                 {% if field.name in help_text_dict %}
                     {% bootstrap_label field.label %}
                     {% with help_text_dict|lookup:field.name as help_text %}
@@ -88,8 +88,8 @@
                 {% else %}
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
-                {% if field.name == "conference" %}
-                    (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new conference / meeting</a>)
+                {% if field.name == "trip" %}
+                    (<a href="#" pop-href="{% url 'travel:trip_new' 1 %}" id="new_event">add a new trip</a>)
                     <br><br>
                 {% endif %}
             {% elif field.name == "is_group_request" %}
@@ -307,7 +307,7 @@
             refreshConference();
         });
 
-        $("#id_conference").change(function () {
+        $("#id_trip").change(function () {
             // update location and (maybe) dates
             myId = $(this).val();
             $("#id_destination").val(confObj[myId]["location"]);
@@ -341,14 +341,14 @@
             $("#id_address").val($myBtn.text());
         });
 
-        $("#id_reason").change(function () {
-            var myVal = $(this).val()
-            // if the reason is for a meeting or conference, we already know the answer to the below question of `id_is_conference`
-            if (myVal == '2' || myVal == '4') {
-                $("#id_is_conference").val('True');
-                refreshConference();
-            }
-        });
+        {#$("#id_reason").change(function () {#}
+        {#    var myVal = $(this).val()#}
+        {#    // if the reason is for a meeting or conference, we already know the answer to the below question of `id_is_conference`#}
+        {#    if (myVal == '2' || myVal == '4') {#}
+        {#        $("#id_is_conference").val('True');#}
+        {#        refreshConference();#}
+        {#    }#}
+        {#});#}
 
     </script>
 {% endblock %}

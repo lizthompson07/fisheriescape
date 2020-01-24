@@ -21,8 +21,8 @@
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
                 {% trans "Home" %}
             </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:conf_list' %}">
-                {% trans "Conferences & Meetings" %}
+            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">
+                {% trans "Trips" %}
             </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
@@ -34,15 +34,15 @@
 
 
         <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'travel:conf_edit' object.id %}">
+            <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id %}">
                 {% trans "Edit" %}
             </a>
             {% if object.trip_requests.count %}
                 <span data-toggle="tooltip"
-                      title="You cannot delete a meeting or conference that is currently tagged on a trip request.">
+                      title="You cannot delete a trip that is currently tagged on a trip request.">
             {% endif %}
             <a class="btn btn-danger {% if object.trip_requests.count %}disabled{% endif %}"
-               href="{% url 'travel:conf_delete' object.id %}">
+               href="{% url 'travel:trip_delete' object.id %}">
                 Delete
             </a>
             {% if object.trip_requests.count %}
@@ -55,7 +55,7 @@
         <div class="row">
             <div class="col">
                 <h3>
-                    {% trans "Conference/Meeting Detail:" %}
+                    {% trans "Trip" %}
                 </h3>
 
                 <table class="table table-sm">
@@ -82,7 +82,7 @@
                         </li>
                     {% empty %}
                         <em>
-                        {% trans "There are no trip requests connected to this event." %}
+                        {% trans "There are no requests connected to this trip." %}
                         </em>
                     {% endfor %}
                 </ul>
@@ -112,18 +112,18 @@
                 <table class="table table-sm table-bordered" style="width: 75%;">
                     <tr class="plainjane">
                         <th rowspan="2" class="plainjane">{% trans "Name" %}</th>
-                        <th colspan="2" class="plainjane center-col">{% trans "Attendence to Conferences and International Trip Requests" %}</th>
+                        <th colspan="2" class="plainjane center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
                     </tr>
                     <tr class="plainjane">
-                        <th class="plainjane center-col">{{ conference.fiscal_year }}</th>
+                        <th class="plainjane center-col">{{ trip.fiscal_year }}</th>
                         <th class="plainjane center-col">Total</th>
                     </tr>
-                    {% for traveller in conference.total_traveller_list %}
-                        {% with conference.get_summary_dict|lookup:traveller as d %}
+                    {% for traveller in trip.total_traveller_list %}
+                        {% with trip.get_summary_dict|lookup:traveller as d %}
                             <tr class="plainjane">
                                 <td class="plainjane">
                                     {{ traveller }}
-                                    {% if traveller in conference.bta_traveller_list %}{% trans "(BTA)" %}{% endif %}
+                                    {% if traveller in trip.bta_traveller_list %}{% trans "(BTA)" %}{% endif %}
                                 </td>
                                 <td class="plainjane center-col">
                                     {% if traveller.id %}
@@ -132,7 +132,7 @@
                                             &nbsp;
                                             {% with d.fy_list as my_list %}
                                                 <button class="badge" data-toggle="popover"
-                                                        title="{{ traveller.first_name }}'s Total Requests for {{ conference.fiscal_year }}"
+                                                        title="{{ traveller.first_name }}'s Total Requests for {{ trip.fiscal_year }}"
                                                         data-content="{% include "travel/_user_trip_request_list.html" %}">
                                                     {% trans "show" %}
                                                 </button>
@@ -169,7 +169,7 @@
                     {% endfor %}
                     <tr>
                         <th colspan="3">{% trans "TOTAL NUMBER OF TRAVELLERS" %}
-                            = {{ conference.total_traveller_list|length }}</th>
+                            = {{ trip.total_traveller_list|length }}</th>
                     </tr>
                 </table>
                 <br>
