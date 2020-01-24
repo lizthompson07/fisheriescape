@@ -38,8 +38,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None):
             trip_request_list = models.TripRequest.objects.filter(pk=trip_request)
     else:
         is_group = False
-        my_trip = None
-        trip_list = None
+        my_trip_request = None
+        trip_request_list = None
 
     # non_group_trip_list = models.Trip.objects.all()
 

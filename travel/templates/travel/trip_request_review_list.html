@@ -18,11 +18,11 @@
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">
                 {% if awaiting %}
-                    Trips Awaiting Your Review
+                    Requests Awaiting Your Review
                 {% elif admin %}
-                    Admin Trip Approval List
+                    Admin Request Approval List
                 {% else %}
-                    Trips Assigned to You for Review
+                    Requests Assigned to You for Review
                 {% endif %}
             </li>
         </ol>
@@ -32,20 +32,20 @@
 
         <h1 class="big-header">
             {% if awaiting %}
-                {% trans "Trips Awaiting Your Review" %}
+                {% trans "Requests Awaiting Your Review" %}
             {% elif admin %}
-                {% trans "Admin Trip Approval List" %}
+                {% trans "Admin Request Approval List" %}
             {% else %}
-                {% trans "Trips Assigned to You for Review" %}
+                {% trans "Requests Assigned to You for Review" %}
             {% endif %}
         </h1>
         {% if awaiting %}
             (<a href="{% url 'travel:request_review_list' %}">
-            {% trans "view all trips assigned to me" %}
+            {% trans "view all requests assigned to me" %}
         </a>)
         {% elif not admin %}
             (<a href="{% url 'travel:request_review_list' "awaiting" %}">
-            {% trans "view trips awaiting my approval" %}
+            {% trans "view requests awaiting my approval" %}
         </a>)
         {% endif %}
 
