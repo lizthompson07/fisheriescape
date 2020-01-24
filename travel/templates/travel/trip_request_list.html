@@ -85,7 +85,7 @@
 
                             {% for field in field_list %}
                                 {% if "is_group" in field %}
-                                    <td>{{ object.is_group_trip|yesno:"Group,Individual" }}</td>
+                                    <td>{{ object.is_group_request|yesno:"Group,Individual" }}</td>
                                 {% elif "status" in field %}
                                     <td style="background-color: {{ object.status.color }}">{% get_field_value object field format="currency" %}</td>
 

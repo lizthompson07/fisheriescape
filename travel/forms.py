@@ -85,7 +85,7 @@ class TripRequestForm(forms.ModelForm):
             'conference': forms.Select(attrs=chosen_js),
             'user': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
-            'is_group_trip': forms.Select(choices=YES_NO_CHOICES),
+            'is_group_request': forms.Select(choices=YES_NO_CHOICES),
             'objective_of_event': forms.Textarea(attrs=attr_row3),
             'benefit_to_dfo': forms.Textarea(attrs=attr_row3),
             'multiple_attendee_rationale': forms.Textarea(attrs=attr_row3),
@@ -94,7 +94,7 @@ class TripRequestForm(forms.ModelForm):
             'notes': forms.Textarea(attrs=attr_row3),
 
             # hidden fields
-            'parent_trip': forms.HiddenInput(),
+            'parent_request': forms.HiddenInput(),
 
             # non-group trip fields
             'start_date': forms.DateInput(attrs=attr_fp_date_hide_me),
@@ -235,11 +235,11 @@ class ChildTripRequestForm(forms.ModelForm):
 
             'registration',
             'other',
-            'parent_trip',
+            'parent_request',
         ]
         widgets = {
             'user': forms.Select(attrs=chosen_js),
-            'parent_trip': forms.HiddenInput(),
+            'parent_request': forms.HiddenInput(),
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'role_of_participant': forms.Textarea(attrs=attr_row4),
@@ -269,10 +269,10 @@ class ChildTripRequestForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        parent_trip = kwargs.get("initial").get("parent_trip") if kwargs.get("initial") else None
-        print(parent_trip)
-        if not parent_trip:
-            parent_trip = kwargs.get("instance").parent_trip
+        parent_request = kwargs.get("initial").get("parent_request") if kwargs.get("initial") else None
+        print(parent_request)
+        if not parent_request:
+            parent_request = kwargs.get("instance").parent_request
 
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.all().order_by("last_name", "first_name")]
@@ -280,7 +280,7 @@ class ChildTripRequestForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-        # if parent_trip.reason_id != 2:
+        # if parent_request.reason_id != 2:
         #     del self.fields['role']
         #     del self.fields['role_of_participant']
 
@@ -314,7 +314,7 @@ class ReportSearchForm(forms.Form):
         # TRAVELLER_CHOICES = [(e['email'], "{}, {}".format(e['last_name'], e['first_name'])) for e in
         #                      models.Trip.objects.values("email", "first_name", "last_name").order_by("last_name", "first_name").distinct()]
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                        AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trips.count() > 0]
+                        AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trip_requests.count() > 0]
         user_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -339,7 +339,7 @@ class ReviewerForm(forms.ModelForm):
     class Meta:
         model = models.Reviewer
         fields = [
-            'trip',
+            'trip_request',
             'order',
             'user',
             'role',

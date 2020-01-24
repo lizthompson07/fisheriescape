@@ -159,16 +159,16 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip.user for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if trip.user]
+        my_list = [trip_request.user for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_trip=False) if trip_request.user]
         # now those without names...
-        my_list.extend(["{} {} ({})".format(trip.first_name, trip.last_name, _("no DM Apps user connected")) for trip in
-                        self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False) if not trip.user])
+        my_list.extend(["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
+                        self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if not trip_request.user])
 
         # group travellers
         my_list.extend(
-            [trip.user for trip in Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10)) if trip.user])
-        my_list.extend(["{} {} ({})".format(trip.first_name, trip.last_name, _("no DM Apps user connected")) for trip in
-                        Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10)) if not trip.user])
+            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__conference=self).filter(~Q(status_id=10)) if trip_request.user])
+        my_list.extend(["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
+                        TripRequest.objects.filter(parent_request__conference=self).filter(~Q(status_id=10)) if not trip_request.user])
 
         return set(my_list)
 
@@ -204,10 +204,10 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip.total_trip_cost for trip in self.trips.filter(~Q(status_id=10)).filter(is_group_trip=False)]
+        my_list = [trip_request.total_trip_cost for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
-            [trip.total_trip_cost for trip in Trip.objects.filter(parent_trip__conference=self).filter(~Q(status_id=10))])
+            [trip_request.total_trip_cost for trip_request in TripRequest.objects.filter(parent_request__conference=self).filter(~Q(status_id=10))])
 
         return sum(my_list)
 
@@ -234,7 +234,7 @@ class Conference(models.Model):
         my_dict = {}
 
         # get a trip list that will be used to get a list of users (sigh...)
-        # my_trip_list = self.children_trips.all() if self.is_group_trip else Trip.objects.filter(pk=self.id)
+        # my_trip_list = self.children_requests.all() if self.is_group_request else Trip.objects.filter(pk=self.id)
 
         # get the fiscal year of the conference
         fy = self.fiscal_year
@@ -248,14 +248,14 @@ class Conference(models.Model):
 
                 # there are two things we have to do to get this list...
                 # 1) get all non group travel
-                qs = traveller.user_trips.filter(conference__is_adm_approval_required=True).filter(is_group_trip=False)
+                qs = traveller.user_trip_requests.filter(conference__is_adm_approval_required=True).filter(is_group_request=False)
                 total_list.extend([trip for trip in qs])
                 fy_list.extend([trip for trip in qs.filter(fiscal_year=fy)])
 
                 # 2) get all group travel - the trick part is that we have to grab the parent trip
-                qs = traveller.user_trips.filter(parent_trip__conference__is_adm_approval_required=True)
-                total_list.extend([trip.parent_trip for trip in qs])
-                fy_list.extend([trip.parent_trip for trip in qs.filter(fiscal_year=fy)])
+                qs = traveller.user_trip_requests.filter(parent_request__conference__is_adm_approval_required=True)
+                total_list.extend([trip_request.parent_request for trip_request in qs])
+                fy_list.extend([trip_request.parent_request for trip_request in qs.filter(fiscal_year=fy)])
 
                 my_dict[traveller] = {}
                 my_dict[traveller]["total_list"] = list(set(total_list))
@@ -271,16 +271,16 @@ class Conference(models.Model):
 
 class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
-                                    default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trips")
-    is_group_trip = models.BooleanField(default=False,
-                                        verbose_name=_("Is this a group trip (i.e., is this a request for multiple individuals)?"))
+                                    default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trip_requests")
+    is_group_request = models.BooleanField(default=False,
+                                        verbose_name=_("Is this a group trip request(i.e., is this a request for multiple individuals)?"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   verbose_name=_("conference / meeting"), related_name="trips")
+                                   verbose_name=_("conference / meeting"), related_name="trip_requests")
 
     # traveller info
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trips",
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trip_requests",
                              verbose_name=_("DM Apps user"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"))
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
@@ -293,7 +293,7 @@ class TripRequest(models.Model):
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
                                                 verbose_name=_("Is the traveller a research scientist (RES)?"))
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trips",
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trip_requests",
                                null=True, blank=True)
     # trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True,
@@ -349,19 +349,19 @@ class TripRequest(models.Model):
     incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidentals"))
     registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
     other = models.FloatField(blank=True, null=True, verbose_name=_("other"))
-    total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total trip cost (DFO)"))
-    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Estimated non-DFO costs (CAD)"))
-    non_dfo_org = models.CharField(max_length=1000, verbose_name=_("Full name(s) of organization paying non-DFO costs"), blank=True,
+    total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
+    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("estimated non-DFO costs (CAD)"))
+    non_dfo_org = models.CharField(max_length=1000, verbose_name=_("full name(s) of organization paying non-DFO costs"), blank=True,
                                    null=True)
 
     submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trip_requests",
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
-    parent_trip = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_trips", blank=True, null=True)
+    parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
 
     @property
     def request_title(self):
-        group_status = " - {}".format(gettext("Group Request")) if self.is_group_trip else ""
+        group_status = " - {}".format(gettext("Group Request")) if self.is_group_request else ""
 
         my_str = "{} {}{}".format(
             self.first_name,
@@ -379,7 +379,7 @@ class TripRequest(models.Model):
 
     class Meta:
         ordering = ["-start_date", "last_name"]
-        unique_together = [("user", "parent_trip"), ]
+        unique_together = [("user", "parent_request"), ]
 
     def get_absolute_url(self):
         return reverse('travel:request_detail', kwargs={'pk': self.id})
@@ -504,13 +504,13 @@ class TripRequest(models.Model):
                     get_verbose_label(self, cost), nz(currency(getattr(self, cost)), "---"))
 
         my_str += "<tr><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
-            _("TOTAL"), nz(currency(self.total_trip_cost), "---"))
+            _("TOTAL"), nz(currency(self.total_request_cost), "---"))
         my_str += "</table>"
         return mark_safe(my_str)
 
     @property
     def total_request_cost(self):
-        if self.is_group_trip:
+        if self.is_group_request:
             object_list = self.children_requests.all()
             return object_list.values("total_cost").order_by("total_cost").aggregate(dsum=Sum("total_cost"))['dsum']
         else:
@@ -596,7 +596,7 @@ class ReviewerRole(models.Model):
 
 
 class Reviewer(models.Model):
-    trip = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")
+    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
@@ -606,8 +606,8 @@ class Reviewer(models.Model):
     comments = models.TextField(null=True, verbose_name=_("Comments"))
 
     class Meta:
-        unique_together = ['trip', 'user', 'role', ]
-        ordering = ['trip', 'order', ]
+        unique_together = ['trip_request', 'user', 'role', ]
+        ordering = ['trip_request', 'order', ]
 
     @property
     def comments_html(self):
@@ -643,17 +643,17 @@ class Reviewer(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'travel/trip_{0}/{1}'.format(instance.trip.id, filename)
+    return 'travel/trip_{0}/{1}'.format(instance.trip_request.id, filename)
 
 
 class File(models.Model):
-    trip = models.ForeignKey(TripRequest, related_name="files", on_delete=models.CASCADE)
+    trip_request = models.ForeignKey(TripRequest, related_name="files", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("file attachment"))
     date_created = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['trip', 'date_created']
+        ordering = ['trip_request', 'date_created']
 
     def __str__(self):
         return self.name

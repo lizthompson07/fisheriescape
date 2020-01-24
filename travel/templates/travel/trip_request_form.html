@@ -92,7 +92,7 @@
                     (<a href="#" pop-href="{% url 'travel:conf_new' 1 %}" id="new_event">add a new conference / meeting</a>)
                     <br><br>
                 {% endif %}
-            {% elif field.name == "is_group_trip" %}
+            {% elif field.name == "is_group_request" %}
                 {% if field.name in help_text_dict %}
                     {% bootstrap_label field.label %}
                     {% with help_text_dict|lookup:field.name as help_text %}
@@ -289,7 +289,7 @@
 
 
         function refreshClassHideMe() {
-            if ($("#id_is_group_trip").val() == "False") {
+            if ($("#id_is_group_request").val() == "False") {
                 $(".hide-me").removeClass("gone");
                 $(".show-me").addClass("gone");
             } else {
@@ -316,7 +316,7 @@
             {#$("#id_email").val(userObj[myId]["email"]);#}
         });
 
-        $("#id_is_group_trip").change(function () {
+        $("#id_is_group_request").change(function () {
             refreshClassHideMe();
         });
 
