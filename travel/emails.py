@@ -54,7 +54,7 @@ class AdminApprovalAwaitingEmail:
             'end_date',
         ]
 
-        context = {'trip_request': trip_request, 'field_list': field_list}
+        context = {'triprequest': trip_request, 'field_list': field_list}
         rendered = t.render(context)
         return rendered
 
@@ -82,7 +82,7 @@ class ReviewAwaitingEmail:
             'end_date',
         ]
 
-        context = {'reviewer': reviewer_object, 'trip_request': trip_request_object, 'field_list': field_list}
+        context = {'reviewer': reviewer_object, 'triprequest': trip_request_object, 'field_list': field_list}
         rendered = t.render(context)
         return rendered
 
@@ -111,7 +111,7 @@ class ChangesRequestedEmail:
             'end_date',
         ]
 
-        context = {'trip_request': trip_request_object, 'field_list': field_list}
+        context = {'triprequest': trip_request_object, 'field_list': field_list}
         rendered = t.render(context)
         return rendered
 
@@ -140,6 +140,6 @@ class StatusUpdateEmail:
             'end_date',
         ]
 
-        context = {'trip_request': trip_request_object, 'field_list': field_list}
+        context = {'triprequest': trip_request_object, 'field_list': field_list}
         rendered = t.render(context)
         return rendered

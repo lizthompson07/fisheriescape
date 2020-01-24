@@ -96,7 +96,7 @@ class TripRequestForm(forms.ModelForm):
             # hidden fields
             'parent_request': forms.HiddenInput(),
 
-            # non-group trip fields
+            # non-group trip request fields
             'start_date': forms.DateInput(attrs=attr_fp_date_hide_me),
             'end_date': forms.DateInput(attrs=attr_fp_date_hide_me),
             'first_name': forms.TextInput(attrs=attr_hide_me_user_info),
@@ -175,7 +175,7 @@ class TripRequestForm(forms.ModelForm):
         self.fields['section'].choices = section_choices
 
 
-class AdminTripForm(forms.ModelForm):
+class AdminTripRequestForm(forms.ModelForm):
     class Meta:
         model = models.TripRequest
         fields = [
@@ -310,7 +310,7 @@ class ReportSearchForm(forms.Form):
     user = forms.ChoiceField(required=False, label=_('DFO traveller (leave blank for all)'))
 
     def __init__(self, *args, **kwargs):
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trips.count() > 0]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trip_requests.count() > 0]
         # TRAVELLER_CHOICES = [(e['email'], "{}, {}".format(e['last_name'], e['first_name'])) for e in
         #                      models.Trip.objects.values("email", "first_name", "last_name").order_by("last_name", "first_name").distinct()]
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
@@ -345,7 +345,7 @@ class ReviewerForm(forms.ModelForm):
             'role',
         ]
         widgets = {
-            'trip': forms.HiddenInput(),
+            'trip_request': forms.HiddenInput(),
             'user': forms.Select(attrs=chosen_js),
         }
 
@@ -405,7 +405,7 @@ class FileForm(forms.ModelForm):
         model = models.File
         exclude = ["date_created", ]
         widgets = {
-            'trip': forms.HiddenInput(),
+            'trip_request': forms.HiddenInput(),
         }
 
 

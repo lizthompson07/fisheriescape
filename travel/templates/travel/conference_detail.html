@@ -37,15 +37,15 @@
             <a class="btn btn-warning" href="{% url 'travel:conf_edit' object.id %}">
                 {% trans "Edit" %}
             </a>
-            {% if object.trips.count %}
+            {% if object.trip_requests.count %}
                 <span data-toggle="tooltip"
-                      title="You cannot delete a meeting or conference that is currently tagged on a trip.">
+                      title="You cannot delete a meeting or conference that is currently tagged on a trip request.">
             {% endif %}
-            <a class="btn btn-danger {% if object.trips.count %}disabled{% endif %}"
+            <a class="btn btn-danger {% if object.trip_requests.count %}disabled{% endif %}"
                href="{% url 'travel:conf_delete' object.id %}">
                 Delete
             </a>
-            {% if object.trips.count %}
+            {% if object.trip_requests.count %}
                 </span>
             {% endif %}
         </div>
@@ -74,15 +74,15 @@
                     {% trans "Connected Travel Requests:" %}
                 </h3>
                 <ul>
-                    {% for trip in object.trips.all %}
+                    {% for triprequest in object.trip_requests.all %}
                         <li>
-                            <a href="{% url 'travel:request_detail' trip.id %}">{{ trip }}</a> by {{ trip.user }}
-                            (STATUS: <span style="background-color: {{ trip.status.color }}">{{ trip.status }}</span>)
+                            <a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a> by {{ triprequest.user }}
+                            (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ triprequest.status }}</span>)
 
                         </li>
                     {% empty %}
                         <em>
-                        {% trans "There are no trips connected to this event." %}
+                        {% trans "There are no trip requests connected to this event." %}
                         </em>
                     {% endfor %}
                 </ul>
@@ -107,12 +107,12 @@
 
 
                 <h3>
-                    {% trans "List of travellers (across all trips and including BTA)" %}
+                    {% trans "List of travellers (across all trip requests and including BTA)" %}
                 </h3>
                 <table class="table table-sm table-bordered" style="width: 75%;">
                     <tr class="plainjane">
                         <th rowspan="2" class="plainjane">{% trans "Name" %}</th>
-                        <th colspan="2" class="plainjane center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
+                        <th colspan="2" class="plainjane center-col">{% trans "Attendence to Conferences and International Trip Requests" %}</th>
                     </tr>
                     <tr class="plainjane">
                         <th class="plainjane center-col">{{ conference.fiscal_year }}</th>
@@ -132,8 +132,8 @@
                                             &nbsp;
                                             {% with d.fy_list as my_list %}
                                                 <button class="badge" data-toggle="popover"
-                                                        title="{{ traveller.first_name }}'s Total Trips for {{ conference.fiscal_year }}"
-                                                        data-content="{% include "travel/_user_trip_list.html" %}">
+                                                        title="{{ traveller.first_name }}'s Total Requests for {{ conference.fiscal_year }}"
+                                                        data-content="{% include "travel/_user_trip_request_list.html" %}">
                                                     {% trans "show" %}
                                                 </button>
                                             {% endwith %}
@@ -152,8 +152,8 @@
                                             &nbsp;
                                             {% with d.total_list as my_list %}
                                                 <button class="badge" data-toggle="popover"
-                                                        title="{{ user.first_name }}'s Total Trips"
-                                                        data-content="{% include "travel/_user_trip_list.html" %}">
+                                                        title="{{ user.first_name }}'s Total Requests"
+                                                        data-content="{% include "travel/_user_trip_request_list.html" %}">
                                                     {% trans "show" %}
                                                 </button>
                                             {% endwith %}

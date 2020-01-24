@@ -25,13 +25,13 @@
                 <br>
                 <h2>
                     {% blocktrans %}
-                        <a href="{{ event_new_url }}">New</a> trip.
+                        <a href="{{ event_new_url }}">New</a> request.
                     {% endblocktrans %}
                     <br><br>
                     {% if user.user_trip_requests.count > 0 %}
                         {% with user.id as user_id %}
                             {% blocktrans with event_list_url|add:"?user=" as your_url and user_id as user_id %}
-                                View <a href="{{ your_url }}{{ user_id }}">your</a> trips
+                                View <a href="{{ your_url }}{{ user_id }}">your</a> requests
                             {% endblocktrans %} ({{ user.user_trip_requests.count }}).
                             <br><br>
                         {% endwith %}
@@ -39,7 +39,7 @@
 
 
                     {% blocktrans %}
-                        <a href="{{ event_list_url }}">List</a> all trips.
+                        <a href="{{ event_list_url }}">List</a> all requests.
                     {% endblocktrans %}
                     <br>
                     <br>

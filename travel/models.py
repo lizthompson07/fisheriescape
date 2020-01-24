@@ -142,9 +142,9 @@ class Conference(models.Model):
         # create a list of all TMS users going
         legit_traveller_list = self.traveller_list
         travellers = []
-        for trip in self.trips.filter(~Q(status_id=10)):
+        for trip_request in self.trip_requests.filter(~Q(status_id=10)):
             # lets look at the list of BTA travels and add them all
-            for bta_user in trip.bta_attendees.all():
+            for bta_user in trip_request.bta_attendees.all():
                 # if this user for some reason turns up to be a real traveller on this trip
                 # (i.e. the assertion that they are a BTA traveller is wrong, they should not be added)
                 if bta_user not in legit_traveller_list:
@@ -159,7 +159,7 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip_request.user for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_trip=False) if trip_request.user]
+        my_list = [trip_request.user for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if trip_request.user]
         # now those without names...
         my_list.extend(["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
                         self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if not trip_request.user])
@@ -204,10 +204,10 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip_request.total_trip_cost for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
+        my_list = [trip_request.total_request_cost for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
-            [trip_request.total_trip_cost for trip_request in TripRequest.objects.filter(parent_request__conference=self).filter(~Q(status_id=10))])
+            [trip_request.total_request_cost for trip_request in TripRequest.objects.filter(parent_request__conference=self).filter(~Q(status_id=10))])
 
         return sum(my_list)
 
@@ -273,7 +273,7 @@ class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trip_requests")
     is_group_request = models.BooleanField(default=False,
-                                        verbose_name=_("Is this a group trip request(i.e., is this a request for multiple individuals)?"))
+                                        verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     conference = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, blank=True, null=True,
