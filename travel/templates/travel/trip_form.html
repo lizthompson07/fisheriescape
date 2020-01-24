@@ -9,13 +9,21 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:conf_list' %}">Conferences & Meetings</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">
+                {% trans "Trips" %}
+            </a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                {% trans "Edit" %}
+                </li>
             {% else %}
-                <li class="breadcrumb-item active" aria-current="page">New</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                {% trans "New" %}
+                </li>
             {% endif %}
         </ol>
     </nav>
@@ -26,7 +34,7 @@
             {% if object %}
                 {{ object }}
             {% else %}
-                New Conference / Meeting
+                New Trip
             {% endif %}
         </h1>
 
@@ -85,23 +93,13 @@
         }
 
         
-        function refreshConference() {
-            if($("#id_is_conference").val() == "False") {
-               $("#id_conference").val("");
-               $("#id_conference").prop("disabled",true);
-            } else {
-               $("#id_conference").prop("disabled",false);
-            }
-        }
+
 
 
         $("#id_user").change(function () {
             refreshUserInfo();
         });
 
-        $("#id_event").change(function () {
-            refreshConference();
-        });
 
         $("#id_section").change(function () {
             mySectionId = $(this).val();
@@ -115,7 +113,6 @@
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
             refreshUserInfo();
-            refreshConference();
         });
 
 
