@@ -53,8 +53,8 @@
             {% trans "Total travellers (excluding BTA)" %}
         </th>
         <td>
-            {% if trip.is_group_trip %}
-                {{ trip.children_trips.count }}
+            {% if trip.is_group_request %}
+                {{ trip.children_requests.count }}
             {% else %}
                 1
             {% endif %}
@@ -194,7 +194,7 @@
 
 
 {#  GROUP TRAVELLERS  #}
-{% if trip.is_group_trip %}
+{% if trip.is_group_request %}
 
     <h3 class="neighbours">
         {% trans "Group Travellers Associated with Trip" %}
@@ -223,7 +223,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for child in trip.children_trips.all %}
+        {% for child in trip.children_requests.all %}
 
             <tr {% if not report_mode %}pop href="{% url 'travel:request_edit' child.id "pop" %}" {% endif %}
                 class="{% if child.total_cost == 0 %}bad{% endif %}">

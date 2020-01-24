@@ -292,7 +292,7 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
     def get_queryset(self):
         # return a list only of those awaiting ADM or RDG approval
         qs = models.TripRequest.objects.filter(
-            parent_trip_request__isnull=True,
+            parent_request__isnull=True,
         ).filter(status_id__in=[14, 15]).order_by("-submitted")
         return qs
 
@@ -556,7 +556,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
-        return {"user": self.request.user} if not my_object else {"parent_trip_request": my_object}
+        return {"user": self.request.user} if not my_object else {"parent_request": my_object}
 
     def form_valid(self, form):
         my_object = form.save()
@@ -611,7 +611,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
         return context
 
 
-class TripRequestRequestDeleteView(TravelAccessRequiredMixin, DeleteView):
+class TripRequestDeleteView(TravelAccessRequiredMixin, DeleteView):
     model = models.TripRequest
     success_message = 'The trip request was deleted successfully!'
 

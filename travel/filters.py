@@ -77,7 +77,7 @@ class TripRequestFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in User.objects.all().order_by("last_name", "first_name")
-                        if u.user_trips.count() > 0]
+                        if u.user_trip_requests.count() > 0]
         self.filters['user'] = django_filters.ChoiceFilter(field_name='user', lookup_expr='exact', choices=user_choices,
                                                            widget=forms.Select(attrs=chosen_js))
 
