@@ -54,7 +54,7 @@
                         <em>displaying all {{ filter.qs.count }} records</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'travel:trip_new' %}" class="btn btn-sm btn-primary">New Trip</a>
+                        <a href="{% url 'travel:request_new' %}" class="btn btn-sm btn-primary">New Trip</a>
                     </div>
                 </div>
 
@@ -79,7 +79,7 @@
                     </thead>
                     <tbody>
                     {% for object in filter.qs %}
-                        {% url 'travel:trip_detail' object.id as my_url %}
+                        {% url 'travel:request_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
 
 

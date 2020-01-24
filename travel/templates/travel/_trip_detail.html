@@ -93,7 +93,7 @@
                 <td>
                     <ul>
                         {% for obj in trip.conference.trips.all %}
-                            {% url 'travel:trip_detail' obj.id as my_url %}
+                            {% url 'travel:request_detail' obj.id as my_url %}
                             <li>
                                 <a href="{% if obj.id != trip.id %}{{ my_url }}{% endif %}">{{ obj }}</a> by {{ obj.user }}
                                 (STATUS: <span style="background-color: {{ trip.status.color }}">{{ obj.status }}</span>)
@@ -201,7 +201,7 @@
     </h3>
     {% if not report_mode %}
         <div class="neighbours">
-            <a href="#" pop-href="{% url 'travel:trip_new' trip.id %}" class="btn btn-sm btn-primary">Add Traveller</a>
+            <a href="#" pop-href="{% url 'travel:request_new' trip.id %}" class="btn btn-sm btn-primary">Add Traveller</a>
         </div>
     {% endif %}
     <br>
@@ -225,7 +225,7 @@
         <tbody>
         {% for child in trip.children_trips.all %}
 
-            <tr {% if not report_mode %}pop href="{% url 'travel:trip_edit' child.id "pop" %}" {% endif %}
+            <tr {% if not report_mode %}pop href="{% url 'travel:request_edit' child.id "pop" %}" {% endif %}
                 class="{% if child.total_cost == 0 %}bad{% endif %}">
 
                 {% for field in child_field_list %}
