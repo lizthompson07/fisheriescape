@@ -29,6 +29,7 @@
 
     <form method="post" class="form">
         <div class="container">
+            {% bootstrap_form_errors form %}
             {% csrf_token %}
             <div class="btn-group mb-3">
                 <button type="submit" class="btn btn-primary" onclick="refreshParent()">
@@ -43,6 +44,7 @@
                     {% trans "Close" %}
                 </a>
             </div>
+            <br>
 
             {% bootstrap_form_errors form %}
             {% for field in form %}
