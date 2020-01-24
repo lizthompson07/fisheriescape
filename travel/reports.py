@@ -7,7 +7,7 @@ from . import models
 import os
 
 
-def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
+def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
     target_file = "temp_export.xlsx"
@@ -28,14 +28,14 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
     #############################
 
     # get a project list for the year
-    if trip:
-        my_trip = models.Trip.objects.get(pk=trip)
-        if my_trip.is_group_trip:
+    if trip_request:
+        my_trip_request = models.TripRequest.objects.get(pk=trip_request)
+        if my_trip_request.is_group_request:
             is_group = True
-            trip_list = my_trip.children_trips.all()
+            trip_list = my_trip_request.children_requests.all()
         else:
             is_group = False
-            trip_list = models.Trip.objects.filter(pk=trip)
+            trip_request_list = models.TripRequest.objects.filter(pk=trip_request)
     else:
         is_group = False
         my_trip = None
@@ -68,36 +68,36 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip=None):
     ws.write_row(0, 0, header, header_format)
 
     i = 1
-    for trip in trip_list:
+    for trip_request in trip_request_list:
 
-        notes = "TRAVELLER COST BREAKDOWN: " + trip.cost_breakdown
+        notes = "TRAVELLER COST BREAKDOWN: " + trip_request.cost_breakdown
 
-        if my_trip.non_dfo_org:
-            notes += "\n\nORGANIZATIONS PAYING NON-DFO COSTS: " + my_trip.non_dfo_org
+        if my_trip_request.non_dfo_org:
+            notes += "\n\nORGANIZATIONS PAYING NON-DFO COSTS: " + my_trip_request.non_dfo_org
 
-        if my_trip.late_justification:
-            notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + my_trip.late_justification
+        if my_trip_request.late_justification:
+            notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + my_trip_request.late_justification
 
-        if my_trip.funding_source:
-            notes += "\n\nFUNDING SOURCE: {}".format(my_trip.funding_source)
+        if my_trip_request.funding_source:
+            notes += "\n\nFUNDING SOURCE: {}".format(my_trip_request.funding_source)
 
         my_role = "{} - {}".format(
-            nz(trip.role, "MISSING"),
-            nz(trip.role_of_participant, "No description provided")
+            nz(trip_request.role, "MISSING"),
+            nz(trip_request.role_of_participant, "No description provided")
         )
 
         data_row = [
-            "{}, {}".format(trip.last_name, trip.first_name),
-            str(trip.region) if trip.region else "n/a",
+            "{}, {}".format(trip_request.last_name, trip_request.first_name),
+            str(trip_request.region) if trip_request.region else "n/a",
             my_role,
-            str(my_trip.reason) if my_trip.reason else "n/a",
-            my_trip.conference.tname,
-            my_trip.destination,
-            my_trip.start_date.strftime("%d/%m/%Y"),
-            my_trip.end_date.strftime("%d/%m/%Y"),
-            trip.total_cost,
-            nz(trip.non_dfo_costs, 0),
-            my_trip.purpose_long_text,
+            str(my_trip_request.reason) if my_trip_request.reason else "n/a",
+            my_trip_request.conference.tname,
+            my_trip_request.destination,
+            my_trip_request.start_date.strftime("%d/%m/%Y"),
+            my_trip_request.end_date.strftime("%d/%m/%Y"),
+            trip_request.total_cost,
+            nz(trip_request.non_dfo_costs, 0),
+            my_trip_request.purpose_long_text,
             notes,
         ]
 
