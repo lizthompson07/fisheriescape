@@ -17,7 +17,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trips</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trip Requests</a></li>
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
@@ -36,7 +36,7 @@
                 {% endif %}
                 {{ object }}
             {% else %}
-                New Trip
+                New Request
             {% endif %}
         </h1>
 
@@ -107,7 +107,7 @@
                 <div class="show-me blue-font">
                     <p>
                         <em>
-                            {% trans "(One this form is submitted, you will be able to add group travellers to the trip. You will be automatically added as a traveller.)" %}
+                            {% trans "(One this form is submitted, you will be able to add group travellers to the request. You will be automatically added as a traveller.)" %}
                         </em>
                     </p>
                 </div>
@@ -152,10 +152,10 @@
             {% endfor %}
             <br>
             </div>
-            {# TRIP COSTS #}
+            {# REQUEST COSTS #}
             <div class="hide-me container-fluid">
                 <div class="mt-3 center-col">
-                    <h2>{% trans "Breakdown of Trip Costs" %}</h2>
+                    <h2>{% trans "Breakdown of Trip Request Costs" %}</h2>
                     <p>
                         {% blocktrans %}
                             Per diem rates for breakfast, lunch, supper and incidentals should follow the
@@ -166,7 +166,7 @@
                             and for all other travel please refer to
                             <a href="https://www.njc-cnm.gc.ca/directive/app_d.php?lang=en">Appendix D</a>.
                             <br>
-                            <span class="red-font">Please note that all expenses for this trip should be entered in Canadian dollars.</span>
+                            <span class="red-font">Please note that all expenses for this request should be entered in Canadian dollars.</span>
                         {% endblocktrans %}
                     </p>
                 </div>
@@ -311,8 +311,8 @@
             // update location and (maybe) dates
             myId = $(this).val();
             $("#id_destination").val(confObj[myId]["location"]);
-            $("#id_start_date").val(confObj[myId]["start_date"]);
-            $("#id_end_date").val(confObj[myId]["end_date"]);
+            $("#id_start_date").flatpickr().setDate(confObj[myId]["start_date"]);
+            $("#id_end_date").flatpickr().setDate(confObj[myId]["end_date"]);
             {#$("#id_email").val(userObj[myId]["email"]);#}
         });
 

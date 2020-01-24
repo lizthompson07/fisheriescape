@@ -17,13 +17,13 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Trips</li>
+            <li class="breadcrumb-item active" aria-current="page">Trip Requests</li>
         </ol>
     </nav>
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Trips </h1>
+        <h1 class="big-header">Trip Requests </h1>
 
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
@@ -54,7 +54,7 @@
                         <em>displaying all {{ filter.qs.count }} records</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'travel:request_new' %}" class="btn btn-sm btn-primary">New Trip</a>
+                        <a href="{% url 'travel:request_new' %}" class="btn btn-sm btn-primary">New Trip Request</a>
                     </div>
                 </div>
 

@@ -25,7 +25,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trips</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trip Requests</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -56,7 +56,7 @@
             <div class="btn-group">
                 {# SUBMIT BUTTON #}
                 {% if object.submitted and not is_admin and not is_owner %}
-                    <span data-toggle="tooltip" title="{% trans "Only application administrators and owners can un-submit a trip" %}">
+                    <span data-toggle="tooltip" title="{% trans "Only application administrators and owners can un-submit a request" %}">
                 {% endif %}
                 <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin and not is_owner %}disabled{% endif %}"
                    href="{% url 'travel:request_submit' object.id %}">
@@ -68,7 +68,7 @@
 
                 {# EDIT BUTTON #}
                 {% if object.submitted %}
-                    <span data-toggle="tooltip" title="{% trans "Only application administrators can modify a submitted trip" %}">
+                    <span data-toggle="tooltip" title="{% trans "Only application administrators can modify a submitted request" %}">
                 {% endif %}
                 <a class="btn btn-warning {% if object.submitted and not is_admin and not is_current_reviewer %}disabled{% endif %}"
                    href="{% url 'travel:request_edit' object.id %}">
@@ -80,7 +80,7 @@
 
                 {# DELETE BUTTON #}
                 {% if object.submitted %}
-                    <span data-toggle="tooltip" title="{% trans "Submitted trips cannot be deleted." %}">
+                    <span data-toggle="tooltip" title="{% trans "Submitted trip requests cannot be deleted." %}">
                 {% endif %}
                 <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:request_delete' object.id %}">
                 Delete
@@ -91,22 +91,22 @@
 
                 {# CLONE BUTTON #}
                 <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
-                    Clone This Trip
+                    Clone This Request
                 </a>
             </div>
         </div>
         <div class="neighbours">
             <div class="float-right btn-group">
-                <a class="btn btn-outline-dark " href="{% url 'travel:request_print' trip.id %}">
+                <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}">
                     Travel Plan&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
                 </a>
-                <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts' trip.id %}">
+                <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts' triprequest.id %}">
                     CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
                 </a>
             </div>
         </div>
         <br><br>
-        {% include "travel/_trip_detail.html" %}
+        {% include "travel/_trip_request_detail.html" %}
 
 
     </div>

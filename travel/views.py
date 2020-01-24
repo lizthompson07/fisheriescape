@@ -315,6 +315,7 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
 
 class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
     model = models.TripRequest
+    template_name = 'travel/trip_request_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -407,7 +408,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["child_field_list"] = request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
-        context["trip_request"] = my_object.trip_request
+        context["triprequest"] = my_object.trip_request
         context["report_mode"] = True
         if my_object.role_id in [5, 6, ]:
             context["admin"] = True
@@ -502,7 +503,7 @@ class TripRequestSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
         context["object"] = my_object
-        context["trip_request"] = my_object
+        context["triprequest"] = my_object
         context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
         context["child_field_list"] = request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
@@ -548,7 +549,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
 
     def get_template_names(self):
         my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
-        return 'travel/trip_request_form_popout.html' if my_object else 'travel/trip_request_request_form.html'
+        return 'travel/trip_request_form_popout.html' if my_object else 'travel/trip_request_form.html'
 
     def get_form_class(self):
         my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
@@ -754,7 +755,7 @@ def manage_reviewers(request, trip_request):
             )
 
         context = {}
-        context['trip_request'] = my_trip_request
+        context['triprequest'] = my_trip_request
         context['formset'] = formset
         context["my_object"] = models.Reviewer.objects.first()
         context["field_list"] = [
@@ -1082,7 +1083,7 @@ class FileCreateView(TravelAccessRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["editable"] = True
         trip_request = models.TripRequest.objects.get(pk=self.kwargs['trip_request'])
-        context["trip_request"] = trip_request
+        context["triprequest"] = trip_request
         return context
 
     def get_initial(self):
