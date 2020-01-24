@@ -56,15 +56,15 @@ class ReviewerSkipForm(forms.ModelForm):
         }
 
 
-class TripApprovalForm(forms.Form):
+class TripRequestApprovalForm(forms.Form):
     approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
 
-class TripForm(forms.ModelForm):
+class TripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
-        model = models.Trip
+        model = models.TripRequest
         exclude = [
             "total_cost",
             "fiscal_year",
@@ -177,7 +177,7 @@ class TripForm(forms.ModelForm):
 
 class AdminTripForm(forms.ModelForm):
     class Meta:
-        model = models.Trip
+        model = models.TripRequest
         fields = [
             # "adm_approval_status",
             # "rdg_approval_status",
@@ -195,9 +195,9 @@ class AdminTripForm(forms.ModelForm):
             self.fields.get("adm_approval_status").choices = status_choices
 
 
-class ChildTripForm(forms.ModelForm):
+class ChildTripRequestForm(forms.ModelForm):
     class Meta:
-        model = models.Trip
+        model = models.TripRequest
         fields = [
             'user',
             'first_name',

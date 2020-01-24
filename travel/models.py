@@ -357,7 +357,7 @@ class TripRequest(models.Model):
     submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
-    parent_trip = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
+    parent_trip = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_trips", blank=True, null=True)
 
     @property
     def request_title(self):
