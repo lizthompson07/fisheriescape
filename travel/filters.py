@@ -8,16 +8,6 @@ from django.db.models import Q
 from shared_models import models as shared_models
 from . import models
 
-# YES_NO_CHOICES = (
-#     (True, "Yes"),
-#     (False, "No"),
-# )
-#
-# class OrganizationFilter(django_filters.FilterSet):
-#     search_term = django_filters.CharFilter(field_name='search_term', label="Search organizations (name, abbreviation, etc...)",
-#                                             lookup_expr='icontains', widget=forms.TextInput())
-#     indigenous = django_filters.ChoiceFilter(field_name='grouping__is_indigenous', choices=YES_NO_CHOICES, label=_("Indigenous?"),)
-#
 chosen_js = {"class": "chosen-select-contains"}
 
 
@@ -42,6 +32,7 @@ def get_section_choices(all=False, full_name=True):
                                                               "name"
                                                           )]
 
+
 def get_division_choices(all=False):
     if all:
         division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices(all=True)])
@@ -57,6 +48,7 @@ def get_division_choices(all=False):
                 "name"
             )]
 
+
 def get_region_choices(all=False):
     if all:
         region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices(all=True)])
@@ -71,9 +63,10 @@ def get_region_choices(all=False):
                 "name",
             )]
 
-class TripFilter(django_filters.FilterSet):
+
+class TripRequestFilter(django_filters.FilterSet):
     class Meta:
-        model = models.Trip
+        model = models.TripRequest
         fields = {
             'fiscal_year': ['exact'],
             'conference': ['exact'],
@@ -129,7 +122,6 @@ class TripFilter(django_filters.FilterSet):
             print('no data in filter')
 
 
-
 class ConferenceFilter(django_filters.FilterSet):
     class Meta:
         model = models.Conference
@@ -145,9 +137,9 @@ class ConferenceFilter(django_filters.FilterSet):
                                                                   label=_("Fiscal year"))
 
 
-class TripApprovalFilter(django_filters.FilterSet):
+class TripRequestApprovalFilter(django_filters.FilterSet):
     class Meta:
-        model = models.Trip
+        model = models.TripRequest
         fields = {
             # 'waiting_on': ['exact'],
         }
