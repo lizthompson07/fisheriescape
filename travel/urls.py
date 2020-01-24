@@ -34,7 +34,7 @@ urlpatterns = [
 
     # REVIEWERS #
     #############
-    path('request/<int:request>/manage-reviewers/', views.manage_reviewers, name="manage_reviewers"),
+    path('request/<int:trip_request>/manage-reviewers/', views.manage_reviewers, name="manage_reviewers"),
     path('reviewer/<int:pk>/delete/', views.delete_reviewer, name="delete_reviewer"),
 
 
@@ -49,7 +49,7 @@ urlpatterns = [
 
     # FILES #
     #########
-    path('request/<int:request>/file/new/', views.FileCreateView.as_view(), name='file_new'),
+    path('request/<int:trip_request>/file/new/', views.FileCreateView.as_view(), name='file_new'),
     path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
