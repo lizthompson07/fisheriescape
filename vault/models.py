@@ -7,7 +7,7 @@ from shared_models import models as shared_models
 
 
 class Species(models.Model):
-    code = models.CharField(max_length=4, blank=True, null=True, verbose_name=_(""))
+    code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_(""))
     english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
@@ -131,6 +131,22 @@ class LifeStage(models.Model):
     class Meta:
         ordering = ['name', ]
 
+class HealthStatus(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
+
 
 class ObservationSighting(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_sightings", verbose_name=_(""))
@@ -141,10 +157,21 @@ class ObservationSighting(models.Model):
     verified = models.BooleanField(default=False, verbose_name=_(""))
     # known_individual = models.ForeignKey(Individual)
 
+class Metadata(models.Model):
+    field_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    field_value = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+
+
 class OriginalMediafile(models.Model):
     file_path = models.CharField(max_length=1000, blank=True, null=True)
     filename = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="original_mediafiles", verbose_name=_(""))
+    metadata = models.ForeignKey(Metadata, on_delete=models.DO_NOTHING, related_name="original_mediafiles", verbose_name=_(""))
+
+class FieldName(models.Model):
+    field_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    used_for = models.ManyToManyField(Instrument, verbose_name=_(""), blank=True)
+
 
 class MediafileSighting(models.Model):
     mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", verbose_name=_(""))
