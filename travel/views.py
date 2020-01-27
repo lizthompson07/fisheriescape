@@ -782,6 +782,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
 
 
 class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
+    template_name = 'travel/trip_form.html'
     model = models.Conference
     form_class = forms.TripForm
 
@@ -831,6 +832,7 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
 
 
 class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
+    template_name = 'travel/trip_confirm_delete.html'
     model = models.Conference
     success_url = reverse_lazy('travel:trip_list')
     success_message = 'The event was deleted successfully!'
