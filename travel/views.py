@@ -773,6 +773,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
 
 class TripDetailView(TravelAccessRequiredMixin, DetailView):
     model = models.Conference
+    template_name = 'travel/trip_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
