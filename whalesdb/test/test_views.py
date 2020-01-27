@@ -1,6 +1,7 @@
 from django.test import TestCase, tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
+from django.contrib.auth.models import User
 
 from whalesdb import views, models
 
@@ -155,17 +156,17 @@ class CreateTest(CommonTest):
         self.test_expected_template = 'whalesdb/_entry_form.html'
 
     # Users must be logged in to create new objects
-    def create_en(self):
+    # user not logged in, should get 302 redirect to login page.
+    def create_login_redirect_en(self):
         activate('en')
 
         response = self.client.get(self.test_url)
 
-        # user not logged in, should get 302 redirect to login page.
         self.assertEquals(302, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
 
-    # Users must be logged in to create new objects
-    def create_fr(self):
+    # user not logged in, should get 302 redirect to login page.
+    def create_login_redirect_fr(self):
         activate('fr')
 
         response = self.client.get(self.test_url)
@@ -195,47 +196,57 @@ class CreateTest(CommonTest):
         pass
 
 
-class TestCreateStation(CreateTest):
-    def setUp(self):
-        super().setUp()
-
-        self.test_url = reverse_lazy('whalesdb:create_stn')
-
-    # Users must be logged in to create new stations
-    @tag('create_stn', 'response', 'access')
-    def test_stn_create_en(self):
-        super().create_en()
-
-    # Users must be logged in to create new stations otherwise redirected
-    @tag('create_stn', 'response', 'access')
-    def test_stn_create_fr(self):
-        super().create_fr()
-
-    # Logged in users should receive a message that they require 'whalesdb_access' to access the template
-    @tag('create_stn', 'response', 'access')
-    def test_stn_create_logged_in_not_access(self):
-        super().create_logged_in_not_access()
-
-
 class TestCreateProject(CreateTest):
     def setUp(self):
         super().setUp()
 
         self.test_url = reverse_lazy('whalesdb:create_prj')
 
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
     # Users must be logged in to create new stations
     @tag('create_prj', 'response', 'access')
     def test_prj_create_en(self):
-        super().create_en()
+        super().create_login_redirect_en()
 
     # Users must be logged in to create new stations
     @tag('create_prj', 'response', 'access')
     def test_prj_create_fr(self):
-        super().create_fr()
+        super().create_logged_in_not_access()
+
+    # Logged in user should get to the _entry_form.html template
+    @tag('create_prj', 'response', 'access')
+    def test_prj_create_en(self):
+        super().create_logged_in_not_access()
+
+
+class TestCreateStation(CreateTest):
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:create_stn')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
+    # Users must be logged in to create new stations
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_login_redirect_en(self):
+        super().create_login_redirect_en()
+
+    # Users must be logged in to create new stations
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_login_redirect_fr(self):
+        super().create_login_redirect_fr()
+
+    # Logged in user should get to the _entry_form.html template
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_en(self):
+        super().create_logged_in_not_access()
 
 
 class TestDetailsStation(CommonTest):
-
     station_dic = None
 
     def createStn(self):
