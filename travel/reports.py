@@ -32,7 +32,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None):
         my_trip_request = models.TripRequest.objects.get(pk=trip_request)
         if my_trip_request.is_group_request:
             is_group = True
-            trip_list = my_trip_request.children_requests.all()
+            trip_request_list = my_trip_request.children_requests.all()
         else:
             is_group = False
             trip_request_list = models.TripRequest.objects.filter(pk=trip_request)
@@ -91,7 +91,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None):
             str(trip_request.region) if trip_request.region else "n/a",
             my_role,
             str(my_trip_request.reason) if my_trip_request.reason else "n/a",
-            my_trip_request.conference.tname,
+            my_trip_request.trip.tname,
             my_trip_request.destination,
             my_trip_request.start_date.strftime("%d/%m/%Y"),
             my_trip_request.end_date.strftime("%d/%m/%Y"),
