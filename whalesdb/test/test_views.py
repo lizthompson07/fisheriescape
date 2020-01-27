@@ -1,6 +1,7 @@
 from django.test import TestCase, tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
+from django.contrib.auth.models import User
 
 from whalesdb import views, models
 
@@ -70,7 +71,7 @@ class ListTest(CommonTest):
         self.test_expected_template = 'whalesdb/whale_filter.html'
 
     # Users doesn't have to be logged in to view a list
-    def test_list_en(self):
+    def list_en(self):
         activate('en')
 
         response = self.client.get(self.test_url)
@@ -79,7 +80,7 @@ class ListTest(CommonTest):
         self.assertTemplateUsed(self.test_expected_template)
 
     # Users doesn't have to be logged in to view a list
-    def test_list_fr(self):
+    def list_fr(self):
         activate('fr')
 
         response = self.client.get(self.test_url)
@@ -90,7 +91,7 @@ class ListTest(CommonTest):
     # List context should return:
     #   - a list of fields to display
     #   - a title to display in the html template
-    def test_list_context_fields(self):
+    def list_context_fields(self):
         activate('en')
 
         response = self.client.get(self.test_url)
@@ -106,6 +107,15 @@ class TestListStation(ListTest):
 
         self.test_url = reverse_lazy('whalesdb:list_stn')
 
+    def test_stn_list_en(self):
+        super().list_en()
+
+    def test_stn_list_fr(self):
+        super().list_fr()
+
+    def test_stn_list_context_fields(self):
+        super().list_context_fields()
+
 
 class TestListProject(ListTest):
 
@@ -114,30 +124,32 @@ class TestListProject(ListTest):
 
         self.test_url = reverse_lazy('whalesdb:list_prj')
 
+    def test_prj_list_en(self):
+        super().list_en()
 
-class TestCreateStation(CommonTest):
+    def test_prj_list_fr(self):
+        super().list_fr()
+
+    def test_prj_list_context_fields(self):
+        super().list_context_fields()
+
+
+class CreateTest(CommonTest):
+
     def setUp(self):
         super().setUp()
 
-        self.test_url = reverse_lazy('whalesdb:create_stn')
-
-        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_stn_form.html'
-
-    # Users must be logged in to create new stations
-    @tag('create_stn', 'response', 'access')
-    def test_create_stn_en(self):
+    # user not logged in, should get 302 redirect to login page.
+    def create_login_redirect_en(self):
         activate('en')
 
         response = self.client.get(self.test_url)
 
-        # user not logged in, should get 302 redirect to login page.
         self.assertEquals(302, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
 
-    # Users must be logged in to create new stations
-    @tag('create_stn', 'response', 'access')
-    def test_create_stn_fr(self):
+    # user not logged in, should get 302 redirect to login page.
+    def create_login_redirect_fr(self):
         activate('fr')
 
         response = self.client.get(self.test_url)
@@ -146,9 +158,50 @@ class TestCreateStation(CommonTest):
         self.assertEquals(302, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
 
+    # user not logged in, should get 302 redirect to login page.
+    def create_en(self, user, password):
+        activate('en')
+
+        # log the user in
+        self.client.login(username=user.username, password=password)
+
+        response = self.client.get(self.test_url)
+
+        self.assertEquals(200, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
+
+
+class TestCreateStation(CreateTest):
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:create_stn')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
+    # Users must be logged in to create new stations
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_login_redirect_en(self):
+        super().create_login_redirect_en()
+
+    # Users must be logged in to create new stations
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_login_redirect_fr(self):
+        super().create_login_redirect_fr()
+
+    # Logged in user should get to the _entry_form.html template
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_en(self):
+        password = 'pass1234'
+        user = User.objects.create_user(username="upsonp1", first_name="Patrick", last_name="Upson",
+                                        email="Patrick.Upson@dfo-mpo.gc.ca", password=password)
+        user.save()
+
+        super().create_en(user, password)
+
 
 class TestDetailsStation(CommonTest):
-
     station_dic = None
 
     def createStn(self):
