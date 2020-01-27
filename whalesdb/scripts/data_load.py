@@ -4,7 +4,7 @@ import os
 
 
 def load_prj(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.PrjProject
     print("file: " + file_path)
 
@@ -26,7 +26,7 @@ def load_prj(file_name):
 
 
 def load_rtt(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.RttTimezoneCode
     print("file: " + file_path)
 
@@ -46,7 +46,7 @@ def load_rtt(file_name):
 
 
 def load_set(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.SetStationEventCode
     print("file: " + file_path)
 
@@ -64,7 +64,7 @@ def load_set(file_name):
 
 
 def load_stn(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.StnStation
     print("file: " + file_path)
 
@@ -94,7 +94,7 @@ def load_stn(file_name):
 
 
 def load_tea(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.TeaTeamMember
     print("file: " + file_path)
 
@@ -113,7 +113,7 @@ def load_tea(file_name):
 
 
 def load_eqt(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.EqtEquipmentTypeCode
     print("file: " + file_path)
 
@@ -130,7 +130,7 @@ def load_eqt(file_name):
 
 
 def load_eqa(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.EqaAdcBitsCode
     print("file: " + file_path)
 
@@ -147,7 +147,7 @@ def load_eqa(file_name):
 
 
 def load_ret(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.RetRecordingEventType
     print("file: " + file_path)
 
@@ -164,7 +164,7 @@ def load_ret(file_name):
 
 
 def load_ret(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.EqoOwner
     print("file: " + file_path)
 
@@ -181,7 +181,7 @@ def load_ret(file_name):
 
 
 def load_prm(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.PrmParameterCode
     print("file: " + file_path)
 
@@ -199,7 +199,7 @@ def load_prm(file_name):
 
 
 def load_emm(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.EmmMakeModel
     print("file: " + file_path)
 
@@ -257,7 +257,7 @@ def load_emm(file_name):
 
 
 def load_ecp(file_name):
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "\\data\\" + file_name
+    file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
     model = models.EcpChannelProperty
     print("file: " + file_path)
 

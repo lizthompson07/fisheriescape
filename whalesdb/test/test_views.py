@@ -4,6 +4,8 @@ from django.utils.translation import activate
 
 from whalesdb import views, models
 
+from django.contrib.auth.models import User
+
 
 class CommonTest(TestCase):
     test_url = None
@@ -70,7 +72,7 @@ class ListTest(CommonTest):
         self.test_expected_template = 'whalesdb/whale_filter.html'
 
     # Users doesn't have to be logged in to view a list
-    def test_list_en(self):
+    def list_en(self):
         activate('en')
 
         response = self.client.get(self.test_url)
@@ -79,7 +81,7 @@ class ListTest(CommonTest):
         self.assertTemplateUsed(self.test_expected_template)
 
     # Users doesn't have to be logged in to view a list
-    def test_list_fr(self):
+    def list_fr(self):
         activate('fr')
 
         response = self.client.get(self.test_url)
@@ -90,7 +92,7 @@ class ListTest(CommonTest):
     # List context should return:
     #   - a list of fields to display
     #   - a title to display in the html template
-    def test_list_context_fields(self):
+    def list_context_fields(self):
         activate('en')
 
         response = self.client.get(self.test_url)
@@ -106,6 +108,21 @@ class TestListStation(ListTest):
 
         self.test_url = reverse_lazy('whalesdb:list_stn')
 
+    # User should be able to view lists without login required
+    @tag('stn_list', 'response', 'access')
+    def test_stn_list_en(self):
+        super().list_en()
+
+    # User should be able to view lists without login required
+    @tag('stn_list', 'response', 'access')
+    def test_stn_list_fr(self):
+        super().list_fr()
+
+    # make sure project list context returns expected context objects
+    @tag('stn_list', 'response', 'context')
+    def test_stn_list_context_fields(self):
+        super().list_context_fields()
+
 
 class TestListProject(ListTest):
 
@@ -114,19 +131,31 @@ class TestListProject(ListTest):
 
         self.test_url = reverse_lazy('whalesdb:list_prj')
 
+    # User should be able to view lists without login required
+    @tag('prj_list', 'response', 'access')
+    def test_prj_list_en(self):
+        super().list_en()
 
-class TestCreateStation(CommonTest):
+    # User should be able to view lists without login required
+    @tag('prj_list', 'response', 'access')
+    def test_prj_list_fr(self):
+        super().list_fr()
+
+    # make sure project list context returns expected context objects
+    @tag('prj_list', 'response', 'context')
+    def test_prj_list_context_fields(self):
+        super().list_context_fields()
+
+
+class CreateTest(CommonTest):
     def setUp(self):
         super().setUp()
 
-        self.test_url = reverse_lazy('whalesdb:create_stn')
+        # CreateViews intended to be used from a views.ListCommon should use the _entry_form.html template
+        self.test_expected_template = 'whalesdb/_entry_form.html'
 
-        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_stn_form.html'
-
-    # Users must be logged in to create new stations
-    @tag('create_stn', 'response', 'access')
-    def test_create_stn_en(self):
+    # Users must be logged in to create new objects
+    def create_en(self):
         activate('en')
 
         response = self.client.get(self.test_url)
@@ -135,9 +164,8 @@ class TestCreateStation(CommonTest):
         self.assertEquals(302, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
 
-    # Users must be logged in to create new stations
-    @tag('create_stn', 'response', 'access')
-    def test_create_stn_fr(self):
+    # Users must be logged in to create new objects
+    def create_fr(self):
         activate('fr')
 
         response = self.client.get(self.test_url)
@@ -145,6 +173,65 @@ class TestCreateStation(CommonTest):
         # user not logged in, should get 302 redirect to login page.
         self.assertEquals(302, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
+
+    # If a user is logged in and not 'whalesdb_access' they should not be redirected
+    def create_logged_in_not_access(self):
+        activate('en')
+
+        test_password = "test1234"
+        regular_user = User.objects.create_user(username="Regular", first_name="Joe", last_name="Average",
+                                                     email="Average.Joe@dfo-mpo.gc.ca", password=test_password)
+        regular_user.save()
+
+        self.client.login(username=regular_user.username, password=test_password)
+
+        self.assertEqual(int(self.client.session['_auth_user_id']), regular_user.pk)
+
+        response = self.client.get(self.test_url)
+        self.assertEquals(200, response.status_code)
+
+    # If a user is logged in and has 'whalesdb_access' they should not be redirected
+    def create_logged_in_has_access(self):
+        pass
+
+
+class TestCreateStation(CreateTest):
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:create_stn')
+
+    # Users must be logged in to create new stations
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_en(self):
+        super().create_en()
+
+    # Users must be logged in to create new stations otherwise redirected
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_fr(self):
+        super().create_fr()
+
+    # Logged in users should receive a message that they require 'whalesdb_access' to access the template
+    @tag('create_stn', 'response', 'access')
+    def test_stn_create_logged_in_not_access(self):
+        super().create_logged_in_not_access()
+
+
+class TestCreateProject(CreateTest):
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:create_prj')
+
+    # Users must be logged in to create new stations
+    @tag('create_prj', 'response', 'access')
+    def test_prj_create_en(self):
+        super().create_en()
+
+    # Users must be logged in to create new stations
+    @tag('create_prj', 'response', 'access')
+    def test_prj_create_fr(self):
+        super().create_fr()
 
 
 class TestDetailsStation(CommonTest):
