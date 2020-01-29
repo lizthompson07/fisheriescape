@@ -30,7 +30,12 @@ class IndexView(TemplateView):
                     {
                         'title': _("Project List"),
                         'url': "whalesdb:list_prj",
-                        'icon': "img/whales/station.svg",
+                        'icon': "img/whales/project.svg",
+                    },
+                    {
+                        'title': _("Mooring Setup List"),
+                        'url': "whalesdb:list_mor",
+                        'icon': "img/whales/mooring.svg",
                     },
                 ]
            },
@@ -55,14 +60,21 @@ class CreatePrj(CreateCommon):
     model = models.PrjProject
     form_class = forms.PrjForm
 
-    template_name = 'whalesdb/_stn_form.html'
+    template_name = 'whalesdb/_entry_form.html'
 
 
 class CreateStn(CreateCommon):
     model = models.StnStation
     form_class = forms.StnForm
 
-    template_name = 'whalesdb/_stn_form.html'
+    template_name = 'whalesdb/_entry_form.html'
+
+
+class CreateMor(CreateCommon):
+    model = models.MorMooringSetup
+    form_class = forms.MorForm
+
+    template_name = 'whalesdb/_entry_form.html'
 
 
 class DetailsPrj(DetailView):
@@ -71,6 +83,10 @@ class DetailsPrj(DetailView):
 
 class DetailsStn(DetailView):
     model = models.StnStation
+
+
+class DetailsMor(DetailView):
+    model = models.MorMooringSetup
 
 
 class ListCommon(FilterView):
@@ -99,3 +115,10 @@ class ListStn(ListCommon):
     filterset_class = filters.StnFilter
     fields = ['stn_name', 'stn_code', 'stn_revision']
     title = _("Station List")
+
+
+class ListMor(ListCommon):
+    model = models.MorMooringSetup
+    filterset_class = filters.MorFilter
+    fields = ['mor_name', 'mor_max_depth', 'more_notes']
+    title = _("Mooring Setup List")
