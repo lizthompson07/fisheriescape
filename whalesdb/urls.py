@@ -14,4 +14,8 @@ urlpatterns = [
     path('create/prj', views.CreatePrj.as_view(), name="create_prj"),
     path('details/<int:pk>/prj', views.DetailsPrj.as_view(), name="details_prj"),
     path('list/prj/', views.ListPrj.as_view(), name="list_prj"),
+
+    path('create/mor', views.CreateMor.as_view(), name="create_mor"),
+    path('details/<int:pk>/mor', views.DetailsMor.as_view(), name="details_mor"),
+    path('list/mor/', views.ListMor.as_view(), name="list_mor"),
 ]
