@@ -32,7 +32,11 @@
 
         <h1>{{ object }}</h1>
 
-
+        <div class="float-right">
+             <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_trip' trip.id %}">
+                    CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+                </a>
+        </div>
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id %}">
                 {% trans "Edit" %}
