@@ -24,8 +24,12 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trip Requests</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
+                {% trans "Trip Requests" %}
+            </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -34,11 +38,11 @@
 
         <h1>{{ object }}</h1>
         {% if is_current_reviewer and object.submitted %}
-            <h3 class="red-font">You are able to edit this record because you are
+            <h3 class="red-font">{% trans "You are able to edit this record because you are " %}
                 {% if is_admin %}
-                    an application administrator.
+                    {% trans "an application administrator." %}
                 {% else %}
-                    the current reviewer.
+                    {% trans "the current reviewer." %}
                 {% endif %}
             </h3>
         {% endif %}
@@ -60,7 +64,13 @@
                 {% endif %}
                 <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin and not is_owner %}disabled{% endif %}"
                    href="{% url 'travel:request_submit' object.id %}">
-                {% if object.submitted %}Un-submit {% else %} {% if object.status.id == 16 %} Re-submit {% else %} Submit {% endif %} {% endif %}
+                {% if object.submitted %}
+                    {% trans "Un-submit" %}
+                 {% else %} {% if object.status.id == 16 %}
+                    {% trans "Re-submit" %}
+                 {% else %}
+                    {% trans "Submit" %}
+                  {% endif %} {% endif %}
             </a>
                 {% if object.submitted and not is_admin and not is_owner %}
                     </span>
@@ -91,17 +101,17 @@
 
                 {# CLONE BUTTON #}
                 <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
-                    Clone This Request
+                    {% trans "Clone This Request" %}
                 </a>
             </div>
         </div>
         <div class="neighbours">
-            <div class="float-right btn-group">
+            <div class="float-right ">
                 <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}">
-                    Travel Plan&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                    {% trans "Travel Plan" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
                 </a>
-                <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts' triprequest.id %}">
-                    CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+                <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_request' triprequest.id %}">
+                    {% trans "CFTS Report for this Request" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
                 </a>
             </div>
         </div>

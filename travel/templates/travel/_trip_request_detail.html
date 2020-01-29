@@ -66,17 +66,19 @@
 
 {#  TRIP DETAIL  #}
 {% if triprequest.trip %}
+    <div class="float-right mb-3">
+        <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:export_cfts_trip' triprequest.trip.id %}">
+            {% trans "CFTS Report for Trip" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+        </a>
+    </div>
+
     <h3>
         {% trans "Trip Detail" %}
     </h3>
     {% if not triprequest.trip %}
         <em class="red-font blink-me">{% trans "It was indicated above that this trip request is a conference/meeting however no conference or meeting was selected." %}</em>
     {% else %}
-        <div class="float-right">
-            {#            <a class="btn btn-success under-dev" href="#" target="_blank">#}
-            {#                CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">#}
-            {#            </a>#}
-        </div>
+
 
         <table class="table table-sm table-striped">
             {% for field in conf_field_list %}
@@ -269,7 +271,8 @@
             {% if object.submitted %}
                 <span data-toggle="tooltip" title="{% trans "You cannot reset the reviewers while a request is submitted." %}">
             {% endif %}
-            <a href="{% url 'travel:reset_reviewers' triprequest.id %}" class="btn btn-sm btn-warning {% if object.submitted %}disabled{% endif %}"
+            <a href="{% url 'travel:reset_reviewers' triprequest.id %}"
+               class="btn btn-sm btn-warning {% if object.submitted %}disabled{% endif %}"
                id="reset-btn">Reset</a>
             {% if object.submitted %}
                 </span>
