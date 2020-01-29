@@ -192,6 +192,8 @@ conf_field_list = [
     'registration_deadline',
     'is_adm_approval_required',
     'notes',
+    'non_res_total_cost|{}'.format("Non-research scientist total cost (from all connected requests, excluding BTA travel)"),
+
     'total_cost|{}'.format("Total cost (from all connected requests, excluding BTA travel)"),
 ]
 
@@ -778,6 +780,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["conf_field_list"] = conf_field_list
+        context["trip"] = self.get_object()
         return context
 
 

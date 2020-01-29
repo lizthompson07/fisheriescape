@@ -212,6 +212,22 @@ class Conference(models.Model):
         return sum(my_list)
 
     @property
+    def non_res_total_cost(self):
+        # from travel.models import Event
+        # must factor in group and non-group...
+
+        # start simple... non-group
+        my_list = [trip_request.total_request_cost for trip_request in
+                   self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False, is_research_scientist=False)]
+        # group travellers
+        my_list.extend(
+            [trip_request.total_request_cost for trip_request in
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)).filter(is_research_scientist=False)])
+
+        return sum(my_list)
+
+
+    @property
     def tname(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):

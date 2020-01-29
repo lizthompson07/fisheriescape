@@ -86,8 +86,12 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None):
             nz(trip_request.role_of_participant, "No description provided")
         )
 
+        my_name = "{}, {}".format(trip_request.last_name, trip_request.first_name)
+        if trip_request.is_research_scientist:
+            my_name += " (RES)"
+
         data_row = [
-            "{}, {}".format(trip_request.last_name, trip_request.first_name),
+            my_name,
             str(trip_request.region) if trip_request.region else "n/a",
             my_role,
             str(my_trip_request.reason) if my_trip_request.reason else "n/a",
