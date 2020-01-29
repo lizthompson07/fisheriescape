@@ -138,8 +138,6 @@ request_group_field_list = [
     'user',
     'section',
     'destination',
-    'start_date',
-    'end_date',
     'purpose',
     'reason',
     'trip',
@@ -895,9 +893,9 @@ def export_cfts_list(request, fy):
     raise Http404
 
 
-def export_request_cfts(request, pk):
-    file_url = reports.generate_cfts_spreadsheet(trip_request=pk)
-
+def export_request_cfts(request, trip=None, trip_request=None):
+    print(trip)
+    file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")

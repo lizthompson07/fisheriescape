@@ -241,6 +241,18 @@ class Conference(models.Model):
         self.fiscal_year = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
         super().save(*args, **kwargs)
 
+    def get_connected_requests(self):
+        """
+        gets a qs of all connected trip request, excluding any parent requests (for group travel only)
+        """
+        # from travel.models import Event
+        # must factor in group and non-group...
+
+        my_id_list = [trip_request.id for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
+        # group requests
+        my_id_list.extend([trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10))])
+        return TripRequest.objects.filter(id__in=my_id_list)
+
     @property
     def get_summary_dict(self):
         """
