@@ -82,6 +82,11 @@ class Outing(models.Model):
     def __str__(self):
         return self.identifier_string
 
+
+class Metadata(models.Model):
+    field_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    field_value = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+
 class Observation(models.Model):
     outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""))
     instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""))
@@ -89,10 +94,8 @@ class Observation(models.Model):
     longitude = models.FloatField(null=True, blank=True, verbose_name=_(""))
     latitude = models.FloatField(null=True, blank=True, verbose_name=_(""))
     observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""), null=True, blank=True)
-    beaufort = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    glare_left = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    glare_right = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    cloud_percent = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    metadata = models.ForeignKey(Metadata, on_delete=models.DO_NOTHING, related_name="sightings",
+                                 verbose_name=_(""))
 
 class Certainty(models.Model):
     code = models.IntegerField(blank=True, null=True, verbose_name=_(""))
@@ -147,20 +150,16 @@ class HealthStatus(models.Model):
     class Meta:
         ordering = ['name', ]
 
-
 class ObservationSighting(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_sightings", verbose_name=_(""))
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
     certainty = models.ForeignKey(Certainty, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
     life_stage = models.ForeignKey(LifeStage, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
+    health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="observation_sightings",
+                                   null=True, blank=True)
     verified = models.BooleanField(default=False, verbose_name=_(""))
     # known_individual = models.ForeignKey(Individual)
-
-class Metadata(models.Model):
-    field_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    field_value = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-
 
 class OriginalMediafile(models.Model):
     file_path = models.CharField(max_length=1000, blank=True, null=True)
@@ -179,6 +178,8 @@ class MediafileSighting(models.Model):
     certainty = models.ForeignKey(Certainty, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
     life_stage = models.ForeignKey(LifeStage, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
+    health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="mediafile_sightings",
+                                      null=True, blank=True)
     verified = models.BooleanField(default=False, verbose_name=_(""))
     # known_individual = models.ForeignKey(Individual)
 
