@@ -275,19 +275,6 @@
         }
 
 
-        function refreshConference() {
-            if ($("#id_reason").val() != "2") {
-//                $("#id_role").val("").prop("disabled", true);
-                //              $("#id_role_of_participant").val("").prop("disabled", true);
-                //            $(".conference_container").addClass("gone");
-            } else {
-                //          $("#id_role").prop("disabled", false);
-                //        $("#id_role_of_participant").prop("disabled", false);
-                //      $(".conference_container").removeClass("gone");
-            }
-        }
-
-
         function refreshClassHideMe() {
             if ($("#id_is_group_request").val() == "False") {
                 $(".hide-me").removeClass("gone");
@@ -303,9 +290,9 @@
             refreshUserInfo();
         });
 
-        $("#id_reason").change(function () {
-            refreshConference();
-        });
+        //$("#id_reason").change(function () {
+//            refreshConference();
+  //      });
 
         $("#id_trip").change(function () {
             // update location and (maybe) dates
@@ -323,7 +310,6 @@
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
             refreshUserInfo();
-            refreshConference();
             refreshClassHideMe();
             // do not make these fields required, otherwise we will not see the form errors if omitted
             $("#id_user").prop("required", false);
@@ -341,14 +327,6 @@
             $("#id_address").val($myBtn.text());
         });
 
-        {#$("#id_reason").change(function () {#}
-        {#    var myVal = $(this).val()#}
-        {#    // if the reason is for a meeting or conference, we already know the answer to the below question of `id_is_conference`#}
-        {#    if (myVal == '2' || myVal == '4') {#}
-        {#        $("#id_is_conference").val('True');#}
-        {#        refreshConference();#}
-        {#    }#}
-        {#});#}
 
     </script>
 {% endblock %}
