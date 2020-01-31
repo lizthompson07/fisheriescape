@@ -1045,6 +1045,79 @@ def manage_help_text(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def delete_cost_category(request, pk):
+    my_obj = models.CostCategory.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("travel:manage_cost_categories"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def manage_cost_categories(request):
+    qs = models.CostCategory.objects.all()
+    if request.method == 'POST':
+        formset = forms.CostCategoryFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("travel:manage_cost_categories"))
+    else:
+        formset = forms.CostCategoryFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'order',
+    ]
+    context['title'] = "Manage Cost Categories"
+    context['formset'] = formset
+    return render(request, 'travel/manage_settings_small.html', context)
+
+
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def delete_cost(request, pk):
+    my_obj = models.Cost.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("travel:manage_costs"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def manage_costs(request):
+    qs = models.Cost.objects.all()
+    if request.method == 'POST':
+        formset = forms.CostFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("travel:manage_costs"))
+    else:
+        formset = forms.CostFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'nom',
+        'cost_category',
+    ]
+    context['title'] = "Manage Costs"
+    context['formset'] = formset
+    return render(request, 'travel/manage_settings_small.html', context)
+
+
+
+
 # FILES #
 #########
 

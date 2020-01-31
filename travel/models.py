@@ -29,7 +29,7 @@ class CostCategory(models.Model):
     order = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        ordering = ['order', 'name']
+        ordering = ['order', 'id']
 
     def __str__(self):
         # check to see if a french value is given

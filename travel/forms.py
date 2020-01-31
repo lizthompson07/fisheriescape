@@ -424,3 +424,30 @@ HelpTextFormSet = modelformset_factory(
     form=HelpTextForm,
     extra=1,
 )
+
+
+
+class CostForm(forms.ModelForm):
+    class Meta:
+        model = models.Cost
+        fields = "__all__"
+
+
+CostFormSet = modelformset_factory(
+    model=models.Cost,
+    form=CostForm,
+    extra=1,
+)
+
+
+class CostCategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.CostCategory
+        fields = "__all__"
+
+
+CostCategoryFormSet = modelformset_factory(
+    model=models.CostCategory,
+    form=CostCategoryForm,
+    extra=1,
+)

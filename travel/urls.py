@@ -37,7 +37,6 @@ urlpatterns = [
     path('request/<int:trip_request>/manage-reviewers/', views.manage_reviewers, name="manage_reviewers"),
     path('reviewer/<int:pk>/delete/', views.delete_reviewer, name="delete_reviewer"),
 
-
     # TRIP #
     ########
     path('trips/', views.TripListView.as_view(), name="trip_list"),
@@ -62,12 +61,15 @@ urlpatterns = [
     path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),
     # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
 
-
     # SETTINGS #
     ############
     path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
     path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
     path('settings/help-text/', views.manage_help_text, name="manage_help_text"),
     path('settings/help-text/<int:pk>/delete/', views.delete_help_text, name="delete_help_text"),
+    path('settings/cost-categories/', views.manage_cost_categories, name="manage_cost_categories"),
+    path('settings/cost-category/<int:pk>/delete/', views.delete_cost_category, name="delete_cost_category"),
+    path('settings/costs/', views.manage_costs, name="manage_costs"),
+    path('settings/cost/<int:pk>/delete/', views.delete_cost, name="delete_cost"),
 
 ]
