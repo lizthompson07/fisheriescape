@@ -72,6 +72,10 @@
                                     {% url 'travel:delete_status' form.instance.id as my_delete_url %}
                                 {% elif "help" in title|lower %}
                                     {% url 'travel:delete_help_text' form.instance.id as my_delete_url %}
+                                {% elif "cost categories" in title|lower %}
+                                    {% url 'travel:delete_cost_category' form.instance.id as my_delete_url %}
+                                {% elif "costs" in title|lower %}
+                                    {% url 'travel:delete_cost' form.instance.id as my_delete_url %}
                                 {% endif %}
 
                                 <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
