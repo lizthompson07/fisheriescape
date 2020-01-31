@@ -23,6 +23,44 @@ YES_NO_CHOICES = (
 )
 
 
+class CostCategory(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    @property
+    def tname(self):
+        return str(self)
+
+
+class Cost(models.Model):
+    name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+    cost_category = models.ForeignKey(CostCategory, on_delete=models.DO_NOTHING, related_name="costs", verbose_name=_("category"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['cost_category', 'name']
+
+
 class Role(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
     nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
@@ -159,16 +197,20 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip_request.user for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if trip_request.user]
+        my_list = [trip_request.user for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if
+                   trip_request.user]
         # now those without names...
-        my_list.extend(["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-                        self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if not trip_request.user])
+        my_list.extend(
+            ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
+             self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if not trip_request.user])
 
         # group travellers
         my_list.extend(
-            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)) if trip_request.user])
-        my_list.extend(["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-                        TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)) if not trip_request.user])
+            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)) if
+             trip_request.user])
+        my_list.extend(
+            ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)) if not trip_request.user])
 
         return set(my_list)
 
@@ -204,10 +246,12 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip_request.total_request_cost for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
+        my_list = [trip_request.total_request_cost for trip_request in
+                   self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
-            [trip_request.total_request_cost for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10))])
+            [trip_request.total_request_cost for trip_request in
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10))])
 
         return sum(my_list)
 
@@ -225,7 +269,6 @@ class Conference(models.Model):
              TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)).filter(is_research_scientist=False)])
 
         return sum(my_list)
-
 
     @property
     def tname(self):
@@ -250,7 +293,8 @@ class Conference(models.Model):
 
         my_id_list = [trip_request.id for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
         # group requests
-        my_id_list.extend([trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10))])
+        my_id_list.extend(
+            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
     @property
@@ -301,7 +345,7 @@ class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trip_requests")
     is_group_request = models.BooleanField(default=False,
-                                        verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
+                                           verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
     purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"), related_name="trip_requests")
@@ -320,7 +364,8 @@ class TripRequest(models.Model):
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
                                                 verbose_name=_("Is the traveller a research scientist (RES)?"))
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"), related_name="trip_requests",
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"),
+                               related_name="trip_requests",
                                null=True, blank=True)
     # trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True,
@@ -603,6 +648,15 @@ class TripRequest(models.Model):
     @property
     def recommenders(self):
         return self.reviewers.filter(role_id=2)
+
+
+class TripRequestCost(models.Model):
+    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs",
+                                     verbose_name=_("trip request"))
+    cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
+    number_of_days = models.FloatField(default=0, verbose_name=_("days"))
+    rate_cad = models.FloatField(default=0, verbose_name=_("rate (CAD/day)"))
+    amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
 
 
 class ReviewerRole(models.Model):
