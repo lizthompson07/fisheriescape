@@ -651,12 +651,14 @@ class TripRequest(models.Model):
 
 
 class TripRequestCost(models.Model):
-    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs",
-                                     verbose_name=_("trip request"))
+    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs", verbose_name=_("trip request"))
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
-    number_of_days = models.FloatField(default=0, verbose_name=_("days"))
-    rate_cad = models.FloatField(default=0, verbose_name=_("rate (CAD/day)"))
+    number_of_days = models.FloatField(default=0, verbose_name=_("days"), blank=True, null=True)
+    rate_cad = models.FloatField(default=0, verbose_name=_("rate (CAD/day)"), blank=True, null=True)
     amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
+
+    class Meta:
+        unique_together = (("trip_request", "cost"),)
 
 
 class ReviewerRole(models.Model):
