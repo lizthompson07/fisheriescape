@@ -451,3 +451,26 @@ CostCategoryFormSet = modelformset_factory(
     form=CostCategoryForm,
     extra=1,
 )
+
+
+class NJCRatesForm(forms.ModelForm):
+    class Meta:
+        model = models.NJCRates
+        exclude = ['last_modified',]
+
+
+NJCRatesFormSet = modelformset_factory(
+    model=models.NJCRates,
+    form=NJCRatesForm,
+    extra=0,
+)
+
+
+
+class TripRequestCostForm(forms.ModelForm):
+    class Meta:
+        model = models.TripRequestCost
+        fields = "__all__"
+        widgets = {
+            'trip_request': forms.HiddenInput(),
+        }
