@@ -28,7 +28,7 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
             <a class="dropdown-item" href="{% url 'vault:species_list' %}">Species</a>
-            <a class="dropdown-item">Platforms</a>
+            <a class="dropdown-item">Observations platforms</a>
 			<a class="dropdown-item">Locate image(s)</a>
 
         </div>
@@ -42,25 +42,13 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
-            <a class="dropdown-item">Add an outing</a>
+			<a class="dropdown-item">Add an outing</a>
 			<a class="dropdown-item">RPAS ground-truthing</a>
 			<a class="dropdown-item">Belly cams ground-truthing</a>
 
         </div>
     </li>
 
-    {# Manage #}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-            Manage
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-			<a class="dropdown-item">NEAQ submission</a>
-
-        </div>
-    </li>
 
     {# Reports #}
     <li class="nav-item dropdown">
@@ -70,7 +58,23 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
-			<a class="dropdown-item">Summary of holdings</a>
+			<a class="dropdown-item">Summary of sightings</a>
+			<a class="dropdown-item">Summary of image holdings</a>
+
+        </div>
+    </li>
+
+
+    {# Manage #}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            Manage
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+			<a class="dropdown-item">Update database table(s)</a>
+			<a class="dropdown-item">NEAQ submission</a>
 
         </div>
     </li>
