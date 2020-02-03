@@ -17,43 +17,43 @@ from . import filters
 from . import reports
 
 
-# class CloserTemplateView(TemplateView):
-#     template_name = 'diets/close_me.html'
-#
-#
-# def in_diets_group(user):
-#     if user:
-#         return True
-#
-#
-# class DietsAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-#     login_url = '/accounts/login_required/'
-#
-#     def test_func(self):
-#         return in_diets_group(self.request.user)
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         user_test_result = self.get_test_func()()
-#         if not user_test_result and self.request.user.is_authenticated:
-#             return HttpResponseRedirect('/accounts/denied/')
-#         return super().dispatch(request, *args, **kwargs)
-#
-#
-# @login_required(login_url='/accounts/login_required/')
-# @user_passes_test(in_diets_group, login_url='/accounts/denied/')
+class CloserTemplateView(TemplateView):
+    template_name = 'vault/close_me.html'
+
+
+def in_vault_group(user):
+    if user:
+        return True
+
+
+class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_vault_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_vault_group, login_url='/accounts/denied/')
 def index(request):
-    return render(request, 'diets/index.html')
+    return render(request, 'vault/index.html')
 #
 #
 # # SPECIES #
 # ###########
 #
-# class SpeciesListView(DietsAccessRequired, FilterView):
-#     template_name = "diets/species_list.html"
-#     filterset_class = filters.SpeciesFilter
-#     queryset = models.Species.objects.annotate(
-#         search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'id', output_field=TextField()))
-#
+class SpeciesListView(VaultAccessRequired, FilterView):
+    template_name = "vault/species_list.html"
+    filterset_class = filters.SpeciesFilter
+    queryset = models.Species.objects.annotate(
+        search_term=Concat('english_name', 'french_name', 'latin_name', 'id', output_field=TextField()))
+
 #
 # class SpeciesDetailView(DietsAccessRequired, DetailView):
 #     model = models.Species
