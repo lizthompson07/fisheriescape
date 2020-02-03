@@ -52,23 +52,22 @@ class SpeciesListView(VaultAccessRequired, FilterView):
     template_name = "vault/species_list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
-        search_term=Concat('english_name', 'french_name', 'latin_name', 'id', output_field=TextField()))
+        search_term=Concat('code', 'english_name', 'french_name', 'latin_name', 'id', output_field=TextField()))
 
 #
-# class SpeciesDetailView(DietsAccessRequired, DetailView):
-#     model = models.Species
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'id',
-#             'common_name_eng',
-#             'common_name_fre',
-#             'scientific_name',
-#             'tsn',
-#             'aphia_id',
-#         ]
-#         return context
+class SpeciesDetailView(VaultAccessRequired, DetailView):
+    model = models.Species
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'english_name',
+            'french_name',
+            'latin_name',
+            'aphia_id',
+        ]
+        return context
 #
 #
 # class SpeciesUpdateView(DietsAccessRequired, UpdateView):
