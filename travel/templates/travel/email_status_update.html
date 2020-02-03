@@ -5,15 +5,15 @@
 <br><br>
 
 <p>
-    Your trip request has been  {{trip_object.status.name}}.
+    Your trip request has been  {{triprequest.status.name}}.
     <br><br>
-    You can click <a href="http://dmapps{% url 'travel:trip_detail' trip.id %}">HERE</a> to access the trip. Here are the trip details:
+    You can click <a href="http://dmapps{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access the request. Here are the details:
     <br><br>
 </p>
 
 <table>
     {% for field in field_list %}
-        {% verbose_td_display trip field %}
+        {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
 
@@ -22,17 +22,17 @@
 </p>
 
 <p>
-    {{ trip.user.first_name }},
+    {{ triprequest.user.first_name }},
     <br><br>
-    Votre demande de voyage a été {{trip_object.status.nom}}.
+    Votre demande de voyage a été {{triprequest.status.nom}}.
     <br><br>
-    Vous pouvez cliquer <a href="http://dmapps{% url 'travel:trip_detail' trip.id %}">ICI</a> pour accéder la voyage.
+    Vous pouvez cliquer <a href="http://dmapps{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la voyage.
     Voici les détails du voyage:
 </p>
 
 <table>
     {% for field in field_list %}
-        {% verbose_td_display trip field %}
+        {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
 
