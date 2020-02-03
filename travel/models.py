@@ -23,6 +23,19 @@ YES_NO_CHOICES = (
 )
 
 
+class NJCRates(models.Model):
+    name = models.CharField(max_length=255)
+    amount = models.FloatField()
+    last_modified = models.DateTimeField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.last_modified = timezone.now()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['id', ]
+
+
 class CostCategory(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
@@ -589,6 +602,13 @@ class TripRequest(models.Model):
             return self.total_cost
 
     @property
+    def travellers(self):
+        if self.is_group_request:
+            return [tr.user for tr in self.children_requests.all()]
+        else:
+            return self.user
+
+    @property
     def purpose_long(self):
         my_str = ""
         if self.role_of_participant:
@@ -651,14 +671,22 @@ class TripRequest(models.Model):
 
 
 class TripRequestCost(models.Model):
-    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs", verbose_name=_("trip request"))
+    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs",
+                                     verbose_name=_("trip request"))
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
-    number_of_days = models.FloatField(default=0, verbose_name=_("days"), blank=True, null=True)
-    rate_cad = models.FloatField(default=0, verbose_name=_("rate (CAD/day)"), blank=True, null=True)
+    rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)
+    number_of_days = models.FloatField(verbose_name=_("number of days"), blank=True, null=True)
     amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
 
     class Meta:
         unique_together = (("trip_request", "cost"),)
+
+
+    def save(self, *args, **kwargs):
+        if not self.amount_cad or self.amount_cad == 0:
+            self.amount_cad = self.rate_cad * self.number_of_days
+
+        super().save(*args, **kwargs)
 
 
 class ReviewerRole(models.Model):

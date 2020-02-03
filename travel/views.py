@@ -46,6 +46,30 @@ def is_approver(user, trip_request):
         return True
 
 
+def can_modify_request(user, trip_request_id):
+    """
+    returns True if user has permissions to delete or modify a request
+
+    The answer of this question will depend on whether the trip is submitted.
+    owners cannot edit a submitted trip
+    """
+    if user.id:
+        my_trip_request = models.TripRequest.objects.get(pk=trip_request_id)
+
+        # check to see if a travel_admin
+        if in_travel_admin_group(user):
+            return True
+
+        # check to see if they are the active reviewer
+        if my_trip_request.current_reviewer.user == user:
+            return True
+
+        # if the project is unsubmitted, the project lead is also able to edit the project... obviously
+        # check to see if they are either the owner OR a traveller
+        if not my_trip_request.submitted and (my_trip_request.user == user or user in my_trip_request.travellers):
+            return True
+
+
 class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
@@ -88,7 +112,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of requests where review is pending
         context["admin_number_waiting"] = models.Reviewer.objects.filter(
             status_id=1,
-            role_id__in=[5,6],
+            role_id__in=[5, 6],
         ).filter(
             ~Q(trip_request__status_id=16)
         ).count()  # number of requests where admin review is pending
@@ -127,7 +151,7 @@ request_field_list = [
     'late_justification',
     'bta_attendees',
     'notes',
-    'cost_table|{}'.format(_("DFO costs")),
+    # 'cost_table|{}'.format(_("DFO costs")),
     'non_dfo_costs',
     'non_dfo_org',
 ]
@@ -195,6 +219,13 @@ conf_field_list = [
     'total_cost|{}'.format("Total cost (from all connected requests, excluding BTA travel)"),
 ]
 
+cost_field_list = [
+    "cost",
+    "rate_cad",
+    "number_of_days",
+    "amount_cad",
+]
+
 
 def get_help_text_dict():
     my_dict = {}
@@ -237,7 +268,8 @@ class TripRequestReviewListView(TravelAccessRequiredMixin, ListView):
 
     def get_queryset(self):
         if self.kwargs.get("which_ones") == "awaiting":
-            qs = models.TripRequest.objects.filter(pk__in=[reviewer.trip_request.id for reviewer in self.request.user.reviewers.filter(status_id=1)])
+            qs = models.TripRequest.objects.filter(
+                pk__in=[reviewer.trip_request.id for reviewer in self.request.user.reviewers.filter(status_id=1)])
         else:
             qs = models.TripRequest.objects.filter(pk__in=[reviewer.trip_request.id for reviewer in self.request.user.reviewers.all()])
         return qs
@@ -300,6 +332,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
         context["child_field_list"] = my_request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
+        context["cost_field_list"] = cost_field_list
         context["fy"] = fiscal_year()
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
@@ -435,7 +468,6 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
             return HttpResponseRedirect(reverse("travel:index"))
 
 
-
 class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.Reviewer
     form_class = forms.ReviewerSkipForm
@@ -458,7 +490,8 @@ class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
         my_reviewer = form.save(commit=False)
         my_reviewer.status_id = 21
         my_reviewer.status_date = timezone.now()
-        my_reviewer.comments = "This step was manually overridden by {} with the following rationale: \n\n {}".format(self.request.user, my_reviewer.comments)
+        my_reviewer.comments = "This step was manually overridden by {} with the following rationale: \n\n {}".format(self.request.user,
+                                                                                                                      my_reviewer.comments)
 
         # now we save the reviewer for real
         my_reviewer.save()
@@ -1045,7 +1078,6 @@ def manage_help_text(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
-
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_cost_category(request, pk):
@@ -1078,8 +1110,6 @@ def manage_cost_categories(request):
     context['title'] = "Manage Cost Categories"
     context['formset'] = formset
     return render(request, 'travel/manage_settings_small.html', context)
-
-
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -1115,6 +1145,39 @@ def manage_costs(request):
     context['formset'] = formset
     return render(request, 'travel/manage_settings_small.html', context)
 
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def delete_njc_rate(request, pk):
+    my_obj = models.NJCRates.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("travel:manage_njc_rates"))
+
+
+@login_required(login_url='/accounts/login_required/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def manage_njc_rates(request):
+    qs = models.NJCRates.objects.all()
+    if request.method == 'POST':
+        formset = forms.NJCRatesFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("travel:manage_njc_rates"))
+    else:
+        formset = forms.NJCRatesFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'name',
+        'amount',
+    ]
+    context['title'] = "Manage NJC Rates"
+    context['formset'] = formset
+    return render(request, 'travel/manage_settings_small.html', context)
 
 
 
@@ -1175,3 +1238,107 @@ class FileDeleteView(TravelAccessRequiredMixin, DeleteView):
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("shared_models:close_me")
+
+
+# TRAVEL REQUEST COST #
+#######################
+
+
+class TRCostCreateView(LoginRequiredMixin, CreateView):
+    model = models.TripRequestCost
+    template_name = 'travel/tr_cost_form_popout.html'
+    form_class = forms.TripRequestCostForm
+
+    def get_initial(self):
+        my_trip_request = models.TripRequest.objects.get(pk=self.kwargs['trip_request'])
+        return {
+            'trip_request': my_trip_request,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_trip_request = models.TripRequest.objects.get(pk=self.kwargs['trip_request'])
+        context['triprequest'] = my_trip_request
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
+
+
+class TRCostUpdateView(LoginRequiredMixin, UpdateView):
+    model = models.TripRequestCost
+    template_name = 'travel/tr_cost_form_popout.html'
+    form_class = forms.TripRequestCostForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+def tr_cost_delete(request, pk):
+    object = models.TripRequestCost.objects.get(pk=pk)
+    if can_modify_request(request.user, object.trip_request.id):
+        object.delete()
+        messages.success(request, _("The cost has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect('/accounts/denied/')
+
+
+def tr_cost_clear(request, trip_request):
+    my_trip_request = models.TripRequest.objects.get(pk=trip_request)
+    if can_modify_request(request.user, my_trip_request.id):
+        for obj in models.Cost.objects.all():
+            for cost in models.TripRequestCost.objects.filter(trip_request=my_trip_request, cost=obj):
+                if (cost.amount_cad is None or cost.amount_cad == 0):
+                    cost.delete()
+        messages.success(request, _("All empty costs have been cleared."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect('/accounts/denied/')
+
+
+def tr_cost_populate(request, trip_request):
+    my_trip_request = models.TripRequest.objects.get(pk=trip_request)
+    if can_modify_request(request.user, my_trip_request.id):
+        for obj in models.Cost.objects.all():
+            new_item, created = models.TripRequestCost.objects.get_or_create(trip_request=my_trip_request, cost=obj)
+            if created:
+                # breakfast
+                if new_item.cost_id == 9:
+                    try:
+                        new_item.rate_cad = models.NJCRates.objects.get(pk=1).amount
+                        new_item.save()
+                    except models.NJCRates.DoesNotExist:
+                        messages.warning(request, _("NJC rates for breakfast missing from database. Please let your system administrator know.") )
+                # lunch
+                elif new_item.cost_id == 10:
+                    try:
+                        new_item.rate_cad = models.NJCRates.objects.get(pk=2).amount
+                        new_item.save()
+                    except models.NJCRates.DoesNotExist:
+                        messages.warning(request, _("NJC rates for lunch missing from database. Please let your system administrator know.") )
+                # supper
+                elif new_item.cost_id == 11:
+                    try:
+                        new_item.rate_cad = models.NJCRates.objects.get(pk=3).amount
+                        new_item.save()
+                    except models.NJCRates.DoesNotExist:
+                        messages.warning(request, _("NJC rates for supper missing from database. Please let your system administrator know.") )
+                # incidentals
+                elif new_item.cost_id == 12:
+                    try:
+                        new_item.rate_cad = models.NJCRates.objects.get(pk=4).amount
+                        new_item.save()
+                    except models.NJCRates.DoesNotExist:
+                        messages.warning(request, _("NJC rates for incidentals missing from database. Please let your system administrator know.") )
+
+        messages.success(request, _("All costs have been added to this project."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect('/accounts/denied/')

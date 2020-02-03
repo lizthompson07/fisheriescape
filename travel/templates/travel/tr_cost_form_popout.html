@@ -1,0 +1,97 @@
+{% extends 'pop_base.html' %}
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% block body %}
+
+
+    <div class="container">
+        <h3>
+            {% if object %}
+                {% blocktrans with ct=cost_type o=object.cost %}
+                    Editing {{ o }}
+                {% endblocktrans %}
+            {% else %}
+                {% blocktrans with ct=cost_type %}
+                    Adding New Cost
+                {% endblocktrans %}
+            {% endif %}
+        </h3>
+        <br>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <h3>Do you want to enter cost by rate or total amount?</h3>
+            </div>
+
+            <div class="mb-3">
+                <button class="btn btn-lg btn-primary" id="by_rate">By Rates</button>
+                <button class="btn btn-lg btn-primary" id="by_amount">By Total Amount</button>
+            </div>
+
+            <div id="fields">
+                {% for field in form %}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                {% endfor %}
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success" onclick="refreshParent()">
+                        {% trans "Save" %}
+                    </button>
+                    <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                        {% trans "Close" %}
+                    </a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+
+{% endblock %}
+
+{% block body_js %}
+    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
+    <script>
+        var $amountCAD = $("#id_amount_cad");
+        var $rates = $("#id_rates_cad");
+        var $days = $("#id_number_of_days");
+
+        window.resizeTo(width = 700, height = 500);
+
+        window.onunload = refreshParent;
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            $("#id_cost")[0].focus();
+            $("#fields").addClass("gone");
+            refreshAmountInput();
+        });
+
+        $days.keyup(function () {
+            refreshAmountInput();
+        });
+
+        $rates.keyup(function () {
+            refreshAmountInput();
+        });
+
+        function refreshAmountInput() {
+
+            if ($rates.val() != "" || Number($rates.val()) != 0 || $days.val() != "" || Number($days.val()) != 0) {
+                $amountCAD.prop("disabled", true)
+            } else {
+                $amountCAD.prop("disabled", false)
+
+            }
+
+
+        }
+
+    </script>
+{% endblock %}

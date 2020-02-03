@@ -71,5 +71,16 @@ urlpatterns = [
     path('settings/cost-category/<int:pk>/delete/', views.delete_cost_category, name="delete_cost_category"),
     path('settings/costs/', views.manage_costs, name="manage_costs"),
     path('settings/cost/<int:pk>/delete/', views.delete_cost, name="delete_cost"),
+    path('settings/njc-rates/', views.manage_njc_rates, name="manage_njc_rates"),
+    path('settings/njc-rate/<int:pk>/delete/', views.delete_njc_rate, name="delete_njc_rate"),
+
+    # TRIP REQUEST COST #
+    #####################
+    path('trip-request/<int:trip_request>/cost/new/', views.TRCostCreateView.as_view(), name="tr_cost_new"),
+    path('trip-request-cost/<int:pk>/edit/', views.TRCostUpdateView.as_view(), name="tr_cost_edit"),
+    path('trip-request-cost/<int:pk>/delete/', views.tr_cost_delete, name="tr_cost_delete"),
+
+    path('trip-request/<int:trip_request>/clear-empty-costs/', views.tr_cost_clear, name="tr_cost_clear"),
+    path('trip-request/<int:trip_request>/populate-all-costs/', views.tr_cost_populate, name="tr_cost_populate"),
 
 ]
