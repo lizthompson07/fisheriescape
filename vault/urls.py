@@ -8,7 +8,7 @@ urlpatterns = [
     ###########
     path('species_list/', views.SpeciesListView.as_view(), name="species_list"),
     # path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
-    # path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
+    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail")
     # path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
     # path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
     #

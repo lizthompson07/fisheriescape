@@ -27,7 +27,7 @@
             </thead>
             <tbody>
             {% for object in filter.qs %}
-                <tr href="{% url 'vault:species_list' object.id %}">
+                <tr href="{% url 'vault:species_detail' object.id %}">
                     <td>{{ object.id }}</td>
 					<td>{{ object.code }}</td>
                     <td>{{ object.english_name }}</td>
