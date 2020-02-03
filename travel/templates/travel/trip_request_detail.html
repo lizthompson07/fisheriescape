@@ -1,0 +1,115 @@
+{% extends "travel/travel_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% block header %}
+{% endblock %}
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+
+        table, td {
+            font-size: small;
+        }
+
+        .container {
+            max-width: 1300px;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trip Requests</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>{{ object }}</h1>
+        {% if is_current_reviewer and object.submitted %}
+            <h3 class="red-font">You are able to edit this record because you are
+                {% if is_admin %}
+                    an application administrator.
+                {% else %}
+                    the current reviewer.
+                {% endif %}
+            </h3>
+        {% endif %}
+
+        <div class="float-right">
+            {% if object.current_reviewer.user == user %}
+                <a href="{% url 'travel:review_approve' object.current_reviewer.id %}" class="btn btn-lg btn-outline-primary">
+                    {% trans "Back to Approver Panel" %}
+                </a>
+
+            {% endif %}
+        </div>
+
+        <div class="neighbours">
+            <div class="btn-group">
+                {# SUBMIT BUTTON #}
+                {% if object.submitted and not is_admin and not is_owner %}
+                    <span data-toggle="tooltip" title="{% trans "Only application administrators and owners can un-submit a request" %}">
+                {% endif %}
+                <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin and not is_owner %}disabled{% endif %}"
+                   href="{% url 'travel:request_submit' object.id %}">
+                {% if object.submitted %}Un-submit {% else %} {% if object.status.id == 16 %} Re-submit {% else %} Submit {% endif %} {% endif %}
+            </a>
+                {% if object.submitted and not is_admin and not is_owner %}
+                    </span>
+                {% endif %}
+
+                {# EDIT BUTTON #}
+                {% if object.submitted %}
+                    <span data-toggle="tooltip" title="{% trans "Only application administrators can modify a submitted request" %}">
+                {% endif %}
+                <a class="btn btn-warning {% if object.submitted and not is_admin and not is_current_reviewer %}disabled{% endif %}"
+                   href="{% url 'travel:request_edit' object.id %}">
+                Edit
+            </a>
+                {% if object.submitted %}
+                    </span>
+                {% endif %}
+
+                {# DELETE BUTTON #}
+                {% if object.submitted %}
+                    <span data-toggle="tooltip" title="{% trans "Submitted trip requests cannot be deleted." %}">
+                {% endif %}
+                <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:request_delete' object.id %}">
+                Delete
+            </a>
+                {% if object.submitted %}
+                    </span>
+                {% endif %}
+
+                {# CLONE BUTTON #}
+                <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
+                    Clone This Request
+                </a>
+            </div>
+        </div>
+        <div class="neighbours">
+            <div class="float-right btn-group">
+                <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}">
+                    Travel Plan&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                </a>
+                <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts' triprequest.id %}">
+                    CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+                </a>
+            </div>
+        </div>
+        <br><br>
+        {% include "travel/_trip_request_detail.html" %}
+
+
+    </div>
+
+
+{% endblock content %}
