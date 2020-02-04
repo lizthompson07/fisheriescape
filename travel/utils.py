@@ -1,7 +1,11 @@
 from django.conf import settings
+from django.contrib import messages
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.utils import timezone
+from django.utils.translation import gettext as _
+
+
 
 from . import models
 from . import emails
@@ -214,3 +218,41 @@ def approval_seeker(trip_request):
 
             # Then, lets set the trip_request status again to account for the fact that something happened
             set_request_status(trip_request)
+
+
+def populate_trip_request_costs(request, trip_request):
+    for obj in models.Cost.objects.all():
+        new_item, created = models.TripRequestCost.objects.get_or_create(trip_request=trip_request, cost=obj)
+        if created:
+            # breakfast
+            if new_item.cost_id == 9:
+                try:
+                    new_item.rate_cad = models.NJCRates.objects.get(pk=1).amount
+                    new_item.save()
+                except models.NJCRates.DoesNotExist:
+                    messages.warning(request,
+                                     _("NJC rates for breakfast missing from database. Please let your system administrator know."))
+            # lunch
+            elif new_item.cost_id == 10:
+                try:
+                    new_item.rate_cad = models.NJCRates.objects.get(pk=2).amount
+                    new_item.save()
+                except models.NJCRates.DoesNotExist:
+                    messages.warning(request, _("NJC rates for lunch missing from database. Please let your system administrator know."))
+            # supper
+            elif new_item.cost_id == 11:
+                try:
+                    new_item.rate_cad = models.NJCRates.objects.get(pk=3).amount
+                    new_item.save()
+                except models.NJCRates.DoesNotExist:
+                    messages.warning(request, _("NJC rates for supper missing from database. Please let your system administrator know."))
+            # incidentals
+            elif new_item.cost_id == 12:
+                try:
+                    new_item.rate_cad = models.NJCRates.objects.get(pk=4).amount
+                    new_item.save()
+                except models.NJCRates.DoesNotExist:
+                    messages.warning(request,
+                                     _("NJC rates for incidentals missing from database. Please let your system administrator know."))
+
+    messages.success(request, _("All costs have been added to this project."))
