@@ -73,8 +73,9 @@ prod.cnf
 # Ignore anything starting with "my_" as it's likely for local development
 my_*
 
-# Ignore all files dealing with enviornment variables
+# Ignore all files dealing with enviornment variables except the sample file
 .env*
+!.env_sample
 
 # Google API key #
 ##################
