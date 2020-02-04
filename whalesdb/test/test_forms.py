@@ -15,7 +15,7 @@ class TestMorForm(TestCase):
 
     @tag('mor_form', 'valid_data')
     def test_mor_valid_data(self):
-        form = forms.StnForm(data=self.valid_data)
+        form = forms.MorForm(data=self.valid_data)
         form.is_valid()
         self.assertFalse(form.errors)
 
@@ -40,10 +40,13 @@ class TestStnForm(TestCase):
 
 class TestPrjForm(TestCase):
     valid_data = {
-        }
+        "prj_name": 'PRJ_001',
+        "prj_description": "Some project description here",
+        "prj_url": "https//noneOfYourBusiness.com"
+    }
 
     @tag('prj_form', 'valid_data')
     def test_prj_valid_data(self):
-        form = forms.StnForm(data=self.valid_data)
+        form = forms.PrjForm(data=self.valid_data)
         form.is_valid()
         self.assertFalse(form.errors)
