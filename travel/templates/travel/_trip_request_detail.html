@@ -1,0 +1,51 @@
+{% load static %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+<style>
+
+
+    .plainjane table,
+    .plainjane td,
+    .plainjane tr,
+    .plainjane th,
+    .plainjane tr:hover,
+    .plainjane tbody td {
+        background-color: #f5efe6;
+        border: black solid 1px;
+    }
+
+    .my-hdr {
+        background-color: black;
+        background-font: white;
+
+    }
+</style>
+
+{% include "travel/_basic_detail.html" %}
+{% include "travel/_trip_detail.html" %}
+{% include "travel/_costs.html" %}
+{% include "travel/_group_travellers.html" %}
+{% include "travel/_reviewers.html" %}
+{% include "travel/_files.html" %}
+
+
+
+
+
+
+
+<script type="application/javascript">
+    $("#reset-btn").click(function (e) {
+        e.preventDefault();
+        var input = confirm("{% trans 'Are you sure you want to reset the reviewers? This will undo any changes that you have made to the reviewer list and process order.' %}");
+        if (input) {
+            window.location.href = $(this).attr("href")
+        }
+    });
+    $(".cost-breakdown-btn").click(function (e) {
+        console.log(123);
+        e.stopPropagation();
+    })
+</script>

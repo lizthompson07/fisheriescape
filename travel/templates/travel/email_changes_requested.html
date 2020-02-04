@@ -14,19 +14,19 @@
 <br><br>
 
 <p>
-    {{ trip.user.first_name }},
+    {{ triprequest.user.first_name }},
     <br><br>
-    The following changes are being requested from {{ trip.current_reviewer.user }}:
+    The following changes are being requested from {{ triprequest.current_reviewer.user }}:
     <br><br>
-    {{ trip.current_reviewer.comments }}
+    {{ triprequest.current_reviewer.comments }}
     <br><br>
-    Please address these changes and then re-submit your project to continue with the approval process.
-    You can click <a href="http://dmapps{% url 'travel:trip_detail' trip.id %}">HERE</a> to access the trip. Here are the trip details:
+    Please address these changes and then re-submit your request to continue with the approval process.
+    You can click <a href="http://dmapps{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access the request. Here are the request details:
 </p>
 
 <table>
     {% for field in field_list %}
-        {% verbose_td_display trip field %}
+        {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
 
@@ -35,20 +35,20 @@
 </p>
 
 <p>
-    {{ trip.user.first_name }},
+    {{ triprequest.user.first_name }},
     <br><br>
-    Les modifications suivantes sont demandées par {{ trip.current_reviewer.user }}:
+    Les modifications suivantes sont demandées par {{ triprequest.current_reviewer.user }}:
     <br><br>
-    {{ trip.current_reviewer.comments }}
+    {{ triprequest.current_reviewer.comments }}
     <br><br>
-    Veuillez adresser ces modifications, puis soumettez à nouveau votre projet pour poursuivre le processus d'approbation.
-    Vous pouvez cliquer <a href="http://dmapps{% url 'travel:trip_detail' trip.id %}">ICI</a> pour accéder la voyage.
+    Veuillez adresser ces modifications, puis soumettez à nouveau votre demande pour poursuivre le processus d'approbation.
+    Vous pouvez cliquer <a href="http://dmapps{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la demande.
     Voici les détails du voyage:
 </p>
 
 <table>
     {% for field in field_list %}
-        {% verbose_td_display trip field %}
+        {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
 
