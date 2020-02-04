@@ -196,6 +196,7 @@ class AdminTripRequestForm(forms.ModelForm):
 
 
 class ChildTripRequestForm(forms.ModelForm):
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     class Meta:
         model = models.TripRequest
         fields = [
@@ -269,7 +270,11 @@ class ChildTripRequestForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        parent_request = kwargs.get("initial").get("parent_request") if kwargs.get("initial") else None
+        try:
+            parent_request = kwargs.get("initial").get("parent_request")
+        except AttributeError:
+            parent_request = None
+
         print(parent_request)
         if not parent_request:
             parent_request = kwargs.get("instance").parent_request
