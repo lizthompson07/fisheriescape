@@ -594,7 +594,7 @@ class Level(models.Model):
 class Staff(models.Model):
     # STUDENT_PROGRAM_CHOICES
     FSWEP = 1
-    COOP = 1
+    COOP = 2
     STUDENT_PROGRAM_CHOICES = [
         (FSWEP, "FSWEP"),
         (COOP, "Coop"),

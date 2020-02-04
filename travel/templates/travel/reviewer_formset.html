@@ -25,8 +25,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">Trips</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' trip.id %}">{{ trip }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trip Requests</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Manage Reviewers</li>
         </ol>
     </nav>
@@ -36,11 +36,11 @@
             {% trans "Managing Reviewers:" %}
         </h1>
         <h2>
-            {{ trip }}
+            {{ triprequest }}
         </h2>
-        {% if trip.reviewer_order_message %}
+        {% if triprequest.reviewer_order_message %}
             <h2 class="red-font blink-me">
-                {{ trip.reviewer_order_message }}
+                {{ triprequest.reviewer_order_message }}
             </h2>
         {% endif %}
 
@@ -52,14 +52,14 @@
             {% bootstrap_formset_errors formset %}
             <div class="btn-group">
                 <button class="btn btn-primary submit">Save</button>
-                <a class="btn btn-secondary" href="{% url 'travel:trip_detail' trip.id %}">Back</a>
+                <a class="btn btn-secondary" href="{% url 'travel:request_detail' triprequest.id %}">Back</a>
             </div>
             <br><br>
             <table class="table" style="width: auto">
                 <thead>
                 <tr>
                     {% for field in field_list %}
-                        {% if field == "trip" %}
+                        {% if field == "trip_request" %}
                             <th></th>
                         {% else %}
                             <th scope="col">{% get_verbose_label my_object field %}</th>
@@ -96,7 +96,7 @@
 
             <div class="btn-group">
                 <button class="btn btn-primary submit">Save</button>
-                <a class="btn btn-secondary" href="{% url 'travel:trip_detail' trip.id %}">Back</a>
+                <a class="btn btn-secondary" href="{% url 'travel:request_detail' triprequest.id %}">Back</a>
             </div>
 
         </form>
@@ -112,7 +112,7 @@
             var newRole = $("#id_form-" + newFormNumber + "-role").val();
             // if everything is blank, the user is not trying to add a new record
             if (newOrder == "" && newUser == "" && newRole == "") {
-                $("#id_form-" + newFormNumber + "-trip").val(null);
+                $("#id_form-" + newFormNumber + "-trip_request").val(null);
             }
         });
 
