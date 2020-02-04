@@ -2,9 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e582c4a-1fc1-4496-9fe8-de3d547c5b33" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/whalesdb/templates/whalesdb/_entry_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dm_apps.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dm_apps.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/whalesdb/test/test_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/whalesdb/test/test_views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/whalesdb/test/test_forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/whalesdb/test/test_forms.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,6 +25,7 @@
     </option>
   </component>
   <component name="ProjectId" id="1Ua8yehrsjliJ5nCToPOWqryyls" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -30,7 +34,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/dm_apps" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -103,9 +107,9 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.Test Whales - All" />
       <item itemvalue="Python.DM Apps - Views : function exceptions" />
       <item itemvalue="Python.DM Apps - Views : function" />
+      <item itemvalue="Python.Test Whales - All" />
     </list>
   </component>
   <component name="ServiceViewManager">
@@ -154,10 +158,11 @@
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
     <state x="100" y="125" width="1653" height="855" key="DiffContextDialog/0.27.1853.1053@0.27.1853.1053" timestamp="1579905619404" />
-    <state x="704" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1576269246983">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state x="2535" y="314" width="424" height="484" key="FileChooserDialogImpl" timestamp="1580821534630">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state x="704" y="310" width="424" height="484" key="FileChooserDialogImpl/0.27.1853.1053@0.27.1853.1053" timestamp="1576269246983" />
+    <state x="2535" y="314" key="FileChooserDialogImpl/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1580821534630" />
     <state width="1830" height="344" key="GridCell.Tab.-1.bottom" timestamp="1576870164153">
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
@@ -206,14 +211,19 @@
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
     <state width="1830" height="344" key="GridCell.Tab.1.right/0.27.1853.1053@0.27.1853.1053" timestamp="1576870155768" />
-    <state x="798" y="89" key="SettingsEditor" timestamp="1576268265828">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state x="2544" y="94" key="SettingsEditor" timestamp="1580821557038">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state x="798" y="89" key="SettingsEditor/0.27.1853.1053@0.27.1853.1053" timestamp="1576268265828" />
+    <state x="2544" y="94" key="SettingsEditor/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1580821557038" />
     <state x="643" y="289" width="556" height="526" key="VcsDiffUtil.ChangesDialog" timestamp="1579905619068">
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
     <state x="643" y="289" width="556" height="526" key="VcsDiffUtil.ChangesDialog/0.27.1853.1053@0.27.1853.1053" timestamp="1579905619068" />
+    <state x="636" y="369" key="com.intellij.ide.util.TipDialog" timestamp="1580821476487">
+      <screen x="0" y="0" width="1858" height="1080" />
+    </state>
+    <state x="636" y="369" key="com.intellij.ide.util.TipDialog/1920.32.1618.1050/0.0.1858.1080@0.0.1858.1080" timestamp="1580821476487" />
     <state x="476" y="291" width="890" height="522" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1576870929850">
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
