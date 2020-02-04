@@ -69,9 +69,12 @@ my_dev.cnf
 # prod.cnf file should not be in the repo since it has the credentials + connection strings for the production db #
 ###################################################################################################################
 prod.cnf
-my_dev.cnf
-my_stable_reqs.txt
-.env
+
+# Ignore anything starting with "my_" as it's likely for local development
+my_*
+
+# Ignore all files dealing with enviornment variables
+.env*
 
 # Google API key #
 ##################
