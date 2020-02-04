@@ -370,6 +370,7 @@ class TripRequestUpdateView(TravelAccessRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["cost_field_list"] = cost_field_list
 
         user_dict = {}
         for user in User.objects.all():
@@ -416,6 +417,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["child_field_list"] = request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
+        context["cost_field_list"] = cost_field_list
         context["triprequest"] = my_object.trip_request
         context["report_mode"] = True
         if my_object.role_id in [5, 6, ]:
@@ -516,6 +518,8 @@ class TripRequestSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         context["child_field_list"] = request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
+        context["cost_field_list"] = cost_field_list
+
         context["report_mode"] = True
 
         return context
@@ -556,16 +560,28 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
     model = models.TripRequest
 
     def get_template_names(self):
-        my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
-        return 'travel/trip_request_form_popout.html' if my_object else 'travel/trip_request_form.html'
+        if self.kwargs.get("pk") or not self.kwargs.get("parent_request"):
+            return 'travel/trip_request_form.html'
+        else:
+            return 'travel/trip_request_form_popout.html'
 
     def get_form_class(self):
-        my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
-        return forms.ChildTripRequestForm if my_object else forms.TripRequestForm
+        if self.kwargs.get("pk") or not self.kwargs.get("parent_request"):
+            return forms.TripRequestForm
+        else:
+            return forms.ChildTripRequestForm
 
     def get_initial(self):
-        my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk")) if self.kwargs.get("pk") else None
-        return {"user": self.request.user} if not my_object else {"parent_request": my_object}
+        if self.kwargs.get("pk"):
+            my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
+            my_dict = {"user": self.request.user}
+        else:
+            if self.kwargs.get("parent_request"):
+                my_object = models.TripRequest.objects.get(pk=self.kwargs.get("parent_request"))
+                my_dict = {"parent_request": my_object, "stay_on_page": True}
+            else:
+                my_dict = None
+        return my_dict
 
     def form_valid(self, form):
         my_object = form.save()
@@ -596,7 +612,13 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
                 return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id}))
         # if this is a child record
         else:
-            return HttpResponseRedirect(reverse("shared_models:close_me"))
+            if form.cleaned_data.get("stay_on_page"):
+                messages.success(self.request, _(
+                    "{} has been added as a traveller to this request. Please add any costs associated with this traveller.".format(
+                        my_object.user)))
+                return HttpResponseRedirect(reverse("travel:request_edit", kwargs={"pk": my_object.id, "pop": "1"}))
+            else:
+                return HttpResponseRedirect(reverse("shared_models:close_me"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -659,6 +681,7 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
         my_object = models.TripRequest.objects.get(pk=self.kwargs["pk"])
         init = super().get_initial()
         init["year"] = fiscal_year(sap_style=True, next=True)
+        init["user"] = self.request.user
         # init["created_by"] = self.request.user
         return init
 
@@ -678,38 +701,62 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
         utils.get_reviewers(new_obj)
         utils.approval_seeker(new_obj)
 
-        # need to clone any children of the old object...
-        for child_request in old_obj.children_requests.all():
-            child_request.pk = None
-            child_request.parent_request = new_obj
-            child_request.save()
+        if new_obj.is_group_request:
+            my_child_object = models.TripRequest.objects.create(
+                user=self.request.user,
+                first_name=self.request.user.first_name,
+                last_name=self.request.user.last_name,
+                email=self.request.user.email,
+                parent_request=new_obj,
+            )
+            # pre-populate the costs on the 'child' record
+            utils.populate_trip_request_costs(self.request, my_child_object)
+        else:
+            # import from old record
+            # costs
+            for old_rel_obj in old_obj.trip_request_costs.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.trip_request = new_obj
+                new_rel_obj.save()
 
-        return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": new_obj.id}))
+
+        # # need to clone any children of the old object...
+        # for child_request in old_obj.children_requests.all():
+        #     child_request.pk = None
+        #     child_request.parent_request = new_obj
+        #     child_request.save()
+
+        if form.cleaned_data.get("stay_on_page"):
+            return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs={"pk": new_obj.id}))
+        else:
+            return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": new_obj.id}))
 
 
-class ChildTripRequestCloneUpdateView(TripRequestCreateView):
+class ChildTripRequestCloneUpdateView(TripRequestUpdateView):
     def test_func(self):
         if self.request.user.id:
             return True
 
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.TripRequest.objects.get(pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.submitted = None
+        new_obj.save()
+
+        # costs
+        for old_rel_obj in old_obj.trip_request_costs.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.trip_request = new_obj
+            new_rel_obj.save()
+
+        return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs={"pk": new_obj.id, "pop": "1"}))
+
     def get_initial(self):
-        my_object = models.TripRequest.objects.get(pk=self.kwargs["pk"])
         init = super().get_initial()
-        init["parent_request"] = my_object.parent_request
-        init["departure_location"] = my_object.departure_location
-        init["role"] = my_object.role
-        init["role_of_participant"] = my_object.role_of_participant
-        init["air"] = my_object.air
-        init["rail"] = my_object.rail
-        init["rental_motor_vehicle"] = my_object.rental_motor_vehicle
-        init["personal_motor_vehicle"] = my_object.personal_motor_vehicle
-        init["taxi"] = my_object.taxi
-        init["other_transport"] = my_object.other_transport
-        init["meals"] = my_object.meals
-        init["accommodations"] = my_object.accommodations
-        init["incidentals"] = my_object.incidentals
-        init["registration"] = my_object.registration
-        init["other"] = my_object.other
+        init["user"] = None
         return init
 
     def get_context_data(self, **kwargs):
@@ -1153,7 +1200,6 @@ def manage_costs(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
-
 @login_required(login_url='/accounts/login_required/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_njc_rate(request, pk):
@@ -1185,7 +1231,6 @@ def manage_njc_rates(request):
     context['title'] = "Manage NJC Rates"
     context['formset'] = formset
     return render(request, 'travel/manage_settings_small.html', context)
-
 
 
 # FILES #

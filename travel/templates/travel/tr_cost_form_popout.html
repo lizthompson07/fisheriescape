@@ -31,8 +31,8 @@
                         {% bootstrap_field field placeholder="" size="small" show_label=False %}
                         <h3>Do you want to enter cost by rate or total amount?</h3>
                         <div class="mb-3">
-                            <button class="btn btn-lg btn-outline-primary special" id="by-rate">By Rates</button>
                             <button class="btn btn-lg btn-outline-primary special" id="by-amount">By Total Amount</button>
+                            <button class="btn btn-lg btn-outline-primary special" id="by-rate">By Rates</button>
                         </div>
                     {% elif "by-rate" in field.field.widget.attrs.class %}
                         <div class="by-rate">
@@ -99,7 +99,9 @@
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
             refreshForm();
-            $("#id_cost")[0].focus();
+            $("#by_amount").click();
+            $("#id_cost").select();
+
         });
 
 

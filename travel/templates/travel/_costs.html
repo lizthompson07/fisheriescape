@@ -4,7 +4,6 @@
 {% load custom_filters %}
 {% if not triprequest.is_group_request %}
 
-    {% url 'travel:rcost_new' triprequest.id as add_url %}
     <h3 class="neighbours">
         {% trans "DFO Costs" %}
     </h3>
@@ -12,20 +11,16 @@
 
         <div class="btn-group neighbours">
 
-            <a class="btn btn-sm btn-outline-primary" href="#" pop-href="{% url 'travel:tr_cost_new' object.id %}">
+            <a class="btn btn-sm btn-outline-primary" href="#" pop-href="{% url 'travel:tr_cost_new' triprequest.id %}">
                 {% trans "Add new cost" %}
             </a>
-            <a class="btn btn-sm btn-outline-success" href="{% url 'travel:tr_cost_populate' object.id %}">
-                {% trans "Add all categories" %}
+            <a class="btn btn-sm btn-outline-success" href="{% url 'travel:tr_cost_populate' triprequest.id %}">
+                {% trans "Add all costs" %}
             </a>
 
-            <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:tr_cost_clear' object.id %}">
+            <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:tr_cost_clear' triprequest.id %}">
                 {% trans "Clear empty lines" %}
             </a>
-
-            {#            <a class="btn btn-sm btn-primary" href="#" pop-href="{{ add_url }}">#}
-            {#                {% trans "Add a Cost" %}#}
-            {#            </a>#}
         </div>
     {% endif %}
     <p>
