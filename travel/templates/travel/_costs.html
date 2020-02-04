@@ -67,6 +67,12 @@
 
                 {% endfor %}
             {% endfor %}
+            <tr>
+                <td class=""><strong>TOTAL</strong></td>
+                <td class="center-col">---</td>
+                <td class="center-col">---</td>
+                <td class="center-col"><strong>{{ triprequest.total_cost|zero2val:"---"|currency }}</strong></td>
+            </tr>
             </tbody>
         </table>
     {% endif %}

@@ -256,3 +256,11 @@ def populate_trip_request_costs(request, trip_request):
                                      _("NJC rates for incidentals missing from database. Please let your system administrator know."))
 
     messages.success(request, _("All costs have been added to this project."))
+
+
+
+def clear_empty_trip_request_costs(trip_request):
+    for obj in models.Cost.objects.all():
+        for cost in models.TripRequestCost.objects.filter(trip_request=trip_request, cost=obj):
+            if (cost.amount_cad is None or cost.amount_cad == 0):
+                cost.delete()

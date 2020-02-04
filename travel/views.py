@@ -152,6 +152,7 @@ request_field_list = [
     'bta_attendees',
     'notes',
     # 'cost_table|{}'.format(_("DFO costs")),
+    'total_request_cost|{}'.format(_("Total cost (DFO)")),
     'non_dfo_costs',
     'non_dfo_org',
 ]
@@ -720,7 +721,6 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
                 new_rel_obj.trip_request = new_obj
                 new_rel_obj.save()
 
-
         # # need to clone any children of the old object...
         # for child_request in old_obj.children_requests.all():
         #     child_request.pk = None
@@ -1006,23 +1006,11 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_object = models.TripRequest.objects.get(id=self.kwargs['pk'])
-        context["object"] = my_object
+        context["parent"] = my_object
         context["purpose_list"] = models.Purpose.objects.all()
 
-        key_list = [
-            'air',
-            'rail',
-            'rental_motor_vehicle',
-            'personal_motor_vehicle',
-            'taxi',
-            'other_transport',
-            'accommodations',
-            'meals',
-            'incidentals',
-            'other',
-            'total_cost',
-        ]
-        total_dict = {}
+        cost_categories = models.CostCategory.objects.all()
+        my_dict = dict()
 
         # first, let's create an object list; if this is
         if my_object.is_group_request:
@@ -1031,31 +1019,25 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         else:
             object_list = models.TripRequest.objects.filter(pk=my_object.id)
 
-        for key in key_list:
-            # registration is not in the travel plan form. therefore it should be added under the 'other' category
-            if key == "other":
-                total_dict[key] = nz(object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'], 0) + \
-                                  nz(object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))[
-                                         'dsum'], 0)
-                # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
-                if total_dict[key] == 0:
-                    total_dict[key] = None
-            elif key == "meals":
-                total_dict[key] = nz(object_list.values('breakfasts').order_by('breakfasts').aggregate(dsum=Sum("breakfasts"))[
-                                         'dsum'], 0) + \
-                                  nz(object_list.values('lunches').order_by('lunches').aggregate(dsum=Sum("lunches"))[
-                                         'dsum'], 0) + \
-                                  nz(object_list.values('suppers').order_by('suppers').aggregate(dsum=Sum("suppers"))[
-                                         'dsum'], 0)
+        my_dict["totals"] = dict()
+        my_dict["totals"]["total"] = 0
+        for obj in object_list:
+            my_dict[obj] = dict()
 
-                # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
-                if total_dict[key] == 0:
-                    total_dict[key] = None
-            else:
-                total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum']
+            for cat in cost_categories:
+                if not my_dict["totals"].get(cat):
+                    my_dict["totals"][cat] = 0
+
+                cat_amount = obj.trip_request_costs.filter(cost__cost_category=cat).values("amount_cad").order_by("amount_cad").aggregate(
+                    dsum=Sum("amount_cad"))['dsum']
+                my_dict[obj][cat] = cat_amount
+                my_dict["totals"][cat] += nz(cat_amount,0)
+                my_dict["totals"]["total"] += nz(cat_amount,0)
+
+        print(my_dict)
         context['object_list'] = object_list
-        context['total_dict'] = total_dict
-        context['key_list'] = key_list
+        context['my_dict'] = my_dict
+        # context['key_list'] = cost_categories
         return context
 
 
@@ -1345,10 +1327,7 @@ def tr_cost_delete(request, pk):
 def tr_cost_clear(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
-        for obj in models.Cost.objects.all():
-            for cost in models.TripRequestCost.objects.filter(trip_request=my_trip_request, cost=obj):
-                if (cost.amount_cad is None or cost.amount_cad == 0):
-                    cost.delete()
+        utils.clear_empty_trip_request_costs(my_trip_request)
         messages.success(request, _("All empty costs have been cleared."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
