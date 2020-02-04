@@ -192,7 +192,7 @@
             <th class="real center">Meals</th>
             <th class="real center">Incidentals</th>
             <th class="real center">Other</th>
-            <th class="real center">Total Trip Amount</th>
+            <th class="real center">Total Request Amount</th>
             <th class="real center">Is the trip part of an Event?</th>
         </tr>
         <tr>
@@ -223,8 +223,8 @@
                 {% endwith %}
             {% endwith %}
             <td class="real center">{{ object.total_cost|currency|nz:"" }}</td>
-            {% if object.conference %}
-                <td class="real center">{{ object.conference.has_event_template|yesno:"yes,no,unknown" }}</td>
+            {% if object.trip %}
+                <td class="real center">{{ object.trip.has_event_template|yesno:"yes,no,unknown" }}</td>
             {% else %}
                 <td class="real center">no</td>
             {% endif %}

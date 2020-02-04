@@ -116,7 +116,7 @@ def currency(value, with_sign=False):
         value = float(value)
         # if not able to cast, then just return 'value'
     except (ValueError, TypeError):
-        return ""
+        return value
     else:
         if with_sign:
             return "$ {0:,.2f}".format(value)
