@@ -17,8 +17,8 @@ urlpatterns = [
     path('request/<int:pk>/delete/', views.TripRequestDeleteView.as_view(), name="request_delete"),
     path('request/<int:pk>/delete/pop/<str:pop>/', views.TripRequestDeleteView.as_view(), name="request_delete"),
     path('request/<int:pk>/duplicate/', views.TripRequestCloneUpdateView.as_view(), name="duplicate_event"),
-    path('request/<int:pk>/new-child-request/', views.TripRequestCreateView.as_view(), name="request_new"),
-    path('request/<int:pk>/clone-duplicate/pop/<str:pop>', views.ChildTripRequestCloneUpdateView.as_view(), name="child_duplicate_event"),
+    path('request/<int:parent_request>/new-child-request/', views.TripRequestCreateView.as_view(), name="request_new"),
+    path('request/<int:pk>/clone-child/pop/<str:pop>', views.ChildTripRequestCloneUpdateView.as_view(), name="child_duplicate_event"),
     path('request/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
     path('request/<int:pk>/re-add-reviewers/', views.reset_reviewers, name="reset_reviewers"),
 
