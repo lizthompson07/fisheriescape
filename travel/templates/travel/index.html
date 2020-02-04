@@ -16,6 +16,7 @@
                 <h1 class="three-em">
                     {% trans "Travel Management System" %}
                 </h1>
+                <h2>(pre-approval to travel)</h2>
                 <hr>
                 {% url 'travel:request_list' as event_list_url %}
                 {% url 'travel:request_review_list' "awaiting" as event_approval_list_url %}
@@ -47,12 +48,12 @@
                     {% if is_reviewer or is_admin %}
                         <hr>
                         {% if is_reviewer %}
-{#                            <span class="{% if number_waiting > 0 %}highlight{% endif %}">#}
+                            {#                            <span class="{% if number_waiting > 0 %}highlight{% endif %}">#}
                             {% blocktrans %}
                                 Trip Requests awaiting your <a href="{{ event_approval_list_url }}">review</a>
                             {% endblocktrans %}
                             (<span class="{% if number_waiting > 0 %}red-font blink-me{% endif %}">{{ number_waiting }}</span>).
-{#                            </span>#}
+                            {#                            </span>#}
                             <br><br>
                             {% blocktrans %}
                                 Trip Requests <a href="{{ event_assigned_list_url }}">assigned</a> to you
