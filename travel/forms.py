@@ -216,26 +216,6 @@ class ChildTripRequestForm(forms.ModelForm):
             'role',
             'role_of_participant',
 
-            # costs
-            'air',
-            'rail',
-            'rental_motor_vehicle',
-            'personal_motor_vehicle',
-            'taxi',
-            'other_transport',
-            'accommodations',
-
-            'no_breakfasts',
-            'breakfasts_rate',
-            'no_lunches',
-            'lunches_rate',
-            'no_suppers',
-            'suppers_rate',
-            'no_incidentals',
-            'incidentals_rate',
-
-            'registration',
-            'other',
             'parent_request',
         ]
         widgets = {
@@ -244,26 +224,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'role_of_participant': forms.Textarea(attrs=attr_row4),
-            # costs
-            'air': forms.NumberInput(attrs=attr_cost),
-            'rail': forms.NumberInput(attrs=attr_cost),
-            'rental_motor_vehicle': forms.NumberInput(attrs=attr_cost),
-            'personal_motor_vehicle': forms.NumberInput(attrs=attr_cost),
-            'taxi': forms.NumberInput(attrs=attr_cost),
-            'other_transport': forms.NumberInput(attrs=attr_cost),
-            'accommodations': forms.NumberInput(attrs=attr_cost),
 
-            'no_breakfasts': forms.NumberInput(attrs=attr_cost),
-            'breakfasts_rate': forms.NumberInput(attrs=attr_cost),
-            'no_lunches': forms.NumberInput(attrs=attr_cost),
-            'lunches_rate': forms.NumberInput(attrs=attr_cost),
-            'no_suppers': forms.NumberInput(attrs=attr_cost),
-            'suppers_rate': forms.NumberInput(attrs=attr_cost),
-            'no_incidentals': forms.NumberInput(attrs=attr_cost),
-            'incidentals_rate': forms.NumberInput(attrs=attr_cost),
-
-            'registration': forms.NumberInput(attrs=attr_cost),
-            'other': forms.NumberInput(attrs=attr_cost),
             'first_name': forms.TextInput(attrs=attr_user_info),
             'last_name': forms.TextInput(attrs=attr_user_info),
             'email': forms.EmailInput(attrs=attr_user_info),

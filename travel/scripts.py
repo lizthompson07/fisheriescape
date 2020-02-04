@@ -10,7 +10,7 @@ def resave_all(events = models.TripRequest.objects.all()):
 
 
 def copy_costs():
-    for tr in models.TripRequest.objects.all():
+    for tr in models.TripRequest.objects.filter():
 
         if tr.air and tr.air != 0:
             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(

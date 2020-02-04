@@ -16,6 +16,7 @@ from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz, currency
 from lib.functions.custom_functions import fiscal_year, listrify
+from . import utils
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -469,21 +470,8 @@ class TripRequest(models.Model):
     def get_absolute_url(self):
         return reverse('travel:request_detail', kwargs={'pk': self.id})
 
-    @property
-    def meals(self):
-        return nz(self.breakfasts, 0) + nz(self.lunches, 0) + nz(self.suppers, 0)
-
     def save(self, *args, **kwargs):
-        # total the meals and incidentals
-        self.breakfasts = nz(self.no_breakfasts, 0) * nz(self.breakfasts_rate, 0)
-        self.lunches = nz(self.no_lunches, 0) * nz(self.lunches_rate, 0)
-        self.suppers = nz(self.no_suppers, 0) * nz(self.suppers_rate, 0)
-        self.incidentals = nz(self.no_incidentals, 0) * nz(self.incidentals_rate, 0)
 
-        # total cost
-        self.total_cost = nz(self.air, 0) + nz(self.rail, 0) + nz(self.rental_motor_vehicle, 0) + nz(self.personal_motor_vehicle, 0) + nz(
-            self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.incidentals, 0) + nz(
-            self.other, 0) + nz(self.registration, 0) + nz(self.breakfasts, 0) + nz(self.lunches, 0) + nz(self.suppers, 0)
         if self.start_date:
             self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
 
@@ -494,6 +482,14 @@ class TripRequest(models.Model):
         if self.trip and not self.end_date:
             # print("adding end date from trip")
             self.end_date = self.trip.end_date
+
+        # If this is a group request, the parent record should not have any costs
+        if self.is_group_request:
+            self.trip_request_costs.all().delete()
+
+        # If this is a child request, it should not have any assigned reviewers
+        if self.parent_request:
+            self.reviewers.all().delete()
 
         # ensure the process order makes sense
         count = 1
@@ -516,33 +512,35 @@ class TripRequest(models.Model):
 
     @property
     def cost_breakdown(self):
-        cost_list = [
-            "air",
-            "rail",
-            "rental_motor_vehicle",
-            "personal_motor_vehicle",
-            "taxi",
-            "other_transport",
-            "accommodations",
-            "breakfasts",
-            "lunches",
-            "suppers",
-            "incidentals",
-            "registration",
-            "other",
-        ]
+        utils.clear_empty_trip_request_costs(self)
         my_str = ""
-        for cost in cost_list:
-            if getattr(self, cost):
-                if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
-                    my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
-                        self._meta.get_field(cost).verbose_name,
-                        nz(getattr(self, cost), 0),
-                        nz(getattr(self, "no_" + cost), 0),
-                        nz(getattr(self, cost + "_rate"), 0),
-                    )
-                else:
-                    my_str += "{}: ${:,.2f}; ".format(self._meta.get_field(cost).verbose_name, getattr(self, cost))
+        for tr_cost in self.trip_request_costs.all():
+
+            if tr_cost.rate_cad:
+                my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
+                    tr_cost.cost,
+                    nz(tr_cost.rate_cad, 0),
+                    nz(tr_cost.number_of_days, 0),
+                    nz(tr_cost.amount_cad, 0),
+                )
+            else:
+                my_str += "{}: ${:,.2f}; ".format(tr_cost.cost, tr_cost.amount_cad)
+        return my_str
+
+    @property
+    def cost_breakdown_html(self):
+        utils.clear_empty_trip_request_costs(self)
+        my_str = ""
+        for tr_cost in self.trip_request_costs.all():
+            if tr_cost.rate_cad:
+                my_str += "<b>{}</b>: ${:,.2f} ({} x {:,.2f})<br>".format(
+                    tr_cost.cost,
+                    nz(tr_cost.rate_cad, 0),
+                    nz(tr_cost.number_of_days, 0),
+                    nz(tr_cost.amount_cad, 0),
+                )
+            else:
+                my_str += "<b>{}</b>: ${:,.2f}<br> ".format(tr_cost.cost, tr_cost.amount_cad)
         return my_str
 
     @property
@@ -594,10 +592,18 @@ class TripRequest(models.Model):
         return mark_safe(my_str)
 
     @property
+    def total_cost(self):
+        """ this is the total cost for the request. Does not include any children"""
+        object_list = self.trip_request_costs.all()
+        return nz(object_list.values("amount_cad").order_by("amount_cad").aggregate(dsum=Sum("amount_cad"))['dsum'], 0)
+
+    @property
     def total_request_cost(self):
+        """ this is the total cost for the request; including any children"""
         if self.is_group_request:
             object_list = self.children_requests.all()
-            return object_list.values("total_cost").order_by("total_cost").aggregate(dsum=Sum("total_cost"))['dsum']
+            return sum([item.total_cost for item in object_list])
+
         else:
             return self.total_cost
 
