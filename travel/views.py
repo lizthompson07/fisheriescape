@@ -572,22 +572,29 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
 
         # if it is a group request, add the main user as a traveller
         if my_object.is_group_request:
-            models.TripRequest.objects.create(
+            my_child_object = models.TripRequest.objects.create(
                 user=self.request.user,
                 first_name=self.request.user.first_name,
                 last_name=self.request.user.last_name,
                 email=self.request.user.email,
                 parent_request=my_object,
             )
+            # pre-populate the costs on the 'child' record
+            utils.populate_trip_request_costs(self.request, my_child_object)
+        else:
+            # if the request is not a group request, we pre-populate the costs on the 'parent' record
+            utils.populate_trip_request_costs(self.request, my_object)
 
         # add reviewers
         utils.get_reviewers(my_object)
 
+        # if this is not a child record
         if not my_object.parent_request:
             if form.cleaned_data.get("stay_on_page"):
                 return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id}))
             else:
                 return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id}))
+        # if this is a child record
         else:
             return HttpResponseRedirect(reverse("shared_models:close_me"))
 
@@ -1306,39 +1313,7 @@ def tr_cost_clear(request, trip_request):
 def tr_cost_populate(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
-        for obj in models.Cost.objects.all():
-            new_item, created = models.TripRequestCost.objects.get_or_create(trip_request=my_trip_request, cost=obj)
-            if created:
-                # breakfast
-                if new_item.cost_id == 9:
-                    try:
-                        new_item.rate_cad = models.NJCRates.objects.get(pk=1).amount
-                        new_item.save()
-                    except models.NJCRates.DoesNotExist:
-                        messages.warning(request, _("NJC rates for breakfast missing from database. Please let your system administrator know.") )
-                # lunch
-                elif new_item.cost_id == 10:
-                    try:
-                        new_item.rate_cad = models.NJCRates.objects.get(pk=2).amount
-                        new_item.save()
-                    except models.NJCRates.DoesNotExist:
-                        messages.warning(request, _("NJC rates for lunch missing from database. Please let your system administrator know.") )
-                # supper
-                elif new_item.cost_id == 11:
-                    try:
-                        new_item.rate_cad = models.NJCRates.objects.get(pk=3).amount
-                        new_item.save()
-                    except models.NJCRates.DoesNotExist:
-                        messages.warning(request, _("NJC rates for supper missing from database. Please let your system administrator know.") )
-                # incidentals
-                elif new_item.cost_id == 12:
-                    try:
-                        new_item.rate_cad = models.NJCRates.objects.get(pk=4).amount
-                        new_item.save()
-                    except models.NJCRates.DoesNotExist:
-                        messages.warning(request, _("NJC rates for incidentals missing from database. Please let your system administrator know.") )
-
-        messages.success(request, _("All costs have been added to this project."))
+        utils.populate_trip_request_costs(request, my_trip_request)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect('/accounts/denied/')

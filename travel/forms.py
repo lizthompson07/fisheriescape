@@ -473,4 +473,8 @@ class TripRequestCostForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'trip_request': forms.HiddenInput(),
+            'rate_cad': forms.NumberInput(attrs={"class":"by-rate"}),
+            'number_of_days': forms.NumberInput(attrs={"class":"by-rate"}),
+            'amount_cad': forms.NumberInput(attrs={"class":"by-amount"}),
+            # 'cost': forms.Select(attrs=chosen_js),
         }

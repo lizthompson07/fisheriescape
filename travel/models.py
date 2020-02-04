@@ -681,10 +681,9 @@ class TripRequestCost(models.Model):
     class Meta:
         unique_together = (("trip_request", "cost"),)
 
-
     def save(self, *args, **kwargs):
         if not self.amount_cad or self.amount_cad == 0:
-            self.amount_cad = self.rate_cad * self.number_of_days
+            self.amount_cad = nz(self.rate_cad, 0) * nz(self.number_of_days, 0)
 
         super().save(*args, **kwargs)
 
