@@ -3,6 +3,7 @@
 {% load bootstrap4 %}
 {% load custom_filters %}
 {% load verbose_names %}
+{% load custom_tags %}
 {% load i18n %}
 
 {% block subtitle %}
@@ -166,6 +167,25 @@
                     {% endif %}
                 {% endfor %}
 
+                <th>
+                    {% trans "Connected Travel Requests:" %}
+                </th>
+                <td>
+                    <ul>
+                        {% for triprequest in object.trip_requests.all %}
+                            <li>
+                                <a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a> by {{ triprequest.user }}
+                                (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ triprequest.status }}</span>)
+
+                            </li>
+                        {% empty %}
+                            <em>
+                                {% trans "There are no requests connected to this trip." %}
+                            </em>
+                        {% endfor %}
+                    </ul>
+                </td>
+
             </table>
         </div>
 
@@ -191,10 +211,17 @@
             {% endfor %}
 
             <div class="center-col">
-            {% buttons %}
+                {% buttons %}
                     <button type="submit" class="btn btn-lg btn-success">Yes, looks good!</button>
                     <a class="btn btn-secondary btn-lg" href="{% url 'travel:admin_trip_verification_list' %}">Cancel</a>
-            {% endbuttons %}
+                    {% if object.trip_requests.count %}
+                        {% echo "disabled" as disabled_var %}
+                        {% trans "Cannot delete a trip that has requests attached to it." as tip_text %}
+                    {% endif %}
+                    <span data-toggle="tooltip" title="{{ tip_text }}">
+                    <a class="btn btn-danger btn-lg {{ disabled_var }}" href="{% url 'travel:trip_delete' object.id %}">Delete</a>
+                    </span>
+                {% endbuttons %}
             </div>
 
             <br>
