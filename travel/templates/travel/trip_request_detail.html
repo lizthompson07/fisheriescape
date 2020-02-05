@@ -3,8 +3,10 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load custom_filters %}
+{% load custom_tags %}
 {% load i18n %}
-{% block header %}
+{% block subtitle %}
+    - {{ object }}
 {% endblock %}
 {% block content %}
 
@@ -20,6 +22,8 @@
         .container {
             max-width: 1300px;
         }
+
+
     </style>
 
     <nav aria-label="breadcrumb">
@@ -57,53 +61,116 @@
         </div>
 
         <div class="neighbours">
+
+            {# ADMIN BUTTON GROUP #}
+
             <div class="btn-group">
-                {# SUBMIT BUTTON #}
-                {% if object.submitted and not is_admin and not is_owner %}
-                    <span data-toggle="tooltip" title="{% trans "Only application administrators and owners can un-submit a request" %}">
+                {% if is_admin %}
+
+                    {# ADMIN NOTES #}
+                    <a class="btn btn-dark" href="#" pop-href="{% url 'travel:admin_notes_edit' object.id %}">
+                        Administrative Notes
+                    </a>
+
+
+                    {# ADMIN CANCEL BUTTON #}
+                    {% if object.status.id  == 22 or  object.status.id  == 11 %}
+                        {% echo True as is_eligible %}
+                    {% endif %}
+
+                    {% if is_eligible %}
+                        {% if object.status.id == 22 %}
+                            {% echo "warning" as btn_color %}
+                            {% trans "Un-cancel Request" as btn_text %}
+                        {% else %}
+                            {% echo "danger" as btn_color %}
+                            {% trans "Cancel Request" as btn_text %}
+                        {% endif %}
+
+                        <span data-toggle="tooltip" title="{% trans "This is only an option to you as a system admin" %}">
+                        <a class="btn btn-{{ btn_color }}" href="{% url 'travel:request_cancel' object.id %}">
+                        {{ btn_text }}
+                        </a>
+                        </span>
+                    {% endif %}
                 {% endif %}
-                <a class="btn btn-{% if object.submitted %}secondary{% else %}success{% endif %} {% if object.submitted and not is_admin and not is_owner %}disabled{% endif %}"
-                   href="{% url 'travel:request_submit' object.id %}">
-                {% if object.submitted %}
-                    {% trans "Un-submit" %}
-                 {% else %} {% if object.status.id == 16 %}
-                    {% trans "Re-submit" %}
-                 {% else %}
-                    {% trans "Submit" %}
-                  {% endif %} {% endif %}
-            </a>
-                {% if object.submitted and not is_admin and not is_owner %}
-                    </span>
+            </div>
+
+            <div class="btn-group">
+
+
+                {# SUBMIT BUTTON #}
+                {% if object.status.id == 11 %}
+                    {% echo "disabled" as disabled_var %}
+                {% elif object.submitted and not is_admin and not is_owner %}
+                    {% echo "disabled" as disabled_var %}
                 {% endif %}
 
+                {% if object.submitted %}
+                    {% echo "secondary" as btn_color %}
+                {% else %}
+                    {% echo "success" as btn_color %}
+                {% endif %}
+
+                {% if object.status.id == 11 %}
+                    {% trans "Approved requests cannot by unsubmitted." as tip_text %}
+                {% elif object.submitted and not is_admin and not is_owner %}
+                    {% trans "Only application administrators and owners can un-submit a request" as tip_text %}
+                {% endif %}
+
+                {% if object.submitted %}
+                    {% trans "Un-submit" as btn_text %}
+                {% else %}
+                    {% if object.status.id == 16 %}
+                        {% trans "Re-submit" as btn_text %}
+                    {% else %}
+                        {% trans "Submit" as btn_text %}
+                    {% endif %}
+                {% endif %}
+
+                <span data-toggle="tooltip" title="{{ tip_text }}">
+                <a class="btn btn-{{ btn_color }} {{ disabled_var }}" href="{% url 'travel:request_submit' object.id %}">{{ btn_text }}</a>
+                </span>
+
                 {# EDIT BUTTON #}
-                {% if object.submitted %}
-                    <span data-toggle="tooltip" title="{% trans "Only application administrators can modify a submitted request" %}">
+                {% if object.submitted and not is_admin and not is_current_reviewer %}
+                    {% echo "disabled" as disabled_var %}
+                    {% trans "Only application administrators and reviewers can modify a submitted request" as tip_text %}
                 {% endif %}
-                <a class="btn btn-warning {% if object.submitted and not is_admin and not is_current_reviewer %}disabled{% endif %}"
-                   href="{% url 'travel:request_edit' object.id %}">
-                Edit
-            </a>
-                {% if object.submitted %}
-                    </span>
-                {% endif %}
+
+                <span data-toggle="tooltip" title="{{ tip_text }}">
+                <a class="btn btn-warning {{ disabled_var }}" href="{% url 'travel:request_edit' object.id %}">
+                    {% trans "Edit" %}
+                </a>
+                </span>
 
                 {# DELETE BUTTON #}
                 {% if object.submitted %}
-                    <span data-toggle="tooltip" title="{% trans "Submitted trip requests cannot be deleted." %}">
+                    {% echo "disabled" as disabled_var %}
+                    {% trans "Submitted trip requests cannot be deleted." as tip_text %}
                 {% endif %}
-                <a class="btn btn-danger {% if object.submitted %}disabled{% endif %}" href="{% url 'travel:request_delete' object.id %}">
-                Delete
-            </a>
-                {% if object.submitted %}
-                    </span>
-                {% endif %}
+
+                <span data-toggle="tooltip" title="{{ tip_text }}">
+                <a class="btn btn-danger {{ disabled_var }}" href="{% url 'travel:request_delete' object.id %}">
+                {% trans "Delete" %}
+                </a>
+                </span>
 
                 {# CLONE BUTTON #}
                 <a class="btn btn-primary " href="{% url 'travel:duplicate_event' object.id %}">
-                    {% trans "Clone This Request" %}
+                    {% trans "Clone Me" %}
                 </a>
+
+
             </div>
+
+            {# SUPERUSER DELETE BUTTON #}
+            {% if user.is_superuser %}
+                <a class="btn btn-danger" href="{% url 'travel:request_delete' object.id %}">
+                    {% trans "SUPERUSER DELETE!!" %}
+                </a>
+            {% endif %}
+
         </div>
         <div class="neighbours">
             <div class="float-right ">
