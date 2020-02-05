@@ -2,8 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e582c4a-1fc1-4496-9fe8-de3d547c5b33" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projects/templates/projects/report_pdf_sara_funding.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/templatetags/custom_filters.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/templatetags/custom_filters.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/projects/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/reports.py" beforeDir="false" afterPath="$PROJECT_DIR$/projects/reports.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/templates/projects/report_search.html" beforeDir="false" afterPath="$PROJECT_DIR$/projects/templates/projects/report_search.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/projects/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/projects/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,11 +35,12 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/dm_apps" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/projects/templates/projects" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Projects\Django\dm_apps\dm_apps\projects\templates\projects" />
       <recent name="$PROJECT_DIR$/dm_apps" />
       <recent name="$PROJECT_DIR$" />
     </key>
@@ -103,9 +110,9 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.Test Whales - All" />
       <item itemvalue="Python.DM Apps - Views : function exceptions" />
       <item itemvalue="Python.DM Apps - Views : function" />
-      <item itemvalue="Python.Test Whales - All" />
     </list>
   </component>
   <component name="ServiceViewManager">
