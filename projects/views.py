@@ -493,6 +493,10 @@ def get_region_choices(all=False):
             )]
 
 
+def get_funding_sources(all=False):
+    return [(fs.id, str(fs)) for fs in models.FundingSourceType.objects.all()]
+
+
 # Create your views here.
 class CloserTemplateView(TemplateView):
     template_name = 'projects/close_me.html'
@@ -2330,7 +2334,7 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        print("Search Form Context")
         division_dict = {}
         for d in get_division_choices():
             my_division = shared_models.Division.objects.get(pk=d[0])
@@ -2351,6 +2355,7 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
 
     def form_valid(self, form):
         fiscal_year = str(form.cleaned_data["fiscal_year"])
+        funding = listrify(form.cleaned_data['funding_src'])
         report = int(form.cleaned_data["report"])
         regions = listrify(form.cleaned_data["region"])
         divisions = listrify(form.cleaned_data["division"])
@@ -2358,8 +2363,10 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
 
         if regions == "":
             regions = "None"
+
         if divisions == "":
             divisions = "None"
+
         if sections == "":
             sections = "None"
 
@@ -2438,6 +2445,21 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
             }))
         elif report == 17:
             return HttpResponseRedirect(reverse("projects:pdf_data", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 18:
+            return HttpResponseRedirect(reverse("projects:pdf_sara", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
+        elif report == 19:
+            return HttpResponseRedirect(reverse("projects:xls_sara", kwargs={
+                'funding': funding,
                 'fiscal_year': fiscal_year,
                 'regions': regions,
                 'divisions': divisions,
@@ -2533,6 +2555,55 @@ class PDFReportTemplate(LoginRequiredMixin, PDFTemplateView):
         self.project_list = self.project_list.order_by("id")
 
         return context
+
+
+class PDFSaraReport(PDFReportTemplate):
+    template_name = "projects/report_pdf_sara_funding.html"
+
+    def get_pdf_filename(self):
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
+        pdf_filename = "{} SARA (B-Base) Funding Report.pdf".format(fy)
+        return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = project_field_list
+
+        # We're only using B-Base funding
+        context["funding_src"] = models.FundingSourceType.objects.get(pk=2)
+
+        funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=context["funding_src"])
+        context["project_list"] = self.project_list.order_by("project_title").filter(default_funding_source__in=funding_src)
+
+        context["milestone"] = {}
+        context["om_cost"] = {}
+        context['project_leads'] = {}
+        for project in context["project_list"]:
+
+            context["milestone"][project.pk] = models.Milestone.objects.filter(project=project).values()
+            context['om_cost'][project.pk] = models.OMCost.objects.filter(project=project).aggregate(Sum('budget_requested'))
+            context['project_leads'][project.pk] = project.project_leads
+        return context
+
+
+def sara_spreadsheet(request, fiscal_year, funding, regions=None, divisions=None, sections=None):
+    # sections arg will be coming in as None from the my_section view
+    if regions is None:
+        regions = "None"
+    if divisions is None:
+        divisions = "None"
+    if sections is None:
+        sections = "None"
+
+    file_url = reports.generate_sara_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="{} SARA Funding.xlsx"'.format(
+                fiscal_year)
+            return response
+    raise Http404
 
 
 class PDFProjectSummaryReport(PDFReportTemplate):
@@ -3273,3 +3344,4 @@ class NoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     def form_valid(self, form):
         my_object = form.save()
         return HttpResponseRedirect(reverse("shared_models:close_me"))
+
