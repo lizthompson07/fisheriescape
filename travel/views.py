@@ -554,34 +554,97 @@ class TripRequestSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         # No matter what business what done, we will call this function to sort through reviewer and request statuses
         utils.approval_seeker(my_trip_request)
         my_trip_request.save()
+
+        # clean up any unused cost categories
+        utils.clear_empty_trip_request_costs(my_trip_request)
+        for child in my_trip_request.children_requests.all():
+            utils.clear_empty_trip_request_costs(child)
+
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+
+
+class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.TripRequest
+    form_class = forms.TripRequestAdminNotesForm
+    template_name = 'travel/trip_request_cancel_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
+        context["object"] = my_object
+        context["triprequest"] = my_object
+        context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
+        context["child_field_list"] = request_child_field_list
+        context["reviewer_field_list"] = reviewer_field_list
+        context["conf_field_list"] = conf_field_list
+        context["cost_field_list"] = cost_field_list
+
+        context["report_mode"] = True
+
+        return context
+
+    def form_valid(self, form):
+        my_trip_request = form.save()
+
+        # figure out the current state of the request
+        is_cancelled = True if my_trip_request.status.id == 22 else False
+
+        if is_cancelled:
+            #  UN-CANCEL THE REQUEST
+            my_trip_request.status_id = 11
+        else:
+            #  CANCEL THE REQUEST
+            my_trip_request.status_id = 22
+
+        my_trip_request.save()
+        # send an email to the trip_request owner
+        my_email = emails.StatusUpdateEmail(my_trip_request)
+        # # send the email object
+        if settings.PRODUCTION_SERVER:
+            send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                      recipient_list=my_email.to_list, fail_silently=False, )
+        else:
+            print(my_email)
+
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+
+
+class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.TripRequest
+    form_class = forms.TripRequestAdminNotesForm
+    template_name = 'travel/trip_request_admin_notes_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
 class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
     model = models.TripRequest
 
     def get_template_names(self):
-        if self.kwargs.get("pk") or not self.kwargs.get("parent_request"):
-            return 'travel/trip_request_form.html'
-        else:
+        if self.kwargs.get("parent_request"):
             return 'travel/trip_request_form_popout.html'
+        else:
+            return 'travel/trip_request_form.html'
 
     def get_form_class(self):
-        if self.kwargs.get("pk") or not self.kwargs.get("parent_request"):
-            return forms.TripRequestForm
-        else:
+        if self.kwargs.get("parent_request"):
             return forms.ChildTripRequestForm
+        else:
+            return forms.TripRequestForm
 
     def get_initial(self):
-        if self.kwargs.get("pk"):
-            my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
-            my_dict = {"user": self.request.user}
+        if self.kwargs.get("parent_request"):
+            my_object = models.TripRequest.objects.get(pk=self.kwargs.get("parent_request"))
+            my_dict = {"parent_request": my_object, "stay_on_page": True}
         else:
-            if self.kwargs.get("parent_request"):
-                my_object = models.TripRequest.objects.get(pk=self.kwargs.get("parent_request"))
-                my_dict = {"parent_request": my_object, "stay_on_page": True}
-            else:
-                my_dict = None
+            # if this is a new parent trip
+            my_dict = {"user": self.request.user}
         return my_dict
 
     def form_valid(self, form):
@@ -1031,8 +1094,8 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
                 cat_amount = obj.trip_request_costs.filter(cost__cost_category=cat).values("amount_cad").order_by("amount_cad").aggregate(
                     dsum=Sum("amount_cad"))['dsum']
                 my_dict[obj][cat] = cat_amount
-                my_dict["totals"][cat] += nz(cat_amount,0)
-                my_dict["totals"]["total"] += nz(cat_amount,0)
+                my_dict["totals"][cat] += nz(cat_amount, 0)
+                my_dict["totals"]["total"] += nz(cat_amount, 0)
 
         print(my_dict)
         context['object_list'] = object_list

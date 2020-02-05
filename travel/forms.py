@@ -195,8 +195,17 @@ class AdminTripRequestForm(forms.ModelForm):
             self.fields.get("adm_approval_status").choices = status_choices
 
 
+class TripRequestAdminNotesForm(forms.ModelForm):
+    class Meta:
+        model = models.TripRequest
+        fields = [
+            "admin_notes",
+        ]
+
+
 class ChildTripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = models.TripRequest
         fields = [
@@ -392,7 +401,6 @@ HelpTextFormSet = modelformset_factory(
 )
 
 
-
 class CostForm(forms.ModelForm):
     class Meta:
         model = models.Cost
@@ -422,7 +430,7 @@ CostCategoryFormSet = modelformset_factory(
 class NJCRatesForm(forms.ModelForm):
     class Meta:
         model = models.NJCRates
-        exclude = ['last_modified',]
+        exclude = ['last_modified', ]
 
 
 NJCRatesFormSet = modelformset_factory(
@@ -432,15 +440,14 @@ NJCRatesFormSet = modelformset_factory(
 )
 
 
-
 class TripRequestCostForm(forms.ModelForm):
     class Meta:
         model = models.TripRequestCost
         fields = "__all__"
         widgets = {
             'trip_request': forms.HiddenInput(),
-            'rate_cad': forms.NumberInput(attrs={"class":"by-rate"}),
-            'number_of_days': forms.NumberInput(attrs={"class":"by-rate"}),
-            'amount_cad': forms.NumberInput(attrs={"class":"by-amount"}),
+            'rate_cad': forms.NumberInput(attrs={"class": "by-rate"}),
+            'number_of_days': forms.NumberInput(attrs={"class": "by-rate"}),
+            'amount_cad': forms.NumberInput(attrs={"class": "by-amount"}),
             # 'cost': forms.Select(attrs=chosen_js),
         }

@@ -119,7 +119,7 @@ class ChangesRequestedEmail:
 class StatusUpdateEmail:
     def __init__(self, trip_request_object):
 
-        self.subject = 'Your trip request has been ' + trip_request_object.status.name + " - Votre demande de voyage a été " + trip_request_object.status.nom
+        self.subject = 'Your trip request has been ' + str(trip_request_object.status.name) + " - Votre demande de voyage a été " + str(trip_request_object.status.nom)
         self.message = self.load_html_template(trip_request_object)
         self.from_email = from_email
         self.to_list = [trip_request_object.user.email, ]
