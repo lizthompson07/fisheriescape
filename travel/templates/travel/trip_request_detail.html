@@ -100,7 +100,7 @@
 
 
                 {# SUBMIT BUTTON #}
-                {% if object.status.id == 11 %}
+                {% if object.status.id == 11 or object.status.id == 22 %}
                     {% echo "disabled" as disabled_var %}
                 {% elif object.submitted and not is_admin and not is_owner %}
                     {% echo "disabled" as disabled_var %}
@@ -112,8 +112,8 @@
                     {% echo "success" as btn_color %}
                 {% endif %}
 
-                {% if object.status.id == 11 %}
-                    {% trans "Approved requests cannot by unsubmitted." as tip_text %}
+                {% if object.status.id == 11 or object.status.id == 22%}
+                    {% trans "Approved or cancelled requests cannot by unsubmitted." as tip_text %}
                 {% elif object.submitted and not is_admin and not is_owner %}
                     {% trans "Only application administrators and owners can un-submit a request" as tip_text %}
                 {% endif %}
@@ -133,7 +133,7 @@
                 </span>
 
                 {# EDIT BUTTON #}
-                {% if object.submitted and not is_admin and not is_current_reviewer %}
+                {% if object.submitted and not is_admin and not is_current_reviewer and object.status.id == 22 %}
                     {% echo "disabled" as disabled_var %}
                     {% trans "Only application administrators and reviewers can modify a submitted request" as tip_text %}
                 {% endif %}
