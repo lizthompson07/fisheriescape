@@ -263,7 +263,7 @@ class ChildTripRequestForm(forms.ModelForm):
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        exclude = ["fiscal_year", ]
+        exclude = ["fiscal_year", "is_verified", "verified_by" ]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),

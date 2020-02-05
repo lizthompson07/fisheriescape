@@ -23,6 +23,7 @@
                 {% url 'travel:request_review_list' as event_assigned_list_url %}
                 {% url 'travel:request_new' as event_new_url %}
                 {% url 'travel:admin_approval_list' as admin_approval_list_url %}
+                {% url 'travel:admin_trip_verification_list' as trip_verification_list_url %}
                 <br>
                 <h2>
                     {% blocktrans %}
@@ -44,7 +45,6 @@
                     {% endblocktrans %}
                     <br>
                     <br>
-                    <br>
                     {% if is_reviewer or is_admin %}
                         <hr>
                         {% if is_reviewer %}
@@ -61,11 +61,20 @@
                             (<span>{{ user.reviewers.count }}</span>).
                             <br><br>
                         {% endif %}
+                        {# ADMIN ONLY STUFF #}
                         {% if is_admin %}
+                            <hr>
                             {% blocktrans %}
                                 Trip Requests awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
                             {% endblocktrans %}
                             (<span class="{% if admin_number_waiting > 0 %}red-font blink-me{% endif %}">{{ admin_number_waiting }}</span>).
+                            <br><br>
+                            {% blocktrans %}
+                                Trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
+                            {% endblocktrans %}
+                            (<span class="{% if unverified_trips > 0 %}red-font blink-me{% endif %}">{{ unverified_trips }}</span>).
+
+
                         {% endif %}
                     {% endif %}
 
