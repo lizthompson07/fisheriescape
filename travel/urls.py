@@ -47,6 +47,9 @@ urlpatterns = [
     path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
     path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
+    # admin
+    path('admin/trip-verification-list/', views.AdminTripVerificationListView.as_view(), name="admin_trip_verification_list"),
+    path('trip/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
 
     # FILES #
     #########
