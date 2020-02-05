@@ -291,6 +291,7 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+		
     try:
         app_dict["whalesdb"] = {
             "title": _("Whale Equipment Deployment Inventory"),
@@ -298,6 +299,20 @@ def get_app_dict(request):
             "status": "dev",
             "access": "login-required",
             "url": reverse('whalesdb:index'),
+            "icon_path": 'img/whales/whales_dark.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+		
+		
+    try:
+        app_dict["csas"] = {
+            "title": _("Canadian Science Advisory Secretariat"),
+            "description": _("Tool for tracking meetings, requests and publications."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('csas:index'),
             "icon_path": 'img/whales/whales_dark.svg',
             "region": "regional",
         }

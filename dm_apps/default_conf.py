@@ -82,6 +82,7 @@ APP_DICT = {
     'publications': "Project Publications Inventory",
     'trapnet': "TrapNet",
     'whalesdb': "Whale Equipment Deployment Inventory",
+	'csas': "Canadian Science Advisory Secretariat",
 }
 
 MY_INSTALLED_APPS = [app for app in APP_DICT]
