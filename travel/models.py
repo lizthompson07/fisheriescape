@@ -172,6 +172,8 @@ class Conference(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     blank=True, null=True, related_name="trips")
+    is_verified = models.BooleanField(default=False)
+    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by")
 
     def __str__(self):
         # check to see if a french value is given
@@ -182,6 +184,28 @@ class Conference(models.Model):
             my_str = "{}".format(self.name)
         return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"),
                                           self.end_date.strftime("%d-%b-%Y"))
+
+    @property
+    def html_block(self):
+        my_str = "<b>English name:</b> {}<br>" \
+                 "<b>French name:</b> {}<br>" \
+                 "<b>Location:</b> {}<br>" \
+                 "<b>Start date (yyyy-mm-dd):</b> {}<br>" \
+                 "<b>End date (yyyy-mm-dd):</b> {}<br>" \
+                 "<b>Meeting URL:</b> {}<br>" \
+                 "<b>Verified:</b> {}<br>" \
+                 "<b>Verified By:</b> {}<br>" \
+                 "<br><a href='{}' target='_blank' class='btn btn-primary btn-sm'>Go!</a>".format(
+            self.name, self.nom, self.location,
+            self.start_date.strftime("%Y-%m-%d"),
+            self.end_date.strftime("%Y-%m-%d"),
+            "<a href='(click here)' target='_blank'>{}</a>".format(self.meeting_url) if self.meeting_url else "n/a",
+            "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
+            self.verified_by if self.verified_by else "----",
+            reverse("travel:trip_detail", kwargs={"pk": self.id}),
+        )
+
+        return mark_safe(my_str)
 
     class Meta:
         ordering = ['start_date', ]
@@ -194,7 +218,7 @@ class Conference(models.Model):
         # create a list of all TMS users going
         legit_traveller_list = self.traveller_list
         travellers = []
-        for trip_request in self.trip_requests.filter(~Q(status_id__in=[10,22])):
+        for trip_request in self.trip_requests.filter(~Q(status_id__in=[10, 22])):
             # lets look at the list of BTA travels and add them all
             for bta_user in trip_request.bta_attendees.all():
                 # if this user for some reason turns up to be a real traveller on this trip
@@ -211,20 +235,22 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip_request.user for trip_request in self.trip_requests.filter(~Q(status_id__in=[10,22])).filter(is_group_request=False) if
+        my_list = [trip_request.user for trip_request in
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False) if
                    trip_request.user]
         # now those without names...
         my_list.extend(
             ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-             self.trip_requests.filter(~Q(status_id__in=[10,22])).filter(is_group_request=False) if not trip_request.user])
+             self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False) if not trip_request.user])
 
         # group travellers
         my_list.extend(
-            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10,22])) if
+            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))
+             if
              trip_request.user])
         my_list.extend(
             ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10,22])) if not trip_request.user])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])) if not trip_request.user])
 
         return set(my_list)
 
@@ -261,11 +287,11 @@ class Conference(models.Model):
 
         # start simple... non-group
         my_list = [trip_request.total_request_cost for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10,22])).filter(is_group_request=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_request_cost for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10,22]))])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
 
         return sum(my_list)
 
@@ -276,11 +302,11 @@ class Conference(models.Model):
 
         # start simple... non-group
         my_list = [trip_request.total_request_cost for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10,22])).filter(is_group_request=False, is_research_scientist=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False, is_research_scientist=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_request_cost for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10,22])).filter(is_research_scientist=False)])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])).filter(is_research_scientist=False)])
 
         return sum(my_list)
 
@@ -305,10 +331,11 @@ class Conference(models.Model):
         # from travel.models import Event
         # must factor in group and non-group...
 
-        my_id_list = [trip_request.id for trip_request in self.trip_requests.filter(~Q(status_id__in=[10,22])).filter(is_group_request=False)]
+        my_id_list = [trip_request.id for trip_request in
+                      self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
         # group requests
         my_id_list.extend(
-            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10,22]))])
+            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
     @property

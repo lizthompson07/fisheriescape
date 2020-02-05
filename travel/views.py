@@ -1,6 +1,7 @@
 import json
 import os
 from copy import deepcopy
+from Levenshtein import distance
 
 from django.conf import settings
 from django.contrib import messages
@@ -18,7 +19,6 @@ from django.views.generic import UpdateView, DeleteView, CreateView, DetailView,
 ###
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
-
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from . import models
@@ -118,6 +118,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         ).count()  # number of requests where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
+        context["unverified_trips"] = models.Conference.objects.filter(is_verified=False).count()
         return context
 
 
@@ -991,6 +992,63 @@ class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
+    queryset = models.Conference.objects.filter(is_verified=False)
+    template_name = 'travel/trip_verification_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Conference.objects.first()
+        context["field_list"] = [
+            'fiscal_year',
+            'tname|{}'.format("Name"),
+            'location|{}'.format(_("location")),
+            'dates|{}'.format(_("dates")),
+            'number_of_days|{}'.format(_("length (days)")),
+            'is_adm_approval_required|{}'.format(_("ADM approval required?")),
+        ]
+        return context
+
+
+class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
+    template_name = 'travel/trip_verification_form.html'
+    model = models.Conference
+    form_class = forms.TripRequestApprovalForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        context["object"] = my_trip
+        context["conf_field_list"] = conf_field_list
+
+        base_qs = models.Conference.objects.filter(~Q(id=my_trip.id)).filter(fiscal_year=my_trip.fiscal_year)
+
+        context["same_day_trips"] = base_qs.filter(Q(start_date=my_trip.start_date) | Q(end_date=my_trip.end_date))
+
+
+        context["same_location_trips"] = base_qs.filter(
+            id__in=[trip.id for trip in base_qs if trip.location and my_trip.location and
+                    utils.compare_strings(trip.location, my_trip.location) < 3]
+            )
+
+        similar_fr_name_trips = [trip.id for trip in base_qs if trip.nom and utils.compare_strings(trip.nom, trip.name) < 10] if my_trip.nom else []
+        similar_en_name_trips=  [trip.id for trip in base_qs if utils.compare_strings(trip.name, my_trip.name) < 10]
+        my_list = list()
+        my_list.extend(similar_en_name_trips)
+        my_list.extend(similar_fr_name_trips)
+        context["same_name_trips"] = base_qs.filter(
+            id__in=set(my_list)
+        )
+        return context
+
+    def form_valid(self, form):
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        my_trip.is_verified = True
+        my_trip.verified_by = self.request.user
+        my_trip.save()
+        return HttpResponseRedirect(reverse("travel:admin_trip_verification_list"))
 
 
 # REPORTS #
