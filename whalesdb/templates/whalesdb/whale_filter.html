@@ -37,7 +37,7 @@
     <div class="row">
         <div class="col-1">
             <a class="btn btn-primary" href="#"
-               onclick="return popitup('{% url 'whalesdb:create_stn' %}','popoutWindow')"
+               onclick="return popitup('{% url ''|add:create_url %}','popoutWindow')"
                 title="{% trans 'Add Station' %}">+</a>
         </div>
     </div>
@@ -54,12 +54,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                    {% for station in filter.qs %}
+                    {% for obj in filter.qs %}
                         <tr>
                         {% for field in fields %}
-                        <td>{% get_field_value station field %}</td>
+                        <td>{% get_field_value obj field %}</td>
                         {% endfor %}
-                            <td><a class="btn btn-primary btn-sm" href="{% url 'whalesdb:details_stn' station.pk %}">{% trans 'Details' %}</a></td>
+                            <td><a class="btn btn-primary btn-sm" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a></td>
                         </tr>
                     {% endfor %}
                 </tbody>

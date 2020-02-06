@@ -15,6 +15,10 @@ class CommonTest(TestCase):
     login_url_en = login_url_base + "/en/"
     login_url_fr = login_url_base + "/fr/"
 
+    # All views should at a minimum have a title field
+    def context_fields(self, response):
+        self.assertIn("title", response.context)
+
 
 class TestIndexView(CommonTest):
 
@@ -99,15 +103,21 @@ class ListTest(CommonTest):
         self.assertTemplateUsed(self.test_expected_template)
 
     # List context should return:
-    #   - a list of fields to display
     #   - a title to display in the html template
+    #   - a list of fields to display
+    #   - a url to use for the create button
+    #   - a url to use for the detail links
     def list_context_fields(self):
         activate('en')
 
         response = self.client.get(self.test_url)
 
+        super().context_fields(response)
         self.assertIn("fields", response.context)
-        self.assertIn("title", response.context)
+        self.assertIn("create_url", response.context)
+        self.assertIn("details_url", response.context)
+
+        return response
 
 
 class TestListStation(ListTest):
@@ -130,7 +140,10 @@ class TestListStation(ListTest):
     # make sure project list context returns expected context objects
     @tag('stn_list', 'response', 'context')
     def test_stn_list_context_fields(self):
-        super().list_context_fields()
+        response = super().list_context_fields()
+
+        self.assertEqual("whalesdb:create_stn", response.context['create_url'])
+        self.assertEqual("whalesdb:details_stn", response.context['details_url'])
 
 
 class TestListProject(ListTest):
@@ -153,7 +166,10 @@ class TestListProject(ListTest):
     # make sure project list context returns expected context objects
     @tag('prj_list', 'response', 'context')
     def test_prj_list_context_fields(self):
-        super().list_context_fields()
+        response = super().list_context_fields()
+
+        self.assertEqual("whalesdb:create_prj", response.context['create_url'])
+        self.assertEqual("whalesdb:details_prj", response.context['details_url'])
 
 
 class TestListMooring(ListTest):
@@ -176,13 +192,18 @@ class TestListMooring(ListTest):
     # make sure project list context returns expected context objects
     @tag('mor_list', 'response', 'context')
     def test_mor_list_context_fields(self):
-        super().list_context_fields()
+        response = super().list_context_fields()
+
+        self.assertEqual("whalesdb:create_mor", response.context['create_url'])
+        self.assertEqual("whalesdb:details_mor", response.context['details_url'])
 
 
 class CreateTest(CommonTest):
 
     expected_form = None
     expected_view = None
+    expected_success_url = None
+    data = None
 
     def setUp(self):
         super().setUp()
@@ -244,8 +265,38 @@ class CreateTest(CommonTest):
 
         self.assertEquals(self.expected_form, view.form_class)
 
+    # All CommonCreate views should at a minimum have a title.
+    # This will return the response for other create view tests to run further tests on context if required
+    def create_context_fields(self):
+        activate('en')
+
+        self.login()
+        response = self.client.get(self.test_url)
+
+        super().context_fields(response)
+
+        return response
+
+    # test that upon a successful form the view redirects to the expected success url
+    #   - Requires: self.test_url
+    #   - Requires: self.data
+    #   - Requires: self.expected_success_url
+    def successful_url(self):
+        activate('en')
+
+        self.login()
+        response = self.client.post(self.test_url, self.data)
+
+        self.assertRedirects(response=response, expected_url=self.expected_success_url)
+
 
 class TestCreateProject(CreateTest):
+    data = {
+        "prj_name": 'PRJ_001',
+        "prj_description": "Some project description here",
+        "prj_url": "https//noneOfYourBusiness.com"
+    }
+
     def setUp(self):
         super().setUp()
 
@@ -257,6 +308,8 @@ class TestCreateProject(CreateTest):
         self.expected_view = views.CreatePrj
 
         self.expected_form = forms.PrjForm
+
+        self.expected_success_url = reverse_lazy("whalesdb:list_prj")
 
     # Users must be logged in to create new stations
     @tag('create_prj', 'response', 'access')
@@ -278,7 +331,30 @@ class TestCreateProject(CreateTest):
     def test_prj_create_form(self):
         super().create_form()
 
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('create_prj', 'context')
+    def test_create_prj_context_fields(self):
+        super().create_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('create_prj', 'redirect')
+    def test_create_prj_successful_url(self):
+        super().successful_url()
+
+
 class TestCreateStation(CreateTest):
+    data = {
+            "stn_name": "STN_001",
+            "stn_code": "STN",
+            "stn_revision": "1",
+            "stn_planned_lat": "25",
+            "stn_planned_lon": "50",
+            "stn_planned_depth": "10",
+            "stn_notes": "Some Notes"
+        }
+
     def setUp(self):
         super().setUp()
 
@@ -290,6 +366,8 @@ class TestCreateStation(CreateTest):
         self.expected_view = views.CreateStn
 
         self.expected_form = forms.StnForm
+
+        self.expected_success_url = reverse_lazy("whalesdb:list_stn")
 
     # Users must be logged in to create new stations
     @tag('create_stn', 'response', 'access')
@@ -311,8 +389,29 @@ class TestCreateStation(CreateTest):
     def test_stn_create_form(self):
         super().create_form()
 
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('create_stn', 'context')
+    def test_create_stn_context_fields(self):
+        super().create_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('create_stn', 'redirect')
+    def test_create_stn_successful_url(self):
+        super().successful_url()
+
 
 class TestCreateMooring(CreateTest):
+    data = {
+        "mor_name": "MOR_001",
+        "mor_max_depth": "10",
+        "mor_link_setup_image": "https://somelink.com/images/img001.png",
+        "mor_additional_equipment": "None",
+        "mor_general_moor_description": "This is a mooring description",
+        "more_notes": "Notes",
+    }
+
     def setUp(self):
         super().setUp()
 
@@ -323,6 +422,7 @@ class TestCreateMooring(CreateTest):
 
         self.expected_view = views.CreateMor
         self.expected_form = forms.MorForm
+        self.expected_success_url = reverse_lazy("whalesdb:list_mor")
 
     # Users must be logged in to create new stations
     @tag('create_mor', 'response', 'access')
@@ -343,6 +443,18 @@ class TestCreateMooring(CreateTest):
     @tag('create_mor', 'form')
     def test_mor_create_form(self):
         super().create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('create_mor', 'context')
+    def test_create_mor_context_fields(self):
+        super().create_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('create_mor', 'redirect')
+    def test_create_mor_successful_url(self):
+        super().successful_url()
 
 
 class TestDetailsStation(CommonTest):
@@ -434,3 +546,12 @@ class TestDetailsMooring(CommonTest):
 
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
+
+    # Test that the context contains the proper fields
+    @tag('details_mor', 'context')
+    def test_context_fields_mor(self):
+        activate('fr')
+
+        response = self.client.get(self.test_url)
+
+        super().context_fields(response)

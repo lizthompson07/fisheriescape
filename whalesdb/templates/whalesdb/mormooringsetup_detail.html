@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "whalesdb/whale_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
 
-</body>
-</html>
+{% block title %}
+    {% trans title %}
+{% endblock title %}
+
+{% block body %}
+<div class="container mt-1" >
+<a class="btn btn-primary" href="{% url 'whalesdb:list_mor' %}">{% trans 'Back to list' %}</a>
+
+    <h2>{{ object.mor_name }}</h2>
+    {% if object.mor_setup_image %}
+        <img src="{{ object.mor_setup_image.url }}" />
+    {% endif %}
+</div>
+{% endblock %}
