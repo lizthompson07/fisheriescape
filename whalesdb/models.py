@@ -192,9 +192,9 @@ class MorMooringSetup(models.Model):
     # Note: I added the setup image field to try out putting the mooring setup image directly in the database
     mor_setup_image = models.ImageField(blank=True, null=True, verbose_name=_("Setup Image"))
 
-    mor_additional_equipment = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Equipment"))
-    mor_general_moor_description = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Equipment"))
-    more_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Equipment"))
+    mor_additional_equipment = models.TextField(blank=True, null=True, verbose_name=_("Equipment"))
+    mor_general_moor_description = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+    more_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     def __str__(self):
         return "{}".format(self.mor_name)
