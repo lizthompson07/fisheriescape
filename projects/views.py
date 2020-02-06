@@ -2576,13 +2576,24 @@ class PDFSaraReport(PDFReportTemplate):
         context["project_list"] = self.project_list.order_by("project_title").filter(default_funding_source__in=funding_src)
 
         context["milestone"] = {}
+        context["sal_cost"] = {}
         context["om_cost"] = {}
+        context["cap_cost"] = {}
         context['project_leads'] = {}
+        context['total_est'] = {}
         for project in context["project_list"]:
 
-            context["milestone"][project.pk] = models.Milestone.objects.filter(project=project).values()
-            context['om_cost'][project.pk] = models.OMCost.objects.filter(project=project).aggregate(Sum('budget_requested'))
-            context['project_leads'][project.pk] = project.project_leads
+            context["milestone"][project.pk] = project.milestones.all()
+            context['sal_cost'][project.pk] = project.staff_members.all().aggregate(Sum('cost'))['cost__sum']
+            context['om_cost'][project.pk] = project.om_costs.all().aggregate(Sum('budget_requested'))['budget_requested__sum']
+            context['cap_cost'][project.pk] = project.capital_costs.all().aggregate(Sum('budget_requested'))['budget_requested__sum']
+
+            context['total_est'][project.pk] = 0
+            context['total_est'][project.pk] += context['sal_cost'][project.pk] if context['sal_cost'][project.pk] else 0
+            context['total_est'][project.pk] += context['om_cost'][project.pk] if context['om_cost'][project.pk] else 0
+            context['total_est'][project.pk] += context['cap_cost'][project.pk] if context['cap_cost'][project.pk] else 0
+
+            context['project_leads'][project.pk] = listrify([(l.user if l.user else l.name) for l in project.staff_members.all().filter(lead=True)])
         return context
 
 

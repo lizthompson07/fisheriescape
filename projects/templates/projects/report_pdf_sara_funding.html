@@ -4,8 +4,6 @@
 {% load custom_filters %}
 {% load i18n %}
 
-{% bootstrap_css %}
-
 {% block extra_style %}
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
 {% endblock %}
@@ -76,15 +74,29 @@
 
 <div>
     <span class="h3">{% trans 'Project ID'%} : </span>
-    <span>{{project.pk}}</span>
+    <span>{{project.pk|nz:0}}</span>
 </div>
 <div>
     <span class="h3">{% trans 'Project title'%} : </span>
     <span>{{project.project_title}}</span>
 </div>
+<div class="row">
 <div>
-    <span class="h3">{% trans 'Cost Estimate'%} : </span>
-    <span>${{om_cost|lookup:project.id|lookup:'budget_requested__sum'|floatformat:2|intcomma}}</span>
+    <span class="col h3">{% trans 'Salary Cost'%} : </span>
+    <span class="col" >${{sal_cost|lookup:project.id|floatformat:2|intcomma|nz:0}}</span>
+</div>
+<div>
+    <span class="col h3">{% trans 'O&M Cost'%} : </span>
+    <span class="col">${{om_cost|lookup:project.id|floatformat:2|intcomma|nz:0}}</span>
+</div>
+<div>
+    <span class="col h3">{% trans 'Capital Cost'%} : </span>
+    <span class="col">${{cap_cost|lookup:project.id|floatformat:2|intcomma|nz:0}}</span>
+</div>
+<div>
+    <span class="col h3">{% trans 'Total Estimated Cost'%} : </span>
+    <span class="col">${{total_est|lookup:project.id|floatformat:2|intcomma|nz:0}}</span>
+</div>
 </div>
 <div>
     <span class="h3">{% trans 'Project lead'%} : </span>
@@ -92,31 +104,31 @@
 </div>
 <div>
     <div class="h3">{% trans 'Species and SARA justification'%} : </div>
-    <div>{{project.priorities|html_p_tag_replace|safe }}</div>
+    <div>{{project.priorities|html_to_text|safe}}</div>
 </div>
 <div>
     <div>
-    <h4>{% trans 'Brief project description: '%} : </h4>
+    <h4>{% trans 'Brief project description'%} : </h4>
 
     <h3>{% trans 'Project Objectives & Description' %}</h3>
-    {{ project.description|html_p_tag_replace|safe }}
+    {{ project.description|html_to_text|safe}}
 
     <h3>{% trans 'Project Deliverables / Activities' %}</h3>
-    {{ project.deliverables|html_p_tag_replace|safe }}
+    {{ project.deliverables|html_to_text|safe}}
 
     <h3>{% trans 'Milestones' %}</h3>
     {% with milestone|lookup:project.id as mile %}
-    {% for m in mile %}
-        <h5>{{m.name}}</h5>
-        <div>{{ m.description|html_p_tag_replace|safe }}</div>
+        {% for m in mile %}
+            <h5>{{m.name}}</h5>
+            <div>{{ m.description|html_to_text|safe}}</div>
 
-    {% endfor %}
+        {% endfor %}
     {% endwith %}
     </div>
 </div>
 <div>
     <span class="h3">{% trans 'End Date of Project' %}</span>
-    <span>{{ project.end_date|date:"SHORT_DATE_FORMAT" }}</span>
+    <span>{{ project.end_date|date:"SHORT_DATE_FORMAT"}}</span>
 </div>
 <br />
 <div>
@@ -126,7 +138,7 @@
         <div class="h3">{% trans "Other Relevant Information" %}</div>
     </span>
     <span>
-        {{ project.notes|html_p_tag_replace|safe }}
+        {{ project.notes|html_to_text|safe}}
     </span>
 </div>
 
