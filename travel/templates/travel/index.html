@@ -50,13 +50,13 @@
                         {% if is_reviewer %}
                             {#                            <span class="{% if number_waiting > 0 %}highlight{% endif %}">#}
                             {% blocktrans %}
-                                Trip Requests awaiting your <a href="{{ event_approval_list_url }}">review</a>
+                                Trip requests awaiting your <a href="{{ event_approval_list_url }}">review</a>
                             {% endblocktrans %}
                             (<span class="{% if number_waiting > 0 %}red-font blink-me{% endif %}">{{ number_waiting }}</span>).
                             {#                            </span>#}
                             <br><br>
                             {% blocktrans %}
-                                Trip Requests <a href="{{ event_assigned_list_url }}">assigned</a> to you
+                                Trip requests <a href="{{ event_assigned_list_url }}">assigned</a> to you
                             {% endblocktrans %}
                             (<span>{{ user.reviewers.count }}</span>).
                             <br><br>
@@ -65,7 +65,7 @@
                         {% if is_admin %}
                             <hr>
                             {% blocktrans %}
-                                Trip Requests awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
+                                Trip requests awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
                             {% endblocktrans %}
                             (<span class="{% if admin_number_waiting > 0 %}red-font blink-me{% endif %}">{{ admin_number_waiting }}</span>).
                             <br><br>
