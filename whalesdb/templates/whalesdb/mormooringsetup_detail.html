@@ -15,7 +15,7 @@
 
     <h2>{{ object.mor_name }}</h2>
     {% if object.mor_setup_image %}
-        <img src="{{ object.mor_setup_image.url }}" />
+        {{ object.mor_setup_image.url }}
     {% endif %}
 </div>
 {% endblock %}
