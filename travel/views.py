@@ -340,6 +340,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
+        context['help_text_dict'] = get_help_text_dict()
         context["fy"] = fiscal_year()
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
