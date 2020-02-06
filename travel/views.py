@@ -1017,7 +1017,7 @@ class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
 
 
 class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
-    queryset = models.Conference.objects.filter(is_verified=False)
+    queryset = models.Conference.objects.filter(is_verified=False).order_by("is_adm_approval_required")
     template_name = 'travel/trip_verification_list.html'
 
     def get_context_data(self, **kwargs):
@@ -1032,8 +1032,6 @@ class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
             'is_adm_approval_required|{}'.format(_("ADM approval required?")),
         ]
         return context
-
-
 
 
 class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
