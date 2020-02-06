@@ -41,6 +41,11 @@ def in_travel_admin_group(user):
         return user.groups.filter(name='travel_admin').count() != 0
 
 
+def in_adm_admin_group(user):
+    if user.id:
+        return user.groups.filter(name='travel_adm_admin').count() != 0
+
+
 def is_approver(user, trip_request):
     if user == trip_request.current_reviewer.user:
         return True
@@ -1029,10 +1034,25 @@ class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
         return context
 
 
+
+
 class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
     template_name = 'travel/trip_verification_form.html'
     model = models.Conference
     form_class = forms.TripRequestApprovalForm
+
+    def test_func(self):
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        if my_trip.is_adm_approval_required:
+            return in_adm_admin_group(self.request.user)
+        else:
+            return in_travel_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("accounts:denied_access_adm"))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
