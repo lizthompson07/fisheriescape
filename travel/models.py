@@ -174,6 +174,8 @@ class Conference(models.Model):
                                     blank=True, null=True, related_name="trips")
     is_verified = models.BooleanField(default=False)
     verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by")
+    cost_warning_sent = models.DateTimeField(blank=True, null=True)
+
 
     def __str__(self):
         # check to see if a french value is given
@@ -712,14 +714,15 @@ class TripRequestCost(models.Model):
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)
     number_of_days = models.FloatField(verbose_name=_("number of days"), blank=True, null=True)
-    amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
+    amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
 
     class Meta:
         unique_together = (("trip_request", "cost"),)
 
     def save(self, *args, **kwargs):
-        if not self.amount_cad or self.amount_cad == 0:
-            self.amount_cad = nz(self.rate_cad, 0) * nz(self.number_of_days, 0)
+        # if a user is providing a rate and number of days, we use this to calc the total amount.
+        if (self.rate_cad and self.rate_cad != 0) and (self.number_of_days and self.number_of_days != 0):
+            self.amount_cad = self.rate_cad * self.number_of_days
 
         super().save(*args, **kwargs)
 
