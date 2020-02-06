@@ -182,6 +182,11 @@ class PrmParameterCode(models.Model):
         return "{}".format(self.prm_name)
 
 
+def mooring_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/whalesdb/mooring_setup/<filename>
+    return 'whalesdb/mooring_setup/{}'.format(filename)
+
+
 class MorMooringSetup(models.Model):
     mor_id = models.AutoField(primary_key=True)
     mor_name = models.CharField(unique=True, max_length=50, blank=True, null=True, verbose_name=_("Name"))
@@ -190,7 +195,7 @@ class MorMooringSetup(models.Model):
     mor_link_setup_image = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Setup Image Link"))
 
     # Note: I added the setup image field to try out putting the mooring setup image directly in the database
-    mor_setup_image = models.ImageField(blank=True, null=True, verbose_name=_("Setup Image"))
+    mor_setup_image = models.ImageField(upload_to="mooring_setup/", blank=True, null=True, verbose_name=_("Setup Image"))
 
     mor_additional_equipment = models.TextField(blank=True, null=True, verbose_name=_("Equipment"))
     mor_general_moor_description = models.TextField(blank=True, null=True, verbose_name=_("Description"))

@@ -55,6 +55,8 @@ class CloserNoRefreshTemplateView(TemplateView):
 class CreateCommon(LoginRequiredMixin, CreateView):
     login_url = '/accounts/login_required/'
     title = None
+    # create views are all intended to be pop out windows so upon success close the window
+    success_url = reverse_lazy("whalesdb:close_me")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -68,7 +70,6 @@ class CreateCommon(LoginRequiredMixin, CreateView):
 class CreatePrj(CreateCommon):
     model = models.PrjProject
     form_class = forms.PrjForm
-    success_url = reverse_lazy("whalesdb:list_prj")
     title = _("Create Project")
     template_name = 'whalesdb/_entry_form.html'
 
@@ -76,7 +77,6 @@ class CreatePrj(CreateCommon):
 class CreateStn(CreateCommon):
     model = models.StnStation
     form_class = forms.StnForm
-    success_url = reverse_lazy("whalesdb:list_stn")
     title = _("Create Station")
 
     template_name = 'whalesdb/_entry_form.html'
@@ -85,11 +85,14 @@ class CreateStn(CreateCommon):
 class CreateMor(CreateCommon):
     model = models.MorMooringSetup
     form_class = forms.MorForm
-    success_url = reverse_lazy("whalesdb:list_mor")
     title = _("Create Mooring Setup")
 
     template_name = 'whalesdb/_entry_form.html'
 
+    def form_valid(self, form):
+        self.object = form.save()
+
+        return HttpResponseRedirect(self.success_url)
 
 class DetailsCommon(DetailView):
     title = None
