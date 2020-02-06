@@ -54,18 +54,30 @@ class CloserNoRefreshTemplateView(TemplateView):
 
 class CreateCommon(LoginRequiredMixin, CreateView):
     login_url = '/accounts/login_required/'
+    title = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.title:
+            context["title"] = self.title
+
+        return context
 
 
 class CreatePrj(CreateCommon):
     model = models.PrjProject
     form_class = forms.PrjForm
-
+    success_url = reverse_lazy("whalesdb:list_prj")
+    title = _("Create Project")
     template_name = 'whalesdb/_entry_form.html'
 
 
 class CreateStn(CreateCommon):
     model = models.StnStation
     form_class = forms.StnForm
+    success_url = reverse_lazy("whalesdb:list_stn")
+    title = _("Create Station")
 
     template_name = 'whalesdb/_entry_form.html'
 
@@ -73,32 +85,57 @@ class CreateStn(CreateCommon):
 class CreateMor(CreateCommon):
     model = models.MorMooringSetup
     form_class = forms.MorForm
+    success_url = reverse_lazy("whalesdb:list_mor")
+    title = _("Create Mooring Setup")
 
     template_name = 'whalesdb/_entry_form.html'
 
 
-class DetailsPrj(DetailView):
+class DetailsCommon(DetailView):
+    title = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.title:
+            context['title'] = self.title
+
+        return context
+
+
+class DetailsPrj(DetailsCommon):
     model = models.PrjProject
 
 
-class DetailsStn(DetailView):
+class DetailsStn(DetailsCommon):
     model = models.StnStation
 
 
-class DetailsMor(DetailView):
+class DetailsMor(DetailsCommon):
     model = models.MorMooringSetup
+    title = _("Mooring Setup Details")
 
 
 class ListCommon(FilterView):
     template_name = 'whalesdb/whale_filter.html'
     fields = []
+    create_url = None
+    details_url = None
     title = None
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
         context['fields'] = self.fields
-        context['title'] = self.title
+
+        if self.title:
+            context['title'] = self.title
+
+        if self.create_url:
+            context['create_url'] = self.create_url
+
+        if self.details_url:
+            context['details_url'] = self.details_url
 
         return context
 
@@ -106,6 +143,8 @@ class ListCommon(FilterView):
 class ListPrj(ListCommon):
     model = models.PrjProject
     filterset_class = filters.PrjFilter
+    create_url = "whalesdb:create_prj"
+    details_url = "whalesdb:details_prj"
     title = _("Project List")
     fields = ['prj_name', 'prj_description']
 
@@ -113,6 +152,8 @@ class ListPrj(ListCommon):
 class ListStn(ListCommon):
     model = models.StnStation
     filterset_class = filters.StnFilter
+    create_url = "whalesdb:create_stn"
+    details_url = "whalesdb:details_stn"
     fields = ['stn_name', 'stn_code', 'stn_revision']
     title = _("Station List")
 
@@ -120,5 +161,7 @@ class ListStn(ListCommon):
 class ListMor(ListCommon):
     model = models.MorMooringSetup
     filterset_class = filters.MorFilter
+    create_url = "whalesdb:create_mor"
+    details_url = "whalesdb:details_mor"
     fields = ['mor_name', 'mor_max_depth', 'more_notes']
     title = _("Mooring Setup List")
