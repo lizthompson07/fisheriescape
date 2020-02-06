@@ -245,7 +245,6 @@ class ChildTripRequestForm(forms.ModelForm):
         except AttributeError:
             parent_request = None
 
-        print(parent_request)
         if not parent_request:
             parent_request = kwargs.get("instance").parent_request
 
@@ -263,7 +262,7 @@ class ChildTripRequestForm(forms.ModelForm):
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        exclude = ["fiscal_year", "is_verified", "verified_by" ]
+        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent" ]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
