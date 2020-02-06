@@ -202,7 +202,7 @@ class CreateTest(CommonTest):
 
     expected_form = None
     expected_view = None
-    expected_success_url = None
+    expected_success_url = reverse_lazy("whalesdb:close_me")
     data = None
 
     def setUp(self):
@@ -309,8 +309,6 @@ class TestCreateProject(CreateTest):
 
         self.expected_form = forms.PrjForm
 
-        self.expected_success_url = reverse_lazy("whalesdb:list_prj")
-
     # Users must be logged in to create new stations
     @tag('create_prj', 'response', 'access')
     def test_prj_create_en(self):
@@ -367,8 +365,6 @@ class TestCreateStation(CreateTest):
 
         self.expected_form = forms.StnForm
 
-        self.expected_success_url = reverse_lazy("whalesdb:list_stn")
-
     # Users must be logged in to create new stations
     @tag('create_stn', 'response', 'access')
     def test_stn_create_login_redirect_en(self):
@@ -422,7 +418,6 @@ class TestCreateMooring(CreateTest):
 
         self.expected_view = views.CreateMor
         self.expected_form = forms.MorForm
-        self.expected_success_url = reverse_lazy("whalesdb:list_mor")
 
     # Users must be logged in to create new stations
     @tag('create_mor', 'response', 'access')
