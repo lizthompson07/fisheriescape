@@ -4,9 +4,19 @@
 {% load custom_filters %}
 
 {#  REVIEWERS  #}
-<h3 class="neighbours">
+<h3 class="neighbours mb-3">
     {% trans "Reviewers, Recommenders and Approvers" %}
 </h3>
+
+<div class="neighbours mb-3">
+    {% with help_text_dict|lookup:"reviewers_header" as help_text %}
+        <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
+             data-trigger="hover"
+             title="{% trans "Trip Request Reviewers" %}"
+             data-content="{{ help_text }}">
+    {% endwith %}
+</div>
+
 {% if not report_mode %}
     <div class="neighbours">
         <div class="btn-group">

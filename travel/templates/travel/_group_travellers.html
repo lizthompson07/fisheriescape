@@ -6,13 +6,22 @@
 {#  GROUP TRAVELLERS  #}
 {% if triprequest.is_group_request %}
 
-    <h3 class="neighbours">
+    <h3 class="neighbours mb-3">
         {% trans "Group Travellers Associated with this Request" %}
     </h3>
     {% if not report_mode %}
-        <div class="neighbours">
+        <div class="neighbours mb-3">
+            {% with help_text_dict|lookup:"group_travellers_header" as help_text %}
+                <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
+                     data-trigger="hover"
+                     title="{% trans "Group Traveller Information" %}"
+                     data-content="{{ help_text }}">
+            {% endwith %}
+        &nbsp;
             <a href="#" pop-href="{% url 'travel:request_new' triprequest.id %}" class="btn btn-sm btn-primary">Add Traveller</a>
         </div>
+
+
     {% endif %}
     <br>
     <table class="table table-sm sortable {% if not report_mode %}table-hover{% else %}table-striped{% endif %}" style="width: 100%">
@@ -36,7 +45,8 @@
         {% for child in triprequest.children_requests.all %}
 
             <tr {% if not report_mode %}pop href="{% url 'travel:request_edit' child.id "pop" %}" {% endif %}
-                class="{% if child.total_cost == 0 %}bad{% endif %}">
+                class="{% if child.total_cost == 0 %}bad{% endif %}"
+                data-toggle="tooltip" title="{% trans "Click on a row to edit traveller informations." %}">
 
                 {% for field in child_field_list %}
                     <td>{% get_field_value child field format="currency" safe=True %}</td>
