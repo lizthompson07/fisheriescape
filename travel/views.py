@@ -1071,8 +1071,8 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
         )
 
         similar_fr_name_trips = [trip.id for trip in base_qs if
-                                 trip.nom and utils.compare_strings(trip.nom, trip.name) < 10] if my_trip.nom else []
-        similar_en_name_trips = [trip.id for trip in base_qs if utils.compare_strings(trip.name, my_trip.name) < 10]
+                                 trip.nom and utils.compare_strings(trip.nom, trip.name) < 15] if my_trip.nom else []
+        similar_en_name_trips = [trip.id for trip in base_qs if utils.compare_strings(trip.name, my_trip.name) < 15]
         my_list = list()
         my_list.extend(similar_en_name_trips)
         my_list.extend(similar_fr_name_trips)
