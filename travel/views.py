@@ -433,6 +433,8 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
+        context['help_text_dict'] = get_help_text_dict()
+
         context["triprequest"] = my_object.trip_request
         context["report_mode"] = True
         if my_object.role_id in [5, 6, ]:
@@ -534,7 +536,7 @@ class TripRequestSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
-
+        context['help_text_dict'] = get_help_text_dict()
         context["report_mode"] = True
 
         return context
@@ -592,7 +594,7 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
-
+        context['help_text_dict'] = get_help_text_dict()
         context["report_mode"] = True
 
         return context
