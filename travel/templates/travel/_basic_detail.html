@@ -3,9 +3,17 @@
 {% load verbose_names %}
 {% load custom_filters %}
 {#  BASIC DETAIL #}
-<h3>
+<h3 class="neighbours mb-3">
     {% trans "Request Detail" %}
 </h3>
+<div class="neighbours mb-3">
+    {% with help_text_dict|lookup:"trip_request_header" as help_text %}
+        <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
+             data-trigger="hover"
+             title="{% trans "Trip Request Details" %}"
+             data-content="{{ help_text }}">
+    {% endwith %}
+</div>
 
 <table class="table table-sm table-striped" style="width: 100%">
     {% for field in field_list %}
