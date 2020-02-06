@@ -31,22 +31,12 @@ def generate_sara_funding_spreadsheet(fiscal_year, funding, regions, divisions, 
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#9ae0f5', "align": 'normal',
          "text_wrap": True})
-    header_format_centered = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#9ae0f5', "align": 'center', "text_wrap": True})
-    divider_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#d1dfe3', "align": 'left', "text_wrap": False, 'italic': True,
-         'num_format': '#,##0'})
-    normal_num_format = workbook.add_format(
-        {"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', 'num_format': '#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
-    summary_right_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#d1dfe3', "align": 'right', 'italic': True,
-         'num_format': '#,##0', "text_wrap": False, })
-    summary_left_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#d1dfe3', "align": 'left', 'italic': True,
-         'num_format': '#,##0', "text_wrap": False, })
-    bold_format_lg = workbook.add_format({"align": 'left', 'bold': True, 'font_size': 16})
-    bold_format = workbook.add_format({"align": 'left', 'bold': True, 'font_size': 14})
+    normal_format = workbook.add_format({"valign": 'top', "align": 'left', "text_wrap": True, 'border': 1,
+                                         'border_color': 'black', })
+
+    number_format = workbook.add_format({"valign": 'top', "align": 'left', 'border': 1,
+                                         'border_color': 'black', })
+    number_format.set_num_format(8)
 
     # need to assemble a section list
     ## first look at the sections arg; if not null, we don't need anything else
@@ -62,31 +52,33 @@ def generate_sara_funding_spreadsheet(fiscal_year, funding, regions, divisions, 
         section_list = shared_models.Section.objects.all()
 
     # We're only using B-Base funding
-    funding_src = models.FundingSourceType.objects.get(pk=funding)
+    funding_type = models.FundingSourceType.objects.get(pk=funding)
 
-    funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=funding_src)
+    funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=funding_type)
     project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list, default_funding_source__in=funding_src)
 
-    header = [
-        "Project ID",
-        "Project Title",
-        "Total O&M Cost",
-        "Project Staff",
-        "Start Date of Project",
-        "End Date of Project",
-        "Project-Specific Priorities",
-        "Project Objectives & Description",
-        "Project Deliverables / Activities",
-        "Milestones",
-        "Additional Notes"
-    ]
+    # Use the header key as the col label, then use the array[0] for the col format and array[1] for col size
+    header = {
+        "Project ID": [normal_format, 20],
+        "Project Title": [normal_format, 20],
+        "Salary": [number_format, 20],
+        "O&M Cost": [number_format, 20],
+        "Capital Cost": [number_format, 20],
+        "Project Staff": [normal_format, 20],
+        "Start Date of Project": [normal_format, 20],
+        "End Date of Project": [normal_format, 20],
+        "Project-Specific Priorities": [normal_format, 150],
+        "Project Objectives & Description": [normal_format, 150],
+        "Project Deliverables / Activities": [normal_format, 150],
+        "Milestones": [normal_format, 150],
+        "Additional Notes": [normal_format, 150],
+    }
+
     worksheet1 = workbook.add_worksheet(name="Submitted Projects")
-    worksheet1.write_row(0, 0, header, header_format)
-    write_sara_sheet(worksheet1, normal_format, project_list.filter(approved=False))
+    write_sara_sheet(worksheet1, header_format, header, project_list.filter(approved=False), funding_src)
 
     worksheet2 = workbook.add_worksheet(name="Approved Projects")
-    worksheet2.write_row(0, 0, header, header_format)
-    write_sara_sheet(worksheet2, normal_format, project_list.filter(approved=True))
+    write_sara_sheet(worksheet2, header_format, header, project_list.filter(approved=True), funding_src)
 
     workbook.close()
 
@@ -94,49 +86,44 @@ def generate_sara_funding_spreadsheet(fiscal_year, funding, regions, divisions, 
 
 
 # used to generate a common sheet format
-def write_sara_sheet(worksheet, format, projects):
-    worksheet.set_column(0, 5, 20)
-    worksheet.set_column(6, 10, 200)
+def write_sara_sheet(worksheet, header_format, header, projects, funding):
+    keys = [k for k in header.keys()]
+    worksheet.write_row(0, 0, keys, header_format)
 
-    i = 0
+    for i in range(0, len(keys)):
+        worksheet.set_column(i, i, header[keys[i]][1], header[keys[i]][0])
+
+    row = 1
     for project in projects:
 
-        om_cost = models.OMCost.objects.filter(project=project).aggregate(Sum('budget_requested'))
-        staff_list = listrify([staff.name for staff in models.Staff.objects.filter(project=project)])
-        milestone = listrify([m.name + ": " + m.description for m in models.Milestone.objects.filter(project=project)], "\n*")
+        om_cost = project.om_costs.all().aggregate(Sum("budget_requested"))
+
+        staff_list = project.staff_members.all()
+
+        staff_names = listrify([(staff.user if staff.user else staff.name) for staff in staff_list])
+        staff_cost = staff_list.aggregate(Sum('cost'))
+
+        capital_cost = project.capital_costs.all().aggregate(Sum("budget_requested"))
+
+        milestone = listrify([m.name + ": " + m.description for m in project.milestones.all()], "\n\n*")
+
         data = [
             project.id,
             project.project_title,
-            om_cost['budget_requested__sum'],
-            staff_list,
+            nz(staff_cost['cost__sum'], 0),
+            nz(capital_cost['budget_requested__sum'], 0),
+            nz(om_cost['budget_requested__sum'], 0),
+            staff_names,
             project.start_date.strftime('%Y-%m-%d') if project.start_date else "---",
             project.end_date.strftime('%Y-%m-%d') if project.end_date else "---",
-            str_replace(project.priorities),
-            str_replace(project.description),
-            str_replace(project.deliverables),
+            html2text.html2text(project.priorities).replace("\n\n", "[_EOL_]").replace("\n", " ").replace("[_EOL_]", "\n\n"),
+            html2text.html2text(project.description).replace("\n\n", "[_EOL_]").replace("\n", " ").replace("[_EOL_]", "\n\n"),
+            html2text.html2text(project.deliverables).replace("\n\n", "[_EOL_]").replace("\n", " ").replace("[_EOL_]", "\n\n"),
             milestone,
             project.notes]
-        worksheet.write_row(i+1, 0, data, format)
+        worksheet.write_row(row, 0, data)
 
-        i += 1
-
-
-# Strips out HTML Tags from the larger text fields
-def str_replace(strval):
-    return strval.replace("</p>", "\n")\
-        .replace("<p>", "")\
-        .replace("<em>", "")\
-        .replace("</em>", "")\
-        .replace("<b>", "")\
-        .replace("</b>", "")\
-        .replace("<div>", "")\
-        .replace("</div>", "\n")\
-        .replace("<ul>", "")\
-        .replace("</ul>", "")\
-        .replace("<br />", "\n")\
-        .replace("&nbsp;", " ")\
-        .replace("<li>", "*")\
-        .replace("</li>", "\n")
+        row += 1
 
 
 def generate_dougs_spreadsheet(fiscal_year, regions, divisions, sections):

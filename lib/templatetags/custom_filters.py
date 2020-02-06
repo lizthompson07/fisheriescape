@@ -2,6 +2,7 @@ import textile
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
+from html2text import html2text
 
 register = template.Library()
 
@@ -111,8 +112,7 @@ def tohtml(value):
 
 
 @register.filter
-@stringfilter
-def html_p_tag_replace(value):
+def html_to_text(value):
     val = value.replace("</p>", "\n").replace("<p>", "").replace("<p.*\">", "")
     return val
 
