@@ -265,10 +265,48 @@ def clear_empty_trip_request_costs(trip_request):
 
 
 def compare_strings(str1, str2):
-
     def __strip_string__(string):
         return str(string.lower().replace(" ", "").split(",")[0])
+
     try:
         return distance(__strip_string__(str1), __strip_string__(str2))
     except AttributeError:
         return 9999
+
+
+def manage_trip_warning(trip):
+    """
+    This function will decide if sending an email to NCR is necessary based on
+    1) the total costs accrued for a trip
+    2) whether or not a warning has already been sent
+
+    :param trip: an instance of Trip
+    :return: NoneObject
+    """
+
+    # first make sure we are not receiving a NoneObject
+    try:
+        trip.non_res_total_cost
+    except AttributeError:
+        pass
+    else:
+
+        # If the trip cost is below 10k, make sure the warning field is null and an then do nothing more :)
+        if trip.non_res_total_cost < 10000:
+            if trip.cost_warning_sent:
+                trip.cost_warning_sent = None
+                trip.save()
+
+        # if the trip is >= 10K, we simply need to send an email to NCR
+        else:
+            if not trip.cost_warning_sent:
+
+                my_email = emails.TripCostWarningEmail(trip)
+                # # send the email object
+                if settings.PRODUCTION_SERVER:
+                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                              recipient_list=my_email.to_list, fail_silently=False, )
+                else:
+                    print(my_email)
+                trip.cost_warning_sent = timezone.now()
+                trip.save()

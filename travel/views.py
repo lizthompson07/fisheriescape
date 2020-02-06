@@ -362,6 +362,13 @@ class TripRequestUpdateView(TravelAccessRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
+
+        if my_object.parent_request:
+            my_trip = my_object.parent_request.trip
+        else:
+            my_trip = my_object.trip
+        utils.manage_trip_warning(my_trip)
+
         if not my_object.parent_request:
             if form.cleaned_data.get("stay_on_page"):
                 return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id}))
@@ -408,7 +415,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
     def test_func(self):
         my_trip_request = self.get_object().trip_request
         my_user = self.request.user
-        print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
+        # print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
         if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
             return True
 
@@ -433,7 +440,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         approved = form.cleaned_data.get("approved")
         stay_on_page = form.cleaned_data.get("stay_on_page")
         changes_requested = form.cleaned_data.get("changes_requested")
-        print("stay on page", stay_on_page)
+        # print("stay on page", stay_on_page)
         # first scenario: changes were requested for the request
         # in this case, the reviewer status does not change but the request status will
         if not stay_on_page:
@@ -480,7 +487,7 @@ class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
     def test_func(self):
         my_trip_request = self.get_object().trip_request
         my_user = self.request.user
-        print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
+        # print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
         if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
             return True
 
@@ -716,7 +723,6 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
 
 class TripRequestDeleteView(TravelAccessRequiredMixin, DeleteView):
     model = models.TripRequest
-    success_message = 'The trip request was deleted successfully!'
 
     def get_template_names(self):
         if self.kwargs.get('pop'):
@@ -733,8 +739,19 @@ class TripRequestDeleteView(TravelAccessRequiredMixin, DeleteView):
         return success_url
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        my_object = self.get_object()
+        my_object.delete()
+
+        if my_object.parent_request:
+            my_trip = my_object.parent_request.trip
+        else:
+            my_trip = my_object.trip
+        utils.manage_trip_warning(my_trip)
+
+        messages.success(self.request,
+                         'The trip request for {} {} was deleted successfully!'.format(my_object.first_name, my_object.last_name))
+        success_url = self.get_success_url()
+        return HttpResponseRedirect(success_url)
 
 
 class TripRequestCloneUpdateView(TripRequestUpdateView):
@@ -1027,14 +1044,14 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
 
         context["same_day_trips"] = base_qs.filter(Q(start_date=my_trip.start_date) | Q(end_date=my_trip.end_date))
 
-
         context["same_location_trips"] = base_qs.filter(
             id__in=[trip.id for trip in base_qs if trip.location and my_trip.location and
                     utils.compare_strings(trip.location, my_trip.location) < 3]
-            )
+        )
 
-        similar_fr_name_trips = [trip.id for trip in base_qs if trip.nom and utils.compare_strings(trip.nom, trip.name) < 10] if my_trip.nom else []
-        similar_en_name_trips=  [trip.id for trip in base_qs if utils.compare_strings(trip.name, my_trip.name) < 10]
+        similar_fr_name_trips = [trip.id for trip in base_qs if
+                                 trip.nom and utils.compare_strings(trip.nom, trip.name) < 10] if my_trip.nom else []
+        similar_en_name_trips = [trip.id for trip in base_qs if utils.compare_strings(trip.name, my_trip.name) < 10]
         my_list = list()
         my_list.extend(similar_en_name_trips)
         my_list.extend(similar_fr_name_trips)
@@ -1102,7 +1119,7 @@ def export_cfts_list(request, fy):
 
 
 def export_request_cfts(request, trip=None, trip_request=None):
-    print(trip)
+    # print(trip)
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -1155,7 +1172,7 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
                 my_dict["totals"][cat] += nz(cat_amount, 0)
                 my_dict["totals"]["total"] += nz(cat_amount, 0)
 
-        print(my_dict)
+        # print(my_dict)
         context['object_list'] = object_list
         context['my_dict'] = my_dict
         # context['key_list'] = cost_categories
@@ -1418,6 +1435,8 @@ class TRCostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_object = form.save()
+        if my_object.trip_request.trip:
+            utils.manage_trip_warning(my_object.trip_request.trip)
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
@@ -1428,6 +1447,12 @@ class TRCostUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
+        if my_object.trip_request.parent_request:
+            my_trip = my_object.trip_request.parent_request.trip
+        else:
+            my_trip = my_object.trip_request.trip
+        utils.manage_trip_warning(my_trip)
+
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
     def get_context_data(self, **kwargs):
